@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+
+android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\HP\\keystore.jks')
+            storePassword 'alexeigonzalez'
+            keyAlias 'key0'
+            keyPassword 'alexeigonzalez'
+        }
+    }
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 29
+
+        ndk {
+            moduleName "andenginephysicsbox2dextension"
+        }
+    }
+    sourceSets {
+        main {
+            jni.srcDirs = []
+            // This needs to be done so that gradle does not know about your jni. There are errors otherwise
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
+        }
+    }
+
+}
+
+dependencies {
+    implementation project(':andEngine')
+}

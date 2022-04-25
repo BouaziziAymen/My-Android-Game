@@ -1,0 +1,115 @@
+package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
+
+import com.evolgames.entities.ItemCategory;
+import com.evolgames.factories.ItemCategoryFactory;
+import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.userinterface.control.KeyboardController;
+import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
+import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
+import com.evolgames.userinterface.model.ProperModel;
+import com.evolgames.userinterface.model.ToolModel;
+import com.evolgames.userinterface.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.basics.Element;
+import com.evolgames.userinterface.view.inputs.Button;
+import com.evolgames.userinterface.view.inputs.ButtonWithText;
+import com.evolgames.userinterface.view.inputs.Keyboard;
+import com.evolgames.userinterface.view.inputs.TextField;
+import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
+import com.evolgames.userinterface.view.windows.windowfields.SectionField;
+import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
+
+import java.util.ArrayList;
+
+public class ItemSaveWindowController extends SettingsWindowController {
+
+    private AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(8, 5);
+    private SimpleSecondary<ButtonWithText<ItemSaveWindowController>> selectedCategoryField;
+    private TextField<ItemSaveWindowController> titleTextField;
+
+    public ItemSaveWindowController(UserInterface userInterface, KeyboardController keyboardController) {
+        super(userInterface);
+        this.keyboardController = keyboardController;
+    }
+
+
+    @Override
+    public void init() {
+        super.init();
+        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 15);
+        this.titleTextField = titledTextField.getAttachment();
+        titleTextField.setBehavior(new TextFieldBehavior<ItemSaveWindowController>(this, titledTextField.getAttachment(), Keyboard.KeyboardType.AlphaNumeric, itemNameValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                ItemSaveWindowController.super.onTextFieldTapped(titledTextField.getAttachment());
+            }
+
+            @Override
+            protected void informControllerTextFieldReleased() {
+                ItemSaveWindowController.super.onTextFieldReleased(titledTextField.getAttachment());
+            }
+        });
+        FieldWithError titleFieldWithError = new FieldWithError(titledTextField);
+        SimplePrimary<FieldWithError> titleField = new SimplePrimary<>(0, titleFieldWithError);
+        window.addPrimary(titleField);
+
+        SectionField<ItemSaveWindowController> categorySection = new SectionField<>(1, "Category:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        window.addPrimary(categorySection);
+        ArrayList<ItemCategory> categories = ItemCategoryFactory.getInstance().itemCategories;
+        for (int i = 0; i < categories.size(); i++) {
+            ItemCategory itemCategory = categories.get(i);
+            ButtonWithText<ItemSaveWindowController> categoryButton = new ButtonWithText<>(itemCategory.getCategoryName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+            SimpleSecondary<ButtonWithText<ItemSaveWindowController>> categoryField = new SimpleSecondary<>(1, i, categoryButton);
+            window.addSecondary(categoryField);
+            categoryButton.setBehavior(new ButtonBehavior<ItemSaveWindowController>(this, categoryButton) {
+                @Override
+                public void informControllerButtonClicked() {
+                    ItemSaveWindowController.this.onCategoryButtonClicked(categoryField);
+                }
+
+                @Override
+                public void informControllerButtonReleased() {
+
+                }
+            });
+        }
+
+        window.createScroller();
+        window.getLayout().updateLayout();
+    }
+
+    private void onCategoryButtonClicked(SimpleSecondary<ButtonWithText<ItemSaveWindowController>> categoryField) {
+        super.onSecondaryButtonClicked(categoryField);
+        int size = window.getLayout().getSecondariesSize(1);
+        for (int i = 0; i < size; i++) {
+            SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(1, i);
+            if (categoryField != other) {
+                Element main = other.getMain();
+                if (main instanceof ButtonWithText) {
+                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                }
+            }
+        }
+        this.selectedCategoryField = categoryField;
+    }
+
+    @Override
+    public void onCancelSettings() {
+        super.onCancelSettings();
+    }
+
+    @Override
+    public void onModelUpdated(ProperModel model) {
+        super.onModelUpdated(model);
+
+        ToolModel toolModel = (ToolModel)model;
+        titleTextField.getBehavior().setTextValidated(toolModel.getModelName());
+    }
+
+    @Override
+    public void onSubmitSettings() {
+            super.onSubmitSettings();
+    }
+}

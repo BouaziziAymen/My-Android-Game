@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {
+            storePassword 'alexeigonzalez'
+            keyPassword 'alexeigonzalez'
+            storeFile file('C:\\Users\\HP\\keystore.jks')
+            keyAlias 'key0'
+        }
+    }
+    compileSdkVersion 30
+    buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        applicationId "com.evolgames"
+        minSdkVersion 24
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['assets']
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:1.10.19'
+
+    implementation project(':andEngine')
+    implementation project(':andEnginePhysicsBox2DExtension')
+}

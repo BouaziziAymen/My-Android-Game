@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+
+android {
+    signingConfigs {
+        release {
+            storePassword 'alexeigonzalez'
+            keyPassword 'alexeigonzalez'
+            keyAlias 'key0'
+            storeFile file('C:\\Users\\HP\\keystore.jks')
+        }
+    }
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 29
+
+        ndk {
+            moduleName "andengine_shared"
+        }
+    }
+
+    sourceSets {
+        main {
+            jni.srcDirs = []
+            // This needs to be done so that gradle does not know about your jni. There are errors otherwise
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            useLibrary 'org.apache.http.legacy'
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

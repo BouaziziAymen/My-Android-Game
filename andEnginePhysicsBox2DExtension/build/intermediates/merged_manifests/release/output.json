@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "applicationId": "org.andengine.extension.physics.box2d",
+  "variantType": "LIBRARY",
+  "elements": [
+    {
+      "outputType": {
+        "type": "MERGED_MANIFESTS"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 1,
+        "versionName": "1.0",
+        "outputFile": "andEnginePhysicsBox2DExtension-release.aar",
+        "fullName": "release",
+        "baseName": "release",
+        "dirName": ""
+      },
+      "path": "../../library_manifest/release/AndroidManifest.xml",
+      "properties": {
+        "packageId": "org.andengine.extension.physics.box2d",
+        "split": ""
+      }
+    }
+  ]
+}

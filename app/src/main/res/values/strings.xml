@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Mutilate</string>
+    <string name="validator_too_long">Too long !</string>
+    <string name="validator_too_short">Too Short !</string>
+    <string name="validator_invalid_name">Invalid Name</string>
+    <string name="validator_float_range">%1$.2f .. %2$.2f</string>
+    <string name="validator_invalid_number">Invalid number !</string>
+    <string name="validator_field_cannot_be_empty">Field cannot be empty !</string>
+</resources>
