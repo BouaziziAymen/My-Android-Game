@@ -17,11 +17,12 @@ import java.util.ArrayList;
 
 public class PointsShape extends Container {
     private final UserInterface userInterface;
-    private Scene creationScene;
+    private final Scene creationScene;
     private LineLoop lineLoop;
     private PointsModel shapePointsModel;
-    private ArrayList<ModelPointImage> pointImages;
+    private final ArrayList<ModelPointImage> pointImages;
     private ReferencePointImage centerPointImage;
+    private boolean selected;
     private float r = 1f, g = 1f, b = 1f;
 
 
@@ -134,5 +135,12 @@ public class PointsShape extends Container {
 
     public void addCenterPointImage(ReferencePointImage centerPointImage) {
         this.centerPointImage = centerPointImage;
+    }
+    public void select() {
+    }
+    public void deselect(){
+    }
+    public boolean isSelected(){
+        return selected;
     }
 }

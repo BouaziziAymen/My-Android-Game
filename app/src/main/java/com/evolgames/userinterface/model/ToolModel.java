@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.BlockA;
 import com.evolgames.entities.blocks.DecorationBlockConcrete;
 import com.evolgames.entities.properties.BlockAProperties;
@@ -25,7 +24,6 @@ import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -33,21 +31,18 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointS
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class ToolModel extends ProperModel implements Serializable {
     private final GameScene scene;
-    private AtomicInteger bodyCounter = new AtomicInteger();
-    private AtomicInteger jointCounter = new AtomicInteger();
-    private AtomicInteger projectileCounter = new AtomicInteger();
-    private AtomicInteger handCounter = new AtomicInteger();
+    private final AtomicInteger bodyCounter = new AtomicInteger();
+    private final AtomicInteger jointCounter = new AtomicInteger();
+    private final AtomicInteger projectileCounter = new AtomicInteger();
+    private final AtomicInteger handCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
-    private ArrayList<JointModel> joints;
+    private final ArrayList<JointModel> joints;
 
     public static BodyModel groundBodyModel;
 
@@ -119,10 +114,6 @@ public class ToolModel extends ProperModel implements Serializable {
         return bodies;
     }
 
-    public int getNewLayerId(int bodyId) {
-        return Objects.requireNonNull(getBodyById(bodyId), "invalid bodyId").getNewLayerId();
-    }
-
     public void selectJoint(int jointId) {
         getJointById(jointId).selectJoint();
         for (JointModel jointModel : joints)
@@ -137,7 +128,7 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
 
-    public DecorationPointsModel createNewDecroation(int bodyId, int layerId, PointsShape shape) {
+    public DecorationPointsModel createNewDecoration(int bodyId, int layerId) {
         return Objects.requireNonNull(getBodyById(bodyId)).createNewDecroation(layerId);
     }
 
@@ -154,11 +145,11 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
     public String toString() {
-        String s = "Game Entity: \n";
+        StringBuilder s = new StringBuilder("Game Entity: \n");
         for (int i = 0; i < bodies.size(); i++) {
-            s += bodies.get(i).toString() + "\n";
+            s.append(bodies.get(i).toString()).append("\n");
         }
-        return s;
+        return s.toString();
     }
 
 
@@ -170,7 +161,7 @@ public class ToolModel extends ProperModel implements Serializable {
         return getLayerModelById(primaryKey, secondaryKey).getNewDecorationId();
     }
 
-    private ArrayList<MosaicMesh> meshes = new ArrayList<MosaicMesh>();
+    private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
 
     public void updateMesh() {
         for (MosaicMesh mesh : meshes) mesh.detachSelf();
@@ -239,10 +230,8 @@ public class ToolModel extends ProperModel implements Serializable {
             Vector2 center = GeometryUtils.calculateCenter(list);
             ArrayList<BlockA> blocks = createBlocks(bodyModel, center);
             if (blocks.size() == 0) return;
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, blocks, BodyDef.BodyType.DynamicBody, "created");
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(Objects.requireNonNull(center).x / 32F, center.y / 32F, 0, blocks, BodyDef.BodyType.DynamicBody, "created");
             gameEntities.add(gameEntity);
-
-            //scene.attachChild(gameEntity.getMesh());
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
 

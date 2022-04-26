@@ -10,8 +10,6 @@ import com.evolgames.userinterface.view.shapes.BodyOutlineShape;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,22 +17,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BodyModel extends ProperModel {
-    private AtomicInteger layerCounter = new AtomicInteger();
-    private int bodyId;
-    private ArrayList<LayerPointsModel> layers;
+    private final AtomicInteger layerCounter = new AtomicInteger();
+    private final int bodyId;
+    private final ArrayList<LayerPointsModel> layers;
     private GameEntity gameEntity;
-    private ArrayList<ProjectileModel> projectiles;
-    private ArrayList<HandModel> hands;
+    private final ArrayList<ProjectileModel> projectiles;
+    private final ArrayList<HandModel> hands;
     public static final ArrayList<BodyCategory> allCategories = new ArrayList<>(Arrays.asList(BodyCategory.ARMOR,BodyCategory.MELEE,BodyCategory.PROJECTILE));
     private BodyCategory category;
     private BodyOutlineShape bodyOutlineShape;
 
     public void setCategory(BodyCategory category) {
         this.category = category;
-    }
-
-    public BodyCategory getCategory() {
-        return category;
     }
 
     public void setBodyOutlineShape(BodyOutlineShape bodyOutlineShape) {
@@ -63,13 +57,7 @@ public class BodyModel extends ProperModel {
         properties = new Properties();
         properties.setProperties(new float[]{});
     }
-    public int getNewLayerId(){
-        return layerCounter.get();
-    }
-    private int getLayerIndexOfId(int id){
-        LayerPointsModel layer = getLayerModelById(id);
-       return layers.indexOf(layer);
-    }
+
     void swapLayers(int index1,int index2){
        Collections.swap(layers,index1,index2);
     }
@@ -134,16 +122,8 @@ public class BodyModel extends ProperModel {
         return projectiles;
     }
 
-    public void setProjectiles(ArrayList<ProjectileModel> projectiles) {
-        this.projectiles = projectiles;
-    }
-
     public ArrayList<HandModel> getHands() {
         return hands;
-    }
-
-    public void setHands(ArrayList<HandModel> hands) {
-        this.hands = hands;
     }
 
     public List<List<Vector2>> getPolygons(){
@@ -151,12 +131,22 @@ public class BodyModel extends ProperModel {
     }
 
     public void select(){
-        if(bodyOutlineShape!=null)
-        bodyOutlineShape.select();
+        if(bodyOutlineShape!=null) {
+            bodyOutlineShape.select();
+        }
     }
     public void deselect(){
-        if(bodyOutlineShape!=null)
-        bodyOutlineShape.deselect();
+        if(bodyOutlineShape!=null) {
+            bodyOutlineShape.deselect();
+        }
+    }
+    public boolean hasSelectedLayer(){
+        for(LayerPointsModel layerPointsModel: layers){
+            if(layerPointsModel.getPointsShape().isSelected()){
+                return true;
+            }
+        }
+        return false;
     }
 
     public BodyOutlineShape getBodyOutlineShape() {

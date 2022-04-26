@@ -14,10 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LayerPointsModel extends PointsModel {
     private static final float MINIMAL_DISTANCE_BETWEEN_VERTICES = 1f;
     private final BodyModel bodyModel;
-    private AtomicInteger decorationCounter = new AtomicInteger();
-    private ArrayList<DecorationPointsModel> decorations;
-    private int layerId;
-    private int bodyId;
+    private final AtomicInteger decorationCounter = new AtomicInteger();
+    private final ArrayList<DecorationPointsModel> decorations;
+    private final int layerId;
+    private final int bodyId;
 
 
     public LayerPointsModel(int bodyId, int layerId, String layerName, BlockAProperties properties, BodyModel bodyModel) {
@@ -149,4 +149,7 @@ public class LayerPointsModel extends PointsModel {
         decorationCounter.set(value);
     }
 
+    public BodyModel getBodyModel() {
+        return bodyModel;
+    }
 }

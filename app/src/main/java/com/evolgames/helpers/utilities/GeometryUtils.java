@@ -696,7 +696,7 @@ public class GeometryUtils {
         return false;
     }
 
-    private static PolygonMerger polygonMerger = new PolygonMerger();
+    private static final PolygonMerger polygonMerger = new PolygonMerger();
 
     public static List<List<Vector2>> mergePolygons
             (List<List<Vector2>> polygons) {
@@ -713,14 +713,14 @@ public class GeometryUtils {
 
         Iterator<HashSet<Integer>> iterator = unionFinder.myDict.values().iterator();
         List<List<List<Vector2>>> polygonGroupings = new ArrayList<>();
-        int INDEX = 0;
+        int index = 0;
         while (iterator.hasNext()) {
             polygonGroupings.add(new ArrayList<>());
             HashSet<Integer> set = iterator.next();
             for (Integer aSet : set) {
-                polygonGroupings.get(INDEX).add(polygons.get(aSet));
+                polygonGroupings.get(index).add(polygons.get(aSet));
             }
-            INDEX++;
+            index++;
         }
         List<List<Vector2>> result = new ArrayList<>();
         for (List<List<Vector2>> grouping : polygonGroupings) {

@@ -12,14 +12,14 @@ import org.andengine.entity.primitive.LineLoop;
 import org.andengine.entity.scene.Scene;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BodyOutlineShape {
     private List<LineLoop> lineLoops;
-    private Scene gameScene;
+    private final Scene gameScene;
     private float r = 1f, g = 0f, b = 0f;
-    private BodyModel bodyModel;
+    private final BodyModel bodyModel;
+    private boolean selected;
 
     public BodyOutlineShape(UserInterface userInterface, BodyModel bodyModel) {
         this.gameScene = userInterface.getScene();
@@ -31,10 +31,10 @@ public class BodyOutlineShape {
         this.r = r;
         this.g = g;
         this.b = b;
-        if(lineLoops!=null)
-        for (LineLoop lineLoop : lineLoops) {
-            lineLoop.setColor(r, g, b);
-        }
+        if (lineLoops != null)
+            for (LineLoop lineLoop : lineLoops) {
+                lineLoop.setColor(r, g, b);
+            }
     }
 
     public void setLineLoopColor(Color c) {
@@ -51,9 +51,7 @@ public class BodyOutlineShape {
     }
 
     public void updateSelf() {
-
         List<List<Vector2>> polygons = bodyModel.getPolygons();
-        System.out.println("Update Body Outline Shape:" + polygons.size());
         List<List<Vector2>> result = GeometryUtils.mergePolygons(polygons);
 
         if (lineLoops == null) {
@@ -64,8 +62,6 @@ public class BodyOutlineShape {
         }
 
         for (List<Vector2> points : result) {
-            System.out.println("---------------");
-            System.out.println(Arrays.toString(points.toArray()));
             LineLoop lineLoop = new LineLoop(0, 0, 4, 1000, ResourceManager.getInstance().vbom);
             lineLoop.setZIndex(3);
             lineLoop.setColor(r, g, b);
@@ -74,12 +70,13 @@ public class BodyOutlineShape {
                 lineLoop.add(point.x, point.y);
             }
             lineLoops.add(lineLoop);
+            lineLoop.setVisible(selected);
         }
-
         gameScene.sortChildren();
     }
 
     public void select() {
+        selected = true;
         if (lineLoops != null)
             for (LineLoop lineLoop : lineLoops) {
                 lineLoop.setVisible(true);
@@ -89,6 +86,7 @@ public class BodyOutlineShape {
     }
 
     public void deselect() {
+        selected = false;
         if (lineLoops != null)
             for (LineLoop lineLoop : lineLoops) {
                 lineLoop.setVisible(false);

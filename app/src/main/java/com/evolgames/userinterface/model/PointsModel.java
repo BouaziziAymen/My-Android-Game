@@ -2,6 +2,7 @@ package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 
@@ -34,14 +35,22 @@ public abstract class PointsModel extends ProperModel {
 
 
     public void select() {
-        if (pointsShape != null)
+        if (pointsShape != null) {
             pointsShape.setLineLoopColor(Colors.palette1_light_green);
+        }
+    }
+
+    public void partialSelect() {
+        if (pointsShape != null) {
+            pointsShape.setLineLoopColor(Colors.palette1_blue);
+        }
     }
 
 
     public void deselect() {
-        if (pointsShape != null)
+        if (pointsShape != null) {
             pointsShape.setLineLoopColor(1, 1, 1);
+        }
     }
 
     public PointsShape getPointsShape() {

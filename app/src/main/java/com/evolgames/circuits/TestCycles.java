@@ -73,12 +73,4 @@ public class TestCycles {
         return list.get(0);
         else return null;
     }
-
-
-    static boolean isEquivalent(ArrayList<Vector2> set1, ArrayList<Vector2> set2) {
-        if (set1.containsAll(set2) && set2.containsAll(set1)) return true;
-        else return false;
-    }
-
-
 }
