@@ -3,6 +3,8 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import com.evolgames.entities.ItemCategory;
 import com.evolgames.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
@@ -21,18 +23,18 @@ import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ItemSaveWindowController extends SettingsWindowController {
 
-    private AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(8, 5);
-    private SimpleSecondary<ButtonWithText<ItemSaveWindowController>> selectedCategoryField;
+    private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
     private TextField<ItemSaveWindowController> titleTextField;
 
-    public ItemSaveWindowController(UserInterface userInterface, KeyboardController keyboardController) {
-        super(userInterface);
+    public ItemSaveWindowController(KeyboardController keyboardController) {
         this.keyboardController = keyboardController;
     }
+
 
 
     @Override
@@ -54,6 +56,7 @@ public class ItemSaveWindowController extends SettingsWindowController {
         FieldWithError titleFieldWithError = new FieldWithError(titledTextField);
         SimplePrimary<FieldWithError> titleField = new SimplePrimary<>(0, titleFieldWithError);
         window.addPrimary(titleField);
+        titleTextField.getBehavior().setReleaseAction(()->model.setModelName(titleTextField.getTextString()));
 
         SectionField<ItemSaveWindowController> categorySection = new SectionField<>(1, "Category:", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(categorySection);
@@ -92,7 +95,10 @@ public class ItemSaveWindowController extends SettingsWindowController {
                 }
             }
         }
-        this.selectedCategoryField = categoryField;
+        if (model != null) {
+            ItemCategory category = ItemCategoryFactory.getInstance().getItemCategoryByIndex(categoryField.getSecondaryKey());
+            ((ToolModel)model).setToolCategory(category);
+        }
     }
 
     @Override
@@ -103,13 +109,18 @@ public class ItemSaveWindowController extends SettingsWindowController {
     @Override
     public void onModelUpdated(ProperModel model) {
         super.onModelUpdated(model);
-
-        ToolModel toolModel = (ToolModel)model;
-        titleTextField.getBehavior().setTextValidated(toolModel.getModelName());
+        titleTextField.getBehavior().setTextValidated(((ToolModel)model).getModelName());
     }
 
     @Override
     public void onSubmitSettings() {
-            super.onSubmitSettings();
+        super.onSubmitSettings();
+        ItemCategory toolCategory = ((ToolModel)model).getToolCategory();
+        if (toolCategory == null) return;
+        try {
+            ToolUtils.saveToolModel(((ToolModel)model), ((GameScene) userInterface.getScene()).getActivity());
+        } catch (Exception e) {
+            System.out.println("Error saving tool:"+e);
+        }
     }
 }

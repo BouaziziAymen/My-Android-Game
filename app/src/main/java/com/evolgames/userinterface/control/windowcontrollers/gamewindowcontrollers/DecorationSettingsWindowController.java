@@ -28,10 +28,6 @@ public class DecorationSettingsWindowController extends SettingsWindowController
     private ColorSlot colorSlotForDecoration;
     private ColorSelectorWindowController colorSelectorController;
 
-    public DecorationSettingsWindowController(UserInterface userInterface) {
-        super(userInterface);
-    }
-
     public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
         this.colorSelectorController = colorSelectorController;
     }

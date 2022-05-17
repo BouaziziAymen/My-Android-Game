@@ -44,6 +44,7 @@ import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.BodyOutlineShape;
 import com.evolgames.userinterface.view.shapes.CreationZone;
+import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
@@ -149,7 +150,7 @@ public class UserInterface extends Container implements Touchable {
     private ToolModel toolModel;
     private float zoomFactor = 1f;
 
-    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, ItemSaveWindowController itemSaveWindowController, KeyboardController keyboardController) {
+    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, KeyboardController keyboardController) {
         this.activity = gameActivity;
         pGameScene.getHud().attachChild(hudBatcher);
         pGameScene.attachChild(sceneBatcher);
@@ -159,7 +160,7 @@ public class UserInterface extends Container implements Touchable {
         sceneBatcher.setZIndex(1);
 
 
-        //new Grid(pGameScene);
+        new Grid(pGameScene);
         this.scene = pGameScene;
         this.layerSettingsWindowController = layerSettingsController;
         this.bodySettingsWindowController = bodySettingsWindowController;
@@ -173,6 +174,7 @@ public class UserInterface extends Container implements Touchable {
 
         Keyboard keyboard = new Keyboard(0, 0, keyboardController);
         keyboardController.setKeyboard(keyboard);
+        addElement(keyboard);
         keyboard.setDepth(2);
 
         layersWindow = new LayersWindow(0, 0, layerWindowController);
@@ -183,7 +185,7 @@ public class UserInterface extends Container implements Touchable {
         itemWindow.setPosition(800 - itemWindow.getWidth() - 12, 480 - itemWindow.getHeight());
         addElement(itemWindow);
         itemWindow.setVisible(false);
-        itemWindowController.setUserInterface(this, projectileOptionController);
+        itemWindowController.setUserInterface(this);
         this.itemWindowController = itemWindowController;
 
         LayerSettingsWindow layerSettingsWindow = new LayerSettingsWindow(0, 0, layerSettingsController);
@@ -201,7 +203,7 @@ public class UserInterface extends Container implements Touchable {
 
         layerWindowController.setBodySettingsWindowController(bodySettingsWindowController);
 
-        decorationSettingsWindowController = new DecorationSettingsWindowController(this);
+        this.decorationSettingsWindowController = decorationSettingsWindowController;
 
         layerWindowController.setDecorationSettingsWindowController(decorationSettingsWindowController);
 
@@ -216,7 +218,7 @@ public class UserInterface extends Container implements Touchable {
         jointsWindow = new JointsWindow(0, 0, jointWindowController);
         jointsWindow.setPosition(800 - jointsWindow.getWidth(), 480 - jointsWindow.getHeight());
         addElement(jointsWindow);
-        setJointsWindowVisible(false);
+        jointsWindow.setVisible(false);
 
         optionsWindowController = new OptionsWindowController(keyboardController, this);
         optionsWindow = new OptionsWindow(0, 0, optionsWindowController);
@@ -225,9 +227,9 @@ public class UserInterface extends Container implements Touchable {
 
         jointOptionWindow = new JointOptionWindow(0, 0, jointSettingsWindowController);
         jointOptionWindow.setPosition(800 - jointOptionWindow.getWidth() - jointsWindow.getWidth(), 480 - jointOptionWindow.getHeight() - 64);
+        jointOptionWindow.setVisible(false);
         addElement(jointOptionWindow);
-        setJointsWindowVisible(false);
-        layerSettingsWindow.setVisible(false);
+
 
         projectileOptionWindow = new ProjectileOptionWindow(0, 0, projectileOptionController);
         projectileOptionWindow.setPosition(800 - projectileOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - projectileOptionWindow.getHeight());
@@ -236,14 +238,13 @@ public class UserInterface extends Container implements Touchable {
 
 
         itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
-        itemSaveWindow.setPosition(800 - itemSaveWindow.getWidth() - itemSaveWindow.getWidth(), 480 - itemSaveWindow.getHeight() - 64);
+        itemSaveWindow.setPosition(800 - itemSaveWindow.getPanel().getWidth(), 480 - itemSaveWindow.getHeight());
+        itemSaveWindow.setVisible(false);
         addElement(itemSaveWindow);
-        itemSaveWindow.setVisible(true);
 
-
-        addElement(keyboard);
         ColorSelectorWindowController colorSelectorWindowController = new ColorSelectorWindowController(this);
         colorSelector = new ColorSelectorWindow(400, 0, colorSelectorWindowController);
+        colorSelector.setVisible(false);
         addElement(colorSelector);
         ColorSelector selector = colorSelector.getSelector();
         selector.getMesh().setPosition(selector.getAbsoluteX() + 103, selector.getAbsoluteY() - 25 + 128);
@@ -724,8 +725,8 @@ public class UserInterface extends Container implements Touchable {
         this.toolModel = toolModel;
 
         for (BodyModel bodyModel : toolModel.getBodies()) {
-            if(bodyModel.getBodyOutlineShape()==null){
-                BodyOutlineShape bodyShape = new BodyOutlineShape(this,bodyModel);
+            if (bodyModel.getBodyOutlineShape() == null) {
+                BodyOutlineShape bodyShape = new BodyOutlineShape(this, bodyModel);
                 bodyModel.setBodyOutlineShape(bodyShape);
             }
             bodyModel.getBodyOutlineShape().updateSelf();
@@ -851,31 +852,36 @@ public class UserInterface extends Container implements Touchable {
     public LayerSettingsWindowController getLayerSettingsWindowController() {
         return layerSettingsWindowController;
     }
+    private void resetSelection(){
+        if(toolModel!=null)
+        toolModel.resetSelection();
+    }
+
+    public void setSaveWindowVisible(boolean b) {
+        itemSaveWindow.setVisible(b);
+    }
 
     public void setLayersWindowVisible(boolean b) {
         layersWindow.setVisible(b);
+        resetSelection();
     }
 
     public void setJointsWindowVisible(boolean b) {
         jointsWindow.setVisible(b);
+        resetSelection();
     }
 
     public void setItemWindowVisible(boolean b) {
         itemWindow.setVisible(b);
+        resetSelection();
     }
 
     public void setDrawButtonBoardVisible(boolean b) {
-
         drawButtonBoard.setVisible(b);
-
-
     }
 
     public void setImageButtonBoardVisible(boolean b) {
-
         imageButtonBoard.setVisible(b);
-
-
     }
 
     public void setJointButtonBoardVisible(boolean b) {
@@ -986,4 +992,10 @@ public class UserInterface extends Container implements Touchable {
     public ProjectileOptionController getProjectileOptionsController() {
         return projectileOptionController;
     }
+
+    public LayerWindowController getLayersWindowController() {
+        return layersWindowController;
+    }
+
+
 }

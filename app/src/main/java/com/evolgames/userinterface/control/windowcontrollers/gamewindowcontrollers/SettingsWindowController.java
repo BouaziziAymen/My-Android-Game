@@ -16,20 +16,20 @@ public class SettingsWindowController extends ThreeLevelSectionedAdvancedWindowC
     protected ProperModel model;
     protected Properties tempProperty;
 
-    public SettingsWindowController(UserInterface userInterface) {
+    public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
     }
 
     public void onCancelSettings() {
-        if(tempProperty!=null)
-        model.setProperty(tempProperty);
+        if (tempProperty != null)
+            model.setProperty(tempProperty);
         closeWindow();
     }
 
     void onModelUpdated(ProperModel model) {
         this.model = model;
-        if(model.getProperty()!=null)
-        tempProperty = model.getProperty().getCopy();
+        if (model.getProperty() != null)
+            tempProperty = model.getProperty().getCopy();
     }
 
     public void onSubmitSettings() {

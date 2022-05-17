@@ -62,8 +62,7 @@ public class LayerSettingsWindowController extends SettingsWindowController {
     private TextField<LayerSettingsWindowController> energyTextField;
     private SimpleSecondary<TitledButton<LayerSettingsWindowController>> flammableField;
 
-    public LayerSettingsWindowController(LayerWindowController layerWindowController, UserInterface userInterface, KeyboardController keyboardController) {
-        super(userInterface);
+    public LayerSettingsWindowController(LayerWindowController layerWindowController,  KeyboardController keyboardController) {
         this.keyboardController = keyboardController;
         this.layerWindowController = layerWindowController;
     }

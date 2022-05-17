@@ -422,6 +422,7 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.ADD_POLYGON) {
 
             PointsModel layerPointsModel = layerWindowController.getSelectedShape();
+            if(layerPointsModel==null)return;
             Vector2 center = new Vector2(x, y);
 
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedShape(), gameScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedShape(), gameScene, numberOfPointsForPolygon);

@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
+import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.blocks.BlockA;
 import com.evolgames.entities.blocks.DecorationBlockConcrete;
 import com.evolgames.entities.properties.BlockAProperties;
@@ -43,7 +44,7 @@ public class ToolModel extends ProperModel implements Serializable {
     private final AtomicInteger handCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
     private final ArrayList<JointModel> joints;
-
+    private ItemCategory toolCategory;
     public static BodyModel groundBodyModel;
 
     public ToolModel(GameScene gameScene, int toolId) {
@@ -137,6 +138,7 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
     public void removeLayer(int bodyId, int layerId) {
+        System.out.println("Delete "+this.hashCode());
         Objects.requireNonNull(getBodyById(bodyId)).removeLayer(layerId);
     }
 
@@ -215,7 +217,7 @@ public class ToolModel extends ProperModel implements Serializable {
 
     public void createTool() {
         try {
-            ToolUtils.saveToolModel("test", this, scene.getActivity());
+            ToolUtils.saveToolModel(this, scene.getActivity());
         } catch (IOException e) {
             System.out.println("Error saving tool model.");
         }
@@ -333,5 +335,17 @@ public class ToolModel extends ProperModel implements Serializable {
 
     public int getBodyCount() {
         return bodyCounter.get();
+    }
+
+    public void resetSelection() {
+        bodies.forEach(BodyModel::deselect);
+    }
+
+    public ItemCategory getToolCategory() {
+        return toolCategory;
+    }
+
+    public void setToolCategory(ItemCategory toolCategory) {
+        this.toolCategory = toolCategory;
     }
 }

@@ -51,8 +51,6 @@ public class BodyOutlineShape {
     }
 
     public void updateSelf() {
-        List<List<Vector2>> polygons = bodyModel.getPolygons();
-        List<List<Vector2>> result = GeometryUtils.mergePolygons(polygons);
 
         if (lineLoops == null) {
             lineLoops = new ArrayList<>();
@@ -60,7 +58,9 @@ public class BodyOutlineShape {
         for (LineLoop lineLoop : lineLoops) {
             lineLoop.detachSelf();
         }
-
+        List<List<Vector2>> polygons = bodyModel.getPolygons();
+        if(polygons==null)return;
+        List<List<Vector2>> result = GeometryUtils.mergePolygons(polygons);
         for (List<Vector2> points : result) {
             LineLoop lineLoop = new LineLoop(0, 0, 4, 1000, ResourceManager.getInstance().vbom);
             lineLoop.setZIndex(3);
@@ -75,21 +75,23 @@ public class BodyOutlineShape {
         gameScene.sortChildren();
     }
 
-    public void select() {
+    public void select(Color color) {
         selected = true;
-        if (lineLoops != null)
+        if (lineLoops != null) {
             for (LineLoop lineLoop : lineLoops) {
                 lineLoop.setVisible(true);
             }
+        }
 
-        setLineLoopColor(Colors.palette1_gold);
+        setLineLoopColor(color);
     }
 
     public void deselect() {
         selected = false;
-        if (lineLoops != null)
+        if (lineLoops != null) {
             for (LineLoop lineLoop : lineLoops) {
                 lineLoop.setVisible(false);
             }
+        }
     }
 }

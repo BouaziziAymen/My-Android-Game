@@ -238,6 +238,7 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
     @Override
     public void init() {
+        super.init();
         setBodyOnly();
         window.getLayout().updateLayout();
 

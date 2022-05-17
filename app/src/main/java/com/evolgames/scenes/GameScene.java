@@ -37,6 +37,7 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointSettingsWindowController;
@@ -163,22 +164,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         keyboardController = new KeyboardController();
         LayerWindowController layerWindowController = new LayerWindowController();
-        Optional<List<ToolModel>> optional = ToolUtils.loadFile(this, "test");
-        final ToolModel toolModel = optional.isPresent() ? optional.get().get(0) : new ToolModel(this,0);
+        Optional<ToolModel> optional = ToolUtils.loadFile(this, "test");
+        final ToolModel toolModel = optional.orElseGet(() -> new ToolModel(this, 0));
 
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController);
-        ItemWindowController itemWindowController = new ItemWindowController();
-        ProjectileOptionController projectileOptionController = new ProjectileOptionController(userInterface,keyboardController, toolModel);
-        LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController,userInterface, keyboardController);
-        BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController,userInterface, keyboardController);
-        ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(userInterface,keyboardController);
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, keyboardController);
+        ProjectileOptionController projectileOptionController = new ProjectileOptionController(keyboardController, toolModel);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController);
+        LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
+        BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
+        ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
+        DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, keyboardController);
 
-
+        itemSaveWindowController.setUserInterface(userInterface);
         jointWindowController.setUserInterface(userInterface);
-
+        projectileOptionController.setUserInterface(userInterface);
+        layerSettingsWindowController.setUserInterface(userInterface);
+        bodySettingsWindowController.setUserInterface(userInterface);
+        decorationSettingsWindowController.setUserInterface(userInterface);
 
 
         userInterface.bindToolModel(toolModel);
@@ -347,16 +352,16 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         //      getWorldFacade().createSegmentLiquidSource(300,240,Utils.getColor());
         //    getWorldFacade().createSegmentLiquidSource(500,240,Utils.getColor());
 
-        List<Vector2>  verti1 = new ArrayList<>();
-        verti1.add(new Vector2(0,0));
-        verti1.add(new Vector2(50,0));
-        verti1.add(new Vector2(50,50));
-        verti1.add(new Vector2(0,50));
+        List<Vector2> verti1 = new ArrayList<>();
+        verti1.add(new Vector2(0, 0));
+        verti1.add(new Vector2(50, 0));
+        verti1.add(new Vector2(50, 50));
+        verti1.add(new Vector2(0, 50));
         List<Vector2> verti2 = new ArrayList<>();
-        verti2.add(new Vector2(-50,25));
-        verti2.add(new Vector2(50,20));
-        verti2.add(new Vector2(25,-25));
-        new PolygonMerger().merge(verti1,verti2);
+        verti2.add(new Vector2(-50, 25));
+        verti2.add(new Vector2(50, 20));
+        verti2.add(new Vector2(25, -25));
+        new PolygonMerger().merge(verti1, verti2);
         sortChildren();
 
 

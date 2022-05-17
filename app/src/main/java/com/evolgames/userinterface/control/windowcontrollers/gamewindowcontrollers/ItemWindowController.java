@@ -18,27 +18,30 @@ import java.util.ArrayList;
 
 public class ItemWindowController extends OneLevelGameWindowController<ItemWindow, BodyField, ItemField> {
     private ProjectileOptionController projectileOptionController;
+    private UserInterface userInterface;
 
-    public void setUserInterface(UserInterface userInterface, ProjectileOptionController projectileOptionController) {
-        this.userInterface = userInterface;
+    public ItemWindowController(ProjectileOptionController projectileOptionController) {
         this.projectileOptionController = projectileOptionController;
     }
 
-    private UserInterface userInterface;
+    public void setUserInterface(UserInterface userInterface) {
+        this.userInterface = userInterface;
+        this.projectileOptionController = userInterface.getProjectileOptionsController();
+    }
 
     @Override
     public void onSecondaryButtonClicked(ItemField itemField) {
         super.onSecondaryButtonClicked(itemField);
         selectedSecondaryField = itemField;
-        if(itemField instanceof TargetField) {
+        if (itemField instanceof TargetField) {
             ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             projectileOptionController.updateProjectileModel(model);
             model.getProjectileShape().select();
         }
 
-        if(itemField instanceof HandField) {
+        if (itemField instanceof HandField) {
             HandModel model = userInterface.getToolModel().getHandById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-           // handOptionController.updateHandModel(model);
+            // handOptionController.updateHandModel(model);
             model.getHandShape().select();
         }
 
@@ -47,12 +50,12 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     @Override
     public void onSecondaryButtonReleased(ItemField itemField) {
         super.onSecondaryButtonReleased(itemField);
-        if(itemField instanceof TargetField) {
+        if (itemField instanceof TargetField) {
             ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             model.getProjectileShape().release();
         }
 
-        if(itemField instanceof HandField) {
+        if (itemField instanceof HandField) {
             HandModel model = userInterface.getToolModel().getHandById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             model.getHandShape().release();
         }
@@ -70,11 +73,16 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     @Override
     public void onPrimaryButtonClicked(BodyField bodyField) {
         super.onPrimaryButtonClicked(bodyField);
+        if (userInterface.getLayersWindowController().getSelectedBodyModel() != null) {
+            userInterface.getLayersWindowController().getSelectedBodyModel().deselect();
+        }
+        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select();
     }
 
     @Override
     public void onPrimaryButtonReleased(BodyField bodyField) {
         super.onPrimaryButtonReleased(bodyField);
+        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).deselect();
     }
 
     @Override
@@ -84,11 +92,12 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     private void resetLayout() {
         for (BodyField bodyField : window.getLayout().getPrimaries()) {
-            if(bodyField!=null)
-            window.getLayout().removePrimary(bodyField.getPrimaryKey());
+            if (bodyField != null)
+                window.getLayout().removePrimary(bodyField.getPrimaryKey());
         }
     }
-    public void refresh(){
+
+    public void refresh() {
         resetLayout();
         ArrayList<BodyModel> bodies = userInterface.getToolModel().getBodies();
         for (int i = 0; i < bodies.size(); i++) {
@@ -103,6 +112,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         }
         window.getLayout().updateLayout();
     }
+
     @Override
     public void init() {
         if (userInterface.getToolModel() == null) return;
@@ -178,7 +188,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onNewHandCreated(HandModel handModel) {
         window.addHandField(handModel.getModelName(), handModel.getBodyId(), handModel.getHandId());
         updateLayout();
-      //  handOptionController.updateProjectileModel(handModel);
+        //  handOptionController.updateProjectileModel(handModel);
     }
 
     public void onHandRemoveButtonClicked(HandField handField) {

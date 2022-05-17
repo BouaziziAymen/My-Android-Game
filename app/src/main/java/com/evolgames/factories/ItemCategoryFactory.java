@@ -23,10 +23,10 @@ public class ItemCategoryFactory {
     private ItemCategoryFactory() {
 
         this.itemCategories = new ArrayList<>();
-        this.itemCategories.add(new ItemCategory("projectiles", "Projectile"));
-        this.itemCategories.add(new ItemCategory("melee", "Melee"));
-        this.itemCategories.add(new ItemCategory("ranged", "Ranged"));
-        this.itemCategories.add(new ItemCategory("vehicles", "Vehicle"));
+        this.itemCategories.add(new ItemCategory("c0", "Projectile"));
+        this.itemCategories.add(new ItemCategory("c1", "Melee"));
+        this.itemCategories.add(new ItemCategory("c2", "Ranged"));
+        this.itemCategories.add(new ItemCategory("c3", "Vehicle"));
     }
 
 }

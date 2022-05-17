@@ -72,12 +72,12 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
 
     }
 
-    private LayerPointsModel getSelectedLayer() {
+    public LayerPointsModel getSelectedLayer() {
         if (selectedLayerField == null) return null;
         return userInterface.getToolModel().getLayerModelById(selectedLayerField.getPrimaryKey(), selectedLayerField.getSecondaryKey());
     }
 
-    private BodyModel getSelectedBodyModel() {
+    public BodyModel getSelectedBodyModel() {
         if (selectedBodyField == null) return null;
         return userInterface.getToolModel().getBodyModelById(selectedBodyField.getPrimaryKey());
     }
@@ -87,11 +87,10 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onPrimaryButtonClicked(BodyField1 bodyField) {
         super.onPrimaryButtonClicked(bodyField);
         selectedBodyField = bodyField;
-        if (getSelectedBodyModel() != null) {
-            if(!getSelectedBodyModel().hasSelectedLayer()) {
-                getSelectedBodyModel().select();
-            }
+        if (!getSelectedBodyModel().hasSelectedLayer()) {
+            getSelectedBodyModel().select();
         }
+
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
             BodyField1 otherBodyField = window.getLayout().getPrimaryByIndex(i);
             if (otherBodyField != null)
@@ -110,6 +109,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     @Override
     public void onPrimaryButtonReleased(BodyField1 bodyField) {
         super.onPrimaryButtonReleased(bodyField);
+        getBodyModel(bodyField.getPrimaryKey()).deselect();
         if (selectedBodyField == bodyField) selectedBodyField = null;
     }
 
@@ -127,7 +127,8 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         }
         layerField.getLayerControl().select();
         getSelectedLayerModel().select();
-        getSelectedLayerModel().getBodyModel().deselect();;
+        getSelectedLayerModel().getBodyModel().deselect();
+        ;
 
         layerSettingsWindowController.onModelUpdated(getSelectedLayerModel());
 
@@ -138,7 +139,10 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         super.onSecondaryButtonReleased(layerField);
         LayerPointsModel releasedModel = userInterface.getToolModel().getLayerModelById(layerField.getPrimaryKey(), layerField.getSecondaryKey());
         releasedModel.deselect();
-        releasedModel.getBodyModel().select();
+        if(getSelectedBodyModel() != null)
+        if(getSelectedBodyModel().getBodyId()==layerField.getPrimaryKey()){
+            getSelectedBodyModel().select();
+        }
 
         if (selectedLayerField == layerField) {
             getSelectedLayerModel().deselect();

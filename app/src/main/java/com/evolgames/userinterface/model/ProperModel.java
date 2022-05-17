@@ -17,4 +17,5 @@ public abstract class ProperModel extends Model {
     public void setProperty(Properties property) {
         properties = property;
     }
+
 }

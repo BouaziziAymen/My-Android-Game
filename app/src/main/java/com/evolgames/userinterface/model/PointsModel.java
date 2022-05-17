@@ -85,8 +85,10 @@ public abstract class PointsModel extends ProperModel {
 
     private void updateOutlinePoints() {
         Vector2[] pointsArray = points.toArray(new Vector2[0]);
-        pointsArray = GeometryUtils.hullFinder.findConvexHull(pointsArray);
-        setOutlinePoints(pointsArray);
+        if(pointsArray.length>=2) {
+            pointsArray = GeometryUtils.hullFinder.findConvexHull(pointsArray);
+            setOutlinePoints(pointsArray);
+        }
     }
 
 }

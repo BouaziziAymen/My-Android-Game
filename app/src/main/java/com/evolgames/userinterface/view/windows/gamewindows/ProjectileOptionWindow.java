@@ -45,8 +45,6 @@ public class ProjectileOptionWindow extends SettingsWindow{
         mPanel.setLowerBottomX(getWidth() / 2 - mPanel.getWidth() / 2);
         addElement(mPanel);
 
-
-
     }
 
 }

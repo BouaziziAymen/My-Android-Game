@@ -16,50 +16,51 @@ import com.evolgames.userinterface.model.ToolModel;
 import org.andengine.util.adt.color.Color;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 public class ToolUtils {
-    public static Optional<List<ToolModel>> loadFile(GameScene scene, String fileName) {
-        List<ToolModel> toolModelList = null;
+    public static Optional<ToolModel> loadFile(GameScene scene, String fileName) {
+        ToolModel loaded = null;
         try {
             FileInputStream fis = scene.getActivity().openFileInput(fileName);
             InputStreamReader inputStreamReader =
                     new InputStreamReader(fis, StandardCharsets.UTF_8);
 
             BufferedReader reader = new BufferedReader(inputStreamReader);
-            toolModelList = new ArrayList<>();
-            ToolModel loaded;
-            do {
-                loaded = loadModel(scene, reader);
-                toolModelList.add(loaded);
-            } while (loaded != null);
-
-        } catch (FileNotFoundException e) {
+             loaded = loadModel(scene, reader);
+            reader.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return Optional.ofNullable(toolModelList);
+        return Optional.ofNullable(loaded);
     }
 
     public static ToolModel loadModel(GameScene scene, BufferedReader reader) {
         ToolModel toolModel = null;
         try {
             String line = reader.readLine();
-            if (line.contains("@Tool")) {
+            if (line!=null&&line.contains("@Tool")) {
                 toolModel = new ToolModel(scene, 0);
                 String[] mainTokens = line.split(":");
                 int bodyCounter = Integer.parseInt(mainTokens[1]);
                 String modelName = mainTokens[2];
                 toolModel.setModelName(modelName);
                 toolModel.initBodyCounter(bodyCounter);
-                while (!line.contains("$Tool")) {
+                while (line!=null&&!line.contains("$Tool")) {
                     if (line.contains("@Body")) {
                         String[] bodyTokens = line.split(":");
                         int bodyId = Integer.parseInt(bodyTokens[1]);
@@ -74,8 +75,6 @@ public class ToolUtils {
                     line = reader.readLine();
                 }
             }
-
-            reader.close();
         } catch (IOException e) {
             System.out.println("Error loading tool model.");
         }
@@ -83,13 +82,17 @@ public class ToolUtils {
         return toolModel;
     }
 
-    public static void saveToolModel(String filename, ToolModel toolModel, GameActivity gameActivity) throws IOException {
-        FileOutputStream fOut = gameActivity.openFileOutput(filename, Context.MODE_PRIVATE);
-        fOut.write(("@Tool:" + toolModel.getBodyCount() + ":" + toolModel.getModelName() + "\n").getBytes());
-        for (BodyModel bodyModel : toolModel.getBodies()) saveBodyModel(bodyModel, fOut);
-        fOut.write("$Tool\n".getBytes());
-        fOut.close();
+    public static void saveToolModel(ToolModel toolModel, GameActivity gameActivity) throws IOException {
+        System.out.println("====================================");
+            FileOutputStream fileOutputStream = gameActivity.openFileOutput(toolModel.getToolCategory().getPrefix()+"_"+toolModel.getModelName(), Context.MODE_PRIVATE);
+            fileOutputStream.write(("@Tool:" + toolModel.getBodyCount() + ":" + toolModel.getModelName() + "\n").getBytes());
+            for (BodyModel bodyModel : toolModel.getBodies())
+                saveBodyModel(bodyModel, fileOutputStream);
+            fileOutputStream.write("$Tool\n".getBytes());
+            fileOutputStream.close();
+
     }
+
 
     private static void saveBodyModel(BodyModel bodyModel, FileOutputStream outputStream) throws IOException {
         outputStream.write(("@Body:" + bodyModel.getBodyId() + ":" + bodyModel.getLayersCounterValue() + "\n").getBytes());

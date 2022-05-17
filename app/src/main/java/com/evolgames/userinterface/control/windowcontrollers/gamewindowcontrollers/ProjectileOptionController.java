@@ -42,8 +42,7 @@ public class ProjectileOptionController  extends SettingsWindowController {
     private ToolModel toolModel;
 
 
-    public ProjectileOptionController(UserInterface userInterface,KeyboardController keyboardController, ToolModel toolModel) {
-        super(userInterface);
+    public ProjectileOptionController(KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
             this.toolModel = toolModel;
         }

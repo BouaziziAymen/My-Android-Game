@@ -23,6 +23,7 @@ private UserInterface userInterface;
         userInterface.setImageButtonBoardVisible(false);
         userInterface.setItemButtonBoardVisible(false);
         userInterface.setItemWindowVisible(false);
+        userInterface.setSaveWindowVisible(false);
         userInterface.setLayersWindowVisible(true);
         userInterface.setJointsWindowVisible(false);
 
@@ -44,6 +45,7 @@ private UserInterface userInterface;
         userInterface.setLayersWindowVisible(false);
         userInterface.setJointsWindowVisible(false);
         userInterface.setItemButtonBoardVisible(false);
+        userInterface.setSaveWindowVisible(false);
         userInterface.setItemWindowVisible(false);
      userInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
     }
@@ -62,6 +64,7 @@ private UserInterface userInterface;
         userInterface.setLayersWindowVisible(false);
         userInterface.setItemButtonBoardVisible(false);
         userInterface.setItemWindowVisible(false);
+        userInterface.setSaveWindowVisible(false);
         userInterface.setJointsWindowVisible(true);
     }
 
@@ -79,12 +82,12 @@ private UserInterface userInterface;
         userInterface.setLayersWindowVisible(false);
         userInterface.setJointsWindowVisible(false);
         userInterface.setItemWindowVisible(true);
+        userInterface.setSaveWindowVisible(false);
         userInterface.setItemButtonBoardVisible(true);
     }
     public void onToolOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setItemButtonBoardVisible(false);
-
     }
 
     public void onSaveOptionClicked(Button<MainButtonBoardController> button) {
@@ -95,6 +98,7 @@ private UserInterface userInterface;
         userInterface.setLayersWindowVisible(false);
         userInterface.setJointsWindowVisible(false);
         userInterface.setItemWindowVisible(false);
+        userInterface.setSaveWindowVisible(true);
         userInterface.setItemButtonBoardVisible(false);
     }
     public void onSaveOptionReleased(Button<MainButtonBoardController> button) {

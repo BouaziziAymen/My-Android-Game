@@ -24,8 +24,7 @@ public class BodySettingsWindowController extends SettingsWindowController {
     private TextField<BodySettingsWindowController> bodyNameTextField;
     private AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8,5);
 
-    public BodySettingsWindowController(LayerWindowController layerWindowController, UserInterface userInterface, KeyboardController keyboardController) {
-        super(userInterface);
+    public BodySettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
         this.keyboardController = keyboardController;
         this.layerWindowController = layerWindowController;
     }

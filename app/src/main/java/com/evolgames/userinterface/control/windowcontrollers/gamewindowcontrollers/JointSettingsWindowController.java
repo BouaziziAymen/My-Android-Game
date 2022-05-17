@@ -19,6 +19,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
@@ -36,6 +37,15 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class JointSettingsWindowController extends OneLevelSectionedAdvancedWindowController<JointOptionWindow, SimplePrimary<?>, SimpleSecondary<?>> {
+    private final NumericValidator revoluteReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator revoluteLowerAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator revoluteUpperAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator revoluteMotorSpeedValidator = new NumericValidator(true, true, -120f, 120f, 3, 2);
+    private final NumericValidator revoluteMaxTorqueValidator = new NumericValidator(false, true, 0f, 99999f, 5, 2);
+    private final NumericValidator prismaticLowerLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator prismaticUpperLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator prismaticDirectionAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private final NumericValidator prismaticReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     DecimalFormat format = new DecimalFormat("##.##");
     @SuppressWarnings("unused")
     DecimalFormat format2 = new DecimalFormat("###.##");
@@ -46,15 +56,6 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private TextField<JointSettingsWindowController> revoluteUpperAngleTextField;
     private TextField<JointSettingsWindowController> revoluteLowerAngleTextField;
     private TextField<JointSettingsWindowController> revoluteReferenceAngleTextField;
-    private NumericValidator revoluteReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator revoluteLowerAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator revoluteUpperAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator revoluteMotorSpeedValidator = new NumericValidator(true, true, -120f, 120f, 3, 2);
-    private NumericValidator revoluteMaxTorqueValidator = new NumericValidator(false, true, 0f, 99999f, 5, 2);
-    private NumericValidator prismaticLowerLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator prismaticUpperLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator prismaticDirectionAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private NumericValidator prismaticReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private JointDef copyJointDef;
     private TextField<JointSettingsWindowController> prismaticLowerLimitTextField;
     private TextField<JointSettingsWindowController> prismaticUpperLimitTextField;
@@ -138,7 +139,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
                 @Override
                 public void informControllerButtonReleased() {
-
+                    onFirstBodyButtonReleased(bodyModel, bodyField);
                 }
             });
         }
@@ -156,11 +157,19 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
                 @Override
                 public void informControllerButtonReleased() {
-
+                    onSecondBodyButtonReleased(bodyModel, bodyField);
                 }
             });
         }
         onUpdated();
+    }
+
+    private void onFirstBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
+        bodyModel.deselect();
+    }
+
+    private void onSecondBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
+        bodyModel.deselect();
     }
 
     public void onUpdated() {
@@ -168,6 +177,10 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     private void onFirstBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body1Field) {
+        if(jointModel.getBodyModel2()==bodyModel){
+            ((ButtonWithText<?>)body1Field.getMain()).updateState(Button.State.NORMAL);
+            return;
+        }
         super.onSecondaryButtonClicked(body1Field);
         int size = window.getLayout().getSecondariesSize(1);
         for (int i = 0; i < size; i++) {
@@ -179,11 +192,19 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 }
             }
         }
+        if(jointModel.getBodyModel1()!=null)jointModel.getBodyModel1().deselect();
         jointModel.setBodyModel1(bodyModel);
-
+        bodyModel.select();
+        toolModel.getBodies().forEach(bm -> {
+            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
+        });
     }
 
     private void onSecondBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body2Field) {
+       if(jointModel.getBodyModel1()==bodyModel){
+           ((ButtonWithText<?>)body2Field.getMain()).updateState(Button.State.NORMAL);
+           return;
+       }
         super.onSecondaryButtonClicked(body2Field);
         int size = window.getLayout().getSecondariesSize(2);
         for (int i = 0; i < size; i++) {
@@ -195,7 +216,12 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 }
             }
         }
+        if(jointModel.getBodyModel2()!=null)jointModel.getBodyModel2().deselect();
         jointModel.setBodyModel2(bodyModel);
+        bodyModel.select(Colors.palette1_blue);
+        toolModel.getBodies().forEach(bm -> {
+            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
+        });
     }
 
     @Override
@@ -340,7 +366,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                     JointSettingsWindowController.super.onTextFieldReleased(revoluteSpeedTextField);
                 }
             });
-            revoluteSpeedTextField.getBehavior().setReleaseAction(()-> jointDef.motorSpeed = (float) (Float.parseFloat(revoluteSpeedTextField.getTextString()) * 2 * Math.PI)
+            revoluteSpeedTextField.getBehavior().setReleaseAction(() -> jointDef.motorSpeed = (float) (Float.parseFloat(revoluteSpeedTextField.getTextString()) * 2 * Math.PI)
             );
 
 
@@ -496,10 +522,6 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             });
 
 
-
-
-
-
             TitledButton<JointSettingsWindowController> hasMotorButton = new TitledButton<>("Has Motor:", ResourceManager.getInstance().onoffTextureRegion, Button.ButtonType.Selector, 5f);
 
             prismaticHasMotorField = new SimplePrimary<>(6, hasMotorButton);
@@ -626,8 +648,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             case LineJoint:
             case WeldJoint:
                 break;
-            case RevoluteJoint:
-            {
+            case RevoluteJoint: {
                 RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
                 copyJointDef = new RevoluteJointDef();
                 RevoluteJointDef copyOfJointDef = (RevoluteJointDef) copyJointDef;
@@ -641,10 +662,9 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 copyOfJointDef.motorSpeed = revoluteJointDef.motorSpeed;
                 copyOfJointDef.maxMotorTorque = revoluteJointDef.maxMotorTorque;
                 copyJointDef = copyOfJointDef;
-        }
-                break;
-            case PrismaticJoint:
-                {
+            }
+            break;
+            case PrismaticJoint: {
                 PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
                 PrismaticJointDef copyOfJointDef = new PrismaticJointDef();
                 copyOfJointDef.bodyA = prismaticJointDef.bodyA;
@@ -658,7 +678,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 copyOfJointDef.maxMotorForce = prismaticJointDef.maxMotorForce;
                 copyJointDef = copyOfJointDef;
             }
-                break;
+            break;
             case FrictionJoint:
                 break;
         }

@@ -1,10 +1,14 @@
 package com.evolgames.userinterface.model;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.view.Color;
+import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.shapes.BodyOutlineShape;
 
 import java.util.ArrayList;
@@ -65,6 +69,7 @@ public class BodyModel extends ProperModel {
     LayerPointsModel createLayer(){
         LayerPointsModel layerModel = new LayerPointsModel(bodyId,layerCounter.getAndIncrement(),this);
         layers.add(layerModel);
+        System.out.println("Creating layer:"+layerCounter.get());
         return layerModel;
     }
 
@@ -127,17 +132,24 @@ public class BodyModel extends ProperModel {
     }
 
     public List<List<Vector2>> getPolygons(){
-        return layers.stream().map(l-> Stream.of(l.getOutlinePoints()).collect(Collectors.toList())).collect(Collectors.toList());
+        List<List<Vector2>> polygons = new ArrayList<>();
+         layers.forEach(l->{if(l.getOutlinePoints()!=null)polygons.add(Arrays.asList(l.getOutlinePoints()));});
+         return polygons;
     }
 
     public void select(){
+       select(Colors.palette1_gold);
+    }
+    public void select(Color color){
         if(bodyOutlineShape!=null) {
-            bodyOutlineShape.select();
+            bodyOutlineShape.select(color);
         }
     }
     public void deselect(){
+      Log.e("selection","deselect :"+bodyId);
         if(bodyOutlineShape!=null) {
             bodyOutlineShape.deselect();
+            Log.e("selection","shape");
         }
     }
     public boolean hasSelectedLayer(){

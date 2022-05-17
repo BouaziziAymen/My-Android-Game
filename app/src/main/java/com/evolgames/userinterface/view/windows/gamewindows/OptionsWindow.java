@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
-import android.util.Log;
-
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
@@ -12,16 +10,12 @@ import com.evolgames.userinterface.view.layouts.TwoLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractTwoLevelSectionedAdvancedWindow;
 
 public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<SimplePrimary, SimpleSecondary, SimpleTertiary> {
-    private OptionsWindowController controller;
     public OptionsWindow(float pX, float pY, OptionsWindowController controller) {
         super(pX, pY, 5, 6, controller);
-       this.controller = controller;
         Text text = new Text("Settings:",2);
         LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal);
         mainField.addToLayout(text);
         text.setPadding(20);
-
-
         layout.addDummySection(mainField);
         mainField.setPadding(5);
         controller.init();
