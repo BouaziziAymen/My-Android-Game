@@ -1,5 +1,7 @@
 package com.evolgames.helpers.utilities;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.caliper.Caliper;
 import com.evolgames.caliper.Polygon;
@@ -710,7 +712,7 @@ public class GeometryUtils {
         }
 
         unionFinder.compute();
-
+        Log.e("dict",unionFinder.myDict.toString());
         Iterator<HashSet<Integer>> iterator = unionFinder.myDict.values().iterator();
         List<List<List<Vector2>>> polygonGroupings = new ArrayList<>();
         int index = 0;
@@ -725,8 +727,18 @@ public class GeometryUtils {
         List<List<Vector2>> result = new ArrayList<>();
         for (List<List<Vector2>> grouping : polygonGroupings) {
             List<Vector2> r = grouping.get(0);
-            for (int i = 1; i < grouping.size(); i++) {
-                r = polygonMerger.merge(r, grouping.get(i));
+            Iterator<List<Vector2>> iteratorGrouping = grouping.iterator();
+            int size = grouping.size();
+            while(size>1) {
+                while (iteratorGrouping.hasNext()) {
+                    List<Vector2> o = iteratorGrouping.next();
+                    if (r!=o&&GeometryUtils.doPolygonsIntersect(o, r)) {
+                        r = polygonMerger.merge(r, o);
+                        iteratorGrouping.remove();
+                        size--;
+                    }
+                }
+                iteratorGrouping = grouping.iterator();
             }
             result.add(r);
         }

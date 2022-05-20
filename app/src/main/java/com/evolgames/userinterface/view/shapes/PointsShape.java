@@ -31,7 +31,7 @@ public class PointsShape extends Container {
         this.userInterface = userInterface;
         pointImages = new ArrayList<>();
         setDepth(-10);
-        setScale(1 / userInterface.getZoomFactor(), 1 / userInterface.getZoomFactor());
+        setScale( 0.5f/ userInterface.getZoomFactor(), 0.5f / userInterface.getZoomFactor());
     }
 
     public void setLineLoopColor(float r, float g, float b) {
@@ -53,10 +53,6 @@ public class PointsShape extends Container {
         this.shapePointsModel = shapePointsModel;
     }
 
-    public ArrayList<ModelPointImage> getPointImages() {
-        return pointImages;
-    }
-
     public ModelPointImage getPointImage(Vector2 p) {
         for (ModelPointImage pointImage : pointImages)
             if (pointImage.getPoint() == p) return pointImage;
@@ -64,7 +60,6 @@ public class PointsShape extends Container {
     }
 
     public ArrayList<PointImage> getMovablePointImages() {
-
         return new ArrayList<>(pointImages);
     }
 
@@ -136,9 +131,15 @@ public class PointsShape extends Container {
     public void addCenterPointImage(ReferencePointImage centerPointImage) {
         this.centerPointImage = centerPointImage;
     }
+    public void setVisible(boolean visible){
+        pointImages.forEach(e->e.setVisible(visible));
+        if(lineLoop!=null)lineLoop.setVisible(visible);
+    }
     public void select() {
+        selected = true;
     }
     public void deselect(){
+        selected = false;
     }
     public boolean isSelected(){
         return selected;

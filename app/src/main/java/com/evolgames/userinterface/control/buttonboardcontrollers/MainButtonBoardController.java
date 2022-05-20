@@ -7,12 +7,12 @@ import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 
 public class MainButtonBoardController extends ButtonBoardController {
-private UserInterface userInterface;
+    private UserInterface userInterface;
+
     public MainButtonBoardController(ButtonBoard buttonBoard, UserInterface userInterface) {
         super(buttonBoard);
         this.userInterface = userInterface;
     }
-
 
 
     public void onDrawOptionClicked(Button<MainButtonBoardController> button) {
@@ -27,13 +27,14 @@ private UserInterface userInterface;
         userInterface.setLayersWindowVisible(true);
         userInterface.setJointsWindowVisible(false);
 
+        userInterface.getToolModel().setLayersOutlinesVisible(true);
     }
 
     public void onDrawOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setDrawButtonBoardVisible(false);
         userInterface.setLayersWindowVisible(false);
-
+        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
 
     public void onImageOptionClicked(Button<MainButtonBoardController> button) {
@@ -47,7 +48,8 @@ private UserInterface userInterface;
         userInterface.setItemButtonBoardVisible(false);
         userInterface.setSaveWindowVisible(false);
         userInterface.setItemWindowVisible(false);
-     userInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
+        userInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
+        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
 
     public void onImageOptionReleased(Button<MainButtonBoardController> button) {
@@ -66,6 +68,7 @@ private UserInterface userInterface;
         userInterface.setItemWindowVisible(false);
         userInterface.setSaveWindowVisible(false);
         userInterface.setJointsWindowVisible(true);
+        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
 
     public void onJointOptionReleased(Button<MainButtonBoardController> button) {
@@ -84,7 +87,9 @@ private UserInterface userInterface;
         userInterface.setItemWindowVisible(true);
         userInterface.setSaveWindowVisible(false);
         userInterface.setItemButtonBoardVisible(true);
+        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
+
     public void onToolOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setItemButtonBoardVisible(false);
@@ -100,9 +105,11 @@ private UserInterface userInterface;
         userInterface.setItemWindowVisible(false);
         userInterface.setSaveWindowVisible(true);
         userInterface.setItemButtonBoardVisible(false);
+        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
+
     public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
-       // userInterface.setItemButtonBoardVisible(false);
+        // userInterface.setItemButtonBoardVisible(false);
     }
 }

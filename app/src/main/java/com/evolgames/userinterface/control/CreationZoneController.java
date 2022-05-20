@@ -228,7 +228,6 @@ public class CreationZoneController extends Controller {
             indicatorArrow = null;
             creationZone.setTouchLocked(false);
         }
-
         if (action == CreationAction.MOVE_POINT || action == CreationAction.MOVE_JOINT_POINT || action == CreationAction.MOVE_TOOL_POINT) {
             ArrayList<PointImage> movablePointImages;
             if (action == CreationAction.MOVE_POINT && layerWindowController.getSelectedShape() != null) {
@@ -236,14 +235,12 @@ public class CreationZoneController extends Controller {
                     movablePointImages = layerWindowController.getSelectedShape().getPointsShape().getMovablePointImages();
                 else
                     movablePointImages = new ArrayList<>(creationZone.referencePointImageArrayList);
-
             } else if (action == CreationAction.MOVE_TOOL_POINT) {
                 System.out.println("MOVE_TOOL");
                 movablePointImages = new ArrayList<>();
                 ArrayList<ProjectileModel> list = userInterface.getToolModel().getBodyModelById(userInterface.getItemWindowController().getSelectedBodyId()).getProjectiles();
                 for (ProjectileModel entry : list) {
                     if (entry.getProjectileShape().isSelected()) {
-                        System.out.println("MOVE_TOOL_SELECTED");
                         movablePointImages.addAll(entry.getProjectileShape().getMovables(this.moveLimits));
                     }
                 }
@@ -268,7 +265,6 @@ public class CreationZoneController extends Controller {
                     distance = d;
                 }
             }
-            // Log.e("move","point:"+point.getPoint());
             if (point != null) {
                 onPointImageReleased(point);
                 selectPointImage(point);
@@ -322,7 +318,6 @@ public class CreationZoneController extends Controller {
 
         upLocked = false;
 
-        Log.e("indicator", "action down :" + upLocked);
         if (action == CreationAction.NONE) {
             return;
         }
@@ -366,10 +361,12 @@ public class CreationZoneController extends Controller {
             return;
         }
         if (action == CreationAction.PROJECTILE) {
+            Log.e("Projectile","::"+userInterface.getItemWindowController().getSelectedBodyId() );
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new ProjectileShape(new Vector2(x, y), gameScene);
 
                 ProjectileModel projectileModel = userInterface.getToolModel().createNewProjectile((ProjectileShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
+                Log.e("Projectile",""+projectileModel);
                 if (projectileModel != null) {
                     itemWindowController.onProjectileCreated(projectileModel);
                     ((ProjectileShape) indicatorArrow).setModel(projectileModel);

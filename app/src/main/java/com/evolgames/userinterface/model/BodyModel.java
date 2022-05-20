@@ -146,10 +146,8 @@ public class BodyModel extends ProperModel {
         }
     }
     public void deselect(){
-      Log.e("selection","deselect :"+bodyId);
         if(bodyOutlineShape!=null) {
             bodyOutlineShape.deselect();
-            Log.e("selection","shape");
         }
     }
     public boolean hasSelectedLayer(){

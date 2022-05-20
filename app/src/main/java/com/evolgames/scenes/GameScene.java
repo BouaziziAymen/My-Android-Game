@@ -23,6 +23,7 @@ import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.factories.BlockFactory;
 import com.evolgames.factories.BodyFactory;
 import com.evolgames.factories.GameEntityFactory;
+import com.evolgames.factories.ItemCategoryFactory;
 import com.evolgames.factories.MaterialFactory;
 import com.evolgames.factories.MeshFactory;
 import com.evolgames.factories.PropertiesFactory;
@@ -164,9 +165,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         keyboardController = new KeyboardController();
         LayerWindowController layerWindowController = new LayerWindowController();
-        Optional<ToolModel> optional = ToolUtils.loadFile(this, "test");
+        Optional<ToolModel> optional = ToolUtils.loadFile(this, "revolver");
         final ToolModel toolModel = optional.orElseGet(() -> new ToolModel(this, 0));
-
+toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController);
@@ -635,7 +636,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public void onDestroyMouseJoint(Joint j) {
         if (j instanceof MouseJoint) {
             Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
-            hand.ifPresent(value -> Objects.requireNonNull(hands.get(value.getMousePointerId())).setMouseJoint(null));
+            hand.ifPresent(value -> value.setMouseJoint(null));
         }
     }
 

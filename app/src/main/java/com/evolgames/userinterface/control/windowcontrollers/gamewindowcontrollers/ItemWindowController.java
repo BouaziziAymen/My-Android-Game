@@ -26,7 +26,6 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
-        this.projectileOptionController = userInterface.getProjectileOptionsController();
     }
 
     @Override
@@ -59,7 +58,9 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             HandModel model = userInterface.getToolModel().getHandById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             model.getHandShape().release();
         }
-        if (selectedSecondaryField == itemField) selectedSecondaryField = null;
+        if (selectedSecondaryField == itemField){
+            selectedSecondaryField = null;
+        }
     }
 
     @Override
@@ -175,7 +176,6 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
 
     public void onTargetSettingsButtonReleased(TargetField targetField) {
-        Log.e("release", "" + targetField.getSecondaryKey());
         ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         projectileOptionController.openWindow();
         projectileOptionController.updateProjectileModel(projectileModel);
@@ -200,5 +200,9 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     public void onHandSettingsButtonReleased(HandField handField) {
 
+    }
+
+    public void changeItemName(String title, int primaryKey, int secondaryKey) {
+        ((ItemField)window.getLayout().getSecondary(primaryKey, secondaryKey)).getControl().setTitle(title);
     }
 }

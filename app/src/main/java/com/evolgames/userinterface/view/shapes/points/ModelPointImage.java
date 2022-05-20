@@ -8,7 +8,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 
 public class ModelPointImage extends PointImage {
 
-    private PointsShape pointsShape;
+    private final PointsShape pointsShape;
 
 
     public ModelPointImage(PointsShape pointsShape, ITextureRegion pTextureRegion, Vector2 p) {

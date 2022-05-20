@@ -1,5 +1,7 @@
 package com.evolgames.scenes.hand;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
@@ -27,13 +29,6 @@ public class Hand {
         this.worldFacade = worldFacade;
     }
 
-    public int getMousePointerId() {
-        return mousePointerId;
-    }
-
-    public void setMousePointerId(int mousePointerId) {
-        this.mousePointerId = mousePointerId;
-    }
 
     public void grab(GameEntity entity, TouchEvent touchEvent) {
         grabbedEntity = entity;
@@ -46,6 +41,7 @@ public class Hand {
         mouseJointDef.maxForce = 1000 * entity.getMassOfGroup();
         mouseJointDef.target.set(touchEvent.getX() / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, touchEvent.getY() / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
         mouseJointDef.collideConnected = true;
+        mousePointerId = touchEvent.getPointerID();
         worldFacade.addJointToCreate(mouseJointDef, worldFacade.getGround().getGameEntityByIndex(0), entity, false);
     }
 
@@ -64,7 +60,9 @@ public class Hand {
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
-        if(touchEvent.isActionUp())if(!handControlStack.isEmpty()) {
+        Log.e("grab hand","onSceneTouch"+touchEvent.getPointerID()+":"+mousePointerId);
+        if(touchEvent.isActionUp())
+            if(!handControlStack.isEmpty()) {
             HandControl handControl = handControlStack.peek();
             if(handControl instanceof HoldHandControl){
                 if (grabbedEntity != null) {
@@ -84,6 +82,7 @@ public class Hand {
                                         / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
 
                 this.mouseJoint.setTarget(vec);
+                Log.e("grab hand","drag");
                 Vector2Pool.recycle(vec);
             }
             if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {

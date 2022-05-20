@@ -1,16 +1,14 @@
 package com.evolgames.userinterface.model.toolmodels;
 
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.view.inputs.Quantity;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 
 public class ProjectileModel extends ProperModel {
     private final ProjectileShape projectileShape;
     private final int projectileId;
     private final int bodyId;
-    private float energy;
+    private int energy;
     private float fireRate;
     private ProjectileTriggerType projectileTriggerType;
     private float recoil;
@@ -40,11 +38,11 @@ public class ProjectileModel extends ProperModel {
         return projectileShape;
     }
 
-    public void setEnergy(float energy) {
+    public void setEnergy(int energy) {
         this.energy = energy;
     }
 
-    public float getEnergy() {
+    public int getEnergy() {
         return energy;
     }
 

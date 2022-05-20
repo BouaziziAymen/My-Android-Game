@@ -833,7 +833,7 @@ public class UserInterface extends Container implements Touchable {
         for (Element e : getContents())
             if (e instanceof PointsShape) {
                 PointsShape pointsShape = (PointsShape) e;
-                pointsShape.setScale(1 / pZoomFactor, 1 / pZoomFactor);
+                pointsShape.setScale(0.5f / pZoomFactor, 0.5f / pZoomFactor);
             }
     }
 

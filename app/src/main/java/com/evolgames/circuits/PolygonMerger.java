@@ -60,7 +60,7 @@ public class PolygonMerger {
             Vector2 p2 = vertices2.get(ni);
             List<Vector2> intersections = GeometryUtils.lineIntersections(p1, p2, vertices1);
 
-            Collections.sort(intersections, (e1, e2) -> {
+            intersections.sort((e1, e2) -> {
                 float d1 = e1.dst(p1);
                 float d2 = e2.dst(p1);
                 if (d1 == d2) return 0;

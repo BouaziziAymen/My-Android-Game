@@ -6,6 +6,8 @@ import com.evolgames.userinterface.sections.OneLevelSection;
 
 import com.evolgames.userinterface.sections.ZeroLevelSection;
 import com.evolgames.userinterface.view.basics.Element;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -89,5 +91,12 @@ public class OneLevelSectionLayout<Primary extends Element, Secondary extends El
 
     public void removeSecondary(int primaryKey, int secondaryKey) {
         getSectionByKey(primaryKey).removeSection(secondaryKey);
+    }
+
+    public Primary getPrimary(int primaryKey){
+        return getSectionByKey(primaryKey).getPrimary();
+    }
+    public Secondary getSecondary(int primaryKey, int secondaryKey) {
+        return getSectionByKey(primaryKey).getSectionByKey(secondaryKey).getPrimary();
     }
 }

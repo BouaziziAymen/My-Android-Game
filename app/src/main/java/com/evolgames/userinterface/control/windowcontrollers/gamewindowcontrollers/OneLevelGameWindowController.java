@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import android.util.Log;
+
 import com.evolgames.userinterface.control.windowcontrollers.OneLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.sections.basic.PrimaryButtonField;
 import com.evolgames.userinterface.sections.basic.SecondaryButtonField;
@@ -33,7 +35,9 @@ public class OneLevelGameWindowController<W extends AbstractSectionedAdvancedWin
     @Override
     public void onPrimaryButtonReleased(Primary primary) {
         super.onPrimaryButtonReleased(primary);
-        if(selectedPrimaryField==primary)selectedPrimaryField = null;
+        if(selectedPrimaryField==primary){
+            selectedPrimaryField = null;
+        }
     }
 
     @Override
@@ -54,7 +58,7 @@ public class OneLevelGameWindowController<W extends AbstractSectionedAdvancedWin
     public void onSecondaryButtonReleased(Secondary secondary) {
         super.onSecondaryButtonReleased(secondary);
         if(secondary==selectedSecondaryField){
-            selectedPrimaryField = null;
+            selectedSecondaryField = null;
             secondary.getControl().deselect();
         }
 

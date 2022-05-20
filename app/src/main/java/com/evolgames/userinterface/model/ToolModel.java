@@ -348,4 +348,12 @@ public class ToolModel extends ProperModel implements Serializable {
     public void setToolCategory(ItemCategory toolCategory) {
         this.toolCategory = toolCategory;
     }
+
+    public void setLayersOutlinesVisible(boolean b) {
+        for(BodyModel bodyModel:bodies){
+            for(LayerPointsModel layerPointsModel:bodyModel.getLayers()){
+                layerPointsModel.getPointsShape().setVisible(b);
+            }
+        }
+    }
 }
