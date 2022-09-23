@@ -60,8 +60,8 @@ public class JointShape extends LineShape implements MovablesContainer {
     }
 
     @Override
-    public void onUpdated(float x, float y) {
-        super.onUpdated(x, y);
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x, y);
         endPoint.setPosition(end.x, end.y);
         if (selected) select();
         else release();

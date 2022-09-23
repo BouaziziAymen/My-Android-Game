@@ -1,13 +1,12 @@
 package com.evolgames.entities.particles;
 
-import com.evolgames.helpers.utilities.GeometryUtils;
-
-import org.andengine.entity.particle.emitter.BaseParticleEmitter;
-import org.andengine.util.adt.transformation.Transformation;
-import org.andengine.util.math.MathUtils;
-
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
+
+import com.evolgames.helpers.utilities.GeometryUtils;
+
+import org.andengine.util.adt.transformation.Transformation;
+import org.andengine.util.math.MathUtils;
 
 public class SegmentEmitter extends MyBaseEmitter {
 

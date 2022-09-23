@@ -1,21 +1,16 @@
 package com.evolgames.physics;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 
 public class Flag implements Comparable<Flag> {
     FlagType type;
-    private Vector2 point;
-    private float fraction;
-    private BlockA block;
+    private final Vector2 point;
+    private final float fraction;
+    private final LayerBlock block;
 
-    public Flag(BlockA block, Vector2 point, FlagType type) {
-        this.block = block;
-        this.point = point;
-        this.type = type;
-    }
 
-    public Flag(BlockA block, Vector2 point, float fraction, FlagType type) {
+    public Flag(LayerBlock block, Vector2 point, float fraction, FlagType type) {
         this.block = block;
         this.point = point;
         this.type = type;
@@ -34,7 +29,7 @@ public class Flag implements Comparable<Flag> {
         return fraction;
     }
 
-    public BlockA getBlock() {
+    public LayerBlock getBlock() {
         return block;
     }
 

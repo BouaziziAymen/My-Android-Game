@@ -11,10 +11,10 @@ import com.evolgames.userinterface.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.windows.gamewindows.SettingsWindow;
 
-public class SettingsWindowController extends ThreeLevelSectionedAdvancedWindowController<SettingsWindow, SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>, SimpleQuaternary<?>> {
+public class SettingsWindowController<P extends Properties> extends ThreeLevelSectionedAdvancedWindowController<SettingsWindow, SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>, SimpleQuaternary<?>> {
     protected UserInterface userInterface;
     protected ProperModel model;
-    protected Properties tempProperty;
+    protected P tempProperty;
 
     public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
@@ -22,14 +22,15 @@ public class SettingsWindowController extends ThreeLevelSectionedAdvancedWindowC
 
     public void onCancelSettings() {
         if (tempProperty != null)
-            model.setProperty(tempProperty);
+            model.setProperties(tempProperty);
         closeWindow();
     }
 
-    void onModelUpdated(ProperModel model) {
+    void onModelUpdated(ProperModel<P> model) {
         this.model = model;
-        if (model.getProperty() != null)
-            tempProperty = model.getProperty().getCopy();
+        if (model!=null && model.getProperties() != null) {
+            tempProperty = (P) model.getProperties().copy();
+        }
     }
 
     public void onSubmitSettings() {

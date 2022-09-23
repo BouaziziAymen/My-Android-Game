@@ -1,9 +1,11 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.ItemCategory;
+import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.properties.ItemProperties;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -13,7 +15,6 @@ import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
@@ -23,10 +24,12 @@ import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-public class ItemSaveWindowController extends SettingsWindowController {
+import javax.xml.transform.TransformerException;
+
+public class ItemSaveWindowController extends SettingsWindowController<ItemProperties> {
 
     private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
     private TextField<ItemSaveWindowController> titleTextField;
@@ -40,6 +43,7 @@ public class ItemSaveWindowController extends SettingsWindowController {
     @Override
     public void init() {
         super.init();
+        window.setVisible(false);
         TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 15);
         this.titleTextField = titledTextField.getAttachment();
         titleTextField.setBehavior(new TextFieldBehavior<ItemSaveWindowController>(this, titledTextField.getAttachment(), Keyboard.KeyboardType.AlphaNumeric, itemNameValidator, true) {
@@ -107,9 +111,9 @@ public class ItemSaveWindowController extends SettingsWindowController {
     }
 
     @Override
-    public void onModelUpdated(ProperModel model) {
+    public void onModelUpdated(ProperModel<ItemProperties> model) {
         super.onModelUpdated(model);
-        titleTextField.getBehavior().setTextValidated(((ToolModel)model).getModelName());
+        titleTextField.getBehavior().setTextValidated(model.getModelName());
     }
 
     @Override
@@ -118,9 +122,10 @@ public class ItemSaveWindowController extends SettingsWindowController {
         ItemCategory toolCategory = ((ToolModel)model).getToolCategory();
         if (toolCategory == null) return;
         try {
-            ToolUtils.saveToolModel(((ToolModel)model), ((GameScene) userInterface.getScene()).getActivity());
-        } catch (Exception e) {
-            System.out.println("Error saving tool:"+e);
+            PersistenceCaretaker.getInstance().saveToolModel(((ToolModel)model));
+        } catch (FileNotFoundException | TransformerException e) {
+            e.printStackTrace();
         }
+
     }
 }

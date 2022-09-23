@@ -9,20 +9,25 @@ import com.evolgames.caliper.Caliper;
 import com.evolgames.caliper.Polygon;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.entities.blocks.DecorationBlockConcrete;
+import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.ShatterData;
 import com.evolgames.entities.joint.JointKey;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.CoatingProperties;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.factories.BlockFactory;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.UnionFind;
 import com.evolgames.physics.PhysicsConstants;
+import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.DecorationModel;
+import com.evolgames.userinterface.model.LayerModel;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.util.adt.color.Color;
@@ -32,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
@@ -313,7 +319,7 @@ public class BlockUtils {
     }
 
 
-    public static float[] getBounds(ArrayList<BlockA> blocks, Body body, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
+    public static float[] getBounds(ArrayList<LayerBlock> blocks, Body body, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
 
         Vector2 localTangent = obtain(body.getLocalVector(worldTangent)).nor();
         Vector2 localNormal = obtain(body.getLocalVector(worldNormal)).nor();
@@ -323,9 +329,9 @@ public class BlockUtils {
         float infY1 = Float.MAX_VALUE;
         float supY1 = -Float.MAX_VALUE;
 
-        for (BlockA b : blocks) {
+        for (LayerBlock b : blocks) {
             for (Vector2 p : b.getBodyVertices()) {
-                float dx = p.x - localCenter.x;
+                float dx =p.x - localCenter.x;
                 float dy = p.y - localCenter.y;
                 float tproj = dx * localTangent.x + dy * localTangent.y;
                 float nproj = dx * localNormal.x + dy * localNormal.y;
@@ -340,7 +346,7 @@ public class BlockUtils {
         return new float[]{infX1, infY1, supX1, supY1};
     }
 
-    public static float[] getBounds(Body body, BlockA particular, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
+    public static float[] getBounds(Body body, LayerBlock particular, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
         Vector2 localTangent = obtain(body.getLocalVector(worldTangent)).nor();
         Vector2 localNormal = obtain(body.getLocalVector(worldNormal)).nor();
         Vector2 localCenter = obtain(body.getLocalPoint(worldCenter));
@@ -374,7 +380,7 @@ public class BlockUtils {
     }
 
 
-    private static void divideKeys(BlockA block1, BlockA block2, HashSet<JointKey> keys) {
+    private static void divideKeys(LayerBlock block1, LayerBlock block2, HashSet<JointKey> keys) {
         for (JointKey key : keys) {
             Vector2 anchor = key.getAnchor();
             float d1 = GeometryUtils.distBetweenPointAndPolygon(anchor.x, anchor.y, block1.getVertices());
@@ -418,7 +424,7 @@ public class BlockUtils {
         return null;
     }
 
-    public static ArrayList<ArrayList<BlockA>> getDivisionGroups(ArrayList<BlockA> blocks) {
+    public static ArrayList<ArrayList<LayerBlock>> getDivisionGroups(ArrayList<LayerBlock> blocks) {
         int N = blocks.size();
         UnionFind unionFinder = new UnionFind(N);
         for (int i = 0; i < blocks.size(); i++) {
@@ -430,12 +436,12 @@ public class BlockUtils {
 
             }
         }
-        for (BlockA b : blocks) b.setPolarity(Polarity.NEUTRAL);
+        for (LayerBlock b : blocks) b.setPolarity(Polarity.NEUTRAL);
 
         unionFinder.compute();
 
         Iterator<HashSet<Integer>> iterator = unionFinder.myDict.values().iterator();
-        ArrayList<ArrayList<BlockA>> blockGrouping = new ArrayList<>();
+        ArrayList<ArrayList<LayerBlock>> blockGrouping = new ArrayList<>();
         int INDEX = 0;
         while (iterator.hasNext()) {
             blockGrouping.add(new ArrayList<>());
@@ -446,7 +452,7 @@ public class BlockUtils {
             INDEX++;
         }
         for (int i = 0; i < blockGrouping.size(); i++) {
-            ArrayList<BlockA> list = blockGrouping.get(i);
+            ArrayList<LayerBlock> list = blockGrouping.get(i);
             for (int j = 0; j < list.size(); j++) list.get(j).setID(j);
         }
         return blockGrouping;
@@ -482,7 +488,7 @@ public class BlockUtils {
     }
 
 
-    private static void divideAssociatedBlocks(BlockA block1, BlockA block2, ArrayList<? extends Block<?, ?>> associatedBlocks, Cut cut) {
+    private static void divideAssociatedBlocks(LayerBlock block1, LayerBlock block2, ArrayList<? extends Block<?, ?>> associatedBlocks, Cut cut) {
         for (Block<?, ?> associatedBlock : associatedBlocks) {
             Cut projectedCut = BlockUtils.projectCutWithoutCorrection(associatedBlock.getVertices(), cut.getP1().cpy(), cut.getP2().cpy());
 
@@ -519,7 +525,7 @@ public class BlockUtils {
     }
 
 
-    private static void divideFreshCuts(BlockA block1, BlockA block2, ArrayList<FreshCut> freshCuts, Cut cut) {
+    private static void divideFreshCuts(LayerBlock block1, LayerBlock block2, ArrayList<FreshCut> freshCuts, Cut cut) {
         //divide freshcuts
         for (FreshCut freshCut : freshCuts) {
             boolean divided = false;
@@ -567,16 +573,16 @@ public class BlockUtils {
 
     }
 
-    public static Pair<BlockA, BlockA> cutBlockA(BlockA block, Cut cut) {
+    public static Pair<LayerBlock, LayerBlock> cutBlockA(LayerBlock block, Cut cut) {
         Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<FreshCut, FreshCut>> splitResult = BlockUtils.splitVertices(cut, block.getVertices());
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
         Pair<FreshCut, FreshCut> limits = splitResult.second;
 
 
-        BlockA block1 = BlockFactory.createBlockA(group.first, block.getProperties().getCopy(), block.getID(), false, block.getOrder());
+        LayerBlock block1 = BlockFactory.createBlockA(group.first, block.getProperties().copy(), block.getID(), false, block.getOrder());
         block1.addFreshCut(limits.first);
         block1.setPolarity(Polarity.YIN);
-        BlockA block2 = BlockFactory.createBlockA(group.second, block.getProperties().getCopy(), block.getID(), false, block.getOrder());
+        LayerBlock block2 = BlockFactory.createBlockA(group.second, block.getProperties().copy(), block.getID(), false, block.getOrder());
         block2.addFreshCut(limits.second);
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
@@ -595,7 +601,7 @@ public class BlockUtils {
 
     }
 
-    public static void setBodyVertices(BlockA block) {
+    public static void setBodyVertices(LayerBlock block) {
         ArrayList<Vector2> rVertices = BlockUtils.bodyVertices(block);
         block.setBodyVertices(rVertices);
     }
@@ -604,7 +610,7 @@ public class BlockUtils {
     public static boolean isValid(ArrayList<Vector2> points) {
       return (points.size()>= 3);
     }
-    public static ShatterData shatterData(BlockA block, Vector2 localImpactPoint) {
+    public static ShatterData shatterData(LayerBlock block, Vector2 localImpactPoint) {
         if (block.getBlockGrid() == null) return null;
         CoatingBlock coatingCenter = block.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
         //RANDOM ROTATION
@@ -639,7 +645,7 @@ public class BlockUtils {
         return new ShatterData(chosen, destructionEnergy);
     }
 
-    public static ArrayList<Vector2> bodyVertices(BlockA block) {
+    public static ArrayList<Vector2> bodyVertices(LayerBlock block) {
         ArrayList<Vector2> bodyVertices = new ArrayList<>();
         for (Vector2 v : block.getVertices()) {
             Vector2 bv = Vector2Pool.obtain(v.x / 32f, v.y / 32f);
@@ -649,7 +655,7 @@ public class BlockUtils {
     }
 
 
-    public static void computeCoatingBlocks(BlockA mainBlock) {
+    public static void computeCoatingBlocks(LayerBlock mainBlock) {
 
         double initialTemperature = PhysicsConstants.ambient_temperature;
         double initialChemicalEnergy = mainBlock.getProperties().getChemicalEnergy();
@@ -658,7 +664,7 @@ public class BlockUtils {
         for (int i = 0; i < mainBlock.getVertices().size(); i++)
             mainBlockVerticesCopy.add(Vector2Pool.obtain(mainBlock.getVertices().get(i)));
 
-        root.initialization(mainBlockVerticesCopy, new CoatingProperties(mainBlock.getProperties(), 0, 0, initialTemperature, 0, initialChemicalEnergy), 0, true);
+        root.initialization(mainBlockVerticesCopy, new CoatingProperties( 0, 0, initialTemperature, 0, initialChemicalEnergy,mainBlock.getProperties()), 0, true);
 
         ArrayList<Vector2> vertices = root.getVertices();
         Vector2 center = GeometryUtils.calculateCentroid(vertices);
@@ -697,13 +703,12 @@ public class BlockUtils {
 
         float ylen = Y.len();
         float len = Math.max(xlen, ylen);
-        int n = (int) (Math.floor(len / 32) + 1);
         final float step = 16;
         int xCount = (int) Math.floor(xlen / step);
         int yCount = (int) Math.floor(ylen / step);
         final Vector2 stepX = Vector2Pool.obtain(uX).mul(xlen / (xCount + 1));
         final Vector2 stepY = Vector2Pool.obtain(uY).mul(ylen / (yCount + 1));
-        CoatingBlock currentx = root;
+        CoatingBlock currentTx = root;
         Vector2 EYBegin = obtain();
         Vector2 EYEnd = obtain();
         root.setStep(step);
@@ -711,15 +716,15 @@ public class BlockUtils {
             if (i < xCount) {
                 EXBegin.add(stepX);
                 EXEnd.add(stepX);
-                Cut cut = findCut(currentx.getVertices(), EXBegin, EXEnd);
+                Cut cut = findCut(currentTx.getVertices(), EXBegin, EXEnd);
                 if (cut == null) continue;
 
-                currentx.performCut(cut);
-                currentx.setAborted(true);
+                currentTx.performCut(cut);
+                currentTx.setAborted(true);
             }
 
 
-            CoatingBlock currenty = (i < xCount) ? (currentx.getChildren().get(1).isNotAborted() ? currentx.getChildren().get(1) : currentx.getChildren().get(0)) : currentx;
+            CoatingBlock currenty = (i < xCount) ? (currentTx.getChildren().get(1).isNotAborted() ? currentTx.getChildren().get(1) : currentTx.getChildren().get(0)) : currentTx;
 
             EYBegin.set(P0.x - uX.x * 5, P0.y - uX.y * 5);
             EYEnd.set(P0.x + X.x + uX.x * 5, P0.y + X.y + uX.y * 5);
@@ -745,8 +750,8 @@ public class BlockUtils {
             }
 
 
-            if (currentx.getChildren().size() > 0)
-                currentx = currentx.getChildren().get(0);
+            if (currentTx.getChildren().size() > 0)
+                currentTx = currentTx.getChildren().get(0);
 
 
         }
@@ -785,24 +790,24 @@ public class BlockUtils {
 
     }
 
-    public static Color[] computeColors(ArrayList<BlockA> blocks) {
+    public static Color[] computeColors(ArrayList<LayerBlock> blocks) {
         int colorNumber = 0;
-        for (BlockA blockA : blocks) {
+        for (LayerBlock layerBlock : blocks) {
             colorNumber++;
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlockConcrete) {
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
                     colorNumber++;
                 }
             }
         }
         Color[] data = new Color[colorNumber];
         colorNumber = 0;
-        for (BlockA blockA : blocks) {
-            data[colorNumber++] = blockA.getProperties().getDefaultColor();
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+        for (LayerBlock layerBlock : blocks) {
+            data[colorNumber++] = layerBlock.getProperties().getDefaultColor();
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlockConcrete) {
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
                     if (b instanceof CoatingBlock)
                         b.getProperties().setDefaultColor(new Color(Color.TRANSPARENT));
 
@@ -813,56 +818,56 @@ public class BlockUtils {
         return data;
     }
 
-    public static int[] computeVertexCount(ArrayList<BlockA> blocks) {
+    public static int[] computeVertexCount(ArrayList<LayerBlock> blocks) {
         int groupNumber = 0;
-        for (BlockA blockA : blocks) {
+        for (LayerBlock layerBlock : blocks) {
             groupNumber++;
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlockConcrete) {
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
                     groupNumber++;
                 }
             }
         }
         int[] data = new int[groupNumber];
         groupNumber = 0;
-        for (BlockA blockA : blocks) {
-            data[groupNumber++] = blockA.getTriangles().size();
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+        for (LayerBlock layerBlock : blocks) {
+            data[groupNumber++] = layerBlock.getTriangles().size();
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlockConcrete)
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock)
                     data[groupNumber++] = b.getTriangles().size();
             }
         }
         return data;
     }
 
-    public static float[] computeData(ArrayList<BlockA> blocks) {
+    public static float[] computeData(ArrayList<LayerBlock> blocks) {
         int vertexNumber = 0;
-        for (BlockA blockA : blocks) {
-            vertexNumber += blockA.getTriangles().size();
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+        for (LayerBlock layerBlock : blocks) {
+            vertexNumber += layerBlock.getTriangles().size();
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlockConcrete) {
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
                     vertexNumber += b.getTriangles().size();
                 }
             }
         }
         float[] data = new float[vertexNumber * 3];
         vertexNumber = 0;
-        for (BlockA blockA : blocks) {
-            for (Vector2 p : blockA.getTriangles()) {
+        for (LayerBlock layerBlock : blocks) {
+            for (Vector2 p : layerBlock.getTriangles()) {
                 data[3 * vertexNumber] = p.x;
                 data[3 * vertexNumber + 1] = p.y;
                 data[3 * vertexNumber + 2] = 0;
                 vertexNumber++;
             }
-            for (Block<?, ?> b : blockA.getAssociatedBlocks()) {
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
                 if (!b.isNotAborted()) continue;
                 ArrayList<Vector2> vertices;
                 if (b instanceof CoatingBlock) {
                     vertices = b.getTriangles();
-                } else if (b instanceof DecorationBlockConcrete) {
+                } else if (b instanceof DecorationBlock) {
                     vertices = b.getTriangles();
                 } else continue;
                 for (Vector2 p : vertices) {
@@ -874,5 +879,39 @@ public class BlockUtils {
             }
         }
         return data;
+    }
+
+    public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel) {
+        List<List<Vector2>> list = new ArrayList<>();
+        for (LayerModel layerModel : bodyModel.getLayers()) {
+            list.add(layerModel.getPoints());
+        }
+        Vector2 center = GeometryUtils.calculateCenter(list);
+        return createBlocks(bodyModel,center);
+    }
+
+    public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel, Vector2 center) {
+        ArrayList<LayerBlock> blocks = new ArrayList<>();
+        for (LayerModel layerModel : bodyModel.getLayers()) {
+            Vector2[] layerPointsArray = layerModel.getOutlinePoints();
+            if (layerPointsArray == null || layerPointsArray.length < 3) continue;
+
+            LayerProperties layerProperty = (LayerProperties) layerModel.getProperties();
+
+            ArrayList<Vector2> list = Utils.translatedPoints(layerPointsArray, center);
+            LayerBlock block = BlockFactory.createBlockA(list, layerProperty.copy(), layerModel.getLayerId(), bodyModel.getLayers().indexOf(layerModel));
+            blocks.add(block);
+
+            for (DecorationModel decorationModel : layerModel.getDecorations()) {
+                DecorationBlock decorationBlock = new DecorationBlock();
+                if (decorationModel.getOutlinePoints() != null) {
+                    decorationBlock.initialization(Utils.translatedPoints(decorationModel.getOutlinePoints(), center), (DecorationProperties) decorationModel.getProperties(), decorationModel.getDecorationId(), true);
+                    block.addAssociatedBlock(decorationBlock);
+                }
+            }
+        }
+
+
+        return blocks;
     }
 }

@@ -1,34 +1,41 @@
 package com.evolgames.entities;
 
 import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.JointZoneBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.joint.JointKey;
-import com.evolgames.entities.particles.FireParticleWrapper;
 import com.evolgames.entities.particles.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.mesh.batch.TexturedMeshBatch;
-import com.evolgames.mesh.mosaic.MosaicMesh;
+import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.JointBlueprint;
 import com.evolgames.scenes.GameScene;
+
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
 
-public class GameEntity extends EntityWithBody{
+public class GameEntity extends EntityWithBody {
 
+    private final GameScene gameScene;
+    private float area;
+    public boolean changed = true;
     Color color = Utils.getRandomColor();
     private SpecialEntityType type = SpecialEntityType.Default;
     private GameGroup parentGroup;
@@ -38,47 +45,25 @@ public class GameEntity extends EntityWithBody{
     private boolean projectile;
     private TexturedMeshBatch batch;
     private String name;
-    private ArrayList<BlockA> blocks;
+    private ArrayList<LayerBlock> blocks;
     private ArrayList<GameEntity> children;
-    private GameScene gameScene;
+    private List<Trigger> triggers;
     private MosaicMesh mesh;
     private int stainDataLimit;
-    private ArrayList<NonRotatingChild> nonRotatingChildren;
     private Vector2 center;
-    public boolean changed = true;
     private boolean isBatcherSetup = false;
     private int hangedPointerId;
 
-    public SpecialEntityType getType() {
-        return type;
-    }
-
-    public void setType(SpecialEntityType type) {
-        this.type = type;
-    }
-
-    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<BlockA> blocks) {
+    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> blocks) {
         super();
         this.mesh = mesh;
         this.gameScene = scene;
         this.name = entityName;
         this.blocks = blocks;
-        for (BlockA block : blocks) block.setGameEntity(this);
+        for (LayerBlock block : blocks) block.setGameEntity(this);
 
-        nonRotatingChildren = new ArrayList<>();
-        /* #####
-        for (BlockA b : blocks) {
-            for (CoatingBlock g : b.getBlockGrid().getCoatingBlocks()) {
-                if (g.getFireParticle() != null) {
-                    g.getFireParticle().setParentGameEntity(this);
-                    nonRotatingChildren.add(g.getFireParticle());
-                }
-            }
-        }
-
-         */
-        for (BlockA block : blocks) {
-            for (Block<?,?> decorationBlock : block.getAssociatedBlocks()) {
+        for (LayerBlock block : blocks) {
+            for (Block<?, ?> decorationBlock : block.getAssociatedBlocks()) {
                 if (decorationBlock instanceof CoatingBlock) {
                     CoatingBlock coatingBlock = ((CoatingBlock) decorationBlock);
                     coatingBlock.setMesh(mesh);
@@ -86,12 +71,30 @@ public class GameEntity extends EntityWithBody{
             }
         }
 
-        float area = 0;
-        for (BlockA block : blocks) {
+       computeArea();
+        if (area >= 5) {
+            if (hasStains())
+                setupBatcher();
+        }
+    }
+
+    public float getArea() {
+        return area;
+    }
+
+    private void computeArea(){
+        this.area = 0;
+        for (LayerBlock block : blocks) {
             area += block.getArea();
         }
-        if (area >= 5)
-            if (hasStains()) setupBatcher();
+    }
+
+    public SpecialEntityType getType() {
+        return type;
+    }
+
+    public void setType(SpecialEntityType type) {
+        this.type = type;
     }
 
     public GameGroup getParentGroup() {
@@ -109,7 +112,6 @@ public class GameEntity extends EntityWithBody{
     public boolean isFireSetup() {
         return isFireSetup;
     }
-
 
 
     public boolean isProjectile() {
@@ -131,10 +133,10 @@ public class GameEntity extends EntityWithBody{
     private void setupBatcher() {
         isBatcherSetup = true;
         float area = 0;
-        for (BlockA b : blocks) area += b.getArea();
+        for (LayerBlock b : blocks) area += b.getArea();
         int stainLimit = (int) (area / 32);
         if (stainLimit < 1) stainLimit = 1;
-        stainDataLimit = Math.min(3000*64,stainLimit * 64 * 8);
+        stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
 
 
         batch = new TexturedMeshBatch(ResourceManager.getInstance().texturedMesh, stainDataLimit + 12, ResourceManager.getInstance().vbom);
@@ -150,18 +152,21 @@ public class GameEntity extends EntityWithBody{
         this.name = name;
     }
 
-    public ArrayList<BlockA> getBlocks() {
+    public ArrayList<LayerBlock> getBlocks() {
         return blocks;
     }
 
-    public void setBlocks(ArrayList<BlockA> blocks) {
+    public void setBlocks(ArrayList<LayerBlock> blocks) {
         this.blocks = blocks;
     }
 
 
-    public void update() {
+    public void onStep(float timeStep) {
+        if(triggers!=null) {
+            this.triggers.forEach(t -> t.onStep(timeStep));
+        }
 
-        for (NonRotatingChild entity : this.nonRotatingChildren) {
+       /* for (NonRotatingChild entity : this.nonRotatingChildren) {
             if (!entity.isIgnoreUpdate() && getBody() != null) {
                 Vector2 worldPosition = getBody().getWorldPoint(new Vector2(entity.x0, entity.y0).mul(1 / 32f)).cpy().mul(32);
                 if (entity.type == NRType.EMITTER) {
@@ -171,39 +176,37 @@ public class GameEntity extends EntityWithBody{
                 } else entity.setPosition(worldPosition.x, worldPosition.y);
 
             }
-        }
+        }*/
         if (isFireSetup) fireParticleWrapperWithPolygonEmitter.update();
 
-
     }
+
 
     public boolean computeTouch(TouchEvent touch) {
 
         float[] converted = mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
-        for (BlockA block : blocks) {
+        for (LayerBlock block : blocks) {
             if (GeometryUtils.PointInPolygon(converted[0], converted[1], block.getVertices())) {
                 Log.e("diagnose", "*********************************" + getName());
-                for (BlockA blockA : blocks) {
+                //for (BlockA blockA : blocks) {
                     // Log.e("diagnose","-------------------");
                     //Log.e("diagnose","blockA:"+blockA);
                     //for(Block decorationBlock:blockA.getAssociatedBlocks())
                     //  Log.e("diagnose","dec:"+decorationBlock);
-                }
-
+               // }
 
                 return true;
-            } else {
             }
         }
         return false;
     }
 
-    private BlockA getNearestBlockA(Vector2 anchor) {
+    private LayerBlock getNearestBlockA(Vector2 anchor) {
         float x = anchor.x * 32;
         float y = anchor.y * 32;
         float distance = Float.MAX_VALUE;
-        BlockA result = null;
-        for (BlockA block : blocks) {
+        LayerBlock result = null;
+        for (LayerBlock block : blocks) {
             float d = GeometryUtils.distBetweenPointAndPolygon(x, y, block.getVertices());
             if (d < distance) {
                 distance = d;
@@ -222,9 +225,11 @@ public class GameEntity extends EntityWithBody{
     }
 
     public void putKey(JointBlueprint command, JointKey.KeyType type, Vector2 anchor) {
-        BlockA nearest = getNearestBlockA(anchor);
-        Vector2 anchorConverted = obtain(anchor.x * 32, anchor.y * 32);
-        nearest.addKey(new JointKey(command, type, anchorConverted));
+        LayerBlock nearest = getNearestBlockA(anchor);
+        if(nearest==null){
+            return;
+        }
+        nearest.addKey(new JointKey(command, type, obtain(anchor.x * 32, anchor.y * 32)));
     }
 
     public MosaicMesh getMesh() {
@@ -249,8 +254,8 @@ public class GameEntity extends EntityWithBody{
             entities.add(current);
             for (JointEdge edge : current.getBody().getJointList()) {
                 GameEntity entity = (GameEntity) edge.other.getUserData();
-                if(entity!=null)
-                if (!entities.contains(entity)) deque.push(entity);
+                if (entity != null)
+                    if (!entities.contains(entity)) deque.push(entity);
             }
         }
 
@@ -262,30 +267,30 @@ public class GameEntity extends EntityWithBody{
     }
 
 
-    public boolean stainHasTwin(BlockA block, StainBlock stainBlock){
+    public boolean stainHasTwin(LayerBlock block, StainBlock stainBlock) {
         float x = stainBlock.getLocalCenterX();
         float y = stainBlock.getLocalCenterY();
-        for(Block<?,?> b:block.getAssociatedBlocks()){
-            if(b instanceof StainBlock){
-                StainBlock sblock = (StainBlock)b;
-                    float distance = GeometryUtils.dst(x, y, sblock.getLocalCenterX(), sblock.getLocalCenterY());
-                    if (distance < 1f) {
-                        return true;
+        for (Block<?, ?> b : block.getAssociatedBlocks()) {
+            if (b instanceof StainBlock) {
+                StainBlock sblock = (StainBlock) b;
+                float distance = GeometryUtils.dst(x, y, sblock.getLocalCenterX(), sblock.getLocalCenterY());
+                if (distance < 1f) {
+                    return true;
                 }
             }
         }
         return false;
     }
 
-    public void addStain(BlockA block, StainBlock stainBlock) {
+    public void addStain(LayerBlock block, StainBlock stainBlock) {
         block.addAssociatedBlock(stainBlock);
         changed = true;
         if (!isBatcherSetup) setupBatcher();
     }
 
     private boolean hasStains() {
-        for (BlockA b : blocks) {
-            for (Block decorationBlock : b.getAssociatedBlocks()) {
+        for (LayerBlock b : blocks) {
+            for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
                 if (decorationBlock instanceof StainBlock) {
                     return true;
                 }
@@ -306,8 +311,8 @@ public class GameEntity extends EntityWithBody{
 
     private ArrayList<StainBlock> getStains() {
         ArrayList<StainBlock> result = new ArrayList<>();
-        for (BlockA b : blocks) {
-            for (Block decorationBlock : b.getAssociatedBlocks()) {
+        for (LayerBlock b : blocks) {
+            for (Block<?,?> decorationBlock : b.getAssociatedBlocks()) {
                 if (decorationBlock instanceof StainBlock) {
                     result.add((StainBlock) decorationBlock);
                 }
@@ -324,7 +329,7 @@ public class GameEntity extends EntityWithBody{
         ArrayList<StainBlock> allStains = getStains();
         while (getStainDataCount(allStains) >= stainDataLimit) {
             StainBlock removedStainBlock = allStains.get(0);
-            for (BlockA b : blocks) {
+            for (LayerBlock b : blocks) {
                 if (b.getAssociatedBlocks().contains(removedStainBlock)) {
                     b.getAssociatedBlocks().remove(removedStainBlock);
                     break;
@@ -334,9 +339,9 @@ public class GameEntity extends EntityWithBody{
         }
 
 
-        for (BlockA blockA : getBlocks()) {
-            ArrayList<? extends Block<?,?>> associatedBlocks = blockA.getAssociatedBlocks();
-            for (Block<?,?> decorationBlock : associatedBlocks) {
+        for (LayerBlock layerBlock : getBlocks()) {
+            ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
+            for (Block<?, ?> decorationBlock : associatedBlocks) {
                 if (decorationBlock instanceof StainBlock) {
                     StainBlock stain = (StainBlock) decorationBlock;
                     Color color = stain.getProperties().getColor();
@@ -363,15 +368,10 @@ public class GameEntity extends EntityWithBody{
         this.center = center;
     }
 
-    public ArrayList<NonRotatingChild> getNonRotatingChildren() {
-        return nonRotatingChildren;
-    }
-
     public void test_draw() {
-        if (true) return;
         getMesh().detachChildren();
-        for (BlockA b : blocks) {
-            for (Block c : b.getAssociatedBlocks())
+        for (LayerBlock b : blocks) {
+            for (Block<?,?> c : b.getAssociatedBlocks())
                 if (c instanceof JointZoneBlock)
                     Utils.drawPathOnEntity(c.getVertices(), Color.RED, getMesh());
         }
@@ -390,7 +390,6 @@ public class GameEntity extends EntityWithBody{
     }
 
 
-
     public void detach() {
         mesh.detachSelf();
         if (fireParticleWrapperWithPolygonEmitter != null)
@@ -398,12 +397,35 @@ public class GameEntity extends EntityWithBody{
         dispose();
     }
 
+    public int getHangedPointerId() {
+        return hangedPointerId;
+    }
 
     public void setHangedPointerId(int hangedPointerId) {
         this.hangedPointerId = hangedPointerId;
     }
 
-    public int getHangedPointerId() {
-        return hangedPointerId;
+
+    public void setTriggers(List<Trigger> triggers) {
+        this.triggers = triggers;
     }
+    public boolean hasTriggers(){
+        if(this.triggers==null){
+            return false;
+        }
+        return this.triggers.size()>0;
+    }
+
+    public void onTriggerPushed() {
+       if(!hasTriggers())return;
+       Trigger trigger = triggers.get(0);
+       trigger.onTriggerPulled();
+    }
+    public void onTriggerReleased() {
+        if(!hasTriggers())return;
+        Trigger trigger = triggers.get(0);
+        trigger.onTriggerReleased();
+    }
+
+
 }

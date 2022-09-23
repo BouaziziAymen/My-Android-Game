@@ -2,13 +2,13 @@ package com.evolgames.entities.properties;
 
 import org.andengine.util.adt.color.Color;
 
-public class DecorationProperties extends BlockProperties {
+public class DecorationProperties extends ColoredProperties {
 public DecorationProperties(Color color){
     setDefaultColor(color);
 }
 
     @Override
-    public BlockProperties getCopy() {
+    public ColoredProperties copy() {
         return new DecorationProperties(getDefaultColor());
     }
 }

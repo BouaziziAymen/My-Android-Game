@@ -16,9 +16,9 @@ public class RotateImageShape extends FixedLengthArrowShape {
     }
 
     @Override
-    public void onUpdated(float x, float y) {
-        super.onUpdated(x, y);
-        float angle = (float) Math.atan2(-dir.y, dir.x) * GeometryUtils.TO_DEGREES;
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x, y);
+        float angle = (float) Math.atan2(-direction.y, direction.x) * GeometryUtils.TO_DEGREES;
         imageShape.getSprite().setRotation(angle);
         imageShape.updateSelf();
     }

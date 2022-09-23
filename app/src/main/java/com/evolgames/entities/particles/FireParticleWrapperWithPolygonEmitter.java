@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles;
 
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.systems.FlameParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;
@@ -32,7 +32,7 @@ public class FireParticleWrapperWithPolygonEmitter {
         this.emitter = new PolygonEmitter(entity);
 
         float area = 0;
-        for (BlockA b : entity.getBlocks()) area += b.getArea();
+        for (LayerBlock b : entity.getBlocks()) area += b.getArea();
         float ratio = area / (32f * 32f);
 
         this.particleSystem = new FlameParticleSystem(ief,

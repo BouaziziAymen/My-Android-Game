@@ -1,7 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.commandtemplate.GameEntityCommands;
+import com.evolgames.entities.commandtemplate.GameEntityCommands;
 
 public class EntityWithBody {
     protected Body body;
@@ -22,6 +22,10 @@ public class EntityWithBody {
 
     public void setHanged(boolean hanged) {
         this.hanged = hanged;
+    }
+
+    public boolean isHanged() {
+        return hanged;
     }
 
     public Body getBody() {

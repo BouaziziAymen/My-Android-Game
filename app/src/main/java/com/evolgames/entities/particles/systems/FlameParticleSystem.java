@@ -1,17 +1,13 @@
 package com.evolgames.entities.particles.systems;
 
 import com.evolgames.entities.particles.PolygonEmitter;
-import com.evolgames.pools.ColorModifierPool;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
-import org.andengine.entity.modifier.ColorModifier;
-import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.particle.BatchedPseudoSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.adt.color.Color;
 import org.andengine.util.math.MathUtils;
 
 public class FlameParticleSystem extends BatchedPseudoSpriteParticleSystem {

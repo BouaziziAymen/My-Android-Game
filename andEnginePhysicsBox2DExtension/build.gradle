@@ -19,12 +19,6 @@ android {
             moduleName "andenginephysicsbox2dextension"
         }
     }
-    sourceSets {
-        main {
-            jni.srcDirs = []
-            // This needs to be done so that gradle does not know about your jni. There are errors otherwise
-        }
-    }
 
     buildTypes {
         release {
@@ -33,6 +27,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    namespace 'org.andengine.extension.physics.box2d'
 
 }
 

@@ -88,7 +88,7 @@ public class VelocityParticleInitializer<T extends IEntity> extends BaseDoubleVa
 
 	@Override
 	public void onInitializeParticle(final Particle<T> pParticle, final float pVelocityX, final float pVelocityY) {
-		pParticle.getPhysicsHandler().setVelocity(pVelocityX, pVelocityY);
+	pParticle.getPhysicsHandler().setVelocity(pVelocityX, pVelocityY);
 	}
 
 	// ===========================================================

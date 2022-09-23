@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.WorldManifold;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
@@ -16,8 +16,8 @@ public class ContactWrapper {
 
 	public boolean continuous;
 	public boolean dead;
-	public BlockA block1;
-	public BlockA block2;
+	public LayerBlock block1;
+	public LayerBlock block2;
 	GameEntity entityA, entityB;
 	int time;
 	Fixture fixtureA, fixtureB;
@@ -47,8 +47,8 @@ public class ContactWrapper {
 		Body body2 = this.fixtureB.getBody();
         entityA = (GameEntity) body1.getUserData();
         entityB = (GameEntity) body2.getUserData();
-        this.block1 = (BlockA)this.fixtureA.getUserData();
-        this.block2 = (BlockA)this.fixtureB.getUserData();
+        this.block1 = (LayerBlock)this.fixtureA.getUserData();
+        this.block2 = (LayerBlock)this.fixtureB.getUserData();
         this.continuous = false;
 
 		//Log.e("contact", "contact:"+entity1.ID+"/"+entity2.ID+"at"+World.onStep);

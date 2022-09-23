@@ -2,7 +2,8 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import android.util.Log;
 
-import com.evolgames.entities.properties.PropertiesWithColor;
+import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
@@ -11,7 +12,6 @@ import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.TextFieldValidator;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.TextField;
@@ -22,7 +22,7 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
 import org.andengine.util.adt.color.Color;
 
-public class DecorationSettingsWindowController extends SettingsWindowController {
+public class DecorationSettingsWindowController extends SettingsWindowController<DecorationProperties> {
     private TextField<DecorationSettingsWindowController> decorationNameTextField;
     private TextFieldValidator decorationNameValidator = new AlphaNumericValidator(16,5);;
     private ColorSlot colorSlotForDecoration;
@@ -74,7 +74,7 @@ public class DecorationSettingsWindowController extends SettingsWindowController
             @Override
             public void informControllerButtonReleased() {
                 if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((PropertiesWithColor)model.getProperty()).getDefaultColor());
+                    colorSelectorController.bindToColor(((ColoredProperties)model.getProperties()).getDefaultColor());
                     colorSelectorController.setAcceptAction(new Action() {
                         @Override
                         public void performAction() {
@@ -92,12 +92,12 @@ public class DecorationSettingsWindowController extends SettingsWindowController
     }
 
     private void setDecorationColorSlot() {
-            Color color = ((PropertiesWithColor)model.getProperty()).getDefaultColor();
+            Color color = ((ColoredProperties)model.getProperties()).getDefaultColor();
             colorSlotForDecoration.setColor(color.getRed(), color.getGreen(), color.getBlue());
     }
 
 @Override
-    void onModelUpdated(ProperModel model) {
+    void onModelUpdated(ProperModel<DecorationProperties> model) {
         super.onModelUpdated(model);
         setDecorationColorSlot();
         setDecorationName(model.getModelName());

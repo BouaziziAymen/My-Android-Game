@@ -29,17 +29,18 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import org.andengine.util.adt.color.Color;
 
 public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowController<OptionsWindow, SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> {
-    private final UserInterface userInterface;
+    private UserInterface userInterface;
+    private final ItemSaveWindowController itemSaveController;
     private ColorSlot pipeColorSlot;
     private TextField<OptionsWindowController> polygonRadiusTextField;
     private CreationZoneController creationZoneController;
     private TextField<OptionsWindowController> polygonPointNumberTextField;
-    private IntegerValidator polygonNumberValidator = new IntegerValidator(3, 30);
-    private NumericValidator polygonRadiusValidator = new NumericValidator(false, true, 0, 32 * 5, 3, 1);
+    private final IntegerValidator polygonNumberValidator = new IntegerValidator(3, 30);
+    private final NumericValidator polygonRadiusValidator = new NumericValidator(false, true, 0, 32 * 5, 3, 1);
 
-    public OptionsWindowController(KeyboardController keyboardController, UserInterface userInterface) {
+    public OptionsWindowController(KeyboardController keyboardController, ItemSaveWindowController itemSaveWindowController) {
         this.keyboardController = keyboardController;
-        this.userInterface = userInterface;
+        this.itemSaveController = itemSaveWindowController;
     }
 
     public void setCreationZoneController(CreationZoneController creationZoneController) {
@@ -49,6 +50,27 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
     public void selectSettingsType(SettingsType settingsType) {
         resetLayout();
         switch (settingsType) {
+            case TOOL_SAVE_SETTINGS:
+                ButtonWithText<OptionsWindowController> saveToolButton = new ButtonWithText<>
+                        ("Save Tool", 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.OneClick, true);
+
+
+                SimplePrimary<ButtonWithText<?>> saveToolField = new SimplePrimary<>(0, saveToolButton);
+                window.addPrimary(saveToolField);
+
+                saveToolButton.setBehavior(new ButtonBehavior<OptionsWindowController>(this, saveToolButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                       itemSaveController.openWindow();
+                    }
+                });
+
+                break;
             case MOVE_TOOL_POINT_SETTING:
             case MOVE_JOINT_POINT_SETTINGS:
                 window.addPrimary(createMoveLimitsOption(0));
@@ -447,10 +469,12 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
     }
 
+    public void setUserInterface(UserInterface userInterface) {
+        this.userInterface = userInterface;
+    }
 
     public enum Direction {
         HORIZONTAL, VERTICAL, OTHER
     }
-
 
 }

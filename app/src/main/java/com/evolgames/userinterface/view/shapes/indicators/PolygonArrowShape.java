@@ -30,17 +30,15 @@ radius = 0;
 
 
     @Override
-    public void onUpdated(float x, float y) {
-
+    public void updateEnd(float x, float y) {
         float d = (fixedRadius)?radius:begin.dst(x,y);
         Vector2 dir = Vector2Pool.obtain(end).sub(begin);
         float angle = (float) Math.atan2(dir.y, dir.x);
         Vector2Pool.recycle(dir);
-
         ArrayList<Vector2> newPoints = VerticesFactory.createPolygon(begin.x, begin.y, angle, d, d, n);
         if(shapePointsModel.test(newPoints)) {
             detachPointImages();
-            super.onUpdated(x, y);
+            super.updateEnd(x, y);
             shapePointsModel.setPoints(newPoints);
             shapePointsModel.getPointsShape().onModelUpdated();
         }

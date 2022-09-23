@@ -1,43 +1,39 @@
 package com.evolgames.factories;
 
 import com.badlogic.gdx.physics.box2d.Filter;
-import com.evolgames.entities.properties.BlockAProperties;
-import com.evolgames.entities.properties.CollisionOption;
-import com.evolgames.entities.properties.Material;
+import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.Material;
 
 import org.andengine.util.adt.color.Color;
 
-import java.util.Arrays;
-
 public class PropertiesFactory {
     static final PropertiesFactory INSTANCE = new PropertiesFactory();
+
     public static PropertiesFactory getInstance() {
         return INSTANCE;
     }
 
-    public BlockAProperties createProperties( Material material, Filter filter){
+    public LayerProperties createProperties(Material material, Filter filter) {
 
-        BlockAProperties properties = new BlockAProperties();
+        LayerProperties properties = new LayerProperties();
         properties.setJuicy(material.isJuicy());
         properties.setFlammable(material.isFlammable());
-        properties.setFilter(filter);
+        properties.setCategoryBits(filter.categoryBits);
+        properties.setMaskBits(filter.maskBits);
+        properties.setGroupIndex(filter.groupIndex);
+        properties.setDensity(material.getDensity());
+        properties.setRestitution(material.getRestitution());
+        properties.setFriction(material.getFriction());
+        properties.setTenacity(material.getTenacity());
+        properties.setJuicinessDensity(material.getJuicinessDensity());
+        properties.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
+        properties.setJuicinessUpperPressure(material.getJuicinessUpperPressure());
 
 
-
-        properties.setProperties(new float[]{
-                material.getDensity(),
-                material.getRestitution(),
-                material.getFriction(),
-                material.getTenacity(),
-                material.getJuicinessDensity(),
-                material.getJuicinessLowerPressure(),
-                material.getJuicinessUpperPressure()
-        });
-
-        if(material.getJuiceColor()!=null)
-         properties.setJuiceColor(new Color(material.getJuiceColor()));
+        if (material.getJuiceColor() != null) {
+            properties.setJuiceColor(new Color(material.getJuiceColor()));
+        }
         properties.setDefaultColor(new Color(material.getColor()));
-        properties.setCollisionOption(new CollisionOption());
         properties.setIgnitionTemperature(material.getIgnitionTemperature());
         properties.setFlameTemperature(material.getFlameTemperature());
         properties.setChemicalEnergy(material.getEnergy());
@@ -45,17 +41,25 @@ public class PropertiesFactory {
         return properties;
     }
 
-    public BlockAProperties createProperties(BlockAProperties original){
-        BlockAProperties properties = new BlockAProperties();
-        properties.setProperties(Arrays.copyOf(original.getProperties(),original.getProperties().length));
+    public LayerProperties createProperties(LayerProperties original) {
+        LayerProperties properties = new LayerProperties();
+
+        properties.setDensity(original.getDensity());
+        properties.setRestitution(original.getRestitution());
+        properties.setFriction(original.getFriction());
+        properties.setTenacity(original.getTenacity());
+        properties.setJuicinessDensity(original.getJuicinessDensity());
+        properties.setJuicinessLowerPressure(original.getJuicinessLowerPressure());
+        properties.setJuicinessUpperPressure(original.getJuicinessUpperPressure());
         properties.setDefaultColor(new Color(original.getDefaultColor()));
-        properties.setFilter(original.getFilter());
-        properties.setCollisionOption(new CollisionOption());
+        properties.setCategoryBits(original.getCategoryBits());
+        properties.setMaskBits(original.getMaskBits());
+        properties.setGroupIndex(original.getGroupIndex());
         properties.setOrder(original.getOrder());
         properties.setJuicy(original.isJuicy());
         properties.setFlammable(original.isFlammable());
-        if(original.getJuiceColor()!=null)
-        properties.setJuiceColor(new Color(original.getJuiceColor()));
+        if (original.getJuiceColor() != null)
+            properties.setJuiceColor(new Color(original.getJuiceColor()));
         properties.setIgnitionTemperature(original.getIgnitionTemperature());
         properties.setFlameTemperature(original.getFlameTemperature());
         properties.setChemicalEnergy(original.getChemicalEnergy());

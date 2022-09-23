@@ -26,7 +26,7 @@ public class HandShape extends AngleIndicator implements MovablesContainer {
             protected void performControl(float dx, float dy) {
                 float x = HandShape.this.begin.x;
                 float y = HandShape.this.begin.y;
-                HandShape.this.setBegin(x+dx,y+dy);
+                HandShape.this.updateBegin(x+dx,y+dy);
                 HandShape.this.drawSelf();
             }
         };
@@ -82,6 +82,6 @@ public class HandShape extends AngleIndicator implements MovablesContainer {
     }
 
     public Vector2 getDir() {
-        return dir;
+        return direction;
     }
 }

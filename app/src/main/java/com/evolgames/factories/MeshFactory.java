@@ -1,10 +1,10 @@
 package com.evolgames.factories;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.mesh.mosaic.MosaicMesh;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.extension.physics.box2d.util.triangulation.EarClippingTriangulator;
@@ -31,7 +31,7 @@ public class MeshFactory {
 
 
 
-public MosaicMesh createMosaicMesh(float x, float y, float rot, ArrayList<BlockA> blocks){
+public MosaicMesh createMosaicMesh(float x, float y, float rot, ArrayList<LayerBlock> blocks){
     float[] data = BlockUtils.computeData(blocks);
     Color[] colors = BlockUtils.computeColors(blocks);
     int[] counts = BlockUtils.computeVertexCount(blocks);

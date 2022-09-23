@@ -1,11 +1,11 @@
 package com.evolgames.entities.blockvisitors;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.cut.ShatterData;
 import com.evolgames.helpers.utilities.BlockUtils;
 
-public class ShatterVisitor implements Visitor<BlockA> {
+public class ShatterVisitor implements Visitor<LayerBlock> {
     private final Vector2 localImpactPoint;
     private float availableEnergy;
     private boolean isError = false;
@@ -26,7 +26,7 @@ public class ShatterVisitor implements Visitor<BlockA> {
     }
 
     @Override
-    public void visitTheElement(BlockA cutBlock) {
+    public void visitTheElement(LayerBlock cutBlock) {
         ShatterData data = BlockUtils.shatterData(cutBlock, localImpactPoint);
         if (data == null) {
             isError = true;
@@ -34,6 +34,7 @@ public class ShatterVisitor implements Visitor<BlockA> {
         }
         availableEnergy -= data.getDestructionEnergy();
         if (availableEnergy >= 0 && !data.isNonValid()) {
+            System.out.println("Inside visitor shatter");
             setShatterPerformed();
             cutBlock.performCut(data.getDestructionCut());
         }

@@ -12,7 +12,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
-import com.evolgames.userinterface.model.LayerPointsModel;
+import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
@@ -43,6 +43,7 @@ import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerFi
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CreationZoneController extends Controller {
 
@@ -369,7 +370,7 @@ public class CreationZoneController extends Controller {
                 Log.e("Projectile",""+projectileModel);
                 if (projectileModel != null) {
                     itemWindowController.onProjectileCreated(projectileModel);
-                    ((ProjectileShape) indicatorArrow).setModel(projectileModel);
+                    ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
                 }
                 return;
             }
@@ -434,11 +435,11 @@ public class CreationZoneController extends Controller {
         }
 
         if (action == CreationAction.MIRROR) {
-            PointsModel selectedLayerPointsModel = layerWindowController.getSelectedShape();
-            ArrayList<Vector2> points = selectedLayerPointsModel.getPoints();
+            PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedShape();
+            List<Vector2> points = selectedLayerPointsModel.getPoints();
 
-            PointsModel shapePointsModel;
-            if (selectedLayerPointsModel instanceof LayerPointsModel) {
+            PointsModel<?> shapePointsModel;
+            if (selectedLayerPointsModel instanceof LayerModel) {
                 LayerField1 layer = layerWindowController.onAddLayerButtonCLicked(layerWindowController.getSelectedBodyField());
                 shapePointsModel = layerWindowController.getLayerModel(layer.getPrimaryKey(), layer.getSecondaryKey());
             } else {
@@ -466,7 +467,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (indicatorArrow != null && !indicatorArrow.isCongruentEndpoints()) {
-            indicatorArrow.onUpdated(x, y);
+            indicatorArrow.updateEnd(x, y);
         }
 
     }

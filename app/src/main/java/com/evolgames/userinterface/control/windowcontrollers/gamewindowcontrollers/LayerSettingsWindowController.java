@@ -2,9 +2,9 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import android.util.Log;
 
-import com.evolgames.entities.properties.BlockAProperties;
-import com.evolgames.entities.properties.Material;
-import com.evolgames.entities.properties.PropertiesWithColor;
+import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.Material;
 import com.evolgames.factories.MaterialFactory;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -14,7 +14,7 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.behaviors.actions.Condition;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
-import com.evolgames.userinterface.model.LayerPointsModel;
+import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
@@ -38,31 +38,31 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
 import org.andengine.util.adt.color.Color;
 
-public class LayerSettingsWindowController extends SettingsWindowController {
+public class LayerSettingsWindowController extends SettingsWindowController<LayerProperties> {
 
 
+    private final NumericValidator densityValidator = new NumericValidator(false, true, 0.01f, 999f, 3, 2);
+    private final NumericValidator ignitionTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
+    private final NumericValidator flameTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
+    private final NumericValidator energyValidator = new NumericValidator(false, false, 0, 100000, 5, 1);
+    private final AlphaNumericValidator layerNameValidator = new AlphaNumericValidator(8, 5);
+    private final LayerWindowController layerWindowController;
     private TextField<LayerSettingsWindowController> flameTemperatureTextField;
     private ColorSlot colorSlotForLayer;
     private ColorSlot colorSlotForJuice;
     private ColorSelectorWindowController colorSelectorController;
-    private NumericValidator densityValidator = new NumericValidator(false, true, 0.01f, 999f, 3, 2);
-    private NumericValidator ignitionTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
-    private NumericValidator flameTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
-    private NumericValidator energyValidator = new NumericValidator(false, false, 0, 100000, 5, 1);
-    private AlphaNumericValidator layerNameValidator = new AlphaNumericValidator(8,5);
-    private BlockAProperties layerProperty;
+    private LayerProperties layerProperty;
     private TextField<LayerSettingsWindowController> layerNameTextField;
     private TextField<LayerSettingsWindowController> densityTextField;
     private Quantity<LayerSettingsWindowController> bouncinessQuantity;
     private Quantity<LayerSettingsWindowController> frictionQuantity;
     private Quantity<LayerSettingsWindowController> hardnessQuantity;
-    private LayerWindowController layerWindowController;
     private SimpleSecondary<TitledButton<LayerSettingsWindowController>> jucyField;
     private TextField<LayerSettingsWindowController> ignitionTextField;
     private TextField<LayerSettingsWindowController> energyTextField;
     private SimpleSecondary<TitledButton<LayerSettingsWindowController>> flammableField;
 
-    public LayerSettingsWindowController(LayerWindowController layerWindowController,  KeyboardController keyboardController) {
+    public LayerSettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
         this.keyboardController = keyboardController;
         this.layerWindowController = layerWindowController;
     }
@@ -73,22 +73,22 @@ public class LayerSettingsWindowController extends SettingsWindowController {
 
 
     private void setLayerColorSlot() {
-        Color color = ((PropertiesWithColor) model.getProperty()).getDefaultColor();
+        Color color = ((ColoredProperties) model.getProperties()).getDefaultColor();
         colorSlotForLayer.setColor(color.getRed(), color.getGreen(), color.getBlue());
     }
 
     private void setJuiceColorSlot() {
-        Color color = ((BlockAProperties) model.getProperty()).getJuiceColor();
+        Color color = ((LayerProperties) model.getProperties()).getJuiceColor();
         if (color != null)
             colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
     }
 
 
     @Override
-    void onModelUpdated(ProperModel model) {
+    void onModelUpdated(ProperModel<LayerProperties> model) {
         super.onModelUpdated(model);
 
-        this.layerProperty = (BlockAProperties) model.getProperty();
+        this.layerProperty = model.getProperties();
         setLayerColorSlot();
         setJuiceColorSlot();
         setLayerName(model.getModelName());
@@ -145,7 +145,7 @@ public class LayerSettingsWindowController extends SettingsWindowController {
             @Override
             public void informControllerButtonReleased() {
                 if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((PropertiesWithColor) model.getProperty()).getDefaultColor());
+                    colorSelectorController.bindToColor(((ColoredProperties) model.getProperties()).getDefaultColor());
                     colorSelectorController.setAcceptAction(() -> setLayerColorSlot());
                     colorSelectorController.openWindow();
                 }
@@ -286,7 +286,7 @@ public class LayerSettingsWindowController extends SettingsWindowController {
             @Override
             public void informControllerButtonReleased() {
                 if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((BlockAProperties) model.getProperty()).getJuiceColor());
+                    colorSelectorController.bindToColor(((LayerProperties) model.getProperties()).getJuiceColor());
                     colorSelectorController.setAcceptAction(() -> setJuiceColorSlot());
                     colorSelectorController.openWindow();
                 }
@@ -619,7 +619,14 @@ public class LayerSettingsWindowController extends SettingsWindowController {
 
 
         Material material = MaterialFactory.getInstance().getMaterialByIndex(secondaryKey);
-        layerProperty.setProperties(new float[]{material.getDensity(), material.getRestitution(), material.getFriction(), material.getTenacity(), material.getJuicinessDensity(), material.getJuicinessLowerPressure(), material.getJuicinessUpperPressure()});
+        layerProperty.setDensity(material.getDensity());
+        layerProperty.setRestitution(material.getRestitution());
+        layerProperty.setFriction(material.getFriction());
+        layerProperty.setTenacity(material.getTenacity());
+        layerProperty.setJuicinessDensity(material.getJuicinessDensity());
+        layerProperty.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
+        layerProperty.setJuicinessUpperPressure(material.getJuicinessUpperPressure());
+
         layerProperty.getDefaultColor().set(material.getColor());
         layerProperty.setJuicy(material.isJuicy());
         layerProperty.setFlammable(material.isFlammable());
@@ -657,7 +664,7 @@ public class LayerSettingsWindowController extends SettingsWindowController {
         super.onSubmitSettings();
         userInterface.getToolModel().updateMesh();
         layerWindowController.onResume();
-        LayerPointsModel LayerModel = (LayerPointsModel) model;
+        LayerModel LayerModel = (com.evolgames.userinterface.model.LayerModel) model;
         layerWindowController.changeLayerName(model.getModelName(), LayerModel.getBodyId(), LayerModel.getLayerId());
     }
 

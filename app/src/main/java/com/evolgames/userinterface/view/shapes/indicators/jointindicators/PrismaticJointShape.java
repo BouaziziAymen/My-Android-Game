@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.evolgames.gameengine.ResourceManager;
@@ -57,7 +55,7 @@ public class PrismaticJointShape extends JointShape {
         };
 
         directionAngleIndicator.setColor(Colors.palette1_green);
-        directionAngleIndicator.onUpdated(begin.x + 64, begin.y);
+        directionAngleIndicator.updateEnd(begin.x + 64, begin.y);
         upperLimitPoint = new ControllerPointImage(ResourceManager.getInstance().diskTextureRegion, begin.cpy()) {
             @Override
             protected void performControl(float dx, float dy) {
@@ -91,7 +89,7 @@ public class PrismaticJointShape extends JointShape {
     }
 
     public void onBeginPointMoved(float x, float y) {
-        directionAngleIndicator.setBegin(x, y);
+        directionAngleIndicator.updateBegin(x, y);
         directionAngleIndicator.drawSelf();
         updateLowerLimitPosition();
         updateUpperLimitPosition();
@@ -141,7 +139,6 @@ public class PrismaticJointShape extends JointShape {
 
     private void onDirectionIndicatorTurned() {
         Vector2 direction = new Vector2(1, 0);
-        Log.e("Joint", "" + getDirectionAngle());
         MathUtils.rotateVectorByRadianAngle(direction, (float) (getDirectionAngle() * 2 * Math.PI / 360));
         jointDef.localAxis1.set(direction);
         userInterface.getJointSettingsWindowController().setPrismaticDirectionAngle(getDirectionAngle() / 360);

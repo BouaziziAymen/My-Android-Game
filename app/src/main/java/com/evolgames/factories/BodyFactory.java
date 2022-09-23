@@ -1,7 +1,5 @@
 package com.evolgames.factories;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -9,9 +7,8 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.evolgames.entities.properties.CollisionOption;
-import com.evolgames.entities.blocks.BlockA;
-import com.evolgames.entities.properties.Material;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.Material;
 import com.evolgames.helpers.utilities.BlockUtils;
 
 import org.andengine.extension.physics.box2d.PhysicsFactory;
@@ -43,11 +40,11 @@ fixtureDef.filter.maskBits = 0x0;
     return PhysicsFactory.createBoxBody(physicsWorld,x,y,w,h,0,type,fixtureDef);
     }
 
-    public Body createBody(ArrayList<BlockA> blocks, BodyDef.BodyType type) {
+    public Body createBody(ArrayList<LayerBlock> blocks, BodyDef.BodyType type) {
 
         Body body = physicsWorld.createBody(new BodyDef());
         body.setType(type);
-        for (BlockA block : blocks) {
+        for (LayerBlock block : blocks) {
              createFixtures(block,body);
             }
 
@@ -56,7 +53,7 @@ fixtureDef.filter.maskBits = 0x0;
     }
 
 
-    public void createFixtures(BlockA block, Body body){
+    public void createFixtures(LayerBlock block, Body body){
 
         HashSet<Fixture> fixtures = new HashSet<>();
             float density = block.getProperties().getDensity();
@@ -77,7 +74,11 @@ fixtureDef.filter.maskBits = 0x0;
                 fixtureDef.shape = fixtureShape;
                 Fixture fixture = body.createFixture(fixtureDef);
                 fixture.setUserData(block);
-                fixture.setFilterData(block.getProperties().getFilter());
+                Filter filter = new Filter();
+               filter.categoryBits = block.getProperties().getCategoryBits();
+               filter.maskBits = block.getProperties().getMaskBits();
+               filter.groupIndex = block.getProperties().getGroupIndex();
+                fixture.setFilterData(filter);
                 fixtures.add(fixture);
         }
         block.setBody(body);

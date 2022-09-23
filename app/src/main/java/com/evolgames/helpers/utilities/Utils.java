@@ -10,9 +10,12 @@ import org.andengine.entity.primitive.Line;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.util.adt.color.Color;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import is.kul.learningandengine.ResourceManager;
 
@@ -187,4 +190,8 @@ return points;
     public static final Random RAND = new Random();
 
 
+    public static <T> T[] concatWithStream(T[] array1, T[] array2) {
+        return Stream.concat(Arrays.stream(array1), Arrays.stream(array2))
+                .toArray(size -> (T[]) Array.newInstance(array1.getClass().getComponentType(), size));
+    }
 }

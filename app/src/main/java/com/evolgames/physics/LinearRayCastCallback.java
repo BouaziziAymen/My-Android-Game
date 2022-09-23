@@ -4,19 +4,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.BlockA;
-import com.evolgames.scenes.GameScene;
+import com.evolgames.entities.blocks.LayerBlock;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 import java.util.ArrayList;
 
 public class LinearRayCastCallback implements RayCastCallback {
-    private ArrayList<Fixture> coveredFixtures;
+    private final ArrayList<Fixture> coveredFixtures;
     private boolean direction = true;
-    private ArrayList<ArrayList<Flag>> flags;
-    private ArrayList<BlockA> coveredBlocks;
-    private ArrayList<GameEntity> coveredEntities;
+    private final ArrayList<ArrayList<Flag>> flags;
+    private final ArrayList<LayerBlock> coveredBlocks;
+    private final ArrayList<GameEntity> coveredEntities;
     private GameEntity exclusive;
     private GameEntity excepted;
 
@@ -39,7 +38,7 @@ public class LinearRayCastCallback implements RayCastCallback {
         return flags;
     }
 
-    public ArrayList<BlockA> getCoveredBlocks() {
+    public ArrayList<LayerBlock> getCoveredBlocks() {
         return coveredBlocks;
     }
 
@@ -53,12 +52,12 @@ public class LinearRayCastCallback implements RayCastCallback {
 
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+        if(fixture.isSensor())return 1;
         GameEntity entity = (GameEntity) fixture.getBody().getUserData();
-        if(entity==null)return 1;
         if(exclusive!=null&&entity!= exclusive)return 1;
         if(excepted!=null&&entity == excepted) return 1;
 
-        BlockA block = (BlockA) fixture.getUserData();
+        LayerBlock block = (LayerBlock) fixture.getUserData();
         Vector2 Point = Vector2Pool.obtain(point);
         FlagType type = (direction) ? FlagType.Entering : FlagType.Leaving;
         if (coveredBlocks.contains(block)) {

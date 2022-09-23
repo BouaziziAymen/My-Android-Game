@@ -16,7 +16,7 @@ public class LineShape {
     protected LineStrip lineStrip;
     protected Vector2 end;
     protected Vector2 begin;
-    protected Vector2 dir;
+    protected Vector2 direction;
     protected float mRed = 1, mGreen = 1, mBlue = 1;
     private boolean congruentEndpoints = false;
     private boolean indicatorsVisible;
@@ -88,9 +88,9 @@ public class LineShape {
         lineStrip.setColor(mRed, mGreen, mBlue);
     }
 
-    public void onUpdated(float x, float y) {
+    protected void onExtremityUpdated() {
         validated = true;
-        setEnd(x, y);
+        direction = Vector2Pool.obtain(end).sub(begin).nor();
         drawLine();
     }
 
@@ -98,15 +98,14 @@ public class LineShape {
         if (lineStrip != null) lineStrip.detachSelf();
     }
 
-    public void setEnd(float x, float y) {
-        end.set(x, y);
-        dir = Vector2Pool.obtain(end).sub(begin).nor();
-
+    public void updateEnd(float x, float y) {
+        end.set(x,y);
+        this.onExtremityUpdated();
     }
 
-    public void setBegin(float x, float y) {
+    public void updateBegin(float x, float y) {
         begin.set(x, y);
-        dir = Vector2Pool.obtain(end).sub(begin).nor();
+        this.onExtremityUpdated();
     }
 
     public boolean isVisible() {

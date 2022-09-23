@@ -1,23 +1,14 @@
 package com.evolgames.physics.entities.callbacks;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.BlockA;
-import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.physics.PhysicsConstants;
-import com.evolgames.scenes.GameScene;
-
-import org.andengine.extension.physics.box2d.util.Vector2Pool;
-import org.andengine.util.adt.color.Color;
-
-import is.kul.learningandengine.helpers.Utils;
+import com.evolgames.entities.blocks.LayerBlock;
 
 public class RadianceRayCastCallBack implements RayCastCallback {
 
-    private BlockA block;
+    private LayerBlock block;
 
     public Vector2 point;
     private GameEntity excepted;
@@ -44,7 +35,7 @@ GameScene.plotter.drawLine2(center.cpy().mul(32),point.cpy().mul(32),Color.RED,1
     }
 
      */
-    public BlockA getBlock(){
+    public LayerBlock getBlock(){
         return this.block;
     }
 
@@ -73,7 +64,7 @@ GameScene.plotter.drawLine2(center.cpy().mul(32),point.cpy().mul(32),Color.RED,1
 
 
             if(fraction<minfraction) {
-                this.block = (BlockA) fixture.getUserData();
+                this.block = (LayerBlock) fixture.getUserData();
                this.point =	point.cpy();
                 intersectionPoint = candidate.getBody().getLocalPoint(point).cpy().mul(32f);
                 minfraction = fraction;

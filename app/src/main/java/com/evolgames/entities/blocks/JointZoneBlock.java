@@ -16,10 +16,21 @@ public final class JointZoneBlock extends InvisibleBlock<JointZoneBlock, JointZo
     private JointZoneBlock twin;
     private JointKey.KeyType jointKeyType;
     private WeldJointDef jointDef;
-    private GameEntityTransformation transformation;
+    private final GameEntityTransformation transformation;
     private int jointId;
     private Vector2 advance;
-    private float Area;
+    private float area;
+    private LayerBlock parent;
+
+    @Override
+    public LayerBlock getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(LayerBlock parent) {
+        this.parent = parent;
+    }
 
     public JointZoneBlock(GameEntityTransformation transformation) {
         this.transformation = transformation;
@@ -94,7 +105,7 @@ twinChild2.setSkip(true);
 
     @Override
     protected void checkShape() {
-        if (getVertices().size() < 3 || Area < 9) {
+        if (getVertices().size() < 3 || area < 9) {
             setAborted(true);
         } else {
             setAborted(false);
@@ -104,7 +115,7 @@ twinChild2.setSkip(true);
 
     @Override
     protected void calculateArea() {
-        Area = GeometryUtils.getArea(getVertices());
+        area = GeometryUtils.getArea(getVertices());
     }
 
     @Override

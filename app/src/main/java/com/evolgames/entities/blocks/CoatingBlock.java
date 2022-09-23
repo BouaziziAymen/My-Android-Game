@@ -1,6 +1,5 @@
 package com.evolgames.entities.blocks;
 
-import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -9,7 +8,7 @@ import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.mesh.mosaic.MosaicMesh;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 
-public final class CoatingBlock extends DecorationBlock<CoatingBlock, CoatingProperties> {
+public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingProperties> {
 
     public Vector2 position;
     public float value;
@@ -160,10 +159,13 @@ public final class CoatingBlock extends DecorationBlock<CoatingBlock, CoatingPro
             double ignitionTemperature = getProperties().getIgnitionTemperature();
             double chemicalEnergy = getProperties().getChemicalEnergy();
             double initialChemicalEnergy = getProperties().getInitialChemicalEnergy();
-            if (true)
-                if (temperature > ignitionTemperature && chemicalEnergy >= initialChemicalEnergy / 100f)
+
+                if (temperature > ignitionTemperature && chemicalEnergy >= initialChemicalEnergy / 100f) {
                     setOnFire(true);
-                else if (temperature < ignitionTemperature) setOnFire(false);
+                }
+                else if (temperature < ignitionTemperature) {
+                    setOnFire(false);
+                }
 
             if (isOnFire()) {
                 double deltaE = getFlameTemperature() / 1000;

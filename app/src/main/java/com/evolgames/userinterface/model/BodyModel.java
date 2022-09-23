@@ -1,15 +1,10 @@
 package com.evolgames.userinterface.model;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.view.Color;
-import com.evolgames.userinterface.view.Colors;
-import com.evolgames.userinterface.view.shapes.BodyOutlineShape;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,30 +12,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class BodyModel extends ProperModel {
+public class BodyModel extends ProperModel<BodyProperties> {
     private final AtomicInteger layerCounter = new AtomicInteger();
+    private final AtomicInteger projectileCounter = new AtomicInteger();
     private final int bodyId;
-    private final ArrayList<LayerPointsModel> layers;
+    private final ArrayList<LayerModel> layers;
     private GameEntity gameEntity;
     private final ArrayList<ProjectileModel> projectiles;
     private final ArrayList<HandModel> hands;
     public static final ArrayList<BodyCategory> allCategories = new ArrayList<>(Arrays.asList(BodyCategory.ARMOR,BodyCategory.MELEE,BodyCategory.PROJECTILE));
     private BodyCategory category;
-    private BodyOutlineShape bodyOutlineShape;
 
     public void setCategory(BodyCategory category) {
         this.category = category;
     }
 
-    public void setBodyOutlineShape(BodyOutlineShape bodyOutlineShape) {
-        this.bodyOutlineShape = bodyOutlineShape;
-    }
 
     public void onChildLayerShapeUpdated(int layerId) {
-        bodyOutlineShape.onModelUpdated();
+
+    }
+
+    public void onChildLayerDeselected() {
+
     }
 
     public enum BodyCategory{
@@ -58,23 +52,22 @@ public class BodyModel extends ProperModel {
         layers = new ArrayList<>();
         projectiles = new ArrayList<>();
         hands = new ArrayList<>();
-        properties = new Properties();
-        properties.setProperties(new float[]{});
+        properties = new BodyProperties();
     }
 
     void swapLayers(int index1,int index2){
        Collections.swap(layers,index1,index2);
     }
 
-    LayerPointsModel createLayer(){
-        LayerPointsModel layerModel = new LayerPointsModel(bodyId,layerCounter.getAndIncrement(),this);
+    LayerModel createLayer(){
+        LayerModel layerModel = new LayerModel(bodyId,layerCounter.getAndIncrement(),this);
         layers.add(layerModel);
         System.out.println("Creating layer:"+layerCounter.get());
         return layerModel;
     }
 
-    LayerPointsModel getLayerModelById(int layerId){
-        for(LayerPointsModel layer:layers){
+    LayerModel getLayerModelById(int layerId){
+        for(LayerModel layer:layers){
             if(layer.getLayerId()==layerId)return layer;
         }
         return null;
@@ -83,12 +76,13 @@ public class BodyModel extends ProperModel {
         return bodyId;
     }
 
-    public ArrayList<LayerPointsModel> getLayers() {
+
+    public ArrayList<LayerModel> getLayers() {
         return layers;
     }
 
 
-     DecorationPointsModel createNewDecroation(int layerId){
+     DecorationModel createNewDecroation(int layerId){
        return Objects.requireNonNull(getLayerModelById(layerId)).createNewDecroation();
     }
 
@@ -105,7 +99,7 @@ public class BodyModel extends ProperModel {
         layers.remove(getLayerModelById(layerId));
     }
 
-    public DecorationPointsModel removeDecoration(int layerId, int decorationId) {
+    public DecorationModel removeDecoration(int layerId, int decorationId) {
         return getLayerModelById(layerId).removeDecoration(decorationId);
     }
 
@@ -123,6 +117,11 @@ public class BodyModel extends ProperModel {
         return layerCounter.get();
     }
 
+    public AtomicInteger getLayerCounter() {
+        return layerCounter;
+    }
+
+
     public ArrayList<ProjectileModel> getProjectiles() {
         return projectiles;
     }
@@ -137,29 +136,40 @@ public class BodyModel extends ProperModel {
          return polygons;
     }
 
-    public void select(){
-       select(Colors.palette1_gold);
-    }
-    public void select(Color color){
-        if(bodyOutlineShape!=null) {
-            bodyOutlineShape.select(color);
+    public void select(boolean precise){
+        if(precise && hasSelectedLayer()){
+            getSelectedLayer().select();
+        }
+        else {
+          for(LayerModel model:layers){
+              model.partialSelect();
+          }
         }
     }
+
     public void deselect(){
-        if(bodyOutlineShape!=null) {
-            bodyOutlineShape.deselect();
+        if(getSelectedLayer()!=null) {
+            getSelectedLayer().deselect();
         }
+    }
+    public LayerModel getSelectedLayer(){
+        for(LayerModel layerModel : layers){
+            if(layerModel.getPointsShape().isSelected()){
+               return layerModel;
+            }
+        }
+        return null;
     }
     public boolean hasSelectedLayer(){
-        for(LayerPointsModel layerPointsModel: layers){
-            if(layerPointsModel.getPointsShape().isSelected()){
+        for(LayerModel layerModel : layers){
+            if(layerModel.getPointsShape().isSelected()){
                 return true;
             }
         }
         return false;
     }
 
-    public BodyOutlineShape getBodyOutlineShape() {
-        return bodyOutlineShape;
+    public AtomicInteger getProjectileCounter() {
+        return projectileCounter;
     }
 }

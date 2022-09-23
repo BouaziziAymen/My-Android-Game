@@ -1,11 +1,8 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.scenes.GameScene;
 
-import org.andengine.entity.scene.Scene;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 public  class ArrowShape extends LineShape {
@@ -24,22 +21,23 @@ private final float arrowHeadWidth;
     public ArrowShape(Vector2 begin, GameScene scene) {
         this(begin,scene,0);
     }
-    @Override
-    public void onUpdated(float x, float y){
-        super.onUpdated(x, y);
-        drawArrow();
 
+    @Override
+    public void updateEnd(float x, float y){
+        super.updateEnd(x, y);
+        drawArrow();
     }
+
     public void drawSelf(){
         drawLine();
         drawArrow();
     }
     public void drawArrow(){
-        float nx = -dir.y;
-        float ny = dir.x;
+        float nx = -direction.y;
+        float ny = direction.x;
 
         Vector2 n =Vector2Pool.obtain(nx,ny);
-        Vector2 p = Vector2Pool.obtain(end).sub(dir.x*getArrowHeadLength,dir.y*getArrowHeadLength);
+        Vector2 p = Vector2Pool.obtain(end).sub(direction.x*getArrowHeadLength, direction.y*getArrowHeadLength);
         Vector2 p1 = Vector2Pool.obtain(p).add(n.x*arrowHeadWidth,n.y*arrowHeadWidth);
         Vector2 p2 = Vector2Pool.obtain(p).sub(n.x*6,n.y*arrowHeadWidth);
 

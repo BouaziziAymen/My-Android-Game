@@ -1,23 +1,16 @@
 package com.evolgames.entities.blocks;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.properties.BlockCProperties;
+import com.evolgames.entities.properties.StainProperties;
 import com.evolgames.factories.MeshFactory;
-import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.userinterface.view.layouts.Layout;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
 
-import java.util.ArrayList;
-
-public final class StainBlock extends DecorationBlock<StainBlock, BlockCProperties> {
+public final class StainBlock extends AssociatedBlock<StainBlock, StainProperties> {
 
 
     private float[] data;
-
 
 
     public ITextureRegion getTextureRegion() {
@@ -25,15 +18,15 @@ public final class StainBlock extends DecorationBlock<StainBlock, BlockCProperti
     }
 
     public float getLocalCenterX() {
-        return getProperties().getProperties()[0];
+        return getProperties().getLocalCenter().x;
     }
 
     public float getLocalCenterY() {
-        return getProperties().getProperties()[1];
+        return getProperties().getLocalCenter().y;
     }
 
     public float getLocalRotation() {
-        return getProperties().getProperties()[2];
+        return getProperties().getRotation();
     }
 
     @Override
@@ -65,11 +58,10 @@ public final class StainBlock extends DecorationBlock<StainBlock, BlockCProperti
 
     @Override
     public void translate(Vector2 t) {
-       Utils.translatePoints(getVertices(), t);
+        Utils.translatePoints(getVertices(), t);
         computeTriangles();
-       getProperties().getProperties()[0] -=  t.x;
-       getProperties().getProperties()[1] -= t.y;
-       computeData();
+        getProperties().setLocalCenter(getLocalCenterX() - t.x, getLocalCenterY() - t.y);
+        computeData();
     }
 
     @Override

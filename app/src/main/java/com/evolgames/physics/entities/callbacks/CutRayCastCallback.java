@@ -3,8 +3,7 @@ package com.evolgames.physics.entities.callbacks;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.Flag;
 import com.evolgames.physics.FlagType;
 
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 public class CutRayCastCallback implements RayCastCallback {
     boolean direction = true;
     private ArrayList<ArrayList<Flag>> flags;
-    private ArrayList<BlockA> coveredBlocks;
+    private ArrayList<LayerBlock> coveredBlocks;
     private ArrayList<Fixture> coveredFixtures;
 
 
@@ -31,7 +30,7 @@ public class CutRayCastCallback implements RayCastCallback {
         return flags;
     }
 
-    public ArrayList<BlockA> getCoveredBlocks() {
+    public ArrayList<LayerBlock> getCoveredBlocks() {
         return coveredBlocks;
     }
 
@@ -45,7 +44,7 @@ public class CutRayCastCallback implements RayCastCallback {
 
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-        BlockA block = (BlockA) fixture.getUserData();
+        LayerBlock block = (LayerBlock) fixture.getUserData();
         Vector2 Point = Vector2Pool.obtain(point);
         FlagType type = (direction) ? FlagType.Entering : FlagType.Leaving;
         if (coveredBlocks.contains(block)) {

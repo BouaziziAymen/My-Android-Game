@@ -2,12 +2,11 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.userinterface.control.windowcontrollers.TwoLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.DecorationPointsModel;
-import com.evolgames.userinterface.model.LayerPointsModel;
+import com.evolgames.userinterface.model.DecorationModel;
+import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
-import com.evolgames.userinterface.view.shapes.BodyOutlineShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.windows.gamewindows.LayersWindow;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
@@ -38,20 +37,20 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
             window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
-            ArrayList<LayerPointsModel> layers = bodyModel.getLayers();
+            ArrayList<LayerModel> layers = bodyModel.getLayers();
             for (int j = 0; j < layers.size(); j++) {
-                LayerPointsModel layerModel = layers.get(j);
+                LayerModel layerModel = layers.get(j);
                 window.addLayerField(layerModel.getModelName(), bodyModel.getBodyId(), layerModel.getLayerId());
 
 
-                for (DecorationPointsModel decorationModel : layerModel.getDecorations()) {
+                for (DecorationModel decorationModel : layerModel.getDecorations()) {
                     window.addDecorationField(bodyModel.getBodyId(), layerModel.getLayerId(), decorationModel.getDecorationId());
                 }
             }
         }
         BodyModel selectedBody = getSelectedBodyModel();
         if (selectedBody != null) {
-            LayerPointsModel selectedLayer = getSelectedLayer();
+            LayerModel selectedLayer = getSelectedLayer();
 
             BodyField1 firstBodyButton = window.getLayout().getSectionByKey(selectedBody.getBodyId()).getPrimary();
             onPrimaryButtonClicked(firstBodyButton);
@@ -66,13 +65,10 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         for (BodyModel model : userInterface.getToolModel().getBodies()) {
             resetUpDownArrows(model.getBodyId());
         }
-
-
         updateLayout();
-
     }
 
-    public LayerPointsModel getSelectedLayer() {
+    public LayerModel getSelectedLayer() {
         if (selectedLayerField == null) return null;
         return userInterface.getToolModel().getLayerModelById(selectedLayerField.getPrimaryKey(), selectedLayerField.getSecondaryKey());
     }
@@ -87,8 +83,8 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onPrimaryButtonClicked(BodyField1 bodyField) {
         super.onPrimaryButtonClicked(bodyField);
         selectedBodyField = bodyField;
-        if (!getSelectedBodyModel().hasSelectedLayer()) {
-            getSelectedBodyModel().select();
+        if(getSelectedBodyModel()!=null) {
+            getSelectedBodyModel().select(true);
         }
 
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
@@ -116,6 +112,9 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     @Override
     public void onSecondaryButtonClicked(LayerField1 layerField) {
         super.onSecondaryButtonClicked(layerField);
+        if(getSelectedLayerModel()!=null) {
+            getSelectedLayerModel().deselect();
+        }
         selectedLayerField = layerField;
 
         for (int i = 0; i < window.getLayout().getSecondariesSize(layerField.getPrimaryKey()); i++) {
@@ -127,27 +126,20 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         }
         layerField.getLayerControl().select();
         getSelectedLayerModel().select();
-        getSelectedLayerModel().getBodyModel().deselect();
-        ;
 
         layerSettingsWindowController.onModelUpdated(getSelectedLayerModel());
-
     }
 
     @Override
     public void onSecondaryButtonReleased(LayerField1 layerField) {
         super.onSecondaryButtonReleased(layerField);
-        LayerPointsModel releasedModel = userInterface.getToolModel().getLayerModelById(layerField.getPrimaryKey(), layerField.getSecondaryKey());
-        releasedModel.deselect();
-        if(getSelectedBodyModel() != null)
-        if(getSelectedBodyModel().getBodyId()==layerField.getPrimaryKey()){
-            getSelectedBodyModel().select();
-        }
-
-        if (selectedLayerField == layerField) {
+        if(getSelectedLayerModel()!=null) {
             getSelectedLayerModel().deselect();
+        }
+        if (selectedLayerField == layerField) {
             selectedLayerField = null;
         }
+
         layerField.getLayerControl().deselect();
     }
 
@@ -168,7 +160,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         super.onTertiaryButtonReleased(tertiary);
 
         if (selectedDecorationField == tertiary) {
-            DecorationPointsModel decorationModel = userInterface.getToolModel().getDecorationModelById(tertiary.getPrimaryKey(), tertiary.getSecondaryKey(), tertiary.getTertiaryKey());
+            DecorationModel decorationModel = userInterface.getToolModel().getDecorationModelById(tertiary.getPrimaryKey(), tertiary.getSecondaryKey(), tertiary.getTertiaryKey());
             decorationModel.deselect();
             PointsModel selected = getSelectedShape();
             if (selected != null) selected.select();
@@ -179,19 +171,17 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onAddBodyButtonClicked() {
         BodyModel bodyModel = userInterface.getToolModel().createNewBody();
         selectedBodyField = window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), false);
-        BodyOutlineShape bodyOutlineShape = new BodyOutlineShape(userInterface, bodyModel);
-        bodyModel.setBodyOutlineShape(bodyOutlineShape);
         ItemWindowController itemWindowController = userInterface.getItemWindowController();
         itemWindowController.onBodyCreated(bodyModel);
 
         userInterface.getJointSettingsWindowController().updateBodySelectionFields();
-        super.onPrimaryAdded(selectedBodyField);
+        this.onPrimaryAdded(selectedBodyField);
         selectedBodyField.getBodyControl().updateState(Button.State.PRESSED);
         onAddLayerButtonCLicked(selectedBodyField);
     }
 
     public LayerField1 onAddLayerButtonCLicked(BodyField1 bodyField) {
-        LayerPointsModel layerModel = userInterface.getToolModel().createNewLayer(bodyField.getPrimaryKey());
+        LayerModel layerModel = userInterface.getToolModel().createNewLayer(bodyField.getPrimaryKey());
         selectedLayerField = window.addLayerField(layerModel.getModelName(), bodyField.getPrimaryKey(), layerModel.getLayerId());
         PointsShape pointsShape = new PointsShape(userInterface);
         userInterface.addElement(pointsShape);
@@ -199,9 +189,9 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         pointsShape.select();
         resetUpDownArrows(bodyField.getPrimaryKey());
         selectedLayerField.getLayerControl().updateState(Button.State.PRESSED);
+        onSecondaryAdded(selectedLayerField);
         bodyField.getBodyControl().updateState(Button.State.PRESSED);
         onPrimaryButtonClicked(bodyField);
-        super.onSecondaryAdded(selectedLayerField);
         return selectedLayerField;
     }
 
@@ -262,7 +252,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onLayerRemoveButtonClicked(LayerField1 layerField) {
     }
 
-    private void detachLayerModelShape(LayerPointsModel layerModel) {
+    private void detachLayerModelShape(LayerModel layerModel) {
         ArrayList<PointsShape> pointsShapes = layerModel.getPointsShapes();
         for (PointsShape pointsShape : pointsShapes) {
             userInterface.removeElement(pointsShape);
@@ -274,7 +264,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onLayerRemoveButtonReleased(LayerField1 layerField) {
         if (selectedLayerField == layerField) selectedLayerField = null;
         window.getLayout().removeSecondary(layerField.getPrimaryKey(), layerField.getSecondaryKey());
-        LayerPointsModel layerModel = userInterface.getToolModel().getLayerModelById(layerField.getPrimaryKey(), layerField.getSecondaryKey());
+        LayerModel layerModel = userInterface.getToolModel().getLayerModelById(layerField.getPrimaryKey(), layerField.getSecondaryKey());
         detachLayerModelShape(layerModel);
 
         userInterface.getToolModel().removeLayer(layerField.getPrimaryKey(), layerField.getSecondaryKey());
@@ -290,7 +280,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onBodyRemoveButtonReleased(BodyField1 bodyField) {
         if (selectedBodyField == bodyField) selectedBodyField = null;
         BodyModel bodyModel = userInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
-        for (LayerPointsModel layerModel : bodyModel.getLayers()) {
+        for (LayerModel layerModel : bodyModel.getLayers()) {
             detachLayerModelShape(layerModel);
         }
 
@@ -298,7 +288,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         userInterface.getToolModel().removeBody(bodyField.getPrimaryKey());
         updateLayout();
         userInterface.getJointSettingsWindowController().updateBodySelectionFields();
-        userInterface.getProjectileOptionsController().updateBodySelectionFields();
+        userInterface.getProjectileOptionsController().updateMissileSelectionFields();
         userInterface.getItemWindowController().refresh();
         userInterface.getToolModel().updateMesh();
 
@@ -308,7 +298,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public void onLayerSettingsButtonReleased(LayerField1 layerField) {
-        LayerPointsModel layerModel = getLayerModel(layerField.getPrimaryKey(), layerField.getSecondaryKey());
+        LayerModel layerModel = getLayerModel(layerField.getPrimaryKey(), layerField.getSecondaryKey());
         layerSettingsWindowController.openWindow();
         disableFoldButton();
         disableCloseButton();
@@ -328,7 +318,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         DecorationField1 decorationField = window.addDecorationField(layerField.getPrimaryKey(), layerField.getSecondaryKey(), userInterface.getToolModel().getNewDecorationId(layerField.getPrimaryKey(), layerField.getSecondaryKey()));
         PointsShape pointsShape = new PointsShape(userInterface);
         userInterface.addElement(pointsShape);
-        DecorationPointsModel decorationModel = userInterface.getToolModel().createNewDecoration(layerField.getPrimaryKey(), layerField.getSecondaryKey());
+        DecorationModel decorationModel = userInterface.getToolModel().createNewDecoration(layerField.getPrimaryKey(), layerField.getSecondaryKey());
         decorationModel.setPointsShape(pointsShape);
 
 
@@ -353,7 +343,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     public void onDecorationRemoveButtonReleased(DecorationField1 decorationField) {
 
         window.getLayout().removeTertiary(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
-        DecorationPointsModel decorationModel = userInterface.getToolModel().removeDecoration(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
+        DecorationModel decorationModel = userInterface.getToolModel().removeDecoration(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
         PointsShape pointsShape = decorationModel.getPointsShape();
         userInterface.removeElement(pointsShape);
         pointsShape.dispose();
@@ -367,13 +357,15 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public void onDecorationSettingsButtonReleased(DecorationField1 decorationField) {
-        DecorationPointsModel model = (DecorationPointsModel) getDecorationModel(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
+        DecorationModel model = (DecorationModel) getDecorationModel(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
         decorationSettingsWindowController.openWindow();
         decorationSettingsWindowController.onModelUpdated(model);
     }
 
-    private LayerPointsModel getSelectedLayerModel() {
+    private LayerModel getSelectedLayerModel() {
+        if(selectedLayerField!=null)
         return userInterface.getToolModel().getLayerModelById(selectedLayerField.getPrimaryKey(), selectedLayerField.getSecondaryKey());
+    return null;
     }
 
     public BodyModel getBodyModel(int primaryKey) {
@@ -381,7 +373,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         return userInterface.getToolModel().getBodyModelById(primaryKey);
     }
 
-    public LayerPointsModel getLayerModel(int primaryKey, int secondaryKey) {
+    public LayerModel getLayerModel(int primaryKey, int secondaryKey) {
         return userInterface.getToolModel().getLayerModelById(primaryKey, secondaryKey);
     }
 
@@ -394,8 +386,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public BodyField1 getSelectedBodyField() {
-        return selectedBodyField;
-    }
+        return selectedBodyField;    }
 
 
     public void changeLayerName(String blockName, int primaryKey, int secondaryKey) {
@@ -424,7 +415,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         this.decorationSettingsWindowController = decorationSettingsWindowController;
     }
 
-    public PointsModel getSelectedShape() {
+    public PointsModel<?> getSelectedShape() {
         try {
             if (selectedDecorationField != null)
                 return userInterface.getToolModel().getDecorationModelById(selectedDecorationField.getPrimaryKey(), selectedDecorationField.getSecondaryKey(), selectedDecorationField.getTertiaryKey());

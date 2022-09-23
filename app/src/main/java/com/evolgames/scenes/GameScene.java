@@ -7,17 +7,22 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.evolgames.circuits.PolygonMerger;
-import com.evolgames.commandtemplate.Invoker;
+import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.Plotter;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.entities.blocks.DecorationBlockConcrete;
+import com.evolgames.entities.blocks.DecorationBlock;
+import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
+import com.evolgames.entities.init.LinearVelocityInit;
+import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.particles.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.particles.LiquidParticleWrapper;
-import com.evolgames.entities.properties.BlockAProperties;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.factories.BlockFactory;
@@ -32,7 +37,6 @@ import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
@@ -45,6 +49,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
@@ -74,7 +79,9 @@ import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.adt.transformation.Transformation;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,6 +90,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 
 public class GameScene extends AbstractScene implements IAccelerationListener,
@@ -98,7 +107,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     public Ragdoll ragdoll;
-    public GameEntity hangedEntity;
     HashMap<Integer, Hand> hands = new HashMap<>();
     private GameGroup groundGroup;
     private Vector2 point1;
@@ -120,6 +128,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private FireParticleWrapperWithPolygonEmitter fireParticlePolygon;
     private ControlPanel panel;
     private boolean created;
+    private Hand hand;
 
     public GameScene() {
         super();
@@ -129,6 +138,11 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         worldFacade = new WorldFacade(this);
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
         GameEntityFactory.getInstance().create(worldFacade.getPhysicsWorld(), this);
+        try {
+            PersistenceCaretaker.getInstance().create(this);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
 
         this.mScrollDetector = new SurfaceScrollDetector(this);
 
@@ -162,30 +176,34 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         Color color = new Color(1, 1, 1);
         color.setBlue(0);
-
         keyboardController = new KeyboardController();
         LayerWindowController layerWindowController = new LayerWindowController();
-        Optional<ToolModel> optional = ToolUtils.loadFile(this, "revolver");
-        final ToolModel toolModel = optional.orElseGet(() -> new ToolModel(this, 0));
-toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
+        ToolModel toolModel = null;
+        try {
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver.xml");
+            toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController);
-        ProjectileOptionController projectileOptionController = new ProjectileOptionController(keyboardController, toolModel);
+        ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
         ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, keyboardController);
+        OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, keyboardController);
 
+        optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
         jointWindowController.setUserInterface(userInterface);
         projectileOptionController.setUserInterface(userInterface);
         layerSettingsWindowController.setUserInterface(userInterface);
         bodySettingsWindowController.setUserInterface(userInterface);
         decorationSettingsWindowController.setUserInterface(userInterface);
-
 
         userInterface.bindToolModel(toolModel);
 
@@ -227,12 +245,12 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
         //  createAnalog();
 
 
-        BlockA block1;
+        LayerBlock block1;
 
         ArrayList<Vector2> vertices = VerticesFactory.createPolygon(0, 0, 64, 64, 4);
-        BlockAProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
         block1 = BlockFactory.createBlockA(vertices, properties, 0, 0);
-        ArrayList<BlockA> blocks = new ArrayList<>();
+        ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block1);
         // gameEntity1 = GameEntityFactory.getInstance().createGameEntity(11f, 4f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity1");
         // attachChild(gameEntity1.getMesh());
@@ -256,13 +274,13 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
                     continue;
 
                 ArrayList<Vector2> l = VerticesFactory.createRectangle(x, y, 16, 16);
-                DecorationBlockConcrete blockB = BlockFactory.createBlockB(l, new DecorationProperties(Color.PINK), 0, block1.getVertices(), new Vector2(x, y));
+                DecorationBlock blockB = BlockFactory.createBlockB(l, new DecorationProperties(Color.PINK), 0, block1.getVertices(), new Vector2(x, y));
                 block1.addAssociatedBlock(blockB);
                 break;
 
             }
 
-        if (true) {
+        if (false) {
 
 
             gameGroup = GameEntityFactory.getInstance().createGameGroup(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
@@ -276,7 +294,7 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
             //this.attachChild(fireParticlePolygon.getParticleSystem());
             //Grid grid = new Grid(this);
             if (false)
-                for (BlockA block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+                for (LayerBlock block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                     Collections.shuffle(block.getBlockGrid().getCoatingBlocks());
                     block.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
                     for (CoatingBlock g : block.getBlockGrid().getCoatingBlocks()) {
@@ -312,33 +330,47 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
 //gameEntity1.applyLiquidStain(100,130,block1);
 
 
-        ArrayList<BlockA> blocks2 = new ArrayList<>();
+        ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
-        vertices2.add(Vector2Pool.obtain(-400, 0));
+
+      vertices2.add(Vector2Pool.obtain(-400, 0));
         vertices2.add(Vector2Pool.obtain(-400, 20));
-        vertices2.add(Vector2Pool.obtain(1410, 20));
-        vertices2.add(Vector2Pool.obtain(1410, 0));
+        vertices2.add(Vector2Pool.obtain(1200, 20));
+        vertices2.add(Vector2Pool.obtain(1200, 0));
+/*
+        vertices2.add(Vector2Pool.obtain(-28.1f,-4.5f));
+        vertices2.add(Vector2Pool.obtain(-30.2f,-18.8f));
+        vertices2.add(Vector2Pool.obtain(45.6f,-34.0f));
+        vertices2.add(Vector2Pool.obtain(19.8f,-11.6f));
+        vertices2.add(Vector2Pool.obtain(3.0f,-0.7f));
+        ArrayList<Vector2> vertices3 = new ArrayList<>();
+        vertices3.add(Vector2Pool.obtain(9.9f,-20.0f));
+        vertices3.add(Vector2Pool.obtain(12.9f,-28.7f));
+        vertices3.add(Vector2Pool.obtain(45.6f,-34.0f));
+        vertices3.add(Vector2Pool.obtain(62.9f,-15.5f));
+        vertices3.add(Vector2Pool.obtain(45.2f,0.2f));*/
 
         Filter groundFilter = new Filter();
         groundFilter.categoryBits = 1;
         groundFilter.maskBits = 1 + 2 + 4 + 8 + 16 + 32;
 
-        Vector2 center = GeometryUtils.calculateCentroid(vertices2);
-        ArrayList<Vector2> listx = com.evolgames.helpers.utilities.Utils.translatedPoints(vertices2.toArray(new Vector2[0]), center);
-        BlockAProperties props = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter);
-        BlockA block3 = BlockFactory.createBlockA(listx, props, 0);
+        LayerBlock block3 = BlockFactory.createBlockA(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
+       //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
+
         blocks2.clear();
 //        blocks2.add(block1);
         blocks2.add(block3);
+       // blocks2.add(block4);
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, center.mul(1 / 32f), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
+        groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400/32f,0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        ragdoll = GameEntityFactory.getInstance().createRagdoll();
-
+        if(true) {
+            ragdoll = GameEntityFactory.getInstance().createRagdoll();
+        }
 //GameEntityFactory.getInstance().createTest();
 
 
@@ -362,7 +394,6 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
         verti2.add(new Vector2(-50, 25));
         verti2.add(new Vector2(50, 20));
         verti2.add(new Vector2(25, -25));
-        new PolygonMerger().merge(verti1, verti2);
         sortChildren();
 
 
@@ -389,25 +420,30 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
     protected void onManagedUpdate(float pSecondsElapsed) {
         sortChildren();
         userInterface.step();
-        for (Hand hand : hands.values()) hand.onUpdate();
-        if (false) {
-            GameEntityFactory.getInstance().createBullet();
+        for (Hand hand : hands.values()){
+            hand.onUpdate();
+        }
+        if (false&&step%10==0) {
+          //  GameEntityFactory.getInstance().createBullet();
 
         }
 
-        if (!pause)
-            super.onManagedUpdate(1 / 60f);
+        if (!pause) {
+            super.onManagedUpdate(pSecondsElapsed);
+        }
 
         if (false && step == 60) GameEntityFactory.getInstance().createLinks();
 
         step++;
 
         Invoker.onStep();
-        if (ragdoll != null)
-            ragdoll.onUpdate(1 / 60f);
+        if (ragdoll != null) {
+            ragdoll.onUpdate(pSecondsElapsed);
+        }
         getWorldFacade().onStep(pSecondsElapsed);
-        for (GameGroup gameGroup : gameGroups)
-            gameGroup.update();
+        for (GameGroup gameGroup : gameGroups) {
+            gameGroup.onStep(pSecondsElapsed);
+        }
         if (false)
             if (gameGroup.getGameEntityByIndex(0).getBody() != null) {
                 gameGroup.getGameEntityByIndex(0).getBody().setLinearVelocity(30, 10 - step / 100f);
@@ -427,8 +463,8 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
             if (step % 120 == 0) {
                 Random rand = new Random();
                 ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, (float) (Math.random() * Math.PI), 100, 100, rand.nextInt(6) + 3);
-                BlockAProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
-                BlockA block = BlockFactory.createBlockA(list, properties, 0);
+                LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+                LayerBlock block = BlockFactory.createBlockA(list, properties, 0);
                 properties.setDefaultColor(Utils.getRandomColor(0.5f));
 
                 // groundGroup.getMesh().addLayer(MeshFactory.getInstance().createMeshPartBluePrint(block));
@@ -439,7 +475,7 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
 
         if (false) {
 
-            for (BlockA block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+            for (LayerBlock block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                 //Collections.shuffle(block.getBlockGrid().getCoatingBlocks());
                 // block.getBlockGrid().getCoatingBlocks().get(12).setTemperature(3000);
                 Log.e("temps", "" + Arrays.toString(block.getBlockGrid().getCoatingBlocks().toArray()));
@@ -454,14 +490,14 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
         if (false)
             if (step % 5 == 0) {
 
-                BlockA blockA = new BlockA();
+                LayerBlock layerBlock = new LayerBlock();
                 Random random = new Random();
                 //VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float) (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
                 ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
                 //vertices.clear();
                 //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
-                blockA.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0), new Filter()), 0, true);
-                BlockUtils.computeCoatingBlocks(blockA);
+                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0), new Filter()), 0, true);
+                BlockUtils.computeCoatingBlocks(layerBlock);
             }
 
         if (false) {
@@ -482,34 +518,23 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
                 // pause = true;
                 Log.e("createproj", "" + step);
                 Vector2 u = new Vector2(0, -1);
-                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
+                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4)*0;
 
                 GeometryUtils.rotateVectorRad(u, angle);
                 ArrayList<Vector2> vertices1 = new ArrayList<>();
                 vertices1.add(Vector2Pool.obtain(0, -10));
-                vertices1.add(Vector2Pool.obtain(-1, -5));
+                vertices1.add(Vector2Pool.obtain(-6, -5));
                 vertices1.add(Vector2Pool.obtain(0, 15));
-                vertices1.add(Vector2Pool.obtain(1, -5));
+                vertices1.add(Vector2Pool.obtain(6, -5));
 
-                BlockAProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), projectileFilter);
-                BlockA block1 = BlockFactory.createBlockA(vertices1, properties1, 1);
+                LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), projectileFilter);
+                LayerBlock block1 = BlockFactory.createBlockA(vertices1, properties1, 1);
 
-
-                ArrayList<Vector2> vertices2 = new ArrayList<>();
-                vertices2.add(Vector2Pool.obtain(-1.5f, -8.2f));
-                vertices2.add(Vector2Pool.obtain(1.55f, -8));
-                vertices2.add(Vector2Pool.obtain(1.5f, -60));
-                vertices2.add(Vector2Pool.obtain(-1.55f, -60.1f));
-
-                BlockAProperties properties2 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), projectileFilter);
-                BlockA block2 = BlockFactory.createBlockA(vertices2, properties2, 0);
-
-                ArrayList<BlockA> blocks = new ArrayList<>();
+                ArrayList<LayerBlock> blocks = new ArrayList<>();
                 blocks.add(block1);
-                blocks.add(block2);
 
-
-                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), blocks, BodyDef.BodyType.DynamicBody, "Projectile", u.mul(300), 0, true, projectileFilter);
+                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(),u.mul(60)),400 / 32f, 480 / 32f, (float) (angle + Math.PI)),true);
+                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI),bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
                 GameGroup proj = new GameGroup(gameEntity);
                 attachChild(gameEntity.getMesh());
                 gameEntity.setProjectile(true);
@@ -577,13 +602,14 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
         if (action == PlayerAction.Drag) {
             int pointerID = touchEvent.getPointerID();
 
-            if (touchEvent.isActionDown() && (hands.get(pointerID) == null || Objects.requireNonNull(hands.get(pointerID)).getMouseJoint() == null)) {
+            if (touchEvent.isActionDown()) {
                 for (GameGroup gameGroup : gameGroups)
                     for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                         GameEntity entity = gameGroup.getGameEntities().get(k);
                         if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                             if (!hands.containsKey(pointerID)) {
-                                hands.put(pointerID, new Hand(worldFacade));
+                                hand = new Hand(worldFacade);
+                                hands.put(pointerID,hand );
                             }
 
                             Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
@@ -719,6 +745,10 @@ toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByInd
         float deltay = pDistanceY / zoomFactor;
 
         mainCamera.offsetCenter(deltax, deltay);
+    }
+
+    public Hand getHand() {
+        return hand;
     }
 
     @Override

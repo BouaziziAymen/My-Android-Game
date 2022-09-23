@@ -10,17 +10,15 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.ItemCategory;
-import com.evolgames.entities.blocks.BlockA;
-import com.evolgames.entities.blocks.DecorationBlockConcrete;
-import com.evolgames.entities.properties.BlockAProperties;
-import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.factories.BlockFactory;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.TransformInit;
 import com.evolgames.factories.GameEntityFactory;
 import com.evolgames.factories.MeshFactory;
+import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.ToolUtils;
-import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.mesh.mosaic.MosaicMesh;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
@@ -29,9 +27,9 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +38,6 @@ public class ToolModel extends ProperModel implements Serializable {
     private final GameScene scene;
     private final AtomicInteger bodyCounter = new AtomicInteger();
     private final AtomicInteger jointCounter = new AtomicInteger();
-    private final AtomicInteger projectileCounter = new AtomicInteger();
     private final AtomicInteger handCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
     private final ArrayList<JointModel> joints;
@@ -77,7 +74,7 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
     public ProjectileModel createNewProjectile(ProjectileShape projectileShape, int bodyId) {
-        int projectileId = projectileCounter.getAndIncrement();
+        int projectileId = Objects.requireNonNull(getBodyById(bodyId)).getProjectileCounter().getAndIncrement();
         ProjectileModel projectileModel = new ProjectileModel(bodyId, projectileId, projectileShape);
         getBodyModelById(bodyId).getProjectiles().add(projectileModel);
         return projectileModel;
@@ -103,17 +100,18 @@ public class ToolModel extends ProperModel implements Serializable {
         return jointModel;
     }
 
-    public LayerPointsModel createNewLayer(int bodyId) {
+    public LayerModel createNewLayer(int bodyId) {
         return Objects.requireNonNull(getBodyById(bodyId), "invalid bodyId").createLayer();
     }
 
-    public LayerPointsModel getLayerModelById(int bodyId, int layerId) {
+    public LayerModel getLayerModelById(int bodyId, int layerId) {
         return Objects.requireNonNull(getBodyById(bodyId)).getLayerModelById(layerId);
     }
 
     public ArrayList<BodyModel> getBodies() {
         return bodies;
     }
+
 
     public void selectJoint(int jointId) {
         getJointById(jointId).selectJoint();
@@ -129,7 +127,7 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
 
-    public DecorationPointsModel createNewDecoration(int bodyId, int layerId) {
+    public DecorationModel createNewDecoration(int bodyId, int layerId) {
         return Objects.requireNonNull(getBodyById(bodyId)).createNewDecroation(layerId);
     }
 
@@ -142,7 +140,7 @@ public class ToolModel extends ProperModel implements Serializable {
         Objects.requireNonNull(getBodyById(bodyId)).removeLayer(layerId);
     }
 
-    public DecorationPointsModel removeDecoration(int bodyId, int layerId, int decorationId) {
+    public DecorationModel removeDecoration(int bodyId, int layerId, int decorationId) {
         return Objects.requireNonNull(getBodyById(bodyId)).removeDecoration(layerId, decorationId);
     }
 
@@ -155,7 +153,7 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
 
-    public DecorationPointsModel getDecorationModelById(int primaryKey, int secondaryKey, int tertiaryKey) {
+    public DecorationModel getDecorationModelById(int primaryKey, int secondaryKey, int tertiaryKey) {
         return getLayerModelById(primaryKey, secondaryKey).getDecorationById(tertiaryKey);
     }
 
@@ -172,10 +170,7 @@ public class ToolModel extends ProperModel implements Serializable {
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) continue;
             Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getPoints());
-            ArrayList<BlockA> blocks = createBlocks(bodyModel, center);
-            if (blocks.size() == 0) continue;
-
-
+            ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
             MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(center.x, center.y, 0, blocks);
             scene.attachChild(mesh);
             meshes.add(mesh);
@@ -190,49 +185,20 @@ public class ToolModel extends ProperModel implements Serializable {
     }
 
 
-    private ArrayList<BlockA> createBlocks(BodyModel bodyModel, Vector2 center) {
-        ArrayList<BlockA> blocks = new ArrayList<>();
-        for (LayerPointsModel layerModel : bodyModel.getLayers()) {
-            Vector2[] layerPointsArray = layerModel.getOutlinePoints();
-            if (layerPointsArray == null || layerPointsArray.length < 3) continue;
-
-            BlockAProperties layerProperty = (BlockAProperties) layerModel.getProperty();
-
-            ArrayList<Vector2> list = Utils.translatedPoints(layerPointsArray, center);
-            BlockA block = BlockFactory.createBlockA(list, layerProperty.getCopy(), layerModel.getLayerId(), bodyModel.getLayers().indexOf(layerModel));
-            blocks.add(block);
-
-            for (DecorationPointsModel decorationModel : layerModel.getDecorations()) {
-                DecorationBlockConcrete decorationBlock = new DecorationBlockConcrete();
-                if (decorationModel.getOutlinePoints() != null) {
-                    decorationBlock.initialization(Utils.translatedPoints(decorationModel.getOutlinePoints(), center), (DecorationProperties) decorationModel.getProperty(), decorationModel.getDecorationId(), true);
-                    block.addAssociatedBlock(decorationBlock);
-                }
-            }
-        }
-
-
-        return blocks;
-    }
-
     public void createTool() {
-        try {
-            ToolUtils.saveToolModel(this, scene.getActivity());
-        } catch (IOException e) {
-            System.out.println("Error saving tool model.");
-        }
-
         ArrayList<GameEntity> gameEntities = new ArrayList<>();
         for (BodyModel bodyModel : bodies) {
-            ArrayList<ArrayList<Vector2>> list = new ArrayList<>();
-            for (LayerPointsModel layerModel : bodyModel.getLayers()) {
+            if (bodyModel.getLayers().size() == 0) continue;
+            List<List<Vector2>> list = new ArrayList<>();
+            for (LayerModel layerModel : bodyModel.getLayers()) {
                 list.add(layerModel.getPoints());
             }
-            if (list.size() == 0) continue;
+
             Vector2 center = GeometryUtils.calculateCenter(list);
-            ArrayList<BlockA> blocks = createBlocks(bodyModel, center);
+            ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
             if (blocks.size() == 0) return;
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(Objects.requireNonNull(center).x / 32F, center.y / 32F, 0, blocks, BodyDef.BodyType.DynamicBody, "created");
+            BodyInit bodyInit = new TransformInit(new BodyInitImpl(),center.x / 32F, center.y / 32F, 0);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
@@ -351,9 +317,18 @@ public class ToolModel extends ProperModel implements Serializable {
 
     public void setLayersOutlinesVisible(boolean b) {
         for(BodyModel bodyModel:bodies){
-            for(LayerPointsModel layerPointsModel:bodyModel.getLayers()){
-                layerPointsModel.getPointsShape().setVisible(b);
+            for(LayerModel layerModel :bodyModel.getLayers()){
+                layerModel.getPointsShape().setVisible(b);
             }
         }
     }
+
+    public AtomicInteger getBodyCounter() {
+        return bodyCounter;
+    }
+
+    public AtomicInteger getJointCounter() {
+        return jointCounter;
+    }
 }
+

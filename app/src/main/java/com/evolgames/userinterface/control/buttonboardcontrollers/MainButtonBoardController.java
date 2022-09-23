@@ -68,7 +68,6 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setItemWindowVisible(false);
         userInterface.setSaveWindowVisible(false);
         userInterface.setJointsWindowVisible(true);
-        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
 
     public void onJointOptionReleased(Button<MainButtonBoardController> button) {
@@ -87,7 +86,6 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setItemWindowVisible(true);
         userInterface.setSaveWindowVisible(false);
         userInterface.setItemButtonBoardVisible(true);
-        userInterface.getToolModel().setLayersOutlinesVisible(false);
     }
 
     public void onToolOptionReleased(Button<MainButtonBoardController> button) {
@@ -97,13 +95,13 @@ public class MainButtonBoardController extends ButtonBoardController {
 
     public void onSaveOptionClicked(Button<MainButtonBoardController> button) {
         onButtonClicked(button);
+        userInterface.updateOptionsWindow(SettingsType.TOOL_SAVE_SETTINGS);
         userInterface.setDrawButtonBoardVisible(false);
         userInterface.setImageButtonBoardVisible(false);
         userInterface.setJointButtonBoardVisible(false);
         userInterface.setLayersWindowVisible(false);
         userInterface.setJointsWindowVisible(false);
         userInterface.setItemWindowVisible(false);
-        userInterface.setSaveWindowVisible(true);
         userInterface.setItemButtonBoardVisible(false);
         userInterface.getToolModel().setLayersOutlinesVisible(false);
     }

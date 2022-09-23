@@ -1,8 +1,8 @@
 package com.evolgames.entities.properties;
 
-public class JointZoneProperties extends BlockProperties {
+public class JointZoneProperties extends ColoredProperties {
     @Override
-    public BlockProperties getCopy() {
+    public ColoredProperties copy() {
         return null;
     }
 }

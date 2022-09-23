@@ -136,13 +136,20 @@ Vector2 P8 = equation2.IntersectsWithLine(equ2);
 
     }
 
+    public void drawPoint(Vector2 v, Color color, float width) {
+        Rectangle rect = new Rectangle(v.x, v.y, width, width, this.vbom);
+        rect.setColor(color);
+        rect.setAlpha(1f);
+        rect.setZIndex(999999999);
+        attachChild(rect);
+
+    }
     public void drawPoint(Vector2 v, Color color, float alpha, float width) {
         Rectangle rect = new Rectangle(v.x, v.y, width, width, this.vbom);
         rect.setColor(color);
         rect.setAlpha(alpha);
         rect.setZIndex(999999999);
         attachChild(rect);
-
 
     }
 
@@ -154,7 +161,6 @@ Vector2 P8 = equation2.IntersectsWithLine(equ2);
         line.setZIndex(99999);
 
         this.attachChild(line);
-
 
     }
 

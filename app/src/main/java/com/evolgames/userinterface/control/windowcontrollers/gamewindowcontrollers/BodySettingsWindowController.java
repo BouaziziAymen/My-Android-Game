@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -18,18 +19,18 @@ import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
-public class BodySettingsWindowController extends SettingsWindowController {
+public class BodySettingsWindowController extends SettingsWindowController<BodyProperties> {
 
     private final LayerWindowController layerWindowController;
     private TextField<BodySettingsWindowController> bodyNameTextField;
-    private AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8,5);
+    private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8,5);
 
     public BodySettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
         this.keyboardController = keyboardController;
         this.layerWindowController = layerWindowController;
     }
 
-    void onModelUpdated(ProperModel model) {
+    void onModelUpdated(ProperModel<BodyProperties> model) {
         super.onModelUpdated(model);
         setBodyName(model.getModelName());
     }

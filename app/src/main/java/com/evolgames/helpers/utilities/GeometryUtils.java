@@ -1,16 +1,12 @@
 package com.evolgames.helpers.utilities;
 
-import android.util.Log;
+import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.caliper.Caliper;
 import com.evolgames.caliper.Polygon;
-import com.evolgames.circuits.PolygonMerger;
-import com.evolgames.entities.blocks.BlockA;
-import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.Hull;
-import com.evolgames.helpers.UnionFind;
 import com.evolgames.helpers.VectorComparator;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
@@ -19,10 +15,9 @@ import org.andengine.util.adt.transformation.Transformation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import is.kul.learningandengine.helpers.MathUtils;
 
@@ -64,8 +59,8 @@ public class GeometryUtils {
         return begin.cpy().add(GeometryUtils.imageMirror(direction, v));
     }
 
-    public static ArrayList<Vector2> mirrorPoints(ArrayList<Vector2> points, Vector2 begin, Vector2 end) {
-        ArrayList<Vector2> mirroredPoints = new ArrayList<>();
+    public static List<Vector2> mirrorPoints(List<Vector2> points, Vector2 begin, Vector2 end) {
+        List<Vector2> mirroredPoints = new ArrayList<>();
         Vector2 direction = end.cpy().sub(begin);
         for (int i = 0; i < points.size(); i++) {
             Vector2 v = points.get(i).cpy().sub(begin);
@@ -395,9 +390,9 @@ public class GeometryUtils {
         return true;
     }
 
-    public static Vector2 calculateCenter(ArrayList<ArrayList<Vector2>> blocks) {
-        ArrayList<Vector2> list = new ArrayList<>();
-        for (ArrayList<Vector2> block : blocks) list.addAll(block);
+    public static Vector2 calculateCenter(List<List<Vector2>> blocks) {
+        List<Vector2> list = new ArrayList<>();
+        for (List<Vector2> block : blocks) list.addAll(block);
         Vector2[] vertices = GeometryUtils.hullFinder.findConvexHull(list.toArray(new Vector2[0]));
         if (vertices.length < 3) return null;
         Polygon polygon = new Polygon(Arrays.asList(vertices));
@@ -405,7 +400,7 @@ public class GeometryUtils {
         return rectangle.getCenter();
     }
 
-    public static Vector2 calculateCentroid(ArrayList<Vector2> vertices) {
+    public static Vector2 calculateCentroid(List<Vector2> vertices) {
         float x = 0;
         float y = 0;
         int pointCount = vertices.size();
@@ -689,6 +684,8 @@ public class GeometryUtils {
     }
 
     private static boolean doPolygonsIntersect(List<Vector2> vertices1, List<Vector2> vertices2) {
+        System.out.println("----------------");
+        System.out.println(""+vertices2);
         for (int i = 0; i < vertices1.size(); i++) {
             int ni = (i == vertices1.size() - 1) ? 0 : i + 1;
             Vector2 p1 = vertices1.get(i);
@@ -696,53 +693,6 @@ public class GeometryUtils {
             if (GeometryUtils.doLinesIntersections(p1, p2, vertices2)) return true;
         }
         return false;
-    }
-
-    private static final PolygonMerger polygonMerger = new PolygonMerger();
-
-    public static List<List<Vector2>> mergePolygons
-            (List<List<Vector2>> polygons) {
-        int N = polygons.size();
-        UnionFind unionFinder = new UnionFind(N);
-        for (int i = 0; i < polygons.size(); i++) {
-            for (int j = i + 1; j < polygons.size(); j++) {
-                if (GeometryUtils.doPolygonsIntersect(polygons.get(i), polygons.get(j)))
-                    unionFinder.union(i, j);
-            }
-        }
-
-        unionFinder.compute();
-        Log.e("dict",unionFinder.myDict.toString());
-        Iterator<HashSet<Integer>> iterator = unionFinder.myDict.values().iterator();
-        List<List<List<Vector2>>> polygonGroupings = new ArrayList<>();
-        int index = 0;
-        while (iterator.hasNext()) {
-            polygonGroupings.add(new ArrayList<>());
-            HashSet<Integer> set = iterator.next();
-            for (Integer aSet : set) {
-                polygonGroupings.get(index).add(polygons.get(aSet));
-            }
-            index++;
-        }
-        List<List<Vector2>> result = new ArrayList<>();
-        for (List<List<Vector2>> grouping : polygonGroupings) {
-            List<Vector2> r = grouping.get(0);
-            Iterator<List<Vector2>> iteratorGrouping = grouping.iterator();
-            int size = grouping.size();
-            while(size>1) {
-                while (iteratorGrouping.hasNext()) {
-                    List<Vector2> o = iteratorGrouping.next();
-                    if (r!=o&&GeometryUtils.doPolygonsIntersect(o, r)) {
-                        r = polygonMerger.merge(r, o);
-                        iteratorGrouping.remove();
-                        size--;
-                    }
-                }
-                iteratorGrouping = grouping.iterator();
-            }
-            result.add(r);
-        }
-        return result;
     }
 
 }

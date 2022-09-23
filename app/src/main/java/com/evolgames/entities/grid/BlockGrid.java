@@ -1,13 +1,9 @@
 package com.evolgames.entities.grid;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.BlockA;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.helpers.utilities.Utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 

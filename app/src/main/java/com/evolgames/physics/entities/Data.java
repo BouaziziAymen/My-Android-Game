@@ -8,9 +8,9 @@ import java.util.Arrays;
 public class Data {
 
     private int length = 0;
-    private float[][] data;
+    private final float[][] data;
     private float delta;
-    private GameEntity[] entities;
+    private final GameEntity[] entities;
 
     public Data(int n) {
         data = new float[n][3];
@@ -57,11 +57,8 @@ public class Data {
             float inf = data[i][0];
             float sup = data[i][1];
             if (advance >= inf) {
-                if (advance <= sup) {
-                    energy += (advance - inf) * data[i][2] * PhysicsConstants.PENETRATION_CONSTANT * dL;
-                } else {
-                    energy += (sup - inf) * data[i][2] * PhysicsConstants.PENETRATION_CONSTANT * dL;
-                }
+                float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
+                energy += xAdvance * data[i][2] * PhysicsConstants.PENETRATION_CONSTANT * dL;
             }
         }
         return energy;
@@ -73,10 +70,11 @@ public class Data {
             result += Arrays.toString(data[i]);
         return result;
     }
+
     public float getMax(GameEntity entity) {
         float result = -Float.MAX_VALUE;
         for (int i = 0; i < length; i++) {
-            if(entities[i]==entity) {
+            if (entities[i] == entity) {
                 float sup = data[i][1];
                 if (result < sup) result = sup;
             }
@@ -103,10 +101,11 @@ public class Data {
         }
         return result;
     }
+
     public float getMin(GameEntity entity) {
         float result = Float.MAX_VALUE;
         for (int i = 0; i < length; i++) {
-            if(entities[i]==entity) {
+            if (entities[i] == entity) {
                 float inf = data[i][0];
                 if (result > inf) result = inf;
             }
@@ -125,8 +124,7 @@ public class Data {
         float SUP = data[index][1];
         float i = inf + advance;
         float s = sup + advance;
-        if(i>INF&&i<SUP)return true;
-        if(s>INF&&s<SUP)return true;
-        return false;
+        if (i > INF && i < SUP) return true;
+        return s > INF && s < SUP;
     }
 }

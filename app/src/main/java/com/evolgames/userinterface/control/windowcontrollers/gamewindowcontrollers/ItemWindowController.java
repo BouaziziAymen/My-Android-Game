@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
-
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
@@ -17,7 +15,7 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.TargetFi
 import java.util.ArrayList;
 
 public class ItemWindowController extends OneLevelGameWindowController<ItemWindow, BodyField, ItemField> {
-    private ProjectileOptionController projectileOptionController;
+    private final ProjectileOptionController projectileOptionController;
     private UserInterface userInterface;
 
     public ItemWindowController(ProjectileOptionController projectileOptionController) {
@@ -34,7 +32,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         selectedSecondaryField = itemField;
         if (itemField instanceof TargetField) {
             ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-            projectileOptionController.updateProjectileModel(model);
+            projectileOptionController.onModelUpdated(model);
             model.getProjectileShape().select();
         }
 
@@ -77,7 +75,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         if (userInterface.getLayersWindowController().getSelectedBodyModel() != null) {
             userInterface.getLayersWindowController().getSelectedBodyModel().deselect();
         }
-        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select();
+        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select(false);
     }
 
     @Override
@@ -103,7 +101,13 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         ArrayList<BodyModel> bodies = userInterface.getToolModel().getBodies();
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
-            window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
+            BodyField bodyField = window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
+            if(i==0){
+                selectedPrimaryField = bodyField;
+            }
+            for(ProjectileModel projectileModel:bodyModel.getProjectiles()){
+                onProjectileCreated(projectileModel);
+            }
         }
         BodyModel selectedBody = getSelectedBody();
         if (selectedBody != null) {
@@ -133,15 +137,18 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onProjectileCreated(ProjectileModel projectileModel) {
         TargetField targetField = window.addProjectileField(projectileModel.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
         updateLayout();
-        projectileOptionController.updateProjectileModel(projectileModel);
+        projectileOptionController.onModelUpdated(projectileModel);
         onSecondaryButtonClicked(targetField);
         targetField.getControl().updateState(Button.State.PRESSED);
     }
 
     public int getSelectedBodyId() {
-        if (selectedPrimaryField != null)
+        if (selectedPrimaryField != null) {
             return selectedPrimaryField.getPrimaryKey();
-        else return -1;
+        }
+        else {
+            return -1;
+        }
     }
 
     public void onTargetRemoveButtonClicked(TargetField targetField) {
@@ -159,7 +166,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         window.getLayout().removeSecondary(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         detachProjectileModelShape(projectileModel);
-        projectileOptionController.updateProjectileModel(null);
+        projectileOptionController.onModelUpdated(null);
         userInterface.getToolModel().removeProjectile(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         updateLayout();
     }
@@ -169,7 +176,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             selectedSecondaryField = null;
         window.getLayout().removeSecondary(projectileModel.getBodyId(), projectileModel.getProjectileId());
         detachProjectileModelShape(projectileModel);
-        projectileOptionController.updateProjectileModel(null);
+        projectileOptionController.onModelUpdated(null);
         userInterface.getToolModel().removeProjectile(projectileModel.getBodyId(), projectileModel.getProjectileId());
         updateLayout();
     }
@@ -178,7 +185,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onTargetSettingsButtonReleased(TargetField targetField) {
         ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         projectileOptionController.openWindow();
-        projectileOptionController.updateProjectileModel(projectileModel);
+        projectileOptionController.onModelUpdated(projectileModel);
     }
 
     public void onHandAborted(HandModel model) {
@@ -188,7 +195,6 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onNewHandCreated(HandModel handModel) {
         window.addHandField(handModel.getModelName(), handModel.getBodyId(), handModel.getHandId());
         updateLayout();
-        //  handOptionController.updateProjectileModel(handModel);
     }
 
     public void onHandRemoveButtonClicked(HandField handField) {

@@ -1,20 +1,19 @@
 package com.evolgames.userinterface.model;
 
-import com.evolgames.entities.properties.BlockProperties;
 import com.evolgames.entities.properties.Properties;
 
-public abstract class ProperModel extends Model {
-    protected Properties properties;
+public abstract class ProperModel<T extends Properties> extends Model {
+    protected T properties;
 
-    public ProperModel(String name){
+    public ProperModel(String name) {
         super(name);
     }
 
-    public Properties getProperty() {
+    public T getProperties() {
         return properties;
     }
 
-    public void setProperty(Properties property) {
+    public void setProperties(T property) {
         properties = property;
     }
 

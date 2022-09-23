@@ -1,8 +1,8 @@
 package com.evolgames.entities.particles;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.GameEntity;
+import com.evolgames.helpers.utilities.GeometryUtils;
 
 import org.andengine.util.adt.color.Color;
 
@@ -12,8 +12,8 @@ public class SegmentLiquidParticleWrapper extends LiquidParticleWrapper {
         return new SegmentEmitter(emitterData);
     }
 
-    public SegmentLiquidParticleWrapper(Color color, Vector2 first, Vector2 second,int lowerRate,int higherRate) {
-        super(color,new float[]{first.x,first.y,second.x,second.y},lowerRate,higherRate);
+    public SegmentLiquidParticleWrapper(GameEntity gameEntity, Color color, Vector2 first, Vector2 second, int lowerRate, int higherRate) {
+        super(gameEntity,color,new float[]{first.x,first.y,second.x,second.y},lowerRate,higherRate);
     }
 
 

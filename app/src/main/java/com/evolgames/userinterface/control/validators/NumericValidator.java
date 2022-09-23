@@ -8,11 +8,11 @@ import com.evolgames.userinterface.control.behaviors.actions.Condition;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 
 public class NumericValidator extends TextFieldValidator {
-    private boolean hasLengthLimit;
-    private float lowerLimit;
-    private float upperLimit;
+    private final boolean hasLengthLimit;
+    private final float lowerLimit;
+    private final float upperLimit;
     private float value;
-    private String regex;
+    private final String regex;
     private Condition validationCondition;
 
     public boolean isHasLengthLimit() {

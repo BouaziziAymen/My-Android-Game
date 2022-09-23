@@ -21,7 +21,6 @@ public class ItemCategoryFactory {
 
 
     private ItemCategoryFactory() {
-
         this.itemCategories = new ArrayList<>();
         this.itemCategories.add(new ItemCategory("c0", "Projectile"));
         this.itemCategories.add(new ItemCategory("c1", "Melee"));

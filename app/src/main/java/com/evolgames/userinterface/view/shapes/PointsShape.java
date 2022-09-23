@@ -19,7 +19,7 @@ public class PointsShape extends Container {
     private final UserInterface userInterface;
     private final Scene creationScene;
     private LineLoop lineLoop;
-    private PointsModel shapePointsModel;
+    private PointsModel<?> shapePointsModel;
     private final ArrayList<ModelPointImage> pointImages;
     private ReferencePointImage centerPointImage;
     private boolean selected;
@@ -131,6 +131,7 @@ public class PointsShape extends Container {
     public void addCenterPointImage(ReferencePointImage centerPointImage) {
         this.centerPointImage = centerPointImage;
     }
+    @Override
     public void setVisible(boolean visible){
         pointImages.forEach(e->e.setVisible(visible));
         if(lineLoop!=null)lineLoop.setVisible(visible);
@@ -143,5 +144,13 @@ public class PointsShape extends Container {
     }
     public boolean isSelected(){
         return selected;
+    }
+    public void bringToFront(){
+        if(lineLoop!=null)lineLoop.setZIndex(2);
+        creationScene.sortChildren();
+    }
+    public void bringToBackground(){
+        if(lineLoop!=null)lineLoop.setZIndex(-1);
+        creationScene.sortChildren();
     }
 }

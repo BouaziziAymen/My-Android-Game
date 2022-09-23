@@ -1,15 +1,18 @@
 package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public abstract class PointsModel extends ProperModel {
-    private ArrayList<Vector2> points;
+public abstract class PointsModel<T extends Properties> extends ProperModel<T> {
+
+    private List<Vector2> points;
     private Vector2[] outlinePoints;
     private PointsShape pointsShape;
     private Vector2 center;
@@ -31,18 +34,19 @@ public abstract class PointsModel extends ProperModel {
 
     public abstract boolean test(float x, float y);
 
-    public abstract boolean test(ArrayList<Vector2> points);
+    public abstract boolean test(List<Vector2> points);
 
 
     public void select() {
         if (pointsShape != null) {
             pointsShape.setLineLoopColor(Colors.palette1_light_green);
+            pointsShape.bringToFront();
         }
     }
-
     public void partialSelect() {
         if (pointsShape != null) {
-            pointsShape.setLineLoopColor(Colors.palette1_blue);
+            pointsShape.setLineLoopColor(Colors.palette1_light_green);
+            pointsShape.bringToBackground();
         }
     }
 
@@ -62,11 +66,11 @@ public abstract class PointsModel extends ProperModel {
         pointsShape.setShapePointsModel(this);
     }
 
-    public ArrayList<Vector2> getPoints() {
+    public List<Vector2> getPoints() {
         return points;
     }
 
-    public void setPoints(ArrayList<Vector2> points) {
+    public void setPoints(List<Vector2> points) {
         this.points = points;
     }
 

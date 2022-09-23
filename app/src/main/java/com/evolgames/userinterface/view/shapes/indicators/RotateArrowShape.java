@@ -11,9 +11,9 @@ import java.util.ArrayList;
 
 public class RotateArrowShape extends FixedLengthArrowShape {
     private final ArrayList<Vector2> points;
-    private Vector2 center;
-    private PointsModel shapePointsModel;
-    public RotateArrowShape(Vector2 begin, PointsModel shapePointsModel, GameScene scene, float length) {
+    private final Vector2 center;
+    private final PointsModel<?> shapePointsModel;
+    public RotateArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene, float length) {
         super(begin, scene, length);
         points = new ArrayList<>();
         for(Vector2 p: shapePointsModel.getPoints())
@@ -28,9 +28,9 @@ public class RotateArrowShape extends FixedLengthArrowShape {
     Vector2 centerOfShape;
 
     @Override
-    public void onUpdated(float x, float y) {
-        super.onUpdated(x, y);
-        float angle = (float) Math.atan2(dir.y, dir.x);
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x, y);
+        float angle = (float) Math.atan2(direction.y, direction.x);
         ArrayList<Vector2> newPoints = new ArrayList<>();
 
         if(shapePointsModel.getCenter()!=null) {

@@ -136,8 +136,8 @@ if(leftLegReadyToStand&&rightLegReadyToStand)
     }
 
     @Override
-    public void update() {
-        super.update();
+    public void onStep(float timeStep) {
+        super.onStep(timeStep);
         findBodyParts();
     }
 

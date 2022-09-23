@@ -1,15 +1,15 @@
 package com.evolgames.entities.cut;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.BlockA;
+import com.evolgames.entities.blocks.LayerBlock;
 
 public class Segment {
-    private final BlockA block;
+    private final LayerBlock block;
     private Vector2 p1;
     private Vector2 p2;
     CutType type;
 
-    public BlockA getBlock() {
+    public LayerBlock getBlock() {
         return block;
     }
 
@@ -25,7 +25,7 @@ public class Segment {
         return type;
     }
 
-    public Segment(Vector2 p1, Vector2 p2, BlockA block, CutType type){
+    public Segment(Vector2 p1, Vector2 p2, LayerBlock block, CutType type){
         this.p1 = p1;
         this.p2 = p2;
         this.block = block;

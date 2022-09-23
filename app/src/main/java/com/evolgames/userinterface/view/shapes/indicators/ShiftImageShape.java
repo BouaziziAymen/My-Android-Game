@@ -14,15 +14,15 @@ public class ShiftImageShape extends LineShape {
     public ShiftImageShape(Vector2 begin, ImageShape imageShape, GameScene scene) {
         super(begin, scene);
         this.imageShape = imageShape;
-        imagePosition = new Vector2(imageShape.getSprite().getX(),imageShape.getSprite().getY());
+        imagePosition = new Vector2(imageShape.getSprite().getX(), imageShape.getSprite().getY());
     }
-    @Override
-    public void onUpdated(float x, float y) {
-        setEnd(x,y);
-        Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
-        imageShape.getSprite().setPosition(imagePosition.x+displacement.x,imagePosition.y+displacement.y);
-    imageShape.updateSelf();
 
+    @Override
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x, y);
+        Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
+        imageShape.getSprite().setPosition(imagePosition.x + displacement.x, imagePosition.y + displacement.y);
+        imageShape.updateSelf();
     }
 
 }

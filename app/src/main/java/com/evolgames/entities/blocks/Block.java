@@ -3,7 +3,7 @@ package com.evolgames.entities.blocks;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.composite.Composite;
 import com.evolgames.entities.cut.Cut;
-import com.evolgames.entities.properties.BlockProperties;
+import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.factories.MeshFactory;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -13,9 +13,9 @@ import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public abstract class Block<T extends Block<T,P>, P extends BlockProperties> extends Composite<T> {
+public abstract class Block<T extends Block<T,P>, P extends ColoredProperties> extends Composite<T> {
     private int ID;
-    private BlockProperties properties;
+    private ColoredProperties properties;
     private ArrayList<Vector2> Vertices;
     private ArrayList<Vector2> Triangles;
     private boolean Aborted;
@@ -29,11 +29,11 @@ public abstract class Block<T extends Block<T,P>, P extends BlockProperties> ext
         return (P) properties;
     }
 
-    protected void setProperties(BlockProperties properties) {
+    protected void setProperties(ColoredProperties properties) {
         this.properties = properties;
     }
 
-    public void initialization(ArrayList<Vector2> vertices, BlockProperties properties, int id, boolean firstTime) {//Template Pattern
+    public void initialization(ArrayList<Vector2> vertices, ColoredProperties properties, int id, boolean firstTime) {//Template Pattern
         setID(id);
         setVertices(vertices);
         setProperties(properties);
@@ -100,15 +100,15 @@ public abstract class Block<T extends Block<T,P>, P extends BlockProperties> ext
         this.Vertices = vertices;
     }
 
-    public BlockA getParent() {
+    public LayerBlock getParent() {
         return parent;
     }
 
-    public void setParent(BlockA parent) {
+    public void setParent(LayerBlock parent) {
         this.parent = parent;
     }
 
-    private BlockA parent;
+    private LayerBlock parent;
 
 
     public void translate(Vector2 t) {

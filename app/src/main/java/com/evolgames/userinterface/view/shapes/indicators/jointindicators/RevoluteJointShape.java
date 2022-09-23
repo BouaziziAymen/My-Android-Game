@@ -77,22 +77,22 @@ public class RevoluteJointShape extends JointShape {
         };
 
 
-        referenceAngleIndicator.onUpdated(begin.x + 48, begin.y);
+        referenceAngleIndicator.updateEnd(begin.x + 48, begin.y);
         upperAngleIndicator.setColor(Colors.palette1_red);
         lowerAngleIndicator.setColor(Colors.palette1_blue);
-        upperAngleIndicator.onUpdated(begin.x + 64, begin.y);
-        lowerAngleIndicator.onUpdated(begin.x + 64, begin.y);
+        upperAngleIndicator.updateEnd(begin.x + 64, begin.y);
+        lowerAngleIndicator.updateEnd(begin.x + 64, begin.y);
 
         hideIndicators();
 
     }
 
     public void onBeginPointMoved(float x, float y) {
-        referenceAngleIndicator.setBegin(x, y);
+        referenceAngleIndicator.updateBegin(x, y);
         referenceAngleIndicator.drawSelf();
-        upperAngleIndicator.setBegin(x, y);
+        upperAngleIndicator.updateBegin(x, y);
         upperAngleIndicator.drawSelf();
-        lowerAngleIndicator.setBegin(x, y);
+        lowerAngleIndicator.updateBegin(x, y);
         lowerAngleIndicator.drawSelf();
     }
 

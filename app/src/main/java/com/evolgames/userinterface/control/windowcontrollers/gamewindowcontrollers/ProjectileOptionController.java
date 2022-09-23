@@ -1,16 +1,18 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
-
+import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.GameSound;
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
-import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
@@ -31,21 +33,30 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.userinterface.view.windows.windowfields.projectieoptionwindow.SoundField;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class ProjectileOptionController extends SettingsWindowController {
+public class ProjectileOptionController extends SettingsWindowController<ProjectileProperties> {
+    private final GameScene gameScene;
+    private final AlphaNumericValidator projectileNameValidator = new AlphaNumericValidator(8, 5);
+    private final NumericValidator energyValidator = new NumericValidator(false, true, 0, 100000, 5, 1);
+    private final NumericValidator fireRateValidator = new NumericValidator(false, true, 0, 1000, 3, 1);
+    private final ToolModel toolModel;
+    private final Hashtable<String, ToolModel> missileTable;
+    private final Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable;
     private TextField<ProjectileOptionController> projectileNameField;
-    private AlphaNumericValidator projectileNameValidator = new AlphaNumericValidator(8, 5);
     private TextField<ProjectileOptionController> energyTextField;
-    private NumericValidator energyValidator = new NumericValidator(false, false, 0, 100000, 5, 0);
-    private NumericValidator fireRateValidator = new NumericValidator(false, true, 0, 1000, 3, 1);
     private TextField<ProjectileOptionController> fireRateTextField;
     private Quantity<ProjectileOptionController> recoilQuantity;
-    private ToolModel toolModel;
+    private ProjectileProperties projectileProperties;
 
-
-    public ProjectileOptionController(KeyboardController keyboardController, ToolModel toolModel) {
+    public ProjectileOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
         this.toolModel = toolModel;
+        this.gameScene = gameScene;
+        this.missileTable = new Hashtable<>();
+        this.missileButtonsTable = new Hashtable<>();
     }
 
     private void resetLayout() {
@@ -54,23 +65,8 @@ public class ProjectileOptionController extends SettingsWindowController {
         }
     }
 
-    private void onFirstBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body1Field) {
-        super.onSecondaryButtonClicked(body1Field);
-        int size = window.getLayout().getSecondariesSize(1);
-        for (int i = 0; i < size; i++) {
-            SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(1, i);
-            if (body1Field != other) {
-                Element main = other.getMain();
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
-        }
-        ((ProjectileModel) model).setBodyModel(bodyModel);
-    }
 
-
-    public void updateBodySelectionFields() {
+    public void updateMissileSelectionFields() {
         if (model == null) return;
         if (window.getLayout().getPrimariesSize() >= 1) {
             window.getLayout().removePrimary(0);
@@ -78,26 +74,53 @@ public class ProjectileOptionController extends SettingsWindowController {
         SectionField<ProjectileOptionController> bodyASection = new SectionField<>(0, "Projectile Body:", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(bodyASection);
 
-        ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
-        for (int i = 0; i < bodies.size(); i++) {
-            BodyModel bodyModel = bodies.get(i);
-            if (bodyModel.getBodyId() == ((ProjectileModel) model).getBodyId()) continue;
-            ButtonWithText<ProjectileOptionController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<ProjectileOptionController>> bodyField = new SimpleSecondary<>(0, i, bodyButton);
-            window.addSecondary(bodyField);
-            bodyButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, bodyButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    //  onFirstBodyButtonClicked(bodyModel, bodyField);
+        List<String> missileFilesList = ToolUtils.getToolNamesByCategory(gameScene.getActivity(), "c0");
+        AtomicInteger missileCounter = new AtomicInteger();
+        missileFilesList.forEach(f -> createProjectileToolButton(f, missileCounter.getAndIncrement()));
+        this.onUpdated();
+    }
+
+    private void createProjectileToolButton(String fileName, int missileId) {
+        ButtonWithText<ProjectileOptionController> missileButton = new ButtonWithText<>(fileName.substring(3,fileName.length()-4), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+        SimpleSecondary<ButtonWithText<ProjectileOptionController>> missileField = new SimpleSecondary<>(0, missileId, missileButton);
+        window.addSecondary(missileField);
+        missileButtonsTable.put(fileName, missileButton);
+        missileButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, missileButton) {
+            @Override
+            public void informControllerButtonClicked() {
+                ProjectileModel projectileModel = ((ProjectileModel) ProjectileOptionController.this.model);
+                ToolModel missileModel;
+                if (!missileTable.containsKey(fileName)) {
+                    missileModel = ToolUtils.getProjectileModel(fileName);
+                    missileTable.put(fileName, missileModel);
+                } else {
+                    missileModel = missileTable.get(fileName);
                 }
 
-                @Override
-                public void informControllerButtonReleased() {
+                projectileModel.setMissileModel(missileModel);
+                onProjectileBodyButtonClicked(missileField);
+            }
 
+            @Override
+            public void informControllerButtonReleased() {
+
+            }
+        });
+    }
+
+
+    void onProjectileBodyButtonClicked(SimpleSecondary<?> materialButton) {
+        int primaryKey = materialButton.getPrimaryKey();
+        int secondaryKey = materialButton.getSecondaryKey();
+        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
+            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
+            if (element.getSecondaryKey() != secondaryKey) {
+                Element main = element.getMain();
+                if (main instanceof ButtonWithText) {
+                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
                 }
-            });
+            }
         }
-        onUpdated();
     }
 
     public void onUpdated() {
@@ -105,13 +128,80 @@ public class ProjectileOptionController extends SettingsWindowController {
         onLayoutChanged();
     }
 
-    void updateProjectileModel(ProjectileModel projectileModel) {
-        this.model = projectileModel;
-        if(model==null){
+
+    @Override
+    void onModelUpdated(ProperModel<ProjectileProperties> model) {
+        super.onModelUpdated(model);
+        if (model == null) {
             return;
         }
-        resetLayout();
-        updateBodySelectionFields();
+        ProjectileModel projectileModel = (ProjectileModel) model;
+        updateMissileSelectionFields();
+        this.projectileProperties = model.getProperties();
+        setBody(projectileModel.getBodyId());
+        setProjectileName(this.model.getModelName());
+        setFireRate(this.projectileProperties.getFireRate());
+        setEnergy(this.projectileProperties.getMuzzleVelocity());
+        setRecoil(this.projectileProperties.getRecoil());
+        setFireSound(this.projectileProperties.getFireSound());
+        setProjectileTriggerType(this.projectileProperties.getProjectileTriggerType());
+        setProjectileName(projectileModel.getModelName());
+        if(projectileModel.getMissileModel()!=null) {
+            setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix()+"_" +projectileModel.getMissileModel().getModelName()+".xml");
+        }
+    }
+
+    private void setBody(int bodyId) {
+
+    }
+
+    private void setProjectileTriggerType(ProjectileTriggerType projectileTriggerType) {
+        if (projectileTriggerType != null) {
+            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(2, projectileTriggerType.getValue());
+            ((ButtonWithText<?>) element.getMain()).updateState(Button.State.PRESSED);
+        }
+    }
+
+    private void onTypeButtonClicked(SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField) {
+        int primaryKey = typeField.getPrimaryKey();
+        int secondaryKey = typeField.getSecondaryKey();
+        ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.getFromValue(secondaryKey);
+        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
+            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
+            if (element.getSecondaryKey() != secondaryKey) {
+                Element main = element.getMain();
+                if (main instanceof ButtonWithText) {
+                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                }
+            }
+        }
+        projectileProperties.setProjectileTriggerType(projectileTriggerType);
+    }
+
+    @Override
+    public void onTertiaryButtonClicked(SimpleTertiary<?> simpleTertiary) {
+        super.onTertiaryButtonClicked(simpleTertiary);
+        int primaryKey = simpleTertiary.getPrimaryKey();
+        int secondaryKey = simpleTertiary.getSecondaryKey();
+        if (simpleTertiary.getPrimaryKey() == 1 && simpleTertiary.getSecondaryKey() == 1) {
+            ResourceManager.getInstance().gunshotSounds.get(simpleTertiary.getTertiaryKey()).getSoundList().get(0).play();
+            projectileProperties.setFireSound(simpleTertiary.getTertiaryKey());
+            for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
+                SimpleTertiary<?> element = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
+                if (element.getTertiaryKey() != simpleTertiary.getTertiaryKey()) {
+                    Element main = element.getMain();
+                    if (main instanceof ButtonWithText) {
+                        ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        updateMissileSelectionFields();
         SectionField<ProjectileOptionController> sectionField = new SectionField<>(1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(sectionField);
         TitledTextField<ProjectileOptionController> layerNameField = new TitledTextField<>("Projectile Name:", 10);
@@ -129,7 +219,6 @@ public class ProjectileOptionController extends SettingsWindowController {
             }
         });
         projectileNameField.getBehavior().setReleaseAction(() -> model.setModelName(projectileNameField.getTextString()));
-        projectileNameField.getBehavior().setText(projectileModel.getModelName());
         FieldWithError fieldWithError = new FieldWithError(layerNameField);
         SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(1, 0, fieldWithError);
         window.addSecondary(secondaryElement1);
@@ -185,9 +274,6 @@ public class ProjectileOptionController extends SettingsWindowController {
 
         }
 
-        initType(projectileModel);
-
-
         SectionField<ProjectileOptionController> projectileOptionsField = new SectionField<>(3, "Physical Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(projectileOptionsField);
 
@@ -209,12 +295,10 @@ public class ProjectileOptionController extends SettingsWindowController {
         FieldWithError energyFieldWithError = new FieldWithError(energyField);
         SimpleSecondary<FieldWithError> energyElement = new SimpleSecondary<>(3, 1, energyFieldWithError);
         window.addSecondary(energyElement);
-        energyTextField.getBehavior().setText("" + projectileModel.getEnergy());
-        Log.e("Fire rate", "" + projectileModel.getEnergy());
 
         energyTextField.getBehavior().setReleaseAction(() -> {
             int energy = Integer.parseInt(energyTextField.getTextString());
-            projectileModel.setEnergy(energy);
+            projectileProperties.setMuzzleVelocity(energy);
         });
 
 
@@ -236,10 +320,10 @@ public class ProjectileOptionController extends SettingsWindowController {
         FieldWithError fireRateFieldWithError = new FieldWithError(fireRateField);
         SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(3, 2, fireRateFieldWithError);
         window.addSecondary(fireRateElement);
-        fireRateTextField.getBehavior().setText("" + projectileModel.getFireRate());
+
         fireRateTextField.getBehavior().setReleaseAction(() -> {
-            float rate = Float.parseFloat(fireRateTextField.getTextString());
-            projectileModel.setFireRate(rate);
+            int rate = Integer.parseInt(fireRateTextField.getTextString());
+            projectileProperties.setFireRate(rate);
         });
 
 
@@ -247,74 +331,53 @@ public class ProjectileOptionController extends SettingsWindowController {
         recoilQuantity = titledRecoilQuantity.getAttachment();
         titledRecoilQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, recoilQuantity) {
             @Override
-            public void informControllerQuantityUpdated(Quantity quantity) {
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
 
             }
         });
         SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(3, 3, titledRecoilQuantity);
         window.addSecondary(recoilElement);
-        recoilQuantity.getBehavior().setChangeAction(() -> projectileModel.setRecoil(recoilQuantity.getRatio()));
-        recoilQuantity.updateRatio(projectileModel.getRecoil());
+        recoilQuantity.getBehavior().setChangeAction(() -> projectileProperties.setRecoil(recoilQuantity.getRatio()));
         window.createScroller();
         window.getLayout().updateLayout();
-    }
-
-    private void initType(ProjectileModel projectileModel) {
-        ProjectileTriggerType projectileType = projectileModel.getProjectileTriggerType();
-        if (projectileType != null) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(2, projectileType.getValue());
-            ((ButtonWithText<?>) element.getMain()).updateState(Button.State.PRESSED);
-        }
-    }
-
-    private void onTypeButtonClicked(SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField) {
-        int primaryKey = typeField.getPrimaryKey();
-        int secondaryKey = typeField.getSecondaryKey();
-        ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.getFromValue(secondaryKey);
-        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
-            if (element.getSecondaryKey() != secondaryKey) {
-                Element main = element.getMain();
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
-        }
-        System.out.println(projectileTriggerType);
-        ((ProjectileModel) model).setProjectileTriggerType(projectileTriggerType);
-    }
-
-    @Override
-    public void onTertiaryButtonClicked(SimpleTertiary<?> simpleTertiary) {
-        super.onTertiaryButtonClicked(simpleTertiary);
-        ResourceManager.getInstance().gunshotSounds.get(simpleTertiary.getTertiaryKey()).getSoundList().get(0).setVolume(1f);
-        ResourceManager.getInstance().gunshotSounds.get(simpleTertiary.getTertiaryKey()).getSoundList().get(0).play();
-        System.out.println("Sound----------------------");
-        int primaryKey = simpleTertiary.getPrimaryKey();
-        int secondaryKey = simpleTertiary.getSecondaryKey();
-        if (simpleTertiary.getPrimaryKey() == 1 && simpleTertiary.getSecondaryKey() == 1) {
-            for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
-                SimpleTertiary<?> element = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
-                if (element.getTertiaryKey() != simpleTertiary.getTertiaryKey()) {
-                    Element main = element.getMain();
-                    if (main instanceof ButtonWithText) {
-                        ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void init() {
-        super.init();
         window.setVisible(false);
     }
 
     @Override
     public void onSubmitSettings() {
         super.onSubmitSettings();
-        ProjectileModel projectileModel = (ProjectileModel)model;
-        userInterface.getItemWindowController().changeItemName(model.getModelName(),projectileModel.getBodyId(),projectileModel.getProjectileId());
+        ProjectileModel projectileModel = (ProjectileModel) model;
+        userInterface.getItemWindowController().changeItemName(model.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
+    }
+
+    private void setProjectileName(String name) {
+        projectileNameField.getBehavior().setTextValidated(name);
+    }
+
+    private void setFireRate(int fireRate) {
+        fireRateTextField.getBehavior().setTextValidated("" + fireRate);
+    }
+
+    private void setEnergy(float energy) {
+        energyTextField.getBehavior().setTextValidated("" + Math.floor(energy));
+    }
+
+    private void setRecoil(float recoil) {
+        recoilQuantity.updateRatio(recoil);
+    }
+
+    private void setFireSound(int fireSound) {
+
+    }
+
+    private void setMissileName(String fileName) {
+        ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName);
+        assert (selectedButton != null);
+        missileButtonsTable.forEach((key, value) -> {
+            value.deselect();
+            value.updateState(Button.State.NORMAL);
+        });
+        selectedButton.deselect();
+        selectedButton.updateState(Button.State.PRESSED);
     }
 }

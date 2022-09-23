@@ -4,38 +4,100 @@ import com.evolgames.helpers.utilities.MyColorUtils;
 
 import org.andengine.util.adt.color.Color;
 
-public class CoatingProperties extends BlockProperties {
-    private final double initialChemicalEnergy;
-    private Color textureColor = new Color(0, 0, 0, 0);
-    private Color radianceColor = new Color(0, 0, 0, 0);
-    private Color flameColor1 = new Color(0, 0, 0);
-    private Color flameColor2 = new Color(0, 0, 0);
+public class CoatingProperties extends ColoredProperties {
+    private final Color textureColor = new Color(0, 0, 0, 0);
+    private final Color radianceColor = new Color(0, 0, 0, 0);
+    private final Color flameColor1 = new Color(0, 0, 0);
+    private final Color flameColor2 = new Color(0, 0, 0);
+    private double initialChemicalEnergy;
+    private LayerProperties parentProperties;
     private boolean hasTexture, hasRadiance;
     private int row;
     private int column;
     private double temperature;
     private double burnRatio;
     private double chemicalEnergy;
-    private BlockAProperties properties;
 
-    public CoatingProperties(BlockAProperties properties, int row, int column, double temperature, double burnRatio, double chemicalEnergy) {
+    public CoatingProperties(int row, int column, double temperature, double burnRatio, double chemicalEnergy, LayerProperties parentProperties) {
         this.row = row;
         this.column = column;
         this.temperature = temperature;
         this.burnRatio = burnRatio;
         this.chemicalEnergy = chemicalEnergy;
         this.initialChemicalEnergy = chemicalEnergy;
-        this.properties = properties;
+        this.parentProperties = parentProperties;
     }
 
-    private CoatingProperties(BlockAProperties properties, int row, int column, double temperature, double burnRatio, double chemicalEnergy, double initialChemicalEnergy) {
-        this.row = row;
-        this.column = column;
-        this.temperature = temperature;
-        this.burnRatio = burnRatio;
-        this.chemicalEnergy = chemicalEnergy;
+
+    public CoatingProperties() {
+    }
+
+    public void updateColors() {
+        MyColorUtils.setupFlameColor(flameColor1, getFlameTemperature());
+        MyColorUtils.setupFlameColor(flameColor2, Math.max(0, temperature - 2000));
+        hasTexture = MyColorUtils.setTextureColor(textureColor, burnRatio);
+        hasRadiance = MyColorUtils.setRadianceColor(radianceColor, temperature);
+        setupCoatingColor();
+
+    }
+
+    private void setupCoatingColor() {
+        if (hasTexture && hasRadiance)
+            MyColorUtils.blendColors(getDefaultColor(), textureColor, radianceColor);
+        else if (hasTexture)
+            getDefaultColor().set(textureColor);
+        else if (hasRadiance)
+            getDefaultColor().set(radianceColor);
+
+    }
+
+    public void applyDeltaTemperature(double delta) {
+        if (temperature + delta < 2000000) {
+            temperature += delta;
+        } else {
+            temperature = 2000000;
+        }
+    }
+
+    public CoatingProperties copy() {
+        CoatingProperties properties = new CoatingProperties();
+
+        properties.setParentProperties(parentProperties);
+        properties.setRow(row);
+        properties.setColumn(column);
+        properties.setTemperature(temperature);
+        properties.setBurnRatio(burnRatio);
+        properties.setChemicalEnergy(chemicalEnergy);
+        properties.setInitialChemicalEnergy(initialChemicalEnergy);
+        return properties;
+    }
+
+    public double getIgnitionTemperature() {
+        return parentProperties.getIgnitionTemperature();
+    }
+
+    public double getFlameTemperature() {
+        return parentProperties.getFlameTemperature();
+    }
+
+    public boolean isFlammable() {
+        return parentProperties.isFlammable();
+    }
+
+    public double getInitialChemicalEnergy() {
+        return initialChemicalEnergy;
+    }
+
+    public void setInitialChemicalEnergy(double initialChemicalEnergy) {
         this.initialChemicalEnergy = initialChemicalEnergy;
-        this.properties = properties;
+    }
+
+    public Color getTextureColor() {
+        return textureColor;
+    }
+
+    public Color getRadianceColor() {
+        return radianceColor;
     }
 
     public Color getFlameColor1() {
@@ -44,6 +106,30 @@ public class CoatingProperties extends BlockProperties {
 
     public Color getFlameColor2() {
         return flameColor2;
+    }
+
+    public LayerProperties getParentProperties() {
+        return parentProperties;
+    }
+
+    public void setParentProperties(LayerProperties parentProperties) {
+        this.parentProperties = parentProperties;
+    }
+
+    public boolean isHasTexture() {
+        return hasTexture;
+    }
+
+    public void setHasTexture(boolean hasTexture) {
+        this.hasTexture = hasTexture;
+    }
+
+    public boolean isHasRadiance() {
+        return hasRadiance;
+    }
+
+    public void setHasRadiance(boolean hasRadiance) {
+        this.hasRadiance = hasRadiance;
     }
 
     public int getRow() {
@@ -70,8 +156,12 @@ public class CoatingProperties extends BlockProperties {
         this.temperature = temperature;
     }
 
-    public double getInitialChemicalEnergy() {
-        return initialChemicalEnergy;
+    public double getBurnRatio() {
+        return burnRatio;
+    }
+
+    public void setBurnRatio(double burnRatio) {
+        this.burnRatio = burnRatio;
     }
 
     public double getChemicalEnergy() {
@@ -80,59 +170,5 @@ public class CoatingProperties extends BlockProperties {
 
     public void setChemicalEnergy(double chemicalEnergy) {
         this.chemicalEnergy = chemicalEnergy;
-    }
-
-    public void updateColors() {
-        MyColorUtils.setupFlameColor(flameColor1, getFlameTemperature());
-        MyColorUtils.setupFlameColor(flameColor2, Math.max(0, temperature - 2000));
-        hasTexture = MyColorUtils.setTextureColor(textureColor, burnRatio);
-        hasRadiance = MyColorUtils.setRadianceColor(radianceColor, temperature);
-        setupCoatingColor();
-
-    }
-
-    private void setupCoatingColor() {
-        if (hasTexture && hasRadiance)
-            MyColorUtils.blendColors(getDefaultColor(), textureColor, radianceColor);
-        else if (hasTexture)
-            getDefaultColor().set(textureColor);
-        else if (hasRadiance)
-            getDefaultColor().set(radianceColor);
-
-    }
-
-    public void applyDeltaTemperature(double delta) {
-        if (temperature + delta < 2000000)
-            temperature += delta;
-        else temperature = 2000000;
-    }
-
-    public boolean isFlammable() {
-        return properties.isFlammable();
-    }
-
-    public CoatingProperties copy() {
-        return new CoatingProperties(properties, row, column, temperature, burnRatio, chemicalEnergy, initialChemicalEnergy);
-    }
-
-    public double getBurnRatio() {
-
-        return burnRatio;
-    }
-
-    public void setBurnRatio(double burnRatio) {
-        this.burnRatio = burnRatio;
-    }
-
-    public double getIgnitionTemperature() {
-        return properties.getIgnitionTemperature();
-    }
-    public double getFlameTemperature(){
-        return properties.getFlameTemperature();
-    }
-
-    @Override
-    public BlockProperties getCopy() {
-        return null;
     }
 }

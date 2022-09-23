@@ -41,16 +41,16 @@ public class BodyOptionWindow extends ScrollableOrganizedWindow {
         super(X, Y, 4, 6, ResourceManager.getInstance().vbom, true);
 
 
-        this.primaries = new ArrayList<Entity>();
-        this.secondaries = new ArrayList<ArrayList<Entity>>();
+        this.primaries = new ArrayList<>();
+        this.secondaries = new ArrayList<>();
 
-        VertexBufferObjectManager vbom = ResourceManager.getInstance().vbom;
+        VertexBufferObjectManager vertexBufferObjectManager = ResourceManager.getInstance().vbom;
 
         attachChild(this.done = new Button(-46,-3*64,
-                ResourceManager.getInstance().validateBigTextureRegion,vbom,Button.ButtonType.OneClick, UISignal.SignalName.JointOptionsDoneButton));
+                ResourceManager.getInstance().validateBigTextureRegion,vertexBufferObjectManager,Button.ButtonType.OneClick, UISignal.SignalName.JointOptionsDoneButton));
 
         attachChild(this.refuse = new Button(46,-3*64,
-                ResourceManager.getInstance().removeBigTextureRegion,vbom,Button.ButtonType.OneClick, UISignal.SignalName.JointOptionCancelButton));
+                ResourceManager.getInstance().removeBigTextureRegion,vertexBufferObjectManager,Button.ButtonType.OneClick, UISignal.SignalName.JointOptionCancelButton));
 
 
         setVisible(false);

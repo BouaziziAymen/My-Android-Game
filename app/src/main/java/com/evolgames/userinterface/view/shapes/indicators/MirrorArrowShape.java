@@ -5,13 +5,13 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.PointsModel;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MirrorArrowShape extends DoubleInvertedArrowsShape {
     private PointsModel shapePointsModel;
-    private ArrayList<Vector2> points;
+    private List<Vector2> points;
     private Vector2 centerOfShape;
-    public MirrorArrowShape(Vector2 begin, PointsModel shapePointsModel, ArrayList<Vector2> points, GameScene scene) {
+    public MirrorArrowShape(Vector2 begin, PointsModel shapePointsModel, List<Vector2> points, GameScene scene) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
         this.points = points;
@@ -21,9 +21,9 @@ public class MirrorArrowShape extends DoubleInvertedArrowsShape {
     }
 
     @Override
-    public void onUpdated(float x, float y) {
-        super.onUpdated(x,y);
-        ArrayList<Vector2> pointsArray = GeometryUtils.mirrorPoints(points,begin,end);
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x,y);
+        List<Vector2> pointsArray = GeometryUtils.mirrorPoints(points,begin,end);
         if(shapePointsModel.getCenter()!=null){
          Vector2 mirroredCenter = GeometryUtils.mirrorPoint(centerOfShape,begin,end);
          shapePointsModel.setCenter(mirroredCenter);

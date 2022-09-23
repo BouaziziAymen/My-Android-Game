@@ -194,7 +194,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         }
         if(jointModel.getBodyModel1()!=null)jointModel.getBodyModel1().deselect();
         jointModel.setBodyModel1(bodyModel);
-        bodyModel.select();
+        bodyModel.select(false);
         toolModel.getBodies().forEach(bm -> {
             if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
         });
@@ -218,7 +218,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         }
         if(jointModel.getBodyModel2()!=null)jointModel.getBodyModel2().deselect();
         jointModel.setBodyModel2(bodyModel);
-        bodyModel.select(Colors.palette1_blue);
+        bodyModel.select(false);
         toolModel.getBodies().forEach(bm -> {
             if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
         });

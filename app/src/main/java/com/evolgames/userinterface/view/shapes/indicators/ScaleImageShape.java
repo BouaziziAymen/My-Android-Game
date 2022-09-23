@@ -20,7 +20,8 @@ public class ScaleImageShape  extends ArrowShape {
 
 
     @Override
-    public void onUpdated(float x, float y) {
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x,y);
      float post[] =  imageShape.getSprite().convertSceneCoordinatesToLocalCoordinates(x,y);
 
         Log.e("post", "/"+Arrays.toString(post));
@@ -30,8 +31,6 @@ public class ScaleImageShape  extends ArrowShape {
         imageShape.getSprite().setWidth(disX);
         imageShape.getSprite().setHeight(disY);
         imageShape.updateSelf();
-
-
 
     }
 

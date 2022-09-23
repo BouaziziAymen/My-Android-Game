@@ -2,7 +2,6 @@ package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
@@ -33,24 +32,26 @@ public abstract class AngleIndicator extends TurnableIndicator {
 
 
     @Override
-    public void onUpdated(float x, float y) {
-        super.onUpdated(x, y);
+    public void updateEnd(float x, float y) {
+        super.updateEnd(x, y);
         updateLimit(end.x,end.y);
-        angle = (float) (MathUtils.radiansToDegrees*Math.atan2(dir.y,dir.x));
+        angle = (float) (MathUtils.radiansToDegrees*Math.atan2(direction.y, direction.x));
     }
 
+    public void updateDirection(Vector2 direction){
+        end = begin.cpy().add(direction.x*length,direction.y*length);
+        updateEnd(end.x,end.y);
+    }
 
     public void turnAround(float dA) {
-       dir.set(1,0);
         angle += dA;
-        Vector2 newDir = MathUtils.getRotatedVectorByRadianAngle(dir,angle*MathUtils.degreesToRadians);
-        onUpdated(begin.x+newDir.x*length,begin.y+newDir.y*length);
-
+        direction = MathUtils.getRotatedVectorByRadianAngle(new Vector2(1,0),angle*MathUtils.degreesToRadians);
+        updateEnd(begin.x+direction.x*length,begin.y+direction.y*length);
     }
 
     @Override
-    public void setBegin(float x, float y) {
-        super.setBegin(x, y);
+    public void updateBegin(float x, float y) {
+        super.updateBegin(x, y);
         drawLimit();
     }
 
