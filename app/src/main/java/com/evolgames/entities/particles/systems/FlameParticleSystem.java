@@ -1,6 +1,6 @@
 package com.evolgames.entities.particles.systems;
 
-import com.evolgames.entities.particles.PolygonEmitter;
+import com.evolgames.entities.particles.emitters.PolygonEmitter;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;

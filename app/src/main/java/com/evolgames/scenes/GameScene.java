@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
@@ -20,8 +21,8 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
-import com.evolgames.entities.particles.FireParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.LiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
@@ -274,7 +275,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                     continue;
 
                 ArrayList<Vector2> l = VerticesFactory.createRectangle(x, y, 16, 16);
-                DecorationBlock blockB = BlockFactory.createBlockB(l, new DecorationProperties(Color.PINK), 0, block1.getVertices(), new Vector2(x, y));
+                DecorationBlock blockB = BlockFactory.createDecorationBlock(l, new DecorationProperties(Color.PINK), 0, block1.getVertices(), new Vector2(x, y));
                 block1.addAssociatedBlock(blockB);
                 break;
 
@@ -294,15 +295,12 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             //this.attachChild(fireParticlePolygon.getParticleSystem());
             //Grid grid = new Grid(this);
             if (false)
-                for (LayerBlock block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
-                    Collections.shuffle(block.getBlockGrid().getCoatingBlocks());
-                    block.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
-                    for (CoatingBlock g : block.getBlockGrid().getCoatingBlocks()) {
-
-                        g.setTemperature(10000);
-
-                        //break;
-                    }
+                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+                        Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
+                        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
+                        for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
+                            g.setTemperature(10000);
+                        }
                 }
 //gameGroup.getMesh().onColorsUpdated();
         }
@@ -432,7 +430,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             super.onManagedUpdate(pSecondsElapsed);
         }
 
-        if (false && step == 60) GameEntityFactory.getInstance().createLinks();
+       // if (false && step == 60) GameEntityFactory.getInstance().createLinks();
 
         step++;
 
@@ -472,19 +470,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 //  groundGroup.getMesh().updateData();
             }
 
-
-        if (false) {
-
-            for (LayerBlock block : gameGroup.getGameEntityByIndex(0).getBlocks()) {
-                //Collections.shuffle(block.getBlockGrid().getCoatingBlocks());
-                // block.getBlockGrid().getCoatingBlocks().get(12).setTemperature(3000);
-                Log.e("temps", "" + Arrays.toString(block.getBlockGrid().getCoatingBlocks().toArray()));
-
-            }
-        }
-//if(gameGroup.getBody()!=null)
-//fireParticlePolygon.emitter.update();
-//coating blocks test
 
 
         if (false)

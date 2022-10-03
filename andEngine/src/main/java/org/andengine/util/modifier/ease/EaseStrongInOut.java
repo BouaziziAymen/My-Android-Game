@@ -47,10 +47,11 @@ public class EaseStrongInOut implements IEaseFunction {
 		final float percentage = pSecondsElapsed / pDuration;
 
 		if (percentage < 0.5f) {
-			return 0.5f * EaseStrongIn.getValue(2 * percentage);
-		} else {
-			return 0.5f + 0.5f * EaseStrongOut.getValue(percentage * 2 - 1);
+			return EaseStrongIn.getValue(2 * percentage);
+		} else if (percentage < 1f) {
+			return 0.5f * EaseStrongOut.getValue(percentage * 2);
 		}
+		return 0;
 	}
 
 	// ===========================================================

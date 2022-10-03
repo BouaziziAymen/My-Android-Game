@@ -1,4 +1,4 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.systems;
 
 import com.evolgames.gameengine.ResourceManager;
 

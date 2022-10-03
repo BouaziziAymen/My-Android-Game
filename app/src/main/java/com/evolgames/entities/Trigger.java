@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
@@ -51,7 +52,7 @@ public class Trigger {
         Vector2 directionProjected = gameEntity.getBody().getWorldVector(direction).cpy();
         float muzzleVelocity = projectileModel.getProperties().getMuzzleVelocity();
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y,gameEntity.getBody().getAngle());
+        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y,gameEntity.getBody().getAngle()),true);
         GameEntityFactory.getInstance().createProjectile(gameEntity.getParentGroup(), blocks, beginProjected,gameEntity.getBody().getAngle(),new RecoilInit(bodyInit,gameEntity.getBody(),projectileModel.getProperties().getRecoil(),muzzleVelocityVector,beginProjected));
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
     }

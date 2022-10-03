@@ -80,7 +80,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     @Override
-    protected boolean calcArea() {
+    protected boolean shouldCalculateArea() {
         return true;
     }
 

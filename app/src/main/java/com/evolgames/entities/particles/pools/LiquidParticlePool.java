@@ -1,11 +1,6 @@
-package com.evolgames.entities.particles;
-
-import android.util.Log;
+package com.evolgames.entities.particles.pools;
 
 import com.evolgames.gameengine.ResourceManager;
-
-import org.andengine.entity.Entity;
-import org.andengine.entity.IEntity;
 
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.pool.GenericPool;

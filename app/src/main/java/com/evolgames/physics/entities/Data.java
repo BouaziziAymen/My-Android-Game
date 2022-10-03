@@ -1,6 +1,8 @@
 package com.evolgames.physics.entities;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.PhysicsConstants;
 
 import java.util.Arrays;
@@ -11,10 +13,14 @@ public class Data {
     private final float[][] data;
     private float delta;
     private final GameEntity[] entities;
+    private final LayerBlock[] blocks;
+    private final Vector2 base;
 
-    public Data(int n) {
+    public Data(int n,Vector2 base) {
         data = new float[n][3];
+        this.base = base;
         entities = new GameEntity[n];
+        blocks = new LayerBlock[n];
     }
 
     public int getLength() {
@@ -33,7 +39,7 @@ public class Data {
         return delta;
     }
 
-    public void add(float begin, float end, float weight, GameEntity entity) {
+    public void add(float begin, float end, float weight, GameEntity entity, LayerBlock layerBlock) {
         if (begin <= end) {
             data[length][0] = begin;
             data[length][1] = end;
@@ -42,6 +48,7 @@ public class Data {
             data[length][0] = end;
         }
         entities[length] = entity;
+        blocks[length] = layerBlock;
         data[length][2] = weight;
         length++;
 
@@ -126,5 +133,13 @@ public class Data {
         float s = sup + advance;
         if (i > INF && i < SUP) return true;
         return s > INF && s < SUP;
+    }
+
+    public Vector2 getBase() {
+        return base;
+    }
+
+    public LayerBlock[] getBlocks() {
+        return blocks;
     }
 }

@@ -1,7 +1,8 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.emitters;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -59,8 +60,8 @@ public class PolygonEmitter extends BaseParticleEmitter {
     }
 
     private void setupData() {
-        for (LayerBlock layerBlock : gameEntity.getBlocks()) {
-            coatingBlocks.addAll(layerBlock.getBlockGrid().getCoatingBlocks());
+        for (LayerBlock b : gameEntity.getBlocks()) {
+                coatingBlocks.addAll(b.getBlockGrid().getCoatingBlocks());
         }
         int numberOfVertices = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {

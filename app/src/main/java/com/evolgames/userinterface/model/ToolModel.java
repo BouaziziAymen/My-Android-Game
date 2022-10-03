@@ -203,7 +203,7 @@ public class ToolModel extends ProperModel implements Serializable {
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
 
-            for (HandModel hand : bodyModel.getHands()) {
+        /*    for (HandModel hand : bodyModel.getHands()) {
                 Vector2 u1 = hand.getHandShape().getCenter().cpy().sub(gameEntity.getCenter());
                 Vector2 u2 = hand.getHandShape().getCenter().cpy().sub(GameEntityFactory.getInstance().hand.getBody().getWorldCenter().cpy().mul(1 / 32f));
                 RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
@@ -216,19 +216,19 @@ public class ToolModel extends ProperModel implements Serializable {
                 revoluteJointDef.referenceAngle = (float) Math.atan2(-u.y, u.x);
                 revoluteJointDef.collideConnected = false;
                 scene.getWorldFacade().addJointToCreate(revoluteJointDef, gameEntity, GameEntityFactory.getInstance().hand, true);
-            }
+            }*/
         }
         GameGroup gameGroup = new GameGroup(gameEntities);
         scene.addGameGroup(gameGroup);
         for (GameEntity entity : gameEntities) scene.attachChild(entity.getMesh());
         scene.sortChildren();
         groundBodyModel.setGameEntity(scene.getGround());
+/*
 
-//creation of joints from model
         for (JointModel jointModel : joints) {
             BodyModel bodyModel1 = jointModel.getBodyModel1();
             BodyModel bodyModel2 = jointModel.getBodyModel2();
-            // Log.e("JointModel","creation:"+bodyModel1.getBodyModelName()+"/"+bodyModel2.getBodyModelName());
+
             GameEntity entity1 = bodyModel1.getGameEntity();
             GameEntity entity2 = bodyModel2.getGameEntity();
 
@@ -258,7 +258,7 @@ public class ToolModel extends ProperModel implements Serializable {
             }
             scene.getWorldFacade().addJointToCreate(jointModel.getJointDef(), entity1, entity2, true);
 
-        }
+        }*/
     }
 
 

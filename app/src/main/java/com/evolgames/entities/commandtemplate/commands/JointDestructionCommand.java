@@ -1,22 +1,20 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.physics.entities.JointBlueprint;
-
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 public class JointDestructionCommand extends Command {
-    private final JointBlueprint jointBlueprint;
+    private final Joint joint;
 
-    public JointDestructionCommand(JointBlueprint blueprint) {
-        this.jointBlueprint = blueprint;
+    public JointDestructionCommand(Joint joint) {
+        this.joint = joint;
     }
 
 
     @Override
     protected void run() {
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
-        physicsWorld.destroyJoint(jointBlueprint.getJoint());
-        jointBlueprint.setJoint(null);
+        physicsWorld.destroyJoint(joint);
     }
 }

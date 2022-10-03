@@ -13,10 +13,14 @@ public abstract class Command {
     }
 
     public void execute(){
-            run();
-            setAborted(true);
+        if(this.isReady()&&!isAborted()) {
+            this.run();
+            this.setAborted(true);
+        }
     }
     protected abstract void run();
 
-
+    protected boolean isReady(){
+        return true;
+    }
 }

@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 public class CutRayCastCallback implements RayCastCallback {
     boolean direction = true;
-    private ArrayList<ArrayList<Flag>> flags;
-    private ArrayList<LayerBlock> coveredBlocks;
-    private ArrayList<Fixture> coveredFixtures;
+    private final ArrayList<ArrayList<Flag>> flags;
+    private final ArrayList<LayerBlock> coveredBlocks;
+    private final ArrayList<Fixture> coveredFixtures;
 
 
     public CutRayCastCallback() {

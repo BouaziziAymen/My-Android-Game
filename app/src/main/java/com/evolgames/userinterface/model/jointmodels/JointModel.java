@@ -6,8 +6,8 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointS
 
 public class JointModel {
     private JointDef jointDef;
-    private JointShape jointShape;
-    private int jointId;
+    private final JointShape jointShape;
+    private final int jointId;
     private boolean selected;
     private BodyModel bodyModel1;
     private BodyModel bodyModel2;

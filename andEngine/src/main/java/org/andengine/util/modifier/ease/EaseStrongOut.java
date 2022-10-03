@@ -53,7 +53,7 @@ public class EaseStrongOut implements IEaseFunction {
 
 	public static float getValue(final float pPercentage) {
 		final float t = pPercentage - 1;
-		return 1 + (t * t * t * t * t);
+		return 1 - (t * t * t * t * t);
 	}
 
 	// ===========================================================

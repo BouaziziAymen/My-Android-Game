@@ -27,17 +27,17 @@ public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends
     }
 
     @Override
-    protected boolean rectify() {
+    protected boolean shouldRectify() {
         return true;
     }
 
     @Override
-    protected boolean arrange() {
+    protected boolean shouldArrangeVertices() {
         return true;
     }
 
     @Override
-    protected boolean check() {
+    protected boolean shouldCheckShape() {
         return true;
     }
 
@@ -51,13 +51,6 @@ public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends
         b2.initialization(list.second, getProperties().copy(), 0,false);
         addBlock(b1);
         addBlock(b2);
-    }
-
-
-    public void applyClip(ArrayList<Vector2> clipPath) {
-        WorldFacade.getClipVisitor().setClipPath(clipPath);
-        WorldFacade.getClipVisitor().visitTheElement(this);
-        setVertices(WorldFacade.getClipVisitor().getResult());
     }
 
 }

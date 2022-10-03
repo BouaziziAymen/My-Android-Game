@@ -1,8 +1,15 @@
 package com.evolgames.entities.persistence;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
@@ -46,6 +53,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 public class PersistenceCaretaker {
+
+    private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
     public static final String LAYER_TAG = "layer";
     public static final String DECORATION_TAG = "decoration";
     public static final String PROPERTIES_TAG = "properties";
@@ -61,8 +70,8 @@ public class PersistenceCaretaker {
     public static final String LAYERS_TAG = "layers";
     public static final String PROJECTILE_TAG = "projectile";
     public static final String PROJECTILE_FILE_TAG = "missileFile";
-    private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
     public static final String PROJECTILE_CAT_PREFIX = "c0_";
+    private static final String JOINTS_TAG = "joints";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private GameScene gameScene;
@@ -92,8 +101,86 @@ public class PersistenceCaretaker {
             bodiesElement.appendChild(bodyElement);
         }
         toolElement.appendChild(bodiesElement);
+
+        Element jointsElement = toolDocument.createElement(JOINTS_TAG);
+        for(JointModel jointModel:toolModel.getJointModels()){
+            Element jointElement = createJointElement(toolDocument,jointModel);
+            jointsElement.appendChild(jointElement);
+        }
+        toolElement.appendChild(jointsElement);
         toolDocument.appendChild(toolElement);
         XmlUtils.writeXml(toolDocument, fos);
+    }
+    public Element createJointElement(Document document,JointModel jointModel){
+        Element jointElement = document.createElement("joint");
+        JointDef jointDef = jointModel.getJointDef();
+        jointElement.setAttribute(ID, String.valueOf(jointModel.getJointId()));
+        jointElement.setIdAttribute(ID, true);
+        jointElement.setAttribute("collideConnected", String.valueOf(jointDef.collideConnected));
+        jointElement.setAttribute("type", String.valueOf(jointDef.type.getValue()));
+        Element localAnchorAElement;
+        Element localAnchorBElement;
+        switch (jointDef.type){
+            case Unknown:
+            case FrictionJoint:
+            case LineJoint:
+            case GearJoint:
+            case MouseJoint:
+            case PulleyJoint:
+                break;
+            case RevoluteJoint:
+                RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
+                localAnchorAElement = XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorA);
+                localAnchorBElement = XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorB);
+
+                jointElement.appendChild(localAnchorAElement);
+                jointElement.appendChild(localAnchorBElement);
+                jointElement.setAttribute("enableMotor",String.valueOf(revoluteJointDef.enableMotor));
+                jointElement.setAttribute("maxMotorTorque",String.valueOf(revoluteJointDef.maxMotorTorque));
+                jointElement.setAttribute("motorSpeed",String.valueOf(revoluteJointDef.motorSpeed));
+                jointElement.setAttribute("enableLimit",String.valueOf(revoluteJointDef.enableLimit));
+                jointElement.setAttribute("lowerAngle",String.valueOf(revoluteJointDef.lowerAngle));
+                jointElement.setAttribute("upperAngle",String.valueOf(revoluteJointDef.upperAngle));
+                jointElement.setAttribute("referenceAngle",String.valueOf(revoluteJointDef.referenceAngle));
+                break;
+            case PrismaticJoint:
+                PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
+                localAnchorAElement = XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAnchorA);
+                localAnchorBElement = XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAnchorB);
+                Element localAxisElement = XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAxis1);
+                jointElement.appendChild(localAnchorAElement);
+                jointElement.appendChild(localAnchorBElement);
+                jointElement.appendChild(localAxisElement);
+                jointElement.setAttribute("enableMotor",String.valueOf(prismaticJointDef.enableMotor));
+                jointElement.setAttribute("maxMotorForce",String.valueOf(prismaticJointDef.maxMotorForce));
+                jointElement.setAttribute("motorSpeed",String.valueOf(prismaticJointDef.motorSpeed));
+                jointElement.setAttribute("enableLimit",String.valueOf(prismaticJointDef.enableLimit));
+                jointElement.setAttribute("lowerTranslation",String.valueOf(prismaticJointDef.lowerTranslation));
+                jointElement.setAttribute("upperTranslation",String.valueOf(prismaticJointDef.upperTranslation));
+                jointElement.setAttribute("referenceAngle",String.valueOf(prismaticJointDef.referenceAngle));
+                break;
+            case DistanceJoint:
+                DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
+                localAnchorAElement = XmlUtils.createVectorElement(document, VECTOR_TAG, distanceJointDef.localAnchorA);
+                localAnchorBElement = XmlUtils.createVectorElement(document, VECTOR_TAG, distanceJointDef.localAnchorB);
+
+                jointElement.appendChild(localAnchorAElement);
+                jointElement.appendChild(localAnchorBElement);
+                jointElement.setAttribute("dampingRatio",String.valueOf(distanceJointDef.dampingRatio));
+                jointElement.setAttribute("length",String.valueOf(distanceJointDef.length));
+                jointElement.setAttribute("frequencyHz",String.valueOf(distanceJointDef.frequencyHz));
+                break;
+            case WeldJoint:
+                WeldJointDef weldJointDef = (WeldJointDef) jointDef;
+                localAnchorAElement = XmlUtils.createVectorElement(document, VECTOR_TAG, weldJointDef.localAnchorA);
+                localAnchorBElement = XmlUtils.createVectorElement(document, VECTOR_TAG, weldJointDef.localAnchorB);
+
+                jointElement.appendChild(localAnchorAElement);
+                jointElement.appendChild(localAnchorBElement);
+                jointElement.setAttribute("referenceAngle",String.valueOf(weldJointDef.referenceAngle));
+                break;
+        }
+        return jointElement;
     }
 
     private Element createBodyElement(Document document, BodyModel bodyModel) {
@@ -179,7 +266,11 @@ public class PersistenceCaretaker {
                     Object value = null;
                     if (field.getType().isPrimitive()) {
                         if (field.getType() == float.class) {
-                            value = Float.parseFloat(propertiesElement.getAttribute(field.getName()));
+                            try {
+                                value = Float.parseFloat(propertiesElement.getAttribute(field.getName()));
+                            } catch (Throwable t){
+                                Log.e("Field Not Found",""+field.getName());
+                            }
                         } else if (field.getType() == double.class) {
                             value = Double.parseDouble(propertiesElement.getAttribute(field.getName()));
                         } else if (field.getType() == int.class) {

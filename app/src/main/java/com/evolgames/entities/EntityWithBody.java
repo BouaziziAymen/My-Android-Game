@@ -1,18 +1,20 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.entities.commandtemplate.GameEntityCommands;
+import com.evolgames.entities.commandtemplate.commands.Command;
+
+import java.util.ArrayList;
 
 public class EntityWithBody {
     protected Body body;
     private boolean hanged;
-    private final GameEntityCommands commands;
+    private final ArrayList<Command> commands;
 
     public EntityWithBody() {
-        this.commands = new GameEntityCommands(this);
+        this.commands = new ArrayList<>();
     }
 
-    public GameEntityCommands getCommandContainer() {
+    public ArrayList<Command> getCommands() {
         return commands;
     }
 

@@ -5,34 +5,31 @@ import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.BlockUtils;
 
 import java.util.ArrayList;
 
-public abstract class InvisibleBlock<T extends InvisibleBlock<T, P>, P extends ColoredProperties> extends Block<T, P> {
+public abstract class InvisibleBlock<T extends InvisibleBlock<T, P>, P extends Properties> extends Block<T, P> {
 
 
     @Override
     protected void checkShape() {
-        if (getVertices().size() < 3) {
-            setAborted(true);
-        } else {
-            setAborted(false);
-        }
+        setAborted(getVertices().size() < 3);
     }
 
     @Override
-    protected boolean rectify() {
+    protected boolean shouldRectify() {
         return false;
     }
 
     @Override
-    protected boolean arrange() {
+    protected boolean shouldArrangeVertices() {
         return true;
     }
 
     @Override
-    protected boolean check() {
+    protected boolean shouldCheckShape() {
         return true;
     }
 

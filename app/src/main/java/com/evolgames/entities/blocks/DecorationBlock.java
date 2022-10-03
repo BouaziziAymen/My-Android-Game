@@ -1,6 +1,10 @@
 package com.evolgames.entities.blocks;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.properties.DecorationProperties;
+import com.evolgames.physics.WorldFacade;
+
+import java.util.ArrayList;
 
 public final class DecorationBlock extends AssociatedBlock<DecorationBlock, DecorationProperties> {
 
@@ -12,7 +16,7 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
     }
 
     @Override
-    protected boolean calcArea() {
+    protected boolean shouldCalculateArea() {
         return false;
     }
 
@@ -24,5 +28,12 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
     @Override
     protected DecorationBlock getThis() {
         return this;
+    }
+
+
+    public void applyClip(ArrayList<Vector2> clipPath) {
+        WorldFacade.getClipVisitor().setClipPath(clipPath);
+        WorldFacade.getClipVisitor().visitTheElement(this);
+        setVertices(WorldFacade.getClipVisitor().getResult());
     }
 }

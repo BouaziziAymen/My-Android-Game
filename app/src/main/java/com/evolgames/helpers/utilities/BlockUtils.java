@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.caliper.Caliper;
 import com.evolgames.caliper.Polygon;
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -15,8 +16,10 @@ import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
+import com.evolgames.entities.cut.PointsFreshCut;
+import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.cut.ShatterData;
-import com.evolgames.entities.joint.JointKey;
+import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.entities.properties.DecorationProperties;
@@ -125,12 +128,12 @@ public class BlockUtils {
         return new Pair<>(chunk1, chunk2);
     }
 
-    public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<FreshCut, FreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices) {
+    public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices) {
 
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, vertices);
 
-        FreshCut pair1 = new FreshCut(cut.getP2(), cut.getP1());
-        FreshCut pair2 = new FreshCut(cut.getP1Brother(), cut.getP2Brother());
+        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1());
+        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother());
 
         return new Pair<>(result, new Pair<>(pair1, pair2));
     }
@@ -319,7 +322,7 @@ public class BlockUtils {
     }
 
 
-    public static float[] getBounds(ArrayList<LayerBlock> blocks, Body body, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
+    public static float[] getBounds(GameEntity gameEntity, Body body, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
 
         Vector2 localTangent = obtain(body.getLocalVector(worldTangent)).nor();
         Vector2 localNormal = obtain(body.getLocalVector(worldNormal)).nor();
@@ -329,45 +332,21 @@ public class BlockUtils {
         float infY1 = Float.MAX_VALUE;
         float supY1 = -Float.MAX_VALUE;
 
-        for (LayerBlock b : blocks) {
-            for (Vector2 p : b.getBodyVertices()) {
-                float dx =p.x - localCenter.x;
-                float dy = p.y - localCenter.y;
-                float tproj = dx * localTangent.x + dy * localTangent.y;
-                float nproj = dx * localNormal.x + dy * localNormal.y;
+        for (LayerBlock b : gameEntity.getBlocks()) {
+                for (Vector2 p : b.getBodyVertices()) {
+                    float dx = p.x - localCenter.x;
+                    float dy = p.y - localCenter.y;
+                    float tproj = dx * localTangent.x + dy * localTangent.y;
+                    float nproj = dx * localNormal.x + dy * localNormal.y;
 
-                if (tproj < infX1) infX1 = tproj;
-                if (tproj > supX1) supX1 = tproj;
-                if (nproj < infY1) infY1 = nproj;
-                if (nproj > supY1) supY1 = nproj;
-            }
+                    if (tproj < infX1) infX1 = tproj;
+                    if (tproj > supX1) supX1 = tproj;
+                    if (nproj < infY1) infY1 = nproj;
+                    if (nproj > supY1) supY1 = nproj;
+                }
         }
 
         return new float[]{infX1, infY1, supX1, supY1};
-    }
-
-    public static float[] getBounds(Body body, LayerBlock particular, Vector2 worldCenter, Vector2 worldTangent, Vector2 worldNormal) {
-        Vector2 localTangent = obtain(body.getLocalVector(worldTangent)).nor();
-        Vector2 localNormal = obtain(body.getLocalVector(worldNormal)).nor();
-        Vector2 localCenter = obtain(body.getLocalPoint(worldCenter));
-        float infX = Float.MAX_VALUE;
-        float supX = -Float.MAX_VALUE;
-        float infY = Float.MAX_VALUE;
-        float supY = -Float.MAX_VALUE;
-
-        for (Vector2 p : particular.getBodyVertices()) {
-            float dx = p.x - localCenter.x;
-            float dy = p.y - localCenter.y;
-            float tproj = dx * localTangent.x + dy * localTangent.y;
-            float nproj = dx * localNormal.x + dy * localNormal.y;
-
-            if (tproj < infX) infX = tproj;
-            if (tproj > supX) supX = tproj;
-            if (nproj < infY) infY = nproj;
-            if (nproj > supY) supY = nproj;
-
-        }
-        return new float[]{infX, infY, supX, supY};
     }
 
 
@@ -377,20 +356,6 @@ public class BlockUtils {
         GeometryUtils.rotateVectorDeg(u, rot);
         return u;
 
-    }
-
-
-    private static void divideKeys(LayerBlock block1, LayerBlock block2, HashSet<JointKey> keys) {
-        for (JointKey key : keys) {
-            Vector2 anchor = key.getAnchor();
-            float d1 = GeometryUtils.distBetweenPointAndPolygon(anchor.x, anchor.y, block1.getVertices());
-            float d2 = GeometryUtils.distBetweenPointAndPolygon(anchor.x, anchor.y, block2.getVertices());
-            if (d1 < d2) {
-                if (block1.isNotAborted()) block1.addKey(key);
-            } else {
-                if (block2.isNotAborted()) block2.addKey(key);
-            }
-        }
     }
 
 
@@ -429,7 +394,7 @@ public class BlockUtils {
         UnionFind unionFinder = new UnionFind(N);
         for (int i = 0; i < blocks.size(); i++) {
             for (int j = i + 1; j < blocks.size(); j++) {
-                if (blocks.get(i).getID() != blocks.get(j).getID())
+                if (blocks.get(i).getId() != blocks.get(j).getId())
                     if (blocks.get(i).getPolarity() == Polarity.NEUTRAL || blocks.get(j).getPolarity() == Polarity.NEUTRAL || (blocks.get(i).getPolarity() == blocks.get(j).getPolarity()))
                         if (GeometryUtils.doLayersIntersect(blocks.get(i).getVertices(), blocks.get(j).getVertices()))
                             unionFinder.union(i, j);
@@ -453,7 +418,7 @@ public class BlockUtils {
         }
         for (int i = 0; i < blockGrouping.size(); i++) {
             ArrayList<LayerBlock> list = blockGrouping.get(i);
-            for (int j = 0; j < list.size(); j++) list.get(j).setID(j);
+            for (int j = 0; j < list.size(); j++) list.get(j).setId(j);
         }
         return blockGrouping;
     }
@@ -527,62 +492,67 @@ public class BlockUtils {
 
     private static void divideFreshCuts(LayerBlock block1, LayerBlock block2, ArrayList<FreshCut> freshCuts, Cut cut) {
         //divide freshcuts
-        for (FreshCut freshCut : freshCuts) {
-            boolean divided = false;
-            if ((cut.getLower1() == freshCut.first && cut.getHigher1() == freshCut.second)) {
-                if (cut.getP1() != freshCut.first && cut.getP1() != freshCut.second) {
-                    FreshCut halfFreshCut1 = new FreshCut(cut.getP1(), freshCut.second);
-                    FreshCut halfFreshCut2 = new FreshCut(freshCut.first, cut.getP1Brother());
-                    block1.addFreshCut(halfFreshCut1);
-                    block2.addFreshCut(halfFreshCut2);
-                    freshCut.setAlive(false);
-                    divided = true;
-                }
-
-            } else if ((cut.getLower2() == freshCut.first && cut.getHigher2() == freshCut.second)) {
-                if (cut.getP2() != freshCut.first && cut.getP2() != freshCut.second) {
-                    FreshCut halfFreshCut1 = new FreshCut(freshCut.first, cut.getP2());
-                    FreshCut halfFreshCut2 = new FreshCut(cut.getP2Brother(), freshCut.second);
-
-                    block1.addFreshCut(halfFreshCut1);
-                    block2.addFreshCut(halfFreshCut2);
-
-                    divided = true;
-                    freshCut.setAlive(false);
-                }
-
-            }
-            if (!divided) {
-
-                if (block1.getVertices().contains(freshCut.first) && block1.getVertices().contains(freshCut.second)) {
-                    block1.addFreshCut(freshCut);
-                } else if (block2.getVertices().contains(freshCut.first) || block2.getVertices().contains(freshCut.second)) {
-                    if (!block2.getVertices().contains(freshCut.first)) {
-                        freshCut.first = (freshCut.first == cut.getP1()) ? cut.getP1Brother() : cut.getP2Brother();
-                    }
-                    if (!block2.getVertices().contains(freshCut.second)) {
-                        freshCut.second = (freshCut.second == cut.getP2()) ? cut.getP2Brother() : cut.getP1Brother();
+        for (FreshCut fc : freshCuts) {
+            if (fc instanceof SegmentFreshCut) {
+                SegmentFreshCut sfc = (SegmentFreshCut) fc;
+                boolean divided = false;
+                if ((cut.getLower1() == sfc.first && cut.getHigher1() == sfc.second)) {
+                    if (cut.getP1() != sfc.first && cut.getP1() != sfc.second) {
+                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second);
+                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother());
+                        block1.addFreshCut(halfFreshCut1);
+                        block2.addFreshCut(halfFreshCut2);
+                        sfc.setAlive(false);
+                        divided = true;
                     }
 
-                    block2.addFreshCut(freshCut);
+                } else if ((cut.getLower2() == sfc.first && cut.getHigher2() == sfc.second)) {
+                    if (cut.getP2() != sfc.first && cut.getP2() != sfc.second) {
+                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(sfc.first, cut.getP2());
+                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(cut.getP2Brother(), sfc.second);
+
+                        block1.addFreshCut(halfFreshCut1);
+                        block2.addFreshCut(halfFreshCut2);
+
+                        divided = true;
+                        sfc.setAlive(false);
+                    }
+
                 }
+                if (!divided) {
 
+                    if (block1.getVertices().contains(sfc.first) && block1.getVertices().contains(sfc.second)) {
+                        block1.addFreshCut(sfc);
+                    } else if (block2.getVertices().contains(sfc.first) || block2.getVertices().contains(sfc.second)) {
+                        if (!block2.getVertices().contains(sfc.first)) {
+                            sfc.first = (sfc.first == cut.getP1()) ? cut.getP1Brother() : cut.getP2Brother();
+                        }
+                        if (!block2.getVertices().contains(sfc.second)) {
+                            sfc.second = (sfc.second == cut.getP2()) ? cut.getP2Brother() : cut.getP1Brother();
+                        }
 
+                        block2.addFreshCut(sfc);
+                    }
+
+                }
+            } else if (fc instanceof PointsFreshCut) {
+
+//TODO finish this
             }
         }
 
     }
 
     public static Pair<LayerBlock, LayerBlock> cutBlockA(LayerBlock block, Cut cut) {
-        Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<FreshCut, FreshCut>> splitResult = BlockUtils.splitVertices(cut, block.getVertices());
+        Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitResult = BlockUtils.splitVertices(cut, block.getVertices());
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
-        Pair<FreshCut, FreshCut> limits = splitResult.second;
+        Pair<SegmentFreshCut, SegmentFreshCut> limits = splitResult.second;
 
 
-        LayerBlock block1 = BlockFactory.createBlockA(group.first, block.getProperties().copy(), block.getID(), false, block.getOrder());
+        LayerBlock block1 = BlockFactory.createBlockA(group.first, block.getProperties().copy(), block.getId(), false, block.getOrder());
         block1.addFreshCut(limits.first);
         block1.setPolarity(Polarity.YIN);
-        LayerBlock block2 = BlockFactory.createBlockA(group.second, block.getProperties().copy(), block.getID(), false, block.getOrder());
+        LayerBlock block2 = BlockFactory.createBlockA(group.second, block.getProperties().copy(), block.getId(), false, block.getOrder());
         block2.addFreshCut(limits.second);
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
@@ -590,7 +560,6 @@ public class BlockUtils {
         block2.setLiquidQuantity((int) (liquidQuantity * block2.getArea() / block.getArea()));
 
 
-        BlockUtils.divideKeys(block1, block2, block.getKeys());
         BlockUtils.divideAssociatedBlocks(block1, block2, block.getAssociatedBlocks(), cut);
         block1.refillGrid();
         block2.refillGrid();
@@ -608,8 +577,9 @@ public class BlockUtils {
 
 
     public static boolean isValid(ArrayList<Vector2> points) {
-      return (points.size()>= 3);
+        return (points.size() >= 3);
     }
+
     public static ShatterData shatterData(LayerBlock block, Vector2 localImpactPoint) {
         if (block.getBlockGrid() == null) return null;
         CoatingBlock coatingCenter = block.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
@@ -617,7 +587,7 @@ public class BlockUtils {
         if (coatingCenter == null) return null;
 
         Vector2 u = BlockUtils.randomlyRotatedUnitVector();
-        Vector2 Center = coatingCenter.getPosition();
+        Vector2 center = coatingCenter.getPosition();
 
         Vector2 extremity1;
         Vector2 extremity2;
@@ -626,14 +596,16 @@ public class BlockUtils {
         for (int i = 0; i < n; i++) {
             GeometryUtils.rotateVectorDeg(u, 180f / n);
 
-            extremity1 = Vector2Pool.obtain(Center.x + u.x * 200, Center.y + u.y * 200);
-            extremity2 = Vector2Pool.obtain(Center.x - u.x * 200, Center.y - u.y * 200);
+            extremity1 = Vector2Pool.obtain(center.x + u.x * 200, center.y + u.y * 200);
+            extremity2 = Vector2Pool.obtain(center.x - u.x * 200, center.y - u.y * 200);
 
-            Cut cut = BlockUtils.generateCutCorrected(block.getVertices(), Center, extremity1, extremity2);
+            Cut cut = BlockUtils.generateCutCorrected(block.getVertices(), center, extremity1, extremity2);
             if (cut != null && cut.isValid(block.getVertices())) candidates.add(cut);
         }
         Collections.sort(candidates);
-        if (candidates.size() == 0) return new ShatterData();
+        if (candidates.size() == 0) {
+            return new ShatterData();
+        }
 
         Cut chosen = candidates.get(0);
         float destructionEnergy = 0;
@@ -664,7 +636,7 @@ public class BlockUtils {
         for (int i = 0; i < mainBlock.getVertices().size(); i++)
             mainBlockVerticesCopy.add(Vector2Pool.obtain(mainBlock.getVertices().get(i)));
 
-        root.initialization(mainBlockVerticesCopy, new CoatingProperties( 0, 0, initialTemperature, 0, initialChemicalEnergy,mainBlock.getProperties()), 0, true);
+        root.initialization(mainBlockVerticesCopy, new CoatingProperties(0, 0, initialTemperature, 0, initialChemicalEnergy, mainBlock.getProperties()), 0, true);
 
         ArrayList<Vector2> vertices = root.getVertices();
         Vector2 center = GeometryUtils.calculateCentroid(vertices);
@@ -784,8 +756,9 @@ public class BlockUtils {
                 bl.centerCoreCoatingBlock();
             }
         }
-        if (error)
+        if (error) {
             Log.e("Error", "error coating:" + Arrays.toString(mainBlock.getVertices().toArray()));
+        }
 
 
     }
@@ -806,12 +779,15 @@ public class BlockUtils {
         for (LayerBlock layerBlock : blocks) {
             data[colorNumber++] = layerBlock.getProperties().getDefaultColor();
             for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()) continue;
+                if (!b.isNotAborted()){
+                    continue;
+                }
                 if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
-                    if (b instanceof CoatingBlock)
-                        b.getProperties().setDefaultColor(new Color(Color.TRANSPARENT));
+                    if (b instanceof CoatingBlock) {
+                        ((CoatingProperties) b.getProperties()).setDefaultColor(new Color(Color.TRANSPARENT));
+                    }
 
-                    data[colorNumber++] = b.getProperties().getDefaultColor();
+                    data[colorNumber++] =((ColoredProperties) b.getProperties()).getDefaultColor();
                 }
             }
         }
@@ -887,7 +863,7 @@ public class BlockUtils {
             list.add(layerModel.getPoints());
         }
         Vector2 center = GeometryUtils.calculateCenter(list);
-        return createBlocks(bodyModel,center);
+        return createBlocks(bodyModel, center);
     }
 
     public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel, Vector2 center) {

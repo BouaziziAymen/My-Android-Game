@@ -1,9 +1,11 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.particles.pools.LiquidParticlePool;
+import com.evolgames.entities.particles.emitters.BaseEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
-import com.evolgames.entities.particles.systems.MyBatchedSpriteParticleSystem;
+import com.evolgames.entities.particles.systems.BatchedSpriteParticleSystemWithCustomSpawnAction;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.userinterface.control.behaviors.actions.Action;
@@ -17,32 +19,35 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
-import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.entity.particle.modifier.OffCameraExpireParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
+import org.andengine.util.modifier.ease.EaseStrongInOut;
 
 public abstract class LiquidParticleWrapper {
 
-    public static final float particleWidth = ResourceManager.getInstance().liquidParticle.getWidth();
-    public static final float particleHeight = ResourceManager.getInstance().liquidParticle.getHeight();
+    public static final float LIQUID_PARTICLE_WIDTH = ResourceManager.getInstance().liquidParticle.getWidth();
+    public static final float LIQUID_PARTICLE_HEIGHT = ResourceManager.getInstance().liquidParticle.getHeight();
     private final Color color;
-    private final MyBaseEmitter emitter;
-    private final MyBatchedSpriteParticleSystem particleSystem;
+    private final BaseEmitter emitter;
+    private final BatchedSpriteParticleSystemWithCustomSpawnAction particleSystem;
+    private final GameEntityAttachedVelocityInitializer velocityInitializer;
     private GameEntity parent;
     private Action spawnAction;
     private boolean alive = true;
     private int Limit;
+    private final Vector2 splashVelocity;
 
-    public LiquidParticleWrapper(GameEntity gameEntity, Color color, float[] data, int lowerRate, int higherRate) {
+    public LiquidParticleWrapper(GameEntity gameEntity, Color color, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
         this.color = color;
+        this.splashVelocity = splashVelocity;
 
         emitter = createEmitter(data);
         IEntityFactory<Entity> ief = LiquidParticlePool::obtain;
 
-        this.particleSystem = new MyBatchedSpriteParticleSystem(ief, this, emitter, lowerRate, higherRate, 2 * higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
+        this.particleSystem = new BatchedSpriteParticleSystemWithCustomSpawnAction(ief, this, emitter, lowerRate*10, higherRate*10, 20 * higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
 
-        IParticleInitializer<Entity> velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
+        this.velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
         this.particleSystem.addParticleInitializer(velocityInitializer);
 
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(color.getRed(), color.getGreen(), color.getBlue()));
@@ -59,7 +64,7 @@ public abstract class LiquidParticleWrapper {
     }
 
 
-    protected abstract MyBaseEmitter createEmitter(float[] emitterData);
+    protected abstract BaseEmitter createEmitter(float[] emitterData);
 
     public Color getColor() {
         return color;
@@ -73,8 +78,19 @@ public abstract class LiquidParticleWrapper {
         updateEmitter();
     }
 
+    private int timer = 0;
     private void updateEmitter() {
-        if (parent == null) return;
+        if (parent == null) {
+            return;
+        }
+        timer++;
+
+        if(timer<40){
+            if(splashVelocity !=null) {
+                float percentage = EaseStrongInOut.getInstance().getPercentage(timer,20);
+                velocityInitializer.getIndependentVelocity().set(splashVelocity.x *percentage, splashVelocity.y *percentage);
+            }
+        }
         float x = parent.getMesh().getX();
         float y = parent.getMesh().getY();
         float rot = parent.getMesh().getRotation();
@@ -84,7 +100,7 @@ public abstract class LiquidParticleWrapper {
         emitter.update(GeometryUtils.transformation);
     }
 
-    public MyBatchedSpriteParticleSystem getParticleSystem() {
+    public BatchedSpriteParticleSystemWithCustomSpawnAction getParticleSystem() {
         return particleSystem;
     }
 
@@ -100,8 +116,9 @@ public abstract class LiquidParticleWrapper {
 
 
     public void performSpawnAction() {
-        if (spawnAction != null)
+        if (spawnAction != null) {
             spawnAction.performAction();
+        }
     }
 
     public void recycleParticles() {
@@ -113,7 +130,9 @@ public abstract class LiquidParticleWrapper {
 
     public boolean isAllParticlesExpired() {
         for (Particle<Entity> p : getParticleSystem().getParticles())
-            if (p != null && !p.isExpired()) return false;
+            if (p != null && !p.isExpired()){
+                return false;
+            }
         return true;
     }
 

@@ -60,8 +60,7 @@ fixtureDef.filter.maskBits = 0x0;
             float elasticity = block.getProperties().getRestitution();
             float friction = block.getProperties().getFriction();
         ArrayList<Vector2> rVertices = BlockUtils.bodyVertices(block);
-        System.out.println("----------------");
-        System.out.println(Arrays.toString(rVertices.toArray()));
+
             ArrayList<ArrayList<Vector2>> bodyVertices =  BlockUtils.decompose(rVertices);
 
             for (ArrayList<Vector2> fixtureVertices : bodyVertices) {

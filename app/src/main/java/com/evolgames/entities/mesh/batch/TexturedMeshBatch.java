@@ -35,7 +35,6 @@ public class TexturedMeshBatch extends Shape {
     // ===========================================================
 
 
-
     public static final int VERTEX_INDEX_X = 0;
     public static final int VERTEX_INDEX_Y = TexturedMeshBatch.VERTEX_INDEX_X + 1;
     public static final int COLOR_INDEX = TexturedMeshBatch.VERTEX_INDEX_Y + 1;
@@ -218,11 +217,11 @@ public class TexturedMeshBatch extends Shape {
     // ===========================================================
 
     protected void begin() {
-		//GLState.disableDepthMask(pGL); // TODO Test effect of this
+        //GLState.disableDepthMask(pGL); // TODO Test effect of this
     }
 
     protected void end() {
-		//GLState.enableDepthMask(pGL);
+        //GLState.enableDepthMask(pGL);
     }
 
 
@@ -231,24 +230,18 @@ public class TexturedMeshBatch extends Shape {
         this.assertTexture(pTextureRegion);
 
         this.add(meshData);
-        mIndex+=meshData.length/5;
+        mIndex += meshData.length / 5;
 
     }
 
-    public void draw(final ITextureRegion pTextureRegion, float[] meshData,float pRed, float pGreen, float pBlue, float pAlpha) {
+    public void draw(final ITextureRegion pTextureRegion, float[] meshData, float pRed, float pGreen, float pBlue, float pAlpha) {
         this.assertCapacity();
         this.assertTexture(pTextureRegion);
 
-        this.add(meshData,pRed,pGreen,pBlue,pAlpha);
-        mIndex+=meshData.length/5;
+        this.add(meshData, pRed, pGreen, pBlue, pAlpha);
+        mIndex += meshData.length / 5;
 
     }
-
-
-
-
-
-
 
 
     public void submit() {
@@ -256,7 +249,7 @@ public class TexturedMeshBatch extends Shape {
     }
 
     protected void onSubmit() {
-mVertices = mIndex;
+        mVertices = mIndex;
         this.mMeshBatchVertexBufferObject.setDirtyOnHardware();
 
         this.mIndex = 0;
@@ -282,19 +275,17 @@ mVertices = mIndex;
     }
 
 
-
-
     protected void add(final ITextureRegion pTextureRegion,
-                       float x1,float y1, float x2,float y2, float x3, float y3) {
-        this.addInner(pTextureRegion, x1,y1,x2,y2,x3,y3);
+                       float x1, float y1, float x2, float y2, float x3, float y3) {
+        this.addInner(pTextureRegion, x1, y1, x2, y2, x3, y3);
     }
 
     protected void add(float[] meshData) {
         this.addInner(meshData);
     }
 
-    protected void add(float[] meshData,float pRed, float pGreen, float pBlue, float pAlpha) {
-        this.addInner(meshData,pRed,pGreen,pBlue,pAlpha);
+    protected void add(float[] meshData, float pRed, float pGreen, float pBlue, float pAlpha) {
+        this.addInner(meshData, pRed, pGreen, pBlue, pAlpha);
     }
 
 
@@ -304,12 +295,12 @@ mVertices = mIndex;
      * +-2
      */
     private void addInner(final ITextureRegion pTextureRegion,
-                          float x1,float y1, float x2,float y2, float x3, float y3) {
+                          float x1, float y1, float x2, float y2, float x3, float y3) {
         float pRed = 1;
         float pGreen = 1;
         float pBlue = 1;
         float pAlpha = 1;
-        this.mMeshBatchVertexBufferObject.addWithPackedColor(pTextureRegion,  x1,y1,x2,y2,x3,y3, ColorUtils.convertRGBAToABGRPackedFloat(pRed, pGreen, pBlue, pAlpha));
+        this.mMeshBatchVertexBufferObject.addWithPackedColor(pTextureRegion, x1, y1, x2, y2, x3, y3, ColorUtils.convertRGBAToABGRPackedFloat(pRed, pGreen, pBlue, pAlpha));
     }
 
     private void addInner(float[] meshData) {
@@ -323,7 +314,6 @@ mVertices = mIndex;
     private void addInner(float[] meshData, float pRed, float pGreen, float pBlue, float pAlpha) {
         this.mMeshBatchVertexBufferObject.addWithPackedColor(meshData, ColorUtils.convertRGBAToABGRPackedFloat(pRed, pGreen, pBlue, pAlpha));
     }
-
 
 
     // ===========================================================

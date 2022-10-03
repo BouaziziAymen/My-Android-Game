@@ -1,4 +1,6 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.pools;
+
+import com.evolgames.entities.particles.systems.Spark;
 
 import org.andengine.util.adt.pool.GenericPool;
 

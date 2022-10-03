@@ -6,18 +6,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.blocks.JointZoneBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.entities.joint.JointKey;
-import com.evolgames.entities.particles.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.physics.entities.JointBlueprint;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.input.touch.TouchEvent;
@@ -28,15 +25,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
+import is.kul.learningandengine.graphicelements.Layer;
 
 
 public class GameEntity extends EntityWithBody {
 
     private final GameScene gameScene;
-    private float area;
     public boolean changed = true;
     Color color = Utils.getRandomColor();
+    private float area;
     private SpecialEntityType type = SpecialEntityType.Default;
     private GameGroup parentGroup;
     private boolean alive = true;
@@ -54,27 +51,32 @@ public class GameEntity extends EntityWithBody {
     private boolean isBatcherSetup = false;
     private int hangedPointerId;
 
+
     public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> blocks) {
         super();
         this.mesh = mesh;
         this.gameScene = scene;
         this.name = entityName;
         this.blocks = blocks;
-        for (LayerBlock block : blocks) block.setGameEntity(this);
 
-        for (LayerBlock block : blocks) {
-            for (Block<?, ?> decorationBlock : block.getAssociatedBlocks()) {
-                if (decorationBlock instanceof CoatingBlock) {
-                    CoatingBlock coatingBlock = ((CoatingBlock) decorationBlock);
-                    coatingBlock.setMesh(mesh);
-                }
-            }
+        for (LayerBlock layerBlock : this.blocks) {
+                layerBlock.setGameEntity(this);
         }
 
-       computeArea();
+        for (LayerBlock layerBlock : this.blocks) {
+                for (Block<?, ?> decorationBlock : layerBlock.getAssociatedBlocks()) {
+                    if (decorationBlock instanceof CoatingBlock) {
+                        CoatingBlock coatingBlock = ((CoatingBlock) decorationBlock);
+                        coatingBlock.setMesh(mesh);
+                    }
+                }
+        }
+
+        computeArea();
         if (area >= 5) {
-            if (hasStains())
+            if (hasStains()) {
                 setupBatcher();
+            }
         }
     }
 
@@ -82,10 +84,10 @@ public class GameEntity extends EntityWithBody {
         return area;
     }
 
-    private void computeArea(){
+    private void computeArea() {
         this.area = 0;
-        for (LayerBlock block : blocks) {
-            area += block.getArea();
+        for (LayerBlock layerBlock: blocks) {
+                area += layerBlock.getArea();
         }
     }
 
@@ -133,9 +135,13 @@ public class GameEntity extends EntityWithBody {
     private void setupBatcher() {
         isBatcherSetup = true;
         float area = 0;
-        for (LayerBlock b : blocks) area += b.getArea();
+        for (LayerBlock b : blocks){
+                area += b.getArea();
+        }
         int stainLimit = (int) (area / 32);
-        if (stainLimit < 1) stainLimit = 1;
+        if (stainLimit < 1) {
+            stainLimit = 1;
+        }
         stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
 
 
@@ -162,7 +168,7 @@ public class GameEntity extends EntityWithBody {
 
 
     public void onStep(float timeStep) {
-        if(triggers!=null) {
+        if (triggers != null) {
             this.triggers.forEach(t -> t.onStep(timeStep));
         }
 
@@ -185,16 +191,8 @@ public class GameEntity extends EntityWithBody {
     public boolean computeTouch(TouchEvent touch) {
 
         float[] converted = mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
-        for (LayerBlock block : blocks) {
+        for (Block<?,?> block : blocks) {
             if (GeometryUtils.PointInPolygon(converted[0], converted[1], block.getVertices())) {
-                Log.e("diagnose", "*********************************" + getName());
-                //for (BlockA blockA : blocks) {
-                    // Log.e("diagnose","-------------------");
-                    //Log.e("diagnose","blockA:"+blockA);
-                    //for(Block decorationBlock:blockA.getAssociatedBlocks())
-                    //  Log.e("diagnose","dec:"+decorationBlock);
-               // }
-
                 return true;
             }
         }
@@ -207,11 +205,11 @@ public class GameEntity extends EntityWithBody {
         float distance = Float.MAX_VALUE;
         LayerBlock result = null;
         for (LayerBlock block : blocks) {
-            float d = GeometryUtils.distBetweenPointAndPolygon(x, y, block.getVertices());
-            if (d < distance) {
-                distance = d;
-                result = block;
-            }
+                float d = GeometryUtils.distBetweenPointAndPolygon(x, y, block.getVertices());
+                if (d < distance) {
+                    distance = d;
+                    result = block;
+                }
         }
         return result;
     }
@@ -224,13 +222,6 @@ public class GameEntity extends EntityWithBody {
         this.children = children;
     }
 
-    public void putKey(JointBlueprint command, JointKey.KeyType type, Vector2 anchor) {
-        LayerBlock nearest = getNearestBlockA(anchor);
-        if(nearest==null){
-            return;
-        }
-        nearest.addKey(new JointKey(command, type, obtain(anchor.x * 32, anchor.y * 32)));
-    }
 
     public MosaicMesh getMesh() {
         return mesh;
@@ -285,16 +276,18 @@ public class GameEntity extends EntityWithBody {
     public void addStain(LayerBlock block, StainBlock stainBlock) {
         block.addAssociatedBlock(stainBlock);
         changed = true;
-        if (!isBatcherSetup) setupBatcher();
+        if (!isBatcherSetup) {
+            setupBatcher();
+        }
     }
 
     private boolean hasStains() {
         for (LayerBlock b : blocks) {
-            for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
-                if (decorationBlock instanceof StainBlock) {
-                    return true;
+                for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
+                    if (decorationBlock instanceof StainBlock) {
+                        return true;
+                    }
                 }
-            }
         }
         return false;
 
@@ -303,7 +296,9 @@ public class GameEntity extends EntityWithBody {
     private int getStainDataCount(ArrayList<StainBlock> stains) {
         int count = 0;
         for (StainBlock b : stains) {
-            if (b.getData() == null) b.computeData();
+            if (b.getData() == null) {
+                b.computeData();
+            }
             count += b.getData().length;
         }
         return count;
@@ -312,45 +307,48 @@ public class GameEntity extends EntityWithBody {
     private ArrayList<StainBlock> getStains() {
         ArrayList<StainBlock> result = new ArrayList<>();
         for (LayerBlock b : blocks) {
-            for (Block<?,?> decorationBlock : b.getAssociatedBlocks()) {
-                if (decorationBlock instanceof StainBlock) {
-                    result.add((StainBlock) decorationBlock);
+                for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
+                    if (decorationBlock instanceof StainBlock) {
+                        result.add((StainBlock) decorationBlock);
+                    }
                 }
-            }
         }
         return result;
     }
 
     public void redrawStains() {
-        if (batch == null || !changed) return;
-        changed = false;
+        if (batch == null || !changed) {
+            return;
+        }
 
         batch.reset();
         ArrayList<StainBlock> allStains = getStains();
-        while (getStainDataCount(allStains) >= stainDataLimit) {
+        int stainDataCount = getStainDataCount(allStains);
+        while (stainDataCount >= stainDataLimit) {
             StainBlock removedStainBlock = allStains.get(0);
             for (LayerBlock b : blocks) {
-                if (b.getAssociatedBlocks().contains(removedStainBlock)) {
-                    b.getAssociatedBlocks().remove(removedStainBlock);
-                    break;
-                }
+                    if (b.getAssociatedBlocks().contains(removedStainBlock)) {
+                        b.getAssociatedBlocks().remove(removedStainBlock);
+                        break;
+                    }
             }
+            stainDataCount -= removedStainBlock.getData().length;
             allStains.remove(removedStainBlock);
         }
 
 
-        for (LayerBlock layerBlock : getBlocks()) {
-            ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
-            for (Block<?, ?> decorationBlock : associatedBlocks) {
-                if (decorationBlock instanceof StainBlock) {
-                    StainBlock stain = (StainBlock) decorationBlock;
-                    Color color = stain.getProperties().getColor();
-                    batch.draw(stain.getTextureRegion(), stain.getData(), color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+        for (LayerBlock b : getBlocks()) {
+                ArrayList<? extends Block<?, ?>> associatedBlocks = b.getAssociatedBlocks();
+                for (Block<?, ?> decorationBlock : associatedBlocks) {
+                    if (decorationBlock instanceof StainBlock) {
+                        StainBlock stain = (StainBlock) decorationBlock;
+                        Color color = stain.getProperties().getColor();
+                        batch.draw(stain.getTextureRegion(), stain.getData(), color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+                    }
                 }
-            }
         }
-
         batch.submit();
+        changed = false;
     }
 
     public void dispose() {
@@ -366,15 +364,6 @@ public class GameEntity extends EntityWithBody {
 
     public void setCenter(Vector2 center) {
         this.center = center;
-    }
-
-    public void test_draw() {
-        getMesh().detachChildren();
-        for (LayerBlock b : blocks) {
-            for (Block<?,?> c : b.getAssociatedBlocks())
-                if (c instanceof JointZoneBlock)
-                    Utils.drawPathOnEntity(c.getVertices(), Color.RED, getMesh());
-        }
     }
 
     public boolean isAlive() {
@@ -409,23 +398,24 @@ public class GameEntity extends EntityWithBody {
     public void setTriggers(List<Trigger> triggers) {
         this.triggers = triggers;
     }
-    public boolean hasTriggers(){
-        if(this.triggers==null){
+
+    public boolean hasTriggers() {
+        if (this.triggers == null) {
             return false;
         }
-        return this.triggers.size()>0;
+        return this.triggers.size() > 0;
     }
 
     public void onTriggerPushed() {
-       if(!hasTriggers())return;
-       Trigger trigger = triggers.get(0);
-       trigger.onTriggerPulled();
+        if (!hasTriggers()) return;
+        Trigger trigger = triggers.get(0);
+        trigger.onTriggerPulled();
     }
+
     public void onTriggerReleased() {
-        if(!hasTriggers())return;
+        if (!hasTriggers()) return;
         Trigger trigger = triggers.get(0);
         trigger.onTriggerReleased();
     }
-
 
 }

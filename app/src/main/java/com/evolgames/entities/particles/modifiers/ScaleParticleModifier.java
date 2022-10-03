@@ -1,4 +1,4 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.modifiers;
 
 
 import org.andengine.entity.IEntity;

@@ -1,31 +1,39 @@
 package com.evolgames.entities.commandtemplate.commands;
 
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.physics.entities.JointBlueprint;
-
+import com.evolgames.entities.commandtemplate.Invoker;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 public class JointCreationCommand extends Command {
 
-    private final JointBlueprint jointBlueprint;
+    private final JointDef jointDef;
+    private final GameEntity entity1;
+    private final GameEntity entity2;
 
-    public JointCreationCommand(JointBlueprint jointBlueprint) {
-        this.jointBlueprint = jointBlueprint;
+    public JointCreationCommand(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
+        this.jointDef = jointDef;
+        this.entity1 = entity1;
+        this.entity2 = entity2;
     }
 
     @Override
     protected void run() {
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
-        Joint joint = physicsWorld.createJoint(jointBlueprint.getJointDef());
-        if (joint instanceof MouseJoint) Invoker.gameScene.setMouseJoint((MouseJoint) joint, ((GameEntity) jointBlueprint.getEntity2()).getHangedPointerId());
-        jointBlueprint.setJoint(joint);
+        Joint joint = physicsWorld.createJoint(jointDef);
+        if (joint instanceof MouseJoint) {
+            // Invoker.gameScene.setMouseJoint((MouseJoint) joint, ((GameEntity) jointBlueprint.getEntity2()).getHangedPointerId());
+        }
+        setAborted(true);
     }
 
-    public JointBlueprint getBlueprint() {
-
-        return jointBlueprint;
+    @Override
+    protected boolean isReady() {
+        jointDef.bodyA = entity1.getBody();
+        jointDef.bodyB = entity2.getBody();
+        return jointDef.bodyA != null && jointDef.bodyB != null;
     }
+
 }

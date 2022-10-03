@@ -1,10 +1,11 @@
-package com.evolgames.entities.particles;
+package com.evolgames.entities.particles.wrappers;
 
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.NRType;
 import com.evolgames.entities.NonRotatingChild;
 
 import com.evolgames.entities.blocks.CoatingBlock;
+import com.evolgames.entities.particles.pools.SparkPool;
 import com.evolgames.entities.particles.modifiers.MyColorParticleInitializer;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;

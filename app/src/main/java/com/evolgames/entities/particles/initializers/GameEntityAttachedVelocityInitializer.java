@@ -19,6 +19,10 @@ public class GameEntityAttachedVelocityInitializer implements IParticleInitializ
         this.worldPoint = new Vector2();
     }
 
+    public Vector2 getIndependentVelocity() {
+        return independentVelocity;
+    }
+
     @Override
     public void onInitializeParticle(Particle<Entity> pParticle) {
         if (gameEntity.getBody() == null) {

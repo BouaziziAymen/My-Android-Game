@@ -51,10 +51,7 @@ public static int recyledTimes;
         recycledBlock.getAssociatedBlocks().clear();
         if(recycledBlock.getFreshCuts()!=null)
         recycledBlock.getFreshCuts().clear();
-        if(recycledBlock.getKeys()!=null)
-        recycledBlock.getKeys().clear();
         POOL.recyclePoolItem(recycledBlock);
-
     }
 
     // ===========================================================

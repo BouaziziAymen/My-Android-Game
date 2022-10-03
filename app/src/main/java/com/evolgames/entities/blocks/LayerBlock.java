@@ -9,7 +9,6 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.grid.BlockGrid;
-import com.evolgames.entities.joint.JointKey;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -27,7 +26,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     private ArrayList<Vector2> bodyVertices;
     private ArrayList<Block<?, ?>> associatedBlocks;
     private Polarity polarity = Polarity.NEUTRAL;
-    private HashSet<JointKey> keys;
     private BlockGrid blockGrid;
     private HashSet<Fixture> fixtures;
     private boolean Dead;
@@ -83,21 +81,15 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     @Override
-    protected boolean arrange() {
+    protected boolean shouldArrangeVertices() {
         return true;
     }
 
     @Override
-    protected boolean check() {
+    protected boolean shouldCheckShape() {
         return true;
     }
 
-
-    private void createKeys() {
-        if (keys == null)
-            keys = new HashSet<>();
-
-    }
 
     private void createFixtureSet() {
         if (fixtures == null)
@@ -146,14 +138,13 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     @Override
-    protected boolean calcArea() {
+    protected boolean shouldCalculateArea() {
         return true;
     }
 
     @Override
     protected void particularInitialization(boolean firstTime) {
         createGrid();
-        createKeys();
         createFixtureSet();
         createAssociated();
 
@@ -189,10 +180,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         this.polarity = polarity;
     }
 
-    public void addKey(JointKey key) {
-        keys.add(key);
-    }
-
     public float getArea() {
         return Area;
     }
@@ -214,7 +201,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     @Override
-    protected boolean rectify() {
+    protected boolean shouldRectify() {
         return true;
     }
 
@@ -225,10 +212,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
 
     public List<LayerBlock> getChildren() {
         return children;
-    }
-
-    public HashSet<JointKey> getKeys() {
-        return keys;
     }
 
     @SuppressWarnings("unused")

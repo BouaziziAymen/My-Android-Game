@@ -43,8 +43,6 @@ public class Flag implements Comparable<Flag> {
 
     @Override
     public int compareTo(Flag o) {
-        if(fraction==o.fraction)return 0;
-        else if(fraction<o.fraction)return -1;
-        else return 1;
+        return Float.compare(fraction, o.fraction);
     }
 }

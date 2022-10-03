@@ -416,6 +416,23 @@ public class GeometryUtils {
         return Vector2Pool.obtain(x, y);
     }
 
+    public static Vector2 calculateCentroid(float[] verticesData) {
+        float x = 0;
+        float y = 0;
+        int pointCount = verticesData.length/2;
+        for (int i = 0; i < pointCount; i++) {
+            final float pointX = verticesData[2*i];
+            final float pointY = verticesData[2*i+1];
+            x += pointX;
+            y += pointY;
+        }
+
+        x = x / pointCount;
+        y = y / pointCount;
+
+        return Vector2Pool.obtain(x, y);
+    }
+
 
     public static Vector2 calculateCentroid(ArrayList<Vector2> vertices, int offset, int count) {
         float x = 0;

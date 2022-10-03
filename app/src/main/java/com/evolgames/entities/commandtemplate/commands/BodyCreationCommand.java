@@ -30,6 +30,7 @@ public class BodyCreationCommand extends Command {
         entity.setBody(body);
         entity.setVisible(true);
         bodyInit.initialize(body);
+        System.out.println("Velocity:"+body.getLinearVelocity());
     }
 
     public GameEntity getGameEntity() {

@@ -35,7 +35,7 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
     }
 
     @Override
-    protected boolean calcArea() {
+    protected boolean shouldCalculateArea() {
         return false;
     }
 
