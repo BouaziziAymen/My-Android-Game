@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.ProjectileProperties;
-import com.evolgames.factories.ItemCategoryFactory;
+import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.GameSound;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.ToolUtils;

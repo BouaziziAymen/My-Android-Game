@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.init.BodyInit;
-import com.evolgames.factories.BodyFactory;
+import com.evolgames.entities.factories.BodyFactory;
 
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -23,7 +23,7 @@ public class BodyCreationCommand extends Command {
 
     @Override
     protected void run() {
-        Body body = BodyFactory.getInstance().createBody(entity.getBlocks(), type);
+        Body body = BodyFactory.getInstance().createBody(entity.getLayerBlocks(), type);
         PhysicsConnector physicsConnector = new PhysicsConnector(entity.getMesh(), body);
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
         physicsWorld.registerPhysicsConnector(physicsConnector);

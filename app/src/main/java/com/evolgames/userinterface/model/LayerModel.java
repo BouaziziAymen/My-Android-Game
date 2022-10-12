@@ -3,8 +3,8 @@ package com.evolgames.userinterface.model;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.factories.MaterialFactory;
-import com.evolgames.factories.PropertiesFactory;
+import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 
 import java.util.ArrayList;

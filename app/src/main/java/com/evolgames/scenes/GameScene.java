@@ -5,9 +5,7 @@ import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
@@ -26,14 +24,14 @@ import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
-import com.evolgames.factories.BlockFactory;
-import com.evolgames.factories.BodyFactory;
-import com.evolgames.factories.GameEntityFactory;
-import com.evolgames.factories.ItemCategoryFactory;
-import com.evolgames.factories.MaterialFactory;
-import com.evolgames.factories.MeshFactory;
-import com.evolgames.factories.PropertiesFactory;
-import com.evolgames.factories.VerticesFactory;
+import com.evolgames.entities.factories.BlockFactory;
+import com.evolgames.entities.factories.BodyFactory;
+import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.factories.ItemCategoryFactory;
+import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.factories.MeshFactory;
+import com.evolgames.entities.factories.PropertiesFactory;
+import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
@@ -84,7 +82,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -250,7 +247,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         ArrayList<Vector2> vertices = VerticesFactory.createPolygon(0, 0, 64, 64, 4);
         LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
-        block1 = BlockFactory.createBlockA(vertices, properties, 0, 0);
+        block1 = BlockFactory.createLayerBlock(vertices, properties, 0, 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block1);
         // gameEntity1 = GameEntityFactory.getInstance().createGameEntity(11f, 4f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity1");
@@ -259,7 +256,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         vertices = VerticesFactory.createPolygon(0, 0, 30, 30, 7);
         properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
-        block1 = BlockFactory.createBlockA(vertices, properties, 7, 0);
+        block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
         blocks.add(block1);
 
@@ -295,7 +292,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             //this.attachChild(fireParticlePolygon.getParticleSystem());
             //Grid grid = new Grid(this);
             if (false)
-                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getLayerBlocks()) {
                         Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                         layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
                         for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
@@ -352,7 +349,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         groundFilter.categoryBits = 1;
         groundFilter.maskBits = 1 + 2 + 4 + 8 + 16 + 32;
 
-        LayerBlock block3 = BlockFactory.createBlockA(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
+        LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
        //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
 
         blocks2.clear();
@@ -462,7 +459,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 Random rand = new Random();
                 ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, (float) (Math.random() * Math.PI), 100, 100, rand.nextInt(6) + 3);
                 LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
-                LayerBlock block = BlockFactory.createBlockA(list, properties, 0);
+                LayerBlock block = BlockFactory.createLayerBlock(list, properties, 0);
                 properties.setDefaultColor(Utils.getRandomColor(0.5f));
 
                 // groundGroup.getMesh().addLayer(MeshFactory.getInstance().createMeshPartBluePrint(block));
@@ -481,7 +478,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
                 //vertices.clear();
                 //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
-                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0), new Filter()), 0, true);
+                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0), new Filter()), 0);
                 BlockUtils.computeCoatingBlocks(layerBlock);
             }
 
@@ -513,7 +510,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 vertices1.add(Vector2Pool.obtain(6, -5));
 
                 LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), projectileFilter);
-                LayerBlock block1 = BlockFactory.createBlockA(vertices1, properties1, 1);
+                LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
                 ArrayList<LayerBlock> blocks = new ArrayList<>();
                 blocks.add(block1);
@@ -644,16 +641,15 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         return false;
     }
 
-    public void onDestroyMouseJoint(Joint j) {
-        if (j instanceof MouseJoint) {
+    public void onDestroyMouseJoint(MouseJoint j) {
             Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
             hand.ifPresent(value -> value.setMouseJoint(null));
-        }
     }
 
     public void setMouseJoint(MouseJoint joint, int hangedPointerId) {
-        if (hands.get(hangedPointerId) != null)
+        if (hands.get(hangedPointerId) != null) {
             Objects.requireNonNull(hands.get(hangedPointerId)).setMouseJoint(joint);
+        }
     }
 
     public PhysicsWorld getPhysicsWorld() {

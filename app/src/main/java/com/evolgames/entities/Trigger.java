@@ -8,7 +8,7 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.factories.GameEntityFactory;
+import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;

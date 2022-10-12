@@ -10,8 +10,6 @@ import com.evolgames.helpers.utilities.BlockUtils;
 import java.util.ArrayList;
 
 public class Cut implements Comparable<Cut> {
-    private Vector2 originalP1;
-    private Vector2 originalP2;
     private Vector2 p1;
     private Vector2 p2;
     private final Vector2 lower1;
@@ -34,21 +32,6 @@ public class Cut implements Comparable<Cut> {
         this.setValue(p1.dst(p2));
     }
 
-    public Vector2 getOriginalP1() {
-        return originalP1;
-    }
-
-    public void setOriginalP1(Vector2 originalP1) {
-        this.originalP1 = originalP1;
-    }
-
-    public Vector2 getOriginalP2() {
-        return originalP2;
-    }
-
-    public void setOriginalP2(Vector2 originalP2) {
-        this.originalP2 = originalP2;
-    }
 
     public Vector2 getLower1() {
         return lower1;

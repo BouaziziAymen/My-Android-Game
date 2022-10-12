@@ -2,7 +2,7 @@ package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.properties.StainProperties;
-import com.evolgames.factories.MeshFactory;
+import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.helpers.utilities.Utils;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -57,10 +57,10 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
     }
 
     @Override
-    public void translate(Vector2 t) {
-        Utils.translatePoints(getVertices(), t);
+    public void translate(Vector2 translationVector) {
+        Utils.translatePoints(getVertices(), translationVector);
         computeTriangles();
-        getProperties().setLocalCenter(getLocalCenterX() - t.x, getLocalCenterY() - t.y);
+        getProperties().setLocalCenter(getLocalCenterX() - translationVector.x, getLocalCenterY() - translationVector.y);
         computeData();
     }
 

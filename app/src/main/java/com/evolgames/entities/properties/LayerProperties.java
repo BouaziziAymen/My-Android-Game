@@ -1,6 +1,6 @@
 package com.evolgames.entities.properties;
 
-import com.evolgames.factories.PropertiesFactory;
+import com.evolgames.entities.factories.PropertiesFactory;
 
 import org.andengine.util.adt.color.Color;
 

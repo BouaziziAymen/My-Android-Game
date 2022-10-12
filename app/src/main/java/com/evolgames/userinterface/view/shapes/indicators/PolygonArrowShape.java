@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.factories.VerticesFactory;
+import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.PointsModel;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;

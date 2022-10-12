@@ -1,10 +1,11 @@
-package com.evolgames.entities.control;
+package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.helpers.utilities.MathUtils;
 
 public class HoldHandControl extends HandControl {
-    private float angle;
+    private final float angle;
+
     public HoldHandControl(Body weapon, float angleDegree) {
         super(weapon);
         angle = angleDegree * MathUtils.degreesToRadians;
@@ -19,7 +20,7 @@ public class HoldHandControl extends HandControl {
 
         while (error < -Math.PI) error += 2 * Math.PI;
         while (error > Math.PI) error -= 2 * Math.PI;
-if(Math.abs(error)>0.005f)
-        body.setAngularVelocity(100 * error);
+        if (Math.abs(error) > 0.005f)
+            body.setAngularVelocity(100 * error);
     }
 }

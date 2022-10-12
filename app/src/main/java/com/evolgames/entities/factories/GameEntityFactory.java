@@ -1,10 +1,11 @@
-package com.evolgames.factories;
+package com.evolgames.entities.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.EntityWithBody;
 import com.evolgames.entities.GameEntity;
@@ -82,7 +83,7 @@ public class GameEntityFactory {
         entity.setVisible(false);
         Invoker.addBodyCreationCommand(entity, bodyType, bodyInit);
 
-        for (LayerBlock block : entity.getBlocks()) {
+        for (LayerBlock block : entity.getLayerBlocks()) {
             LayerProperties properties = block.getProperties();
             createJuiceSources(entity, block, properties);
         }
@@ -141,9 +142,9 @@ public class GameEntityFactory {
         return entity;
     }
 
-    public ArrayList<GameEntity> createSplinterEntities(float x, float y, float rot, ArrayList<ArrayList<LayerBlock>> splinters, Vector2 linearVelocity, float angularVelocity, String name) {
+    public ArrayList<GameEntity> createSplinterEntities(float x, float y, float rot, ArrayList<ArrayList<LayerBlock>> splinters, Vector2 linearVelocity, float angularVelocity, String name, GameEntity parent) {
         ArrayList<GameEntity> entities = new ArrayList<>();
-        int k = 0;
+        int splinterId = 0;
 //TODO solve issue here
         for (ArrayList<LayerBlock> group : splinters) {
             List<List<Vector2>> list = new ArrayList<>();
@@ -163,7 +164,7 @@ public class GameEntityFactory {
             assert translationToOrigin != null;
             GeometryUtils.rotateVectorRad(translationToOrigin, rot);
             BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new AngularVelocityInit(new BodyInitImpl(), angularVelocity), linearVelocity), x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot);
-            GameEntity e = GameEntityFactory.getInstance().createGameEntity(x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot, bodyInit, group, BodyDef.BodyType.DynamicBody, name + k, new ArrayList<>());
+            GameEntity e = GameEntityFactory.getInstance().createGameEntity(x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot, bodyInit, group, BodyDef.BodyType.DynamicBody, name + splinterId, new ArrayList<>());
             scene.attachChild(e.getMesh());
             e.redrawStains();
             scene.sortChildren();
@@ -268,7 +269,7 @@ public class GameEntityFactory {
 
 
         ArrayList<Vector2> points = VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 20);
-        LayerBlock block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), headFilter), 0);
+        LayerBlock block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), headFilter), 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
         GameEntity head = createGameEntity(x, y, 0, headFilter, blocks, BodyDef.BodyType.DynamicBody, "head");
@@ -280,7 +281,7 @@ public class GameEntityFactory {
         Vector2 A = points.get(0).cpy();
         Vector2 B = points.get(1).cpy();
 
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
 
 
         float alpha1 = SHOULDER_WIDTH / 2f;
@@ -310,14 +311,14 @@ public class GameEntityFactory {
 
 
         points = VerticesFactory.createShape1(ARM_LENGTH, UPPERARM_CIR1, UPPERARM_CIR2);
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
         GameEntity upperArmRight = createGameEntity(x + (SHOULDER_WIDTH / 2 + ARM_LENGTH / 2 + UPPERARM_CIR1) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
         points = VerticesFactory.createShape1(ARM_LENGTH, UPPERARM_CIR1, UPPERARM_CIR2);
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), upperBodyFilter), 0);
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
@@ -326,7 +327,7 @@ public class GameEntityFactory {
 
         points = VerticesFactory.createShape2(ARM_LENGTH, LOWERARM_CIR1, LOWERARM_CIR2);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
         GameEntity lowerArmR = createGameEntity(x + (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
@@ -334,7 +335,7 @@ public class GameEntityFactory {
 
         points = VerticesFactory.createShape2(ARM_LENGTH, LOWERARM_CIR1, LOWERARM_CIR2);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
         GameEntity lowerArmL = createGameEntity(x - (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) -Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
@@ -342,14 +343,14 @@ public class GameEntityFactory {
 
         points = VerticesFactory.createSquare(HAND_SIDE);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), middleBodyFilter), 0);
         blocks.add(block);
         GameEntity rightHand = createGameEntity(x + (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(rightHand.getMesh());
 
         points = VerticesFactory.createSquare(HAND_SIDE);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), middleBodyFilter), 0);
         blocks.add(block);
         GameEntity leftHand = createGameEntity(x - (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(leftHand.getMesh());
@@ -360,7 +361,7 @@ public class GameEntityFactory {
         Vector2[] vertices = GeometryUtils.hullFinder.findConvexHull(points.toArray(new Vector2[0]));
         points.clear();
         points.addAll(Arrays.asList(vertices));
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
@@ -373,7 +374,7 @@ public class GameEntityFactory {
         vertices = GeometryUtils.hullFinder.findConvexHull(points.toArray(new Vector2[0]));
         points.clear();
         points.addAll(Arrays.asList(vertices));
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), middleBodyFilter), 0);
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
@@ -383,14 +384,14 @@ public class GameEntityFactory {
         float lowerLegHalfLength = (LOWERLEG_LENGTH1 + LOWERLEG_LENGTH2 + LOWERLEG_CIR2 + LOWERLEG_CIR1) / 2;
         points = VerticesFactory.createShape5(LOWERLEG_LENGTH1, LOWERLEG_LENGTH2, LOWERLEG_THICKNESS, LOWERLEG_CIR2, LOWERLEG_CIR1);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), lowerBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), lowerBodyFilter), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
         GameEntity lowerLegR = createGameEntity(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
         points = VerticesFactory.createShape5(LOWERLEG_LENGTH1, LOWERLEG_LENGTH2, LOWERLEG_THICKNESS, LOWERLEG_CIR2, LOWERLEG_CIR1);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), lowerBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11), lowerBodyFilter), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
         GameEntity lowerLegL = createGameEntity(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
@@ -398,14 +399,14 @@ public class GameEntityFactory {
 
         points = VerticesFactory.createShape6(LOWERLEG_CIR2, FOOT_LENGTH);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), lowerBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), lowerBodyFilter), 0);
         blocks.add(block);
         GameEntity leftFoot = createGameEntity(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.mirrorShapeX(points);
         blocks = new ArrayList<>();
-        block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), lowerBodyFilter), 0);
+        block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12), lowerBodyFilter), 0);
         blocks.add(block);
         GameEntity rightFoot = createGameEntity(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(rightFoot.getMesh());

@@ -10,8 +10,10 @@ import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.grid.BlockGrid;
 import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.PhysicsConstants;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
@@ -20,20 +22,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import is.kul.learningandengine.helpers.Utils;
 
 public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Comparable<LayerBlock> {
     private ArrayList<Vector2> bodyVertices;
-    private ArrayList<Block<?, ?>> associatedBlocks;
+    private ArrayList<AssociatedBlock<?, ?>> associatedBlocks;
     private Polarity polarity = Polarity.NEUTRAL;
     private BlockGrid blockGrid;
     private HashSet<Fixture> fixtures;
-    private boolean Dead;
-    private float Area;
+    private boolean dead;
+    private float blockArea;
     private Body body;
     private final ArrayList<FreshCut> freshCuts = new ArrayList<>();
     private GameEntity gameEntity;
+    private boolean fillGrid;
 
+    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id,boolean fillGrid) {
+        this.fillGrid = fillGrid;
+        super.initialization(vertices, properties, id);
+    }
 
     public GameEntity getGameEntity() {
         return gameEntity;
@@ -69,11 +75,11 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     public boolean isDead() {
-        return Dead;
+        return dead;
     }
 
     public void setDead(boolean dead) {
-        Dead = dead;
+        this.dead = dead;
     }
 
     public BlockGrid getBlockGrid() {
@@ -88,6 +94,12 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     @Override
     protected boolean shouldCheckShape() {
         return true;
+    }
+
+    @Override
+    public void translate(Vector2 translationVector) {
+        Utils.translatePoints(this.getVertices(), translationVector);
+        computeTriangles();
     }
 
 
@@ -121,20 +133,20 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     @Override
     public void performCut(Cut cut) {
         super.performCut(cut);
-        Pair<LayerBlock, LayerBlock> result = BlockUtils.cutBlockA(this, cut);
+        Pair<LayerBlock, LayerBlock> result = BlockUtils.cutLayerBlock(this, cut);
         addBlock(result.first);
-        if (result.first.getArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA){
+        if (result.first.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA){
             result.first.setAborted(true);
         }
         addBlock(result.second);
-        if (result.second.getArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA) {
+        if (result.second.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA) {
             result.second.setAborted(true);
         }
     }
 
     @Override
     protected void calculateArea() {
-        Area = GeometryUtils.getArea(getVertices());
+        blockArea = GeometryUtils.getArea(getVertices());
     }
 
     @Override
@@ -143,12 +155,12 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     @Override
-    protected void particularInitialization(boolean firstTime) {
+    protected void particularInitialization() {
         createGrid();
         createFixtureSet();
         createAssociated();
 
-        if (firstTime) {
+        if (this.fillGrid) {
             fillGrid();
         }
     }
@@ -180,8 +192,8 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         this.polarity = polarity;
     }
 
-    public float getArea() {
-        return Area;
+    public float getBlockArea() {
+        return blockArea;
     }
 
     @Override
@@ -240,14 +252,14 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         return Integer.compare(this.getOrder(), o.getOrder());
     }
 
-    public <T extends Block<?, ?>> void addAssociatedBlock(T block) {
+    public <T extends AssociatedBlock<?, ?>> void addAssociatedBlock(T block) {
         if (associatedBlocks != null) {
             associatedBlocks.add(block);
             block.setParent(this);
         }
     }
 
-    public ArrayList<? extends Block<?, ?>> getAssociatedBlocks() {
+    public ArrayList<? extends AssociatedBlock<?, ?>> getAssociatedBlocks() {
         return associatedBlocks;
     }
 

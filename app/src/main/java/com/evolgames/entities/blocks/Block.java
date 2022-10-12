@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.composite.Composite;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.factories.MeshFactory;
+import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
@@ -19,8 +19,8 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     private int id;
     private Properties properties;
     private ArrayList<Vector2> vertices;
-    private ArrayList<Vector2> Triangles;
-    private boolean Aborted;
+    private ArrayList<Vector2> triangles;
+    private boolean aborted;
     private LayerBlock parent;
 
     public void performCut(Cut cut) {
@@ -31,7 +31,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         return (P) properties;
     }
 
-    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id, boolean firstTime) {//Template Pattern
+    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id) {//Template Pattern
         this.id = id;
         this.vertices = vertices;
         this.properties = properties;
@@ -49,14 +49,14 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
                 arrangeVertices();
             }
         }
-        particularInitialization(firstTime);
+        particularInitialization();
     }
 
     protected abstract void calculateArea();
 
     protected abstract boolean shouldCalculateArea();
 
-    protected void particularInitialization(boolean firstTime) {
+    protected void particularInitialization() {
     }
 
     protected abstract T createChildBlock();
@@ -72,11 +72,11 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     }
 
     public boolean isNotAborted() {
-        return !Aborted;
+        return !aborted;
     }
 
     public void setAborted(boolean b) {
-        Aborted = b;
+        aborted = b;
     }
 
     protected abstract boolean shouldRectify();
@@ -86,7 +86,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     protected abstract boolean shouldCheckShape();
 
     public void computeTriangles() {
-        Triangles = MeshFactory.getInstance().triangulate(vertices);
+        triangles = MeshFactory.getInstance().triangulate(vertices);
         verticesChanged = false;
     }
 
@@ -116,29 +116,32 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         this.parent = parent;
     }
 
-    public void translate(Vector2 t) {
-        Utils.translatePoints(vertices, t);
-        computeTriangles();
-    }
+    public abstract void translate(Vector2 t);
 
     public ArrayList<Vector2> getTriangles() {
-        if (Triangles == null) computeTriangles();
-        return Triangles;
+        if (triangles == null) {
+            computeTriangles();
+        }
+        return triangles;
     }
 
     public float[] getTrianglesData() {
-        int size = Triangles.size();
+        int size = triangles.size();
         float[] data = new float[size * 2];
         for (int i = 0; i < size; i++) {
-            data[2 * i] = Triangles.get(i).x;
-            data[2 * i + 1] = Triangles.get(i).y;
+            data[2 * i] = triangles.get(i).x;
+            data[2 * i + 1] = triangles.get(i).y;
         }
         return data;
     }
 
     public void recycleSelf() {
         if (true) return;
-        for (Vector2 v : getTriangles()) if (!getVertices().contains(v)) Vector2Pool.recycle(v);
-        for (Vector2 v : getVertices()) Vector2Pool.recycle(v);
+        for (Vector2 v : getTriangles()) {
+            if (!getVertices().contains(v)) Vector2Pool.recycle(v);
+        }
+        for (Vector2 v : getVertices()) {
+            Vector2Pool.recycle(v);
+        }
     }
 }

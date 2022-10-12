@@ -1,4 +1,4 @@
-package com.evolgames.factories;
+package com.evolgames.entities.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -20,27 +20,27 @@ import static com.evolgames.helpers.utilities.GeometryUtils.transformation;
 
 public class BlockFactory {
 
-    public static LayerBlock createBlockA(ArrayList<Vector2> vertices, LayerProperties properties, int ID) {
-        return createBlockA(vertices, properties, ID, true, 0);
+    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID) {
+        return BlockFactory.createLayerBlock(vertices, properties, ID, 0, true);
     }
 
 
-    public static LayerBlock createBlockA(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order) {
-        return createBlockA(vertices, properties, ID, true, order);
+    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order) {
+        return BlockFactory.createLayerBlock(vertices, properties, ID, order, true);
     }
 
 
-    public static LayerBlock createBlockA(ArrayList<Vector2> vertices, LayerProperties properties, int ID, boolean firstTime, int order) {
+    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order, boolean firstTime) {
         LayerBlock createdBlock = new LayerBlock();
         createdBlock.initialization(vertices,properties,ID,firstTime);
         createdBlock.setOrder(order);
-        createdBlock.setLiquidQuantity((int) (createdBlock.getProperties().getJuicinessDensity()*createdBlock.getArea()*20));
+        createdBlock.setLiquidQuantity((int) (createdBlock.getProperties().getJuicinessDensity()*createdBlock.getBlockArea()*20));
         return createdBlock;
     }
 
     public static DecorationBlock createDecorationBlock(ArrayList<Vector2> vertices, DecorationProperties properties, int ID) {
         DecorationBlock blockb = new DecorationBlock();
-        blockb.initialization(vertices, properties, ID,true);
+        blockb.initialization(vertices, properties, ID);
         return blockb;
     }
     public static DecorationBlock createDecorationBlock(ArrayList<Vector2> vertices, DecorationProperties properties, int ID, ArrayList<Vector2> borders, Vector2 center) {
@@ -79,7 +79,7 @@ public class BlockFactory {
 
         StainBlock stainBlock = new StainBlock();
         StainProperties properties = new StainProperties(textureRegion, localPosition, angle,color);
-        stainBlock.initialization(clippedImageBounds, properties, 0,true);
+        stainBlock.initialization(clippedImageBounds, properties, 0);
 
         return stainBlock;
 

@@ -2,11 +2,9 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
-import com.evolgames.entities.properties.ItemProperties;
-import com.evolgames.entities.properties.Properties;
-import com.evolgames.factories.ItemCategoryFactory;
+import com.evolgames.entities.factories.ItemCategoryFactory;
+import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
@@ -29,7 +27,7 @@ import java.util.ArrayList;
 
 import javax.xml.transform.TransformerException;
 
-public class ItemSaveWindowController extends SettingsWindowController<ItemProperties> {
+public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
 
     private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
     private TextField<ItemSaveWindowController> titleTextField;
@@ -111,7 +109,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ItemPrope
     }
 
     @Override
-    public void onModelUpdated(ProperModel<ItemProperties> model) {
+    public void onModelUpdated(ProperModel<ToolProperties> model) {
         super.onModelUpdated(model);
         titleTextField.getBehavior().setTextValidated(model.getModelName());
     }

@@ -1,6 +1,9 @@
 package com.evolgames.entities.commandtemplate;
 
+import android.graphics.Paint;
+
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.commandtemplate.commands.BodyCreationCommand;
@@ -9,10 +12,12 @@ import com.evolgames.entities.commandtemplate.commands.Command;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
+import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Invoker {
@@ -22,24 +27,26 @@ public class Invoker {
 
         ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
             for (GameGroup gameGroup : gameScene.getGameGroups()) {
-                Iterator<GameEntity> iterator = gameGroup.getGameEntities().iterator();
-                while (iterator.hasNext()) {
-                    GameEntity gameEntity = iterator.next();
+                Iterator<GameEntity> entitiesIterator = gameGroup.getGameEntities().iterator();
+                while (entitiesIterator.hasNext()) {
+                    GameEntity gameEntity = entitiesIterator.next();
                     for (Command command : gameEntity.getCommands()) {
                         if (command != null && !command.isAborted()) {
                             command.execute();
                             if(command instanceof BodyDestructionCommand){
-                                iterator.remove();
+                                entitiesIterator.remove();
                             }
                         }
                     }
                 }
-
-                for (Command command : gameGroup.getCommands()) {
+                Iterator<Command> groupCommandsIterator = gameGroup.getCommands().iterator();
+                while (groupCommandsIterator.hasNext()) {
+                    Command command = groupCommandsIterator.next();
                     command.execute();
+                    if(command instanceof JointDestructionCommand){
+                        groupCommandsIterator.remove();
+                    }
                 }
-
-
             }
         });
     }
@@ -69,9 +76,21 @@ public class Invoker {
         entity.setAlive(false);
     }
 
-    public static void addMouseJointDestructionCommand(GameEntity grabbedEntity, MouseJoint mouseJoint) {
-
+    public static void addJointDestructionCommand(GameGroup gameGroup, Joint joint) {
+        ArrayList<Command> commandContainer = gameGroup.getCommands();
+        commandContainer.add(new JointDestructionCommand(joint));
+        Iterator<Command> iterator = commandContainer.iterator();
+        while (iterator.hasNext()){
+            Command command = iterator.next();
+            if(command instanceof JointCreationCommand){
+                JointCreationCommand jointCreationCommand = (JointCreationCommand) command;
+                if(jointCreationCommand.getJoint()==joint){
+                   iterator.remove();
+                }
+            }
+        }
     }
+
     public static JointCreationCommand addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2){
         JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2);
         gameGroup.getCommands().add(command);

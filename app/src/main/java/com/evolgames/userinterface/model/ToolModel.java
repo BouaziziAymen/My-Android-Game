@@ -14,8 +14,9 @@ import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.factories.GameEntityFactory;
-import com.evolgames.factories.MeshFactory;
+import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.factories.MeshFactory;
+import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
@@ -34,7 +35,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ToolModel extends ProperModel implements Serializable {
+public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
     private final GameScene scene;
     private final AtomicInteger bodyCounter = new AtomicInteger();
     private final AtomicInteger jointCounter = new AtomicInteger();
@@ -144,15 +145,6 @@ public class ToolModel extends ProperModel implements Serializable {
         return Objects.requireNonNull(getBodyById(bodyId)).removeDecoration(layerId, decorationId);
     }
 
-    public String toString() {
-        StringBuilder s = new StringBuilder("Game Entity: \n");
-        for (int i = 0; i < bodies.size(); i++) {
-            s.append(bodies.get(i).toString()).append("\n");
-        }
-        return s.toString();
-    }
-
-
     public DecorationModel getDecorationModelById(int primaryKey, int secondaryKey, int tertiaryKey) {
         return getLayerModelById(primaryKey, secondaryKey).getDecorationById(tertiaryKey);
     }
@@ -180,15 +172,12 @@ public class ToolModel extends ProperModel implements Serializable {
 
     }
 
-    public void initBodyCounter(int bodyMaxId) {
-        bodyCounter.set(bodyMaxId);
-    }
-
-
     public void createTool() {
         ArrayList<GameEntity> gameEntities = new ArrayList<>();
         for (BodyModel bodyModel : bodies) {
-            if (bodyModel.getLayers().size() == 0) continue;
+            if (bodyModel.getLayers().size() == 0) {
+                continue;
+            }
             List<List<Vector2>> list = new ArrayList<>();
             for (LayerModel layerModel : bodyModel.getLayers()) {
                 list.add(layerModel.getPoints());
@@ -196,69 +185,78 @@ public class ToolModel extends ProperModel implements Serializable {
 
             Vector2 center = GeometryUtils.calculateCenter(list);
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
-            if (blocks.size() == 0) return;
+            if (blocks.size() == 0 || center == null){
+                return;
+            }
             BodyInit bodyInit = new TransformInit(new BodyInitImpl(),center.x / 32F, center.y / 32F, 0);
             GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
 
-        /*    for (HandModel hand : bodyModel.getHands()) {
-                Vector2 u1 = hand.getHandShape().getCenter().cpy().sub(gameEntity.getCenter());
-                Vector2 u2 = hand.getHandShape().getCenter().cpy().sub(GameEntityFactory.getInstance().hand.getBody().getWorldCenter().cpy().mul(1 / 32f));
-                RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-                revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
-                revoluteJointDef.localAnchorB.set(u2.mul(0));
-                revoluteJointDef.enableLimit = true;
-                revoluteJointDef.lowerAngle = (float) 0f;
-                revoluteJointDef.upperAngle = (float) 0f;
-                Vector2 u = hand.getHandShape().getDir().nor();
-                revoluteJointDef.referenceAngle = (float) Math.atan2(-u.y, u.x);
-                revoluteJointDef.collideConnected = false;
-                scene.getWorldFacade().addJointToCreate(revoluteJointDef, gameEntity, GameEntityFactory.getInstance().hand, true);
-            }*/
+           // createHands(bodyModel, gameEntity);
         }
         GameGroup gameGroup = new GameGroup(gameEntities);
         scene.addGameGroup(gameGroup);
         for (GameEntity entity : gameEntities) scene.attachChild(entity.getMesh());
         scene.sortChildren();
         groundBodyModel.setGameEntity(scene.getGround());
-/*
+
 
         for (JointModel jointModel : joints) {
-            BodyModel bodyModel1 = jointModel.getBodyModel1();
-            BodyModel bodyModel2 = jointModel.getBodyModel2();
+            createJointFromModel(jointModel);
+        }
+    }
 
-            GameEntity entity1 = bodyModel1.getGameEntity();
-            GameEntity entity2 = bodyModel2.getGameEntity();
+    private void createHands(BodyModel bodyModel, GameEntity gameEntity) {
+        for (HandModel hand : bodyModel.getHands()) {
+            Vector2 u1 = hand.getHandShape().getCenter().cpy().sub(gameEntity.getCenter());
+            Vector2 u2 = hand.getHandShape().getCenter().cpy().sub(GameEntityFactory.getInstance().hand.getBody().getWorldCenter().cpy().mul(1 / 32f));
+            RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+            revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
+            revoluteJointDef.localAnchorB.set(u2.mul(0));
+            revoluteJointDef.enableLimit = true;
+            revoluteJointDef.lowerAngle = 0f;
+            revoluteJointDef.upperAngle = 0f;
+            Vector2 u = hand.getHandShape().getDir().nor();
+            revoluteJointDef.referenceAngle = (float) Math.atan2(-u.y, u.x);
+            revoluteJointDef.collideConnected = false;
+            //scene.getWorldFacade().addJointToCreate(revoluteJointDef, gameEntity, GameEntityFactory.getInstance().hand);
+        }
+    }
 
-            if (entity1 == null || entity2 == null) continue;
+    private void createJointFromModel(JointModel jointModel) {
+        BodyModel bodyModel1 = jointModel.getBodyModel1();
+        BodyModel bodyModel2 = jointModel.getBodyModel2();
 
-            Vector2 u1 = jointModel.getJointShape().getBegin().cpy().sub(entity1.getCenter());
-            Vector2 u2 = jointModel.getJointShape().getEnd().cpy().sub(entity2.getCenter());
+        GameEntity entity1 = bodyModel1.getGameEntity();
+        GameEntity entity2 = bodyModel2.getGameEntity();
 
-            if (jointModel.getJointDef() instanceof RevoluteJointDef) {
-                RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-                revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
-                revoluteJointDef.localAnchorB.set(u2.mul(1 / 32f));
+        if (entity1 == null || entity2 == null) return;
 
-            } else if (jointModel.getJointDef() instanceof WeldJointDef) {
-                WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
-                weldJointDef.localAnchorA.set(u1.mul(1 / 32f));
-                weldJointDef.localAnchorB.set(u2.mul(1 / 32f));
-            } else if (jointModel.getJointDef() instanceof DistanceJointDef) {
-                DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-                distanceJointDef.localAnchorA.set(u1.mul(1 / 32f));
-                distanceJointDef.localAnchorB.set(u2.mul(1 / 32f));
+        Vector2 u1 = jointModel.getJointShape().getBegin().cpy().sub(entity1.getCenter());
+        Vector2 u2 = jointModel.getJointShape().getEnd().cpy().sub(entity2.getCenter());
 
-            } else if (jointModel.getJointDef() instanceof PrismaticJointDef) {
-                PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
-                prismaticJointDef.localAnchorA.set(u1.mul(1 / 32f));
-                prismaticJointDef.localAnchorB.set(u2.mul(1 / 32f));
-            }
-            scene.getWorldFacade().addJointToCreate(jointModel.getJointDef(), entity1, entity2, true);
+        if (jointModel.getJointDef() instanceof RevoluteJointDef) {
+            RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
+            revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
+            revoluteJointDef.localAnchorB.set(u2.mul(1 / 32f));
 
-        }*/
+        } else if (jointModel.getJointDef() instanceof WeldJointDef) {
+            WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
+            weldJointDef.localAnchorA.set(u1.mul(1 / 32f));
+            weldJointDef.localAnchorB.set(u2.mul(1 / 32f));
+        } else if (jointModel.getJointDef() instanceof DistanceJointDef) {
+            DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+            distanceJointDef.localAnchorA.set(u1.mul(1 / 32f));
+            distanceJointDef.localAnchorB.set(u2.mul(1 / 32f));
+
+        } else if (jointModel.getJointDef() instanceof PrismaticJointDef) {
+            PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
+            prismaticJointDef.localAnchorA.set(u1.mul(1 / 32f));
+            prismaticJointDef.localAnchorB.set(u2.mul(1 / 32f));
+        }
+        scene.getWorldFacade().addJointToCreate(jointModel.getJointDef(), entity1, entity2);
     }
 
 
@@ -299,9 +297,6 @@ public class ToolModel extends ProperModel implements Serializable {
         return handModel;
     }
 
-    public int getBodyCount() {
-        return bodyCounter.get();
-    }
 
     public void resetSelection() {
         bodies.forEach(BodyModel::deselect);

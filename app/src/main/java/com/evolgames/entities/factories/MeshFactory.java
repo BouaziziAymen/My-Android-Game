@@ -1,4 +1,4 @@
-package com.evolgames.factories;
+package com.evolgames.entities.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.LayerBlock;

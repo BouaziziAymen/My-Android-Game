@@ -1,7 +1,6 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
 import com.evolgames.entities.particles.pools.SparkPool;
@@ -35,8 +34,8 @@ public class FireParticleWrapperWithPolygonEmitter {
         this.emitter = new PolygonEmitter(entity);
 
         float area = 0;
-        for (LayerBlock b : entity.getBlocks()){
-                area += b.getArea();
+        for (LayerBlock b : entity.getLayerBlocks()){
+                area += b.getBlockArea();
         }
         float ratio = area / (32f * 32f);
 

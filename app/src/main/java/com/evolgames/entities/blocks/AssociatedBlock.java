@@ -6,13 +6,14 @@ import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.physics.WorldFacade;
 
 import java.util.ArrayList;
 
 
-public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends ColoredProperties> extends Block<T, P> {
+public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends Properties> extends Block<T, P> {
 
 
 
@@ -46,11 +47,12 @@ public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends
         super.performCut(cut);
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> list = BlockUtils.splitVerticesSimple(cut, getVertices());
         T b1 = createChildBlock();
-        b1.initialization(list.first, getProperties(), 0,false);
+        b1.initialization(list.first, getProperties(), 0);
         T b2 = createChildBlock();
-        b2.initialization(list.second, getProperties().copy(), 0,false);
+        b2.initialization(list.second, getProperties().copy(), 0);
         addBlock(b1);
         addBlock(b2);
     }
+    public void preProjectCut() {}
 
 }

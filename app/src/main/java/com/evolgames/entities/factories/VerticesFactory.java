@@ -1,12 +1,9 @@
-package com.evolgames.factories;
-
-import android.util.Log;
+package com.evolgames.entities.factories;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.helpers.utilities.GeometryUtils;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 

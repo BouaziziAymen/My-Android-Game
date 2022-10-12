@@ -1,4 +1,4 @@
-package com.evolgames.factories;
+package com.evolgames.entities.factories;
 
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.properties.LayerProperties;

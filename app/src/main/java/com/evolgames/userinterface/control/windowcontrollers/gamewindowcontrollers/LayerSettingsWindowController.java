@@ -5,7 +5,7 @@ import android.util.Log;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.Material;
-import com.evolgames.factories.MaterialFactory;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;

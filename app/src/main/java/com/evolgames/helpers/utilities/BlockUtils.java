@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.caliper.Caliper;
 import com.evolgames.caliper.Polygon;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -22,8 +23,7 @@ import com.evolgames.entities.cut.ShatterData;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.CoatingProperties;
-import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.factories.BlockFactory;
+import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.UnionFind;
@@ -149,17 +149,19 @@ public class BlockUtils {
     }
 
 
-    private static Cut projectCutWithoutCorrection(ArrayList<Vector2> Vertices, Vector2 first, Vector2 second) {
-
-        Vector2 centroid = GeometryUtils.calculateCentroid(Vertices);
+    private static Cut projectCutWithoutCorrection(ArrayList<Vector2> vertices, Vector2 first, Vector2 second) {
+        if(vertices.size()<3){
+            return null;
+        }
+        Vector2 centroid = GeometryUtils.calculateCentroid(vertices);
         Vector2 u = Vector2Pool.obtain(second).sub(first).nor().mul(1000);
-        Vector2 center = findTheOne(Vertices, first, second, centroid);
+        Vector2 center = findTheOne(vertices, first, second, centroid);
 
         if (center == null) return null;
         Vector2 e1 = Vector2Pool.obtain(center).add(u);
         Vector2 e2 = Vector2Pool.obtain(center).sub(u);
 
-        Cut cut = generateCut(Vertices, center, e1, e2);
+        Cut cut = generateCut(vertices, center, e1, e2);
         Vector2Pool.recycle(e1);
         Vector2Pool.recycle(e2);
         Vector2Pool.recycle(center);
@@ -207,7 +209,9 @@ public class BlockUtils {
         CutFlag pair1, pair2;
         pair1 = GeometryUtils.getIntersectionData(vertices, center, e1);
         pair2 = GeometryUtils.getIntersectionData(vertices, center, e2);
-        if (pair1 == null || pair2 == null) return null;
+        if (pair1 == null || pair2 == null) {
+            return null;
+        }
         Vector2 lower1 = vertices.get(pair1.getI());
         Vector2 higher1 = vertices.get(pair1.getNi());
         Vector2 lower2 = vertices.get(pair2.getI());
@@ -230,8 +234,6 @@ public class BlockUtils {
     }
 
     private static Cut correctCutExtremities(Cut cut) {
-        cut.setOriginalP1(cut.getP1());
-        cut.setOriginalP2(cut.getP2());
         Vector2 P1 = positionCutExtremityOnSide(cut.getP1(), cut.getLower1(), cut.getHigher1());
         Vector2 P2 = positionCutExtremityOnSide(cut.getP2(), cut.getLower2(), cut.getHigher2());
         cut.setP1(P1);
@@ -332,18 +334,18 @@ public class BlockUtils {
         float infY1 = Float.MAX_VALUE;
         float supY1 = -Float.MAX_VALUE;
 
-        for (LayerBlock b : gameEntity.getBlocks()) {
-                for (Vector2 p : b.getBodyVertices()) {
-                    float dx = p.x - localCenter.x;
-                    float dy = p.y - localCenter.y;
-                    float tproj = dx * localTangent.x + dy * localTangent.y;
-                    float nproj = dx * localNormal.x + dy * localNormal.y;
+        for (LayerBlock b : gameEntity.getLayerBlocks()) {
+            for (Vector2 p : b.getBodyVertices()) {
+                float dx = p.x - localCenter.x;
+                float dy = p.y - localCenter.y;
+                float tproj = dx * localTangent.x + dy * localTangent.y;
+                float nproj = dx * localNormal.x + dy * localNormal.y;
 
-                    if (tproj < infX1) infX1 = tproj;
-                    if (tproj > supX1) supX1 = tproj;
-                    if (nproj < infY1) infY1 = nproj;
-                    if (nproj > supY1) supY1 = nproj;
-                }
+                if (tproj < infX1) infX1 = tproj;
+                if (tproj > supX1) supX1 = tproj;
+                if (nproj < infY1) infY1 = nproj;
+                if (nproj > supY1) supY1 = nproj;
+            }
         }
 
         return new float[]{infX1, infY1, supX1, supY1};
@@ -432,7 +434,9 @@ public class BlockUtils {
             Vector2 p2 = clipPath.get(ni);
             Vector2 dir = p2.cpy().sub(p1).nor().mul(1000);
             Cut cut = BlockUtils.projectCutWithoutCorrection(current, p1.cpy().sub(dir), p2.cpy().add(dir));
-            if (cut == null) continue;
+            if (cut == null){
+                continue;
+            }
             Pair<ArrayList<Vector2>, ArrayList<Vector2>> list = BlockUtils.splitVerticesSimple(cut, current);
 
             current = list.first;
@@ -453,31 +457,37 @@ public class BlockUtils {
     }
 
 
-    private static void divideAssociatedBlocks(LayerBlock block1, LayerBlock block2, ArrayList<? extends Block<?, ?>> associatedBlocks, Cut cut) {
-        for (Block<?, ?> associatedBlock : associatedBlocks) {
+    private static void divideAssociatedBlocks(LayerBlock block1, LayerBlock block2, ArrayList<? extends AssociatedBlock<?, ?>> associatedBlocks, Cut cut) {
+        for (AssociatedBlock<?, ?> associatedBlock : associatedBlocks) {
+            associatedBlock.preProjectCut();
             Cut projectedCut = BlockUtils.projectCutWithoutCorrection(associatedBlock.getVertices(), cut.getP1().cpy(), cut.getP2().cpy());
-
-
             Vector2 center = GeometryUtils.calculateCentroid(associatedBlock.getVertices());
             if (projectedCut == null) {
                 ArrayList<Vector2> triplet = new ArrayList<>();
-                triplet.clear();
                 triplet.add(cut.getP1());
                 triplet.add(cut.getP2());
                 triplet.add(center);
-                if (GeometryUtils.IsClockwise(triplet))
+                if (GeometryUtils.IsClockwise(triplet)) {
                     block2.addAssociatedBlock(associatedBlock);
-                else block1.addAssociatedBlock(associatedBlock);
+                }
+                else {
+                    block1.addAssociatedBlock(associatedBlock);
+                }
             } else {
-                if (associatedBlock.isNotAborted())
+                if (associatedBlock.isNotAborted()) {
                     associatedBlock.performCut(projectedCut);
-                if (associatedBlock.getChildren().size() == 0) continue;
-                Block<?, ?> child1 = associatedBlock.getChildren().get(0);
+                }
+                if (associatedBlock.getChildren().size() == 0){
+                    continue;
+                }
+                AssociatedBlock<?, ?> child1 = associatedBlock.getChildren().get(0);
                 if (child1.isNotAborted()) {
                     block2.addAssociatedBlock(child1);
                 }
-                if (associatedBlock.getChildren().size() == 1) continue;
-                Block<?, ?> child2 = associatedBlock.getChildren().get(1);
+                if (associatedBlock.getChildren().size() == 1){
+                    continue;
+                }
+                AssociatedBlock<?, ?> child2 = associatedBlock.getChildren().get(1);
 
 
                 if (child2.isNotAborted()) {
@@ -536,28 +546,28 @@ public class BlockUtils {
 
                 }
             } else if (fc instanceof PointsFreshCut) {
-
-//TODO finish this
+             //TODO finish this
             }
         }
 
     }
 
-    public static Pair<LayerBlock, LayerBlock> cutBlockA(LayerBlock block, Cut cut) {
-        Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitResult = BlockUtils.splitVertices(cut, block.getVertices());
+    public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
+
+        Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>>
+                splitResult = BlockUtils.splitVertices(cut, block.getVertices());
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
         Pair<SegmentFreshCut, SegmentFreshCut> limits = splitResult.second;
 
-
-        LayerBlock block1 = BlockFactory.createBlockA(group.first, block.getProperties().copy(), block.getId(), false, block.getOrder());
+        LayerBlock block1 = BlockFactory.createLayerBlock(group.first, block.getProperties().copy(), block.getId(), block.getOrder(), false);
         block1.addFreshCut(limits.first);
         block1.setPolarity(Polarity.YIN);
-        LayerBlock block2 = BlockFactory.createBlockA(group.second, block.getProperties().copy(), block.getId(), false, block.getOrder());
+        LayerBlock block2 = BlockFactory.createLayerBlock(group.second, block.getProperties().copy(), block.getId(), block.getOrder(), false);
         block2.addFreshCut(limits.second);
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
-        block1.setLiquidQuantity((int) (liquidQuantity * block1.getArea() / block.getArea()));
-        block2.setLiquidQuantity((int) (liquidQuantity * block2.getArea() / block.getArea()));
+        block1.setLiquidQuantity((int) (liquidQuantity * block1.getBlockArea() / block.getBlockArea()));
+        block2.setLiquidQuantity((int) (liquidQuantity * block2.getBlockArea() / block.getBlockArea()));
 
 
         BlockUtils.divideAssociatedBlocks(block1, block2, block.getAssociatedBlocks(), cut);
@@ -636,7 +646,7 @@ public class BlockUtils {
         for (int i = 0; i < mainBlock.getVertices().size(); i++)
             mainBlockVerticesCopy.add(Vector2Pool.obtain(mainBlock.getVertices().get(i)));
 
-        root.initialization(mainBlockVerticesCopy, new CoatingProperties(0, 0, initialTemperature, 0, initialChemicalEnergy, mainBlock.getProperties()), 0, true);
+        root.initialization(mainBlockVerticesCopy, new CoatingProperties(0, 0, initialTemperature, 0, initialChemicalEnergy, mainBlock.getProperties()), 0);
 
         ArrayList<Vector2> vertices = root.getVertices();
         Vector2 center = GeometryUtils.calculateCentroid(vertices);
@@ -671,15 +681,14 @@ public class BlockUtils {
 
         Vector2 EXBegin = Vector2Pool.obtain(P0).sub(uY.x * 5, uY.y * 5);
         Vector2 EXEnd = Vector2Pool.obtain(P0).add(Y).add(uY.x * 5, uY.y * 5);
-        float xlen = X.len();
+        float xLen = X.len();
 
-        float ylen = Y.len();
-        float len = Math.max(xlen, ylen);
+        float yLen = Y.len();
         final float step = 16;
-        int xCount = (int) Math.floor(xlen / step);
-        int yCount = (int) Math.floor(ylen / step);
-        final Vector2 stepX = Vector2Pool.obtain(uX).mul(xlen / (xCount + 1));
-        final Vector2 stepY = Vector2Pool.obtain(uY).mul(ylen / (yCount + 1));
+        int xCount = (int) Math.floor(xLen / step);
+        int yCount = (int) Math.floor(yLen / step);
+        final Vector2 stepX = Vector2Pool.obtain(uX).mul(xLen / (xCount + 1));
+        final Vector2 stepY = Vector2Pool.obtain(uY).mul(yLen / (yCount + 1));
         CoatingBlock currentTx = root;
         Vector2 EYBegin = obtain();
         Vector2 EYEnd = obtain();
@@ -779,7 +788,7 @@ public class BlockUtils {
         for (LayerBlock layerBlock : blocks) {
             data[colorNumber++] = layerBlock.getProperties().getDefaultColor();
             for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()){
+                if (!b.isNotAborted()) {
                     continue;
                 }
                 if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
@@ -787,7 +796,7 @@ public class BlockUtils {
                         ((CoatingProperties) b.getProperties()).setDefaultColor(new Color(Color.TRANSPARENT));
                     }
 
-                    data[colorNumber++] =((ColoredProperties) b.getProperties()).getDefaultColor();
+                    data[colorNumber++] = ((ColoredProperties) b.getProperties()).getDefaultColor();
                 }
             }
         }
@@ -823,7 +832,9 @@ public class BlockUtils {
         for (LayerBlock layerBlock : blocks) {
             vertexNumber += layerBlock.getTriangles().size();
             for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()) continue;
+                if (!b.isNotAborted()){
+                    continue;
+                }
                 if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
                     vertexNumber += b.getTriangles().size();
                 }
@@ -872,16 +883,16 @@ public class BlockUtils {
             Vector2[] layerPointsArray = layerModel.getOutlinePoints();
             if (layerPointsArray == null || layerPointsArray.length < 3) continue;
 
-            LayerProperties layerProperty = (LayerProperties) layerModel.getProperties();
+            LayerProperties layerProperty = layerModel.getProperties();
 
             ArrayList<Vector2> list = Utils.translatedPoints(layerPointsArray, center);
-            LayerBlock block = BlockFactory.createBlockA(list, layerProperty.copy(), layerModel.getLayerId(), bodyModel.getLayers().indexOf(layerModel));
+            LayerBlock block = BlockFactory.createLayerBlock(list, layerProperty.copy(), layerModel.getLayerId(), bodyModel.getLayers().indexOf(layerModel));
             blocks.add(block);
 
             for (DecorationModel decorationModel : layerModel.getDecorations()) {
                 DecorationBlock decorationBlock = new DecorationBlock();
                 if (decorationModel.getOutlinePoints() != null) {
-                    decorationBlock.initialization(Utils.translatedPoints(decorationModel.getOutlinePoints(), center), (DecorationProperties) decorationModel.getProperties(), decorationModel.getDecorationId(), true);
+                    decorationBlock.initialization(Utils.translatedPoints(decorationModel.getOutlinePoints(), center), decorationModel.getProperties(), decorationModel.getDecorationId());
                     block.addAssociatedBlock(decorationBlock);
                 }
             }

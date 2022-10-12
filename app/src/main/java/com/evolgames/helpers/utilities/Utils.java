@@ -107,7 +107,9 @@ public class Utils {
 
     }
     public static void translatePoints(ArrayList<Vector2> points, Vector2 center) {
-        for (Vector2 v : points) v.sub(center);
+        for (Vector2 v : points){
+            v.sub(center);
+        }
     }
     public static void translatePoints(ArrayList<Vector2> points, float dx, float dy) {
         for (Vector2 v : points) v.sub(dx,dy);
@@ -200,9 +202,9 @@ return points;
     public static HashSet<ArrayList<Vector2>> findOverlap(GameEntity penetrator, GameEntity penetrated) {
         HashSet<ArrayList<Vector2>> result = new HashSet<>();
         ArrayList<ArrayList<Vector2>> penetratorInterpolatedLists = new ArrayList<>();
-        for (int i = 0; i < penetrator.getBlocks().size(); i++) {
+        for (int i = 0; i < penetrator.getLayerBlocks().size(); i++) {
             ArrayList<Vector2> penetratorBlockVertices = new ArrayList<>();
-            ArrayList<Vector2> vertices = penetrator.getBlocks().get(i).getBodyVertices();
+            ArrayList<Vector2> vertices = penetrator.getLayerBlocks().get(i).getBodyVertices();
             for (Vector2 v : vertices) {
                 penetratorBlockVertices.add(penetrator.getBody().getWorldPoint(v).cpy().mul(32f));
             }
@@ -210,19 +212,19 @@ return points;
         }
 
         ArrayList<ArrayList<Vector2>> penetratedInterpolatedLists = new ArrayList<>();
-        for (int i = 0; i < penetrated.getBlocks().size(); i++) {
+        for (int i = 0; i < penetrated.getLayerBlocks().size(); i++) {
             ArrayList<Vector2> penetratedInterpolatedVertices = new ArrayList<>();
-            ArrayList<Vector2> vertices = penetrated.getBlocks().get(i).getBodyVertices();
+            ArrayList<Vector2> vertices = penetrated.getLayerBlocks().get(i).getBodyVertices();
             for (Vector2 v : vertices) {
                 penetratedInterpolatedVertices.add(penetrated.getBody().getWorldPoint(v).cpy().mul(32f));
             }
             penetratedInterpolatedLists.add(penetratedInterpolatedVertices);
         }
 
-        for (int i = 0; i < penetrated.getBlocks().size(); i++) {
+        for (int i = 0; i < penetrated.getLayerBlocks().size(); i++) {
             ArrayList<Vector2> list1 = penetratedInterpolatedLists.get(i);
 
-            for (int j = 0; j < penetrator.getBlocks().size(); j++) {
+            for (int j = 0; j < penetrator.getLayerBlocks().size(); j++) {
                 ArrayList<Vector2> list2 = penetratorInterpolatedLists.get(i);
                 ArrayList<Vector2> clipped = BlockUtils.applyClip(list1, list2);
                 if (clipped != null) {

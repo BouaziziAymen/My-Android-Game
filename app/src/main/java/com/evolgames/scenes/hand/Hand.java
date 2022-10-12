@@ -5,8 +5,8 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.control.HandControl;
-import com.evolgames.entities.control.HoldHandControl;
+import com.evolgames.entities.hand.HandControl;
+import com.evolgames.entities.hand.HoldHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.GameScene;
 
@@ -43,8 +43,8 @@ public class Hand {
             handControlStack.push(new HoldHandControl(grabbedEntity.getBody(), 0));
             final MouseJointDef mouseJointDef = new MouseJointDef();
             entity.setHangedPointerId(touchEvent.getPointerID());
-            mouseJointDef.dampingRatio = 1f;
-            mouseJointDef.frequencyHz = 5f;
+            mouseJointDef.dampingRatio = 0.5f;
+            mouseJointDef.frequencyHz = 10f;
             mouseJointDef.maxForce = 1000 * entity.getMassOfGroup();
             mouseJointDef.target.set(touchEvent.getX() / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT, touchEvent.getY() / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
             mouseJointDef.collideConnected = true;
@@ -66,7 +66,7 @@ public class Hand {
         }
     }
     private void releaseGrabbedEntity(HandControl handControl){
-        Invoker.addMouseJointDestructionCommand(grabbedEntity, mouseJoint);
+        Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
         grabbedEntity.setHanged(false);
         grabbedEntity = null;
         handControl.setDead(true);
@@ -92,7 +92,7 @@ public class Hand {
                 Vector2 vec = Vector2Pool
                         .obtain(touchEvent.getX()
                                         / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT,
-                                (touchEvent.getY() + 32)
+                                (touchEvent.getY())
                                         / PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT);
 
                 this.mouseJoint.setTarget(vec);

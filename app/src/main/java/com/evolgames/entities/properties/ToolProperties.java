@@ -1,8 +1,8 @@
 package com.evolgames.entities.properties;
 
-public class ItemProperties extends Properties{
+public class ToolProperties extends Properties{
     @Override
     public Properties copy() {
-        return null;
+        return new ToolProperties();
     }
 }

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import is.kul.learningandengine.graphicelements.Layer;
-
 
 public class GameEntity extends EntityWithBody {
 
@@ -42,7 +40,7 @@ public class GameEntity extends EntityWithBody {
     private boolean projectile;
     private TexturedMeshBatch batch;
     private String name;
-    private ArrayList<LayerBlock> blocks;
+    private ArrayList<LayerBlock> layerBlocks;
     private ArrayList<GameEntity> children;
     private List<Trigger> triggers;
     private MosaicMesh mesh;
@@ -52,18 +50,19 @@ public class GameEntity extends EntityWithBody {
     private int hangedPointerId;
 
 
-    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> blocks) {
+    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> layerBlocks) {
         super();
         this.mesh = mesh;
         this.gameScene = scene;
         this.name = entityName;
-        this.blocks = blocks;
+        this.layerBlocks = layerBlocks;
 
-        for (LayerBlock layerBlock : this.blocks) {
+
+        for (LayerBlock layerBlock : this.layerBlocks) {
                 layerBlock.setGameEntity(this);
         }
 
-        for (LayerBlock layerBlock : this.blocks) {
+        for (LayerBlock layerBlock : this.layerBlocks) {
                 for (Block<?, ?> decorationBlock : layerBlock.getAssociatedBlocks()) {
                     if (decorationBlock instanceof CoatingBlock) {
                         CoatingBlock coatingBlock = ((CoatingBlock) decorationBlock);
@@ -86,8 +85,8 @@ public class GameEntity extends EntityWithBody {
 
     private void computeArea() {
         this.area = 0;
-        for (LayerBlock layerBlock: blocks) {
-                area += layerBlock.getArea();
+        for (LayerBlock layerBlock: layerBlocks) {
+                area += layerBlock.getBlockArea();
         }
     }
 
@@ -135,8 +134,8 @@ public class GameEntity extends EntityWithBody {
     private void setupBatcher() {
         isBatcherSetup = true;
         float area = 0;
-        for (LayerBlock b : blocks){
-                area += b.getArea();
+        for (LayerBlock b : layerBlocks){
+                area += b.getBlockArea();
         }
         int stainLimit = (int) (area / 32);
         if (stainLimit < 1) {
@@ -158,12 +157,12 @@ public class GameEntity extends EntityWithBody {
         this.name = name;
     }
 
-    public ArrayList<LayerBlock> getBlocks() {
-        return blocks;
+    public ArrayList<LayerBlock> getLayerBlocks() {
+        return layerBlocks;
     }
 
-    public void setBlocks(ArrayList<LayerBlock> blocks) {
-        this.blocks = blocks;
+    public void setLayerBlocks(ArrayList<LayerBlock> layerBlocks) {
+        this.layerBlocks = layerBlocks;
     }
 
 
@@ -191,7 +190,7 @@ public class GameEntity extends EntityWithBody {
     public boolean computeTouch(TouchEvent touch) {
 
         float[] converted = mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
-        for (Block<?,?> block : blocks) {
+        for (Block<?,?> block : layerBlocks) {
             if (GeometryUtils.PointInPolygon(converted[0], converted[1], block.getVertices())) {
                 return true;
             }
@@ -204,7 +203,7 @@ public class GameEntity extends EntityWithBody {
         float y = anchor.y * 32;
         float distance = Float.MAX_VALUE;
         LayerBlock result = null;
-        for (LayerBlock block : blocks) {
+        for (LayerBlock block : layerBlocks) {
                 float d = GeometryUtils.distBetweenPointAndPolygon(x, y, block.getVertices());
                 if (d < distance) {
                     distance = d;
@@ -212,14 +211,6 @@ public class GameEntity extends EntityWithBody {
                 }
         }
         return result;
-    }
-
-    public ArrayList<GameEntity> getChildren() {
-        return children;
-    }
-
-    public void setChildren(ArrayList<GameEntity> children) {
-        this.children = children;
     }
 
 
@@ -282,7 +273,7 @@ public class GameEntity extends EntityWithBody {
     }
 
     private boolean hasStains() {
-        for (LayerBlock b : blocks) {
+        for (LayerBlock b : layerBlocks) {
                 for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
                     if (decorationBlock instanceof StainBlock) {
                         return true;
@@ -306,7 +297,7 @@ public class GameEntity extends EntityWithBody {
 
     private ArrayList<StainBlock> getStains() {
         ArrayList<StainBlock> result = new ArrayList<>();
-        for (LayerBlock b : blocks) {
+        for (LayerBlock b : layerBlocks) {
                 for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
                     if (decorationBlock instanceof StainBlock) {
                         result.add((StainBlock) decorationBlock);
@@ -326,7 +317,7 @@ public class GameEntity extends EntityWithBody {
         int stainDataCount = getStainDataCount(allStains);
         while (stainDataCount >= stainDataLimit) {
             StainBlock removedStainBlock = allStains.get(0);
-            for (LayerBlock b : blocks) {
+            for (LayerBlock b : layerBlocks) {
                     if (b.getAssociatedBlocks().contains(removedStainBlock)) {
                         b.getAssociatedBlocks().remove(removedStainBlock);
                         break;
@@ -337,7 +328,7 @@ public class GameEntity extends EntityWithBody {
         }
 
 
-        for (LayerBlock b : getBlocks()) {
+        for (LayerBlock b : getLayerBlocks()) {
                 ArrayList<? extends Block<?, ?>> associatedBlocks = b.getAssociatedBlocks();
                 for (Block<?, ?> decorationBlock : associatedBlocks) {
                     if (decorationBlock instanceof StainBlock) {

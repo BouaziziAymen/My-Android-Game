@@ -1,4 +1,4 @@
-package com.evolgames.factories;
+package com.evolgames.entities.factories;
 
 import com.evolgames.entities.properties.JuiceProperties;
 import com.evolgames.entities.Liquid;

@@ -63,9 +63,9 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
         setAborted(true);
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> list = BlockUtils.splitVerticesSimple(cut, getVertices());
         CoatingBlock b1 = createChildBlock();
-        b1.initialization(list.first, getProperties().copy(), 0, false);
+        b1.initialization(list.first, getProperties().copy(), 0);
         CoatingBlock b2 = createChildBlock();
-        b2.initialization(list.second, getProperties().copy(), 0, false);
+        b2.initialization(list.second, getProperties().copy(), 0);
 
         b1.centerCoreCoatingBlock();
         b2.centerCoreCoatingBlock();
@@ -109,9 +109,8 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     @Override
-    public void translate(Vector2 t) {
-        ArrayList<Vector2> verts = Utils.translatedPoints(getVertices(), t);
-        setVertices(verts);
+    public void translate(Vector2 translation) {
+        Utils.translatePoints(getVertices(), translation);
         computeTriangles();
         centerCoreCoatingBlock();
     }
@@ -234,8 +233,9 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
     @Override
     public float[] getTrianglesData() {
-        if (trianglesData == null)
+        if (trianglesData == null) {
             this.trianglesData = super.getTrianglesData();
+        }
         return trianglesData;
     }
 

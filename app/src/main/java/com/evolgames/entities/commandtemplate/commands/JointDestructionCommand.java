@@ -1,6 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.commandtemplate.Invoker;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
@@ -16,5 +17,13 @@ public class JointDestructionCommand extends Command {
     protected void run() {
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
         physicsWorld.destroyJoint(joint);
+        if(this.joint instanceof MouseJoint) {
+            Invoker.gameScene.onDestroyMouseJoint((MouseJoint) joint);
+        }
+    }
+
+    @Override
+    protected boolean isReady() {
+        return joint!=null;
     }
 }
