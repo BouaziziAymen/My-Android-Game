@@ -9,7 +9,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.texture.region.TextureRegion;
 
 public class WeldJointShape extends JointShape {
-    public WeldJointShape(UserInterface userInterface, Vector2 begin, GameScene scene) {
-        super(userInterface, begin, scene, ResourceManager.getInstance().emptySquareTextureRegion);
+    public WeldJointShape(GameScene scene,Vector2 begin) {
+        super(scene.getUserInterface(), begin, scene, ResourceManager.getInstance().emptySquareTextureRegion);
     }
 }

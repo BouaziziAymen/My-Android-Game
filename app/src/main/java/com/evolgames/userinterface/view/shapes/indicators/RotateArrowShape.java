@@ -16,8 +16,9 @@ public class RotateArrowShape extends FixedLengthArrowShape {
     public RotateArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene, float length) {
         super(begin, scene, length);
         points = new ArrayList<>();
-        for(Vector2 p: shapePointsModel.getPoints())
+        for(Vector2 p: shapePointsModel.getModelPoints()) {
             points.add(p.cpy());
+        }
 
             center = begin.cpy();
 

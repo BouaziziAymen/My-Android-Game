@@ -258,4 +258,6 @@ return errorDisplay;
     public void setColor(Color color){
         setColor(color.getRed(),color.getGreen(),color.getBlue());
     }
+
+    public void updateZoom(float pZoomFactor) {}
 }

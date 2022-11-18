@@ -38,12 +38,21 @@ private void centerText(){
     public String getTitle(){
         return mText.getTextString();
     }
-    public void select(){
+    private void select(){
         selected = true;
         mText.setColor(0,1,0);
     }
-    public void deselect(){
+    private void deselect(){
         selected = false;
         mText.setColor(1,1,1);
+    }
+    public void click(){
+    select();
+    updateState(State.PRESSED);
+    }
+
+    public void release(){
+        deselect();
+        updateState(State.NORMAL);
     }
 }

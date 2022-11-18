@@ -20,7 +20,9 @@ public class ModelPointImage extends PointImage {
 
     @Override
     public void onControllerMoved(float dx, float dy) {
-        if (!pointsShape.getShapePointsModel().test(point, dx, dy)) return;
+        if (!pointsShape.getOutlineModel().test(point, dx, dy)){
+            return;
+        }
         super.onControllerMoved(dx,dy);
         pointsShape.onModelUpdated();
     }

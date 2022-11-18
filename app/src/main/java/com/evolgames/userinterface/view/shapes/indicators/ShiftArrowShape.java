@@ -19,7 +19,7 @@ public class ShiftArrowShape extends LineShape {
     public ShiftArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene) {
         super(begin, scene);
         points = new ArrayList<>();
-        for (Vector2 p : shapePointsModel.getPoints())
+        for (Vector2 p : shapePointsModel.getModelPoints())
             points.add(p.cpy());
         this.shapePointsModel = shapePointsModel;
         if (shapePointsModel.getCenter() != null)
@@ -30,7 +30,7 @@ public class ShiftArrowShape extends LineShape {
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
 
-        List<Vector2> shapePoints = shapePointsModel.getPoints();
+        List<Vector2> shapePoints = shapePointsModel.getModelPoints();
         Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
 
         if (shapePointsModel.getCenter() != null) {

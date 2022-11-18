@@ -53,6 +53,5 @@ public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends
         addBlock(b1);
         addBlock(b2);
     }
-    public void preProjectCut() {}
 
 }

@@ -9,7 +9,7 @@ public class ProjectileProperties extends Properties {
     private Vector2 projectileOrigin;
     private Vector2 projectileDirection;
     private ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.MANUAL;
-    private float muzzleVelocity = 1000f;
+    private float muzzleVelocity = 200f;
     private int fireRate = 60;
     private float recoil = 0.3f;
     private float upperLimit;

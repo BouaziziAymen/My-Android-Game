@@ -20,12 +20,7 @@ public class JointShape extends LineShape implements MovablesContainer {
     protected Container container;
 
 
-
-    public JointPointImage getBeginJointPoint() {
-        return beginPoint;
-    }
-
-    JointShape(UserInterface userInterface, Vector2 begin, GameScene scene, TextureRegion textureRegion) {
+    public JointShape(UserInterface userInterface, Vector2 begin, GameScene scene, TextureRegion textureRegion) {
         super(begin, scene);
         beginPoint = new JointPointImage(this, textureRegion, this.begin);
         endPoint = new JointPointImage(this, textureRegion, this.end);

@@ -81,7 +81,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return projectileModel;
     }
 
-    public JointModel createNewJoint(JointShape jointShape, JointDef jointDef) {
+    public JointModel createJointModel(JointShape jointShape, JointDef jointDef) {
         int jointId = jointCounter.getAndIncrement();
         JointModel jointModel = new JointModel(jointId, jointDef, jointShape);
         joints.add(jointModel);
@@ -116,14 +116,20 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
     public void selectJoint(int jointId) {
         getJointById(jointId).selectJoint();
-        for (JointModel jointModel : joints)
-            if (jointId != jointModel.getJointId()) jointModel.deselect();
+        for (JointModel jointModel : joints) {
+            if (jointId != jointModel.getJointId()){
+                jointModel.deselect();
+            }
+        }
 
     }
 
     public JointModel getJointById(int jointId) {
-        for (JointModel jointModel : joints)
-            if (jointModel.getJointId() == jointId) return jointModel;
+        for (JointModel jointModel : joints) {
+            if (jointModel.getJointId() == jointId) {
+                return jointModel;
+            }
+        }
         return null;
     }
 
@@ -161,7 +167,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         GameScene.plotter2.detachChildren();
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) continue;
-            Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getPoints());
+            Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getModelPoints());
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
             MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(center.x, center.y, 0, blocks);
             scene.attachChild(mesh);
@@ -180,7 +186,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             }
             List<List<Vector2>> list = new ArrayList<>();
             for (LayerModel layerModel : bodyModel.getLayers()) {
-                list.add(layerModel.getPoints());
+                list.add(layerModel.getModelPoints());
             }
 
             Vector2 center = GeometryUtils.calculateCenter(list);
@@ -198,7 +204,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         }
         GameGroup gameGroup = new GameGroup(gameEntities);
         scene.addGameGroup(gameGroup);
-        for (GameEntity entity : gameEntities) scene.attachChild(entity.getMesh());
+        for (GameEntity entity : gameEntities){
+            scene.attachChild(entity.getMesh());
+        }
         scene.sortChildren();
         groundBodyModel.setGameEntity(scene.getGround());
 
@@ -232,29 +240,32 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         GameEntity entity1 = bodyModel1.getGameEntity();
         GameEntity entity2 = bodyModel2.getGameEntity();
 
-        if (entity1 == null || entity2 == null) return;
+        if (entity1 == null || entity2 == null){
+            return;
+        }
+        if(jointModel.getJointShape()!=null) {
+            Vector2 u1 = jointModel.getJointShape().getBegin().cpy().sub(entity1.getCenter());
+            Vector2 u2 = jointModel.getJointShape().getEnd().cpy().sub(entity2.getCenter());
 
-        Vector2 u1 = jointModel.getJointShape().getBegin().cpy().sub(entity1.getCenter());
-        Vector2 u2 = jointModel.getJointShape().getEnd().cpy().sub(entity2.getCenter());
+            if (jointModel.getJointDef() instanceof RevoluteJointDef) {
+                RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
+                revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
+                revoluteJointDef.localAnchorB.set(u2.mul(1 / 32f));
 
-        if (jointModel.getJointDef() instanceof RevoluteJointDef) {
-            RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-            revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
-            revoluteJointDef.localAnchorB.set(u2.mul(1 / 32f));
+            } else if (jointModel.getJointDef() instanceof WeldJointDef) {
+                WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
+                weldJointDef.localAnchorA.set(u1.mul(1 / 32f));
+                weldJointDef.localAnchorB.set(u2.mul(1 / 32f));
+            } else if (jointModel.getJointDef() instanceof DistanceJointDef) {
+                DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+                distanceJointDef.localAnchorA.set(u1.mul(1 / 32f));
+                distanceJointDef.localAnchorB.set(u2.mul(1 / 32f));
 
-        } else if (jointModel.getJointDef() instanceof WeldJointDef) {
-            WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
-            weldJointDef.localAnchorA.set(u1.mul(1 / 32f));
-            weldJointDef.localAnchorB.set(u2.mul(1 / 32f));
-        } else if (jointModel.getJointDef() instanceof DistanceJointDef) {
-            DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-            distanceJointDef.localAnchorA.set(u1.mul(1 / 32f));
-            distanceJointDef.localAnchorB.set(u2.mul(1 / 32f));
-
-        } else if (jointModel.getJointDef() instanceof PrismaticJointDef) {
-            PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
-            prismaticJointDef.localAnchorA.set(u1.mul(1 / 32f));
-            prismaticJointDef.localAnchorB.set(u2.mul(1 / 32f));
+            } else if (jointModel.getJointDef() instanceof PrismaticJointDef) {
+                PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
+                prismaticJointDef.localAnchorA.set(u1.mul(1 / 32f));
+                prismaticJointDef.localAnchorB.set(u2.mul(1 / 32f));
+            }
         }
         scene.getWorldFacade().addJointToCreate(jointModel.getJointDef(), entity1, entity2);
     }
@@ -265,7 +276,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
 
-    public ArrayList<JointModel> getJointModels() {
+    public ArrayList<JointModel> getJoints() {
         return joints;
     }
 
@@ -325,5 +336,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public AtomicInteger getJointCounter() {
         return jointCounter;
     }
+
 }
 

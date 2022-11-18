@@ -1,17 +1,13 @@
 package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.GameScene;
-import com.evolgames.userinterface.control.behaviors.actions.Action;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
+import com.evolgames.userinterface.view.shapes.points.PointImage;
 
 import java.util.ArrayList;
 
@@ -21,18 +17,14 @@ public class RevoluteJointShape extends JointShape {
     private final AngleIndicator referenceAngleIndicator;
     private final AngleIndicator upperAngleIndicator;
     private final AngleIndicator lowerAngleIndicator;
-    private final RevoluteJointDef jointDef;
     private final UserInterface userInterface;
-    public RevoluteJointShape(RevoluteJointDef revoluteJointDef, GameScene scene, Vector2 begin) {
+
+    public RevoluteJointShape(GameScene scene, Vector2 begin) {
         super(scene.getUserInterface(), begin, scene, ResourceManager.getInstance().doubleDiskTextureRegion);
-        this.jointDef = revoluteJointDef;
         this.userInterface = scene.getUserInterface();
-        beginPoint.setMoveAction(new Action() {
-            @Override
-            public void performAction() {
-                Vector2 point = beginPoint.getPoint();
-                RevoluteJointShape.this.onBeginPointMoved(point.x, point.y);
-            }
+        beginPoint.setMoveAction(() -> {
+            Vector2 point = beginPoint.getPoint();
+            RevoluteJointShape.this.onBeginPointMoved(point.x, point.y);
         });
 
         referenceAngleIndicator = new AngleIndicator(begin, scene, 48) {
@@ -49,7 +41,7 @@ public class RevoluteJointShape extends JointShape {
 
             @Override
             public void onTurnAroundCommand(float dA) {
-                //upperAngle > lowerAngle
+                //if upperAngle > lowerAngle
                 if (dA > 0)
                     turnAround(dA);
                 else {
@@ -83,8 +75,7 @@ public class RevoluteJointShape extends JointShape {
         upperAngleIndicator.updateEnd(begin.x + 64, begin.y);
         lowerAngleIndicator.updateEnd(begin.x + 64, begin.y);
 
-        hideIndicators();
-
+        hideLimitsElements();
     }
 
     public void onBeginPointMoved(float x, float y) {
@@ -108,16 +99,13 @@ public class RevoluteJointShape extends JointShape {
     }
 
     public void onLowerIndicatorTurned() {
-        float angle = (lowerAngleIndicator.getAngle() - referenceAngleIndicator.getAngle());
-        jointDef.lowerAngle = angle * MathUtils.degreesToRadians;
-        Log.e("revolute", "on lower indicator turned " + angle);
-        userInterface.getJointSettingsWindowController().setRevoluteLowerAngle(angle / 360);
+        float angle = (lowerAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
+        userInterface.getJointSettingsWindowController().setRevoluteLowerAngle(angle * MathUtils.degreesToRadians);
     }
 
     public void onUpperIndicatorTurned() {
-        float angle = (upperAngleIndicator.getAngle() - referenceAngleIndicator.getAngle());
-        jointDef.upperAngle = angle * MathUtils.degreesToRadians;
-        userInterface.getJointSettingsWindowController().setRevoluteUpperAngle(angle / 360);
+        float angle = (upperAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
+        userInterface.getJointSettingsWindowController().setRevoluteUpperAngle(angle *MathUtils.degreesToRadians);
     }
 
 
@@ -130,8 +118,6 @@ public class RevoluteJointShape extends JointShape {
             lowerAngleIndicator.turnAround(dA);
         }
 
-        jointDef.referenceAngle = referenceAngleIndicator.getAngle() * MathUtils.degreesToRadians;
-        userInterface.getJointSettingsWindowController().setRevoluteReferenceAngle(referenceAngleIndicator.getAngle() / 360);
         onLowerIndicatorTurned();
         onUpperIndicatorTurned();
 
@@ -148,23 +134,23 @@ public class RevoluteJointShape extends JointShape {
     }
 
     public float getUpperAngleRelative() {
-        return (upperAngleIndicator.getAngle() - referenceAngleIndicator.getAngle());
+        return (upperAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
     }
 
     public float getLowerAngleRelative() {
-        return (lowerAngleIndicator.getAngle() - referenceAngleIndicator.getAngle());
+        return (lowerAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
     }
 
     public float getReferenceAngle() {
-        return referenceAngleIndicator.getAngle();
+        return referenceAngleIndicator.getAngleInDegrees();
     }
 
     private float getUpperAngle() {
-        return upperAngleIndicator.getAngle();
+        return upperAngleIndicator.getAngleInDegrees();
     }
 
     private float getLowerAngle() {
-        return lowerAngleIndicator.getAngle();
+        return lowerAngleIndicator.getAngleInDegrees();
     }
 
 
@@ -177,8 +163,8 @@ public class RevoluteJointShape extends JointShape {
     }
 
     @Override
-    public void showIndicators() {
-        super.showIndicators();
+    public void showLimitsElements() {
+        super.showLimitsElements();
         referenceAngleIndicator.setVisible(true);
         lowerAngleIndicator.setVisible(true);
         upperAngleIndicator.setVisible(true);
@@ -190,12 +176,11 @@ public class RevoluteJointShape extends JointShape {
     }
 
     @Override
-    public void hideIndicators() {
-        super.hideIndicators();
+    public void hideLimitsElements() {
+        super.hideLimitsElements();
         hide(referenceAngleIndicator);
         hide(upperAngleIndicator);
         hide(lowerAngleIndicator);
-
     }
 
     public void updateLowerAngleIndicator(float angle) {
@@ -207,6 +192,7 @@ public class RevoluteJointShape extends JointShape {
         upperAngleIndicator.turnAround(angle - getUpperAngle());
     }
 
+    @SuppressWarnings("unused")
     public void updateReferenceAngleIndicator(float angle) {
         float dA = angle - getReferenceAngle();
         referenceAngleIndicator.turnAround(dA);

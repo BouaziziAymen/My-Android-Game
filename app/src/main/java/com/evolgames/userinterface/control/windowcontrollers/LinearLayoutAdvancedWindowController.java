@@ -10,29 +10,6 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
 
 
 
-    public void onFoldButtonClicked() {
-        super.onFoldButtonClicked();
-        if(window.getScroller()!=null) {
-            window.getScroller().setVisible(true);
-            updateScroller();
-        }
-    }
-
-
-    public void onFoldButtonReleased() {
-
-        super.onFoldButtonReleased();
-        if(window.getScroller()!=null) {
-            window.getScroller().setVisible(false);
-        }
-    }
-
-    public void onCloseButtonClicked() {
-        super.onCloseButtonClicked();
-        if(window.getScroller()!=null)
-            window.getScroller().setVisible(false);
-    }
-
     public void onLayoutChanged() {
         onVisibleZoneUpdate();
         updateScroller();
@@ -43,7 +20,7 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
         window.getLayout().setLowerBottomY(pAdvance * height + window.getLayout().getY0());
         onVisibleZoneUpdate();
     }
-    private ContentTraverser traverser = new ContentTraverser();
+    private final ContentTraverser contentTraverser = new ContentTraverser();
      protected void updateScroller(){
         if (window.getScroller() != null) window.getScroller().onHeightUpdated(window.getLayout().getHeight());
     }
@@ -52,8 +29,8 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
         LimitBehavior behavior = new LimitBehavior();
         behavior.setInf(window.getVisibilityInf());
         behavior.setSup(window.getVisibilitySup());
-        traverser.setBehavior(behavior);
-        traverser.traverse(window.getLayout(),false);
+        contentTraverser.setBehavior(behavior);
+        contentTraverser.traverse(window.getLayout(),false);
     }
     public void updateLayout(){
          window.getLayout().updateLayout();
@@ -66,8 +43,8 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
            ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
            shadeVisitBehavior.setExcepted(pTextField);
            shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Hide);
-           traverser.setBehavior(shadeVisitBehavior);
-           traverser.traverse(window.getLayout(),false);
+           contentTraverser.setBehavior(shadeVisitBehavior);
+           contentTraverser.traverse(window.getLayout(),false);
     }
 
     @Override
@@ -76,7 +53,7 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
         ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
         shadeVisitBehavior.setExcepted(textField);
         shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Show);
-        traverser.setBehavior(shadeVisitBehavior);
-        traverser.traverse(window.getLayout(),false);
+        contentTraverser.setBehavior(shadeVisitBehavior);
+        contentTraverser.traverse(window.getLayout(),false);
     }
 }

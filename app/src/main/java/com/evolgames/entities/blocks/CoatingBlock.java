@@ -63,9 +63,9 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
         setAborted(true);
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> list = BlockUtils.splitVerticesSimple(cut, getVertices());
         CoatingBlock b1 = createChildBlock();
-        b1.initialization(list.first, getProperties().copy(), 0);
+        b1.initialization(list.first, getProperties().copy(), getId());
         CoatingBlock b2 = createChildBlock();
-        b2.initialization(list.second, getProperties().copy(), 0);
+        b2.initialization(list.second, getProperties().copy(), getId());
 
         b1.centerCoreCoatingBlock();
         b2.centerCoreCoatingBlock();

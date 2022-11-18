@@ -47,11 +47,11 @@ public class OneLevelGameWindowController<W extends AbstractSectionedAdvancedWin
         for (int i = 0; i < window.getLayout().getSecondariesSize(secondary.getPrimaryKey()); i++) {
             Secondary otherSecondary = window.getLayout().getSecondaryByIndex(secondary.getPrimaryKey(), i);
             if (otherSecondary != secondary) {
-                otherSecondary.getControl().updateState(Button.State.NORMAL);
+                otherSecondary.getControl().release();
                 onSecondaryButtonReleased(otherSecondary);
             }
         }
-        secondary.getControl().select();
+        secondary.getControl().click();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class OneLevelGameWindowController<W extends AbstractSectionedAdvancedWin
         super.onSecondaryButtonReleased(secondary);
         if(secondary==selectedSecondaryField){
             selectedSecondaryField = null;
-            secondary.getControl().deselect();
+            secondary.getControl().release();
         }
 
     }

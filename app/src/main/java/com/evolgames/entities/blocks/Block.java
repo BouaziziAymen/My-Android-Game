@@ -1,5 +1,7 @@
 package com.evolgames.entities.blocks;
 
+import android.support.annotation.Nullable;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.composite.Composite;
 import com.evolgames.entities.cut.Cut;
@@ -95,7 +97,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     }
 
     private void arrangeVertices() {
-        if (!GeometryUtils.IsClockwise(getVertices())){
+        if (!GeometryUtils.IsClockwise(getVertices())) {
             Collections.reverse(getVertices());
         }
     }
@@ -143,5 +145,24 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         for (Vector2 v : getVertices()) {
             Vector2Pool.recycle(v);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        return vertices.equals(obj);
     }
 }

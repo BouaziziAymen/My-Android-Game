@@ -390,11 +390,15 @@ public class GeometryUtils {
         return true;
     }
 
-    public static Vector2 calculateCenter(List<List<Vector2>> blocks) {
+    public static Vector2 calculateCenter(List<List<Vector2>> lists) {
         List<Vector2> list = new ArrayList<>();
-        for (List<Vector2> block : blocks) list.addAll(block);
+        for (List<Vector2> vector2List : lists){
+            list.addAll(vector2List);
+        }
         Vector2[] vertices = GeometryUtils.hullFinder.findConvexHull(list.toArray(new Vector2[0]));
-        if (vertices.length < 3) return null;
+        if (vertices.length < 3){
+            return null;
+        }
         Polygon polygon = new Polygon(Arrays.asList(vertices));
         com.evolgames.caliper.Rectangle rectangle = Caliper.minimumBox(polygon);
         return rectangle.getCenter();

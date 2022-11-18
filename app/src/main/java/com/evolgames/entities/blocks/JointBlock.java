@@ -18,7 +18,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
     }
 
     public enum JointZoneType{
-       PUNCTUAL, OVERLAP
+       PUNCTUAL
     }
     public enum Position{
         A, B
@@ -44,7 +44,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
     }
 
     @Override
-    protected boolean shouldCalculateArea() { return this.jointZoneType==JointZoneType.OVERLAP; }
+    protected boolean shouldCalculateArea() { return false; }
 
     @Override
     protected JointBlock createChildBlock() {
@@ -53,12 +53,12 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
 
     @Override
     protected boolean shouldArrangeVertices() {
-        return this.jointZoneType==JointZoneType.OVERLAP;
+        return false;
     }
 
     @Override
     protected boolean shouldCheckShape() {
-        return this.jointZoneType==JointZoneType.OVERLAP;
+        return false;
     }
 
     @Override
@@ -75,21 +75,12 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
     }
 
     @Override
-    public void performCut(Cut cut) {
-        if(this.jointZoneType==JointZoneType.OVERLAP) {
+    public void performCut(Cut cut) {}
 
-            super.performCut(cut);
-        }
-    }
     @Override
     public void translate(Vector2 translationVector) {
             Utils.translatePoints(this.getVertices(), translationVector);
             command.updateAnchor(getVertices().get(0),position);
     }
 
-    @Override
-    public void preProjectCut() {
-        super.preProjectCut();
-        //find overlap between parent layer block and other entity layer blocks
-    }
 }

@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.properties.LayerProperties;
@@ -54,7 +53,6 @@ import javax.xml.transform.TransformerException;
 
 public class PersistenceCaretaker {
 
-    private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
     public static final String LAYER_TAG = "layer";
     public static final String DECORATION_TAG = "decoration";
     public static final String PROPERTIES_TAG = "properties";
@@ -71,7 +69,12 @@ public class PersistenceCaretaker {
     public static final String PROJECTILE_TAG = "projectile";
     public static final String PROJECTILE_FILE_TAG = "missileFile";
     public static final String PROJECTILE_CAT_PREFIX = "c0_";
+    public static final String JOINT_COLLIDE_CONNECTED_ATTRIBUTE = "collideConnected";
+    public static final String JOINT_TYPE_ATTRIBUTE = "type";
+    private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
     private static final String JOINTS_TAG = "joints";
+    public static final String BODY_A_ID_JOINT_ATTRIBUTE = "bodyAId";
+    public static final String BODY_B_ID_JOINT_ATTRIBUTE = "bodyBId";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private GameScene gameScene;
@@ -103,24 +106,29 @@ public class PersistenceCaretaker {
         toolElement.appendChild(bodiesElement);
 
         Element jointsElement = toolDocument.createElement(JOINTS_TAG);
-        for(JointModel jointModel:toolModel.getJointModels()){
-            Element jointElement = createJointElement(toolDocument,jointModel);
+        for (JointModel jointModel : toolModel.getJoints()) {
+            Element jointElement = createJointElement(toolDocument, jointModel);
             jointsElement.appendChild(jointElement);
         }
         toolElement.appendChild(jointsElement);
         toolDocument.appendChild(toolElement);
         XmlUtils.writeXml(toolDocument, fos);
     }
-    public Element createJointElement(Document document,JointModel jointModel){
+
+    public Element createJointElement(Document document, JointModel jointModel) {
         Element jointElement = document.createElement("joint");
         JointDef jointDef = jointModel.getJointDef();
         jointElement.setAttribute(ID, String.valueOf(jointModel.getJointId()));
         jointElement.setIdAttribute(ID, true);
-        jointElement.setAttribute("collideConnected", String.valueOf(jointDef.collideConnected));
-        jointElement.setAttribute("type", String.valueOf(jointDef.type.getValue()));
+        jointElement.setAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointDef.collideConnected));
+        jointElement.setAttribute(JOINT_TYPE_ATTRIBUTE, String.valueOf(jointDef.type.getValue()));
+        int bodyId1 = jointModel.getBodyModel1().getBodyId();
+        int bodyId2 = jointModel.getBodyModel2().getBodyId();
+        jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE,String.valueOf(bodyId1));
+        jointElement.setAttribute(BODY_B_ID_JOINT_ATTRIBUTE,String.valueOf(bodyId2));
         Element localAnchorAElement;
         Element localAnchorBElement;
-        switch (jointDef.type){
+        switch (jointDef.type) {
             case Unknown:
             case FrictionJoint:
             case LineJoint:
@@ -132,16 +140,15 @@ public class PersistenceCaretaker {
                 RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
                 localAnchorAElement = XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorA);
                 localAnchorBElement = XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorB);
-
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("enableMotor",String.valueOf(revoluteJointDef.enableMotor));
-                jointElement.setAttribute("maxMotorTorque",String.valueOf(revoluteJointDef.maxMotorTorque));
-                jointElement.setAttribute("motorSpeed",String.valueOf(revoluteJointDef.motorSpeed));
-                jointElement.setAttribute("enableLimit",String.valueOf(revoluteJointDef.enableLimit));
-                jointElement.setAttribute("lowerAngle",String.valueOf(revoluteJointDef.lowerAngle));
-                jointElement.setAttribute("upperAngle",String.valueOf(revoluteJointDef.upperAngle));
-                jointElement.setAttribute("referenceAngle",String.valueOf(revoluteJointDef.referenceAngle));
+                jointElement.setAttribute("enableMotor", String.valueOf(revoluteJointDef.enableMotor));
+                jointElement.setAttribute("maxMotorTorque", String.valueOf(revoluteJointDef.maxMotorTorque));
+                jointElement.setAttribute("motorSpeed", String.valueOf(revoluteJointDef.motorSpeed));
+                jointElement.setAttribute("enableLimit", String.valueOf(revoluteJointDef.enableLimit));
+                jointElement.setAttribute("lowerAngle", String.valueOf(revoluteJointDef.lowerAngle));
+                jointElement.setAttribute("upperAngle", String.valueOf(revoluteJointDef.upperAngle));
+                jointElement.setAttribute("referenceAngle", String.valueOf(revoluteJointDef.referenceAngle));
                 break;
             case PrismaticJoint:
                 PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
@@ -151,13 +158,13 @@ public class PersistenceCaretaker {
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
                 jointElement.appendChild(localAxisElement);
-                jointElement.setAttribute("enableMotor",String.valueOf(prismaticJointDef.enableMotor));
-                jointElement.setAttribute("maxMotorForce",String.valueOf(prismaticJointDef.maxMotorForce));
-                jointElement.setAttribute("motorSpeed",String.valueOf(prismaticJointDef.motorSpeed));
-                jointElement.setAttribute("enableLimit",String.valueOf(prismaticJointDef.enableLimit));
-                jointElement.setAttribute("lowerTranslation",String.valueOf(prismaticJointDef.lowerTranslation));
-                jointElement.setAttribute("upperTranslation",String.valueOf(prismaticJointDef.upperTranslation));
-                jointElement.setAttribute("referenceAngle",String.valueOf(prismaticJointDef.referenceAngle));
+                jointElement.setAttribute("enableMotor", String.valueOf(prismaticJointDef.enableMotor));
+                jointElement.setAttribute("maxMotorForce", String.valueOf(prismaticJointDef.maxMotorForce));
+                jointElement.setAttribute("motorSpeed", String.valueOf(prismaticJointDef.motorSpeed));
+                jointElement.setAttribute("enableLimit", String.valueOf(prismaticJointDef.enableLimit));
+                jointElement.setAttribute("lowerTranslation", String.valueOf(prismaticJointDef.lowerTranslation));
+                jointElement.setAttribute("upperTranslation", String.valueOf(prismaticJointDef.upperTranslation));
+                jointElement.setAttribute("referenceAngle", String.valueOf(prismaticJointDef.referenceAngle));
                 break;
             case DistanceJoint:
                 DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
@@ -166,9 +173,9 @@ public class PersistenceCaretaker {
 
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("dampingRatio",String.valueOf(distanceJointDef.dampingRatio));
-                jointElement.setAttribute("length",String.valueOf(distanceJointDef.length));
-                jointElement.setAttribute("frequencyHz",String.valueOf(distanceJointDef.frequencyHz));
+                jointElement.setAttribute("dampingRatio", String.valueOf(distanceJointDef.dampingRatio));
+                jointElement.setAttribute("length", String.valueOf(distanceJointDef.length));
+                jointElement.setAttribute("frequencyHz", String.valueOf(distanceJointDef.frequencyHz));
                 break;
             case WeldJoint:
                 WeldJointDef weldJointDef = (WeldJointDef) jointDef;
@@ -177,7 +184,7 @@ public class PersistenceCaretaker {
 
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("referenceAngle",String.valueOf(weldJointDef.referenceAngle));
+                jointElement.setAttribute("referenceAngle", String.valueOf(weldJointDef.referenceAngle));
                 break;
         }
         return jointElement;
@@ -208,18 +215,18 @@ public class PersistenceCaretaker {
         projectileElement.setAttribute(NAME, String.valueOf(projectileModel.getModelName()));
         Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
         projectileElement.appendChild(propertiesElement);
-        projectileElement.setAttribute(PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX +projectileModel.getModelName()+".xml");
+        projectileElement.setAttribute(PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getModelName() + ".xml");
         return projectileElement;
     }
 
     private Element createLayerElement(Document document, LayerModel layerModel) {
-        Element layerElement = createElementFromPointsModel(document, layerModel,layerModel.getLayerId(), LAYER_TAG);
+        Element layerElement = createElementFromPointsModel(document, layerModel, layerModel.getLayerId(), LAYER_TAG);
         layerModel.getDecorations().forEach(decorationModel -> layerElement.appendChild(createDecorationElement(document, decorationModel)));
         return layerElement;
     }
 
     private Element createDecorationElement(Document document, DecorationModel decorationModel) {
-        return createElementFromPointsModel(document, decorationModel,decorationModel.getDecorationId(), DECORATION_TAG);
+        return createElementFromPointsModel(document, decorationModel, decorationModel.getDecorationId(), DECORATION_TAG);
     }
 
     private Element createElementFromPointsModel(Document document, PointsModel<?> pointsModel, int id, String tag) {
@@ -228,7 +235,7 @@ public class PersistenceCaretaker {
         element.setIdAttribute(ID, true);
         element.setAttribute(NAME, pointsModel.getModelName());
         //save vertices
-        List<Vector2> points = pointsModel.getPoints();
+        List<Vector2> points = pointsModel.getModelPoints();
 
         Element verticesElement = document.createElement(VERTICES_TAG);
         for (Vector2 v : points) {
@@ -268,8 +275,8 @@ public class PersistenceCaretaker {
                         if (field.getType() == float.class) {
                             try {
                                 value = Float.parseFloat(propertiesElement.getAttribute(field.getName()));
-                            } catch (Throwable t){
-                                Log.e("Field Not Found",""+field.getName());
+                            } catch (Throwable t) {
+                                Log.e("Field Not Found", "" + field.getName());
                             }
                         } else if (field.getType() == double.class) {
                             value = Double.parseDouble(propertiesElement.getAttribute(field.getName()));
@@ -342,6 +349,9 @@ public class PersistenceCaretaker {
 
 
     public ToolModel loadToolModel(String toolFileName) throws IOException, ParserConfigurationException, SAXException {
+        if(toolFileName.isEmpty()){
+            return new ToolModel(gameScene,0);
+        }
         FileInputStream fis = gameActivity.openFileInput(toolFileName);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
@@ -349,15 +359,24 @@ public class PersistenceCaretaker {
         fis.close();
         Element toolElement = xml.getDocumentElement();
         Element bodiesElement = (Element) toolElement.getElementsByTagName(BODIES_TAG).item(0);
-        List<BodyModel> bodies = new ArrayList<>();
+        List<BodyModel> bodyModels = new ArrayList<>();
         for (int i = 0; i < bodiesElement.getChildNodes().getLength(); i++) {
             Element bodyElement = (Element) bodiesElement.getChildNodes().item(i);
             BodyModel bodyModel = readBodyModel(bodyElement, Integer.parseInt(bodyElement.getAttribute(ID)));
-            bodies.add(bodyModel);
+            bodyModels.add(bodyModel);
         }
         ToolModel toolModel = new ToolModel(gameScene, 0);
-        toolModel.setModelName(toolFileName.substring(3,toolFileName.length()-4));
-        toolModel.getBodies().addAll(bodies);
+        toolModel.setModelName(toolFileName.substring(3, toolFileName.length() - 4));
+        toolModel.getBodies().addAll(bodyModels);
+
+        List<JointModel> jointModels = new ArrayList<>();
+        Element jointsElement = (Element) toolElement.getElementsByTagName(JOINTS_TAG).item(0);
+        for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
+            Element jointElement = (Element) jointsElement.getChildNodes().item(i);
+            JointModel jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement,bodyModels);
+            jointModels.add(jointModel);
+        }
+        toolModel.getJoints().addAll(jointModels);
         this.initializeCounters(toolModel);
         return toolModel;
     }
@@ -371,7 +390,6 @@ public class PersistenceCaretaker {
 
         LayerModel layerModel = new LayerModel(bodyModel.getBodyId(), layerId, element.getAttribute(NAME), new LayerProperties(), bodyModel);
         layerModel.setPoints(vertices);
-        layerModel.setOutlinePoints(outlinePoints.toArray(new Vector2[0]));
         Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
         LayerProperties layerProperties = loadProperties(propertiesElement, LayerProperties.class);
         layerModel.setProperties(layerProperties);
@@ -382,20 +400,20 @@ public class PersistenceCaretaker {
         if (toolModel.getBodies().size() > 0) {
             toolModel.getBodyCounter().set(toolModel.getBodies().stream().mapToInt(BodyModel::getBodyId).max().getAsInt() + 1);
         }
-        if(toolModel.getJointModels().size()>0){
-            toolModel.getJointCounter().set(toolModel.getJointModels().stream().mapToInt(JointModel::getJointId).max().getAsInt()+1);
+        if (toolModel.getJoints().size() > 0) {
+            toolModel.getJointCounter().set(toolModel.getJoints().stream().mapToInt(JointModel::getJointId).max().getAsInt() + 1);
         }
 
         for (BodyModel body : toolModel.getBodies()) {
-            if(body.getProjectiles().size()>0){
-                body.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt()+1);
+            if (body.getProjectiles().size() > 0) {
+                body.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
             }
             if (body.getLayers().size() > 0) {
-                body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().getAsInt()+1);
+                body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().getAsInt() + 1);
             }
             for (LayerModel layerModel : body.getLayers()) {
                 if (layerModel.getDecorations().size() > 0) {
-                    layerModel.getDecorationCounter().set(layerModel.getDecorations().stream().mapToInt(DecorationModel::getDecorationId).max().getAsInt()+1);
+                    layerModel.getDecorationCounter().set(layerModel.getDecorations().stream().mapToInt(DecorationModel::getDecorationId).max().getAsInt() + 1);
                 }
             }
         }
@@ -446,4 +464,88 @@ public class PersistenceCaretaker {
         projectileModel.setMissileModel(missile);
         return projectileModel;
     }
+
+    private JointModel readJointModel(int jointId, Element jointElement, List<BodyModel> bodyModels) {
+        JointDef.JointType jointType = JointDef.JointType.valueTypes[Integer.parseInt(jointElement.getAttribute(JOINT_TYPE_ATTRIBUTE))];
+        JointDef jointDef = null;
+        switch (jointType) {
+            case WeldJoint:
+                jointDef = new WeldJointDef();
+                break;
+            case RevoluteJoint:
+                jointDef = new RevoluteJointDef();
+                break;
+            case PrismaticJoint:
+                jointDef = new PrismaticJointDef();
+                break;
+            case DistanceJoint:
+                jointDef = new DistanceJointDef();
+                break;
+            case PulleyJoint:
+            case MouseJoint:
+            case GearJoint:
+            case LineJoint:
+            case FrictionJoint:
+                break;
+        }
+        JointModel jointModel = new JointModel(jointId, jointDef);
+        assert jointDef != null;
+        jointDef.collideConnected = Boolean.parseBoolean(jointElement.getAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE));
+        Vector2 localAnchorA = XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0));
+        Vector2 localAnchorB = XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1));
+        int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
+        int bodyBId = Integer.parseInt(jointElement.getAttribute(BODY_B_ID_JOINT_ATTRIBUTE));
+        BodyModel bodyModelA = bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyAId).findFirst().get();
+        BodyModel bodyModelB = bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyBId).findFirst().get();
+        jointModel.setBodyModel1(bodyModelA);
+        jointModel.setBodyModel2(bodyModelB);
+        switch (jointType) {
+            case WeldJoint:
+                WeldJointDef weldJointDef = (WeldJointDef) jointDef;
+                weldJointDef.localAnchorA.set(localAnchorA);
+                weldJointDef.localAnchorB.set(localAnchorB);
+                break;
+            case RevoluteJoint:
+                RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
+                revoluteJointDef.localAnchorA.set(localAnchorA);
+                revoluteJointDef.localAnchorB.set(localAnchorB);
+                revoluteJointDef.enableMotor = Boolean.parseBoolean(jointElement.getAttribute("enableMotor"));
+                revoluteJointDef.maxMotorTorque = Float.parseFloat(jointElement.getAttribute("maxMotorTorque"));
+                revoluteJointDef.motorSpeed = Float.parseFloat(jointElement.getAttribute("motorSpeed"));
+                revoluteJointDef.enableLimit = Boolean.parseBoolean(jointElement.getAttribute("enableLimit"));
+                revoluteJointDef.lowerAngle = Float.parseFloat(jointElement.getAttribute("lowerAngle"));
+                revoluteJointDef.upperAngle = Float.parseFloat(jointElement.getAttribute("upperAngle"));
+                revoluteJointDef.referenceAngle = Float.parseFloat(jointElement.getAttribute("referenceAngle"));
+                break;
+            case PrismaticJoint:
+                PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
+                prismaticJointDef.localAnchorA.set(localAnchorA);
+                prismaticJointDef.localAnchorB.set(localAnchorB);
+                prismaticJointDef.enableLimit = Boolean.parseBoolean(jointElement.getAttribute("enableLimit"));
+                prismaticJointDef.enableMotor = Boolean.parseBoolean(jointElement.getAttribute("enableMotor"));
+                prismaticJointDef.maxMotorForce = Float.parseFloat(jointElement.getAttribute("maxMotorForce"));
+                prismaticJointDef.motorSpeed = Float.parseFloat(jointElement.getAttribute("motorSpeed"));
+                prismaticJointDef.lowerTranslation = Float.parseFloat(jointElement.getAttribute("lowerTranslation"));
+                prismaticJointDef.upperTranslation = Float.parseFloat(jointElement.getAttribute("upperTranslation"));
+                prismaticJointDef.referenceAngle = Float.parseFloat(jointElement.getAttribute("referenceAngle"));
+                break;
+            case DistanceJoint:
+                DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
+                distanceJointDef.localAnchorA.set(localAnchorA);
+                distanceJointDef.localAnchorB.set(localAnchorB);
+                distanceJointDef.dampingRatio = Float.parseFloat(jointElement.getAttribute("dampingRatio"));
+                distanceJointDef.length = Float.parseFloat(jointElement.getAttribute("length"));
+                distanceJointDef.frequencyHz = Float.parseFloat(jointElement.getAttribute("frequencyHz"));
+                break;
+            case PulleyJoint:
+            case MouseJoint:
+            case GearJoint:
+            case LineJoint:
+            case FrictionJoint:
+                break;
+        }
+
+        return jointModel;
+    }
+
 }

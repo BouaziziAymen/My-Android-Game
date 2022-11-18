@@ -8,10 +8,10 @@ import com.evolgames.userinterface.model.PointsModel;
 import java.util.List;
 
 public class MirrorArrowShape extends DoubleInvertedArrowsShape {
-    private PointsModel shapePointsModel;
-    private List<Vector2> points;
+    private final PointsModel<?> shapePointsModel;
+    private final List<Vector2> points;
     private Vector2 centerOfShape;
-    public MirrorArrowShape(Vector2 begin, PointsModel shapePointsModel, List<Vector2> points, GameScene scene) {
+    public MirrorArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, List<Vector2> points, GameScene scene) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
         this.points = points;

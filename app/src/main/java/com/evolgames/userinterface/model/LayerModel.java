@@ -19,6 +19,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
     private final ArrayList<DecorationModel> decorations;
     private final int bodyId;
     private final int layerId;
+
     public LayerModel(int bodyId, int layerId, String layerName, LayerProperties properties, BodyModel bodyModel) {
         super(layerName);
         this.bodyId = bodyId;
@@ -40,17 +41,11 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     @Override
     public String toString() {
-        return "Layer:" + bodyId + "/" + getLayerId() + "/" + Arrays.toString(getPoints().toArray());
+        return "Layer:" + bodyId + "/" + getLayerId() + "/" + Arrays.toString(getModelPoints().toArray());
     }
 
     public int getBodyId() {
         return bodyId;
-    }
-
-    @Override
-    public void onShapeUpdated() {
-        super.onShapeUpdated();
-        bodyModel.onChildLayerShapeUpdated(getLayerId());
     }
 
     public int getLayerId() {
@@ -59,13 +54,14 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     private DecorationModel getDecorationModelById(int decorationId) {
         for (DecorationModel decoration : decorations) {
-            if (decoration.getDecorationId() == decorationId) return decoration;
-
+            if (decoration.getDecorationId() == decorationId) {
+                return decoration;
+            }
         }
         return null;
     }
 
-    DecorationModel createNewDecroation() {
+    DecorationModel createDecoration() {
         DecorationModel decorationModel = new DecorationModel(this, decorationCounter.getAndIncrement());
         decorations.add(decorationModel);
         return decorationModel;
@@ -82,7 +78,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
     @Override
     public boolean test(Vector2 movedPoint, float dx, float dy) {
 
-        for (Vector2 p : getPoints())
+        for (Vector2 p : getModelPoints())
             if (p != movedPoint)
                 if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES)
                     return false;
@@ -91,7 +87,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         movedPoint.set(x + dx, y + dy);
         boolean test = true;
         for (DecorationModel decorationModel : decorations) {
-            if (!decorationModel.test(decorationModel.getPoints())) {
+            if (!decorationModel.test(decorationModel.getModelPoints())) {
                 test = false;
                 break;
             }
@@ -102,8 +98,11 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     @Override
     public boolean test(float x, float y) {
-        for (Vector2 p : getPoints())
-            if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) return false;
+        for (Vector2 p : getModelPoints()) {
+            if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -113,7 +112,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         Vector2[] originalPoints = getOutlinePoints();
         setOutlinePoints(newPoints.toArray(new Vector2[0]));
         for (DecorationModel decorationModel : decorations) {
-            if (!decorationModel.test(decorationModel.getPoints())) {
+            if (!decorationModel.test(decorationModel.getModelPoints())) {
                 setOutlinePoints(originalPoints);
                 return false;
             }
@@ -134,7 +133,9 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     public ArrayList<PointsShape> getPointsShapes() {
         ArrayList<PointsShape> result = new ArrayList<>();
-        for (DecorationModel model : decorations) result.add(model.getPointsShape());
+        for (DecorationModel model : decorations) {
+            result.add(model.getPointsShape());
+        }
         result.add(getPointsShape());
         return result;
     }
@@ -143,23 +144,23 @@ public class LayerModel extends PointsModel<LayerProperties> {
         return decorations;
     }
 
+    public BodyModel getBodyModel() {
+        return bodyModel;
+    }
+
+
+
+    public AtomicInteger getDecorationCounter() {
+        return decorationCounter;
+    }
 
     public void setDecorationCounter(int value) {
         decorationCounter.set(value);
     }
 
-    public BodyModel getBodyModel() {
-        return bodyModel;
-    }
-
     @Override
-    public void deselect() {
-        super.deselect();
-        getPointsShape().deselect();
-        bodyModel.onChildLayerDeselected();
-    }
-
-    public AtomicInteger getDecorationCounter() {
-        return decorationCounter;
+    public void updateOutlinePoints() {
+        super.updateOutlinePoints();
+        bodyModel.onChildLayerOutlineUpdated(layerId);
     }
 }

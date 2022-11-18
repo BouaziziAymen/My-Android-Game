@@ -24,8 +24,8 @@ public class JointPointImage extends PointImage {
     public void onControllerMoved(float dx, float dy) {
         super.onControllerMoved(dx,dy);
         jointShape.drawLine();
-      if(moveAction!=null) moveAction.performAction();
-
-
+      if(moveAction!=null){
+          moveAction.performAction();
+      }
     }
 }

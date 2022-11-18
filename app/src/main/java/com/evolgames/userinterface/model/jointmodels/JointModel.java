@@ -6,7 +6,7 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointS
 
 public class JointModel {
     private JointDef jointDef;
-    private final JointShape jointShape;
+    private JointShape jointShape;
     private final int jointId;
     private boolean selected;
     private BodyModel bodyModel1;
@@ -14,6 +14,10 @@ public class JointModel {
 
     public JointModel(int jointId, JointDef jointDef, JointShape jointShape) {
         this.jointShape = jointShape;
+        this.jointId = jointId;
+        this.jointDef = jointDef;
+    }
+    public JointModel(int jointId, JointDef jointDef) {
         this.jointId = jointId;
         this.jointDef = jointDef;
     }
@@ -58,6 +62,10 @@ public class JointModel {
         return jointShape;
     }
 
+    public void setJointShape(JointShape jointShape) {
+        this.jointShape = jointShape;
+    }
+
     public int getJointId() {
         return jointId;
     }
@@ -69,6 +77,8 @@ public class JointModel {
 
     public void deselect() {
         setSelected(false);
-        jointShape.release();
+        if(jointShape!=null) {
+            jointShape.release();
+        }
     }
 }

@@ -3,6 +3,10 @@ package com.evolgames.userinterface.view;
 import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
@@ -30,6 +34,7 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Element;
@@ -43,11 +48,17 @@ import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import com.evolgames.userinterface.view.inputs.controllers.MyAnalogOnScreenControl;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
+import com.evolgames.userinterface.view.shapes.BodyShape;
 import com.evolgames.userinterface.view.shapes.CreationZone;
 import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
+import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
+import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
+import com.evolgames.userinterface.view.shapes.indicators.jointindicators.RevoluteJointShape;
+import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.visitor.ContentTraverser;
@@ -124,7 +135,11 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
-    private VisitBehavior drawVisitBehavior = new VisitBehavior() {
+    private final TouchVisitBehavior hudTouchVisitBehavior = new TouchVisitBehavior();
+    private final IsUpdatedVisitBehavior isUpdatedVisitBehavior = new IsUpdatedVisitBehavior();
+    private final GameScene scene;
+    private final JointWindowController jointsWindowController;
+    private final VisitBehavior drawVisitBehavior = new VisitBehavior() {
         @Override
         protected void visitElement(Element e) {
 
@@ -143,9 +158,6 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
-    private final TouchVisitBehavior hudTouchVisitBehavior = new TouchVisitBehavior();
-    private final IsUpdatedVisitBehavior isUpdatedVisitBehavior = new IsUpdatedVisitBehavior();
-    private final GameScene scene;
     private ImageShape imageShape;
     private ToolModel toolModel;
     private float zoomFactor = 1f;
@@ -168,6 +180,7 @@ public class UserInterface extends Container implements Touchable {
         this.layersWindowController = layerWindowController;
         this.itemSaveWindowController = itemSaveWindowController;
         this.optionsWindowController = optionsWindowController;
+        this.jointsWindowController = jointWindowController;
 
 
         layerWindowController.setUserInterface(this);
@@ -227,7 +240,7 @@ public class UserInterface extends Container implements Touchable {
 
 
         jointOptionWindow = new JointOptionWindow(0, 0, jointSettingsWindowController);
-        jointOptionWindow.setPosition(800 - jointOptionWindow.getWidth() - jointsWindow.getWidth(), 480 - jointOptionWindow.getHeight() - 64);
+        jointOptionWindow.setPosition(800 - jointOptionWindow.getWidth() - 12, 480 - jointOptionWindow.getHeight());
         jointOptionWindow.setVisible(false);
         addElement(jointOptionWindow);
 
@@ -620,14 +633,14 @@ public class UserInterface extends Container implements Touchable {
         triggerButton.setBehavior(new ButtonBehavior<DrawButtonBoardController>(drawButtonBoardController, triggerButton) {
             @Override
             public void informControllerButtonClicked() {
-                if(pGameScene.getHand().getGrabbedEntity()!=null && pGameScene.getHand().getGrabbedEntity().hasTriggers()){
+                if (pGameScene.getHand().getGrabbedEntity() != null && pGameScene.getHand().getGrabbedEntity().hasTriggers()) {
                     pGameScene.getHand().getGrabbedEntity().onTriggerPushed();
                 }
             }
 
             @Override
             public void informControllerButtonReleased() {
-                if(pGameScene.getHand().getGrabbedEntity()!=null && pGameScene.getHand().getGrabbedEntity().hasTriggers()){
+                if (pGameScene.getHand().getGrabbedEntity() != null && pGameScene.getHand().getGrabbedEntity().hasTriggers()) {
                     pGameScene.getHand().getGrabbedEntity().onTriggerReleased();
                 }
             }
@@ -721,8 +734,12 @@ public class UserInterface extends Container implements Touchable {
             for (BodyModel bodyModel : this.toolModel.getBodies()) {
                 for (LayerModel layerModel : bodyModel.getLayers()) {
                     removeElement(layerModel.getPointsShape());
-                    for (PointsShape p : layerModel.getPointsShapes())
+                    for (PointsShape p : layerModel.getPointsShapes()) {
                         removeElement(p);
+                    }
+                }
+                for (JointModel jointModel : this.toolModel.getJoints()) {
+                    jointModel.getJointShape().detach();
                 }
             }
         }
@@ -731,32 +748,95 @@ public class UserInterface extends Container implements Touchable {
         this.toolModel = toolModel;
 
         for (BodyModel bodyModel : toolModel.getBodies()) {
+            BodyShape bodyShape = new BodyShape(this);
+            bodyModel.setBodyShape(bodyShape);
             for (LayerModel layerModel : bodyModel.getLayers()) {
                 if (layerModel.getPointsShape() == null) {
                     PointsShape pointsShape = new PointsShape(this);
                     layerModel.setPointsShape(pointsShape);
                 }
-                layerModel.getPointsShape().updateSelf();
+                layerModel.getPointsShape().updateOutlineShape();
                 addElement(layerModel.getPointsShape());
                 for (DecorationModel decorationModel : layerModel.getDecorations()) {
                     if (decorationModel.getPointsShape() == null) {
                         PointsShape pointsShape = new PointsShape(this);
                         decorationModel.setPointsShape(pointsShape);
                     }
-                    decorationModel.getPointsShape().updateSelf();
+                    decorationModel.getPointsShape().updateOutlineShape();
                     addElement(decorationModel.getPointsShape());
                 }
             }
-            for(ProjectileModel projectileModel:bodyModel.getProjectiles()){
+            for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
                 ProjectileShape projectileShape = new ProjectileShape(projectileModel.getProperties().getProjectileOrigin(), scene);
                 projectileShape.updateDirection(projectileModel.getProperties().getProjectileDirection());
                 projectileModel.setProjectileShape(projectileShape);
                 projectileShape.bindModel(projectileModel);
             }
         }
+        for (JointModel jointModel : toolModel.getJoints()) {
+            Vector2 center1 = jointModel.getBodyModel1().getCenter();
+            Vector2 center2 = jointModel.getBodyModel2().getCenter();
+            Vector2 begin;
+            Vector2 end;
+            JointShape jointShape = null;
+            switch (jointModel.getJointType()) {
+                case WeldJoint:
+                    WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
+                    begin = center1.add(weldJointDef.localAnchorA.cpy().mul(32f));
+                    end = center2.add(weldJointDef.localAnchorB.cpy().mul(32f));
+                    WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
+                    weldJointShape.updateEnd(end.x, end.y);
+                    jointShape = weldJointShape;
+                    break;
+                case RevoluteJoint:
+                    RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
+                    begin = center1.add(revoluteJointDef.localAnchorA.cpy().mul(32f));
+                    end = center2.add(revoluteJointDef.localAnchorB.cpy().mul(32f));
+                    RevoluteJointShape revoluteJointShape = new RevoluteJointShape(scene, begin);
+                    revoluteJointShape.updateEnd(end.x, end.y);
+                    if (revoluteJointDef.enableLimit) {
+                        revoluteJointShape.showLimitsElements();
+                    }
+                    revoluteJointShape.updateLowerAngleIndicator((float) (revoluteJointDef.lowerAngle / (2 * Math.PI) * 360));
+                    revoluteJointShape.updateUpperAngleIndicator((float) (revoluteJointDef.upperAngle / (2 * Math.PI) * 360));
+                    jointShape = revoluteJointShape;
+                    break;
+                case PrismaticJoint:
+                    PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
+                    begin = center1.add(prismaticJointDef.localAnchorA.cpy().mul(32f));
+                    end = center2.add(prismaticJointDef.localAnchorB.cpy().mul(32f));
+                    PrismaticJointShape prismaticJointShape = new PrismaticJointShape(scene, begin);
+                    prismaticJointShape.updateEnd(end.x, end.y);
+                    if (prismaticJointDef.enableLimit) {
+                        prismaticJointShape.showLimitsElements();
+                    }
+                    prismaticJointShape.updateLowerLimit(prismaticJointDef.lowerTranslation);
+                    prismaticJointShape.updateUpperLimit(prismaticJointDef.upperTranslation);
+                    prismaticJointShape.updateDirectionAngleIndicator((float) (prismaticJointDef.referenceAngle / (2 * Math.PI) * 360));
+                    jointShape = prismaticJointShape;
+                    break;
+                case DistanceJoint:
+                    DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+                    begin = center1.add(distanceJointDef.localAnchorA.cpy().mul(32f));
+                    end = center2.add(distanceJointDef.localAnchorB.cpy().mul(32f));
+                    DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
+                    distanceJointShape.updateEnd(end.x,end.y);
+                    jointShape = distanceJointShape;
+                    break;
+                case PulleyJoint:
+                case MouseJoint:
+                case GearJoint:
+                case LineJoint:
+                case FrictionJoint:
+                    break;
+            }
+            jointModel.setJointShape(jointShape);
+
+        }
         toolModel.updateMesh();
         layersWindowController.init();
         itemWindowController.init();
+        jointsWindowController.init();
     }
 
     public CreationZoneController getCreationZoneController() {
@@ -837,11 +917,9 @@ public class UserInterface extends Container implements Touchable {
 
     public void updateZoom(float pZoomFactor) {
         zoomFactor = pZoomFactor;
-        for (Element e : getContents())
-            if (e instanceof PointsShape) {
-                PointsShape pointsShape = (PointsShape) e;
-                pointsShape.setScale(0.5f / pZoomFactor, 0.5f / pZoomFactor);
-            }
+        for (Element e : getContents()) {
+          e.updateZoom(pZoomFactor);
+        }
     }
 
     private void checkUpdated() {
@@ -860,9 +938,10 @@ public class UserInterface extends Container implements Touchable {
         return layerSettingsWindowController;
     }
 
-    private void resetSelection() {
-        if (toolModel != null)
+    private void resetLayerSelection() {
+        if (toolModel != null) {
             toolModel.resetSelection();
+        }
     }
 
     public void setSaveWindowVisible(boolean b) {
@@ -871,17 +950,17 @@ public class UserInterface extends Container implements Touchable {
 
     public void setLayersWindowVisible(boolean b) {
         layersWindow.setVisible(b);
-        resetSelection();
+        resetLayerSelection();
     }
 
     public void setJointsWindowVisible(boolean b) {
         jointsWindow.setVisible(b);
-        resetSelection();
+        resetLayerSelection();
     }
 
     public void setItemWindowVisible(boolean b) {
         itemWindow.setVisible(b);
-        resetSelection();
+        resetLayerSelection();
     }
 
     public void setDrawButtonBoardVisible(boolean b) {

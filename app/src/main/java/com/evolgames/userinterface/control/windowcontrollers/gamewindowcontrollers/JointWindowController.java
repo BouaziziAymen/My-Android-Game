@@ -1,35 +1,50 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
-
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.evolgames.userinterface.control.windowcontrollers.ZeroLevelSectionedAdvancedWindowController;
-import com.evolgames.userinterface.model.ToolModel;
+import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.DecorationModel;
+import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import com.evolgames.userinterface.view.windows.gamewindows.JointsWindow;
 import com.evolgames.userinterface.view.windows.windowfields.jointswindow.JointField;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
 
-public class JointWindowController extends ZeroLevelSectionedAdvancedWindowController<JointsWindow,JointField> {
+import java.util.ArrayList;
+
+public class JointWindowController extends ZeroLevelSectionedAdvancedWindowController<JointsWindow, JointField> {
 
     private UserInterface userInterface;
 
     public JointWindowController(JointSettingsWindowController jointSettingsWindowController) {
 
         this.jointSettingsWindowController = jointSettingsWindowController;
+        jointSettingsWindowController.setJointWindowController(this);
     }
 
+    @Override
+    public void init() {
+        if (userInterface.getToolModel() == null) return;
+        ArrayList<JointModel> joints = userInterface.getToolModel().getJoints();
+        for (int i = 0; i < joints.size(); i++) {
+            JointModel jointModel = joints.get(i);
+            onJointAdded(jointModel);
+        }
+    }
+    public void onResume() {
+        fold();
+    }
+    private final JointSettingsWindowController jointSettingsWindowController;
 
-    private JointSettingsWindowController jointSettingsWindowController;
-
-    public void onJointAdded(JointModel jointModel){
-        JointField jointField = window.addPrimary(jointModel.getJointId(),false);
+    public void onJointAdded(JointModel jointModel) {
+        JointField jointField = window.addPrimary(jointModel.getJointId(), false);
         jointField.getBodyControl().updateState(Button.State.PRESSED);
         onPrimaryButtonClicked(jointField);
         super.onPrimaryAdded(jointField);
-}
+    }
 
 
     @Override
@@ -64,6 +79,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
 
     public void onOptionButtonReleased(JointField jointField) {
         jointSettingsWindowController.openWindow();
+        unfold();
         JointModel jointModel = userInterface.getToolModel().getJointById(jointField.getPrimaryKey());
         jointSettingsWindowController.updateJointModel(jointModel);
     }
@@ -71,13 +87,13 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
     public void onRemoveButtonReleased(JointField jointField) {
         window.getLayout().removePrimary(jointField.getPrimaryKey());
         window.getLayout().updateLayout();
-       JointModel jointModel = userInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
+        JointModel jointModel = userInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
         JointShape jointShape = jointModel.getJointShape();
-       jointShape.detach();
-
-updateLayout();
+        jointShape.detach();
+        updateLayout();
     }
-    public void setUserInterface(UserInterface userInterface){
+
+    public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
     }
 }

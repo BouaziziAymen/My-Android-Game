@@ -187,10 +187,11 @@ public class CreationZoneController extends Controller {
 
         if (upLocked) return;
 
-        if (action == CreationAction.ADD_POINT && layerWindowController.getSelectedShape() != null) {
-            if (layerWindowController.getSelectedShape().test(x, y)) {
-                layerWindowController.getSelectedShape().getPoints().add(new Vector2(x, y));
-                layerWindowController.getSelectedShape().getPointsShape().onModelUpdated();
+        if (action == CreationAction.ADD_POINT && layerWindowController.getSelectedPointsModel() != null) {
+            PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
+            if (pointsModel.test(x, y)) {
+                pointsModel.addPoint(new Vector2(x, y));
+                pointsModel.getPointsShape().onModelUpdated();
             }
         }
         if (action == CreationAction.PROJECTILE) {
@@ -205,10 +206,10 @@ public class CreationZoneController extends Controller {
         }
 
 
-        if (action == CreationAction.REMOVE_POINT && layerWindowController.getSelectedShape() != null) {
+        if (action == CreationAction.REMOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
             float distance = 32;
             Vector2 point = null;
-            for (Vector2 p : layerWindowController.getSelectedShape().getPoints()) {
+            for (Vector2 p : layerWindowController.getSelectedPointsModel().getModelPoints()) {
                 float d = p.dst(x, y);
                 if (d < distance) {
                     point = p;
@@ -216,10 +217,10 @@ public class CreationZoneController extends Controller {
                 }
             }
             if (point != null) {
-                layerWindowController.getSelectedShape().getPoints().remove(point);
-                ModelPointImage p = layerWindowController.getSelectedShape().getPointsShape().getPointImage(point);
-                layerWindowController.getSelectedShape().getPointsShape().removeElement(p);
-                layerWindowController.getSelectedShape().getPointsShape().onModelUpdated();
+                layerWindowController.getSelectedPointsModel().remove(point);
+                ModelPointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
+                layerWindowController.getSelectedPointsModel().getPointsShape().removeElement(p);
+                layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
             }
         }
 
@@ -231,9 +232,9 @@ public class CreationZoneController extends Controller {
         }
         if (action == CreationAction.MOVE_POINT || action == CreationAction.MOVE_JOINT_POINT || action == CreationAction.MOVE_TOOL_POINT) {
             ArrayList<PointImage> movablePointImages;
-            if (action == CreationAction.MOVE_POINT && layerWindowController.getSelectedShape() != null) {
+            if (action == CreationAction.MOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
                 if (!isReferenceEnabled())
-                    movablePointImages = layerWindowController.getSelectedShape().getPointsShape().getMovablePointImages();
+                    movablePointImages = layerWindowController.getSelectedPointsModel().getPointsShape().getMovablePointImages();
                 else
                     movablePointImages = new ArrayList<>(creationZone.referencePointImageArrayList);
             } else if (action == CreationAction.MOVE_TOOL_POINT) {
@@ -247,7 +248,7 @@ public class CreationZoneController extends Controller {
                 }
             } else {
                 movablePointImages = new ArrayList<>();
-                ArrayList<JointModel> list = userInterface.getToolModel().getJointModels();
+                ArrayList<JointModel> list = userInterface.getToolModel().getJoints();
                 for (JointModel jointModel : list) {
                     if (jointModel.isSelected()) {
                         JointShape jointShape = jointModel.getJointShape();
@@ -346,28 +347,38 @@ public class CreationZoneController extends Controller {
             }
         }
         if (action == CreationAction.REVOLUTE) {
-            RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-            indicatorArrow = new RevoluteJointShape(revoluteJointDef, gameScene, new Vector2(x, y));
-            JointModel jointModel = userInterface.getToolModel().createNewJoint((JointShape) indicatorArrow, revoluteJointDef);
+            indicatorArrow = new RevoluteJointShape(gameScene, new Vector2(x, y));
+            JointModel jointModel = userInterface.getToolModel().createJointModel((JointShape) indicatorArrow, new RevoluteJointDef());
             jointWindowController.onJointAdded(jointModel);
             indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
             return;
         }
         if (action == CreationAction.WELD) {
-            WeldJointDef weldJointDef = new WeldJointDef();
-            indicatorArrow = new WeldJointShape(gameScene.getUserInterface(), new Vector2(x, y), gameScene);
-            JointModel jointModel = userInterface.getToolModel().createNewJoint((JointShape) indicatorArrow, weldJointDef);
+            indicatorArrow = new WeldJointShape(gameScene, new Vector2(x, y));
+            JointModel jointModel = userInterface.getToolModel().createJointModel((JointShape) indicatorArrow, new WeldJointDef());
+            jointWindowController.onJointAdded(jointModel);
+            indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+            return;
+        }
+        if (action == CreationAction.PRISMATIC) {
+            indicatorArrow = new PrismaticJointShape(gameScene, new Vector2(x, y));
+            JointModel jointModel = userInterface.getToolModel().createJointModel((JointShape) indicatorArrow, new PrismaticJointDef());
+            jointWindowController.onJointAdded(jointModel);
+            indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+            return;
+        }
+
+        if (action == CreationAction.DISTANCE) {
+            indicatorArrow = new DistanceJointShape(gameScene,new Vector2(x, y));
+            JointModel jointModel = userInterface.getToolModel().createJointModel((JointShape) indicatorArrow, new DistanceJointDef());
             jointWindowController.onJointAdded(jointModel);
             indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
             return;
         }
         if (action == CreationAction.PROJECTILE) {
-            Log.e("Projectile","::"+userInterface.getItemWindowController().getSelectedBodyId() );
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new ProjectileShape(new Vector2(x, y), gameScene);
-
                 ProjectileModel projectileModel = userInterface.getToolModel().createNewProjectile((ProjectileShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
-                Log.e("Projectile",""+projectileModel);
                 if (projectileModel != null) {
                     itemWindowController.onProjectileCreated(projectileModel);
                     ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
@@ -378,7 +389,6 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.HAND) {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new HandShape(new Vector2(x, y), gameScene);
-
                 HandModel handModel = userInterface.getToolModel().createNewHand((HandShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
                 itemWindowController.onNewHandCreated(handModel);
                 ((HandShape) indicatorArrow).setModel(handModel);
@@ -386,44 +396,26 @@ public class CreationZoneController extends Controller {
             }
         }
 
-        if (action == CreationAction.PRISMATIC) {
-            PrismaticJointDef prismaticJointDef = new PrismaticJointDef();
-            indicatorArrow = new PrismaticJointShape(prismaticJointDef, gameScene, new Vector2(x, y));
-            JointModel jointModel = userInterface.getToolModel().createNewJoint((JointShape) indicatorArrow, prismaticJointDef);
-            jointWindowController.onJointAdded(jointModel);
-            indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
-            return;
-        }
 
-        if (action == CreationAction.DISTANCE) {
-            DistanceJointDef distanceJointDef = new DistanceJointDef();
-            indicatorArrow = new DistanceJointShape(gameScene.getUserInterface(), new Vector2(x, y), gameScene);
-            JointModel jointModel = userInterface.getToolModel().createNewJoint((JointShape) indicatorArrow, distanceJointDef);
-            jointWindowController.onJointAdded(jointModel);
-            indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
-            return;
-        }
         if (action == CreationAction.SHIFT) {
-
-
-            indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedShape(), gameScene);
+            indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), gameScene);
             creationZone.setTouchLocked(true);
             return;
         }
         if (action == CreationAction.ROTATE) {
             Log.e("indicator", "rotate");
-            indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedShape(), gameScene, 64);
+            indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), gameScene, 64);
             creationZone.setTouchLocked(true);
             return;
         }
 
         if (action == CreationAction.ADD_POLYGON) {
 
-            PointsModel layerPointsModel = layerWindowController.getSelectedShape();
+            PointsModel layerPointsModel = layerWindowController.getSelectedPointsModel();
             if(layerPointsModel==null)return;
             Vector2 center = new Vector2(x, y);
 
-            indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedShape(), gameScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedShape(), gameScene, numberOfPointsForPolygon);
+            indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon);
             Vector2 centerCopy = Vector2Pool.obtain(center);
             ReferencePointImage centerPointImage = new ReferencePointImage(centerCopy.cpy());
 
@@ -435,8 +427,8 @@ public class CreationZoneController extends Controller {
         }
 
         if (action == CreationAction.MIRROR) {
-            PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedShape();
-            List<Vector2> points = selectedLayerPointsModel.getPoints();
+            PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedPointsModel();
+            List<Vector2> points = selectedLayerPointsModel.getModelPoints();
 
             PointsModel<?> shapePointsModel;
             if (selectedLayerPointsModel instanceof LayerModel) {

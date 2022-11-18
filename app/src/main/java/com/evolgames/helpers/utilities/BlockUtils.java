@@ -459,7 +459,6 @@ public class BlockUtils {
 
     private static void divideAssociatedBlocks(LayerBlock block1, LayerBlock block2, ArrayList<? extends AssociatedBlock<?, ?>> associatedBlocks, Cut cut) {
         for (AssociatedBlock<?, ?> associatedBlock : associatedBlocks) {
-            associatedBlock.preProjectCut();
             Cut projectedCut = BlockUtils.projectCutWithoutCorrection(associatedBlock.getVertices(), cut.getP1().cpy(), cut.getP2().cpy());
             Vector2 center = GeometryUtils.calculateCentroid(associatedBlock.getVertices());
             if (projectedCut == null) {
@@ -643,8 +642,9 @@ public class BlockUtils {
         double initialChemicalEnergy = mainBlock.getProperties().getChemicalEnergy();
         CoatingBlock root = new CoatingBlock();
         ArrayList<Vector2> mainBlockVerticesCopy = new ArrayList<>();
-        for (int i = 0; i < mainBlock.getVertices().size(); i++)
+        for (int i = 0; i < mainBlock.getVertices().size(); i++) {
             mainBlockVerticesCopy.add(Vector2Pool.obtain(mainBlock.getVertices().get(i)));
+        }
 
         root.initialization(mainBlockVerticesCopy, new CoatingProperties(0, 0, initialTemperature, 0, initialChemicalEnergy, mainBlock.getProperties()), 0);
 
@@ -714,10 +714,10 @@ public class BlockUtils {
             for (int j = 0; j < yCount; j++) {
                 EYBegin.add(stepY);
                 EYEnd.add(stepY);
-                Cut cuty = findCut(currenty.getVertices(), EYBegin, EYEnd);
-                if (cuty == null) continue;
+                Cut cutY = findCut(currenty.getVertices(), EYBegin, EYEnd);
+                if (cutY == null) continue;
 
-                currenty.performCut(cuty);
+                currenty.performCut(cutY);
                 currenty.setAborted(true);
 
                 CoatingBlock child1 = currenty.getChildren().get(0);
@@ -736,33 +736,33 @@ public class BlockUtils {
 
 
         }
-        Vector2Pool.obtain(P0);
-        Vector2Pool.obtain(PX);
-        Vector2Pool.obtain(PY);
-        Vector2Pool.obtain(X);
-        Vector2Pool.obtain(Y);
-        Vector2Pool.obtain(uX);
-        Vector2Pool.obtain(uY);
-        Vector2Pool.obtain(EXBegin);
-        Vector2Pool.obtain(EXEnd);
-        Vector2Pool.obtain(EYBegin);
-        Vector2Pool.obtain(EYEnd);
-        Vector2Pool.obtain(stepX);
-        Vector2Pool.obtain(stepY);
+        Vector2Pool.recycle(P0);
+        Vector2Pool.recycle(PX);
+        Vector2Pool.recycle(PY);
+        Vector2Pool.recycle(X);
+        Vector2Pool.recycle(Y);
+        Vector2Pool.recycle(uX);
+        Vector2Pool.recycle(uY);
+        Vector2Pool.recycle(EXBegin);
+        Vector2Pool.recycle(EXEnd);
+        Vector2Pool.recycle(EYBegin);
+        Vector2Pool.recycle(EYEnd);
+        Vector2Pool.recycle(stepX);
+        Vector2Pool.recycle(stepY);
 
         Iterator<CoatingBlock> iterator = root.createIterator();
         boolean error = false;
+        int blockId = 0;
         while (iterator.hasNext()) {
-            CoatingBlock bl = iterator.next();
-            if (bl.isNotAborted()) {
-                mainBlock.addAssociatedBlock(bl);
-                if (bl.getArea() > (step * step) + 1) {
+            CoatingBlock coatingBlock = iterator.next();
+            if (coatingBlock.isNotAborted()) {
+                mainBlock.addAssociatedBlock(coatingBlock);
+                if (coatingBlock.getArea() > (step * step) + 1) {
                     error = true;
-
-
                 }
-                mainBlock.getBlockGrid().addCoatingBlock(bl);
-                bl.centerCoreCoatingBlock();
+                mainBlock.getBlockGrid().addCoatingBlock(coatingBlock);
+                coatingBlock.centerCoreCoatingBlock();
+                coatingBlock.setId(blockId++);
             }
         }
         if (error) {
@@ -871,7 +871,7 @@ public class BlockUtils {
     public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel) {
         List<List<Vector2>> list = new ArrayList<>();
         for (LayerModel layerModel : bodyModel.getLayers()) {
-            list.add(layerModel.getPoints());
+            list.add(layerModel.getModelPoints());
         }
         Vector2 center = GeometryUtils.calculateCenter(list);
         return createBlocks(bodyModel, center);

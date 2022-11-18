@@ -7,7 +7,7 @@ import com.evolgames.userinterface.view.UserInterface;
 import org.andengine.entity.scene.Scene;
 
 public class DistanceJointShape extends JointShape {
-    public DistanceJointShape(UserInterface userInterface, Vector2 begin, GameScene scene) {
-        super(userInterface, begin, scene, ResourceManager.getInstance().targetCircleTextureRegion);
+    public DistanceJointShape(GameScene scene,Vector2 begin) {
+        super(scene.getUserInterface(), begin, scene, ResourceManager.getInstance().targetCircleTextureRegion);
     }
 }

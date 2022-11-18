@@ -66,7 +66,7 @@ public abstract class AngleIndicator extends TurnableIndicator {
     }
 
 
-    public float getAngle() {
+    public float getAngleInDegrees() {
         return angle;
     }
 

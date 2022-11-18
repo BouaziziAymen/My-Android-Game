@@ -39,9 +39,9 @@ public class BlockFactory {
     }
 
     public static DecorationBlock createDecorationBlock(ArrayList<Vector2> vertices, DecorationProperties properties, int ID) {
-        DecorationBlock blockb = new DecorationBlock();
-        blockb.initialization(vertices, properties, ID);
-        return blockb;
+        DecorationBlock decorationBlock = new DecorationBlock();
+        decorationBlock.initialization(vertices, properties, ID);
+        return decorationBlock;
     }
     public static DecorationBlock createDecorationBlock(ArrayList<Vector2> vertices, DecorationProperties properties, int ID, ArrayList<Vector2> borders, Vector2 center) {
        DecorationBlock decorationBlock = createDecorationBlock(vertices,properties,ID);

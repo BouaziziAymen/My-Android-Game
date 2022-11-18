@@ -45,10 +45,16 @@ public class Container extends Element {
     @Override
     public void setColor(float pRed, float pGreen, float pBlue) {
         super.setColor(pRed,pGreen,pBlue);
-        for(Element e:getContents())e.setColor(pRed,pGreen,pBlue);
+        for(Element e:getContents()){
+            e.setColor(pRed,pGreen,pBlue);
+        }
     }
 
-
-
-
+    @Override
+    public void updateZoom(float pZoomFactor) {
+        super.updateZoom(pZoomFactor);
+        for(Element e:getContents()){
+            e.updateZoom(pZoomFactor);
+        }
+    }
 }

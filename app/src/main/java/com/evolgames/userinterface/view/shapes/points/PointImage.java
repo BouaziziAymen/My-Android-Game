@@ -84,4 +84,10 @@ public class PointImage extends SceneImage implements Movable {
         Color blue = Colors.palette1_blue;
         setColor(blue);
     }
+
+    @Override
+    public void updateZoom(float pZoomFactor) {
+        super.updateZoom(pZoomFactor);
+        this.setScale(1f/pZoomFactor,1f/pZoomFactor);
+    }
 }

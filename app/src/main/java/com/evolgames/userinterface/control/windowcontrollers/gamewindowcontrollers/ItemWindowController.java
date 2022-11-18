@@ -75,7 +75,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         if (userInterface.getLayersWindowController().getSelectedBodyModel() != null) {
             userInterface.getLayersWindowController().getSelectedBodyModel().deselect();
         }
-        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select(false);
+        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select();
     }
 
     @Override

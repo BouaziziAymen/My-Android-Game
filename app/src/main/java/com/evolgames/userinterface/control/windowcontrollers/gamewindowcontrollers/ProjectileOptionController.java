@@ -373,11 +373,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private void setMissileName(String fileName) {
         ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName);
         assert (selectedButton != null);
-        missileButtonsTable.forEach((key, value) -> {
-            value.deselect();
-            value.updateState(Button.State.NORMAL);
-        });
-        selectedButton.deselect();
-        selectedButton.updateState(Button.State.PRESSED);
+        missileButtonsTable.forEach((key, value) -> value.release());
+        selectedButton.click();
     }
 }

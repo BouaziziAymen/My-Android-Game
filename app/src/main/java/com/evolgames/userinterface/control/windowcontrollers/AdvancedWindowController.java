@@ -27,7 +27,6 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     }
 
     public void onFoldButtonReleased() {
-
         hideWindowBody();
     }
 
@@ -35,7 +34,7 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
         return e.getWindowPartIdentifier() == windowPartIdentifier;
     }
 
-    protected void setBodyOnly(){
+    protected void setBodyOnly() {
         for (Element e : window.getContents())
             if (!isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY))
                 e.setVisible(false);
@@ -62,8 +61,9 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     }
 
     public void openWindow() {
-        if (window != null)
+        if (window != null) {
             window.setVisible(true);
+        }
     }
 
     @Override
@@ -71,23 +71,37 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
 
     }
 
-    protected void disableFoldButton(){
+    public void unfold() {
+        hideWindowBody();
+        disableFoldButton();
+    }
+
+    public void fold() {
+        showWindowBody();
+        enableFoldButton();
+
+    }
+
+    private void disableFoldButton() {
         window.disableFoldButton();
     }
-    protected void disableCloseButton(){
+
+    private void disableCloseButton() {
         window.disableCloseButton();
     }
-    protected void enableFoldButton(){
+
+    private void enableFoldButton() {
         window.enableFoldButton();
 
     }
-    protected void enableCloseButton(){
+
+    private void enableCloseButton() {
         window.enableCloseButton();
     }
 
 
     protected void onTextFieldTapped(TextField<?> pTextField) {
-         if(selectedTextField!=null)onTextFieldReleased(selectedTextField);
+        if (selectedTextField != null) onTextFieldReleased(selectedTextField);
         selectedTextField = pTextField;
         TextFieldBehavior<?> textFieldBehavior = (TextFieldBehavior<?>) pTextField.getBehavior();
         if (textFieldBehavior.isResetText()) textFieldBehavior.setTextString("");
@@ -95,16 +109,17 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
         keyboardController.bindWithTextField(pTextField);
         keyboardController.getKeyboard().setCurrentType(textFieldBehavior.getKeyboardType());
 
-        keyboardController.openKeyboard(pTextField.getAbsoluteX(),pTextField.getAbsoluteY(),selectedTextField.getWidth(),selectedTextField.getHeight());
+        keyboardController.openKeyboard(pTextField.getAbsoluteX(), pTextField.getAbsoluteY(), selectedTextField.getWidth(), selectedTextField.getHeight());
 
     }
 
     protected void onTextFieldReleased(TextField<?> textField) {
         selectedTextField = null;
         TextFieldBehavior<?> textFieldBehavior = (TextFieldBehavior<?>) textField.getBehavior();
-        if (textFieldBehavior.getValidator()==null||textFieldBehavior.validate()) {
+        if (textFieldBehavior.getValidator() == null || textFieldBehavior.validate()) {
             textFieldBehavior.setLastValidTextString(textField.getTextString());
-            if (textFieldBehavior.getReleaseAction() != null) textFieldBehavior.getReleaseAction().performAction();
+            if (textFieldBehavior.getReleaseAction() != null)
+                textFieldBehavior.getReleaseAction().performAction();
         } else {
             textFieldBehavior.setText(textFieldBehavior.getLastValidTextString());
         }

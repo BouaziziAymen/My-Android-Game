@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
@@ -20,25 +19,15 @@ public class PrismaticJointShape extends JointShape {
 
 
     private final AngleIndicator directionAngleIndicator;
-    private final PrismaticJointDef jointDef;
     private final UserInterface userInterface;
     private final ControllerPointImage upperLimitPoint;
     private final ControllerPointImage lowerLimitPoint;
     private float upperLimit, lowerLimit;
     private Line limitLine;
 
-    public float getLowerLimit() {
-        return lowerLimit;
-    }
-
-    public float getUpperLimit() {
-        return upperLimit;
-    }
-
-    public PrismaticJointShape(PrismaticJointDef prismaticJointDef, GameScene scene, Vector2 begin) {
+    public PrismaticJointShape(GameScene scene, Vector2 begin) {
         super(scene.getUserInterface(), begin, scene, ResourceManager.getInstance().doubleSquareTextureRegion);
         setIndicatorsVisible(true);
-        this.jointDef = prismaticJointDef;
         this.userInterface = scene.getUserInterface();
         beginPoint.setMoveAction(() -> {
             Vector2 point = beginPoint.getPoint();
@@ -84,8 +73,15 @@ public class PrismaticJointShape extends JointShape {
             }
         };
         userInterface.addElement(lowerLimitPoint);
-        hideIndicators();
+        hideLimitsElements();
+    }
 
+    public float getLowerLimit() {
+        return lowerLimit;
+    }
+
+    public float getUpperLimit() {
+        return upperLimit;
     }
 
     public void onBeginPointMoved(float x, float y) {
@@ -103,7 +99,7 @@ public class PrismaticJointShape extends JointShape {
             result.addAll(super.getMovables(false));
             result.add(directionAngleIndicator.getLimit());
         } else {
-            if(isIndicatorsVisible()) {
+            if (isIndicatorsVisible()) {
                 result.add(upperLimitPoint);
                 result.add(lowerLimitPoint);
             }
@@ -123,7 +119,7 @@ public class PrismaticJointShape extends JointShape {
 
     private void updateUpperLimitPosition() {
         Vector2 dir = new Vector2(1, 0);
-        GeometryUtils.rotateVectorDeg(dir, directionAngleIndicator.getAngle());
+        GeometryUtils.rotateVectorDeg(dir, directionAngleIndicator.getAngleInDegrees());
         Vector2 position = begin.cpy().add(dir.x * upperLimit, dir.y * upperLimit);
         upperLimitPoint.setPosition(position.x, position.y);
         updateLimitLine();
@@ -131,17 +127,14 @@ public class PrismaticJointShape extends JointShape {
 
     private void updateLowerLimitPosition() {
         Vector2 dir = new Vector2(1, 0);
-        GeometryUtils.rotateVectorDeg(dir, directionAngleIndicator.getAngle());
+        GeometryUtils.rotateVectorDeg(dir, directionAngleIndicator.getAngleInDegrees());
         Vector2 position = begin.cpy().add(dir.x * lowerLimit, dir.y * lowerLimit);
         lowerLimitPoint.setPosition(position.x, position.y);
         updateLimitLine();
     }
 
     private void onDirectionIndicatorTurned() {
-        Vector2 direction = new Vector2(1, 0);
-        MathUtils.rotateVectorByRadianAngle(direction, (float) (getDirectionAngle() * 2 * Math.PI / 360));
-        jointDef.localAxis1.set(direction);
-        userInterface.getJointSettingsWindowController().setPrismaticDirectionAngle(getDirectionAngle() / 360);
+        userInterface.getJointSettingsWindowController().setPrismaticDirectionAngle(getDirectionAngleDegrees());
         updateUpperLimitPosition();
         updateLowerLimitPosition();
     }
@@ -153,17 +146,18 @@ public class PrismaticJointShape extends JointShape {
         directionAngleIndicator.detach();
         creationScene.getUserInterface().removeElement(upperLimitPoint);
         creationScene.getUserInterface().removeElement(lowerLimitPoint);
-        if(limitLine!=null)
-        limitLine.detachSelf();
+        if (limitLine != null) {
+            limitLine.detachSelf();
+        }
     }
 
 
-    public float getDirectionAngle() {
-        return directionAngleIndicator.getAngle();
+    public float getDirectionAngleDegrees() {
+        return directionAngleIndicator.getAngleInDegrees();
     }
 
     public void updateDirectionAngleIndicator(float angle) {
-        directionAngleIndicator.turnAround(angle - getDirectionAngle());
+        directionAngleIndicator.turnAround(angle - getDirectionAngleDegrees());
         updateLowerLimitPosition();
         updateUpperLimitPosition();
     }
@@ -180,18 +174,21 @@ public class PrismaticJointShape extends JointShape {
 
 
     @Override
-    public void showIndicators() {
-        super.showIndicators();
-        if(limitLine!=null)
-        limitLine.setVisible(true);
+    public void showLimitsElements() {
+        super.showLimitsElements();
+        if (limitLine != null) {
+            limitLine.setVisible(true);
+        }
         lowerLimitPoint.setVisible(true);
         upperLimitPoint.setVisible(true);
     }
+
     @Override
-    public void hideIndicators() {
-        super.hideIndicators();
-        if(limitLine!=null)
-        limitLine.setVisible(false);
+    public void hideLimitsElements() {
+        super.hideLimitsElements();
+        if (limitLine != null) {
+            limitLine.setVisible(false);
+        }
         lowerLimitPoint.setVisible(false);
         upperLimitPoint.setVisible(false);
         userInterface.getCreationZoneController().onPointImageReleased(lowerLimitPoint);

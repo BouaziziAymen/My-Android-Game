@@ -8,8 +8,8 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 public class Button<C extends Controller> extends ClickableImage<C,ButtonBehavior<C>> {
     private State state = State.NORMAL;
     private int tileIndex;
-    private ButtonType buttonType;
-    private TiledTextureRegion tiledTextureRegion;
+    private final ButtonType buttonType;
+    private final TiledTextureRegion tiledTextureRegion;
 
     public Button(TiledTextureRegion tiledTextureRegion, ButtonBehavior<C> behavior, ButtonType buttonType,boolean createBounds) {
         super(tiledTextureRegion, behavior,createBounds);
@@ -53,6 +53,7 @@ public class Button<C extends Controller> extends ClickableImage<C,ButtonBehavio
         updateTileIndex(state);
         setUpdated(true);
     }
+
     public void setState(State state) {
         this.state = state;
     }

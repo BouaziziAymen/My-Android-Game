@@ -178,7 +178,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController();
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c3_car.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
@@ -363,7 +363,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        if(true) {
+        if(false) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll();
         }
 //GameEntityFactory.getInstance().createTest();
@@ -407,7 +407,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     @Override
     public void onResume() {
         Log.e("lifecycle", "resume");
-        if (userInterface != null) userInterface.resume();
+        if (userInterface != null) {
+            userInterface.resume();
+        }
         // GameEntityFactory.getInstance().createRagdoll();
     }
 

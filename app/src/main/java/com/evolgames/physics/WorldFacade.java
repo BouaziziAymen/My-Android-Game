@@ -896,24 +896,24 @@ public class WorldFacade implements ContactObserver {
         traveler.getMesh().setZIndex(0);
         gameScene.sortChildren();
     }*/
-/*
 
-    public HashSet<JointZoneBlock> findWeldZones(GameEntity penetrator, GameEntity penetrated, Vector2 advanceVector) {
 
-        HashSet<JointZoneBlock> result = new HashSet<>();
+  /*  public HashSet<JointBlock> findWeldZones(GameEntity penetrator, GameEntity penetrated, Vector2 advanceVector) {
+
+        HashSet<JointBlock> result = new HashSet<>();
         Vector2 position1 = penetrator.getBody().getPosition();
         Vector2 position2 = penetrated.getBody().getPosition();
         float angle1 = penetrator.getBody().getAngle();
         float angle2 = penetrated.getBody().getAngle();
 
         ArrayList<ArrayList<ArrayList<Vector2>>> penetratorInterpolatedLists = new ArrayList<>();
-        for (int i = 0; i < penetrator.getBlocks().size(); i++) {
+        for (int i = 0; i < penetrator.getLayerBlocks().size(); i++) {
             ArrayList<ArrayList<Vector2>> bigList = new ArrayList<>();
-            ArrayList<Vector2> penetratorBlockVertices = penetrator.getBlocks().get(i).getVertices();
+            ArrayList<Vector2> penetratorBlockVertices = penetrator.getLayerBlocks().get(i).getVertices();
             ArrayList<Vector2> interpolated = GameEntityTransformation.interpolate(position1.cpy().add(advanceVector), angle1, position2, angle2, penetratorBlockVertices);
             for (Vector2 v : interpolated) v.mul(32f);
             bigList.add(interpolated);
-            for (int j = 0; j < penetrated.getBlocks().size() - 1; j++) {
+            for (int j = 0; j < penetrated.getLayerBlocks().size() - 1; j++) {
                 ArrayList<Vector2> copy = new ArrayList<>();
                 for (int k = 0; k < penetratorBlockVertices.size(); k++) {
                     copy.add(penetratorBlockVertices.get(k).cpy());
@@ -927,8 +927,8 @@ public class WorldFacade implements ContactObserver {
         for (int i = 0; i < penetratorInterpolatedLists.size(); i++) {
             ArrayList<ArrayList<Vector2>> bigList = penetratorInterpolatedLists.get(i);
             //  GameScene.plotter.drawPolygon(bigList.get(0),Color.RED);
-            for (int j = 0; j < penetrated.getBlocks().size(); j++) {
-                ArrayList<Vector2> path = penetrated.getBlocks().get(j).getVertices();
+            for (int j = 0; j < penetrated.getLayerBlocks().size(); j++) {
+                ArrayList<Vector2> path = penetrated.getLayerBlocks().get(j).getVertices();
                 //    if(i==0)     GameScene.plotter.drawPolygon(path,Color.GREEN);
                 ArrayList<Vector2> overlapZone1 = BlockUtils.applyClip(bigList.get(j), path);
                 if (overlapZone1 != null) {
@@ -954,8 +954,8 @@ public class WorldFacade implements ContactObserver {
             }
         }
         return result;
-    }
-*/
+    }*/
+
 
     private void computeShatterImpact(Contact contact, float impulse, GameEntity entity1, GameEntity entity2) {
 

@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -19,7 +20,6 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
@@ -37,7 +37,6 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class JointSettingsWindowController extends OneLevelSectionedAdvancedWindowController<JointOptionWindow, SimplePrimary<?>, SimpleSecondary<?>> {
-    private final NumericValidator revoluteReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator revoluteLowerAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator revoluteUpperAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator revoluteMotorSpeedValidator = new NumericValidator(true, true, -120f, 120f, 3, 2);
@@ -45,17 +44,15 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private final NumericValidator prismaticLowerLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator prismaticUpperLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator prismaticDirectionAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private final NumericValidator prismaticReferenceAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
+    private JointWindowController jointWindowController;
     DecimalFormat format = new DecimalFormat("##.##");
     @SuppressWarnings("unused")
     DecimalFormat format2 = new DecimalFormat("###.##");
     private ToolModel toolModel;
     private JointModel jointModel;
     private TextField<JointSettingsWindowController> prismaticDirectionAngleTextField;
-    private TextField<JointSettingsWindowController> prismaticReferenceAngleTextField;
     private TextField<JointSettingsWindowController> revoluteUpperAngleTextField;
     private TextField<JointSettingsWindowController> revoluteLowerAngleTextField;
-    private TextField<JointSettingsWindowController> revoluteReferenceAngleTextField;
     private JointDef copyJointDef;
     private TextField<JointSettingsWindowController> prismaticLowerLimitTextField;
     private TextField<JointSettingsWindowController> prismaticUpperLimitTextField;
@@ -107,9 +104,32 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         if (simplePrimary.getPrimaryKey() == 1 || simplePrimary.getPrimaryKey() == 2) {
             int key = simplePrimary.getPrimaryKey();
             window.getLayout().getSectionByKey(key == 1 ? 2 : 1).setActive(false);
-            ((ButtonWithText<?>) window.getLayout().getSectionByKey(key == 1 ? 2 : 1).getPrimary().getMain()).updateState(Button.State.NORMAL);
+            ((ButtonWithText<?>) window.getLayout().getSectionByKey(key == 1 ? 2 : 1).getPrimary().getMain()).release();
 
             updateLayout();
+        }
+    }
+
+    public void selectBodyFields() {
+        if(jointModel.getBodyModel1()!=null) {
+            for (int i = 0; i < window.getLayout().getSecondariesSize(1); i++) {
+                SimpleSecondary<ButtonWithText<?>> secondary = (SimpleSecondary<ButtonWithText<?>>) window.getLayout().getSecondaryByIndex(1, i);
+                if (secondary.getSecondaryKey() == jointModel.getBodyModel1().getBodyId()) {
+                    secondary.getMain().click();
+                } else {
+                    secondary.getMain().release();
+                }
+            }
+        }
+        if(jointModel.getBodyModel2()!=null) {
+            for (int i = 0; i < window.getLayout().getSecondariesSize(2); i++) {
+                SimpleSecondary<ButtonWithText<?>> secondary = (SimpleSecondary<ButtonWithText<?>>) window.getLayout().getSecondaryByIndex(2, i);
+                if (secondary.getSecondaryKey() == jointModel.getBodyModel2().getBodyId()) {
+                    secondary.getMain().click();
+                } else {
+                    secondary.getMain().release();
+                }
+            }
         }
     }
 
@@ -129,7 +149,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
             ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(1, i, bodyButton);
+            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(1, bodyModel.getBodyId(), bodyButton);
             window.addSecondary(bodyField);
             bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
                 @Override
@@ -147,7 +167,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
             ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2, i, bodyButton);
+            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2,bodyModel.getBodyId(), bodyButton);
             window.addSecondary(bodyField);
             bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
                 @Override
@@ -166,10 +186,12 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
     private void onFirstBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyModel.deselect();
+        bodyField.getMain().release();
     }
 
     private void onSecondBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyModel.deselect();
+        bodyField.getMain().release();
     }
 
     public void onUpdated() {
@@ -177,50 +199,60 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     private void onFirstBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body1Field) {
-        if(jointModel.getBodyModel2()==bodyModel){
-            ((ButtonWithText<?>)body1Field.getMain()).updateState(Button.State.NORMAL);
+        if (jointModel.getBodyModel2() == bodyModel) {
+            ((ButtonWithText<?>) body1Field.getMain()).release();
             return;
         }
         super.onSecondaryButtonClicked(body1Field);
+        ((ButtonWithText<?>) body1Field.getMain()).click();
         int size = window.getLayout().getSecondariesSize(1);
         for (int i = 0; i < size; i++) {
             SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(1, i);
             if (body1Field != other) {
                 Element main = other.getMain();
                 if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                    ((ButtonWithText<?>) main).release();
                 }
             }
         }
-        if(jointModel.getBodyModel1()!=null)jointModel.getBodyModel1().deselect();
+        if (jointModel.getBodyModel1() != null){
+            jointModel.getBodyModel1().deselect();
+        }
         jointModel.setBodyModel1(bodyModel);
-        bodyModel.select(false);
+        bodyModel.select();
         toolModel.getBodies().forEach(bm -> {
-            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
+            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()){
+                bm.deselect();
+            }
         });
     }
 
     private void onSecondBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body2Field) {
-       if(jointModel.getBodyModel1()==bodyModel){
-           ((ButtonWithText<?>)body2Field.getMain()).updateState(Button.State.NORMAL);
-           return;
-       }
+        if (jointModel.getBodyModel1() == bodyModel) {
+            ((ButtonWithText<?>) body2Field.getMain()).release();
+            return;
+        }
         super.onSecondaryButtonClicked(body2Field);
+        ((ButtonWithText<?>) body2Field.getMain()).click();
         int size = window.getLayout().getSecondariesSize(2);
         for (int i = 0; i < size; i++) {
             SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(2, i);
             if (body2Field != other) {
                 Element main = other.getMain();
                 if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                    ((ButtonWithText<?>) main).release();
                 }
             }
         }
-        if(jointModel.getBodyModel2()!=null)jointModel.getBodyModel2().deselect();
+        if (jointModel.getBodyModel2() != null) {
+            jointModel.getBodyModel2().deselect();
+        }
         jointModel.setBodyModel2(bodyModel);
-        bodyModel.select(false);
+        bodyModel.select();
         toolModel.getBodies().forEach(bm -> {
-            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) bm.deselect();
+            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) {
+                bm.deselect();
+            }
         });
     }
 
@@ -233,7 +265,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         //add the bodyA and bodyB elements
         resetLayout();
         this.jointModel = jointModel;
-
+        selectBodyFields();
         if (jointModel.getJointType() == JointDef.JointType.RevoluteJoint) {
             RevoluteJointDef jointDef = (RevoluteJointDef) jointModel.getJointDef();
             RevoluteJointShape revoluteJointShape = (RevoluteJointShape) jointModel.getJointShape();
@@ -246,14 +278,14 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 @Override
                 public void informControllerButtonClicked() {
                     jointDef.enableLimit = true;
-                    revoluteJointShape.showIndicators();
+                    revoluteJointShape.showLimitsElements();
                     onPrimaryButtonClicked(revoluteLimitsField);
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
                     jointDef.enableLimit = false;
-                    revoluteJointShape.hideIndicators();
+                    revoluteJointShape.hideLimitsElements();
                     onPrimaryButtonReleased(revoluteLimitsField);
                 }
             });
@@ -277,35 +309,9 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             SimpleSecondary<TitledTextField<JointSettingsWindowController>> lowerAngleElement = new SimpleSecondary<>(3, 0, lowerAngleField);
             window.addSecondary(lowerAngleElement);
             revoluteLowerAngleTextField.getBehavior().setReleaseAction(() -> {
-                float referenceAngle = revoluteJointShape.getReferenceAngle() * MathUtils.degreesToRadians;
                 float rawValue = Float.parseFloat(revoluteLowerAngleTextField.getTextString());
-                jointDef.lowerAngle = (float) (rawValue * 2 * Math.PI) + referenceAngle;
+                jointDef.lowerAngle = (float) (rawValue * 2 * Math.PI);
                 revoluteJointShape.updateLowerAngleIndicator((float) (jointDef.lowerAngle / (2 * Math.PI) * 360));
-            });
-
-
-            TitledTextField<JointSettingsWindowController> referenceAngleField = new TitledTextField<>("Reference Angle:", 6, 5, 85);
-            revoluteReferenceAngleTextField = referenceAngleField.getAttachment();
-
-            revoluteReferenceAngleTextField.setBehavior(new TextFieldBehavior<JointSettingsWindowController>(this, revoluteReferenceAngleTextField, Keyboard.KeyboardType.Numeric, revoluteReferenceAngleValidator, true) {
-                @Override
-                protected void informControllerTextFieldTapped() {
-                    JointSettingsWindowController.super.onTextFieldTapped(revoluteReferenceAngleTextField);
-                }
-
-                @Override
-                protected void informControllerTextFieldReleased() {
-                    JointSettingsWindowController.super.onTextFieldReleased(revoluteReferenceAngleTextField);
-                }
-            });
-
-
-            SimpleSecondary<TitledTextField<JointSettingsWindowController>> referenceAngleElement = new SimpleSecondary<>(3, 0, referenceAngleField);
-            window.addSecondary(referenceAngleElement);
-            revoluteReferenceAngleTextField.getBehavior().setReleaseAction(() -> {
-                float rawValue = Float.parseFloat(revoluteReferenceAngleTextField.getTextString());
-                //jointDef.referenceAngle = (float) (rawValue * 2 * Math.PI);
-                revoluteJointShape.updateReferenceAngleIndicator(rawValue * 360);
             });
 
 
@@ -327,9 +333,8 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             SimpleSecondary<TitledTextField<JointSettingsWindowController>> upperAngleElement = new SimpleSecondary<>(3, 1, upperAngleField);
             window.addSecondary(upperAngleElement);
             revoluteUpperAngleTextField.getBehavior().setReleaseAction(() -> {
-                float referenceAngle = revoluteJointShape.getReferenceAngle() * MathUtils.degreesToRadians;
                 float rawValue = Float.parseFloat(revoluteUpperAngleTextField.getTextString());
-                jointDef.upperAngle = (float) (rawValue * 2 * Math.PI) + referenceAngle;
+                jointDef.upperAngle = (float) (rawValue * 2 * Math.PI);
                 revoluteJointShape.updateUpperAngleIndicator((float) (jointDef.upperAngle / (2 * Math.PI) * 360));
             });
 
@@ -418,39 +423,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             SimplePrimary<TitledTextField<JointSettingsWindowController>> directionAngleElement = new SimplePrimary<>(3, directionAngleField);
             window.addPrimary(directionAngleElement);
             prismaticDirectionAngleTextField.getBehavior().setReleaseAction(() -> {
-                float rawValue = Float.parseFloat(prismaticDirectionAngleTextField.getTextString());
-                float radAngle = (float) (rawValue * 2 * Math.PI);
-                Vector2 u = new Vector2(1, 0);
-                MathUtils.rotateVectorByRadianAngle(u, radAngle);
-                jointDef.localAxis1.set(u.x, u.y);
-                prismaticJointShape.updateDirectionAngleIndicator(rawValue * 360);
-            });
-
-
-            TitledTextField<JointSettingsWindowController> referenceAngleField = new TitledTextField<>("Reference Angle:", 4, 5, 120);
-            prismaticReferenceAngleTextField = referenceAngleField.getAttachment();
-
-            prismaticReferenceAngleTextField.setBehavior(new TextFieldBehavior<JointSettingsWindowController>(this, prismaticReferenceAngleTextField, Keyboard.KeyboardType.Numeric, prismaticReferenceAngleValidator, true) {
-                @Override
-                protected void informControllerTextFieldTapped() {
-                    JointSettingsWindowController.super.onTextFieldTapped(prismaticReferenceAngleTextField);
-                }
-
-                @Override
-                protected void informControllerTextFieldReleased() {
-                    JointSettingsWindowController.super.onTextFieldReleased(prismaticReferenceAngleTextField);
-                }
-            });
-
-            SimplePrimary<TitledTextField<JointSettingsWindowController>> referenceAngleElement = new SimplePrimary<>(4, referenceAngleField);
-            window.addPrimary(referenceAngleElement);
-
-
-            prismaticReferenceAngleTextField.getBehavior().setReleaseAction(() -> {
-                float rawValue = Float.parseFloat(prismaticReferenceAngleTextField.getTextString());
-                jointDef.referenceAngle = (float) (rawValue * 2 * Math.PI);
-
-            });
+                        Vector2 dir = new Vector2(1, 0);
+                        float angle = 360 * Float.parseFloat(prismaticDirectionAngleTextField.getTextString());
+                        GeometryUtils.rotateVectorDeg(dir, angle);
+                        jointDef.localAxis1.set(dir);
+                        prismaticJointShape.updateDirectionAngleIndicator(angle);
+                    }
+            );
 
 
             TitledButton<JointSettingsWindowController> prismaticLimitsButton = new TitledButton<>("Has Limits:", ResourceManager.getInstance().onoffTextureRegion, Button.ButtonType.Selector, 5f);
@@ -461,14 +440,14 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 public void informControllerButtonClicked() {
                     jointDef.enableLimit = true;
                     onPrimaryButtonClicked(prismaticLimitsField);
-                    prismaticJointShape.showIndicators();
+                    prismaticJointShape.showLimitsElements();
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
                     jointDef.enableLimit = false;
                     onPrimaryButtonReleased(prismaticLimitsField);
-                    prismaticJointShape.hideIndicators();
+                    prismaticJointShape.hideLimitsElements();
                 }
             });
 
@@ -592,7 +571,6 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
                 float lowerAngleInRevolutions = (float) (jointShape.getLowerAngleRelative() * MathUtils.degreesToRadians / (2 * Math.PI));
                 float upperAngleInRevolutions = (float) (jointShape.getUpperAngleRelative() * MathUtils.degreesToRadians / (2 * Math.PI));
-                float referenceAngleInRevolutions = (float) (jointShape.getReferenceAngle() * MathUtils.degreesToRadians / (2 * Math.PI));
                 float motorSpeedInRevolutions = (float) (revoluteJointDef.motorSpeed / (2 * Math.PI));
                 float maxTorque = revoluteJointDef.maxMotorTorque;
 
@@ -600,7 +578,6 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 setRevoluteHasLimits(revoluteJointDef.enableLimit);
                 setRevoluteLowerAngle(lowerAngleInRevolutions);
                 setRevoluteUpperAngle(upperAngleInRevolutions);
-                setRevoluteReferenceAngle(referenceAngleInRevolutions);
                 setRevoluteMotorSpeed(motorSpeedInRevolutions);
                 setRevoluteMaxTorque(maxTorque);
                 setRevoluteHasLimits(revoluteJointDef.enableLimit);
@@ -616,11 +593,11 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
                 float lowerLimit = prismaticJointShape.getLowerLimit() / 32f;
                 float upperLimit = prismaticJointShape.getUpperLimit() / 32f;
-                float directionAngleInRevolutions = prismaticJointShape.getDirectionAngle() / 360f;
+                float directionAngleInRevolutions = prismaticJointShape.getDirectionAngleDegrees() / 360f;
                 setPrismaticHasLimits(prismaticJointDef.enableLimit);
                 setPrismaticLowerTranslation(lowerLimit);
                 setPrismaticUpperTranslation(upperLimit);
-                setPrismaticDirectionAngle(directionAngleInRevolutions);
+                setPrismaticDirectionAngle(directionAngleInRevolutions * 360);
                 setPrismaticHasMotor(prismaticJointDef.enableMotor);
                 float motorSpeed = prismaticJointDef.motorSpeed;
                 float maxForce = prismaticJointDef.maxMotorForce;
@@ -673,7 +650,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 copyOfJointDef.enableLimit = prismaticJointDef.enableLimit;
                 copyOfJointDef.enableMotor = prismaticJointDef.enableMotor;
                 copyOfJointDef.lowerTranslation = prismaticJointDef.lowerTranslation;
-                copyOfJointDef.lowerTranslation = prismaticJointDef.upperTranslation;
+                copyOfJointDef.upperTranslation = prismaticJointDef.upperTranslation;
                 copyOfJointDef.motorSpeed = prismaticJointDef.motorSpeed;
                 copyOfJointDef.maxMotorForce = prismaticJointDef.maxMotorForce;
                 copyJointDef = copyOfJointDef;
@@ -693,6 +670,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
     public void onSubmitSettings() {
         closeWindow();
+        jointWindowController.onResume();
     }
 
     public void onCancelSettings() {
@@ -727,25 +705,23 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     public void setRevoluteLowerAngle(float lowerAngle) {
-
+        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
+        revoluteJointDef.lowerAngle = lowerAngle;
         revoluteLowerAngleTextField.getBehavior().setTextValidated(format.format(lowerAngle));
     }
 
     public void setRevoluteUpperAngle(float upperAngle) {
+        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
+        revoluteJointDef.upperAngle = upperAngle;
         revoluteUpperAngleTextField.getBehavior().setTextValidated(format.format(upperAngle));
     }
 
-    public void setRevoluteReferenceAngle(float referenceAngle) {
-        revoluteReferenceAngleTextField.getBehavior().setTextValidated(format.format(referenceAngle));
-    }
-
-    @SuppressWarnings("unused")
-    public void setPrismaticReferenceAngle(float referenceAngle) {
-        prismaticReferenceAngleTextField.getBehavior().setTextValidated(format.format(referenceAngle));
-    }
 
     public void setPrismaticDirectionAngle(float directionAngle) {
         prismaticDirectionAngleTextField.getBehavior().setTextValidated(format.format(directionAngle));
+        Vector2 dir = new Vector2(1, 0);
+        GeometryUtils.rotateVectorDeg(dir, directionAngle);
+        ((PrismaticJointDef) jointModel.getJointDef()).localAxis1.set(dir);
     }
 
     public void setToolModel(ToolModel toolModel) {
@@ -776,5 +752,9 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         prismaticHasMotorField.getMain().getAttachment().updateState(hasMotor ? Button.State.PRESSED : Button.State.NORMAL);
         prismaticHasMotorField.getSection().setActive(hasMotor);
         window.getLayout().updateLayout();
+    }
+
+    public void setJointWindowController(JointWindowController jointWindowController) {
+        this.jointWindowController = jointWindowController;
     }
 }

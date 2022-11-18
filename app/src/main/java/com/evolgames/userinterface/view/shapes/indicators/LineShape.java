@@ -78,7 +78,9 @@ public class LineShape {
     }
 
     public void drawLine() {
-        if (lineStrip != null) lineStrip.detachSelf();
+        if (lineStrip != null){
+            lineStrip.detachSelf();
+        }
         this.lineStrip = new LineStrip(0, 0, 3, 100, ResourceManager.getInstance().vbom);
         creationScene.attachChild(lineStrip);
         lineStrip.setZIndex(2);
@@ -86,6 +88,7 @@ public class LineShape {
         lineStrip.add(begin.x, begin.y);
         lineStrip.add(end.x, end.y);
         lineStrip.setColor(mRed, mGreen, mBlue);
+        lineStrip.setVisible(visible);
     }
 
     protected void onExtremityUpdated() {
@@ -95,7 +98,9 @@ public class LineShape {
     }
 
     public void detach() {
-        if (lineStrip != null) lineStrip.detachSelf();
+        if (lineStrip != null){
+            lineStrip.detachSelf();
+        }
     }
 
     public void updateEnd(float x, float y) {
@@ -117,11 +122,11 @@ public class LineShape {
         this.visible = b;
     }
 
-    public void showIndicators() {
+    public void showLimitsElements() {
         setIndicatorsVisible(true);
     }
 
-    public void hideIndicators() {
+    public void hideLimitsElements() {
         setIndicatorsVisible(false);
     }
 }

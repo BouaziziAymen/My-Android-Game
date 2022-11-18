@@ -9,15 +9,17 @@ import com.evolgames.userinterface.view.basics.Scroller;
 public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout> extends AdvancedWindow<LinearLayoutAdvancedWindowController<?>> {
     protected L layout;
     private Scroller scroller;
-    private Point visibilitySup;
-    private Point visibilityInf;
+    private final Point visibilitySup;
+    private final Point visibilityInf;
+
     public AbstractLinearLayoutAdvancedWindow(float pX, float pY, int rows, int columns, LinearLayoutAdvancedWindowController<?> controller) {
-        this(pX, pY, rows, columns, true,controller);
+        this(pX, pY, rows, columns, true, controller);
     }
-    public AbstractLinearLayoutAdvancedWindow(float pX, float pY, int rows, int columns,boolean hasPadding, LinearLayoutAdvancedWindowController<?> controller) {
-        super(pX, pY, rows, columns, controller,hasPadding);
-        visibilitySup = new Point(0f,rows * TILE_SIDE-rows - 5f);
-        visibilityInf = new Point(0f,5f);
+
+    public AbstractLinearLayoutAdvancedWindow(float pX, float pY, int rows, int columns, boolean hasPadding, LinearLayoutAdvancedWindowController<?> controller) {
+        super(pX, pY, rows, columns, controller, hasPadding);
+        visibilitySup = new Point(0f, rows * TILE_SIDE - rows - 5f);
+        visibilityInf = new Point(0f, 5f);
         addElement(visibilitySup);
         addElement(visibilityInf);
         layout = createLayout();
@@ -52,17 +54,20 @@ public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout>
 
     protected abstract L createLayout();
 
-public float getVisibilityZoneLength(){
-    return getVisibilitySup() - getVisibilityInf();
+    public float getVisibilityZoneLength() {
+        return getVisibilitySup() - getVisibilityInf();
 
-}
-    public void createScroller(){
-    if(mRows<3)throw new UnsupportedOperationException();
-        Scroller scroller = new Scroller(TILE_SIDE*mColumns-Scroller.UPPER_WIDTH/2,getLocalVisibilitySup(), mRows-2,getController(),getVisibilityZoneLength());
-       // setWidth(getWidth()+Scroller.UPPER_WIDTH/2);
+    }
+
+    public void createScroller() {
+        if (mRows < 3) {
+            throw new UnsupportedOperationException();
+        }
+        Scroller scroller = new Scroller(TILE_SIDE * mColumns - Scroller.UPPER_WIDTH / 2, getLocalVisibilitySup(), mRows - 2, getController(), getVisibilityZoneLength());
         setScroller(scroller);
         scroller.setDepth(5);
         addElement(scroller);
+        scroller.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
         scroller.onHeightUpdated(getLayout().getHeight());
     }
 
