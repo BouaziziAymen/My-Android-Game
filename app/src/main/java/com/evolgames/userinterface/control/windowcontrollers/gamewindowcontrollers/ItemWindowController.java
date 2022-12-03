@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
@@ -16,10 +17,13 @@ import java.util.ArrayList;
 
 public class ItemWindowController extends OneLevelGameWindowController<ItemWindow, BodyField, ItemField> {
     private final ProjectileOptionController projectileOptionController;
+    private final OutlineController outlineController;
     private UserInterface userInterface;
+    private BodyModel selectedBodyModel;
 
-    public ItemWindowController(ProjectileOptionController projectileOptionController) {
+    public ItemWindowController(ProjectileOptionController projectileOptionController, OutlineController outlineController) {
         this.projectileOptionController = projectileOptionController;
+        this.outlineController = outlineController;
     }
 
     public void setUserInterface(UserInterface userInterface) {
@@ -72,16 +76,15 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     @Override
     public void onPrimaryButtonClicked(BodyField bodyField) {
         super.onPrimaryButtonClicked(bodyField);
-        if (userInterface.getLayersWindowController().getSelectedBodyModel() != null) {
-            userInterface.getLayersWindowController().getSelectedBodyModel().deselect();
-        }
-        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).select();
+        this.selectedBodyModel = userInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
+        outlineController.onSelectionUpdated(selectedBodyModel,null,null);
     }
 
     @Override
     public void onPrimaryButtonReleased(BodyField bodyField) {
         super.onPrimaryButtonReleased(bodyField);
-        userInterface.getLayersWindowController().getBodyModel(bodyField.getPrimaryKey()).deselect();
+        selectedBodyModel = null;
+        outlineController.onSelectionUpdated(null,null,null);
     }
 
     @Override
@@ -120,7 +123,9 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     @Override
     public void init() {
-        if (userInterface.getToolModel() == null) return;
+        if (userInterface.getToolModel() == null){
+            return;
+        }
         refresh();
     }
 
@@ -210,5 +215,9 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     public void changeItemName(String title, int primaryKey, int secondaryKey) {
         ((ItemField)window.getLayout().getSecondary(primaryKey, secondaryKey)).getControl().setTitle(title);
+    }
+
+    public BodyModel getSelectedBodyModel() {
+        return selectedBodyModel;
     }
 }

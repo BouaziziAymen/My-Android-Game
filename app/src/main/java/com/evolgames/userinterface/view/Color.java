@@ -1,10 +1,10 @@
 package com.evolgames.userinterface.view;
 
 public class Color {
-    private float red;
-    private float green;
-    private float blue;
-    private float opacity;
+    private final float red;
+    private final float green;
+    private final float blue;
+    private final float opacity;
 
     public Color(float red, float green, float blue, float opacity) {
         this.red = red;

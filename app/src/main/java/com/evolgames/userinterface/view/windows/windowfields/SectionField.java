@@ -28,10 +28,6 @@ public class SectionField<C extends AbstractSectionedAdvancedWindowController2> 
             }
         });
 
-
-
-
-
     }
 
 

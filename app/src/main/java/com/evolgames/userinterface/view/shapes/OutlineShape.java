@@ -2,6 +2,7 @@ package com.evolgames.userinterface.view.shapes;
 
 import com.evolgames.userinterface.model.OutlineModel;
 import com.evolgames.userinterface.view.Color;
+import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.basics.Container;
 
@@ -11,7 +12,7 @@ public abstract class OutlineShape<M extends OutlineModel<?>> extends Container 
     protected M outlineModel;
     protected LineLoop lineLoop;
     protected UserInterface userInterface;
-    protected float r = 1f, g = 1f, b = 1f;
+    protected Color lineColor = Colors.white;
 
     public OutlineShape(UserInterface userInterface) {
         this.userInterface = userInterface;
@@ -25,19 +26,20 @@ public abstract class OutlineShape<M extends OutlineModel<?>> extends Container 
         this.outlineModel = outlineModel;
     }
 
-    public void setLineLoopColor(float r, float g, float b) {
+    public void setLineLoopColor(Color color) {
         if (lineLoop != null) {
-            lineLoop.setColor(r, g, b);
+            lineLoop.setColor(color.getRed(),color.getGreen(),color.getBlue());
         }
-        this.r = r;
-        this.g = g;
-        this.b = b;
+        this.lineColor = color;
     }
 
-    public void setLineLoopColor(Color c) {
-        setLineLoopColor(c.getRed(), c.getGreen(), c.getBlue());
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (lineLoop != null) {
+            lineLoop.setVisible(visible);
+        }
     }
-
     public abstract void onModelUpdated();
 
     protected abstract void updateOutlineShape();

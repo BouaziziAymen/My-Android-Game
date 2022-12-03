@@ -14,7 +14,10 @@ import java.util.ArrayList;
 
 public class PointsShape extends OutlineShape<PointsModel<?>> {
     private final ArrayList<ModelPointImage> pointImages;
-    private ReferencePointImage centerPointImage;
+    private ArrayList<ReferencePointImage> centerPointImages = new ArrayList<>();
+    private boolean pointsVisible;
+    private boolean outlineVisible;
+
 
     public PointsShape(UserInterface userInterface) {
         super(userInterface);
@@ -65,7 +68,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         }
         this.lineLoop = new LineLoop(0, 0, 4f, 100, ResourceManager.getInstance().vbom);
         lineLoop.setZIndex(2);
-        lineLoop.setColor(r, g, b);
+        lineLoop.setColor(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
         userInterface.getScene().attachChild(lineLoop);
         userInterface.getScene().sortChildren();
 
@@ -78,20 +81,24 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
             }
         }
 
-        if (points != null)
+        if (points != null) {
             for (Vector2 point : points) {
-
                 lineLoop.add(point.x, point.y);
             }
+        }
 
+        setOutlineVisible(outlineVisible);
+        setPointsVisible(pointsVisible);
+
+        lineLoop.setColor(lineColor.getRed(),lineLoop.getGreen(),lineColor.getBlue());
         setUpdated(true);
     }
 
     @Override
     public void dispose() {
-        if (centerPointImage != null) {
-            userInterface.detachReference(centerPointImage);
-        }
+        centerPointImages.forEach(p-> userInterface.detachReference(p));
+
+
         if (lineLoop != null) {
             lineLoop.detachSelf();
             lineLoop.dispose();
@@ -103,20 +110,26 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
 
 
-    public ReferencePointImage getCenterPointImage() {
-        return centerPointImage;
+    public ArrayList<ReferencePointImage> getCenterPointImages() {
+        return centerPointImages;
     }
 
-    public void addCenterPointImage(ReferencePointImage centerPointImage) {
-        this.centerPointImage = centerPointImage;
+
+    public void setPointsVisible(boolean visible) {
+        pointImages.forEach(e -> e.setVisible(visible));
+        pointsVisible = visible;
     }
+    public void setOutlineVisible(boolean visible) {
+      if(lineLoop!=null){lineLoop.setVisible(visible);}
+      outlineVisible = visible;
+    }
+
 
     @Override
     public void setVisible(boolean visible) {
         pointImages.forEach(e -> e.setVisible(visible));
-        if (lineLoop != null) {
-            lineLoop.setVisible(visible);
-        }
+        setOutlineVisible(visible);
+        outlineVisible = visible;
     }
 
 

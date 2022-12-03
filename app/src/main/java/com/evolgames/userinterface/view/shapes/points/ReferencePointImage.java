@@ -17,6 +17,8 @@ public class ReferencePointImage extends PointImage {
     @Override
     public void onControllerMoved(float dx, float dy) {
         super.onControllerMoved(dx, dy);
-        if(controllerAction!=null)controllerAction.performAction(dx,dy);
+        if(controllerAction!=null){
+            controllerAction.performAction(dx,dy);
+        }
     }
 }

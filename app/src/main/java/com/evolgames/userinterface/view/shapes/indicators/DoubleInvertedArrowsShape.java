@@ -15,7 +15,9 @@ public class DoubleInvertedArrowsShape extends LineShape {
     @Override
     public void updateEnd(float x, float y){
         super.updateEnd(x,y);
-        if (lineStrip != null) lineStrip.detachSelf();
+        if (lineStrip != null){
+            lineStrip.detachSelf();
+        }
         this.lineStrip = new LineStrip(0, 0, 2, 100, ResourceManager.getInstance().vbom);
         lineStrip.setZIndex(2);
         creationScene.sortChildren();

@@ -207,7 +207,9 @@ public abstract class Element implements Comparable<Element> {
     }
 
     public void setVisible(boolean visible) {
-        if (visible != isVisible) setUpdated(true);
+        if (visible != isVisible) {
+            setUpdated(true);
+        }
         isVisible = visible;
     }
 

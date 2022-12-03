@@ -31,15 +31,5 @@ public abstract class OutlineModel<T extends Properties> extends ProperModel<T>{
     public void setSelected(boolean selected) {
         isSelected = selected;
     }
-    public void select() {
-        if (outlineShape != null) {
-            outlineShape.setLineLoopColor(Colors.palette1_light_green);
-        }
-    }
 
-    public void deselect() {
-        if (outlineShape != null) {
-            outlineShape.setLineLoopColor(1, 1, 1);
-        }
-    }
 }

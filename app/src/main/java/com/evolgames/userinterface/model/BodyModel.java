@@ -6,16 +6,12 @@ import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.view.shapes.BodyShape;
-import com.evolgames.userinterface.view.shapes.PointsShape;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public class BodyModel extends OutlineModel<BodyProperties> {
     public static final ArrayList<BodyCategory> allCategories = new ArrayList<>(Arrays.asList(BodyCategory.ARMOR, BodyCategory.MELEE, BodyCategory.PROJECTILE));
@@ -42,15 +38,8 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     }
 
     public void onChildLayerOutlineUpdated(int layerId) {
-       updateOutlinePoints();
-       if(outlineShape!=null) {
-           outlineShape.onModelUpdated();
-       }
     }
-    public void setBodyShape(BodyShape bodyShape) {
-        this.outlineShape = bodyShape;
-        bodyShape.setOutlineModel(this);
-    }
+
 
     public GameEntity getGameEntity() {
         return gameEntity;
@@ -132,12 +121,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     }
 
 
-    public void deselect() {
-        if (getSelectedLayer() != null) {
-            getSelectedLayer().deselect();
-        }
-    }
-
     public LayerModel getSelectedLayer() {
         for (LayerModel layerModel : layers) {
             if (layerModel.isSelected()) {
@@ -168,24 +151,11 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return GeometryUtils.calculateCenter(list);
     }
 
-    public void select() {
-        if (hasSelectedLayer()) {
-            getSelectedLayer().select();
-        }
-    }
-
     @Override
     public void updateOutlinePoints() {
-
-        Object[] list = layers.stream().map(PointsModel::getOutlinePoints).filter(Objects::nonNull).collect(Collectors.toList()).stream().flatMap(Arrays::stream).toArray();
-        Vector2[] vector2s = Arrays.copyOf(list, list.length, Vector2[].class);
-        if(vector2s.length<3){
-            setOutlinePoints(new Vector2[0]);
-        } else {
-            Vector2[] pointsArray = GeometryUtils.hullFinder.findConvexHull(vector2s);
-            setOutlinePoints(pointsArray);
-        }
+        throw new UnsupportedOperationException();
     }
+
 
     public enum BodyCategory {
         PROJECTILE, ARMOR, MELEE;

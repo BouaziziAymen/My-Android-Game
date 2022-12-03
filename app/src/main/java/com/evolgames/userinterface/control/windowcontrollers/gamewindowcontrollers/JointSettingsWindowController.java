@@ -10,7 +10,9 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.userinterface.control.KeyboardController;
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.behaviors.actions.Condition;
 import com.evolgames.userinterface.control.validators.NumericValidator;
@@ -20,16 +22,20 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.Color;
+import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.inputs.Keyboard;
+import com.evolgames.userinterface.view.inputs.Quantity;
 import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.RevoluteJointShape;
 import com.evolgames.userinterface.view.windows.gamewindows.JointOptionWindow;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
+import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
 import java.text.DecimalFormat;
@@ -44,10 +50,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private final NumericValidator prismaticLowerLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator prismaticUpperLimitValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
     private final NumericValidator prismaticDirectionAngleValidator = new NumericValidator(true, true, -100f, 100f, 2, 2);
-    private JointWindowController jointWindowController;
+    private final NumericValidator frequencyValidator = new NumericValidator(false, true, 0.1f, 999f, 3, 1);
+
+    private final OutlineController outlineController;
     DecimalFormat format = new DecimalFormat("##.##");
     @SuppressWarnings("unused")
     DecimalFormat format2 = new DecimalFormat("###.##");
+    private JointWindowController jointWindowController;
     private ToolModel toolModel;
     private JointModel jointModel;
     private TextField<JointSettingsWindowController> prismaticDirectionAngleTextField;
@@ -64,9 +73,14 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private SimplePrimary<TitledButton<JointSettingsWindowController>> prismaticHasMotorField;
     private TextField<JointSettingsWindowController> prismaticSpeedTextField;
     private TextField<JointSettingsWindowController> prismaticMaxForceTextField;
+    private TextField<JointSettingsWindowController> frequencyTextField;
+    private Quantity<JointSettingsWindowController> dampingQuantity;
+    private TextField<JointSettingsWindowController> lengthTextField;
 
-    public JointSettingsWindowController(KeyboardController keyboardController, ToolModel toolModel) {
+
+    public JointSettingsWindowController(KeyboardController keyboardController, OutlineController outlineController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
+        this.outlineController = outlineController;
         this.toolModel = toolModel;
         revoluteLowerAngleValidator.setValidationCondition(new Condition() {
             @Override
@@ -111,7 +125,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     public void selectBodyFields() {
-        if(jointModel.getBodyModel1()!=null) {
+        if (jointModel.getBodyModel1() != null) {
             for (int i = 0; i < window.getLayout().getSecondariesSize(1); i++) {
                 SimpleSecondary<ButtonWithText<?>> secondary = (SimpleSecondary<ButtonWithText<?>>) window.getLayout().getSecondaryByIndex(1, i);
                 if (secondary.getSecondaryKey() == jointModel.getBodyModel1().getBodyId()) {
@@ -121,7 +135,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 }
             }
         }
-        if(jointModel.getBodyModel2()!=null) {
+        if (jointModel.getBodyModel2() != null) {
             for (int i = 0; i < window.getLayout().getSecondariesSize(2); i++) {
                 SimpleSecondary<ButtonWithText<?>> secondary = (SimpleSecondary<ButtonWithText<?>>) window.getLayout().getSecondaryByIndex(2, i);
                 if (secondary.getSecondaryKey() == jointModel.getBodyModel2().getBodyId()) {
@@ -139,9 +153,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             window.getLayout().removePrimary(2);
         }
         SectionField<JointSettingsWindowController> bodyASection = new SectionField<>(1, "BodyA:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        Color bodyAColor = Colors.palette1_joint_a_color;
+        bodyASection.getMain().setTextColor(bodyAColor);
         window.addPrimary(bodyASection);
 
         SectionField<JointSettingsWindowController> bodyBSection = new SectionField<>(2, "BodyB:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        Color bodyBColor = Colors.palette1_joint_b_color;
+        bodyBSection.getMain().setTextColor(bodyBColor);
         window.addPrimary(bodyBSection);
         ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
         bodies.add(0, ToolModel.groundBodyModel);
@@ -167,7 +185,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
             ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2,bodyModel.getBodyId(), bodyButton);
+            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2, bodyModel.getBodyId(), bodyButton);
             window.addSecondary(bodyField);
             bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
                 @Override
@@ -185,13 +203,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     private void onFirstBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
-        bodyModel.deselect();
         bodyField.getMain().release();
+        outlineController.onJointBodySelectionUpdated(null, this.jointModel.getBodyModel2());
     }
 
     private void onSecondBodyButtonReleased(BodyModel bodyModel, SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
-        bodyModel.deselect();
         bodyField.getMain().release();
+        outlineController.onJointBodySelectionUpdated(this.jointModel.getBodyModel1(), null);
     }
 
     public void onUpdated() {
@@ -215,16 +233,8 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 }
             }
         }
-        if (jointModel.getBodyModel1() != null){
-            jointModel.getBodyModel1().deselect();
-        }
         jointModel.setBodyModel1(bodyModel);
-        bodyModel.select();
-        toolModel.getBodies().forEach(bm -> {
-            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()){
-                bm.deselect();
-            }
-        });
+        outlineController.onJointBodySelectionUpdated(this.jointModel.getBodyModel1(), this.jointModel.getBodyModel2());
     }
 
     private void onSecondBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body2Field) {
@@ -244,16 +254,8 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
                 }
             }
         }
-        if (jointModel.getBodyModel2() != null) {
-            jointModel.getBodyModel2().deselect();
-        }
         jointModel.setBodyModel2(bodyModel);
-        bodyModel.select();
-        toolModel.getBodies().forEach(bm -> {
-            if (bm != jointModel.getBodyModel1() && bm != jointModel.getBodyModel2()) {
-                bm.deselect();
-            }
-        });
+        outlineController.onJointBodySelectionUpdated(this.jointModel.getBodyModel1(), this.jointModel.getBodyModel2());
     }
 
     @Override
@@ -398,12 +400,69 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             SimpleSecondary<TitledTextField<JointSettingsWindowController>> torqueElement = new SimpleSecondary<>(4, 1, torqueField);
             window.addSecondary(torqueElement);
         }
+        if (jointModel.getJointType() == JointDef.JointType.DistanceJoint) {
+
+
+            DistanceJointDef jointDef = (DistanceJointDef) jointModel.getJointDef();
+            TitledQuantity<JointSettingsWindowController> titledDampingQuantity = new TitledQuantity<>("Damping:", 10, 1, 5, 76);
+            dampingQuantity = titledDampingQuantity.getAttachment();
+            titledDampingQuantity.getAttachment().setBehavior(new QuantityBehavior<JointSettingsWindowController>(this, titledDampingQuantity.getAttachment()) {
+                @Override
+                public void informControllerQuantityUpdated(Quantity<?> quantity) {
+
+                }
+            });
+            SimplePrimary<TitledQuantity<JointSettingsWindowController>> dampingElement = new SimplePrimary<>(3, titledDampingQuantity);
+            window.addPrimary(dampingElement);
+            dampingQuantity.getBehavior().setChangeAction(()-> jointDef.dampingRatio = dampingQuantity.getRatio());
+
+
+            TitledTextField<JointSettingsWindowController> frequencyField = new TitledTextField<>("Frequency:", 4, 5, 120);
+            frequencyTextField = frequencyField.getAttachment();
+
+            frequencyTextField.setBehavior(new TextFieldBehavior<JointSettingsWindowController>(this, frequencyTextField, Keyboard.KeyboardType.Numeric, frequencyValidator, true) {
+                @Override
+                protected void informControllerTextFieldTapped() {
+                    JointSettingsWindowController.super.onTextFieldTapped(frequencyTextField);
+                }
+
+                @Override
+                protected void informControllerTextFieldReleased() {
+                    JointSettingsWindowController.super.onTextFieldReleased(frequencyTextField);
+                }
+            });
+
+            SimplePrimary<TitledTextField<JointSettingsWindowController>> frequencyElement = new SimplePrimary<>(4, frequencyField);
+            window.addPrimary(frequencyElement);
+            frequencyTextField.getBehavior().setReleaseAction(() -> jointDef.frequencyHz = Float.parseFloat(frequencyTextField.getTextString())
+            );
+//
+            TitledTextField<JointSettingsWindowController> lengthField = new TitledTextField<>("Length:", 4, 5, 120);
+            lengthTextField = lengthField.getAttachment();
+
+            lengthTextField.setBehavior(new TextFieldBehavior<JointSettingsWindowController>(this, lengthTextField, Keyboard.KeyboardType.Numeric, frequencyValidator, true) {
+                @Override
+                protected void informControllerTextFieldTapped() {
+                    JointSettingsWindowController.super.onTextFieldTapped(lengthTextField);
+                }
+
+                @Override
+                protected void informControllerTextFieldReleased() {
+                    JointSettingsWindowController.super.onTextFieldReleased(lengthTextField);
+                }
+            });
+
+            SimplePrimary<TitledTextField<JointSettingsWindowController>> lengthElement = new SimplePrimary<>(5, lengthField);
+            window.addPrimary(lengthElement);
+            lengthTextField.getBehavior().setReleaseAction(() -> jointDef.length = Float.parseFloat(lengthTextField.getTextString())
+            );
+
+
+        }
 
         if (jointModel.getJointType() == JointDef.JointType.PrismaticJoint) {
-
             PrismaticJointDef jointDef = (PrismaticJointDef) jointModel.getJointDef();
             PrismaticJointShape prismaticJointShape = (PrismaticJointShape) jointModel.getJointShape();
-
 
             TitledTextField<JointSettingsWindowController> directionAngleField = new TitledTextField<>("Direction Angle:", 4, 5, 120);
             prismaticDirectionAngleTextField = directionAngleField.getAttachment();
@@ -560,9 +619,8 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
             SimpleSecondary<TitledTextField<JointSettingsWindowController>> forceElement = new SimpleSecondary<>(6, 1, forceField);
             window.addSecondary(forceElement);
 
-
         }
-        //settings the values of the textfields in accordance with the stored values
+        //setting the values of the textfields in accordance with the stored values
         switch (jointModel.getJointType()) {
             case RevoluteJoint:
                 RevoluteJointShape jointShape = (RevoluteJointShape) jointModel.getJointShape();
@@ -606,11 +664,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
                 break;
             case DistanceJoint:
-                copyJointDef = new DistanceJointDef();
+                DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+                performCopyJointDef(distanceJointDef);
+                setDistanceDamping(distanceJointDef.dampingRatio);
+                setDistanceFrequency(distanceJointDef.frequencyHz);
+                setDistanceLength(distanceJointDef.length);
                 break;
         }
-
-
         onUpdated();
     }
 
@@ -703,16 +763,31 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     public void setPrismaticUpperTranslation(float upperTranslation) {
         prismaticUpperLimitTextField.getBehavior().setTextValidated(format.format(upperTranslation));
     }
+    public void setDistanceFrequency(float frequency) {
+        DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+        distanceJointDef.frequencyHz = frequency;
+        frequencyTextField.getBehavior().setTextValidated(format.format(frequency));
+    }
+    public void setDistanceLength(float length) {
+        DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+        distanceJointDef.length = length;
+        lengthTextField.getBehavior().setTextValidated(format.format(length));
+    }
+    public void setDistanceDamping(float damping) {
+        DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
+        distanceJointDef.dampingRatio = damping;
+        dampingQuantity.updateRatio(damping);
+    }
 
-    public void setRevoluteLowerAngle(float lowerAngle) {
+    public void setRevoluteLowerAngle(float lowerAngleInRevolutions) {
         RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-        revoluteJointDef.lowerAngle = lowerAngle;
-        revoluteLowerAngleTextField.getBehavior().setTextValidated(format.format(lowerAngle));
+        revoluteJointDef.lowerAngle = (float) (lowerAngleInRevolutions * 2 * Math.PI);
+        revoluteLowerAngleTextField.getBehavior().setTextValidated(format.format(lowerAngleInRevolutions));
     }
 
     public void setRevoluteUpperAngle(float upperAngle) {
         RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-        revoluteJointDef.upperAngle = upperAngle;
+        revoluteJointDef.upperAngle = (float) (upperAngle * 2 * Math.PI);
         revoluteUpperAngleTextField.getBehavior().setTextValidated(format.format(upperAngle));
     }
 
@@ -756,5 +831,13 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
     public void setJointWindowController(JointWindowController jointWindowController) {
         this.jointWindowController = jointWindowController;
+    }
+
+    public BodyModel getBodyModelA() {
+        return jointModel.getBodyModel1();
+    }
+
+    public BodyModel getBodyModelB() {
+        return jointModel.getBodyModel2();
     }
 }

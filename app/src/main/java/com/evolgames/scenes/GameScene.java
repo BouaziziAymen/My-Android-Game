@@ -40,6 +40,7 @@ import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -175,25 +176,28 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         Color color = new Color(1, 1, 1);
         color.setBlue(0);
         keyboardController = new KeyboardController();
-        LayerWindowController layerWindowController = new LayerWindowController();
+
+        OutlineController outlineController = new OutlineController();
+        LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c3_car.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c3_car22.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
 
-        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, toolModel);
-        JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController);
+        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController,outlineController, toolModel);
+        JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController,outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
-        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, keyboardController);
+
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
 
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
@@ -202,7 +206,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         layerSettingsWindowController.setUserInterface(userInterface);
         bodySettingsWindowController.setUserInterface(userInterface);
         decorationSettingsWindowController.setUserInterface(userInterface);
-
+        outlineController.setUserInterface(userInterface);
         userInterface.bindToolModel(toolModel);
 
         this.attachChild(plotter);

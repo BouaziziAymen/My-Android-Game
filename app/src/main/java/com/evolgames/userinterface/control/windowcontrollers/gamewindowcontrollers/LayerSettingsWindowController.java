@@ -183,6 +183,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         SectionField<LayerSettingsWindowController> propertiesSection = new SectionField<>(3, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(propertiesSection);
+
         TitledTextField<LayerSettingsWindowController> densityField = new TitledTextField<>("Density:", 5, 5, 76);
         densityTextField = densityField.getAttachment();
 
@@ -219,6 +220,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
         SimpleSecondary<TitledQuantity<LayerSettingsWindowController>> bouncinessElement = new SimpleSecondary<>(3, 1, titledBouncinessQuantity);
         window.addSecondary(bouncinessElement);
+        bouncinessQuantity.getBehavior().setChangeAction(()-> layerProperty.setRestitution(bouncinessQuantity.getRatio()));
 
 
         TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity = new TitledQuantity<>("Friction:", 10, 4, 5, 76);
@@ -231,6 +233,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
         SimpleSecondary<TitledQuantity<?>> frictionElement = new SimpleSecondary<>(3, 2, titledFrictionQuantity);
         window.addSecondary(frictionElement);
+        frictionQuantity.getBehavior().setChangeAction(()-> layerProperty.setFriction(frictionQuantity.getRatio()));
+
 
 
         TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Tenacity:", 10, 5, 5, 76);
@@ -243,6 +247,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
         SimpleSecondary<TitledQuantity<?>> tenacityElement = new SimpleSecondary<>(3, 3, titledTenacityQuantity);
         window.addSecondary(tenacityElement);
+        hardnessQuantity.getBehavior().setChangeAction(()-> layerProperty.setTenacity(hardnessQuantity.getRatio()));
+
 
 
         TitledButton<LayerSettingsWindowController> juicyButton = new TitledButton<>

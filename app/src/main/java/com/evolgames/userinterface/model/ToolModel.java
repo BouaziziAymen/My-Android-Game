@@ -309,10 +309,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
 
-    public void resetSelection() {
-        bodies.forEach(BodyModel::deselect);
-    }
-
     public ItemCategory getToolCategory() {
         return toolCategory;
     }
@@ -321,13 +317,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         this.toolCategory = toolCategory;
     }
 
-    public void setLayersOutlinesVisible(boolean b) {
-        for(BodyModel bodyModel:bodies){
-            for(LayerModel layerModel :bodyModel.getLayers()){
-                layerModel.getPointsShape().setVisible(b);
-            }
-        }
-    }
+
 
     public AtomicInteger getBodyCounter() {
         return bodyCounter;
@@ -337,5 +327,13 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return jointCounter;
     }
 
+    public int getSelectedBodyId() {
+        for(BodyModel bodyModel:bodies){
+            if(bodyModel.isSelected()){
+                return bodyModel.getBodyId();
+            }
+        }
+        return -1;
+    }
 }
 

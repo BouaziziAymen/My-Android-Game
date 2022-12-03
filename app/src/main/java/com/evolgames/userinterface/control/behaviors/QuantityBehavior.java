@@ -8,7 +8,7 @@ import com.evolgames.userinterface.view.inputs.Quantity;
 import org.andengine.input.touch.TouchEvent;
 
 public abstract class QuantityBehavior<C extends AdvancedWindowController<?>> extends ErrorClickableBehavior<C> {
-    private Quantity<C> quantity;
+    private final Quantity<C> quantity;
     private boolean touched;
     private int pointerId;
     private Action changeAction;

@@ -12,6 +12,7 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.buttonboardcontrollers.DrawButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.ImageButtonBoardController;
@@ -48,7 +49,6 @@ import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import com.evolgames.userinterface.view.inputs.controllers.MyAnalogOnScreenControl;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
-import com.evolgames.userinterface.view.shapes.BodyShape;
 import com.evolgames.userinterface.view.shapes.CreationZone;
 import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
@@ -99,6 +99,8 @@ public class UserInterface extends Container implements Touchable {
     private final ItemWindow itemWindow;
     private final ItemSaveWindow itemSaveWindow;
     private final CreationZone creationZone;
+    private final OutlineController outlineController;
+    private Screen selectedScreen = Screen.DRAW_SCREEN;
     private final ColorSelectorWindow colorSelector;
     private final OptionsWindowController optionsWindowController;
     private final LayerWindowController layersWindowController;
@@ -162,15 +164,13 @@ public class UserInterface extends Container implements Touchable {
     private ToolModel toolModel;
     private float zoomFactor = 1f;
 
-    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, KeyboardController keyboardController) {
+    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
         this.activity = gameActivity;
         pGameScene.getHud().attachChild(hudBatcher);
         pGameScene.attachChild(sceneBatcher);
 
-
         hudBatcher.setZIndex(1);
         sceneBatcher.setZIndex(1);
-
 
         new Grid(pGameScene);
         this.scene = pGameScene;
@@ -181,6 +181,7 @@ public class UserInterface extends Container implements Touchable {
         this.itemSaveWindowController = itemSaveWindowController;
         this.optionsWindowController = optionsWindowController;
         this.jointsWindowController = jointWindowController;
+        this.outlineController = outlineController;
 
 
         layerWindowController.setUserInterface(this);
@@ -748,8 +749,6 @@ public class UserInterface extends Container implements Touchable {
         this.toolModel = toolModel;
 
         for (BodyModel bodyModel : toolModel.getBodies()) {
-            BodyShape bodyShape = new BodyShape(this);
-            bodyModel.setBodyShape(bodyShape);
             for (LayerModel layerModel : bodyModel.getLayers()) {
                 if (layerModel.getPointsShape() == null) {
                     PointsShape pointsShape = new PointsShape(this);
@@ -834,9 +833,11 @@ public class UserInterface extends Container implements Touchable {
 
         }
         toolModel.updateMesh();
+
         layersWindowController.init();
         itemWindowController.init();
         jointsWindowController.init();
+        outlineController.init();
     }
 
     public CreationZoneController getCreationZoneController() {
@@ -938,11 +939,6 @@ public class UserInterface extends Container implements Touchable {
         return layerSettingsWindowController;
     }
 
-    private void resetLayerSelection() {
-        if (toolModel != null) {
-            toolModel.resetSelection();
-        }
-    }
 
     public void setSaveWindowVisible(boolean b) {
         itemSaveWindow.setVisible(b);
@@ -950,17 +946,14 @@ public class UserInterface extends Container implements Touchable {
 
     public void setLayersWindowVisible(boolean b) {
         layersWindow.setVisible(b);
-        resetLayerSelection();
     }
 
     public void setJointsWindowVisible(boolean b) {
         jointsWindow.setVisible(b);
-        resetLayerSelection();
     }
 
     public void setItemWindowVisible(boolean b) {
         itemWindow.setVisible(b);
-        resetLayerSelection();
     }
 
     public void setDrawButtonBoardVisible(boolean b) {
@@ -987,6 +980,7 @@ public class UserInterface extends Container implements Touchable {
     public void updateOptionsWindow(SettingsType settingsType) {
         optionsWindowController.selectSettingsType(settingsType);
     }
+
 
     public void onAddImageButtonClicked() {
         activity.startLoadPictureIntent();
@@ -1084,4 +1078,12 @@ public class UserInterface extends Container implements Touchable {
         return layersWindowController;
     }
 
+    public Screen getSelectedScreen() {
+        return selectedScreen;
+    }
+
+    public void setSelectedScreen(Screen selectedScreen) {
+        this.selectedScreen = selectedScreen;
+        outlineController.onScreenChanged(selectedScreen);
+    }
 }

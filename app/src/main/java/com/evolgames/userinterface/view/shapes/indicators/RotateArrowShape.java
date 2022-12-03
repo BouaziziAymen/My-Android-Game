@@ -1,62 +1,56 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.PointsModel;
+import com.evolgames.userinterface.view.shapes.indicators.strategy.TransformationStrategy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RotateArrowShape extends FixedLengthArrowShape {
-    private final ArrayList<Vector2> points;
-    private final Vector2 center;
-    private final PointsModel<?> shapePointsModel;
+
+    private final TransformationStrategy transformationStrategy;
+    private final Vector2 rotationCenter;
+
     public RotateArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene, float length) {
         super(begin, scene, length);
-        points = new ArrayList<>();
-        for(Vector2 p: shapePointsModel.getModelPoints()) {
+        ArrayList<Vector2> points = new ArrayList<>();
+        for (Vector2 p : shapePointsModel.getModelPoints()) {
             points.add(p.cpy());
         }
 
-            center = begin.cpy();
+        rotationCenter = begin.cpy();
 
-        Log.e("mother",""+center);
-        this.shapePointsModel = shapePointsModel;
-        if(shapePointsModel.getCenter()!=null)centerOfShape= shapePointsModel.getCenter().cpy();
+        this.transformationStrategy = new TransformationStrategy(shapePointsModel, points) {
+            @Override
+            protected boolean testPoints(List<Vector2> transformedPoints) {
+                return shapePointsModel.test(transformedPoints);
+            }
+
+            @Override
+            protected List<Vector2> transformPoints(List<Vector2> originalPoints) {
+                ArrayList<Vector2> newPoints = new ArrayList<>();
+                float angle = (float) Math.atan2(direction.y, direction.x);
+
+                for (Vector2 p : originalPoints) {
+                    Vector2 pp = p.cpy();
+                    GeometryUtils.rotate(pp, angle, rotationCenter);
+                    newPoints.add(pp);
+                }
+                return newPoints;
+            }
+        };
     }
-    Vector2 centerOfShape;
+
 
     @Override
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
-        float angle = (float) Math.atan2(direction.y, direction.x);
-        ArrayList<Vector2> newPoints = new ArrayList<>();
 
-        if(shapePointsModel.getCenter()!=null) {
-            Vector2 center = centerOfShape.cpy();
-            GeometryUtils.rotate(center, angle,this.center);
-            shapePointsModel.setCenter(center);
-            shapePointsModel.getPointsShape().getCenterPointImage().setPosition(center.x,center.y);
-        }
-
-
-        for (Vector2 p : points) {
-            Vector2 pp = p.cpy();
-            GeometryUtils.rotate(pp, angle,center);
-            newPoints.add(pp);
-        }
-
-        if(!shapePointsModel.test(newPoints))return;
-
-
-        shapePointsModel.getPointsShape().detachPointImages();
-        shapePointsModel.setPoints(newPoints);
-        shapePointsModel.getPointsShape().onModelUpdated();
+        transformationStrategy.transform();
     }
-
-
 
 }
 

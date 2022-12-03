@@ -163,4 +163,5 @@ public class LayerModel extends PointsModel<LayerProperties> {
         super.updateOutlinePoints();
         bodyModel.onChildLayerOutlineUpdated(layerId);
     }
+
 }

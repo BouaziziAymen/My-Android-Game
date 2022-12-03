@@ -411,17 +411,14 @@ public class CreationZoneController extends Controller {
 
         if (action == CreationAction.ADD_POLYGON) {
 
-            PointsModel layerPointsModel = layerWindowController.getSelectedPointsModel();
-            if(layerPointsModel==null)return;
+            PointsModel<?> selectedPointsModel = layerWindowController.getSelectedPointsModel();
+            if(selectedPointsModel==null){
+                return;
+            }
             Vector2 center = new Vector2(x, y);
 
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon);
-            Vector2 centerCopy = Vector2Pool.obtain(center);
-            ReferencePointImage centerPointImage = new ReferencePointImage(centerCopy.cpy());
-
-            layerPointsModel.getPointsShape().addCenterPointImage(centerPointImage);
-            layerPointsModel.setCenter(centerCopy);
-            userInterface.addReferencePoint(centerPointImage);
+            selectedPointsModel.addReferencePoint(center,userInterface);
             creationZone.setTouchLocked(true);
             return;
         }
@@ -438,20 +435,14 @@ public class CreationZoneController extends Controller {
                 DecorationField1 decoration = layerWindowController.onLayerAddDecorationClicked(layerWindowController.getSelectedLayerField());
                 shapePointsModel = layerWindowController.getDecorationModel(decoration.getPrimaryKey(), decoration.getSecondaryKey(), decoration.getTertiaryKey());
             }
-            if (selectedLayerPointsModel.getCenter() != null) {
-                shapePointsModel.setCenter(selectedLayerPointsModel.getCenter().cpy());
-                ReferencePointImage centerPointImage = new ReferencePointImage(shapePointsModel.getCenter().cpy());
-                shapePointsModel.getPointsShape().addCenterPointImage(centerPointImage);
 
-                userInterface.addReferencePoint(centerPointImage);
-            }
             indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, points, gameScene);
-
-
             creationZone.setTouchLocked(true);
 
         }
     }
+
+
 
     public void onZoneActionMove(float x, float y) {
         if (action == CreationAction.NONE) {

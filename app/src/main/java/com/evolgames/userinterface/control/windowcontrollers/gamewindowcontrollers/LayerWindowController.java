@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.TwoLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
@@ -7,7 +8,6 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
-import com.evolgames.userinterface.view.shapes.BodyShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.windows.gamewindows.LayersWindow;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 public class LayerWindowController extends TwoLevelSectionedAdvancedWindowController<LayersWindow, BodyField1, LayerField1, DecorationField1> {
 
+    private final OutlineController outlineController;
     private UserInterface userInterface;
     private BodyField1 selectedBodyField;
     private LayerField1 selectedLayerField;
@@ -26,6 +27,9 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     private LayerSettingsWindowController layerSettingsWindowController;
     private DecorationSettingsWindowController decorationSettingsWindowController;
 
+    public LayerWindowController(OutlineController outlineController) {
+        this.outlineController = outlineController;
+    }
 
     public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
@@ -33,11 +37,16 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
 
     @Override
     public void init() {
-        if (userInterface.getToolModel() == null) return;
+        if (userInterface.getToolModel() == null) {
+            return;
+        }
         ArrayList<BodyModel> bodies = userInterface.getToolModel().getBodies();
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
-            window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
+            BodyField1 bodyField1 = window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
+           if(bodyModel.getBodyId()==0){
+               selectedBodyField = bodyField1;
+           }
             ArrayList<LayerModel> layers = bodyModel.getLayers();
             for (int j = 0; j < layers.size(); j++) {
                 LayerModel layerModel = layers.get(j);
@@ -75,19 +84,28 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public BodyModel getSelectedBodyModel() {
-        if (selectedBodyField == null) return null;
+        if (selectedBodyField == null) {
+            return null;
+        }
         return userInterface.getToolModel().getBodyModelById(selectedBodyField.getPrimaryKey());
     }
-
+    public LayerModel getSelectedLayerModel() {
+        if (selectedLayerField == null||selectedBodyField==null) {
+           return null;
+        }
+        return userInterface.getToolModel().getLayerModelById(selectedLayerField.getPrimaryKey(), selectedLayerField.getSecondaryKey());
+    }
+    public DecorationModel getSelectedDecorationModel() {
+        if (selectedDecorationField == null) {
+            return null;
+        }
+        return userInterface.getToolModel().getDecorationModelById(selectedDecorationField.getPrimaryKey(), selectedDecorationField.getSecondaryKey(),selectedDecorationField.getTertiaryKey());
+    }
 
     @Override
     public void onPrimaryButtonClicked(BodyField1 bodyField) {
         super.onPrimaryButtonClicked(bodyField);
         selectedBodyField = bodyField;
-        if (getSelectedBodyModel() != null) {
-            getSelectedBodyModel().select();
-        }
-
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
             BodyField1 otherBodyField = window.getLayout().getPrimaryByIndex(i);
             if (otherBodyField != null)
@@ -101,21 +119,21 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
                     }
                 }
         }
+        outlineController.onSelectionUpdated(getSelectedBodyModel(),getSelectedLayerModel(),getSelectedDecorationModel());
     }
 
     @Override
     public void onPrimaryButtonReleased(BodyField1 bodyField) {
         super.onPrimaryButtonReleased(bodyField);
-        getBodyModel(bodyField.getPrimaryKey()).deselect();
-        if (selectedBodyField == bodyField) selectedBodyField = null;
+        if (selectedBodyField == bodyField){
+            selectedBodyField = null;
+        }
+        outlineController.onSelectionUpdated(getSelectedBodyModel(), getSelectedLayerModel(), getSelectedDecorationModel());
     }
 
     @Override
     public void onSecondaryButtonClicked(LayerField1 layerField) {
         super.onSecondaryButtonClicked(layerField);
-        if (getSelectedLayerModel() != null) {
-            getSelectedLayerModel().deselect();
-        }
         selectedLayerField = layerField;
 
         for (int i = 0; i < window.getLayout().getSecondariesSize(layerField.getPrimaryKey()); i++) {
@@ -126,26 +144,25 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
             }
         }
         layerField.getLayerControl().click();
-        getSelectedLayerModel().select();
-
         layerSettingsWindowController.onModelUpdated(getSelectedLayerModel());
+        outlineController.onSelectionUpdated(getSelectedBodyModel(), getSelectedLayerModel(), getSelectedDecorationModel());
     }
 
     @Override
     public void onSecondaryButtonReleased(LayerField1 layerField) {
         super.onSecondaryButtonReleased(layerField);
-        if (getSelectedLayerModel() != null) {
-            getSelectedLayerModel().deselect();
-        }
+
         if (selectedLayerField == layerField) {
             selectedLayerField = null;
         }
 
         layerField.getLayerControl().release();
+        outlineController.onSelectionUpdated(getSelectedBodyModel(), getSelectedLayerModel(), getSelectedDecorationModel());
     }
 
     @Override
     public void onTertiaryButtonClicked(DecorationField1 decorationField) {
+        super.onTertiaryButtonClicked(decorationField);
         this.selectedDecorationField = decorationField;
         for (int i = 0; i < window.getLayout().getTertiariesSize(decorationField.getPrimaryKey(), decorationField.getSecondaryKey()); i++) {
             DecorationField1 otherDecorationField = window.getLayout().getTertiaryByIndex(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), i);
@@ -154,19 +171,18 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
                 onTertiaryButtonReleased(otherDecorationField);
             }
         }
+        outlineController.onSelectionUpdated(getSelectedBodyModel(), getSelectedLayerModel(), getSelectedDecorationModel());
     }
 
     @Override
-    public void onTertiaryButtonReleased(DecorationField1 tertiary) {
-        super.onTertiaryButtonReleased(tertiary);
-
-        if (selectedDecorationField == tertiary) {
-            DecorationModel decorationModel = userInterface.getToolModel().getDecorationModelById(tertiary.getPrimaryKey(), tertiary.getSecondaryKey(), tertiary.getTertiaryKey());
-            decorationModel.deselect();
-            PointsModel selected = getSelectedPointsModel();
-            if (selected != null) selected.select();
+    public void onTertiaryButtonReleased(DecorationField1 decorationField) {
+        super.onTertiaryButtonReleased(decorationField);
+        if (selectedDecorationField == decorationField) {
+            DecorationModel decorationModel = userInterface.getToolModel().getDecorationModelById(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
+            PointsModel<?> selected = getSelectedPointsModel();
             selectedDecorationField = null;
         }
+        outlineController.onSelectionUpdated(getSelectedBodyModel(), getSelectedLayerModel(), getSelectedDecorationModel());
     }
 
     public void onAddBodyButtonClicked() {
@@ -174,8 +190,6 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         selectedBodyField = window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), false);
         ItemWindowController itemWindowController = userInterface.getItemWindowController();
         itemWindowController.onBodyCreated(bodyModel);
-        BodyShape bodyShape = new BodyShape(userInterface);
-        bodyModel.setBodyShape(bodyShape);
         userInterface.getJointSettingsWindowController().updateBodySelectionFields();
         this.onPrimaryAdded(selectedBodyField);
         selectedBodyField.getBodyControl().updateState(Button.State.PRESSED);
@@ -188,7 +202,6 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         PointsShape pointsShape = new PointsShape(userInterface);
         userInterface.addElement(pointsShape);
         layerModel.setPointsShape(pointsShape);
-        layerModel.select();
         resetUpDownArrows(bodyField.getPrimaryKey());
         selectedLayerField.getLayerControl().updateState(Button.State.PRESSED);
         onSecondaryAdded(selectedLayerField);
@@ -362,11 +375,7 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         decorationSettingsWindowController.onModelUpdated(model);
     }
 
-    private LayerModel getSelectedLayerModel() {
-        if (selectedLayerField != null)
-            return userInterface.getToolModel().getLayerModelById(selectedLayerField.getPrimaryKey(), selectedLayerField.getSecondaryKey());
-        return null;
-    }
+
 
     public BodyModel getBodyModel(int primaryKey) {
 
@@ -424,4 +433,6 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         }
         return null;
     }
+
+
 }
