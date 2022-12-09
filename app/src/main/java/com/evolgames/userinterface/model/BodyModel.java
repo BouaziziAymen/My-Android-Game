@@ -146,7 +146,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     public Vector2 getCenter() {
         List<List<Vector2>> list = new ArrayList<>();
         for (LayerModel layerModel : layers) {
-            list.add(layerModel.getModelPoints());
+            list.add(layerModel.getPoints());
         }
         return GeometryUtils.calculateCenter(list);
     }

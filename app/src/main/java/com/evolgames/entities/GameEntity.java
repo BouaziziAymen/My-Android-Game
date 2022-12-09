@@ -157,13 +157,10 @@ public class GameEntity extends EntityWithBody {
         this.name = name;
     }
 
-    public ArrayList<LayerBlock> getLayerBlocks() {
+    public ArrayList<LayerBlock> getBlocks() {
         return layerBlocks;
     }
 
-    public void setLayerBlocks(ArrayList<LayerBlock> layerBlocks) {
-        this.layerBlocks = layerBlocks;
-    }
 
 
     public void onStep(float timeStep) {
@@ -328,7 +325,7 @@ public class GameEntity extends EntityWithBody {
         }
 
 
-        for (LayerBlock b : getLayerBlocks()) {
+        for (LayerBlock b : getBlocks()) {
                 ArrayList<? extends Block<?, ?>> associatedBlocks = b.getAssociatedBlocks();
                 for (Block<?, ?> decorationBlock : associatedBlocks) {
                     if (decorationBlock instanceof StainBlock) {

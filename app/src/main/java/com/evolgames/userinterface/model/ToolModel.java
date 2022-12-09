@@ -167,7 +167,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         GameScene.plotter2.detachChildren();
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) continue;
-            Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getModelPoints());
+            Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getPoints());
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
             MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(center.x, center.y, 0, blocks);
             scene.attachChild(mesh);
@@ -186,7 +186,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             }
             List<List<Vector2>> list = new ArrayList<>();
             for (LayerModel layerModel : bodyModel.getLayers()) {
-                list.add(layerModel.getModelPoints());
+                list.add(layerModel.getPoints());
             }
 
             Vector2 center = GeometryUtils.calculateCenter(list);

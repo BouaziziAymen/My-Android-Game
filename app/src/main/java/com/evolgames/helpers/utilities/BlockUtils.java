@@ -334,7 +334,7 @@ public class BlockUtils {
         float infY1 = Float.MAX_VALUE;
         float supY1 = -Float.MAX_VALUE;
 
-        for (LayerBlock b : gameEntity.getLayerBlocks()) {
+        for (LayerBlock b : gameEntity.getBlocks()) {
             for (Vector2 p : b.getBodyVertices()) {
                 float dx = p.x - localCenter.x;
                 float dy = p.y - localCenter.y;
@@ -391,7 +391,7 @@ public class BlockUtils {
         return null;
     }
 
-    public static ArrayList<ArrayList<LayerBlock>> getDivisionGroups(ArrayList<LayerBlock> blocks) {
+    public static ArrayList<ArrayList<LayerBlock>> getDivisionGroups(List<LayerBlock> blocks) {
         int N = blocks.size();
         UnionFind unionFinder = new UnionFind(N);
         for (int i = 0; i < blocks.size(); i++) {
@@ -403,7 +403,9 @@ public class BlockUtils {
 
             }
         }
-        for (LayerBlock b : blocks) b.setPolarity(Polarity.NEUTRAL);
+        for (LayerBlock b : blocks){
+            b.setPolarity(Polarity.NEUTRAL);
+        }
 
         unionFinder.compute();
 
@@ -589,11 +591,14 @@ public class BlockUtils {
         return (points.size() >= 3);
     }
 
-    public static ShatterData shatterData(LayerBlock block, Vector2 localImpactPoint) {
-        if (block.getBlockGrid() == null) return null;
+    public static ShatterData applyCut(LayerBlock block, Vector2 localImpactPoint) {
+        if (block.getBlockGrid() == null){
+            return null;
+        }
         CoatingBlock coatingCenter = block.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
-        //RANDOM ROTATION
-        if (coatingCenter == null) return null;
+        if (coatingCenter == null){
+            return null;
+        }
 
         Vector2 u = BlockUtils.randomlyRotatedUnitVector();
         Vector2 center = coatingCenter.getPosition();
@@ -871,7 +876,7 @@ public class BlockUtils {
     public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel) {
         List<List<Vector2>> list = new ArrayList<>();
         for (LayerModel layerModel : bodyModel.getLayers()) {
-            list.add(layerModel.getModelPoints());
+            list.add(layerModel.getPoints());
         }
         Vector2 center = GeometryUtils.calculateCenter(list);
         return createBlocks(bodyModel, center);

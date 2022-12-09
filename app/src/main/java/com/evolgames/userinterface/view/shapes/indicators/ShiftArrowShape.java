@@ -17,26 +17,30 @@ public class ShiftArrowShape extends LineShape {
 
     public ShiftArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene) {
         super(begin, scene);
-        ArrayList<Vector2> points = new ArrayList<>();
-        for (Vector2 p : shapePointsModel.getModelPoints()) {
-            points.add(p.cpy());
-        }
-        transformationStrategy = new TransformationStrategy(shapePointsModel, points) {
+        transformationStrategy = new TransformationStrategy(shapePointsModel) {
             @Override
             protected boolean testPoints(List<Vector2> transformedPoints) {
                 return shapePointsModel.test(transformedPoints);
             }
 
             @Override
-            protected List<Vector2> transformPoints(List<Vector2> originalPoints) {
+            protected List<Vector2> transformPoints() {
+               return transform(originalPoints);
+            }
+            private List<Vector2> transform(List<Vector2> points) {
                 Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
                 ArrayList<Vector2> newPoints = new ArrayList<>();
-                for (int i = 0; i < originalPoints.size(); i++) {
-                    float ix = originalPoints.get(i).x + displacement.x;
-                    float iy = originalPoints.get(i).y + displacement.y;
+                for (int i = 0; i < points.size(); i++) {
+                    float ix = points.get(i).x + displacement.x;
+                    float iy = points.get(i).y + displacement.y;
                     newPoints.add(Vector2Pool.obtain(ix, iy));
                 }
                 return newPoints;
+            }
+
+            @Override
+            protected List<Vector2> transformReferencePoints() {
+                return transform(originalReferencePoints);
             }
         };
 

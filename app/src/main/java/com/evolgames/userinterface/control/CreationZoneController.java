@@ -40,10 +40,9 @@ import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField1;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
 
-import org.andengine.extension.physics.box2d.util.Vector2Pool;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CreationZoneController extends Controller {
 
@@ -185,7 +184,9 @@ public class CreationZoneController extends Controller {
 
     public void onZoneActionUp(float x, float y) {
 
-        if (upLocked) return;
+        if (upLocked) {
+            return;
+        }
 
         if (action == CreationAction.ADD_POINT && layerWindowController.getSelectedPointsModel() != null) {
             PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
@@ -195,12 +196,12 @@ public class CreationZoneController extends Controller {
             }
         }
         if (action == CreationAction.PROJECTILE) {
-            if (indicatorArrow != null && ((ProjectileShape) indicatorArrow).isAborted()) {
+            if (indicatorArrow != null && indicatorArrow.isAborted()) {
                 itemWindowController.onTargetAborted(((ProjectileShape) indicatorArrow).getModel());
             }
         }
         if (action == CreationAction.HAND) {
-            if (indicatorArrow != null && ((HandShape) indicatorArrow).isAborted()) {
+            if (indicatorArrow != null && indicatorArrow.isAborted()) {
                 itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
             }
         }
@@ -209,7 +210,7 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.REMOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
             float distance = 32;
             Vector2 point = null;
-            for (Vector2 p : layerWindowController.getSelectedPointsModel().getModelPoints()) {
+            for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
                 float d = p.dst(x, y);
                 if (d < distance) {
                     point = p;
@@ -233,10 +234,11 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.MOVE_POINT || action == CreationAction.MOVE_JOINT_POINT || action == CreationAction.MOVE_TOOL_POINT) {
             ArrayList<PointImage> movablePointImages;
             if (action == CreationAction.MOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
-                if (!isReferenceEnabled())
+                if (!isReferenceEnabled()) {
                     movablePointImages = layerWindowController.getSelectedPointsModel().getPointsShape().getMovablePointImages();
-                else
+                } else {
                     movablePointImages = new ArrayList<>(creationZone.referencePointImageArrayList);
+                }
             } else if (action == CreationAction.MOVE_TOOL_POINT) {
                 System.out.println("MOVE_TOOL");
                 movablePointImages = new ArrayList<>();
@@ -268,7 +270,7 @@ public class CreationZoneController extends Controller {
                 }
             }
             if (point != null) {
-                onPointImageReleased(point);
+                onPointImageReleased(selectedPointImage);
                 selectPointImage(point);
             }
         }
@@ -290,22 +292,29 @@ public class CreationZoneController extends Controller {
 
 
     }
+    public void createReferencePoint(){
+        if(selectedPointImage!=null){
+        if(selectedPointImage.getPointsShape()!=null){
+          if(selectedPointImage.getPointsShape().getReferencePointImage(selectedPointImage.getPoint())==null) {
+              selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
+          }
+        }
+        }
+    }
 
     public void selectPointImage(PointImage pointImage) {
         pointImage.doubleSelect();
-        if (selectedPointImage != null)
-            selectedPointImage.undoDoubleSelect();
         selectedPointImage = pointImage;
         gameScene.setMovable(pointImage);
     }
 
     public void onPointImageReleased(PointImage pointImage) {
-        if (pointImage == selectedPointImage) {
+        if (selectedPointImage!=null) {
+            selectedPointImage.undoDoubleSelect();
             selectedPointImage.release();
             gameScene.setMovable(null);
             selectedPointImage = null;
         }
-
     }
 
     public int getNumberOfPointsForPolygon() {
@@ -369,7 +378,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (action == CreationAction.DISTANCE) {
-            indicatorArrow = new DistanceJointShape(gameScene,new Vector2(x, y));
+            indicatorArrow = new DistanceJointShape(gameScene, new Vector2(x, y));
             JointModel jointModel = userInterface.getToolModel().createJointModel((JointShape) indicatorArrow, new DistanceJointDef());
             jointWindowController.onJointAdded(jointModel);
             indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
@@ -397,36 +406,34 @@ public class CreationZoneController extends Controller {
         }
 
 
-        if (action == CreationAction.SHIFT) {
+        if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
             indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), gameScene);
             creationZone.setTouchLocked(true);
             return;
         }
-        if (action == CreationAction.ROTATE) {
+        if (action == CreationAction.ROTATE && layerWindowController.getSelectedPointsModel() != null) {
             Log.e("indicator", "rotate");
             indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), gameScene, 64);
             creationZone.setTouchLocked(true);
             return;
         }
 
-        if (action == CreationAction.ADD_POLYGON) {
+        if (action == CreationAction.ADD_POLYGON && layerWindowController.getSelectedPointsModel() != null) {
 
             PointsModel<?> selectedPointsModel = layerWindowController.getSelectedPointsModel();
-            if(selectedPointsModel==null){
+            if (selectedPointsModel == null) {
                 return;
             }
             Vector2 center = new Vector2(x, y);
 
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), gameScene, numberOfPointsForPolygon);
-            selectedPointsModel.addReferencePoint(center,userInterface);
+            selectedPointsModel.getReferencePoints().add(center);
             creationZone.setTouchLocked(true);
             return;
         }
 
-        if (action == CreationAction.MIRROR) {
+        if (action == CreationAction.MIRROR && layerWindowController.getSelectedPointsModel() != null) {
             PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedPointsModel();
-            List<Vector2> points = selectedLayerPointsModel.getModelPoints();
-
             PointsModel<?> shapePointsModel;
             if (selectedLayerPointsModel instanceof LayerModel) {
                 LayerField1 layer = layerWindowController.onAddLayerButtonCLicked(layerWindowController.getSelectedBodyField());
@@ -436,12 +443,12 @@ public class CreationZoneController extends Controller {
                 shapePointsModel = layerWindowController.getDecorationModel(decoration.getPrimaryKey(), decoration.getSecondaryKey(), decoration.getTertiaryKey());
             }
 
-            indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, points, gameScene);
+            shapePointsModel.setPoints(selectedLayerPointsModel.getPoints().stream().map(Vector2::new).collect(Collectors.toList()));
+            shapePointsModel.setReferencePoints(selectedLayerPointsModel.getReferencePoints().stream().map(Vector2::new).collect(Collectors.toList()));
+            indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, gameScene);
             creationZone.setTouchLocked(true);
-
         }
     }
-
 
 
     public void onZoneActionMove(float x, float y) {

@@ -121,7 +121,7 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
                     @Override
                     public void informControllerButtonReleased() {
-
+                        creationZoneController.createReferencePoint();
                     }
                 });
                 SimplePrimary<ButtonWithText<OptionsWindowController>> referenceElement = new SimplePrimary<>(1, createReferenceButton);

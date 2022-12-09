@@ -59,7 +59,7 @@ public class PolygonEmitter extends BaseParticleEmitter {
     }
 
     private void setupData() {
-        for (LayerBlock b : gameEntity.getLayerBlocks()) {
+        for (LayerBlock b : gameEntity.getBlocks()) {
                 coatingBlocks.addAll(b.getBlockGrid().getCoatingBlocks());
         }
         int numberOfVertices = 0;

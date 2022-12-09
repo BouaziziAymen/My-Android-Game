@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class PointsShape extends OutlineShape<PointsModel<?>> {
     private final ArrayList<ModelPointImage> pointImages;
-    private ArrayList<ReferencePointImage> centerPointImages = new ArrayList<>();
+    private final ArrayList<ReferencePointImage> referencePointImages;
     private boolean pointsVisible;
     private boolean outlineVisible;
 
@@ -22,12 +22,21 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     public PointsShape(UserInterface userInterface) {
         super(userInterface);
         pointImages = new ArrayList<>();
+        referencePointImages = new ArrayList<>();
         setDepth(-10);
         setScale(0.5f / userInterface.getZoomFactor(), 0.5f / userInterface.getZoomFactor());
     }
 
     public ModelPointImage getPointImage(Vector2 p) {
         for (ModelPointImage pointImage : pointImages) {
+            if (pointImage.getPoint() == p) {
+                return pointImage;
+            }
+        }
+        return null;
+    }
+    public ReferencePointImage getReferencePointImage(Vector2 p) {
+        for (ReferencePointImage pointImage : referencePointImages) {
             if (pointImage.getPoint() == p) {
                 return pointImage;
             }
@@ -44,7 +53,12 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         userInterface.getToolModel().updateMesh();
         updateOutlineShape();
     }
-
+    public void detachReferencePointImages() {
+        for (ReferencePointImage pointImage : referencePointImages) {
+            userInterface.detachReference(pointImage);
+        }
+        referencePointImages.clear();
+    }
     public void detachPointImages() {
         for (ModelPointImage pointImage : pointImages) {
             removeElement(pointImage);
@@ -72,14 +86,8 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         userInterface.getScene().attachChild(lineLoop);
         userInterface.getScene().sortChildren();
 
-        for (Vector2 point : outlineModel.getModelPoints()) {
-            if (getPointImage(point) == null) {
-                ModelPointImage pointImage = new ModelPointImage(this, ResourceManager.getInstance().diskTextureRegion, point);
-                pointImage.setScale(scaleX, scaleY);
-                addElement(pointImage);
-                this.pointImages.add(pointImage);
-            }
-        }
+        updatePointImages();
+        updateReferencePointImages();
 
         if (points != null) {
             for (Vector2 point : points) {
@@ -94,10 +102,34 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         setUpdated(true);
     }
 
+    private void updatePointImages() {
+        for (Vector2 point : outlineModel.getPoints()) {
+            if (getPointImage(point) == null) {
+                ModelPointImage pointImage = new ModelPointImage(this, ResourceManager.getInstance().diskTextureRegion, point);
+                pointImage.setScale(scaleX, scaleY);
+                addElement(pointImage);
+                pointImage.setPointsShape(this);
+                this.pointImages.add(pointImage);
+            }
+        }
+    }
+    public void createReferencePointImage(Vector2 center) {
+        ReferencePointImage centerPointImage = new ReferencePointImage(center);
+        referencePointImages.add(centerPointImage);
+        centerPointImage.setScale(scaleX,scaleY);
+        userInterface.addReferencePoint(centerPointImage);
+    }
+    private void updateReferencePointImages() {
+        for (Vector2 point : outlineModel.getReferencePoints()) {
+            if (getReferencePointImage(point) == null) {
+                createReferencePointImage(point);
+            }
+        }
+    }
+
     @Override
     public void dispose() {
-        centerPointImages.forEach(p-> userInterface.detachReference(p));
-
+        referencePointImages.forEach(p-> userInterface.detachReference(p));
 
         if (lineLoop != null) {
             lineLoop.detachSelf();
@@ -110,18 +142,13 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
 
 
-    public ArrayList<ReferencePointImage> getCenterPointImages() {
-        return centerPointImages;
-    }
-
-
     public void setPointsVisible(boolean visible) {
         pointImages.forEach(e -> e.setVisible(visible));
         pointsVisible = visible;
     }
     public void setOutlineVisible(boolean visible) {
-      if(lineLoop!=null){lineLoop.setVisible(visible);}
-      outlineVisible = visible;
+        if(lineLoop!=null){lineLoop.setVisible(visible);}
+        outlineVisible = visible;
     }
 
 

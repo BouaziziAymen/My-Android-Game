@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.EntityWithBody;
 import com.evolgames.entities.GameEntity;
@@ -83,7 +82,7 @@ public class GameEntityFactory {
         entity.setVisible(false);
         Invoker.addBodyCreationCommand(entity, bodyType, bodyInit);
 
-        for (LayerBlock block : entity.getLayerBlocks()) {
+        for (LayerBlock block : entity.getBlocks()) {
             LayerProperties properties = block.getProperties();
             createJuiceSources(entity, block, properties);
         }
@@ -147,11 +146,8 @@ public class GameEntityFactory {
         int splinterId = 0;
 //TODO solve issue here
         for (ArrayList<LayerBlock> group : splinters) {
-            List<List<Vector2>> list = new ArrayList<>();
-            for (LayerBlock b : group) {
-                list.add(b.getVertices());
-            }
-            Vector2 translationToOrigin = GeometryUtils.calculateCenter(list);
+
+            Vector2 translationToOrigin = GeometryUtils.calculateCenter(group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
 
             for (LayerBlock b : group) {
                 //translate block

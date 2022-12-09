@@ -16,30 +16,33 @@ public class RotateArrowShape extends FixedLengthArrowShape {
 
     public RotateArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, GameScene scene, float length) {
         super(begin, scene, length);
-        ArrayList<Vector2> points = new ArrayList<>();
-        for (Vector2 p : shapePointsModel.getModelPoints()) {
-            points.add(p.cpy());
-        }
 
         rotationCenter = begin.cpy();
 
-        this.transformationStrategy = new TransformationStrategy(shapePointsModel, points) {
+        this.transformationStrategy = new TransformationStrategy(shapePointsModel) {
             @Override
             protected boolean testPoints(List<Vector2> transformedPoints) {
                 return shapePointsModel.test(transformedPoints);
             }
 
             @Override
-            protected List<Vector2> transformPoints(List<Vector2> originalPoints) {
+            protected List<Vector2> transformPoints() {
+                return transform(originalPoints);
+            }
+            private List<Vector2> transform(List<Vector2> points) {
                 ArrayList<Vector2> newPoints = new ArrayList<>();
                 float angle = (float) Math.atan2(direction.y, direction.x);
-
-                for (Vector2 p : originalPoints) {
+                for (Vector2 p : points) {
                     Vector2 pp = p.cpy();
                     GeometryUtils.rotate(pp, angle, rotationCenter);
                     newPoints.add(pp);
                 }
                 return newPoints;
+            }
+
+            @Override
+            protected List<Vector2> transformReferencePoints() {
+                return transform(originalReferencePoints);
             }
         };
     }

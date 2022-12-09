@@ -57,6 +57,7 @@ public class PersistenceCaretaker {
     public static final String DECORATION_TAG = "decoration";
     public static final String PROPERTIES_TAG = "properties";
     public static final String VERTICES_TAG = "vertices";
+    public static final String REF_VERTICES_TAG = "refVertices";
     public static final String OUTLINE_TAG = "outline";
     public static final String BODY_TAG = "body";
     public static final String PROJECTILES_TAG = "projectiles";
@@ -235,21 +236,29 @@ public class PersistenceCaretaker {
         element.setIdAttribute(ID, true);
         element.setAttribute(NAME, pointsModel.getModelName());
         //save vertices
-        List<Vector2> points = pointsModel.getModelPoints();
+        List<Vector2> points = pointsModel.getPoints();
 
         Element verticesElement = document.createElement(VERTICES_TAG);
         for (Vector2 v : points) {
             Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);
             verticesElement.appendChild(vectorElement);
         }
+        element.appendChild(verticesElement);
+
         Vector2[] outline = pointsModel.getOutlinePoints();
         Element outlineElement = document.createElement(OUTLINE_TAG);
         for (Vector2 v : outline) {
             Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);
             outlineElement.appendChild(vectorElement);
         }
-        element.appendChild(verticesElement);
         element.appendChild(outlineElement);
+
+        Element referenceVerticesElement = document.createElement(REF_VERTICES_TAG);
+        for (Vector2 v : pointsModel.getReferencePoints()) {
+            Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);
+            referenceVerticesElement.appendChild(vectorElement);
+        }
+        element.appendChild(referenceVerticesElement);
 
         Element propertiesElement = createPropertiesElement(document, pointsModel.getProperties());
         element.appendChild(propertiesElement);
@@ -371,12 +380,14 @@ public class PersistenceCaretaker {
 
         List<JointModel> jointModels = new ArrayList<>();
         Element jointsElement = (Element) toolElement.getElementsByTagName(JOINTS_TAG).item(0);
-        for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
-            Element jointElement = (Element) jointsElement.getChildNodes().item(i);
-            JointModel jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement,bodyModels);
-            jointModels.add(jointModel);
+        if(jointsElement!=null) {
+            for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
+                Element jointElement = (Element) jointsElement.getChildNodes().item(i);
+                JointModel jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
+                jointModels.add(jointModel);
+            }
+            toolModel.getJoints().addAll(jointModels);
         }
-        toolModel.getJoints().addAll(jointModels);
         this.initializeCounters(toolModel);
         return toolModel;
     }
@@ -384,12 +395,14 @@ public class PersistenceCaretaker {
     LayerModel readLayerModel(Element element, BodyModel bodyModel, int layerId) {
         Element verticesElement = (Element) element.getElementsByTagName(VERTICES_TAG).item(0);
         Element outlineElement = (Element) element.getElementsByTagName(OUTLINE_TAG).item(0);
-
+        Element refVerticesElement = (Element) element.getElementsByTagName(REF_VERTICES_TAG).item(0);
         List<Vector2> vertices = readVectors(verticesElement);
         List<Vector2> outlinePoints = readVectors(outlineElement);
+        List<Vector2> referencePoints = readVectors(refVerticesElement);
 
         LayerModel layerModel = new LayerModel(bodyModel.getBodyId(), layerId, element.getAttribute(NAME), new LayerProperties(), bodyModel);
         layerModel.setPoints(vertices);
+        layerModel.setReferencePoints(referencePoints);
         Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
         LayerProperties layerProperties = loadProperties(propertiesElement, LayerProperties.class);
         layerModel.setProperties(layerProperties);

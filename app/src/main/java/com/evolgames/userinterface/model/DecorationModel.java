@@ -34,7 +34,7 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
     public boolean test(Vector2 movedPoint, float dx, float dy) {
         boolean inside = Utils.PointInPolygon(movedPoint.x + dx, movedPoint.y + dy, layerModel.getOutlinePoints());
         if (!inside) return false;
-        for (Vector2 p : getModelPoints())
+        for (Vector2 p : getPoints())
             if (p != movedPoint)
                 if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES)
                     return false;
@@ -56,7 +56,7 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
 
         boolean inside = Utils.PointInPolygon(x, y, layerModel.getOutlinePoints());
         if (!inside) return false;
-        for (Vector2 p : getModelPoints())
+        for (Vector2 p : getPoints())
             if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) return false;
         return true;
     }

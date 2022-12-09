@@ -45,7 +45,7 @@ public abstract class LiquidParticleWrapper {
         emitter = createEmitter(data);
         IEntityFactory<Entity> ief = LiquidParticlePool::obtain;
 
-        this.particleSystem = new BatchedSpriteParticleSystemWithCustomSpawnAction(ief, this, emitter, lowerRate*10, higherRate*10, 20 * higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
+        this.particleSystem = new BatchedSpriteParticleSystemWithCustomSpawnAction(ief, this, emitter, lowerRate, higherRate, higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
 
         this.velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
         this.particleSystem.addParticleInitializer(velocityInitializer);
@@ -53,7 +53,7 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(color.getRed(), color.getGreen(), color.getBlue()));
         this.particleSystem.addParticleInitializer(new AlphaParticleInitializer<>(color.getAlpha()));
         GravityParticleInitializer<Entity> gravity = new GravityParticleInitializer<>();
-        gravity.setAccelerationY(-32 * 10);
+        gravity.setAccelerationY(-3 * 10 * 32);
 
         this.particleSystem.addParticleInitializer(gravity);
         particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 1f, 0f));
@@ -85,7 +85,7 @@ public abstract class LiquidParticleWrapper {
         }
         timer++;
 
-        if(timer<40){
+        if(timer<1.5*60){
             if(splashVelocity !=null) {
                 float percentage = EaseStrongInOut.getInstance().getPercentage(timer,20);
                 velocityInitializer.getIndependentVelocity().set(splashVelocity.x *percentage, splashVelocity.y *percentage);

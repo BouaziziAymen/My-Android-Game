@@ -3,22 +3,19 @@ package com.evolgames.userinterface.model;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.PointsShape;
-import com.evolgames.userinterface.view.shapes.points.PointImage;
-import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class PointsModel<T extends Properties> extends OutlineModel<T> {
 
     private List<Vector2> points;
+    private List<Vector2> referencePoints;
 
     PointsModel(String name) {
         super(name);
         this.points = new ArrayList<>();
+        this.referencePoints = new ArrayList<>();
     }
 
 
@@ -37,7 +34,7 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
         outlineShape.setOutlineModel(this);
     }
 
-    public List<Vector2> getModelPoints() {
+    public List<Vector2> getPoints() {
         return points;
     }
 
@@ -65,13 +62,10 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
     }
 
     public List<Vector2> getReferencePoints() {
-        return getPointsShape().getCenterPointImages().stream().map(PointImage::getPoint).collect(Collectors.toList());
+        return referencePoints;
     }
 
-    public void addReferencePoint(Vector2 center, UserInterface userInterface) {
-        ReferencePointImage centerPointImage = new ReferencePointImage(center);
-       getPointsShape().getCenterPointImages().add(centerPointImage);
-       userInterface.addReferencePoint(centerPointImage);
+    public void setReferencePoints(List<Vector2> newReferencePoints) {
+        this.referencePoints = newReferencePoints;
     }
-
 }

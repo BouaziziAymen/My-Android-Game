@@ -34,7 +34,7 @@ public class FireParticleWrapperWithPolygonEmitter {
         this.emitter = new PolygonEmitter(entity);
 
         float area = 0;
-        for (LayerBlock b : entity.getLayerBlocks()){
+        for (LayerBlock b : entity.getBlocks()){
                 area += b.getBlockArea();
         }
         float ratio = area / (32f * 32f);

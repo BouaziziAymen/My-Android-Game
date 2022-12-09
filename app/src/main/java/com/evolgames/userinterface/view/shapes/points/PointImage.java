@@ -4,11 +4,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.inputs.controllers.Movable;
+import com.evolgames.userinterface.view.shapes.PointsShape;
 
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 
 public class PointImage extends SceneImage implements Movable {
+    private PointsShape pointsShape;
     protected Vector2 point;
     protected boolean selected;
 
@@ -89,5 +91,13 @@ public class PointImage extends SceneImage implements Movable {
     public void updateZoom(float pZoomFactor) {
         super.updateZoom(pZoomFactor);
         this.setScale(1f/pZoomFactor,1f/pZoomFactor);
+    }
+
+    public PointsShape getPointsShape() {
+        return pointsShape;
+    }
+
+    public void setPointsShape(PointsShape pointsShape) {
+        this.pointsShape = pointsShape;
     }
 }

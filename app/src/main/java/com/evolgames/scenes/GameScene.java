@@ -1,5 +1,7 @@
 package com.evolgames.scenes;
 
+import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
+
 import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
@@ -181,14 +183,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c3_car22.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_issue.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
 
-        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController,outlineController, toolModel);
-        JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController,outlineController);
+        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, outlineController, toolModel);
+        JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
         ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
@@ -296,12 +298,12 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             //this.attachChild(fireParticlePolygon.getParticleSystem());
             //Grid grid = new Grid(this);
             if (false)
-                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getLayerBlocks()) {
-                        Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-                        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
-                        for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
-                            g.setTemperature(10000);
-                        }
+                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+                    Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
+                    layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
+                    for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
+                        g.setTemperature(10000);
+                    }
                 }
 //gameGroup.getMesh().onColorsUpdated();
         }
@@ -332,7 +334,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
 
-      vertices2.add(Vector2Pool.obtain(-400, 0));
+        vertices2.add(Vector2Pool.obtain(-400, 0));
         vertices2.add(Vector2Pool.obtain(-400, 20));
         vertices2.add(Vector2Pool.obtain(1200, 20));
         vertices2.add(Vector2Pool.obtain(1200, 0));
@@ -354,20 +356,20 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         groundFilter.maskBits = 1 + 2 + 4 + 8 + 16 + 32;
 
         LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
-       //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
+        //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
 
         blocks2.clear();
 //        blocks2.add(block1);
         blocks2.add(block3);
-       // blocks2.add(block4);
+        // blocks2.add(block4);
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400/32f,0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
+        groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        if(false) {
+        if (false) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll();
         }
 //GameEntityFactory.getInstance().createTest();
@@ -421,19 +423,24 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     protected void onManagedUpdate(float pSecondsElapsed) {
         sortChildren();
         userInterface.step();
-        for (Hand hand : hands.values()){
+        for (Hand hand : hands.values()) {
             hand.onUpdate();
         }
-        if (false&&step%10==0) {
-          //  GameEntityFactory.getInstance().createBullet();
+        Vector2 v = new Vector2();
 
-        }
+            getWorldFacade().performFlux(new Vector2(440 / 32f, 0), (layerBlock, body, direction, start, end, angle) -> {
+                float length2 = v.set(end.x-start.x,end.y-start.y).len2();
+                float impulseValue = (float) (10*angle / (2 * Math.PI) / length2);
+                body.applyLinearImpulse(0*impulseValue,1*impulseValue, end.x, end.y);
+            }, false);
+
+
 
         if (!pause) {
             super.onManagedUpdate(pSecondsElapsed);
         }
 
-       // if (false && step == 60) GameEntityFactory.getInstance().createLinks();
+        // if (false && step == 60) GameEntityFactory.getInstance().createLinks();
 
         step++;
 
@@ -474,7 +481,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
 
 
-
         if (false)
             if (step % 5 == 0) {
 
@@ -506,7 +512,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 // pause = true;
                 Log.e("createproj", "" + step);
                 Vector2 u = new Vector2(0, -1);
-                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4)*0;
+                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4) * 0;
 
                 GeometryUtils.rotateVectorRad(u, angle);
                 ArrayList<Vector2> vertices1 = new ArrayList<>();
@@ -521,8 +527,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 ArrayList<LayerBlock> blocks = new ArrayList<>();
                 blocks.add(block1);
 
-                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(),u.mul(60)),400 / 32f, 480 / 32f, (float) (angle + Math.PI)),true);
-                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI),bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
+                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
                 GameGroup proj = new GameGroup(gameEntity);
                 attachChild(gameEntity.getMesh());
                 gameEntity.setProjectile(true);
@@ -597,7 +603,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                         if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                             if (!hands.containsKey(pointerID)) {
                                 hand = new Hand(worldFacade);
-                                hands.put(pointerID,hand );
+                                hands.put(pointerID, hand);
                             }
 
                             Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
@@ -643,13 +649,13 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 else action = PlayerAction.Drag;
             }
 
-        Vector2Pool.recycle(touch);
+        recycle(touch);
         return false;
     }
 
     public void onDestroyMouseJoint(MouseJoint j) {
-            Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
-            hand.ifPresent(value -> value.setMouseJoint(null));
+        Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
+        hand.ifPresent(value -> value.setMouseJoint(null));
     }
 
     public void setMouseJoint(MouseJoint joint, int hangedPointerId) {

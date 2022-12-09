@@ -41,7 +41,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     @Override
     public String toString() {
-        return "Layer:" + bodyId + "/" + getLayerId() + "/" + Arrays.toString(getModelPoints().toArray());
+        return "Layer:" + bodyId + "/" + getLayerId() + "/" + Arrays.toString(getPoints().toArray());
     }
 
     public int getBodyId() {
@@ -78,7 +78,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
     @Override
     public boolean test(Vector2 movedPoint, float dx, float dy) {
 
-        for (Vector2 p : getModelPoints())
+        for (Vector2 p : getPoints())
             if (p != movedPoint)
                 if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES)
                     return false;
@@ -87,7 +87,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         movedPoint.set(x + dx, y + dy);
         boolean test = true;
         for (DecorationModel decorationModel : decorations) {
-            if (!decorationModel.test(decorationModel.getModelPoints())) {
+            if (!decorationModel.test(decorationModel.getPoints())) {
                 test = false;
                 break;
             }
@@ -98,7 +98,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     @Override
     public boolean test(float x, float y) {
-        for (Vector2 p : getModelPoints()) {
+        for (Vector2 p : getPoints()) {
             if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) {
                 return false;
             }
@@ -112,7 +112,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         Vector2[] originalPoints = getOutlinePoints();
         setOutlinePoints(newPoints.toArray(new Vector2[0]));
         for (DecorationModel decorationModel : decorations) {
-            if (!decorationModel.test(decorationModel.getModelPoints())) {
+            if (!decorationModel.test(decorationModel.getPoints())) {
                 setOutlinePoints(originalPoints);
                 return false;
             }

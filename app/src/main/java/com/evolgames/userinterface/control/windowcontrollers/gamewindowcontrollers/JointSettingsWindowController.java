@@ -834,10 +834,16 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     public BodyModel getBodyModelA() {
+        if(jointModel==null){
+            return null;
+        }
         return jointModel.getBodyModel1();
     }
 
     public BodyModel getBodyModelB() {
+        if(jointModel==null){
+            return null;
+        }
         return jointModel.getBodyModel2();
     }
 }

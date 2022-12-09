@@ -23,7 +23,7 @@ public class BodyCreationCommand extends Command {
 
     @Override
     protected void run() {
-        Body body = BodyFactory.getInstance().createBody(entity.getLayerBlocks(), type);
+        Body body = BodyFactory.getInstance().createBody(entity.getBlocks(), type);
         PhysicsConnector physicsConnector = new PhysicsConnector(entity.getMesh(), body);
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
         physicsWorld.registerPhysicsConnector(physicsConnector);
