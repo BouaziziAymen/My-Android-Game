@@ -13,7 +13,7 @@ import java.nio.ByteOrder;
 public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBufferObject {
 
 
-    private Color   color = new Color(0, 0, 0);
+    private final Color   color = new Color(0, 0, 0);
 
     MosaicMeshVertexBufferObject(VertexBufferObjectManager pVertexBufferObjectManager, float[] pBufferData, int pVertexCount, DrawType pDrawType, boolean pAutoDispose, VertexBufferObjectAttributes pVertexBufferObjectAttributes) {
         super(pVertexBufferObjectManager, pBufferData, pVertexCount, pDrawType, pAutoDispose, pVertexBufferObjectAttributes);
@@ -28,7 +28,9 @@ public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBuffe
         int[] layersVertexCount = mosaicMesh.getLayersVertexCount();
         int length = layersVertexCount.length;
         for (int i = 0; i < length; i++) {
-            if(mosaicMesh.getColors()[i]==null)continue;
+            if(mosaicMesh.getColors()[i]==null){
+                continue;
+            }
             color.set(mosaicMesh.getColors()[i]);
             color.setAlphaChecking(color.getAlpha() * mosaicMesh.getAlpha());
             packedColor = color.getABGRPackedFloat();

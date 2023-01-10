@@ -56,14 +56,14 @@ public class GameActivity extends BaseGameActivity {
 
 
     @Override
-    public Engine onCreateEngine(EngineOptions pEngineOptions){
+    public Engine onCreateEngine(EngineOptions pEngineOptions) {
         DisplayMetrics metrics = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        GameActivity.SCREEN_HEIGHT =  metrics.heightPixels;
-        GameActivity.SCREEN_WIDTH =	metrics.widthPixels;
+        GameActivity.SCREEN_HEIGHT = metrics.heightPixels;
+        GameActivity.SCREEN_WIDTH = metrics.widthPixels;
 
-        engine = new FixedStepEngine(pEngineOptions,60);
+        engine = new FixedStepEngine(pEngineOptions, 60);
         engine.setTouchController(new MultiTouchController());
         engine.registerUpdateHandler(new FPSLogger());
 
@@ -74,13 +74,12 @@ public class GameActivity extends BaseGameActivity {
     }
 
 
-
     @Override
     public EngineOptions onCreateEngineOptions() {
-        this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH,GameActivity.CAMERA_HEIGHT,1000f,1000f,5f);
+        this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000f, 1000f, 5f);
         this.camera.setZClippingPlanes(-1, 1);
-        this.secondCamera = new SmoothCamera( -100,0,100,100,1000f,1000f,5f);
-        this.secondCamera.setZClippingPlanes(-1,1);
+        this.secondCamera = new SmoothCamera(-100, 0, 100, 100, 1000f, 1000f, 5f);
+        this.secondCamera.setZClippingPlanes(-1, 1);
 
 
         IResolutionPolicy resolutionPolicy = new
@@ -113,7 +112,7 @@ public class GameActivity extends BaseGameActivity {
             IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback)
             throws IOException {
         ResourceManager.getInstance().create(this, this.getEngine(),
-                camera,secondCamera, this.getVertexBufferObjectManager());
+                camera, secondCamera, this.getVertexBufferObjectManager());
         ResourceManager.getInstance().loadFonts();
         ResourceManager.getInstance().loadImages();
         ResourceManager.getInstance().loadGameAudio();
@@ -129,6 +128,7 @@ public class GameActivity extends BaseGameActivity {
         this.scene = new GameScene();
         pOnCreateSceneCallback.onCreateSceneFinished(this.scene);
     }
+
     @Override
     public void onPopulateScene(Scene pScene,
                                 IGameInterface.OnPopulateSceneCallback pOnPopulateSceneCallback)
@@ -143,54 +143,35 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public synchronized void onSurfaceCreated(GLState pGLState) {
         super.onSurfaceCreated(pGLState);
-        if(scene!=null)
-        scene.onResume();
+        if (scene != null) {
+            scene.onResume();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(scene!=null)
-        scene.onPause();
+        if (scene != null) {
+            scene.onPause();
+        }
 
     }
 
 
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
 
-
-
-
-
-    public boolean onKeyDown(final int keyCode, final KeyEvent event)
-    {
-
-        return super.onKeyDown(keyCode,event);
+        return super.onKeyDown(keyCode, event);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private static final int RESULT_LOAD_IMAGE = 1;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     final int MY_PERMISSIONS_REQUEST = 7;
+
     public void startLoadPictureIntent() {
 
         /// Here, thisActivity is the current activity
@@ -205,7 +186,7 @@ public class GameActivity extends BaseGameActivity {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                Toast.makeText(this,"Load images from your storage",
+                Toast.makeText(this, "Load images from your storage",
                         Toast.LENGTH_SHORT).show();
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -223,7 +204,7 @@ public class GameActivity extends BaseGameActivity {
         } else {
 
             Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            this.startActivityForResult(i,GameActivity.RESULT_LOAD_IMAGE);
+            this.startActivityForResult(i, GameActivity.RESULT_LOAD_IMAGE);
         }
 
 
@@ -240,7 +221,7 @@ public class GameActivity extends BaseGameActivity {
                     // task you need to do.
 
                     Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    this.startActivityForResult(i,GameActivity.RESULT_LOAD_IMAGE);
+                    this.startActivityForResult(i, GameActivity.RESULT_LOAD_IMAGE);
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -262,7 +243,7 @@ public class GameActivity extends BaseGameActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GameActivity.RESULT_LOAD_IMAGE && resultCode == Activity.RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
             Cursor cursor = this.getContentResolver().query(selectedImage,
                     filePathColumn, null, null, null);
@@ -272,21 +253,19 @@ public class GameActivity extends BaseGameActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
             Bitmap b = BitmapFactory.decodeFile(picturePath);
-            int width = (b.getWidth()>=2048)?2048:b.getWidth();
-            int height = (b.getHeight()>=2048)?2048:b.getHeight();
-            Bitmap bitmap = GameActivity.decodeSampledBitmapFromResource(picturePath,width,height);
+            int width = (b.getWidth() >= 2048) ? 2048 : b.getWidth();
+            int height = (b.getHeight() >= 2048) ? 2048 : b.getHeight();
+            Bitmap bitmap = GameActivity.decodeSampledBitmapFromResource(picturePath, width, height);
 
-            if(bitmap!=null) {
+            if (bitmap != null) {
                 ResourceManager.getInstance().loadImage(bitmap);
                 scene.getUserInterface().addImage();
-            }
-            else {
+            } else {
                 Toast toast = Toast.makeText(this, "Invalid Image", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }
     }
-
 
 
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
@@ -305,7 +284,6 @@ public class GameActivity extends BaseGameActivity {
         bm.recycle();
         return resizedBitmap;
     }
-
 
 
     public static int calculateInSampleSize(BitmapFactory.Options options,
@@ -330,13 +308,13 @@ public class GameActivity extends BaseGameActivity {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(String strPath,int reqWidth, int reqHeight) {
+    public static Bitmap decodeSampledBitmapFromResource(String strPath, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         Bitmap bitmap = BitmapFactory.decodeFile(strPath, options);
         // Calculate inSampleSize
-        options.inSampleSize = GameActivity.calculateInSampleSize(options,reqWidth,
+        options.inSampleSize = GameActivity.calculateInSampleSize(options, reqWidth,
                 reqHeight);
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;

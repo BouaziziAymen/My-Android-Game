@@ -223,7 +223,7 @@ public class GameEntityFactory {
         return this.createGameEntity(x, y, rot, bodyInit, blocks, bodyType, name, null);
     }
 
-    public Ragdoll createRagdoll() {
+    public Ragdoll createRagdoll(float x, float y) {
         Filter headFilter = new Filter();
         Filter upperBodyFilter = new Filter();
         Filter middleBodyFilter = new Filter();
@@ -259,8 +259,6 @@ public class GameEntityFactory {
         final float FOOT_LENGTH = 16f;
 
 
-        float x = 400 / 32f;
-        float y = 260 / 32f;
         float level0 = y - (HEAD_RAY + NECK_LENGTH + TORSO_HEIGHT / 2) / 32f;
 
 

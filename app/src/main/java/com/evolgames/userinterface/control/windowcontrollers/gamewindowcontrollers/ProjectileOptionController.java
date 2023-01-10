@@ -14,6 +14,7 @@ import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
@@ -59,11 +60,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         this.missileButtonsTable = new Hashtable<>();
     }
 
-    private void resetLayout() {
-        for (SimplePrimary<?> simplePrimary : window.getLayout().getPrimaries()) {
-            window.getLayout().removePrimary(simplePrimary.getPrimaryKey());
-        }
-    }
 
 
     public void updateMissileSelectionFields() {
@@ -79,6 +75,41 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         missileFilesList.forEach(f -> createProjectileToolButton(f, missileCounter.getAndIncrement()));
         this.onUpdated();
     }
+    public void updateCasingSelectionFields() {
+        if (model == null) {
+            return;
+        }
+        if (window.getLayout().getPrimariesSize() >= 2) {
+            window.getLayout().removePrimary(1);
+        }
+        SectionField<ProjectileOptionController> shellSection = new SectionField<>(1, "Shell:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        window.addPrimary(shellSection);
+
+        List<AmmoModel> ammoModels = toolModel.getBodyModelById(((ProjectileModel) model).getBodyId()).getAmmoModels();
+
+        ammoModels.forEach(this::createShellToolButton);
+        this.onUpdated();
+    }
+    private void createShellToolButton(AmmoModel ammoModel) {
+        ButtonWithText<ProjectileOptionController> shellButton = new ButtonWithText<>(ammoModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+        SimpleSecondary<ButtonWithText<ProjectileOptionController>> shellField = new SimpleSecondary<>(1, ammoModel.getAmmoId(), shellButton);
+        window.addSecondary(shellField);
+        shellButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, shellButton) {
+            @Override
+            public void informControllerButtonClicked() {
+                ProjectileModel projectileModel = ((ProjectileModel) ProjectileOptionController.this.model);
+                projectileModel.setAmmoModel(ammoModel);
+                onShellButtonClicked(shellField);
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+
+            }
+        });
+    }
+
+
 
     private void createProjectileToolButton(String fileName, int missileId) {
         ButtonWithText<ProjectileOptionController> missileButton = new ButtonWithText<>(fileName.substring(3,fileName.length()-4), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
@@ -107,11 +138,23 @@ public class ProjectileOptionController extends SettingsWindowController<Project
             }
         });
     }
+    void onShellButtonClicked(SimpleSecondary<?> shellButton) {
+        int primaryKey = shellButton.getPrimaryKey();
+        int secondaryKey = shellButton.getSecondaryKey();
+        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
+            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
+            if (element.getSecondaryKey() != secondaryKey) {
+                Element main = element.getMain();
+                if (main instanceof ButtonWithText) {
+                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                }
+            }
+        }
+    }
 
-
-    void onProjectileBodyButtonClicked(SimpleSecondary<?> materialButton) {
-        int primaryKey = materialButton.getPrimaryKey();
-        int secondaryKey = materialButton.getSecondaryKey();
+    void onProjectileBodyButtonClicked(SimpleSecondary<?> projectileButton) {
+        int primaryKey = projectileButton.getPrimaryKey();
+        int secondaryKey = projectileButton.getSecondaryKey();
         for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
             SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
             if (element.getSecondaryKey() != secondaryKey) {
@@ -137,6 +180,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
         ProjectileModel projectileModel = (ProjectileModel) model;
         updateMissileSelectionFields();
+        updateCasingSelectionFields();
         this.projectileProperties = model.getProperties();
         setBody(projectileModel.getBodyId());
         setProjectileName(this.model.getModelName());
@@ -157,7 +201,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     private void setProjectileTriggerType(ProjectileTriggerType projectileTriggerType) {
         if (projectileTriggerType != null) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(2, projectileTriggerType.getValue());
+            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(3, projectileTriggerType.getValue());
             ((ButtonWithText<?>) element.getMain()).updateState(Button.State.PRESSED);
         }
     }
@@ -202,7 +246,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     public void init() {
         super.init();
         updateMissileSelectionFields();
-        SectionField<ProjectileOptionController> sectionField = new SectionField<>(1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SectionField<ProjectileOptionController> sectionField = new SectionField<>(2, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(sectionField);
         TitledTextField<ProjectileOptionController> layerNameField = new TitledTextField<>("Projectile Name:", 10);
         projectileNameField = layerNameField.getAttachment();
@@ -220,21 +264,21 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         });
         projectileNameField.getBehavior().setReleaseAction(() -> model.setModelName(projectileNameField.getTextString()));
         FieldWithError fieldWithError = new FieldWithError(layerNameField);
-        SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(1, 0, fieldWithError);
+        SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(2, 0, fieldWithError);
         window.addSecondary(secondaryElement1);
 
 
         ArrayList<GameSound> sounds = ResourceManager.getInstance().gunshotSounds;
-        SecondarySectionField<ProjectileOptionController> projectileShotSoundSection = new SecondarySectionField<>(1, 1, "Shot Sound", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SecondarySectionField<ProjectileOptionController> projectileShotSoundSection = new SecondarySectionField<>(2, 1, "Shot Sound", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addSecondary(projectileShotSoundSection);
         for (int i = 0; i < sounds.size(); i++) {
             GameSound gameSound = sounds.get(i);
-            SoundField soundField = new SoundField(gameSound.getTitle(), 1, 1, i, this);
+            SoundField soundField = new SoundField(gameSound.getTitle(), 2, 1, i, this);
             window.addTertiary(soundField);
         }
 
 
-        SectionField<ProjectileOptionController> typeSection = new SectionField<>(2, "Type", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SectionField<ProjectileOptionController> typeSection = new SectionField<>(3, "Type", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(typeSection);
         for (int i = 0; i < 3; i++) {
             ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.getFromValue(i);
@@ -258,7 +302,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                     (title, 3, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
 
 
-            SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField = new SimpleSecondary<>(2, i, typeButton);
+            SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField = new SimpleSecondary<>(3, i, typeButton);
             window.addSecondary(typeField);
             typeButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, typeButton) {
                 @Override
@@ -274,7 +318,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
         }
 
-        SectionField<ProjectileOptionController> projectileOptionsField = new SectionField<>(3, "Physical Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SectionField<ProjectileOptionController> projectileOptionsField = new SectionField<>(4, "Physical Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(projectileOptionsField);
 
         TitledTextField<ProjectileOptionController> energyField = new TitledTextField<>("Energy:", 6, 5, 50);
@@ -293,7 +337,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         });
 
         FieldWithError energyFieldWithError = new FieldWithError(energyField);
-        SimpleSecondary<FieldWithError> energyElement = new SimpleSecondary<>(3, 1, energyFieldWithError);
+        SimpleSecondary<FieldWithError> energyElement = new SimpleSecondary<>(4, 1, energyFieldWithError);
         window.addSecondary(energyElement);
 
         energyTextField.getBehavior().setReleaseAction(() -> {
@@ -318,7 +362,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         });
 
         FieldWithError fireRateFieldWithError = new FieldWithError(fireRateField);
-        SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(3, 2, fireRateFieldWithError);
+        SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(4, 2, fireRateFieldWithError);
         window.addSecondary(fireRateElement);
 
         fireRateTextField.getBehavior().setReleaseAction(() -> {
@@ -335,7 +379,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
             }
         });
-        SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(3, 3, titledRecoilQuantity);
+        SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(4, 3, titledRecoilQuantity);
         window.addSecondary(recoilElement);
         recoilQuantity.getBehavior().setChangeAction(() -> projectileProperties.setRecoil(recoilQuantity.getRatio()));
         window.createScroller();

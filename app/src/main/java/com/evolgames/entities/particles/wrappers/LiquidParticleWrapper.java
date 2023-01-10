@@ -3,7 +3,7 @@ package com.evolgames.entities.particles.wrappers;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.pools.LiquidParticlePool;
-import com.evolgames.entities.particles.emitters.BaseEmitter;
+import com.evolgames.entities.particles.emitters.AbsoluteEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
 import com.evolgames.entities.particles.systems.BatchedSpriteParticleSystemWithCustomSpawnAction;
 import com.evolgames.gameengine.ResourceManager;
@@ -29,7 +29,7 @@ public abstract class LiquidParticleWrapper {
     public static final float LIQUID_PARTICLE_WIDTH = ResourceManager.getInstance().liquidParticle.getWidth();
     public static final float LIQUID_PARTICLE_HEIGHT = ResourceManager.getInstance().liquidParticle.getHeight();
     private final Color color;
-    private final BaseEmitter emitter;
+    private final AbsoluteEmitter emitter;
     private final BatchedSpriteParticleSystemWithCustomSpawnAction particleSystem;
     private final GameEntityAttachedVelocityInitializer velocityInitializer;
     private GameEntity parent;
@@ -52,10 +52,7 @@ public abstract class LiquidParticleWrapper {
 
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(color.getRed(), color.getGreen(), color.getBlue()));
         this.particleSystem.addParticleInitializer(new AlphaParticleInitializer<>(color.getAlpha()));
-        GravityParticleInitializer<Entity> gravity = new GravityParticleInitializer<>();
-        gravity.setAccelerationY(-3 * 10 * 32);
-
-        this.particleSystem.addParticleInitializer(gravity);
+        addGravity();
         particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 1f, 0f));
         particleSystem.addParticleModifier(new OffCameraExpireParticleModifier<>(ResourceManager.getInstance().firstCamera));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(3f));
@@ -63,8 +60,14 @@ public abstract class LiquidParticleWrapper {
 
     }
 
+    private void addGravity() {
+        GravityParticleInitializer<Entity> gravity = new GravityParticleInitializer<>();
+        gravity.setAccelerationY(-3 * 10 * 32);
+        this.particleSystem.addParticleInitializer(gravity);
+    }
 
-    protected abstract BaseEmitter createEmitter(float[] emitterData);
+
+    protected abstract AbsoluteEmitter createEmitter(float[] emitterData);
 
     public Color getColor() {
         return color;
@@ -97,7 +100,7 @@ public abstract class LiquidParticleWrapper {
         GeometryUtils.transformation.setToIdentity();
         GeometryUtils.transformation.preTranslate(x, y);
         GeometryUtils.transformation.preRotate(-rot);
-        emitter.update(GeometryUtils.transformation);
+        emitter.onStep(GeometryUtils.transformation);
     }
 
     public BatchedSpriteParticleSystemWithCustomSpawnAction getParticleSystem() {

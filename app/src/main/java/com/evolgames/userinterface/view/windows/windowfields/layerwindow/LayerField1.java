@@ -25,7 +25,6 @@ public class LayerField1 extends SecondaryLinearLayout {
         mLayerControl = new ButtonWithText<>("", 2,ResourceManager.getInstance().layerButtonTextureRegion,Button.ButtonType.Selector,true);
         RectangularBounds layerButtonBounds = (RectangularBounds)mLayerControl.getBounds();
         layerButtonBounds.setWidth(70);
-        layerButtonBounds.setShiftX(23.5f);
 
         this.setHeight(mLayerControl.getHeight());
 

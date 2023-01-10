@@ -293,7 +293,10 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public void onBodyRemoveButtonReleased(BodyField1 bodyField) {
-        if (selectedBodyField == bodyField) selectedBodyField = null;
+        if (selectedBodyField == bodyField) {
+            selectedBodyField = null;
+            selectedLayerField = null;
+        }
         BodyModel bodyModel = userInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
         for (LayerModel layerModel : bodyModel.getLayers()) {
             detachLayerModelShape(layerModel);

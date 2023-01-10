@@ -1,18 +1,24 @@
 package com.evolgames.entities.blockvisitors;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.physics.WorldFacade;
 
 import java.util.List;
 
 public class MultiShatterVisitor extends BreakVisitor<LayerBlock> {
 
     private final List<ImpactData> impacts;
+    private final WorldFacade worldFacade;
+    private final GameEntity gameEntity;
 
-    public MultiShatterVisitor(List<ImpactData> impacts) {
+    public MultiShatterVisitor(List<ImpactData> impacts, WorldFacade worldFacade, GameEntity gameEntity) {
         super();
         this.impacts = impacts;
+        this.worldFacade = worldFacade;
+        this.gameEntity = gameEntity;
     }
 
     private LayerBlock getNearestBlock(Vector2 point, List<LayerBlock> blocks) {
@@ -37,12 +43,14 @@ public class MultiShatterVisitor extends BreakVisitor<LayerBlock> {
             float energy = this.impacts.get(i).getImpactEnergy();
             LayerBlock nearest = getNearestBlock(point, splintersBlocks);
             splintersBlocks.remove(nearest);
-            ShatterVisitor shatterVisitor = new ShatterVisitor(energy, point);
-            shatterVisitor.visitTheElement(nearest);
-            if(shatterVisitor.isShatterPerformed()){
-                shatterPerformed = true;
+            ShatterVisitor shatterVisitor = new ShatterVisitor(energy, point, worldFacade, gameEntity);
+            if(nearest!=null) {
+                shatterVisitor.visitTheElement(nearest);
+                if (shatterVisitor.isShatterPerformed()) {
+                    shatterPerformed = true;
+                }
+                splintersBlocks.addAll(shatterVisitor.getSplintersBlocks());
             }
-            splintersBlocks.addAll(shatterVisitor.getSplintersBlocks());
         }
     }
 

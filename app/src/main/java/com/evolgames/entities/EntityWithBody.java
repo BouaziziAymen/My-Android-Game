@@ -35,7 +35,9 @@ public class EntityWithBody {
     }
 
     public void setBody(Body body) {
-        body.setUserData(this);
+        if(body!=null){
+            body.setUserData(this);
+        }
         this.body = body;
     }
 

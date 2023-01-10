@@ -64,7 +64,7 @@ public class ResourceManager {
     public ArrayList<TiledTextureRegion> upButtonTextureRegions = new ArrayList<>();
     public ArrayList<TiledTextureRegion> downButtonTextureRegions = new ArrayList<>();
     public ArrayList<ArrayList<ITextureRegion>> quantity;
-    public ArrayList<TiledTextureRegion> buttons;
+    public ArrayList<TiledTextureRegion> keyboardButtons;
     public TiledTextureRegion smallOptionsTextureRegion;
     public TextureRegion colorSelectorTextureRegion;
     public ArrayList<ITextureRegion> panel;
@@ -116,7 +116,7 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TextureRegion handTextureRegion;
     public TextureRegion armTextureRegion;
-    public TiledTextureRegion handleTextureRegion;
+    public TiledTextureRegion ammoTextureRegion;
     public TextureRegion handle1;
     public TextureRegion base1;
     public TiledTextureRegion trigger1;
@@ -125,6 +125,8 @@ public class ResourceManager {
     private BuildableBitmapTextureAtlas texture;
     public TextureRegion aimCircleTextureRegion;
     public TiledTextureRegion saveBigButton;
+    public TextureRegion pixelParticle;
+    public ArrayList<ITextureRegion> buttonRegionsA;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -165,7 +167,7 @@ public class ResourceManager {
         this.plasmaParticle2 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f2.png");
         this.plasmaParticle3 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f3.png");
         this.plasmaParticle4 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f4.png");
-
+        this.pixelParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/pixel.png");
 
         this.button = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);
 
@@ -195,8 +197,9 @@ public class ResourceManager {
 
 
         this.window = new ArrayList<>();
-        for (int i = 0; i <= 17; i++)
+        for (int i = 0; i <= 17; i++) {
             this.window.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "windows/w" + i + ".png"));
+        }
         this.windowFoldTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "windows/Buttons/fold.png", 1, 3);
         this.windowCloseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "windows/Buttons/close.png", 1, 3);
         this.layerButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "layerbutton.png", 1, 2);
@@ -218,12 +221,12 @@ public class ResourceManager {
         this.smallOptionsTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "smalloptions.png", 1, 2);
         this.colorSelectorTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "colorchart.png");
 
-        this.buttons = new ArrayList<>();
-        this.buttons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbl.png", 1, 2));
-        this.buttons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbm.png", 1, 2));
-        this.buttons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbr.png", 1, 2));
-        this.buttons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/bb.png", 1, 2));
-        this.buttons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/mb.png", 1, 2));
+        this.keyboardButtons = new ArrayList<>();
+        this.keyboardButtons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbl.png", 1, 2));
+        this.keyboardButtons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbm.png", 1, 2));
+        this.keyboardButtons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbr.png", 1, 2));
+        this.keyboardButtons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/bb.png", 1, 2));
+        this.keyboardButtons.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "keyboard/mb.png", 1, 2));
         this.slotTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "slot.png");
         this.slotInnerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "slotinner.png");
         this.handTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "hand.png");
@@ -290,9 +293,16 @@ public class ResourceManager {
         this.mirrorTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/mirror.png", 1, 3);
         this.rotateTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
         this.decaleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
-        this.handleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/hand.png", 1, 3);
+        this.ammoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
 
         this.fontLoader = new FontLoader(gameTextureAtlas);
+
+
+
+        this.buttonRegionsA = new ArrayList<>();
+        for (int i = 1; i <= 4; i++) {
+            this.buttonRegionsA.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
+        }
 
 
         fontLoader.loadFont(0, Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD), 40, Color.WHITE_ABGR_PACKED_INT, true);

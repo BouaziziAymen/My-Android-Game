@@ -1,6 +1,10 @@
 package com.evolgames.entities.particles.systems;
 
+import com.evolgames.entities.blocks.CoatingBlock;
+import com.evolgames.entities.particles.emitters.FireEmitter;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
+import com.evolgames.entities.particles.emitters.RelativePolygonEmitter;
+import com.evolgames.gameengine.ResourceManager;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
@@ -10,17 +14,17 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.math.MathUtils;
 
-public class FlameParticleSystem extends BatchedPseudoSpriteParticleSystem {
+public abstract class FlowingParticleSystem extends BatchedPseudoSpriteParticleSystem {
 
-    private PolygonEmitter polygonEmitter;
+    protected final PolygonEmitter relativePolygonEmitter;
     private float rateMin;
     private float rateMax;
-    private float originalRateMin;
-    private float originalRateMax;
+    private final float originalRateMin;
+    private final float originalRateMax;
 
-    public FlameParticleSystem(IEntityFactory<Entity> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax, TextureRegion plasmaParticle4, VertexBufferObjectManager vbom) {
-        super(ief, emitter, rateMin, rateMax, particlesMax, plasmaParticle4, vbom);
-        polygonEmitter = emitter;
+    public FlowingParticleSystem(IEntityFactory<Entity> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax, TextureRegion particleTextureRegion) {
+        super(ief, emitter, rateMin, rateMax, particlesMax, particleTextureRegion, ResourceManager.getInstance().vbom);
+        relativePolygonEmitter = emitter;
         this.rateMin = rateMin;
         this.rateMax = rateMax;
         originalRateMin = rateMin;
@@ -31,7 +35,7 @@ public class FlameParticleSystem extends BatchedPseudoSpriteParticleSystem {
     @Override
     protected void onManagedUpdate(float pSecondsElapsed) {
         super.onManagedUpdate(pSecondsElapsed);
-        float ratio = polygonEmitter.getCoverageRatio();
+        float ratio = relativePolygonEmitter.getCoverageRatio();
         rateMin = originalRateMin * ratio;
         rateMax = originalRateMax * ratio;
     }
@@ -39,7 +43,8 @@ public class FlameParticleSystem extends BatchedPseudoSpriteParticleSystem {
     @Override
     protected void onParticleSpawned(Particle<Entity> particle) {
         super.onParticleSpawned(particle);
-        particle.getEntity().setUserData(polygonEmitter.getTemperature());
+        CoatingBlock coatingBlock = (CoatingBlock) relativePolygonEmitter.getUserData();
+        particle.getEntity().setUserData(coatingBlock);
         particle.setExpired(false);
     }
 

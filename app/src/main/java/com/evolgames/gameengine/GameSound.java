@@ -5,8 +5,8 @@ import org.andengine.audio.sound.Sound;
 import java.util.List;
 
 public class GameSound {
-    private List<Sound> soundList;
-    private String title;
+    private final List<Sound> soundList;
+    private final String title;
 
     public GameSound(List<Sound> soundList, String title) {
         this.soundList = soundList;

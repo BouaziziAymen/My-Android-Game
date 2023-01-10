@@ -223,17 +223,6 @@ public abstract class Element implements Comparable<Element> {
         return "" + getClass().getSimpleName();
     }
 
-
-    public boolean isTemporal() {
-        return false;
-    }
-
-
-    public void onStep() {
-
-    }
-
-
     public int getId() {
         return id;
     }

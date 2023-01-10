@@ -38,16 +38,18 @@ public class CoatingProperties extends ColoredProperties {
         hasTexture = MyColorUtils.setTextureColor(textureColor, burnRatio);
         hasRadiance = MyColorUtils.setRadianceColor(radianceColor, temperature);
         setupCoatingColor();
-
     }
 
     private void setupCoatingColor() {
-        if (hasTexture && hasRadiance)
+        if (hasTexture && hasRadiance) {
             MyColorUtils.blendColors(getDefaultColor(), textureColor, radianceColor);
-        else if (hasTexture)
+        }
+        else if (hasTexture) {
             getDefaultColor().set(textureColor);
-        else if (hasRadiance)
+        }
+        else if (hasRadiance) {
             getDefaultColor().set(radianceColor);
+        }
 
     }
 
@@ -61,7 +63,7 @@ public class CoatingProperties extends ColoredProperties {
 
     public CoatingProperties copy() {
         CoatingProperties properties = new CoatingProperties();
-
+        properties.setDefaultColor(getDefaultColor());
         properties.setParentProperties(parentProperties);
         properties.setRow(row);
         properties.setColumn(column);
@@ -92,45 +94,11 @@ public class CoatingProperties extends ColoredProperties {
         this.initialChemicalEnergy = initialChemicalEnergy;
     }
 
-    public Color getTextureColor() {
-        return textureColor;
-    }
-
-    public Color getRadianceColor() {
-        return radianceColor;
-    }
-
-    public Color getFlameColor1() {
-        return flameColor1;
-    }
-
-    public Color getFlameColor2() {
-        return flameColor2;
-    }
-
-    public LayerProperties getParentProperties() {
-        return parentProperties;
-    }
 
     public void setParentProperties(LayerProperties parentProperties) {
         this.parentProperties = parentProperties;
     }
 
-    public boolean isHasTexture() {
-        return hasTexture;
-    }
-
-    public void setHasTexture(boolean hasTexture) {
-        this.hasTexture = hasTexture;
-    }
-
-    public boolean isHasRadiance() {
-        return hasRadiance;
-    }
-
-    public void setHasRadiance(boolean hasRadiance) {
-        this.hasRadiance = hasRadiance;
-    }
 
     public int getRow() {
         return row;

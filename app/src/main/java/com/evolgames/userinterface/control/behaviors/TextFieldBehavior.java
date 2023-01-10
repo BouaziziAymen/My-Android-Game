@@ -9,11 +9,11 @@ import com.evolgames.userinterface.view.inputs.TextField;
 import org.andengine.input.touch.TouchEvent;
 
 public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>> extends ErrorClickableBehavior<C> {
-    private TextField<C> textField;
+    private final TextField<C> textField;
     private String lastValidTextString = "";
     private int count = 0;
     private boolean showPrompt = true;
-    private Keyboard.KeyboardType keyboardType;
+    private final Keyboard.KeyboardType keyboardType;
     private boolean selected = false;
     private TextFieldValidator validator;
     private String textString = "";

@@ -30,8 +30,9 @@ public class ClickableImage<C extends Controller, B extends ClickableBehavior<C>
        addElement(image);
         setWidth(image.getWidth());
         setHeight(image.getHeight());
-        if (createBounds)
+        if (createBounds) {
             setBounds(new RectangularBounds(this, getWidth(), getHeight()));
+        }
     }
 
 

@@ -17,12 +17,14 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
 
     public void onScrolled(float pAdvance) {
         float height = window.getLayout().getHeight();
-        window.getLayout().setLowerBottomY(pAdvance * height + window.getLayout().getY0());
+        window.getLayout().setLowerBottomY(pAdvance * height + window.getLayout().getLowerBottomY());
         onVisibleZoneUpdate();
     }
     private final ContentTraverser contentTraverser = new ContentTraverser();
      protected void updateScroller(){
-        if (window.getScroller() != null) window.getScroller().onHeightUpdated(window.getLayout().getHeight());
+        if (window.getScroller() != null){
+            window.getScroller().onHeightUpdated(window.getLayout().getHeight());
+        }
     }
 
      public void onVisibleZoneUpdate() {

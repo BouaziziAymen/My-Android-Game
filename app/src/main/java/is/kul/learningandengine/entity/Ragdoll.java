@@ -172,7 +172,9 @@ public void attachChild(IEntity entity){
 }
 private int ORBIT;
 void equilibrate(Body body, float angle,int force,float limit){
-
+if(true){
+	return;
+}
 	float rot = body.getAngle();
 	 float totalRotation = angle - rot;
 	
@@ -180,8 +182,6 @@ void equilibrate(Body body, float angle,int force,float limit){
 	  while ( totalRotation > Math.PI ) totalRotation -= 2*Math.PI;
 	  if(Math.abs(totalRotation)<limit)
 	 body.applyTorque( (float) (2*force*(totalRotation/Math.PI)) );
-	RevoluteJoint j;
-	
 	 
 }
 boolean dragged;

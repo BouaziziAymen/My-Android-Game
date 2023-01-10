@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private final int bodyId;
     private final ArrayList<LayerModel> layers;
     private final ArrayList<ProjectileModel> projectiles;
+    private final ArrayList<AmmoModel> ammoModels;
     private final ArrayList<HandModel> hands;
     private GameEntity gameEntity;
     private BodyCategory category;
@@ -29,6 +31,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         this.bodyId = bodyId;
         layers = new ArrayList<>();
         projectiles = new ArrayList<>();
+        ammoModels = new ArrayList<>();
         hands = new ArrayList<>();
         properties = new BodyProperties();
     }
@@ -154,6 +157,10 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     @Override
     public void updateOutlinePoints() {
         throw new UnsupportedOperationException();
+    }
+
+    public List<AmmoModel> getAmmoModels() {
+        return ammoModels;
     }
 
 

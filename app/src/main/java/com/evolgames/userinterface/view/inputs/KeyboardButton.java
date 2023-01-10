@@ -30,7 +30,7 @@ public class KeyboardButton extends Button<KeyboardController> {
     }
 
     public KeyboardButton(char c, int n, ButtonType keyboardButtonType) {
-        super(ResourceManager.getInstance().buttons.get(n), keyboardButtonType, true);
+        super(ResourceManager.getInstance().keyboardButtons.get(n), keyboardButtonType, true);
         mChar = c;
         if(c=='0') setId(6);
         String string="";

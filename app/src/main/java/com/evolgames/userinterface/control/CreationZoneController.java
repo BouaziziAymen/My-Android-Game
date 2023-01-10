@@ -15,6 +15,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
@@ -27,6 +28,7 @@ import com.evolgames.userinterface.view.shapes.indicators.RotateImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ScaleImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftArrowShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftImageShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
@@ -36,24 +38,21 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.Revolu
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
 import com.evolgames.userinterface.view.shapes.points.ModelPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
-import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField1;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class CreationZoneController extends Controller {
 
     private final ItemWindowController itemWindowController;
     private CreationAction action = CreationAction.ADD_POINT;
-    private GameScene gameScene;
+    private final GameScene gameScene;
     private UserInterface userInterface;
     private LineShape indicatorArrow;
     private CreationZone creationZone;
-    private LayerWindowController layerWindowController;
-    private JointWindowController jointWindowController;
+    private final LayerWindowController layerWindowController;
+    private final JointWindowController jointWindowController;
     private PointImage selectedPointImage = null;
     private boolean upLocked;
     private float radiusForPolygon = 32;
@@ -89,87 +88,29 @@ public class CreationZoneController extends Controller {
         userInterface.onActionChanged(action);
         switch (action) {
             case MOVE_TOOL_POINT:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case MOVE_JOINT_POINT:
-                gameScene.setScrollerEnabled(true);
-                gameScene.setZoomEnabled(true);
-                break;
+            case AMMO:
+            case DISTANCE:
+            case WELD:
+            case PRISMATIC:
+            case ROTATE:
+            case MIRROR:
+            case SHIFT:
+            case REVOLUTE:
+            case HAND:
+            case PROJECTILE:
+            case NONE:
+            case ADD_POLYGON:
+            case SCALE_IMAGE:
+            case ROTATE_IMAGE:
             case MOVE_IMAGE:
                 gameScene.setScrollerEnabled(false);
                 gameScene.setZoomEnabled(false);
                 break;
-
-            case ROTATE_IMAGE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case SCALE_IMAGE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-
-            case ADD_POINT:
-
-                gameScene.setScrollerEnabled(true);
-                gameScene.setZoomEnabled(true);
-                break;
-            case MOVE_POINT:
-                gameScene.setScrollerEnabled(true);
-                gameScene.setZoomEnabled(true);
-                break;
-            case REMOVE_POINT:
-                gameScene.setScrollerEnabled(true);
-                gameScene.setZoomEnabled(true);
-                break;
-            case ADD_POLYGON:
-
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case NONE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case PROJECTILE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case HAND:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case MIRROR:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case ROTATE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case SHIFT:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case REVOLUTE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case PRISMATIC:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case WELD:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-            case DISTANCE:
-                gameScene.setScrollerEnabled(false);
-                gameScene.setZoomEnabled(false);
-                break;
-
+            case MOVE_JOINT_POINT:
             case PIPING:
+            case REMOVE_POINT:
+            case MOVE_POINT:
+            case ADD_POINT:
                 gameScene.setScrollerEnabled(true);
                 gameScene.setZoomEnabled(true);
                 break;
@@ -200,6 +141,11 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onTargetAborted(((ProjectileShape) indicatorArrow).getModel());
             }
         }
+        if (action == CreationAction.AMMO) {
+            if (indicatorArrow != null && indicatorArrow.isAborted()) {
+                itemWindowController.onAmmoAborted(((AmmoShape) indicatorArrow).getModel());
+            }
+        }
         if (action == CreationAction.HAND) {
             if (indicatorArrow != null && indicatorArrow.isAborted()) {
                 itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
@@ -226,7 +172,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (indicatorArrow != null) {
-            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof HandShape))
+            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof AmmoShape|| indicatorArrow instanceof HandShape))
                 indicatorArrow.detach();
             indicatorArrow = null;
             creationZone.setTouchLocked(false);
@@ -240,7 +186,6 @@ public class CreationZoneController extends Controller {
                     movablePointImages = new ArrayList<>(creationZone.referencePointImageArrayList);
                 }
             } else if (action == CreationAction.MOVE_TOOL_POINT) {
-                System.out.println("MOVE_TOOL");
                 movablePointImages = new ArrayList<>();
                 ArrayList<ProjectileModel> list = userInterface.getToolModel().getBodyModelById(userInterface.getItemWindowController().getSelectedBodyId()).getProjectiles();
                 for (ProjectileModel entry : list) {
@@ -391,6 +336,18 @@ public class CreationZoneController extends Controller {
                 if (projectileModel != null) {
                     itemWindowController.onProjectileCreated(projectileModel);
                     ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
+                }
+                return;
+            }
+        }
+
+        if (action == CreationAction.AMMO) {
+            if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                indicatorArrow = new AmmoShape(new Vector2(x, y), gameScene);
+                AmmoModel ammoModel = userInterface.getToolModel().createNewAmmo((AmmoShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
+                if (ammoModel != null) {
+                    itemWindowController.onAmmoCreated(ammoModel);
+                    ((AmmoShape) indicatorArrow).bindModel(ammoModel);
                 }
                 return;
             }
@@ -556,7 +513,7 @@ public class CreationZoneController extends Controller {
 
 
     public enum CreationAction {
-        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, HAND;
+        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, HAND, AMMO;
     }
 
 

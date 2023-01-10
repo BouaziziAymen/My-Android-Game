@@ -15,10 +15,7 @@ import java.util.ArrayList;
 public class ProjectileShape extends AngleIndicator implements MovablesContainer {
     private final UserInterface userInterface;
     private final ControllerPointImage originPoint;
-    private final ControllerPointImage upperLimitPoint;
     private ProjectileModel  model;
-    private float upperLimit;
-    private Line limitLine;
 
     public ProjectileShape(Vector2 begin, GameScene scene) {
         super(begin, scene, 32, 1);
@@ -32,41 +29,16 @@ public class ProjectileShape extends AngleIndicator implements MovablesContainer
                 model.getProperties().getProjectileOrigin().set(x,y);
                 ProjectileShape.this.updateBegin(x + dx, y + dy);
                 ProjectileShape.this.drawSelf();
-                ProjectileShape.this.updateUpperLimitPosition();
             }
         };
         this.direction = new Vector2();
         this.userInterface.addElement(originPoint);
 
-        upperLimitPoint = new ControllerPointImage(ResourceManager.getInstance().diskTextureRegion, begin.cpy()) {
-
-            @Override
-            protected void performControl(float dx, float dy) {
-                upperLimit += dy;
-                updateUpperLimitPosition();
-            }
-        };
-        userInterface.addElement(upperLimitPoint);
 
         userInterface.setUpdated(true);
     }
 
-    private void updateUpperLimitPosition() {
-        Vector2 position = begin.cpy().add(direction.x * upperLimit, direction.y * upperLimit);
-        upperLimitPoint.setPosition(position.x, position.y);
-        model.getProperties().setUpperLimit(upperLimit);
-        updateLimitLine();
-    }
 
-    private void updateLimitLine() {
-        if (limitLine != null) limitLine.detachSelf();
-        limitLine = new Line(begin.x, begin.y, upperLimitPoint.getPoint().x, upperLimitPoint.getPoint().y, ResourceManager.getInstance().vbom);
-        creationScene.attachChild(limitLine);
-        limitLine.setZIndex(10);
-        limitLine.setColor(1, 0, 0);
-        limitLine.setLineWidth(3);
-        creationScene.sortChildren();
-    }
     public Vector2 getBegin(){
         return this.begin;
     }
@@ -90,28 +62,22 @@ public class ProjectileShape extends AngleIndicator implements MovablesContainer
     @Override
     public ArrayList<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> movables = new ArrayList<>();
-        if (moveLimits)
-            movables.add(upperLimitPoint);
-        else {
+
             movables.add(getLimit());
             movables.add(originPoint);
-        }
+
         return movables;
     }
 
     @Override
     public void detach() {
         super.detach();
-        if(limitLine!=null)
-        limitLine.detachSelf();
         userInterface.removeElement(originPoint);
-        userInterface.removeElement(upperLimitPoint);
     }
 
     @Override
     public void onTurnAroundCommand(float dA) {
         turnAround(dA);
-        updateUpperLimitPosition();
         onTurnAround();
     }
 

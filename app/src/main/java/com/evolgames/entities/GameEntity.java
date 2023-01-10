@@ -5,15 +5,15 @@ import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
+import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
-import com.evolgames.entities.blocks.CoatingBlock;
+import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
-import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.GameScene;
 
@@ -35,12 +35,10 @@ public class GameEntity extends EntityWithBody {
     private SpecialEntityType type = SpecialEntityType.Default;
     private GameGroup parentGroup;
     private boolean alive = true;
-    private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
-    private boolean isFireSetup;
     private boolean projectile;
     private TexturedMeshBatch batch;
     private String name;
-    private ArrayList<LayerBlock> layerBlocks;
+    private final ArrayList<LayerBlock> layerBlocks;
     private ArrayList<GameEntity> children;
     private List<Trigger> triggers;
     private MosaicMesh mesh;
@@ -48,6 +46,8 @@ public class GameEntity extends EntityWithBody {
     private Vector2 center;
     private boolean isBatcherSetup = false;
     private int hangedPointerId;
+    private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
+    private boolean isFireSetup;
 
 
     public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> layerBlocks) {
@@ -131,6 +131,8 @@ public class GameEntity extends EntityWithBody {
 
     }
 
+
+
     private void setupBatcher() {
         isBatcherSetup = true;
         float area = 0;
@@ -179,7 +181,9 @@ public class GameEntity extends EntityWithBody {
 
             }
         }*/
-        if (isFireSetup) fireParticleWrapperWithPolygonEmitter.update();
+        if (isFireSetup){
+            fireParticleWrapperWithPolygonEmitter.update();
+        }
 
     }
 
@@ -193,21 +197,6 @@ public class GameEntity extends EntityWithBody {
             }
         }
         return false;
-    }
-
-    private LayerBlock getNearestBlockA(Vector2 anchor) {
-        float x = anchor.x * 32;
-        float y = anchor.y * 32;
-        float distance = Float.MAX_VALUE;
-        LayerBlock result = null;
-        for (LayerBlock block : layerBlocks) {
-                float d = GeometryUtils.distBetweenPointAndPolygon(x, y, block.getVertices());
-                if (d < distance) {
-                    distance = d;
-                    result = block;
-                }
-        }
-        return result;
     }
 
 
@@ -231,15 +220,21 @@ public class GameEntity extends EntityWithBody {
         while (!deque.isEmpty()) {
             GameEntity current = deque.pop();
             entities.add(current);
-            for (JointEdge edge : current.getBody().getJointList()) {
-                GameEntity entity = (GameEntity) edge.other.getUserData();
-                if (entity != null)
-                    if (!entities.contains(entity)) deque.push(entity);
+            if(current.getBody()!=null) {
+                for (JointEdge edge : current.getBody().getJointList()) {
+                    GameEntity entity = (GameEntity) edge.other.getUserData();
+                    if (entity != null)
+                        if (!entities.contains(entity)) deque.push(entity);
+                }
             }
         }
 
         float mass = 0;
-        for (GameEntity e : entities) mass += e.getBody().getMass();
+        for (GameEntity e : entities){
+            if(e.getBody()!=null) {
+                mass += e.getBody().getMass();
+            }
+        }
         Log.e("mass", "" + mass);
         return mass;
 
@@ -369,8 +364,9 @@ public class GameEntity extends EntityWithBody {
 
     public void detach() {
         mesh.detachSelf();
-        if (fireParticleWrapperWithPolygonEmitter != null)
+        if (fireParticleWrapperWithPolygonEmitter != null) {
             WorldFacade.removeFireParticleWrapper(fireParticleWrapperWithPolygonEmitter);
+        }
         dispose();
     }
 

@@ -453,7 +453,9 @@ public class BlockUtils {
     private static float getInnerValue(ArrayList<Vector2> vertices, Vector2 p1, Vector2 p2) {
         Vector2 dir = p2.cpy().sub(p1).nor().mul(1000);
         Cut cut = BlockUtils.projectCutWithoutCorrection(vertices, p1.cpy().sub(dir), p2.cpy().add(dir));
-        if (cut != null) return cut.getValue();
+        if (cut != null) {
+            return cut.getValue();
+        }
         else return 0;
 
     }
@@ -616,11 +618,10 @@ public class BlockUtils {
             Cut cut = BlockUtils.generateCutCorrected(block.getVertices(), center, extremity1, extremity2);
             if (cut != null && cut.isValid(block.getVertices())) candidates.add(cut);
         }
-        Collections.sort(candidates);
         if (candidates.size() == 0) {
             return new ShatterData();
         }
-
+        Collections.sort(candidates);
         Cut chosen = candidates.get(0);
         float destructionEnergy = 0;
         for (CoatingBlock coatingBlock : block.getBlockGrid().getCoatingBlocks()) {
@@ -689,7 +690,7 @@ public class BlockUtils {
         float xLen = X.len();
 
         float yLen = Y.len();
-        final float step = 16;
+        final float step = PhysicsConstants.grain_spacing;
         int xCount = (int) Math.floor(xLen / step);
         int yCount = (int) Math.floor(yLen / step);
         final Vector2 stepX = Vector2Pool.obtain(uX).mul(xLen / (xCount + 1));

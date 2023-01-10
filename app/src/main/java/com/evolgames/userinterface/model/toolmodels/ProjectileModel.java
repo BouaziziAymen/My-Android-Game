@@ -11,6 +11,7 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     private ToolModel missileModel;
     private final int projectileId;
     private final int bodyId;
+    private AmmoModel ammoModel;
 
     public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
         super("Proj" + projectileId);
@@ -49,4 +50,11 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         this.missileModel = missileModel;
     }
 
+    public void setAmmoModel(AmmoModel ammoModel) {
+        this.ammoModel = ammoModel;
+    }
+
+    public AmmoModel getAmmoModel() {
+        return ammoModel;
+    }
 }

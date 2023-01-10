@@ -29,6 +29,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     private float Area;
     private float[] trianglesData;
     private float step;
+    private boolean pulverized;
 
     @Override
     protected CoatingBlock getThis() {
@@ -45,12 +46,12 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     private void updateColor() {
-
         mesh.onColorsUpdated();
-
-
     }
 
+    public MosaicMesh getMesh() {
+        return mesh;
+    }
 
     public void centerCoreCoatingBlock() {
         if (position == null) position = new Vector2();
@@ -250,5 +251,13 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
     public void setStep(float step) {
         this.step = step;
+    }
+
+    public boolean isPulverized() {
+        return pulverized;
+    }
+
+    public void setPulverized(boolean pulverized) {
+        this.pulverized = pulverized;
     }
 }

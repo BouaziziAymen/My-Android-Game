@@ -7,7 +7,7 @@ import com.evolgames.entities.particles.wrappers.DataLiquidParticleWrapper;
 
 import org.andengine.util.math.MathUtils;
 
-public class SegmentEmitter extends BaseEmitter {
+public class SegmentEmitter extends AbsoluteEmitter {
 
     private final float beginX;
     private final float beginY;

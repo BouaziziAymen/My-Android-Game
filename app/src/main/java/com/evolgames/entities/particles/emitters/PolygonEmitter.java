@@ -1,75 +1,49 @@
 package com.evolgames.entities.particles.emitters;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.helpers.utilities.GeometryUtils;
 
 import org.andengine.entity.particle.emitter.BaseParticleEmitter;
-import org.andengine.util.adt.color.Color;
-import org.andengine.util.adt.transformation.Transformation;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import is.kul.learningandengine.helpers.Predicate;
+
+public abstract class PolygonEmitter  extends BaseParticleEmitter {
 
 
-public class PolygonEmitter extends BaseParticleEmitter {
-    private final GameEntity gameEntity;
-    private float fullArea;
-    private float[] data;
-    private Color[] initialColors;
-    private int selectedTriangle;
-    private ArrayList<CoatingBlock> coatingBlocks;
-    private float px;
-    private float py;
-    private float pr;
-    private float[] weights;
-    private CoatingBlock[] associatedCoatingBlocks;
+    protected List<CoatingBlock> coatingBlocks;
+    protected CoatingBlock[] associatedCoatingBlocks;
+    protected float[] trianglesData;
+    protected float[] trianglesAccumulatedWeight;
+    protected float fullArea;
+    protected int selectedTriangle;
     private float coverageRatio;
+    final protected Predicate<CoatingBlock> coatingBlockPredicate;
 
-    public PolygonEmitter(GameEntity entity) {
+    public PolygonEmitter(List<CoatingBlock> coatingBlockList,Predicate<CoatingBlock> predicate) {
         super(0, 0);
-        coatingBlocks = new ArrayList<>();
-
-        this.gameEntity = entity;
-        setupData();
-        computeData();
-        px = 0;
-        py = 0;
-        pr = 0;
-
-
-        fullArea = 0;
-        for (CoatingBlock coatingBlock : coatingBlocks) {
+        this.coatingBlockPredicate = predicate;
+        this.coatingBlocks = coatingBlockList;
+        for (CoatingBlock coatingBlock : coatingBlockList) {
             fullArea += coatingBlock.getArea();
         }
-
-    }
-
-    public void update() {
+        setupData();
+        computeTrianglesData();
         calculateWeights();
-        if (Math.abs(px - gameEntity.getMesh().getX()) > 1 || Math.abs(py - gameEntity.getMesh().getY()) > 1 || Math.abs(pr - gameEntity.getMesh().getRotation()) > 1) {
-            computeData();
-            Transformation transformation = gameEntity.getMesh().getLocalToSceneTransformation();
-            transformation.transform(data);
-            px = gameEntity.getMesh().getX();
-            py = gameEntity.getMesh().getY();
-            pr = gameEntity.getMesh().getRotation();
-        }
     }
 
-    private void setupData() {
-        for (LayerBlock b : gameEntity.getBlocks()) {
-                coatingBlocks.addAll(b.getBlockGrid().getCoatingBlocks());
-        }
+    protected void setupData() {
         int numberOfVertices = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
             numberOfVertices += coatingBlock.getTriangles().size();
         }
-        data = new float[numberOfVertices * 2];
+        trianglesData = new float[numberOfVertices * 2];
         int size = numberOfVertices / 3;
-        weights = new float[size];
-        associatedCoatingBlocks = new CoatingBlock[numberOfVertices / 3];
+        trianglesAccumulatedWeight = new float[size];
+        associatedCoatingBlocks = new CoatingBlock[size];
         int counter = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
             ArrayList<Vector2> vertices = coatingBlock.getTriangles();
@@ -77,80 +51,73 @@ public class PolygonEmitter extends BaseParticleEmitter {
                 associatedCoatingBlocks[counter++] = coatingBlock;
             }
         }
-        initialColors = new Color[size];
-        for (int i = 0; i < size; i++) {
-            initialColors[i] = associatedCoatingBlocks[i].getProperties().getFlameColor1();
-
-        }
-
     }
 
-    private void calculateWeights() {
-        //  for(int i=0;i<associatedCoatingBlocks.length;i++)
-        //    associatedCoatingBlocks[i].setTest(true);
 
-
-        float totalArea = 0;
+    protected void calculateWeights() {
+        float coveredArea = 0;
         int counter = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
             ArrayList<Vector2> vertices = coatingBlock.getTriangles();
             for (int i = 0; i < vertices.size(); i += 3) {
-                if (coatingBlock.isOnFire()) {
+                if (coatingBlockPredicate.evaluate(coatingBlock)) {
                     Vector2 p1 = vertices.get(i);
                     Vector2 p2 = vertices.get(i + 1);
                     Vector2 p3 = vertices.get(i + 2);
                     float area = GeometryUtils.calculateTriangleArea(p1, p2, p3);
-                    totalArea += area;
-                    weights[counter] = totalArea;
+                    coveredArea += area;
+                    trianglesAccumulatedWeight[counter] = coveredArea;
                 }
                 counter++;
             }
         }
-        for (int i = 0; i < weights.length; i++) weights[i] /= totalArea;
+        for (int i = 0; i < trianglesAccumulatedWeight.length; i++) {
+            trianglesAccumulatedWeight[i] /= coveredArea;
+        }
 
-        coverageRatio = totalArea / fullArea;
+        coverageRatio = coveredArea / fullArea;
 
     }
 
 
-    private void computeData() {
+    protected void computeTrianglesData() {
         int counter = 0;
-
         for (CoatingBlock coatingBlock : coatingBlocks) {
             ArrayList<Vector2> vertices = coatingBlock.getTriangles();
             for (int i = 0; i < vertices.size(); i++) {
-                Vector2 vertice = vertices.get(i);
+                Vector2 vector2 = vertices.get(i);
                 int baseIndex = counter * 2;
-                data[baseIndex] = vertice.x;
-                data[baseIndex + 1] = vertice.y;
+                trianglesData[baseIndex] = vector2.x;
+                trianglesData[baseIndex + 1] = vector2.y;
                 counter++;
             }
         }
     }
 
+
     private void selectTriangle() {
         float randomFloat = GeometryUtils.random.nextFloat();
-        for (int i = 0; i < weights.length; i++) {
-            if (associatedCoatingBlocks[i].isOnFire())
-                if (randomFloat < weights[i]) {
+        for (int i = 0; i < trianglesAccumulatedWeight.length; i++) {
+            if (coatingBlockPredicate.evaluate(associatedCoatingBlocks[i])) {
+                if (randomFloat < trianglesAccumulatedWeight[i]) {
                     selectedTriangle = i;
                     break;
                 }
+            }
         }
     }
 
     @Override
     public void getPositionOffset(float[] pOffset) {
         selectTriangle();
-        float x1 = data[6 * selectedTriangle];
-        float y1 = data[6 * selectedTriangle + 1];
-        float x2 = data[6 * selectedTriangle + 2];
-        float y2 = data[6 * selectedTriangle + 3];
-        float x3 = data[6 * selectedTriangle + 4];
-        float y3 = data[6 * selectedTriangle + 5];
+        float x1 = trianglesData[6 * selectedTriangle];
+        float y1 = trianglesData[6 * selectedTriangle + 1];
+        float x2 = trianglesData[6 * selectedTriangle + 2];
+        float y2 = trianglesData[6 * selectedTriangle + 3];
+        float x3 = trianglesData[6 * selectedTriangle + 4];
+        float y3 = trianglesData[6 * selectedTriangle + 5];
 
         GeometryUtils.generateRandomPointInTriangle(pOffset, x1, y1, x2, y2, x3, y3);
-        //GameScene.plotter2.drawPoint(new Vector2(pOffset[0],pOffset[1]),Color.CYAN,1,0);
     }
 
 
@@ -158,7 +125,6 @@ public class PolygonEmitter extends BaseParticleEmitter {
         return coverageRatio;
     }
 
-    public double getTemperature() {
-        return associatedCoatingBlocks[selectedTriangle].getFlameTemperature();
-    }
+
+    public abstract Object getUserData();
 }

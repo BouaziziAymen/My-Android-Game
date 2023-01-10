@@ -4,6 +4,7 @@ package com.evolgames.userinterface.view.inputs;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
+import com.evolgames.userinterface.view.Temporal;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 
@@ -11,10 +12,10 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 
 import java.util.ArrayList;
 
-public class Quantity<C extends AdvancedWindowController<?>> extends InputField<C,QuantityBehavior<C>> {
-    private int mColorIndex;
+public class Quantity<C extends AdvancedWindowController<?>> extends InputField<C,QuantityBehavior<C>> implements Temporal {
+    private final int mColorIndex;
     private int mNumberOfStrokes;
-    private LinearLayout mFront;
+    private final LinearLayout mFront;
     public Quantity(float pX, float pY,int mLength, int colorIndex){
        this(pX,pY,mLength,colorIndex,0);
     }
@@ -59,13 +60,11 @@ public class Quantity<C extends AdvancedWindowController<?>> extends InputField<
         mFront.addToLayout(new Image(frontRegions.get(2)));
     }
 
-    @Override
-    public boolean isTemporal() {
-        return true;
-    }
 
     @Override
     public void onStep() {
-        if(getBehavior()!=null)getBehavior().onStep();
+        if(getBehavior()!=null){
+            getBehavior().onStep();
+        }
     }
 }

@@ -1,0 +1,45 @@
+package com.evolgames.userinterface.view.inputs;
+
+import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
+import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
+import com.evolgames.userinterface.view.basics.Image;
+import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
+import com.evolgames.userinterface.view.layouts.LinearLayout;
+
+import org.andengine.opengl.texture.region.ITextureRegion;
+
+import java.util.ArrayList;
+
+public class TypeABoard<C extends AdvancedWindowController<?>> extends  ClickableContainer<C, TextFieldBehavior<C>> {
+
+
+    int mLength;
+    public TypeABoard(float pX, float pY,int mLength, boolean hasLeftHole){
+        super(pX,pY);
+        this.mLength = mLength;
+        LinearLayout layout = new LinearLayout(LinearLayout.Direction.Horizontal,-1);
+        addElement(layout);
+
+
+        ArrayList<ITextureRegion> baseRegions = ResourceManager.getInstance().buttonRegionsA;
+        float width = 0;
+        Image image = new Image(0,0,baseRegions.get(hasLeftHole?3:2));
+        width+=baseRegions.get(hasLeftHole?3:2).getWidth();
+        layout.addToLayout(image);
+
+        for(int i = 0; i< mLength -2; i++){
+            image = new Image(0,0,baseRegions.get(0));
+            layout.addToLayout(image);
+            width+=baseRegions.get(0).getWidth();
+        }
+        image = new Image(0,0,baseRegions.get(1));
+        width+=baseRegions.get(1).getWidth();
+        setWidth(width);
+        setHeight(baseRegions.get(0).getHeight());
+
+        RectangularBounds bounds = new RectangularBounds(this,getWidth(),getHeight());
+        setBounds(bounds);
+        layout.addToLayout(image);
+    }
+}

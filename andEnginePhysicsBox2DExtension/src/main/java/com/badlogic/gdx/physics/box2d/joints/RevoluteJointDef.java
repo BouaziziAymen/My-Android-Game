@@ -86,4 +86,23 @@ public class RevoluteJointDef extends JointDef {
 	 * The maximum motor torque used to achieve the desired motor speed. Usually in N-m.
 	 */
 	public float maxMotorTorque = 0;
+
+	@Override
+	public String toString() {
+		return "RevoluteJointDef{" +
+				"type=" + type +
+				", bodyA=" + bodyA +
+				", bodyB=" + bodyB +
+				", collideConnected=" + collideConnected +
+				", localAnchorA=" + localAnchorA +
+				", localAnchorB=" + localAnchorB +
+				", referenceAngle=" + referenceAngle +
+				", enableLimit=" + enableLimit +
+				", lowerAngle=" + lowerAngle +
+				", upperAngle=" + upperAngle +
+				", enableMotor=" + enableMotor +
+				", motorSpeed=" + motorSpeed +
+				", maxMotorTorque=" + maxMotorTorque +
+				'}';
+	}
 }

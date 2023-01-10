@@ -1,5 +1,7 @@
 package com.evolgames.entities.blocks;
 
+import static com.evolgames.physics.PhysicsConstants.MINIMUM_CUT_LENGTH;
+
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -24,6 +26,7 @@ import java.util.List;
 
 
 public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Comparable<LayerBlock> {
+    private final ArrayList<FreshCut> freshCuts = new ArrayList<>();
     private ArrayList<Vector2> bodyVertices;
     private ArrayList<AssociatedBlock<?, ?>> associatedBlocks;
     private Polarity polarity = Polarity.NEUTRAL;
@@ -32,11 +35,12 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     private boolean dead;
     private float blockArea;
     private Body body;
-    private final ArrayList<FreshCut> freshCuts = new ArrayList<>();
     private GameEntity gameEntity;
     private boolean fillGrid;
+    private int liquidQuantity;
 
-    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id,boolean fillGrid) {
+
+    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id, boolean fillGrid) {
         this.fillGrid = fillGrid;
         super.initialization(vertices, properties, id);
     }
@@ -102,7 +106,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         computeTriangles();
     }
 
-
     private void createFixtureSet() {
         if (fixtures == null)
             fixtures = new HashSet<>();
@@ -135,13 +138,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         super.performCut(cut);
         Pair<LayerBlock, LayerBlock> result = BlockUtils.cutLayerBlock(this, cut);
         addBlock(result.first);
-        if (result.first.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA){
-            result.first.setAborted(true);
-        }
         addBlock(result.second);
-        if (result.second.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA) {
-            result.second.setAborted(true);
-        }
     }
 
     @Override
@@ -267,12 +264,9 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         return freshCuts;
     }
 
-
     public void decrementLiquidQuantity() {
         liquidQuantity--;
     }
-
-    private int liquidQuantity;
 
     public int getLiquidQuantity() {
         return liquidQuantity;
@@ -281,6 +275,5 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     public void setLiquidQuantity(int liquidQuantity) {
         this.liquidQuantity = liquidQuantity;
     }
-
 
 }

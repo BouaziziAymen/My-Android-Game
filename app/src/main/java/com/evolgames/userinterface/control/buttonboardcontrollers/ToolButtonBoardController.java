@@ -40,13 +40,13 @@ public class ToolButtonBoardController extends ButtonBoardController {
         optionsWindowController.selectSettingsType(SettingsType.NONE);
     }
 
-    public void onHandleButtonClicked(Button<ToolButtonBoardController> button) {
+    public void onAmmoButtonClicked(Button<ToolButtonBoardController> button) {
         onButtonClicked(button);
-        creationZoneController.setAction(CreationZoneController.CreationAction.HAND);
-        optionsWindowController.selectSettingsType(SettingsType.HAND_TOOL_POINT_SETTING);
+        creationZoneController.setAction(CreationZoneController.CreationAction.AMMO);
+        optionsWindowController.selectSettingsType(SettingsType.AMMO_TOOL_POINT_SETTING);
     }
 
-    public void onHandleButtonReleased(Button<ToolButtonBoardController> button) {
+    public void onAmmoButtonReleased(Button<ToolButtonBoardController> button) {
         onButtonReleased(button);
         creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
         optionsWindowController.selectSettingsType(SettingsType.NONE);

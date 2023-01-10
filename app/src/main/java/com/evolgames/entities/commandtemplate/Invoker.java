@@ -31,7 +31,7 @@ public class Invoker {
                 while (entitiesIterator.hasNext()) {
                     GameEntity gameEntity = entitiesIterator.next();
                     for (Command command : gameEntity.getCommands()) {
-                        if (command != null && !command.isAborted()) {
+                        if (!command.isAborted()) {
                             command.execute();
                             if(command instanceof BodyDestructionCommand){
                                 entitiesIterator.remove();
@@ -65,12 +65,15 @@ public class Invoker {
     }
 
     public static void addBodyDestructionCommand(GameEntity entity) {
-        if (!entity.isAlive()) return;
+        if (!entity.isAlive()) {
+            return;
+        }
         for (Command command : entity.getCommands()) {
             if (command instanceof BodyDestructionCommand){
                 return;
             }
         }
+
         Command command = new BodyDestructionCommand(entity);
         entity.getCommands().add(command);
         entity.setAlive(false);

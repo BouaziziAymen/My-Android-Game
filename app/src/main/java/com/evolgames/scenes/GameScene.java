@@ -1,5 +1,6 @@
 package com.evolgames.scenes;
 
+import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
 import android.util.Log;
@@ -8,24 +9,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.Plotter;
-import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
-import com.evolgames.entities.init.BodyInit;
-import com.evolgames.entities.init.BodyInitImpl;
-import com.evolgames.entities.init.BulletInit;
-import com.evolgames.entities.init.LinearVelocityInit;
-import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.persistence.PersistenceCaretaker;
-import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.entities.ragdoll.Ragdoll;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -34,6 +24,17 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
+import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
+import com.evolgames.entities.init.LinearVelocityInit;
+import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
+import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.properties.DecorationProperties;
+import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
@@ -71,7 +72,6 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.EntityBackground;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
-import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
@@ -109,6 +109,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private final PinchZoomDetector mPinchZoomDetector;
     public Ragdoll ragdoll;
     HashMap<Integer, Hand> hands = new HashMap<>();
+    float x, y;
     private GameGroup groundGroup;
     private Vector2 point1;
     private Vector2 point2;
@@ -166,6 +167,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public void populate() {
+
         this.background = new Entity();
         this.setBackground(new EntityBackground(0, 0, 0, this.background));
 
@@ -175,6 +177,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         plotter2 = new Plotter();
         plotter2.setZIndex(200);
 
+
         Color color = new Color(1, 1, 1);
         color.setBlue(0);
         keyboardController = new KeyboardController();
@@ -183,7 +186,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_issue.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
@@ -334,10 +337,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
 
-        vertices2.add(Vector2Pool.obtain(-400, 0));
-        vertices2.add(Vector2Pool.obtain(-400, 20));
-        vertices2.add(Vector2Pool.obtain(1200, 20));
-        vertices2.add(Vector2Pool.obtain(1200, 0));
+        vertices2.add(obtain(-400, 0));
+        vertices2.add(obtain(-400, 20));
+        vertices2.add(obtain(1200, 20));
+        vertices2.add(obtain(1200, 0));
 /*
         vertices2.add(Vector2Pool.obtain(-28.1f,-4.5f));
         vertices2.add(Vector2Pool.obtain(-30.2f,-18.8f));
@@ -369,8 +372,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        if (false) {
-            ragdoll = GameEntityFactory.getInstance().createRagdoll();
+        if (true) {
+            ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
 //GameEntityFactory.getInstance().createTest();
 
@@ -426,14 +429,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         for (Hand hand : hands.values()) {
             hand.onUpdate();
         }
-        Vector2 v = new Vector2();
-
-            getWorldFacade().performFlux(new Vector2(440 / 32f, 0), (layerBlock, body, direction, start, end, angle) -> {
-                float length2 = v.set(end.x-start.x,end.y-start.y).len2();
-                float impulseValue = (float) (10*angle / (2 * Math.PI) / length2);
-                body.applyLinearImpulse(0*impulseValue,1*impulseValue, end.x, end.y);
-            }, false);
-
 
 
         if (!pause) {
@@ -465,7 +460,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             } else {
                 themesh.setScale(1 + (step % 15) * 10);
             }
+if(step==180){
+   //getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
 
+}
 
         if (false)
             if (step % 120 == 0) {
@@ -516,10 +514,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
                 GeometryUtils.rotateVectorRad(u, angle);
                 ArrayList<Vector2> vertices1 = new ArrayList<>();
-                vertices1.add(Vector2Pool.obtain(0, -10));
-                vertices1.add(Vector2Pool.obtain(-6, -5));
-                vertices1.add(Vector2Pool.obtain(0, 15));
-                vertices1.add(Vector2Pool.obtain(6, -5));
+                vertices1.add(obtain(0, -10));
+                vertices1.add(obtain(-6, -5));
+                vertices1.add(obtain(0, 15));
+                vertices1.add(obtain(6, -5));
 
                 LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), projectileFilter);
                 LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
@@ -561,17 +559,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     @Override
-    public boolean onSceneTouchEvent(Scene pScene, TouchEvent touchEvent) {
-
-        float[] coord = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
+    public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
 
 
-        TouchEvent hudTouch = TouchEvent.obtain(coord[0], coord[1], touchEvent.getAction(), touchEvent.getPointerID(),
+        if (touchEvent.isActionDown()) {
+            this.x = touchEvent.getX() / 32f;
+            this.y = touchEvent.getY() / 32f;
+            plotter2.detachChildren();
+            getWorldFacade().createExplosion(x, y, 100);
+        }
+        float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
+
+
+        TouchEvent hudTouch = TouchEvent.obtain(cameraSceneCoordinatesFromSceneCoordinates[0], cameraSceneCoordinatesFromSceneCoordinates[1], touchEvent.getAction(), touchEvent.getPointerID(),
                 touchEvent.getMotionEvent());
 
 
         boolean hudTouched = userInterface.onTouchHud(hudTouch, scroll);
-        if (!hudTouched) userInterface.onTouchScene(touchEvent, scroll);
+        if (!hudTouched){
+            userInterface.onTouchScene(touchEvent, scroll);
+        }
 
 
         if (mPinchZoomDetector != null) {
@@ -591,9 +598,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
 
 
-        Vector2 touch = Vector2Pool.obtain(touchEvent.getX(), touchEvent.getY());
+        Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
 
-        if (action == PlayerAction.Drag) {
+        if (action == PlayerAction.Drag && false) {
             int pointerID = touchEvent.getPointerID();
 
             if (touchEvent.isActionDown()) {
@@ -607,14 +614,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                             }
 
                             Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
-                            System.out.println("grabbed");
                             break;
                         }
                     }
 
             }
-            if (hands.get(pointerID) != null)
+            if (hands.get(pointerID) != null) {
                 Objects.requireNonNull(hands.get(pointerID)).onSceneTouchEvent(touchEvent);
+            }
         }
 
 

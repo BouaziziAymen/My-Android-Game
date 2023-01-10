@@ -3,7 +3,7 @@ package com.evolgames.entities.particles.emitters;
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
 
-public class PointEmitter  extends BaseEmitter {
+public class PointEmitter  extends AbsoluteEmitter {
 
     private final float beginX;
     private final float beginY;

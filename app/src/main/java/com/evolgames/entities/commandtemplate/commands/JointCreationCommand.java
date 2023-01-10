@@ -1,6 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
@@ -11,6 +12,8 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JointCreationCommand extends Command {
 
@@ -39,7 +42,7 @@ public class JointCreationCommand extends Command {
     protected boolean isReady() {
         jointDef.bodyA = entity1.getBody();
         jointDef.bodyB = entity2.getBody();
-        return jointDef.bodyA != null && jointDef.bodyB != null;
+        return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
     }
 
     public Joint getJoint() {
@@ -100,5 +103,22 @@ public class JointCreationCommand extends Command {
                break;
        }
 
+    }
+
+    public boolean isConcerned(GameEntity entity) {
+        return entity==entity1||entity==entity2;
+    }
+
+    private boolean isBodyAlive(Body body){
+        if(body==null){
+            return false;
+        }
+        AtomicBoolean result = new AtomicBoolean(false);
+        Invoker.gameScene.getPhysicsWorld().getBodies().forEachRemaining(body1 -> {
+            if(body1 == body){
+                result.set(true);
+            }
+        });
+        return result.get();
     }
 }

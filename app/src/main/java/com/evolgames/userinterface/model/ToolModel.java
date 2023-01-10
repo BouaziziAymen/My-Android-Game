@@ -22,8 +22,10 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -162,9 +164,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
 
     public void updateMesh() {
-        for (MosaicMesh mesh : meshes) mesh.detachSelf();
+        for (MosaicMesh mesh : meshes){
+            mesh.detachSelf();
+        }
         meshes.clear();
-        GameScene.plotter2.detachChildren();
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) continue;
             Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getPoints());
@@ -286,7 +289,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return null;
     }
 
-
+    public AmmoModel getAmmoById(int primaryKey, int secondaryKey) {
+        Optional<AmmoModel> res = getBodyModelById(primaryKey).getAmmoModels().stream().filter(e -> e.getAmmoId() == secondaryKey).findFirst();
+        return res.orElse(null);
+    }
     public ProjectileModel getProjectileById(int primaryKey, int secondaryKey) {
         Optional<ProjectileModel> res = getBodyModelById(primaryKey).getProjectiles().stream().filter(e -> e.getProjectileId() == secondaryKey).findFirst();
         return res.orElse(null);
@@ -334,6 +340,17 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             }
         }
         return -1;
+    }
+
+    public AmmoModel createNewAmmo(AmmoShape ammoShape, int bodyId) {
+        int ammoId = Objects.requireNonNull(getBodyById(bodyId)).getProjectileCounter().getAndIncrement();
+        AmmoModel ammoModel = new AmmoModel(bodyId, ammoId, ammoShape);
+        getBodyModelById(bodyId).getAmmoModels().add(ammoModel);
+        return ammoModel;
+    }
+
+    public void removeAmmo(int bodyId, int ammoId) {
+
     }
 }
 

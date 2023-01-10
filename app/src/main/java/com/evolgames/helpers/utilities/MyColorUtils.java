@@ -111,7 +111,7 @@ public class MyColorUtils {
         defaultColor.set(color1.getRed() + ratio * deltaRed, color1.getGreen() + ratio * deltaGreen, color1.getBlue() + ratio * deltaBlue);
     }
 
-    public static void blendColors(Color defaultColor, Color background, Color foreground) {
+    public static void blendColors(Color resultColor, Color background, Color foreground) {
 
         float a01 = (1 - foreground.getAlpha())*background.getAlpha() + foreground.getAlpha();
 
@@ -131,7 +131,7 @@ public class MyColorUtils {
         float g01 = ((1 - a0)*a1*g1 + a0*g0);
 
         float b01 = ((1 - a0)*a1*b1 + a0*b0);
-       defaultColor.set(r01,g01,b01,a01);
+       resultColor.set(r01,g01,b01,a01);
     }
 
     public static int getTemperatureLevel(float temperature) {

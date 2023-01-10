@@ -3,7 +3,7 @@ package com.evolgames.entities.particles.wrappers;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.ClusterEmitter;
-import com.evolgames.entities.particles.emitters.BaseEmitter;
+import com.evolgames.entities.particles.emitters.AbsoluteEmitter;
 import com.evolgames.helpers.utilities.GeometryUtils;
 
 import org.andengine.util.adt.color.Color;
@@ -14,7 +14,7 @@ public class ClusterLiquidParticleWrapper extends  DataLiquidParticleWrapper{
     }
 
     @Override
-    protected BaseEmitter createEmitter(float[] emitterData) {
+    protected AbsoluteEmitter createEmitter(float[] emitterData) {
         Vector2 center = GeometryUtils.calculateCentroid(emitterData);
         return new ClusterEmitter(center.x,center.y,emitterData);
     }

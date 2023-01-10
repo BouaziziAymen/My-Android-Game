@@ -5,17 +5,15 @@ import com.evolgames.entities.EntityWithBody;
 
 public class Balancer {
 
-    private EntityWithBody entity;
-    private float limit;
-    private float angle;
+    private final EntityWithBody entity;
+    private final float limit;
+    private final float angle;
 
     public Balancer(EntityWithBody entity, float limit, float angle) {
         this.entity = entity;
         this.limit = limit;
         this.angle = angle;
     }
-
-
 
     public EntityWithBody getEntity() {
         return entity;

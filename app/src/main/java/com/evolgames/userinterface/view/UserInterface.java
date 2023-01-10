@@ -43,6 +43,7 @@ import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ColorSelector;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.Touchable;
+import com.evolgames.userinterface.view.inputs.TypeABoard;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
 import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
@@ -272,6 +273,9 @@ public class UserInterface extends Container implements Touchable {
         creationZone = new CreationZone(creationZoneController);
         creationZoneController.setCreationZone(creationZone);
         creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
+
+        TypeABoard<LayerWindowController> board = new TypeABoard<>(400,240,5,true);
+addElement(board);
 
         hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
@@ -669,16 +673,16 @@ public class UserInterface extends Container implements Touchable {
         });
 
 
-        Button<ToolButtonBoardController> button41 = new Button<>(ResourceManager.getInstance().handleTextureRegion, Button.ButtonType.Selector, true);
+        Button<ToolButtonBoardController> button41 = new Button<>(ResourceManager.getInstance().ammoTextureRegion, Button.ButtonType.Selector, true);
         button41.setBehavior(new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button41) {
             @Override
             public void informControllerButtonClicked() {
-                getController().onHandleButtonClicked(button41);
+                getController().onAmmoButtonClicked(button41);
             }
 
             @Override
             public void informControllerButtonReleased() {
-                getController().onHandleButtonReleased(button41);
+                getController().onAmmoButtonReleased(button41);
             }
         });
 

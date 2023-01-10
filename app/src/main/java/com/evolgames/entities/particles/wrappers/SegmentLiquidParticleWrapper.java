@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.particles.emitters.BaseEmitter;
+import com.evolgames.entities.particles.emitters.AbsoluteEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
 
 import org.andengine.util.adt.color.Color;
@@ -12,7 +12,7 @@ public class SegmentLiquidParticleWrapper extends DataLiquidParticleWrapper{
     }
 
     @Override
-    protected BaseEmitter createEmitter(float[] emitterData) {
+    protected AbsoluteEmitter createEmitter(float[] emitterData) {
         return new SegmentEmitter(emitterData);
     }
 }

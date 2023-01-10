@@ -5,6 +5,7 @@ import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.OneLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractOneLevelSectionedAdvancedWindow;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.AmmoField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.HandField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
@@ -34,6 +35,13 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         addSecondary(targetField,primaryKey,secondaryKey);
         targetField.setText(name);
         return targetField;
+    }
+
+    public AmmoField addAmmoField(String name, int primaryKey, int secondaryKey){
+        AmmoField ammoField = new AmmoField(primaryKey, secondaryKey, itemWindowController);
+        addSecondary(ammoField,primaryKey,secondaryKey);
+        ammoField.setText(name);
+        return ammoField;
     }
     public HandField addHandField(String name, int primaryKey, int secondaryKey){
         HandField handField = new HandField(primaryKey, secondaryKey, itemWindowController);

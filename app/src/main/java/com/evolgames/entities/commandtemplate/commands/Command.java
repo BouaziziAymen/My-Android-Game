@@ -1,5 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import com.evolgames.entities.commandtemplate.Invoker;
+
 public abstract class Command {
 
     private boolean aborted;
@@ -13,7 +15,7 @@ public abstract class Command {
     }
 
     public void execute(){
-        if(this.isReady()&&!isAborted()) {
+        if(!Invoker.gameScene.getPhysicsWorld().isLocked()&&this.isReady()&&!isAborted()) {
             this.run();
             this.setAborted(true);
         }
