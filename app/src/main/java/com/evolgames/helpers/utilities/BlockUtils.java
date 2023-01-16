@@ -390,39 +390,40 @@ public class BlockUtils {
         }
         return null;
     }
-
     public static ArrayList<ArrayList<LayerBlock>> getDivisionGroups(List<LayerBlock> blocks) {
-        int N = blocks.size();
-        UnionFind unionFinder = new UnionFind(N);
+        int blocksSize = blocks.size();
+        UnionFind unionFinder = new UnionFind(blocksSize);
         for (int i = 0; i < blocks.size(); i++) {
             for (int j = i + 1; j < blocks.size(); j++) {
-                if (blocks.get(i).getId() != blocks.get(j).getId())
-                    if (blocks.get(i).getPolarity() == Polarity.NEUTRAL || blocks.get(j).getPolarity() == Polarity.NEUTRAL || (blocks.get(i).getPolarity() == blocks.get(j).getPolarity()))
-                        if (GeometryUtils.doLayersIntersect(blocks.get(i).getVertices(), blocks.get(j).getVertices()))
+                if (blocks.get(i).getId() != blocks.get(j).getId()) {
+                    if (blocks.get(i).getPolarity() == Polarity.NEUTRAL || blocks.get(j).getPolarity() == Polarity.NEUTRAL || (blocks.get(i).getPolarity() == blocks.get(j).getPolarity())) {
+                        if (GeometryUtils.doLayersIntersect(blocks.get(i).getVertices(), blocks.get(j).getVertices())) {
                             unionFinder.union(i, j);
-
+                        }
+                    }
+                }
             }
-        }
-        for (LayerBlock b : blocks){
-            b.setPolarity(Polarity.NEUTRAL);
         }
 
         unionFinder.compute();
 
         Iterator<HashSet<Integer>> iterator = unionFinder.myDict.values().iterator();
         ArrayList<ArrayList<LayerBlock>> blockGrouping = new ArrayList<>();
-        int INDEX = 0;
+        int index = 0;
         while (iterator.hasNext()) {
             blockGrouping.add(new ArrayList<>());
             HashSet<Integer> set = iterator.next();
             for (Integer aSet : set) {
-                blockGrouping.get(INDEX).add(blocks.get(aSet));
+                blockGrouping.get(index).add(blocks.get(aSet));
             }
-            INDEX++;
+            index++;
         }
         for (int i = 0; i < blockGrouping.size(); i++) {
             ArrayList<LayerBlock> list = blockGrouping.get(i);
-            for (int j = 0; j < list.size(); j++) list.get(j).setId(j);
+            for (int j = 0; j < list.size(); j++) {
+                list.get(j).setId(j);
+                list.get(j).setPolarity(Polarity.NEUTRAL);
+            }
         }
         return blockGrouping;
     }

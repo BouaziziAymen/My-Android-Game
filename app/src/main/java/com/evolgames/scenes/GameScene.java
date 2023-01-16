@@ -372,7 +372,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        if (true) {
+        if (false) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
 //GameEntityFactory.getInstance().createTest();
@@ -566,7 +566,7 @@ if(step==180){
             this.x = touchEvent.getX() / 32f;
             this.y = touchEvent.getY() / 32f;
             plotter2.detachChildren();
-            getWorldFacade().createExplosion(x, y, 100);
+          //  getWorldFacade().createExplosion(x, y, 100);
         }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

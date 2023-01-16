@@ -6,7 +6,7 @@ import com.evolgames.helpers.MyLetter;
 public class Text extends Container{
 
     private String textString;
-    private int fontId;
+    private final int fontId;
 
     public String getTextString() {
         return textString;
@@ -16,7 +16,7 @@ public class Text extends Container{
         super(pX, pY);
         this.textString = pTextString;
         this.fontId = pFontId;
-        setHeight(ResourceManager.getInstance().getFontHeight(fontId,pTextString));
+        setHeight(ResourceManager.getInstance().getFontHeight(fontId));
         updateSelf();
     }
 

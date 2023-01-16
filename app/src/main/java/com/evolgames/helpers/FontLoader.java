@@ -112,12 +112,19 @@ public class FontLoader {
         return mLoadedFonts.get(fontId).get(index);
     }
 
-    public float getHeight(int fontId, String textString) {
+    public float getHeight(int fontId) {
         Font font = mFonts.get(fontId);
         mPaint.setTypeface(font.typeFace);
         mPaint.setTextSize(font.size);
         mPaint.getTextBounds(LOADING_LETTERS_LIST, 0, LOADING_LETTERS_LIST.length(), rect);
-        return rect.height()-2;
+        return rect.height();
+    }
+    public float getWidth(int fontId,String text) {
+        Font font = mFonts.get(fontId);
+        mPaint.setTypeface(font.typeFace);
+        mPaint.setTextSize(font.size);
+        mPaint.getTextBounds(text, 0, text.length(), rect);
+        return rect.width();
     }
 
     class Font {

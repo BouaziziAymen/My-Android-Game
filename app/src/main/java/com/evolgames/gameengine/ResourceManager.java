@@ -127,6 +127,7 @@ public class ResourceManager {
     public TiledTextureRegion saveBigButton;
     public TextureRegion pixelParticle;
     public ArrayList<ITextureRegion> buttonRegionsA;
+    public TiledTextureRegion infoBlueButton;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -212,6 +213,8 @@ public class ResourceManager {
         this.addTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "add.png", 3, 1);
         this.add1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "addgreen.png", 1, 3);
         this.minus1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "minusred.png", 1, 3);
+
+        this.infoBlueButton = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "infoblue.png", 1, 3);
 
         this.upButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
         this.downButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
@@ -300,7 +303,7 @@ public class ResourceManager {
 
 
         this.buttonRegionsA = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
+        for (int i = 0; i <= 4; i++) {
             this.buttonRegionsA.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
@@ -322,9 +325,13 @@ public class ResourceManager {
 
     }
 
-    public float getFontHeight(int fontId, String textString) {
-        return fontLoader.getHeight(fontId, textString);
+    public float getFontHeight(int fontId) {
+        return fontLoader.getHeight(fontId);
     }
+    public float getFontWidth(int fontId, String text) {
+        return fontLoader.getWidth(fontId,text);
+    }
+
 
 
     private TextureRegion createEmptyTextureRegion(int width, int height) {

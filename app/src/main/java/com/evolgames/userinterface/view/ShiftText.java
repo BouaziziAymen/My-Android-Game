@@ -1,13 +1,58 @@
 package com.evolgames.userinterface.view;
-public class ShiftText {
-    private String text;
 
-    public ShiftText(String text) {
-        this.text = text;
+import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.behaviors.ShiftTextBehavior;
+import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
+import com.evolgames.userinterface.view.basics.Text;
+import com.evolgames.userinterface.view.inputs.Button;
+import com.evolgames.userinterface.view.inputs.TypeABoard;
+
+public class ShiftText<C extends AdvancedWindowController<?>> extends TypeABoard<C> implements Temporal{
+
+    private final Text movingText;
+    private String text = "";
+    private final ShiftTextBehavior<C> shiftTextBehavior;
+
+    public ShiftText(float pX, float pY, C controller) {
+        super(pX, pY, 8, true);
+        Button<C> infoButton = new Button<>(ResourceManager.getInstance().infoBlueButton, Button.ButtonType.Selector,true);
+        addElement(infoButton);
+        infoButton.setPosition(5,4);
+        infoButton.setBehavior(new ButtonBehavior<C>(controller,infoButton) {
+            @Override
+            public void informControllerButtonClicked() {
+
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+
+            }
+        });
+
+         movingText = new Text(text,2);
+
+        addElement(movingText);
+        movingText.setPosition(28,12);
+        shiftTextBehavior = new ShiftTextBehavior<>(this, controller);
     }
 
-    public void update() {
-        text = text.substring(1) + text.charAt(0);
-        System.out.println(text);
+    public void setText(String text){
+        this.text = text;
+        this.shiftTextBehavior.setShiftedText(text);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    @Override
+    public void onStep() {
+        shiftTextBehavior.onStep();
+    }
+
+    public void update(String textString) {
+        movingText.updateText(textString);
     }
 }

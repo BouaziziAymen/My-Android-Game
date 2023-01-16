@@ -7,18 +7,22 @@ import java.util.ArrayList;
 public class LinearLayout extends Layout {
     protected ArrayList<Element> layoutElements = new ArrayList<>();
     private final Direction direction;
-
-
+    private float y0 = 0;
+    public float getY0() {
+        return y0;
+    }
     public enum Direction {Horizontal, Vertical}
 
     public LinearLayout(float pX, float pY, Direction direction) {
         super(pX, pY, 0);
         this.direction = direction;
+        y0 = pY;
     }
 
     public LinearLayout(float pX, float pY, Direction direction, float margin) {
         super(pX, pY, margin);
         this.direction = direction;
+        y0 = pY;
     }
 
     public LinearLayout(Direction direction) {

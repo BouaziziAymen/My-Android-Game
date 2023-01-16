@@ -17,7 +17,7 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
 
     public void onScrolled(float pAdvance) {
         float height = window.getLayout().getHeight();
-        window.getLayout().setLowerBottomY(pAdvance * height + window.getLayout().getLowerBottomY());
+        window.getLayout().setLowerBottomY(pAdvance * height + window.getLayout().getY0());
         onVisibleZoneUpdate();
     }
     private final ContentTraverser contentTraverser = new ContentTraverser();

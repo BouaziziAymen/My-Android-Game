@@ -19,6 +19,7 @@ import com.evolgames.userinterface.control.buttonboardcontrollers.ImageButtonBoa
 import com.evolgames.userinterface.control.buttonboardcontrollers.JointButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.MainButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.ToolButtonBoardController;
+import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
@@ -101,7 +102,6 @@ public class UserInterface extends Container implements Touchable {
     private final ItemSaveWindow itemSaveWindow;
     private final CreationZone creationZone;
     private final OutlineController outlineController;
-    private Screen selectedScreen = Screen.DRAW_SCREEN;
     private final ColorSelectorWindow colorSelector;
     private final OptionsWindowController optionsWindowController;
     private final LayerWindowController layersWindowController;
@@ -161,6 +161,7 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
+    private Screen selectedScreen = Screen.DRAW_SCREEN;
     private ImageShape imageShape;
     private ToolModel toolModel;
     private float zoomFactor = 1f;
@@ -274,8 +275,9 @@ public class UserInterface extends Container implements Touchable {
         creationZoneController.setCreationZone(creationZone);
         creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
 
-        TypeABoard<LayerWindowController> board = new TypeABoard<>(400,240,5,true);
-addElement(board);
+        ShiftText<AdvancedWindowController<?>> shiftingText = new ShiftText<>(400, 240, new AdvancedWindowController<>());
+        addElement(shiftingText);
+        shiftingText.setText("Hi humans of the underworld!");
 
         hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
@@ -823,7 +825,7 @@ addElement(board);
                     begin = center1.add(distanceJointDef.localAnchorA.cpy().mul(32f));
                     end = center2.add(distanceJointDef.localAnchorB.cpy().mul(32f));
                     DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
-                    distanceJointShape.updateEnd(end.x,end.y);
+                    distanceJointShape.updateEnd(end.x, end.y);
                     jointShape = distanceJointShape;
                     break;
                 case PulleyJoint:
@@ -923,7 +925,7 @@ addElement(board);
     public void updateZoom(float pZoomFactor) {
         zoomFactor = pZoomFactor;
         for (Element e : getContents()) {
-          e.updateZoom(pZoomFactor);
+            e.updateZoom(pZoomFactor);
         }
     }
 
