@@ -17,7 +17,6 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.basics.Element;
@@ -41,16 +40,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ProjectileOptionController extends SettingsWindowController<ProjectileProperties> {
     private final GameScene gameScene;
     private final AlphaNumericValidator projectileNameValidator = new AlphaNumericValidator(8, 5);
-    private final NumericValidator energyValidator = new NumericValidator(false, true, 0, 100000, 5, 1);
+    private final NumericValidator muzzleVelocityValidator = new NumericValidator(false, true, 0, 2000, 4, 1);
     private final NumericValidator fireRateValidator = new NumericValidator(false, true, 0, 1000, 3, 1);
     private final ToolModel toolModel;
     private final Hashtable<String, ToolModel> missileTable;
     private final Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable;
     private TextField<ProjectileOptionController> projectileNameField;
-    private TextField<ProjectileOptionController> energyTextField;
+    private TextField<ProjectileOptionController> muzzleVelocityTextField;
     private TextField<ProjectileOptionController> fireRateTextField;
     private Quantity<ProjectileOptionController> recoilQuantity;
     private ProjectileProperties projectileProperties;
+    private ProjectileModel projectileModel;
 
     public ProjectileOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
@@ -91,13 +91,14 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         this.onUpdated();
     }
     private void createShellToolButton(AmmoModel ammoModel) {
+
         ButtonWithText<ProjectileOptionController> shellButton = new ButtonWithText<>(ammoModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
         SimpleSecondary<ButtonWithText<ProjectileOptionController>> shellField = new SimpleSecondary<>(1, ammoModel.getAmmoId(), shellButton);
         window.addSecondary(shellField);
         shellButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, shellButton) {
             @Override
             public void informControllerButtonClicked() {
-                ProjectileModel projectileModel = ((ProjectileModel) ProjectileOptionController.this.model);
+
                 projectileModel.setAmmoModel(ammoModel);
                 onShellButtonClicked(shellField);
             }
@@ -107,6 +108,9 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
             }
         });
+        if(projectileModel.getAmmoModel()==ammoModel){
+            shellButton.updateState(Button.State.PRESSED);
+        }
     }
 
 
@@ -119,7 +123,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         missileButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, missileButton) {
             @Override
             public void informControllerButtonClicked() {
-                ProjectileModel projectileModel = ((ProjectileModel) ProjectileOptionController.this.model);
                 ToolModel missileModel;
                 if (!missileTable.containsKey(fileName)) {
                     missileModel = ToolUtils.getProjectileModel(fileName);
@@ -178,14 +181,14 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (model == null) {
             return;
         }
-        ProjectileModel projectileModel = (ProjectileModel) model;
+        this.projectileModel = (ProjectileModel) model;
         updateMissileSelectionFields();
         updateCasingSelectionFields();
         this.projectileProperties = model.getProperties();
         setBody(projectileModel.getBodyId());
         setProjectileName(this.model.getModelName());
         setFireRate(this.projectileProperties.getFireRate());
-        setEnergy(this.projectileProperties.getMuzzleVelocity());
+        setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
         setFireSound(this.projectileProperties.getFireSound());
         setProjectileTriggerType(this.projectileProperties.getProjectileTriggerType());
@@ -227,7 +230,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         super.onTertiaryButtonClicked(simpleTertiary);
         int primaryKey = simpleTertiary.getPrimaryKey();
         int secondaryKey = simpleTertiary.getSecondaryKey();
-        if (simpleTertiary.getPrimaryKey() == 1 && simpleTertiary.getSecondaryKey() == 1) {
+        if (simpleTertiary.getPrimaryKey() == 2 && simpleTertiary.getSecondaryKey() == 1) {
             ResourceManager.getInstance().gunshotSounds.get(simpleTertiary.getTertiaryKey()).getSoundList().get(0).play();
             projectileProperties.setFireSound(simpleTertiary.getTertiaryKey());
             for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
@@ -321,28 +324,28 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         SectionField<ProjectileOptionController> projectileOptionsField = new SectionField<>(4, "Physical Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(projectileOptionsField);
 
-        TitledTextField<ProjectileOptionController> energyField = new TitledTextField<>("Energy:", 6, 5, 50);
-        energyTextField = energyField.getAttachment();
+        TitledTextField<ProjectileOptionController> muzzleVelocityField = new TitledTextField<>("Muzzle Velocity:", 6, 5, 100);
+        muzzleVelocityTextField = muzzleVelocityField.getAttachment();
 
-        energyField.getAttachment().setBehavior(new TextFieldBehavior<ProjectileOptionController>(this, energyField.getAttachment(), Keyboard.KeyboardType.Numeric, energyValidator, true) {
+        muzzleVelocityField.getAttachment().setBehavior(new TextFieldBehavior<ProjectileOptionController>(this, muzzleVelocityField.getAttachment(), Keyboard.KeyboardType.Numeric, muzzleVelocityValidator, true) {
             @Override
             protected void informControllerTextFieldTapped() {
-                ProjectileOptionController.super.onTextFieldTapped(energyTextField);
+                ProjectileOptionController.super.onTextFieldTapped(muzzleVelocityTextField);
             }
 
             @Override
             protected void informControllerTextFieldReleased() {
-                ProjectileOptionController.super.onTextFieldReleased(energyTextField);
+                ProjectileOptionController.super.onTextFieldReleased(muzzleVelocityTextField);
             }
         });
 
-        FieldWithError energyFieldWithError = new FieldWithError(energyField);
-        SimpleSecondary<FieldWithError> energyElement = new SimpleSecondary<>(4, 1, energyFieldWithError);
-        window.addSecondary(energyElement);
+        FieldWithError muzzleVelocityFieldWithError = new FieldWithError(muzzleVelocityField);
+        SimpleSecondary<FieldWithError> muzzleVelocityElement = new SimpleSecondary<>(4, 1, muzzleVelocityFieldWithError);
+        window.addSecondary(muzzleVelocityElement);
 
-        energyTextField.getBehavior().setReleaseAction(() -> {
-            int energy = Integer.parseInt(energyTextField.getTextString());
-            projectileProperties.setMuzzleVelocity(energy);
+        muzzleVelocityTextField.getBehavior().setReleaseAction(() -> {
+            float muzzleVelocity = Float.parseFloat(muzzleVelocityTextField.getTextString());
+            projectileProperties.setMuzzleVelocity(muzzleVelocity);
         });
 
 
@@ -402,8 +405,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         fireRateTextField.getBehavior().setTextValidated("" + fireRate);
     }
 
-    private void setEnergy(float energy) {
-        energyTextField.getBehavior().setTextValidated("" + Math.floor(energy));
+    private void setMuzzleVelocity(float muzzleVelocity) {
+        muzzleVelocityTextField.getBehavior().setTextValidated("" + Math.floor(muzzleVelocity));
     }
 
     private void setRecoil(float recoil) {

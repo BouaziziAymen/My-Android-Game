@@ -37,6 +37,7 @@ import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Element;
@@ -55,6 +56,7 @@ import com.evolgames.userinterface.view.shapes.CreationZone;
 import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -275,14 +277,11 @@ public class UserInterface extends Container implements Touchable {
         creationZoneController.setCreationZone(creationZone);
         creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
 
-        ShiftText<AdvancedWindowController<?>> shiftingText = new ShiftText<>(400, 240, new AdvancedWindowController<>());
-        addElement(shiftingText);
-        shiftingText.setText("Hi humans of the underworld!");
 
         hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
 
-        ButtonBoard mainButtonBoard = new ButtonBoard(0, 400, LinearLayout.Direction.Vertical, 0);
+        ButtonBoard mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
         MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this);
         addElement(mainButtonBoard);
         Button<MainButtonBoardController> button10 = new Button<>(ResourceManager.getInstance().drawBigButton, Button.ButtonType.Selector, true);
@@ -777,6 +776,13 @@ public class UserInterface extends Container implements Touchable {
                 projectileModel.setProjectileShape(projectileShape);
                 projectileShape.bindModel(projectileModel);
             }
+
+            for (AmmoModel ammoModel : bodyModel.getAmmoModels()) {
+                AmmoShape ammoShape = new AmmoShape(ammoModel.getProperties().getAmmoOrigin(), scene);
+                ammoShape.updateDirection(ammoModel.getProperties().getAmmoDirection());
+                ammoModel.setAmmoShape(ammoShape);
+                ammoShape.bindModel(ammoModel);
+            }
         }
         for (JointModel jointModel : toolModel.getJoints()) {
             Vector2 center1 = jointModel.getBodyModel1().getCenter();
@@ -1043,12 +1049,12 @@ public class UserInterface extends Container implements Touchable {
 
     public void addReferencePoint(ReferencePointImage centerPointImage) {
         addElement(centerPointImage);
-        creationZone.referencePointImageArrayList.add(centerPointImage);
+        creationZone.getReferencePointImageArrayList().add(centerPointImage);
     }
 
     public void detachReference(ReferencePointImage centerPointImage) {
         removeElement(centerPointImage);
-        creationZone.referencePointImageArrayList.remove(centerPointImage);
+        creationZone.getReferencePointImageArrayList().remove(centerPointImage);
     }
 
     public ItemWindowController getItemWindowController() {

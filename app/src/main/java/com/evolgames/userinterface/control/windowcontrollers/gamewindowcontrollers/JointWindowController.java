@@ -6,15 +6,18 @@ import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
+import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.JointsWindow;
 import com.evolgames.userinterface.view.windows.windowfields.jointswindow.JointField;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JointWindowController extends ZeroLevelSectionedAdvancedWindowController<JointsWindow, JointField> {
 
     private final OutlineController outlineController;
     private UserInterface userInterface;
+    private JointModel selectedJointModel;
 
     public JointWindowController(JointSettingsWindowController jointSettingsWindowController, OutlineController outlineController) {
         this.jointSettingsWindowController = jointSettingsWindowController;
@@ -59,7 +62,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
                 }
         }
         JointModel jointModel = userInterface.getToolModel().getJointById(jointField.getPrimaryKey());
-
+        this.selectedJointModel = jointModel;
         jointSettingsWindowController.updateBodySelectionFields();
         jointSettingsWindowController.updateJointModel(jointModel);
         outlineController.onJointBodySelectionUpdated(jointModel.getBodyModel1(),jointModel.getBodyModel2());
@@ -92,5 +95,12 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
 
     public void setUserInterface(UserInterface userInterface) {
         this.userInterface = userInterface;
+    }
+
+    public List<PointImage> getSelectedModelMovables(boolean moveLimits) {
+        if(selectedJointModel==null){
+            return null;
+        }
+        return selectedJointModel.getJointShape().getMovables(moveLimits);
     }
 }

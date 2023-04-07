@@ -3,6 +3,7 @@ package com.evolgames.physics.entities.callbacks;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.Flag;
 import com.evolgames.physics.FlagType;
@@ -45,6 +46,10 @@ public class CutRayCastCallback implements RayCastCallback {
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
         LayerBlock block = (LayerBlock) fixture.getUserData();
+        GameEntity gameEntity = (GameEntity) fixture.getBody().getUserData();
+        if(!gameEntity.isAlive()){
+            return 1;
+        }
         Vector2 Point = Vector2Pool.obtain(point);
         FlagType type = (direction) ? FlagType.Entering : FlagType.Leaving;
         if (coveredBlocks.contains(block)) {

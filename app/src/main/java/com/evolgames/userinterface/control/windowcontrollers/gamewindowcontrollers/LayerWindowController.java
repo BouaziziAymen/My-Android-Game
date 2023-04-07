@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.TwoLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.BodyModel;
@@ -9,12 +10,14 @@ import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.LayersWindow;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField1;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LayerWindowController extends TwoLevelSectionedAdvancedWindowController<LayersWindow, BodyField1, LayerField1, DecorationField1> {
 
@@ -438,4 +441,10 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
 
+    public List<PointImage> getModelMovables() {
+        if (getSelectedPointsModel() != null) {
+        return getSelectedPointsModel().getPointsShape().getMovablePointImages();
+        }
+        return null;
+    }
 }

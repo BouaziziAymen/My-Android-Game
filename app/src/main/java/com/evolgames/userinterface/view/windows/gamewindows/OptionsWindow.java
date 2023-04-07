@@ -1,15 +1,21 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.ShiftText;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.TwoLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractTwoLevelSectionedAdvancedWindow;
+import com.evolgames.userinterface.view.windows.AdvancedWindow;
+import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
-public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<SimplePrimary, SimpleSecondary, SimpleTertiary> {
+public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> {
+    private ShiftText<OptionsWindowController> shiftingText;
+
     public OptionsWindow(float pX, float pY, OptionsWindowController controller) {
         super(pX, pY, 5, 6, controller);
         Text text = new Text("Settings:",2);
@@ -18,12 +24,23 @@ public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<Simpl
         text.setPadding(20);
         layout.addDummySection(mainField);
         mainField.setPadding(5);
+
+        addShiftingText(controller);
+
         controller.init();
+    }
+
+    private void addShiftingText(OptionsWindowController controller) {
+     shiftingText = new ShiftText<>(8, 32*5-12-5,6, controller);
+        addElement(shiftingText);
+        shiftingText.setDepth(3);
+        shiftingText.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
+        shiftingText.setText("Hi humans of the underworld! Today I would like to tell you about an experience. THIS IS IMPORTANT!!");
     }
 
 
     @Override
-    protected TwoLevelSectionLayout<SimplePrimary, SimpleSecondary, SimpleTertiary> createLayout() {
+    protected TwoLevelSectionLayout<SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> createLayout() {
         return new TwoLevelSectionLayout<>(12,getLocalVisibilitySup(),LinearLayout.Direction.Vertical);
     }
 

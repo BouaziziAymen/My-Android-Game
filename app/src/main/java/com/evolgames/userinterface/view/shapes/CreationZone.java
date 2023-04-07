@@ -29,7 +29,11 @@ public class CreationZone {
         }
         return new Vector2(x,y);
     }
-    public ArrayList<ReferencePointImage> referencePointImageArrayList = new ArrayList<>();
+    private ArrayList<ReferencePointImage> referencePointImageArrayList = new ArrayList<>();
+
+    public ArrayList<ReferencePointImage> getReferencePointImageArrayList() {
+        return referencePointImageArrayList;
+    }
 
     public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
         if(scroll)return;

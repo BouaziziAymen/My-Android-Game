@@ -180,13 +180,15 @@ public class GameEntityFactory {
         return gameGroup;
     }
 
-    public GameGroup createProjectile(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit) {
-        GameEntity bullet = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, "bullet", null);
-        parentGroup.addGameEntity(bullet);
-        scene.attachChild(bullet.getMesh());
-        bullet.setProjectile(true);
+    public GameGroup createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile) {
+        GameEntity entity = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, "bullet", null);
+        entity.setProjectile(isProjectile);
+        parentGroup.addGameEntity(entity);
+        scene.attachChild(entity.getMesh());
         for (GameEntity gameEntity : parentGroup.getGameEntities()) {
-            scene.getWorldFacade().getContactListener().addNonCollidingPair(bullet, gameEntity);
+            if(gameEntity!=entity) {
+                scene.getWorldFacade().getContactListener().addNonCollidingPair(entity, gameEntity);
+            }
         }
         return parentGroup;
     }

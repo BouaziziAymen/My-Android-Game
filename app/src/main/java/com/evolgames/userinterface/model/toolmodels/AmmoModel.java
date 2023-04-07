@@ -6,16 +6,24 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoSha
 
 public class AmmoModel extends ProperModel<AmmoProperties> {
 
-    private final AmmoShape ammoShape;
+    private AmmoShape ammoShape;
     private final int bodyId;
     private final int ammoId;
-
+    public AmmoModel(int bodyId, int ammoId,String ammoName) {
+        super(ammoName);
+        this.bodyId = bodyId;
+        this.ammoId = ammoId;
+    }
     public AmmoModel(int bodyId, int ammoId, AmmoShape ammoShape) {
         super("Ammo "+ammoId);
         this.properties = new AmmoProperties(ammoShape.getBegin(),ammoShape.getDirection());
         this.ammoShape = ammoShape;
         this.bodyId = bodyId;
         this.ammoId = ammoId;
+    }
+
+    public void setAmmoShape(AmmoShape ammoShape) {
+        this.ammoShape = ammoShape;
     }
 
     public AmmoShape getAmmoShape() {

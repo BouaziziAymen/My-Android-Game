@@ -40,19 +40,21 @@ import com.evolgames.userinterface.view.shapes.points.ModelPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField1;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CreationZoneController extends Controller {
 
     private final ItemWindowController itemWindowController;
-    private CreationAction action = CreationAction.ADD_POINT;
     private final GameScene gameScene;
+    private final LayerWindowController layerWindowController;
+    private final JointWindowController jointWindowController;
+    private CreationAction action = CreationAction.ADD_POINT;
     private UserInterface userInterface;
     private LineShape indicatorArrow;
     private CreationZone creationZone;
-    private final LayerWindowController layerWindowController;
-    private final JointWindowController jointWindowController;
     private PointImage selectedPointImage = null;
     private boolean upLocked;
     private float radiusForPolygon = 32;
@@ -124,36 +126,48 @@ public class CreationZoneController extends Controller {
 
 
     public void onZoneActionUp(float x, float y) {
-
         if (upLocked) {
             return;
         }
-
-        if (action == CreationAction.ADD_POINT && layerWindowController.getSelectedPointsModel() != null) {
-            PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
-            if (pointsModel.test(x, y)) {
-                pointsModel.addPoint(new Vector2(x, y));
-                pointsModel.getPointsShape().onModelUpdated();
-            }
+        processAbortedIndicators();
+        if (action == CreationAction.ADD_POINT) {
+            processAddPoint(x, y);
         }
-        if (action == CreationAction.PROJECTILE) {
-            if (indicatorArrow != null && indicatorArrow.isAborted()) {
-                itemWindowController.onTargetAborted(((ProjectileShape) indicatorArrow).getModel());
-            }
-        }
-        if (action == CreationAction.AMMO) {
-            if (indicatorArrow != null && indicatorArrow.isAborted()) {
-                itemWindowController.onAmmoAborted(((AmmoShape) indicatorArrow).getModel());
-            }
-        }
-        if (action == CreationAction.HAND) {
-            if (indicatorArrow != null && indicatorArrow.isAborted()) {
-                itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
-            }
+        if (action == CreationAction.REMOVE_POINT) {
+            processRemovePoint(x, y);
         }
 
+        if (indicatorArrow != null) {
+            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof AmmoShape || indicatorArrow instanceof HandShape)) {
+                indicatorArrow.detach();
+            }
+            indicatorArrow = null;
+            creationZone.setTouchLocked(false);
+        }
+        processMoveablePoints(x, y);
 
-        if (action == CreationAction.REMOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
+        if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
+            userInterface.getDrawButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.REVOLUTE || action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
+            userInterface.getJointButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.PROJECTILE || action == CreationAction.HAND) {
+            userInterface.getToolButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.PIPING) {
+            userInterface.getImageButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+
+
+    }
+
+    private void processRemovePoint(float x, float y) {
+        if (layerWindowController.getSelectedPointsModel() != null) {
             float distance = 32;
             Vector2 point = null;
             for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
@@ -163,6 +177,7 @@ public class CreationZoneController extends Controller {
                     distance = d;
                 }
             }
+
             if (point != null) {
                 layerWindowController.getSelectedPointsModel().remove(point);
                 ModelPointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
@@ -170,41 +185,50 @@ public class CreationZoneController extends Controller {
                 layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
             }
         }
+    }
 
-        if (indicatorArrow != null) {
-            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof AmmoShape|| indicatorArrow instanceof HandShape))
-                indicatorArrow.detach();
-            indicatorArrow = null;
-            creationZone.setTouchLocked(false);
-        }
-        if (action == CreationAction.MOVE_POINT || action == CreationAction.MOVE_JOINT_POINT || action == CreationAction.MOVE_TOOL_POINT) {
-            ArrayList<PointImage> movablePointImages;
-            if (action == CreationAction.MOVE_POINT && layerWindowController.getSelectedPointsModel() != null) {
-                if (!isReferenceEnabled()) {
-                    movablePointImages = layerWindowController.getSelectedPointsModel().getPointsShape().getMovablePointImages();
-                } else {
-                    movablePointImages = new ArrayList<>(creationZone.referencePointImageArrayList);
-                }
-            } else if (action == CreationAction.MOVE_TOOL_POINT) {
-                movablePointImages = new ArrayList<>();
-                ArrayList<ProjectileModel> list = userInterface.getToolModel().getBodyModelById(userInterface.getItemWindowController().getSelectedBodyId()).getProjectiles();
-                for (ProjectileModel entry : list) {
-                    if (entry.getProjectileShape().isSelected()) {
-                        movablePointImages.addAll(entry.getProjectileShape().getMovables(this.moveLimits));
-                    }
-                }
-            } else {
-                movablePointImages = new ArrayList<>();
-                ArrayList<JointModel> list = userInterface.getToolModel().getJoints();
-                for (JointModel jointModel : list) {
-                    if (jointModel.isSelected()) {
-                        JointShape jointShape = jointModel.getJointShape();
-                        ArrayList<PointImage> movables = jointShape.getMovables(moveLimits);
-                        movablePointImages.addAll(movables);
-                    }
-                }
+    private void processAbortedIndicators() {
+        if (indicatorArrow != null && indicatorArrow.isAborted()) {
+            if (action == CreationAction.PROJECTILE) {
+                itemWindowController.onTargetAborted(((ProjectileShape) indicatorArrow).getModel());
+            } else if (action == CreationAction.AMMO) {
+                itemWindowController.onAmmoAborted(((AmmoShape) indicatorArrow).getModel());
+            } else if (action == CreationAction.HAND) {
+                itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
             }
+        }
+    }
 
+    private void processAddPoint(float x, float y) {
+        if (layerWindowController.getSelectedPointsModel() != null) {
+            PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
+            if (pointsModel.test(x, y)) {
+                pointsModel.addPoint(new Vector2(x, y));
+                pointsModel.getPointsShape().onModelUpdated();
+            }
+        }
+    }
+
+    private void processMoveablePoints(float x, float y) {
+        List<PointImage> movablePointImages = null;
+        switch (action) {
+            case MOVE_POINT:
+                if (!this.isReferenceEnabled()) {
+                    movablePointImages = layerWindowController.getModelMovables();
+                } else {
+                    movablePointImages = new ArrayList<>(creationZone.getReferencePointImageArrayList());
+                }
+                break;
+            case MOVE_TOOL_POINT:
+                if (itemWindowController.hasSelectedItem()) {
+                    movablePointImages = itemWindowController.getSelectedModelMovables(moveLimits);
+                }
+                break;
+            case MOVE_JOINT_POINT:
+                movablePointImages = jointWindowController.getSelectedModelMovables(moveLimits);
+                break;
+        }
+        if (movablePointImages != null) {
             float distance = 32;
             PointImage point = null;
             for (PointImage p : movablePointImages) {
@@ -220,30 +244,15 @@ public class CreationZoneController extends Controller {
             }
         }
 
-        if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
-            userInterface.getDrawButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
-        }
-        if (action == CreationAction.REVOLUTE || action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
-            userInterface.getJointButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
-        }
-        if (action == CreationAction.PROJECTILE || action == CreationAction.HAND) {
-            userInterface.getToolButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
-        }
-        if (action == CreationAction.PIPING)
-            userInterface.getImageButtonBoardController().releaseButtons();
-
-
     }
-    public void createReferencePoint(){
-        if(selectedPointImage!=null){
-        if(selectedPointImage.getPointsShape()!=null){
-          if(selectedPointImage.getPointsShape().getReferencePointImage(selectedPointImage.getPoint())==null) {
-              selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
-          }
-        }
+
+    public void createReferencePoint() {
+        if (selectedPointImage != null) {
+            if (selectedPointImage.getPointsShape() != null) {
+                if (selectedPointImage.getPointsShape().getReferencePointImage(selectedPointImage.getPoint()) == null) {
+                    selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
+                }
+            }
         }
     }
 
@@ -254,7 +263,7 @@ public class CreationZoneController extends Controller {
     }
 
     public void onPointImageReleased(PointImage pointImage) {
-        if (selectedPointImage!=null) {
+        if (selectedPointImage != null) {
             selectedPointImage.undoDoubleSelect();
             selectedPointImage.release();
             gameScene.setMovable(null);
@@ -419,10 +428,6 @@ public class CreationZoneController extends Controller {
 
     }
 
-    public void setCreationZone(CreationZone creationZone) {
-        this.creationZone = creationZone;
-    }
-
     public void setUpLocked(boolean b) {
         upLocked = true;
     }
@@ -511,11 +516,17 @@ public class CreationZoneController extends Controller {
         this.congruentAnchors = congruentAnchors;
     }
 
+    public CreationZone getCreationZone() {
+        return creationZone;
+    }
+
+    public void setCreationZone(CreationZone creationZone) {
+        this.creationZone = creationZone;
+    }
+
 
     public enum CreationAction {
         ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, HAND, AMMO;
     }
-
-
 }
 

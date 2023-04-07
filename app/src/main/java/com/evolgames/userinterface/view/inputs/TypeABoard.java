@@ -3,6 +3,7 @@ package com.evolgames.userinterface.view.inputs;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
+import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
@@ -11,13 +12,13 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 
 import java.util.ArrayList;
 
-public class TypeABoard<C extends AdvancedWindowController<?>> extends  ClickableContainer<C, TextFieldBehavior<C>> {
+public class TypeABoard extends Container {
 
 
-    int mLength;
+    private float usefulWidth;
+
     public TypeABoard(float pX, float pY,int mLength, boolean hasLeftHole){
         super(pX,pY);
-        this.mLength = mLength;
         LinearLayout layout = new LinearLayout(LinearLayout.Direction.Horizontal,-1);
         addElement(layout);
 
@@ -32,6 +33,7 @@ public class TypeABoard<C extends AdvancedWindowController<?>> extends  Clickabl
             image = new Image(0,0,baseRegions.get(0));
             layout.addToLayout(image);
             width+=baseRegions.get(0).getWidth();
+            usefulWidth += baseRegions.get(0).getWidth();
         }
         image = new Image(0,0,baseRegions.get(1));
         width+=baseRegions.get(1).getWidth();
@@ -41,5 +43,10 @@ public class TypeABoard<C extends AdvancedWindowController<?>> extends  Clickabl
         RectangularBounds bounds = new RectangularBounds(this,getWidth(),getHeight());
         setBounds(bounds);
         layout.addToLayout(image);
+        usefulWidth-=8;
+    }
+
+    public float getUsefulWidth() {
+        return usefulWidth;
     }
 }

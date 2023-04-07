@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.entities.properties.AmmoProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
@@ -23,6 +24,7 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 
 import org.andengine.util.adt.color.Color;
@@ -61,6 +63,9 @@ public class PersistenceCaretaker {
     public static final String OUTLINE_TAG = "outline";
     public static final String BODY_TAG = "body";
     public static final String PROJECTILES_TAG = "projectiles";
+    public static final String AMMO_LIST_TAG = "ammoList";
+    public static final String AMMO_TAG = "ammo";
+    public static final String AMMO_ID_TAG = "ammoId";
     public static final String TOOL_TAG = "tool";
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -206,7 +211,22 @@ public class PersistenceCaretaker {
             projectilesElement.appendChild(createProjectileElement(document, projectileModel));
         }
         bodyElement.appendChild(projectilesElement);
+        Element ammoListElement = document.createElement(AMMO_LIST_TAG);
+        for (AmmoModel ammoModel : bodyModel.getAmmoModels()) {
+            ammoListElement.appendChild(createAmmoElement(document, ammoModel));
+        }
+        bodyElement.appendChild(ammoListElement);
         return bodyElement;
+    }
+
+    private Element createAmmoElement(Document document, AmmoModel ammoModel) {
+        Element ammoElement = document.createElement(AMMO_TAG);
+        ammoElement.setAttribute(ID, String.valueOf(ammoModel.getAmmoId()));
+        ammoElement.setIdAttribute(ID, true);
+        ammoElement.setAttribute(NAME, String.valueOf(ammoModel.getModelName()));
+        Element propertiesElement = createPropertiesElement(document, ammoModel.getProperties());
+        ammoElement.appendChild(propertiesElement);
+        return ammoElement;
     }
 
     private Element createProjectileElement(Document document, ProjectileModel projectileModel) {
@@ -217,6 +237,7 @@ public class PersistenceCaretaker {
         Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
         projectileElement.appendChild(propertiesElement);
         projectileElement.setAttribute(PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getModelName() + ".xml");
+       projectileElement.setAttribute(AMMO_ID_TAG,String.valueOf(projectileModel.getAmmoModel().getAmmoId()));
         return projectileElement;
     }
 
@@ -398,7 +419,12 @@ public class PersistenceCaretaker {
         Element refVerticesElement = (Element) element.getElementsByTagName(REF_VERTICES_TAG).item(0);
         List<Vector2> vertices = readVectors(verticesElement);
         List<Vector2> outlinePoints = readVectors(outlineElement);
-        List<Vector2> referencePoints = readVectors(refVerticesElement);
+        List<Vector2> referencePoints;
+        if(refVerticesElement!=null) {
+             referencePoints = readVectors(refVerticesElement);
+        } else {
+            referencePoints = new ArrayList<>();
+        }
 
         LayerModel layerModel = new LayerModel(bodyModel.getBodyId(), layerId, element.getAttribute(NAME), new LayerProperties(), bodyModel);
         layerModel.setPoints(vertices);
@@ -455,6 +481,17 @@ public class PersistenceCaretaker {
             layers.add(layerModel);
         }
         bodyModel.getLayers().addAll(layers);
+
+        Element ammoListElement = (Element) element.getElementsByTagName(AMMO_LIST_TAG).item(0);
+        List<AmmoModel> ammoModels = bodyModel.getAmmoModels();
+        if (ammoListElement != null) {
+            for (int i = 0; i < ammoListElement.getChildNodes().getLength(); i++) {
+                Element ammoElement = (Element) ammoListElement.getChildNodes().item(i);
+                AmmoModel ammoModel = readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
+                ammoModels.add(ammoModel);
+            }
+        }
+
         Element projectilesElement = (Element) element.getElementsByTagName(PROJECTILES_TAG).item(0);
         if (projectilesElement != null) {
             List<ProjectileModel> projectiles = bodyModel.getProjectiles();
@@ -462,9 +499,23 @@ public class PersistenceCaretaker {
                 Element projectileElement = (Element) projectilesElement.getChildNodes().item(i);
                 ProjectileModel projectileModel = readProjectileModel(projectileElement, bodyId, Integer.parseInt(projectileElement.getAttribute(ID)));
                 projectiles.add(projectileModel);
+                if (!projectileElement.getAttribute(AMMO_ID_TAG).isEmpty()) {
+                    int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
+                    projectileModel.setAmmoModel(ammoModels.stream().filter(am -> am.getAmmoId() == ammoId).findFirst().get());
+                }
+
             }
         }
         return bodyModel;
+    }
+
+
+    private AmmoModel readAmmoModel(Element ammoElement, int bodyId, int ammoId) {
+        Element propertiesElement = (Element) ammoElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+        AmmoModel ammoModel = new AmmoModel(bodyId, ammoId, ammoElement.getAttribute(NAME));
+        AmmoProperties ammoProperties = loadProperties(propertiesElement, AmmoProperties.class);
+        ammoModel.setProperties(ammoProperties);
+        return ammoModel;
     }
 
     private ProjectileModel readProjectileModel(Element projectileElement, int bodyId, int projectileId) {
@@ -475,6 +526,7 @@ public class PersistenceCaretaker {
         String fileName = projectileElement.getAttribute(PROJECTILE_FILE_TAG);
         ToolModel missile = ToolUtils.getProjectileModel(fileName);
         projectileModel.setMissileModel(missile);
+
         return projectileModel;
     }
 

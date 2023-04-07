@@ -53,7 +53,7 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(color.getRed(), color.getGreen(), color.getBlue()));
         this.particleSystem.addParticleInitializer(new AlphaParticleInitializer<>(color.getAlpha()));
         addGravity();
-        particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 1f, 0f));
+        particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, color.getAlpha(), 0f));
         particleSystem.addParticleModifier(new OffCameraExpireParticleModifier<>(ResourceManager.getInstance().firstCamera));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(3f));
 

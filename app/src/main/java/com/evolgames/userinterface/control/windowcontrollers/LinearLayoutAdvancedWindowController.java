@@ -9,7 +9,6 @@ import com.evolgames.userinterface.view.windows.AbstractLinearLayoutAdvancedWind
 public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayoutAdvancedWindow<?>> extends AdvancedWindowController<W> {
 
 
-
     public void onLayoutChanged() {
         onVisibleZoneUpdate();
         updateScroller();

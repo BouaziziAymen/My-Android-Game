@@ -8,9 +8,9 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.Project
 public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
     private ProjectileShape projectileShape;
-    private ToolModel missileModel;
     private final int projectileId;
     private final int bodyId;
+    private ToolModel missileModel;
     private AmmoModel ammoModel;
 
     public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {

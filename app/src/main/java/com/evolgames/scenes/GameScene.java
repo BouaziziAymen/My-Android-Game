@@ -186,7 +186,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver_latest.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
@@ -372,7 +372,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
-        if (false) {
+        if (true) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
 //GameEntityFactory.getInstance().createTest();
@@ -600,9 +600,8 @@ if(step==180){
 
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
 
-        if (action == PlayerAction.Drag && false) {
+        if (action == PlayerAction.Drag) {
             int pointerID = touchEvent.getPointerID();
-
             if (touchEvent.isActionDown()) {
                 for (GameGroup gameGroup : gameGroups)
                     for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
@@ -769,9 +768,6 @@ if(step==180){
             movable.onControllerMoved(valueX, valueY);
     }
 
-    public void ControlMoveableElementClick() {
-
-    }
 
     public void setScrollerEnabled(boolean pScrollerEnabled) {
         mScrollDetector.setEnabled(pScrollerEnabled);
