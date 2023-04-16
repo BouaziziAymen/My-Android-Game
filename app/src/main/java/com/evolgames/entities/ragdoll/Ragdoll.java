@@ -17,18 +17,17 @@ import java.util.HashSet;
 
 public class Ragdoll extends GameGroup {
 
-    private final PhysicsWorld physicsWorld;
     private final Grafcet brain;
     private final GameScene gameScene;
     public GameEntity head;
     public GameEntity upperTorso;
     public GameEntity upperArmR;
+    public GameEntity upperLegR;
+    public GameEntity lowerLegR;
     GameEntity lowerTorso;
     GameEntity lowerArmR;
     GameEntity upperArmL;
     GameEntity lowerArmL;
-    public GameEntity upperLegR;
-    public GameEntity lowerLegR;
     GameEntity upperLegL;
     GameEntity lowerLegL;
     GameEntity rightHand;
@@ -37,18 +36,13 @@ public class Ragdoll extends GameGroup {
     GameEntity rightFoot;
     float t;
     boolean alive = true;
-    private boolean footTouchingR;
-    private boolean footTouchingL;
-    private int ORBIT;
+    Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
-    private SimpleDetectionRayCastCallback simpleDetectionCallback;
 
-
-    public Ragdoll(GameScene gameScene, PhysicsWorld physicsWorld, GameEntity... entities) {
+    public Ragdoll(GameScene gameScene, GameEntity... entities) {
         super(entities);
         this.gameScene = gameScene;
-        this.physicsWorld = physicsWorld;
         this.brain = new Grafcet
                 (new int[][]{{0, 0}, {0, 0}, {20000}},
                         new int[][]{{10, -10}, {10, 10}, {10}},
@@ -56,11 +50,10 @@ public class Ragdoll extends GameGroup {
                         new int[][]{{0, 1}, {2, 3}, {4}}, new int[]{2, 2, 1}, 3);
 
 
-
     }
 
     public void setBodyParts(GameEntity head, GameEntity
-                                     upperTorso,
+            upperTorso,
                              GameEntity upperArmR, GameEntity lowerArmR,
                              GameEntity upperArmL, GameEntity lowerArmL,
                              GameEntity upperLegR, GameEntity lowerLegR,
@@ -88,15 +81,12 @@ public class Ragdoll extends GameGroup {
         this.head = head;
 
 
-        balancers[0] = new Balancer(head, (float) (Math.PI / 2),0);
-        balancers[1] = new Balancer(upperTorso, (float) (Math.PI / 4),0);
-        balancers[2] = new Balancer(upperLegR, (float) (Math.PI / 4),0);
-        balancers[3] = new Balancer(lowerLegR, (float) (Math.PI / 6),0);
-        balancers[4] = new Balancer(upperLegL, (float) (Math.PI / 4),0);
-        balancers[5] = new Balancer(lowerLegL, (float) (Math.PI / 6),0);
-
-        simpleDetectionCallback = gameScene.getWorldFacade().getSimpleDetectionRayCastCallback();
-
+        balancers[0] = new Balancer(head, (float) (Math.PI / 2), 0);
+        balancers[1] = new Balancer(upperTorso, (float) (Math.PI / 4), 0);
+        balancers[2] = new Balancer(upperLegR, (float) (Math.PI / 4), 0);
+        balancers[3] = new Balancer(lowerLegR, (float) (Math.PI / 6), 0);
+        balancers[4] = new Balancer(upperLegL, (float) (Math.PI / 4), 0);
+        balancers[5] = new Balancer(lowerLegL, (float) (Math.PI / 6), 0);
 
     }
 
@@ -114,23 +104,19 @@ public class Ragdoll extends GameGroup {
         this.brain.run();
 
 
-
-
-
-            for (int i = 0; i < this.brain.numStat[this.brain.current]; i++) {
-                this.performAction(this.brain.actions[this.brain.current][i], this.brain.speeds[this.brain.current][i]);
-            }
-
+        for (int i = 0; i < this.brain.numStat[this.brain.current]; i++) {
+            this.performAction(this.brain.actions[this.brain.current][i], this.brain.speeds[this.brain.current][i]);
+        }
 
 
     }
-Balancer[] balancers = new Balancer[6];
+
     private void performAction(int action, int amplitude) {
 
 
-if(leftLegReadyToStand&&rightLegReadyToStand)
-                for(Balancer balancer : balancers)
-                   if(balancer.getEntity()!=null&&((GameEntity) balancer.getEntity()).isAlive())
+        if (leftLegReadyToStand && rightLegReadyToStand)
+            for (Balancer balancer : balancers)
+                if (balancer.getEntity() != null && ((GameEntity) balancer.getEntity()).isAlive())
                     balancer.equilibrate();
 
     }
@@ -157,22 +143,22 @@ if(leftLegReadyToStand&&rightLegReadyToStand)
 
 
         GameScene.plotter.detachChildren();
-        if (leftFoot != null) {
+        if (leftFoot != null&&leftFoot.getBody()!=null) {
             Body leftFootBody = leftFoot.getBody();
             Vector2 tip1 = leftFootBody.getWorldPoint(new Vector2(0, 0).mul(1 / 32f)).cpy();
             GameScene.plotter.drawPoint(tip1, Color.PINK, 1, 0);
-            Vector2 projection1 = gameScene.getWorldFacade().detect(tip1, tip1.cpy().add(0, -10f));
+            Vector2 projection1 = gameScene.getWorldFacade().detectFirstIntersectionPointWithExceptions(tip1, tip1.cpy().add(0, -10f), getGameEntities());
             if (projection1 != null) {
                 leftLegReadyToStand = tip1.dst(projection1) < 1f;
 
                 GameScene.plotter.drawPoint(projection1.mul(32f), Color.YELLOW, 1, 0);
             }
         }
-        if (rightFoot != null) {
+        if (rightFoot != null&&rightFoot.getBody()!=null) {
             Body rightFootBody = rightFoot.getBody();
             Vector2 tip2 = rightFootBody.getWorldPoint(new Vector2(0, 0).mul(1 / 32f)).cpy();
             GameScene.plotter.drawPoint(tip2, Color.CYAN, 1, 0);
-            Vector2 projection2 = gameScene.getWorldFacade().detect(tip2, tip2.cpy().add(0, -10f));
+            Vector2 projection2 = gameScene.getWorldFacade().detectFirstIntersectionPointWithExceptions(tip2, tip2.cpy().add(0, -10f), getGameEntities());
             if (projection2 != null) {
                 rightLegReadyToStand = tip2.dst(projection2) < 1f;
                 GameScene.plotter.drawPoint(projection2.mul(32f), Color.YELLOW, 1, 0);
@@ -199,8 +185,8 @@ if(leftLegReadyToStand&&rightLegReadyToStand)
                 entities.add(current);
                 for (JointEdge edge : current.getBody().getJointList()) {
                     GameEntity entity = (GameEntity) edge.other.getUserData();
-                    if(entity!=null)
-                    if (!entities.contains(entity)) deque.push(entity);
+                    if (entity != null)
+                        if (!entities.contains(entity)) deque.push(entity);
                 }
             }
         }
@@ -270,24 +256,6 @@ if(leftLegReadyToStand&&rightLegReadyToStand)
                     leftFoot = e;
                     break;
             }
-
-
-            simpleDetectionCallback.resetExcepted();
-            simpleDetectionCallback.addExcepted(leftFoot);
-            simpleDetectionCallback.addExcepted(rightFoot);
-            simpleDetectionCallback.addExcepted(lowerLegL);
-            simpleDetectionCallback.addExcepted(lowerLegR);
-            simpleDetectionCallback.addExcepted(upperLegR);
-            simpleDetectionCallback.addExcepted(upperLegL);
-            simpleDetectionCallback.addExcepted(head);
-            simpleDetectionCallback.addExcepted(upperTorso);
-            simpleDetectionCallback.addExcepted(lowerTorso);
-            simpleDetectionCallback.addExcepted(upperArmR);
-            simpleDetectionCallback.addExcepted(upperArmL);
-            simpleDetectionCallback.addExcepted(lowerArmR);
-            simpleDetectionCallback.addExcepted(lowerArmL);
-            simpleDetectionCallback.addExcepted(leftHand);
-            simpleDetectionCallback.addExcepted(rightHand);
         }
 
     }

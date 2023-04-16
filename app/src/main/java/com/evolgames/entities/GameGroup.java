@@ -40,7 +40,9 @@ public class GameGroup {
 
 
     public void onStep(float timeStep) {
-        for (GameEntity entity : entities) entity.onStep(timeStep);
+        for (GameEntity entity : entities){
+            entity.onStep(timeStep);
+        }
         entities.addAll(addedEntities);
         addedEntities.clear();
     }

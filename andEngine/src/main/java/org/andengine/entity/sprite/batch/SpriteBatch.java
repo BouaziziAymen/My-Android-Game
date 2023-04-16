@@ -120,6 +120,9 @@ public class SpriteBatch extends Shape {
 
 		this.mTexture = pTexture;
 		this.mCapacity = pCapacity;
+		if(mCapacity == 0){
+			System.out.println("--------------- Error Capacity: "+this.getClass());
+		}
 		this.mSpriteBatchVertexBufferObject = pSpriteBatchVertexBufferObject;
 
 		this.setBlendingEnabled(true);

@@ -14,10 +14,11 @@ import java.util.HashSet;
 
 public class GameEntityContactListener implements ContactListener {
     private final ContactObserver observer;
-    private HashSet<Pair<GameEntity,GameEntity>> nonCollidingEntities;
+    private final HashSet<Pair<GameEntity,GameEntity>> nonCollidingEntities;
     public void addNonCollidingPair(GameEntity entity1, GameEntity entity2){
         nonCollidingEntities.add(new Pair<>(entity1,entity2));
     }
+
 
     public GameEntityContactListener(ContactObserver observer) {
         this.observer = observer;
@@ -53,13 +54,19 @@ public class GameEntityContactListener implements ContactListener {
         observer.processImpactAfterSolve(contact, impulse);
     }
 
+    public HashSet<Pair<GameEntity, GameEntity>> getNonCollidingEntities() {
+        return nonCollidingEntities;
+    }
+
     private boolean shouldNotCollide(Fixture fixture1, Fixture fixture2){
         Body body1 = fixture1.getBody();
         Body body2 = fixture2.getBody();
         GameEntity entity1 = (GameEntity) body1.getUserData();
         GameEntity entity2 = (GameEntity) body2.getUserData();
         for(Pair<GameEntity,GameEntity> pair:nonCollidingEntities){
-            if((pair.first==entity1&&pair.second==entity2)||(pair.second==entity1&&pair.first==entity2))return true;
+            if((pair.first==entity1&&pair.second==entity2)||(pair.second==entity1&&pair.first==entity2)){
+                return true;
+            }
         }
         return false;
     }

@@ -284,8 +284,11 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public BodyModel getBodyModelById(int bodyId) {
-        System.out.println("bodyId:" + bodyId);
-        for (BodyModel bodyModel : bodies) if (bodyModel.getBodyId() == bodyId) return bodyModel;
+        for (BodyModel bodyModel : bodies) {
+            if (bodyModel.getBodyId() == bodyId){
+                return bodyModel;
+            }
+        }
         return null;
     }
 

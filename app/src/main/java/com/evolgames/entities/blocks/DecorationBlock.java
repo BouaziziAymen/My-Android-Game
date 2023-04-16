@@ -1,6 +1,7 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.blockvisitors.ClipVisitor;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.WorldFacade;
@@ -39,8 +40,9 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
 
 
     public void applyClip(ArrayList<Vector2> clipPath) {
-        WorldFacade.getClipVisitor().setClipPath(clipPath);
-        WorldFacade.getClipVisitor().visitTheElement(this);
-        setVertices(WorldFacade.getClipVisitor().getResult());
+        ClipVisitor clipVisitor = new ClipVisitor();
+        clipVisitor.setClipPath(clipPath);
+        clipVisitor.visitTheElement(this);
+        setVertices(clipVisitor.getResult());
     }
 }

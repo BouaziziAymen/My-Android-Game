@@ -337,10 +337,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
 
-        vertices2.add(obtain(-400, 0));
-        vertices2.add(obtain(-400, 20));
-        vertices2.add(obtain(1200, 20));
-        vertices2.add(obtain(1200, 0));
+        vertices2.add(obtain(-4000, 0));
+        vertices2.add(obtain(-4000, 20));
+        vertices2.add(obtain(4400, 20));
+        vertices2.add(obtain(4400, 0));
 /*
         vertices2.add(Vector2Pool.obtain(-28.1f,-4.5f));
         vertices2.add(Vector2Pool.obtain(-30.2f,-18.8f));
@@ -444,9 +444,11 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             ragdoll.onUpdate(pSecondsElapsed);
         }
         getWorldFacade().onStep(pSecondsElapsed);
+
         for (GameGroup gameGroup : gameGroups) {
             gameGroup.onStep(pSecondsElapsed);
         }
+
         if (false)
             if (gameGroup.getGameEntityByIndex(0).getBody() != null) {
                 gameGroup.getGameEntityByIndex(0).getBody().setLinearVelocity(30, 10 - step / 100f);
@@ -460,10 +462,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             } else {
                 themesh.setScale(1 + (step % 15) * 10);
             }
-if(step==180){
-   //getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
+        if (step == 180) {
+            //getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
 
-}
+        }
 
         if (false)
             if (step % 120 == 0) {
@@ -492,15 +494,6 @@ if(step==180){
                 BlockUtils.computeCoatingBlocks(layerBlock);
             }
 
-        if (false) {
-            if (step > 10) {
-                plotter2.detachChildren();
-                GameEntity entity1 = ragdoll.lowerLegR;
-                GameEntity entity2 = ragdoll.upperLegR;
-                //getWorldFacade().coatingBlocksExchange(entity1,entity2);
-            }
-
-        }
 
 //projectiles test
         if (false)
@@ -510,7 +503,7 @@ if(step==180){
                 // pause = true;
                 Log.e("createproj", "" + step);
                 Vector2 u = new Vector2(0, -1);
-                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4) * 0;
+                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
 
                 GeometryUtils.rotateVectorRad(u, angle);
                 ArrayList<Vector2> vertices1 = new ArrayList<>();
@@ -560,13 +553,10 @@ if(step==180){
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-
-
         if (touchEvent.isActionDown()) {
             this.x = touchEvent.getX() / 32f;
             this.y = touchEvent.getY() / 32f;
-            plotter2.detachChildren();
-          //  getWorldFacade().createExplosion(x, y, 100);
+           //   getWorldFacade().createExplosion(x, y, 100000);
         }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
@@ -576,7 +566,7 @@ if(step==180){
 
 
         boolean hudTouched = userInterface.onTouchHud(hudTouch, scroll);
-        if (!hudTouched){
+        if (!hudTouched) {
             userInterface.onTouchScene(touchEvent, scroll);
         }
 

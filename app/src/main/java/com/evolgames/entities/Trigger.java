@@ -64,7 +64,8 @@ public class Trigger {
         float muzzleVelocity = 6;
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
         BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle());
-        GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),bodyInit,false);
+       GameEntity shell = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),bodyInit,false);
+        projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,shell);
     }
 
     private void createBullet() {
@@ -76,8 +77,9 @@ public class Trigger {
         float muzzleVelocity = projectileModel.getProperties().getMuzzleVelocity();
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
         BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle()),true);
-        GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),new RecoilInit(bodyInit, projectileOwner.getBody(),projectileModel.getProperties().getRecoil(),muzzleVelocityVector,beginProjected),true);
+        GameEntity projectile = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(), new RecoilInit(bodyInit, projectileOwner.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true);
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
+        projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,projectile);
     }
 
 

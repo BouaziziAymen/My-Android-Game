@@ -128,12 +128,12 @@ public class BlockUtils {
         return new Pair<>(chunk1, chunk2);
     }
 
-    public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices) {
+    public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices, LayerBlock block) {
 
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, vertices);
 
-        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1());
-        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother());
+        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), block);
+        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother(), block);
 
         return new Pair<>(result, new Pair<>(pair1, pair2));
     }
@@ -150,7 +150,7 @@ public class BlockUtils {
 
 
     private static Cut projectCutWithoutCorrection(ArrayList<Vector2> vertices, Vector2 first, Vector2 second) {
-        if(vertices.size()<3){
+        if (vertices.size() < 3) {
             return null;
         }
         Vector2 centroid = GeometryUtils.calculateCentroid(vertices);
@@ -390,6 +390,7 @@ public class BlockUtils {
         }
         return null;
     }
+
     public static ArrayList<ArrayList<LayerBlock>> getDivisionGroups(List<LayerBlock> blocks) {
         int blocksSize = blocks.size();
         UnionFind unionFinder = new UnionFind(blocksSize);
@@ -437,7 +438,7 @@ public class BlockUtils {
             Vector2 p2 = clipPath.get(ni);
             Vector2 dir = p2.cpy().sub(p1).nor().mul(1000);
             Cut cut = BlockUtils.projectCutWithoutCorrection(current, p1.cpy().sub(dir), p2.cpy().add(dir));
-            if (cut == null){
+            if (cut == null) {
                 continue;
             }
             Pair<ArrayList<Vector2>, ArrayList<Vector2>> list = BlockUtils.splitVerticesSimple(cut, current);
@@ -455,9 +456,8 @@ public class BlockUtils {
         Vector2 dir = p2.cpy().sub(p1).nor().mul(1000);
         Cut cut = BlockUtils.projectCutWithoutCorrection(vertices, p1.cpy().sub(dir), p2.cpy().add(dir));
         if (cut != null) {
-            return cut.getValue();
-        }
-        else return 0;
+            return cut.getLength();
+        } else return 0;
 
     }
 
@@ -473,22 +473,21 @@ public class BlockUtils {
                 triplet.add(center);
                 if (GeometryUtils.IsClockwise(triplet)) {
                     block2.addAssociatedBlock(associatedBlock);
-                }
-                else {
+                } else {
                     block1.addAssociatedBlock(associatedBlock);
                 }
             } else {
                 if (associatedBlock.isNotAborted()) {
                     associatedBlock.performCut(projectedCut);
                 }
-                if (associatedBlock.getChildren().size() == 0){
+                if (associatedBlock.getChildren().size() == 0) {
                     continue;
                 }
                 AssociatedBlock<?, ?> child1 = associatedBlock.getChildren().get(0);
                 if (child1.isNotAborted()) {
                     block2.addAssociatedBlock(child1);
                 }
-                if (associatedBlock.getChildren().size() == 1){
+                if (associatedBlock.getChildren().size() == 1) {
                     continue;
                 }
                 AssociatedBlock<?, ?> child2 = associatedBlock.getChildren().get(1);
@@ -505,31 +504,29 @@ public class BlockUtils {
 
 
     private static void divideFreshCuts(LayerBlock block1, LayerBlock block2, ArrayList<FreshCut> freshCuts, Cut cut) {
-        //divide freshcuts
         for (FreshCut fc : freshCuts) {
             if (fc instanceof SegmentFreshCut) {
                 SegmentFreshCut sfc = (SegmentFreshCut) fc;
                 boolean divided = false;
+
                 if ((cut.getLower1() == sfc.first && cut.getHigher1() == sfc.second)) {
                     if (cut.getP1() != sfc.first && cut.getP1() != sfc.second) {
-                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second);
-                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother());
+                        float ratio = cut.getP1().dst(sfc.second) / cut.getLength();
+                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second, ratio * sfc.getLimit());
+                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother(), (1 - ratio) * sfc.getLimit());
                         block1.addFreshCut(halfFreshCut1);
                         block2.addFreshCut(halfFreshCut2);
-                        sfc.setAlive(false);
                         divided = true;
                     }
 
                 } else if ((cut.getLower2() == sfc.first && cut.getHigher2() == sfc.second)) {
                     if (cut.getP2() != sfc.first && cut.getP2() != sfc.second) {
-                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(sfc.first, cut.getP2());
-                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(cut.getP2Brother(), sfc.second);
-
+                        float ratio = cut.getP2().dst(sfc.first) / cut.getLength();
+                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(sfc.first, cut.getP2(), ratio * sfc.getLimit());
+                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(cut.getP2Brother(), sfc.second, (1 - ratio) * sfc.getLimit());
                         block1.addFreshCut(halfFreshCut1);
                         block2.addFreshCut(halfFreshCut2);
-
                         divided = true;
-                        sfc.setAlive(false);
                     }
 
                 }
@@ -550,7 +547,27 @@ public class BlockUtils {
 
                 }
             } else if (fc instanceof PointsFreshCut) {
-             //TODO finish this
+                PointsFreshCut fpc = (PointsFreshCut) fc;
+                List<Vector2> newPoints1 = new ArrayList<>();
+                List<Vector2> newPoints2 = new ArrayList<>();
+                for (Vector2 v : fpc.getPoints()) {
+                    ArrayList<Vector2> triplet = new ArrayList<>();
+                    triplet.add(cut.getP1());
+                    triplet.add(cut.getP2());
+                    triplet.add(v);
+                    if (GeometryUtils.IsClockwise(triplet)) {
+                        newPoints2.add(v);
+                    } else {
+                        newPoints1.add(v);
+                    }
+                }
+                float ratio = (float)newPoints1.size() / (float)fpc.getPoints().size();
+                if (!newPoints1.isEmpty()) {
+                    block1.addFreshCut(new PointsFreshCut(newPoints1, ratio * fpc.getLength(), fpc.getSplashVelocity(), fpc.getLimit() * ratio));
+                }
+                if (!newPoints2.isEmpty()) {
+                    block2.addFreshCut(new PointsFreshCut(newPoints2, (1 - ratio) * fpc.getLength(), fpc.getSplashVelocity(), (1 - ratio) * fpc.getLimit()));
+                }
             }
         }
 
@@ -559,7 +576,7 @@ public class BlockUtils {
     public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
 
         Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>>
-                splitResult = BlockUtils.splitVertices(cut, block.getVertices());
+                splitResult = BlockUtils.splitVertices(cut, block.getVertices(), block);
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
         Pair<SegmentFreshCut, SegmentFreshCut> limits = splitResult.second;
 
@@ -595,11 +612,11 @@ public class BlockUtils {
     }
 
     public static ShatterData applyCut(LayerBlock block, Vector2 localImpactPoint) {
-        if (block.getBlockGrid() == null){
+        if (block.getBlockGrid() == null) {
             return null;
         }
         CoatingBlock coatingCenter = block.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
-        if (coatingCenter == null){
+        if (coatingCenter == null) {
             return null;
         }
 
@@ -839,7 +856,7 @@ public class BlockUtils {
         for (LayerBlock layerBlock : blocks) {
             vertexNumber += layerBlock.getTriangles().size();
             for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()){
+                if (!b.isNotAborted()) {
                     continue;
                 }
                 if (b instanceof CoatingBlock || b instanceof DecorationBlock) {

@@ -1,5 +1,6 @@
 package com.evolgames.entities.particles.wrappers;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.PowderEmitter;
@@ -26,12 +27,10 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
     private static final int PARTICLES_MAX = 100 * 100;
     public BatchedPseudoSpriteParticleSystem particleSystem;
     public PowderEmitter emitter;
-   // private final ColorParticleInitializer<Entity> colorParticleInitializer;
-    private  AirFieldVelocityInitializer velocityInitializer;
     private int step = 0;
     private boolean alive = true;
 
-    public PulverizationParticleWrapperWithPolygonEmitter(WorldFacade worldFacade, LayerBlock layerBlock) {
+    public PulverizationParticleWrapperWithPolygonEmitter(WorldFacade worldFacade, LayerBlock layerBlock, Vector2 bodyVelocity) {
 
         IEntityFactory<Entity> ief = SparkPool::obtain;
         this.emitter = new PowderEmitter(layerBlock.getBlockGrid().getCoatingBlocks());
@@ -45,7 +44,8 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         );
 
 
-       this.velocityInitializer = new AirFieldVelocityInitializer(worldFacade);
+        // private final ColorParticleInitializer<Entity> colorParticleInitializer;
+        AirFieldVelocityInitializer velocityInitializer = new AirFieldVelocityInitializer(worldFacade, bodyVelocity);
        this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.05f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(1f));

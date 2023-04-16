@@ -10,6 +10,7 @@ import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.StainProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.physics.PhysicsConstants;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
@@ -34,7 +35,7 @@ public class BlockFactory {
         LayerBlock createdBlock = new LayerBlock();
         createdBlock.initialization(vertices,properties,ID,firstTime);
         createdBlock.setOrder(order);
-        createdBlock.setLiquidQuantity((int) (createdBlock.getProperties().getJuicinessDensity()*createdBlock.getBlockArea()*20));
+        createdBlock.setLiquidQuantity((int) (createdBlock.getProperties().getJuicinessDensity()*createdBlock.getBlockArea()* PhysicsConstants.LIQUID_DENSITY_CONSTANT));
         return createdBlock;
     }
 

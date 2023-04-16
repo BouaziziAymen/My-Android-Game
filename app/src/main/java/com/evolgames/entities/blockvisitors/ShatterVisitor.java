@@ -85,7 +85,6 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
                 }
             }
 
-            System.out.println("---- looop ----");
             deque.pop();
         }
 

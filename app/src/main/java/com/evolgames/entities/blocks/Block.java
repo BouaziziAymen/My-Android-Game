@@ -147,10 +147,6 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         }
     }
 
-    @Override
-    public int hashCode() {
-        return id;
-    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

@@ -17,7 +17,7 @@ public class Cut implements Comparable<Cut> {
     private final Vector2 lower2;
     private final Vector2 higher2;
 
-    private float value;
+    private float length;
     private Vector2 copy1;
     private Vector2 copy2;
     public Vector2 center;
@@ -29,7 +29,7 @@ public class Cut implements Comparable<Cut> {
         this.higher1 = h1;
         this.lower2 = l2;
         this.higher2 = h2;
-        this.setValue(p1.dst(p2));
+        this.length = p1.dst(p2);
     }
 
 
@@ -73,19 +73,18 @@ public class Cut implements Comparable<Cut> {
 
     @Override
     public int compareTo(Cut another) {
-        if (getValue() < another.getValue()) return -1;
-        else return 1;
+        if (getLength() < another.getLength()){
+            return -1;
+        }
+        else {
+            return 1;
+        }
 
     }
 
 
-    public float getValue() {
-        return this.value;
-    }
-
-
-    public void setValue(float value) {
-        this.value = value;
+    public float getLength() {
+        return this.length;
     }
 
    public boolean isValid(ArrayList<Vector2> vertices){

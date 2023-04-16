@@ -35,7 +35,6 @@ public abstract class LiquidParticleWrapper {
     private GameEntity parent;
     private Action spawnAction;
     private boolean alive = true;
-    private int Limit;
     private final Vector2 splashVelocity;
 
     public LiquidParticleWrapper(GameEntity gameEntity, Color color, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
@@ -78,6 +77,12 @@ public abstract class LiquidParticleWrapper {
     }
 
     public void update() {
+        if(!parent.isAlive()){
+            finishSelf();
+        }
+        if(!isAlive()){
+            return;
+        }
         updateEmitter();
     }
 
@@ -88,9 +93,9 @@ public abstract class LiquidParticleWrapper {
         }
         timer++;
 
-        if(timer<1.5*60){
+        if(timer<120){
             if(splashVelocity !=null) {
-                float percentage = EaseStrongInOut.getInstance().getPercentage(timer,20);
+                float percentage = EaseStrongInOut.getInstance().getPercentage(timer,60);
                 velocityInitializer.getIndependentVelocity().set(splashVelocity.x *percentage, splashVelocity.y *percentage);
             }
         }
@@ -109,7 +114,7 @@ public abstract class LiquidParticleWrapper {
 
     public void finishSelf() {
         particleSystem.setParticlesSpawnEnabled(false);
-        setAlive(false);
+        this.alive = false;
     }
 
 
@@ -143,19 +148,4 @@ public abstract class LiquidParticleWrapper {
         return alive;
     }
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
-
-    public int getLimit() {
-        return Limit;
-    }
-
-    public void setLimit(int limit) {
-        this.Limit = limit * 10;
-    }
-
-    public void decrementLimit() {
-        if (Limit >= 1) Limit--;
-    }
 }

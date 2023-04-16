@@ -1,12 +1,8 @@
 package com.evolgames.entities.blockvisitors;
 
-import static com.evolgames.physics.WorldFacade.removeLiquidSource;
-
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.physics.WorldFacade;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,14 +28,8 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
             if (blockShatterVisitor.isShatterPerformed()) {
                 shatterPerformed = true;
                 iterator.remove();
-                onBlockShattered(layerBlock);
             }
             this.splintersBlocks.addAll(blockShatterVisitor.getSplintersBlocks());
-        }
-    }
-    private void onBlockShattered(LayerBlock block){
-        for (FreshCut freshCut : block.getFreshCuts()) {
-            removeLiquidSource(freshCut.getLiquidParticleWrapper());
         }
     }
 }

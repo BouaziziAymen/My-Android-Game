@@ -48,7 +48,7 @@ public class Explosion {
             if(hitInterface!=null) {
                 hitInterface.rayHit(entity, direction, end, impulseValue);
             }
-            impacts.add(new ImpactData(entity, layerBlock, obtain(end), 10 * impulseValue));
+            impacts.add(new ImpactData(entity, layerBlock, obtain(end), impulseValue));
         }, false);
     }
 

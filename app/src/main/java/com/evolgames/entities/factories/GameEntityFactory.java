@@ -180,17 +180,17 @@ public class GameEntityFactory {
         return gameGroup;
     }
 
-    public GameGroup createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile) {
+    public GameEntity createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile) {
         GameEntity entity = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, "bullet", null);
         entity.setProjectile(isProjectile);
         parentGroup.addGameEntity(entity);
         scene.attachChild(entity.getMesh());
         for (GameEntity gameEntity : parentGroup.getGameEntities()) {
             if(gameEntity!=entity) {
-                scene.getWorldFacade().getContactListener().addNonCollidingPair(entity, gameEntity);
+                scene.getWorldFacade().addNonCollidingPair(entity, gameEntity);
             }
         }
-        return parentGroup;
+        return entity;
     }
 
     public GameGroup createGameGroup(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType) {
@@ -419,7 +419,7 @@ public class GameEntityFactory {
         scene.attachChild(lowerArmR.getMesh());
         scene.attachChild(lowerArmL.getMesh());
 
-        Ragdoll ragdoll = new Ragdoll(scene, physicsWorld, head, upperTorso, upperArmRight, lowerArmR, upperArmLeft, lowerArmL, upperLegR, lowerLegR, upperLegL, lowerLegL, rightHand, leftHand, leftFoot, rightFoot);
+        Ragdoll ragdoll = new Ragdoll(scene, head, upperTorso, upperArmRight, lowerArmR, upperArmLeft, lowerArmL, upperLegR, lowerLegR, upperLegL, lowerLegL, rightHand, leftHand, leftFoot, rightFoot);
         scene.addGameGroup(ragdoll);
         ragdoll.setBodyParts(head, upperTorso, upperArmRight, lowerArmR, upperArmLeft, lowerArmL, upperLegR, lowerLegR, upperLegL, lowerLegL, rightHand, leftHand, leftFoot, rightFoot);
 

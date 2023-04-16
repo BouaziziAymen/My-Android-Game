@@ -158,13 +158,6 @@ public class LayerProperties extends ColoredProperties {
         this.juicinessDensity = juicinessDensity;
     }
 
-    public float getJuicinessVolume() {
-        return juicinessVolume;
-    }
-
-    public void setJuicinessVolume(float juicinessVolume) {
-        this.juicinessVolume = juicinessVolume;
-    }
 
     public float getJuicinessLowerPressure() {
         return juicinessLowerPressure;
