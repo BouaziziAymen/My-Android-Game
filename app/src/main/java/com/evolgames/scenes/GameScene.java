@@ -29,8 +29,6 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -56,13 +54,10 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.inputs.controllers.Movable;
 
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.camera.hud.controls.AnalogOnScreenControl;
-import org.andengine.engine.camera.hud.controls.BaseOnScreenControl;
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.entity.primitive.Line;
@@ -80,7 +75,6 @@ import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.color.Color;
-import org.andengine.util.adt.transformation.Transformation;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -102,34 +96,25 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public static boolean pause = false;
     public static Plotter plotter;
     public static Plotter plotter2;
-    public static int numberOfLiquid = 0;
-    private static ArrayList<GameGroup> gameGroups = new ArrayList<>();
+    private static final ArrayList<GameGroup> gameGroups = new ArrayList<>();
     private final WorldFacade worldFacade;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     public Ragdoll ragdoll;
     HashMap<Integer, Hand> hands = new HashMap<>();
     float x, y;
-    private GameGroup groundGroup;
     private Vector2 point1;
     private Vector2 point2;
     private Line line;
     private PlayerAction action = PlayerAction.Drag;
     private UserInterface userInterface;
-    private KeyboardController keyboardController;
     private HUD hud;
     private boolean scroll = false;
-    private Transformation globalTransformation = new Transformation();
     private float mPinchZoomStartedCameraZoomFactor;
     private boolean zoom;
     private Movable movable;
-    private LiquidParticleWrapper liquidSource;
     private GameGroup gameGroup;
-    private Mesh themesh;
-    private Entity background;
-    private FireParticleWrapperWithPolygonEmitter fireParticlePolygon;
-    private ControlPanel panel;
-    private boolean created;
+    private Mesh theMesh;
     private Hand hand;
 
     public GameScene() {
@@ -168,8 +153,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     @Override
     public void populate() {
 
-        this.background = new Entity();
-        this.setBackground(new EntityBackground(0, 0, 0, this.background));
+        Entity background = new Entity();
+        this.setBackground(new EntityBackground(0, 0, 0, background));
 
         plotter = new Plotter();
         plotter.setZIndex(200);
@@ -180,7 +165,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         Color color = new Color(1, 1, 1);
         color.setBlue(0);
-        keyboardController = new KeyboardController();
+        KeyboardController keyboardController = new KeyboardController();
 
         OutlineController outlineController = new OutlineController();
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
@@ -368,7 +353,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
@@ -380,8 +365,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, 0, 2, 2, 64);
         float[] data = MeshFactory.getInstance().computeData(list);
-        themesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
-        attachChild(themesh);
+        theMesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
+        attachChild(theMesh);
 
 //Color(175 / 256f, 17 / 256f, 28 / 256f)) blood
         //     liquidSource = getWorldFacade().createSegmentLiquidSource(gameEntity1,new Vector2(400,240),new Vector2(450,240), new Color(0 / 255f, 255 / 255f, 255 / 255f),30,50);
@@ -457,10 +442,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         if (false)
             if (step % 15 == 0) {
-                themesh.setScale(1);
-                themesh.setColor(Color.WHITE);
+                theMesh.setScale(1);
+                theMesh.setColor(Color.WHITE);
             } else {
-                themesh.setScale(1 + (step % 15) * 10);
+                theMesh.setScale(1 + (step % 15) * 10);
             }
         if (step == 180) {
             //getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
@@ -528,35 +513,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     }
 
-    private void createAnalog() {
-
-        final AnalogOnScreenControl analogOnScreenControl = new AnalogOnScreenControl(480, 240, ResourceManager.getInstance().firstCamera, ResourceManager.getInstance().base, ResourceManager.getInstance().knob, 0.1f, 200, ResourceManager.getInstance().vbom, new AnalogOnScreenControl.IAnalogOnScreenControlListener() {
-            @Override
-            public void onControlChange(final BaseOnScreenControl pBaseOnScreenControl, final float pValueX, final float pValueY) {
-
-            }
-
-            @Override
-            public void onControlClick(final AnalogOnScreenControl pAnalogOnScreenControl) {
-
-            }
-        });
-        //analogOnScreenControl.getControlBase().setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-        analogOnScreenControl.getControlBase().setAlpha(1f);
-        analogOnScreenControl.getControlBase().setScaleCenter(0, 128);
-        analogOnScreenControl.getControlBase().setScale(1.25f);
-        analogOnScreenControl.getControlKnob().setScale(1.25f);
-        analogOnScreenControl.refreshControlKnobPosition();
-        setChildScene(analogOnScreenControl);
-
-    }
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
+        if(false)
         if (touchEvent.isActionDown()) {
             this.x = touchEvent.getX() / 32f;
             this.y = touchEvent.getY() / 32f;
-           //   getWorldFacade().createExplosion(x, y, 100000);
+             getWorldFacade().createExplosion(x, y, 1000);
         }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

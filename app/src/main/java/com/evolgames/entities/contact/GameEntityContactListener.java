@@ -36,6 +36,11 @@ public class GameEntityContactListener implements ContactListener {
 
     @Override
     public void endContact(Contact contact) {
+
+        if(shouldNotCollide(contact.getFixtureA(),contact.getFixtureB())){
+            contact.setEnabled(false);
+            return;
+        }
         observer.processImpactEndContact(contact);
     }
 
@@ -50,7 +55,10 @@ public class GameEntityContactListener implements ContactListener {
 
     @Override
     public void postSolve(Contact contact, ContactImpulse impulse) {
-
+        if(shouldNotCollide(contact.getFixtureA(),contact.getFixtureB())){
+            contact.setEnabled(false);
+            return;
+        }
         observer.processImpactAfterSolve(contact, impulse);
     }
 
@@ -63,8 +71,12 @@ public class GameEntityContactListener implements ContactListener {
         Body body2 = fixture2.getBody();
         GameEntity entity1 = (GameEntity) body1.getUserData();
         GameEntity entity2 = (GameEntity) body2.getUserData();
+        return shouldNotCollide(entity1, entity2);
+    }
+
+    public boolean shouldNotCollide(GameEntity entity1, GameEntity entity2) {
         for(Pair<GameEntity,GameEntity> pair:nonCollidingEntities){
-            if((pair.first==entity1&&pair.second==entity2)||(pair.second==entity1&&pair.first==entity2)){
+            if((pair.first== entity1 &&pair.second== entity2)||(pair.second== entity1 &&pair.first== entity2)){
                 return true;
             }
         }

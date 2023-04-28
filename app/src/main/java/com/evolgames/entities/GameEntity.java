@@ -1,6 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -44,6 +45,7 @@ public class GameEntity extends EntityWithBody {
     private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
     private boolean isFireSetup;
     private GameEntity parentGameEntity;
+    private Filter initialFilter;
 
     public GameScene getGameScene() {
         return gameScene;
@@ -399,5 +401,13 @@ public class GameEntity extends EntityWithBody {
 
     public GameEntity getParentGameEntity() {
         return parentGameEntity;
+    }
+
+    public void setInitialFilter(Filter initialFilter) {
+        this.initialFilter = initialFilter;
+    }
+
+    public Filter getInitialFilter() {
+        return initialFilter;
     }
 }

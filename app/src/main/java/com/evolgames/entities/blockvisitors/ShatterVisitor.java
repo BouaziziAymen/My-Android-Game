@@ -44,6 +44,8 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
                 worldFacade.pulverizeBlock(layerBlock,gameEntity);
                 shatterPerformed = true;
                 availableEnergy -= pulverizationEnergy;
+            } else {
+                availableEnergy = 0;
             }
 
         } else {

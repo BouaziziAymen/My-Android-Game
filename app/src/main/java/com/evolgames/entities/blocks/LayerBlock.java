@@ -1,9 +1,5 @@
 package com.evolgames.entities.blocks;
-
-import static com.evolgames.physics.PhysicsConstants.MINIMUM_CUT_LENGTH;
-
 import android.util.Pair;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -264,8 +260,8 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         return freshCuts;
     }
 
-    public void decrementLiquidQuantity() {
-        liquidQuantity--;
+    public void decrementLiquidQuantity(float delta) {
+        liquidQuantity-=delta;
     }
 
     public int getLiquidQuantity() {

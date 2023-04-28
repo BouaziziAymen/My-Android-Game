@@ -1,6 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.commandtemplate.commands.Command;
 
 import java.util.ArrayList;
@@ -39,6 +40,9 @@ public class EntityWithBody {
             body.setUserData(this);
         }
         this.body = body;
+    }
+    public void setFilter(Filter filter) {
+        body.getFixtureList().forEach(f -> f.setFilterData(filter));
     }
 
 }

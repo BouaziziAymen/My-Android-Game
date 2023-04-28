@@ -78,9 +78,7 @@ public class Hand {
                 HandControl handControl = handControlStack.peek();
                 if (handControl instanceof HoldHandControl) {
                     if (grabbedEntity != null) {
-                        System.out.println("--------- step 1 ------");
                         if(!grabbedEntity.hasTriggers()) {
-                            System.out.println("--------- step 2 ------");
                            releaseGrabbedEntity(handControl);
                         } else {
                             grabbedEntity.setHanged(false);

@@ -1,6 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
@@ -11,6 +12,7 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
 
@@ -63,7 +65,8 @@ public class Trigger {
         Vector2 directionProjected = projectileOwner.getBody().getWorldVector(direction).cpy();
         float muzzleVelocity = 6;
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle());
+        Filter filter = projectileOwner.getInitialFilter();
+        BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle());
        GameEntity shell = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),bodyInit,false);
         projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,shell);
     }
@@ -76,10 +79,12 @@ public class Trigger {
         Vector2 directionProjected = projectileOwner.getBody().getWorldVector(direction).cpy();
         float muzzleVelocity = projectileModel.getProperties().getMuzzleVelocity();
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle()),true);
+        Filter filter = projectileOwner.getInitialFilter();
+        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle()),true);
         GameEntity projectile = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(), new RecoilInit(bodyInit, projectileOwner.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true);
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
         projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,projectile);
+        GameScene.plotter2.detachChildren();
     }
 
 

@@ -19,7 +19,6 @@ import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
-import com.evolgames.entities.init.FilterInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
@@ -85,10 +84,6 @@ public class GameEntityFactory {
         for (LayerBlock block : entity.getBlocks()) {
             LayerProperties properties = block.getProperties();
             createJuiceSources(entity, block, properties);
-        }
-
-        if (false) {
-            drawFreshCuts(blocks, mesh);
         }
 
         return entity;
@@ -172,7 +167,7 @@ public class GameEntityFactory {
 
     public GameGroup createGameGroup(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType, String name, Filter filter) {
         GameGroup gameGroup = new GameGroup();
-        BodyInit bodyInit = new TransformInit(new FilterInit(new BodyInitImpl(), filter), position.x, position.y, 0);
+        BodyInit bodyInit = new TransformInit(new BodyInitImpl(filter), position.x, position.y, 0);
         GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name, new ArrayList<>());
         gameGroup.addGameEntity(entity);
         scene.attachChild(entity.getMesh());
@@ -203,17 +198,6 @@ public class GameEntityFactory {
         return gameGroup;
     }
 
-    public GameGroup createGameGroup(ArrayList<ArrayList<LayerBlock>> groupBlocks, Vector2[] positions, BodyDef.BodyType[] bodyTypes) {
-        GameGroup gameGroup = new GameGroup();
-        for (int i = 0; i < groupBlocks.size(); i++) {
-            ArrayList<LayerBlock> entityBlocks = groupBlocks.get(i);
-            Vector2 position = positions[i];
-            GameEntity entity = createGameEntity(position.x, position.y, 0, entityBlocks, bodyTypes[i], "");
-            gameGroup.addGameEntity(entity);
-        }
-        return gameGroup;
-
-    }
 
     GameEntity createGameEntity(float x, float y, float rot, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(), x, y, rot);
@@ -221,7 +205,7 @@ public class GameEntityFactory {
     }
 
     GameEntity createGameEntity(float x, float y, float rot, Filter filter, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
-        BodyInit bodyInit = new FilterInit(new TransformInit(new BodyInitImpl(), x, y, rot), filter);
+        BodyInit bodyInit = new TransformInit(new BodyInitImpl(filter), x, y, rot);
         return this.createGameEntity(x, y, rot, bodyInit, blocks, bodyType, name, null);
     }
 
