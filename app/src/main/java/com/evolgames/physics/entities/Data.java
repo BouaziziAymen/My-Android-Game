@@ -23,9 +23,6 @@ public class Data {
         blocks = new LayerBlock[n];
     }
 
-    public int getLength() {
-        return length;
-    }
 
     public float[][] getData() {
         return data;

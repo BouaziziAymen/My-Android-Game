@@ -22,9 +22,9 @@ import org.andengine.util.adt.color.Color;
 import java.util.List;
 
 public class PulverizationParticleWrapperWithPolygonEmitter {
-    private static final float RATE_MIN = 30 * 100;
-    private static final float RATE_MAX = 50 * 100;
-    private static final int PARTICLES_MAX = 100 * 100;
+    private static final float RATE_MIN = 3 * 100;
+    private static final float RATE_MAX = 5 * 100;
+    private static final int PARTICLES_MAX = 10 * 100;
     public BatchedPseudoSpriteParticleSystem particleSystem;
     public PowderEmitter emitter;
     private int step = 0;

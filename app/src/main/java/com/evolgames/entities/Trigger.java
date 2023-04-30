@@ -84,7 +84,7 @@ public class Trigger {
         GameEntity projectile = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(), new RecoilInit(bodyInit, projectileOwner.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true);
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
         projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,projectile);
-        GameScene.plotter2.detachChildren();
+
     }
 
 

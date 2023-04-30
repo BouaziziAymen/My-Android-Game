@@ -76,7 +76,10 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
@@ -153,7 +156,15 @@ public class WorldFacade implements ContactObserver {
         float y = body.getPosition().y;
         float rot = body.getAngle();
         ArrayList<GameEntity> splinters = GameEntityFactory.getInstance().createSplinterEntities(x, y, rot, BlockUtils.getDivisionGroups(splinterBlocks), body.getLinearVelocity(), body.getAngularVelocity(), parentEntity.getName(), parentEntity);
+        HashSet<Pair<GameEntity, GameEntity>> setOfPairs = new HashSet<>();
         splinters.forEach(splinter -> {
+            for (Pair<GameEntity, GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
+                if (pair.first == parentEntity) {
+                    setOfPairs.add(new Pair<>(splinter, pair.second));
+                } else if (pair.second == parentEntity) {
+                    setOfPairs.add(new Pair<>(splinter, pair.first));
+                }
+            }
             splinter.setParentGameEntity(parentEntity);
             ArrayList<LayerBlock> layerBlocks = splinter.getBlocks();
             layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream()).filter(associated -> associated instanceof JointBlock).map(associated -> (JointBlock) associated).forEachOrdered(jointBlock -> this.recreateJoint(jointBlock, splinter));
@@ -168,7 +179,7 @@ public class WorldFacade implements ContactObserver {
                 this.scheduleGameEntityToDestroy(splinter, (int) (splinter.getArea()));
             }
         });
-
+        this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
 
     public Vector2 detectFirstIntersectionPointWithExceptions(Vector2 first, Vector2 second, List<GameEntity> excepted) {
@@ -295,7 +306,7 @@ public class WorldFacade implements ContactObserver {
             if (liquidSource.getParticleSystem().hasParent())
                 if (liquidSource.getParticleSystem().getParticles().length > 0) {
                     for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
-                        if (p != null && !p.isExpired() && Math.random() < 0.001f) {
+                        if (p != null && !p.isExpired() && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
                             Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
                             float halfWidth = p.getEntity().getWidth() / 32f / 2f;
                             float halfHeight = p.getEntity().getHeight() / 32f / 2f;
@@ -515,9 +526,9 @@ public class WorldFacade implements ContactObserver {
 
     private boolean entitiesAreInvolvedInPenetration(GameEntity entity1, GameEntity entity2) {
 
-            if (this.contactListener.shouldNotCollide(entity1, entity2.getParentGameEntity())) {
-                return true;
-            }
+        if (this.contactListener.shouldNotCollide(entity1, entity2.getParentGameEntity())) {
+            return true;
+        }
 
         return this.contactListener.shouldNotCollide(entity2, entity1.getParentGameEntity());
     }
@@ -571,6 +582,67 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.rayCast(detectionRayCastCallback, worldBegin, worldEnd);
         return detectionRayCastCallback.getIntersectionPoint();
     }
+    enum EPointType{
+        ENTERING, LEAVING
+    }
+    class EPoint{
+        GameEntity gameEntity;
+        LayerBlock layerBlock;
+        Vector2 localPoint;
+        EPointType ePointType;
+
+        public EPoint(GameEntity gameEntity, LayerBlock layerBlock, Vector2 localPoint, EPointType ePointType) {
+            this.gameEntity = gameEntity;
+            this.layerBlock = layerBlock;
+            this.localPoint = localPoint;
+            this.ePointType = ePointType;
+        }
+
+        @Override
+        public String toString() {
+            return "EPoint{" +
+                    "layerBlock=" + layerBlock.hashCode() +
+                    ", localPoint=" + localPoint +
+                    ", ePointType=" + ePointType +
+                    '}';
+        }
+    }
+    private HashSet<EPoint> findEPoints(Data data1, float DIRECTION, Vector2 normal) {
+        float[][] data = data1.getData();
+        HashSet<EPoint> result = new HashSet<>();
+        for (int i=0;i<data1.getSize();i++) {
+            float[] datum = data1.getData()[i];
+            boolean found1 = false;
+            boolean found2 = false;
+            float inf = datum[0];
+            float sup = datum[1];
+            for (float[] other : data) {
+                if(other!=datum){
+                    if(inf-0.0001f<other[1]&&inf-0.0001f>other[0]){
+                        found1 = true; break;
+                    }
+                }
+            }
+            for (float[] other : data) {
+                if(other!=datum){
+                    if(sup+0.0001f<other[1]&&sup+0.0001f>other[0]){
+                        found2 = true; break;
+                    }
+                }
+            }
+            if(!found1){
+                Vector2 worldPoint = data1.getBase().cpy().add(normal.x * inf * DIRECTION, normal.y * inf * DIRECTION).mul(32f);
+                //Vector2 localPoint = data1.getEntities()[i].getBody().getLocalPoint(worldPoint).cpy().mul(32f);
+                result.add(new EPoint(data1.getEntities()[i],data1.getBlocks()[i],worldPoint,EPointType.ENTERING ));
+            }
+            if(!found2){
+                Vector2 worldPoint = data1.getBase().cpy().add(normal.x * sup * DIRECTION, normal.y * sup * DIRECTION).mul(32f);
+               // Vector2 localPoint = data1.getEntities()[i].getBody().getLocalPoint(worldPoint).cpy().mul(32f);
+                result.add(new EPoint(data1.getEntities()[i],data1.getBlocks()[i],worldPoint,EPointType.LEAVING ));
+            }
+        }
+        return result;
+    }
 
     private void drawData(Data data1, float DIRECTION, Vector2 normal, Color color) {
         float[][] data = data1.getData();
@@ -579,11 +651,16 @@ public class WorldFacade implements ContactObserver {
             float sup = datum[1];
             Vector2 p1 = data1.getBase().cpy().add(normal.x * inf * DIRECTION, normal.y * inf * DIRECTION).mul(32f);
             Vector2 p2 = data1.getBase().cpy().add(normal.x * sup * DIRECTION, normal.y * sup * DIRECTION).mul(32f);
-            GameScene.plotter2.drawLine2(p1, p2, color, 1);
+          GameScene.plotter2.drawLine2(p1, p2, Utils.getRandomColor(), 1);
+
+          GameScene.plotter2.drawPoint(p1, Color.RED, 1);
+
+            GameScene.plotter2.drawPoint(p2, Color.CYAN, 1);
         }
     }
 
     private void computePenetrationImpact(Contact contact, GameEntity entity1, GameEntity entity2) {
+
         Vector2[] points = contact.getWorldManifold().getPoints();
         Vector2 point;
         if (contact.getWorldManifold().getNumberOfContactPoints() == 1) {
@@ -607,8 +684,6 @@ public class WorldFacade implements ContactObserver {
 
         GameEntity penetrator = entity1.isProjectile() ? entity1 : entity2;
         GameEntity penetrated = penetrator == entity1 ? entity2 : entity1;
-
-
 
 
         float[] bounds = BlockUtils.getBounds(penetrator, penetrator.getBody(), point, tangent, normal);
@@ -669,6 +744,7 @@ public class WorldFacade implements ContactObserver {
         final int DIRECTION = normalPointsToPenetrated ? -1 : 1;
         final float xBackoff = normal.x * PhysicsConstants.BACKOFF * DIRECTION;
         final float yBackoff = normal.y * PhysicsConstants.BACKOFF * DIRECTION;
+        final Set<EPoint> ePoints = new HashSet<>();
         while (counter <= limit1) {
             Data data1, data2;
             movingPenetratorDetectionOriginStart.set(penetratorDetectionOriginStart.x + counter * tangent.x * sign * dT, penetratorDetectionOriginStart.y + counter * tangent.y * sign * dT);
@@ -683,11 +759,10 @@ public class WorldFacade implements ContactObserver {
                 if (intersection2 != null) {
                     data2 = findIntervalsExceptingOneEntity(penetrator, intersection1, normal.cpy().mul(-DIRECTION), intersection1.cpy().add(xBackoff, yBackoff), movingPenetratedDetectionOriginEnd.cpy().sub(xBackoff, yBackoff));
                     penetratedTopography[index] = data2;
-
+                    //drawData(data2, -DIRECTION, normal, Color.YELLOW);
+                    ePoints.addAll( this.findEPoints(data2,-DIRECTION,normal));
                 }
             }
-
-
             if (counter >= 0) {
                 counter++;
             }
@@ -696,6 +771,7 @@ public class WorldFacade implements ContactObserver {
             }
             index++;
         }
+
         recycle(movingPenetratorDetectionOriginStart);
         recycle(movingPenetratorDetectionOriginEnd);
         recycle(movingPenetratedDetectionOriginEnd);
@@ -721,25 +797,45 @@ public class WorldFacade implements ContactObserver {
                 }
             }
             if (collisionImpulse - consumedEnergy < 0) {
-                createPenetrationEffects(normal, dT, penetratedTopography, DIRECTION, advance);
                 if (step >= PhysicsConstants.PRECISION / 10) {
                     penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-DIRECTION * consumedEnergy * massFraction), point);
-                    checkOnePointImpact(penetratedBlock, point, collisionImpulse* massFraction, penetrated);
-                    GameScene.plotter2.drawPoint(point.cpy().mul(32f), Color.YELLOW, 3);
+                    checkOnePointImpact(penetratedBlock, point, collisionImpulse * massFraction, penetrated);
                 }
-                GameScene.plotter2.drawPoint(point.cpy().mul(32f), Color.CYAN, 3);
                 return;
             }
             step++;
         }
 
+System.out.println("ePoints:"+Arrays.toString(ePoints.toArray()));
+        Map<LayerBlock, List<EPoint>> res = ePoints.stream().filter(v->v.ePointType==EPointType.ENTERING).collect(Collectors.groupingBy((a) -> a.layerBlock));
+        System.out.println("Map:"+res);
+        res.forEach((layerBlock,value)->{
+            if(layerBlock.getProperties().isJuicy()){
+
+                List<Vector2> bleedingPoints = value.stream().map(v -> v.localPoint).collect(Collectors.toList());
+                System.out.println("Points:"+Arrays.toString(bleedingPoints.toArray()));
+                final float length = dT * stepAdvance * PhysicsConstants.PRECISION  * 32f * 32f * bleedingPoints.size();
+                 System.out.println("Length:"+length);
+                if (length > 3) {
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, normal.cpy().mul(layerBlock.getProperties().getJuicinessUpperPressure() * 60), layerBlock);
+                        for (Vector2 v : bleedingPoints) {
+                           GameScene.plotter2.drawPoint(v, Color.RED,1);
+                        }
+                    this.createBloodSource(layerBlock.getGameEntity(), layerBlock, freshCut);
+                    layerBlock.addFreshCut(freshCut);
+                }
+            }
+        });
+        GameScene.pause = true;
+        if(true){
+            return;
+        }
+
         GameScene.plotter2.drawPoint(point.cpy().mul(32f), Color.RED, 3);
-       // System.out.println("go through:" + collisionImpulse + "/" + conservedKineticImpulse + "/" + massFraction);
+        // System.out.println("go through:" + collisionImpulse + "/" + conservedKineticImpulse + "/" + massFraction);
         penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-DIRECTION * consumedEnergy * massFraction), point);
         checkOnePointImpact(penetratedBlock, point, collisionImpulse * massFraction, penetrated);
-
-       // createPenetrationEffects(normal, dT, penetratedTopography, DIRECTION, PhysicsConstants.PRECISION * stepAdvance);
-       penetrator.getBody().getFixtureList().forEach(f->f.setSensor(true));
+        this.contactListener.addNonCollidingPair(penetrator, penetrated);
     }
 
     private void mergeEntities(GameEntity receiver, GameEntity traveler, Vector2 advance, Vector2 impactWorldPoint) {
@@ -757,51 +853,18 @@ public class WorldFacade implements ContactObserver {
         addJointToCreate(jointDef, receiver, traveler);
     }
 
-    private void createPenetrationEffects(Vector2 normal, float dT, Data[] penetratedTopography, int DIRECTION, float advance) {
-        int index;
-        Color color = Utils.getRandomColor();
-        Hashtable<LayerBlock, ArrayList<Vector2>> table = new Hashtable<>();
-        for (index = 0; index < penetratedTopography.length; index++) {
-            Vector2 dir = normal.cpy().mul(-DIRECTION);
-            Data data = penetratedTopography[index];
-            if (data != null) {
-                int i = 0;
-                for (float[] datum : data.getData()) {
-                    float inf = datum[0];
-                    Vector2 worldPoint = data.getBase().cpy().add(dir.x * inf * DIRECTION, dir.y * inf * DIRECTION);
+    class PData {
+        private float[] datum;
+        private LayerBlock layerBlock;
+        private GameEntity gameEntity;
 
-                    Vector2 localPoint = data.getEntities()[i].getBody().getLocalPoint(worldPoint).cpy().mul(32f);
-
-                    LayerBlock layerBlock = data.getBlocks()[i];
-                    if (table.containsKey(layerBlock)) {
-                        ArrayList<Vector2> list = table.get(layerBlock);
-                        assert list != null;
-                        list.add(localPoint);
-                    } else {
-                        ArrayList<Vector2> newList = new ArrayList<>();
-                        newList.add(localPoint);
-                        table.put(layerBlock, newList);
-                    }
-                    i++;
-                }
-            }
+        public PData(float[] datum, LayerBlock layerBlock, GameEntity gameEntity) {
+            this.datum = datum;
+            this.layerBlock = layerBlock;
+            this.gameEntity = gameEntity;
         }
-        table.forEach((layerBlock, bleedingPoints) -> {
-            if (layerBlock.getProperties().isJuicy()) {
-                final float length = dT * advance * 32f * 32f * bleedingPoints.size();
-                if (length > 3) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, normal.cpy().mul(layerBlock.getProperties().getJuicinessUpperPressure() * 600), layerBlock);
-                    if (false)
-                        for (Vector2 v : bleedingPoints) {
-                            GameScene.plotter2.drawPoint(v, color, layerBlock.getGameEntity().getMesh());
-                        }
-                    this.createBloodSource(layerBlock.getGameEntity(), layerBlock, freshCut);
-                    layerBlock.addFreshCut(freshCut);
-                }
-            }  //TODO Implement hard impact effects
-
-        });
     }
+
 
     private float getPenetrationLength(GameEntity penetrated, int topographyLength, Data[] penetratedTopography, Data[] penetratorTopography) {
         float penetrationLength = 0;

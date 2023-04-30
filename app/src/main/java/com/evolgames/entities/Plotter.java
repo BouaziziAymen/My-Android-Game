@@ -129,7 +129,7 @@ Vector2 P8 = equation2.IntersectsWithLine(equ2);
     }
 
     public void drawPoint(Vector2 v, Color color, Mesh mesh) {
-        Rectangle rect = new Rectangle(v.x, v.y, 4f, 4f, this.vbom);
+        Rectangle rect = new Rectangle(v.x, v.y, 1f, 1f, this.vbom);
         rect.setColor(color);
         rect.setZIndex(999999999);
         mesh.attachChild(rect);
