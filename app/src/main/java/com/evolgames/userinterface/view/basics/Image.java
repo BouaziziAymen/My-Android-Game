@@ -45,8 +45,9 @@ public class Image extends Element implements Limited,Touchable {
 
     public void drawImage() {
         if (isLimited) {
-            if(limitY0<limitY1)
-            UserInterface.hudBatcher.drawLimited(textureRegion,getAbsoluteX(),getAbsoluteY(),red(),green(),blue(),1f,0,getWidth(),limitY0,limitY1);
+            if(limitY0<limitY1) {
+                UserInterface.hudBatcher.drawLimited(textureRegion, getAbsoluteX(), getAbsoluteY(), red(), green(), blue(), 1f, 0, getWidth(), limitY0, limitY1);
+            }
         }
         else {
             if (!isScaled()) {
@@ -67,6 +68,11 @@ drawImage();
     @Override
     public void setLimited(boolean limited) {
         isLimited = limited;
+    }
+
+    @Override
+    public boolean isLimited() {
+        return isLimited;
     }
 
     @Override

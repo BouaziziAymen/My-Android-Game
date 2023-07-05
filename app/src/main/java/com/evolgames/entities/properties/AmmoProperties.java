@@ -2,15 +2,19 @@ package com.evolgames.entities.properties;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class AmmoProperties extends Properties{
+public class AmmoProperties extends Properties {
 
-    private  Vector2 ammoOrigin;
-    private  Vector2 ammoDirection;
-    public AmmoProperties(){}
+    private Vector2 ammoOrigin;
+    private Vector2 ammoDirection;
+
+    public AmmoProperties() {
+    }
+
     public AmmoProperties(Vector2 begin, Vector2 direction) {
         this.ammoOrigin = begin.cpy();
         this.ammoDirection = direction.cpy();
     }
+
     @Override
     public Properties copy() {
         return null;

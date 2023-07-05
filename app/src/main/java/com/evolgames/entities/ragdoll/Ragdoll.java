@@ -34,14 +34,13 @@ public class Ragdoll extends GameGroup {
     GameEntity leftHand;
     GameEntity leftFoot;
     GameEntity rightFoot;
-    float t;
     boolean alive = true;
     Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
 
     public Ragdoll(GameScene gameScene, GameEntity... entities) {
-        super(entities);
+        super(true,entities);
         this.gameScene = gameScene;
         this.brain = new Grafcet
                 (new int[][]{{0, 0}, {0, 0}, {20000}},
@@ -95,12 +94,12 @@ public class Ragdoll extends GameGroup {
     }
 
     public void onUpdate(float pSecondsElapsed) {
-        if (head.getBody() == null || !head.isAlive()) return;
+        if (head.getBody() == null || !head.isAlive()){
+            return;
+        }
 
         detectGround();
 
-//Log.e("feet",lowerLegR.getMesh().getRotation()+"/"+lowerLegL.getMesh().getRotation()+"/"+rightFoot.getMesh().getRotation()+"/"+leftFoot.getMesh().getRotation());
-        this.t += pSecondsElapsed;
         this.brain.run();
 
 

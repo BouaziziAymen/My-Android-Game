@@ -8,9 +8,6 @@ public class LayerProperties extends ColoredProperties {
     private String layerName;
     private int order;
     private int materialNumber;
-    private short categoryBits = 0x0001;
-    private short maskBits = -1;
-    private short groupIndex;
     private boolean flammable;
     private double ignitionTemperature;
     private double chemicalEnergy;
@@ -52,30 +49,6 @@ public class LayerProperties extends ColoredProperties {
 
     public void setMaterialNumber(int materialNumber) {
         this.materialNumber = materialNumber;
-    }
-
-    public short getCategoryBits() {
-        return categoryBits;
-    }
-
-    public void setCategoryBits(short categoryBits) {
-        this.categoryBits = categoryBits;
-    }
-
-    public short getMaskBits() {
-        return maskBits;
-    }
-
-    public void setMaskBits(short maskBits) {
-        this.maskBits = maskBits;
-    }
-
-    public short getGroupIndex() {
-        return groupIndex;
-    }
-
-    public void setGroupIndex(short groupIndex) {
-        this.groupIndex = groupIndex;
     }
 
     public boolean isFlammable() {

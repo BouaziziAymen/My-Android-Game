@@ -9,6 +9,10 @@ public class AmmoModel extends ProperModel<AmmoProperties> {
     private AmmoShape ammoShape;
     private final int bodyId;
     private final int ammoId;
+    private float rotationSpeed;
+    private boolean rotationOrientation;
+    private float linearSpeed;
+
     public AmmoModel(int bodyId, int ammoId,String ammoName) {
         super(ammoName);
         this.bodyId = bodyId;
@@ -21,6 +25,7 @@ public class AmmoModel extends ProperModel<AmmoProperties> {
         this.bodyId = bodyId;
         this.ammoId = ammoId;
     }
+
 
     public void setAmmoShape(AmmoShape ammoShape) {
         this.ammoShape = ammoShape;
@@ -36,5 +41,29 @@ public class AmmoModel extends ProperModel<AmmoProperties> {
 
     public int getAmmoId() {
         return ammoId;
+    }
+
+    public void setRotationSpeed(float rotationSpeed) {
+        this.rotationSpeed = rotationSpeed;
+    }
+
+    public float getRotationSpeed() {
+        return rotationSpeed;
+    }
+
+    public void setRotationOrientation(boolean rotationOrientation) {
+        this.rotationOrientation = rotationOrientation;
+    }
+
+    public boolean getRotationOrientation() {
+        return rotationOrientation;
+    }
+
+    public float getLinearSpeed() {
+        return linearSpeed;
+    }
+
+    public void setLinearSpeed(float linearSpeed) {
+        this.linearSpeed = linearSpeed;
     }
 }

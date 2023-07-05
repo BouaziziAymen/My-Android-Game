@@ -7,8 +7,8 @@ import com.evolgames.userinterface.view.layouts.TwoLevelSectionLayout;
 
 public abstract class AbstractTwoLevelSectionedAdvancedWindow<Primary extends Element,Secondary extends Element,Tertiary extends Element>
         extends AbstractSectionedAdvancedWindow<TwoLevelSectionLayout<Primary,Secondary,Tertiary>> {
-     public AbstractTwoLevelSectionedAdvancedWindow(float pX, float pY, int rows, int columns, LinearLayoutAdvancedWindowController<?> controller) {
-        super(pX, pY, rows, columns, controller);
+     public AbstractTwoLevelSectionedAdvancedWindow(float pX, float pY, int rows, int columns, boolean hasPadding, LinearLayoutAdvancedWindowController<?> controller) {
+        super(pX, pY, rows, columns,hasPadding, controller);
     }
 
 

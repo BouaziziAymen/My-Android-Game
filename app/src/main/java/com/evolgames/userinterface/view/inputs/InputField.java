@@ -13,26 +13,45 @@ import java.util.ArrayList;
 
 public class InputField<C extends Controller,B extends ClickableBehavior<C>> extends  ClickableContainer<C,B> {
 
-
-    int mLength;
+    protected int inputLength;
+    private final LinearLayout layout;
+    private final boolean leftSlot;
+    private final boolean rightSlot;
     public InputField(float pX, float pY,int mLength){
+      this(pX,pY,mLength,false,false);
+    }
+    public InputField(float pX, float pY,int mLength, boolean leftSlot, boolean rightSlot){
         super(pX,pY);
-        this.mLength = mLength;
-        LinearLayout layout = new LinearLayout(LinearLayout.Direction.Horizontal,-1);
+        this.inputLength = mLength;
+        this.layout = new LinearLayout(LinearLayout.Direction.Horizontal,-1);
+        this.rightSlot = rightSlot;
+        this.leftSlot = leftSlot;
         addElement(layout);
+        createBase(leftSlot,rightSlot);
+    }
 
-        ArrayList<ITextureRegion> baseRegions = ResourceManager.getInstance().quantity.get(0);
-        Image image = new Image(0,0,baseRegions.get(0));
+    public boolean isLeftSlot() {
+        return leftSlot;
+    }
+
+    public boolean isRightSlot() {
+        return rightSlot;
+    }
+
+    private void createBase(boolean left, boolean right) {
+        ArrayList<ITextureRegion> baseRegions = ResourceManager.getInstance().quantity.get("a");
+        ArrayList<ITextureRegion> altBaseRegions = ResourceManager.getInstance().quantity.get("c");
+        Image image = new Image(0,0,left?altBaseRegions.get(0):baseRegions.get(0));
         layout.addToLayout(image);
-        for(int i = 0; i< mLength -2; i++){
+        for(int i = 0; i< inputLength -2; i++){
             image = new Image(0,0,baseRegions.get(1));
             layout.addToLayout(image);
         }
-        image = new Image(0,0,baseRegions.get(2));
+        image = new Image(0,0,right?altBaseRegions.get(2):baseRegions.get(2));
         layout.addToLayout(image);
         setWidth(layout.getWidth());
         setHeight(layout.getHeight());
-        RectangularBounds bounds = new RectangularBounds(this,getWidth(),getHeight());
+        RectangularBounds bounds = new RectangularBounds(this,getWidth()-(right?27:0)-(left?27:0),getHeight(),left?27:0,0);
         setBounds(bounds);
     }
 }

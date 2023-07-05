@@ -5,8 +5,8 @@ import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.layouts.OneLevelSectionLayout;
 
 public abstract class AbstractOneLevelSectionedAdvancedWindow<Primary extends Element,Secondary extends Element> extends AbstractSectionedAdvancedWindow<OneLevelSectionLayout<Primary,Secondary>> {
-     public AbstractOneLevelSectionedAdvancedWindow(float pX, float pY, int pRows, int pColumns, LinearLayoutAdvancedWindowController<?> controller) {
-        super(pX, pY, pRows, pColumns, controller);
+     public AbstractOneLevelSectionedAdvancedWindow(float pX, float pY, int pRows, int pColumns,boolean hasPadding, LinearLayoutAdvancedWindowController<?> controller) {
+        super(pX, pY, pRows, pColumns,hasPadding, controller);
     }
 
 

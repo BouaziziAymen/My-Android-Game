@@ -3,6 +3,7 @@ package com.evolgames.entities;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
@@ -12,6 +13,7 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
+import com.evolgames.physics.CollisionConstants;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
@@ -30,16 +32,20 @@ public class Trigger {
 
     void onTriggerPulled(){
         fire();
+        System.out.println("Pulled:"+projectileModel.getProperties().getProjectileTriggerType());
         if(projectileModel.getProperties().getProjectileTriggerType()== ProjectileTriggerType.AUTOMATIC){
             continueFire = true;
+         System.out.println("Continue fire");
         }
     }
     void onTriggerReleased(){
         continueFire = false;
     }
+
     public void onStep(float deltaTime){
         if(continueFire) {
             timer += deltaTime;
+            System.out.println("Fire rate:"+(60f / projectileModel.getProperties().getFireRate()));
             if (timer > 60f / projectileModel.getProperties().getFireRate()) {
                 fire();
             }
@@ -51,7 +57,9 @@ public class Trigger {
         }
         timer = 0;
         createBullet();
-        createBulletCasing();
+        if(projectileModel.getAmmoModel()!=null&&projectileModel.getMissileModel().getBodies().size()>1) {
+            createBulletCasing();
+        }
     }
 
     private void createBulletCasing() {
@@ -63,12 +71,12 @@ public class Trigger {
         Vector2 direction =  projectileModel.getAmmoModel().getProperties().getAmmoDirection();
         Vector2 beginProjected = projectileOwner.getBody().getWorldPoint(begin.cpy().sub(projectileOwner.getCenter()).mul(1/32f)).cpy();
         Vector2 directionProjected = projectileOwner.getBody().getWorldVector(direction).cpy();
-        float muzzleVelocity = 6;
-        Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        Filter filter = projectileOwner.getInitialFilter();
-        BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle());
-       GameEntity shell = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),bodyInit,false);
-        projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,shell);
+        boolean clockwise = projectileModel.getAmmoModel().getRotationOrientation();
+        float angularVelocity = clockwise?1:-1 * projectileModel.getAmmoModel().getRotationSpeed()*10;
+        float ejectionVelocity = projectileModel.getAmmoModel().getLinearSpeed()*10;
+        Vector2 ejectionVelocityVector = directionProjected.mul(ejectionVelocity);
+        BodyInit bodyInit = new TransformInit(new AngularVelocityInit(new LinearVelocityInit(new BodyInitImpl(CollisionConstants.CASING_CATEGORY,CollisionConstants.CASING_MASK),ejectionVelocityVector),angularVelocity),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle());
+       GameEntity shell = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(),bodyInit,false,"shell");
     }
 
     private void createBullet() {
@@ -79,12 +87,9 @@ public class Trigger {
         Vector2 directionProjected = projectileOwner.getBody().getWorldVector(direction).cpy();
         float muzzleVelocity = projectileModel.getProperties().getMuzzleVelocity();
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        Filter filter = projectileOwner.getInitialFilter();
-        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle()),true);
-        GameEntity projectile = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(), new RecoilInit(bodyInit, projectileOwner.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true);
+        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(CollisionConstants.PROJECTILE_CATEGORY,CollisionConstants.PROJECTILE_MASK),muzzleVelocityVector),beginProjected.x,beginProjected.y, projectileOwner.getBody().getAngle()),true);
+        GameEntity projectile = GameEntityFactory.getInstance().createIndependentGameEntity(projectileOwner.getParentGroup(), blocks, beginProjected, projectileOwner.getBody().getAngle(), new RecoilInit(bodyInit, projectileOwner.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true,"bullet");
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
-        projectileOwner.getGameScene().getWorldFacade().addNonCollidingPair(projectileOwner,projectile);
-
     }
 
 

@@ -14,10 +14,9 @@ import com.evolgames.userinterface.view.windows.AdvancedWindow;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
 public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> {
-    private ShiftText<OptionsWindowController> shiftingText;
 
     public OptionsWindow(float pX, float pY, OptionsWindowController controller) {
-        super(pX, pY, 5, 6, controller);
+        super(pX, pY, 5, 6, false,controller);
         Text text = new Text("Settings:",2);
         LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal);
         mainField.addToLayout(text);
@@ -31,7 +30,7 @@ public class OptionsWindow extends AbstractTwoLevelSectionedAdvancedWindow<Simpl
     }
 
     private void addShiftingText(OptionsWindowController controller) {
-     shiftingText = new ShiftText<>(8, 32*5-12-5,6, controller);
+        ShiftText<OptionsWindowController> shiftingText = new ShiftText<>(8, 32 * 5 - 12 - 5, 6, controller);
         addElement(shiftingText);
         shiftingText.setDepth(3);
         shiftingText.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);

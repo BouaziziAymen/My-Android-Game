@@ -13,46 +13,51 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import java.util.ArrayList;
 
 public class Quantity<C extends AdvancedWindowController<?>> extends InputField<C,QuantityBehavior<C>> implements Temporal {
-    private final int mColorIndex;
+    private final String key;
     private int mNumberOfStrokes;
     private final LinearLayout mFront;
-    public Quantity(float pX, float pY,int mLength, int colorIndex){
-       this(pX,pY,mLength,colorIndex,0);
+    public Quantity(float pX, float pY,int mLength, String key){
+       this(pX,pY,mLength,key,0);
     }
 
-    public Quantity(float pX, float pY,int mLength, int colorIndex,float ratio){
-        super(pX,pY,mLength);
-        this.mColorIndex = colorIndex;
-        mFront = new LinearLayout(13-8,(24-14)/2,LinearLayout.Direction.Horizontal,-1);
+    public Quantity(float pX, float pY,int mLength, String key,float ratio){
+       this(pX,pY,mLength,key,ratio,false,false);
+    }
+    public Quantity(float pX, float pY,int mLength, String key,float ratio,boolean left, boolean right){
+        super(pX,pY,mLength,left,right);
+        this.key = key;
+        mFront = new LinearLayout(left?27:5,5,LinearLayout.Direction.Horizontal,-1);
         addElement(mFront);
         updateRatio(ratio);
-
     }
 
-    public Quantity(int mLength, int colorIndex){
-       this(0,0,mLength,colorIndex);
+    public Quantity(int mLength, String key){
+       this(0,0,mLength,key);
     }
 
 
 
     public void updateRatio(float ratio) {
-        int newNumberOfStrokes = (int) Math.ceil(ratio*mLength);
+        int newNumberOfStrokes = (int) Math.ceil(ratio* inputLength);
         if(newNumberOfStrokes!=mNumberOfStrokes) {
             mNumberOfStrokes = newNumberOfStrokes;
             createFront();
-            if(getBehavior()!=null)
-            getBehavior().onViewUpdated();
+            if(getBehavior()!=null) {
+                getBehavior().onViewUpdated();
+            }
         }
     }
     public float getRatio(){
-        return mNumberOfStrokes/(float)mLength;
+        return mNumberOfStrokes/(float) inputLength;
     }
 
 
     private void createFront(){
         mFront.updateLayout();
-        if(mNumberOfStrokes==0)return;
-        ArrayList<ITextureRegion> frontRegions = ResourceManager.getInstance().quantity.get(mColorIndex);
+        if(mNumberOfStrokes==0){
+            return;
+        }
+        ArrayList<ITextureRegion> frontRegions = ResourceManager.getInstance().quantity.get(key);
         mFront.addToLayout(new Image(frontRegions.get(0)));
         for(int i=1;i<mNumberOfStrokes-1;i++){
             mFront.addToLayout(new Image(frontRegions.get(1)));

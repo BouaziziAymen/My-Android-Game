@@ -374,7 +374,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         });
 
 
-        TitledQuantity<ProjectileOptionController> titledRecoilQuantity = new TitledQuantity<>("Recoil:", 10, 3, 5, 50);
+        TitledQuantity<ProjectileOptionController> titledRecoilQuantity = new TitledQuantity<>("Recoil:", 10, "b", 5, 50);
         recoilQuantity = titledRecoilQuantity.getAttachment();
         titledRecoilQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, recoilQuantity) {
             @Override

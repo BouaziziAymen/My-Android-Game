@@ -50,22 +50,22 @@ public class Hand {
             mouseJointDef.collideConnected = true;
             mousePointerId = touchEvent.getPointerID();
             worldFacade.addJointToCreate(mouseJointDef, worldFacade.getGround().getGameEntityByIndex(0), entity);
+
         }
         }
 
     public void onUpdate() {
         if (!handControlStack.isEmpty()) {
             HandControl top = handControlStack.peek();
-            if (top.isDead()) handControlStack.pop();
-            else top.run();
-        }
-        if (grabbedEntity != null) {
-            if (GameScene.step % 120 == 0) {
-                // handControlStack.push(new SwingHandControl(grabbedEntity.getBody(),60,10,1000));
+            if (top.isDead()){
+                handControlStack.pop();
+            }
+            else {
+                top.run();
             }
         }
     }
-    private void releaseGrabbedEntity(HandControl handControl){
+    public void releaseGrabbedEntity(HandControl handControl){
         Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
         grabbedEntity.setHanged(false);
         grabbedEntity = null;
@@ -73,20 +73,7 @@ public class Hand {
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
-        if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
-            if (!handControlStack.isEmpty()) {
-                HandControl handControl = handControlStack.peek();
-                if (handControl instanceof HoldHandControl) {
-                    if (grabbedEntity != null) {
-                        if(!grabbedEntity.hasTriggers()) {
-                           releaseGrabbedEntity(handControl);
-                        } else {
-                            grabbedEntity.setHanged(false);
-                        }
-                    }
-                }
-            }
-        }
+
         if (mouseJoint != null) {
             if (touchEvent.isActionMove() && touchEvent.getPointerID() == mousePointerId&&grabbedEntity.isHanged()) {
                 Vector2 vec = Vector2Pool
@@ -107,5 +94,9 @@ public class Hand {
 
     public void setMouseJoint(MouseJoint joint) {
         this.mouseJoint = joint;
+    }
+
+    public Stack<HandControl> getHandControlStack() {
+        return handControlStack;
     }
 }

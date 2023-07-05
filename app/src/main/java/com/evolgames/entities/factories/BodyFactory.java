@@ -72,11 +72,6 @@ fixtureDef.filter.maskBits = 0x0;
                 fixtureDef.shape = fixtureShape;
                 Fixture fixture = body.createFixture(fixtureDef);
                 fixture.setUserData(block);
-                Filter filter = new Filter();
-               filter.categoryBits = block.getProperties().getCategoryBits();
-               filter.maskBits = block.getProperties().getMaskBits();
-               filter.groupIndex = block.getProperties().getGroupIndex();
-                fixture.setFilterData(filter);
                 fixtures.add(fixture);
         }
         block.setBody(body);

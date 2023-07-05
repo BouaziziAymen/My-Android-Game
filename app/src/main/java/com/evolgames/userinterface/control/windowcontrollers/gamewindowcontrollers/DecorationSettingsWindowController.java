@@ -24,7 +24,7 @@ import org.andengine.util.adt.color.Color;
 
 public class DecorationSettingsWindowController extends SettingsWindowController<DecorationProperties> {
     private TextField<DecorationSettingsWindowController> decorationNameTextField;
-    private TextFieldValidator decorationNameValidator = new AlphaNumericValidator(16,5);;
+    private final TextFieldValidator decorationNameValidator = new AlphaNumericValidator(16,5);;
     private ColorSlot colorSlotForDecoration;
     private ColorSelectorWindowController colorSelectorController;
 
@@ -55,7 +55,7 @@ public class DecorationSettingsWindowController extends SettingsWindowController
         });
 
 
-        SimplePrimary<TitledTextField> secondaryElement1 = new SimplePrimary<>(0, decorationNameField);
+        SimplePrimary<TitledTextField<?>> secondaryElement1 = new SimplePrimary<>(0, decorationNameField);
         window.addPrimary(secondaryElement1);
 //create the color selection field
 

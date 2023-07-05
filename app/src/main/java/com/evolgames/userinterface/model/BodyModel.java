@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.AmmoOptionController;
 import com.evolgames.userinterface.model.toolmodels.AmmoModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
@@ -18,6 +19,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     public static final ArrayList<BodyCategory> allCategories = new ArrayList<>(Arrays.asList(BodyCategory.ARMOR, BodyCategory.MELEE, BodyCategory.PROJECTILE));
     private final AtomicInteger layerCounter = new AtomicInteger();
     private final AtomicInteger projectileCounter = new AtomicInteger();
+    private final AtomicInteger ammoCounter = new AtomicInteger();
     private final int bodyId;
     private final ArrayList<LayerModel> layers;
     private final ArrayList<ProjectileModel> projectiles;
@@ -69,6 +71,12 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         }
         return null;
     }
+    public AmmoModel getAmmoModelById(int ammoId) {
+        for (AmmoModel ammoModel : ammoModels) {
+            if (ammoModel.getAmmoId() == ammoId) return ammoModel;
+        }
+        return null;
+    }
 
     public int getBodyId() {
         return bodyId;
@@ -113,37 +121,12 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return hands;
     }
 
-    public List<List<Vector2>> getPolygons() {
-        List<List<Vector2>> polygons = new ArrayList<>();
-        layers.forEach(layer -> {
-            if (layer.getOutlinePoints() != null) {
-                polygons.add(Arrays.asList(layer.getOutlinePoints()));
-            }
-        });
-        return polygons;
-    }
-
-
-    public LayerModel getSelectedLayer() {
-        for (LayerModel layerModel : layers) {
-            if (layerModel.isSelected()) {
-                return layerModel;
-            }
-        }
-        return null;
-    }
-
-    public boolean hasSelectedLayer() {
-        for (LayerModel layerModel : layers) {
-            if (layerModel.isSelected()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public AtomicInteger getProjectileCounter() {
         return projectileCounter;
+    }
+
+    public AtomicInteger getAmmoCounter() {
+        return ammoCounter;
     }
 
     public Vector2 getCenter() {

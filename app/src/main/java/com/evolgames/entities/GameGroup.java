@@ -10,20 +10,33 @@ public class GameGroup {
     private final ArrayList<GameEntity> entities;
     private final HashSet<GameEntity> addedEntities;
     private final ArrayList<Command> commands;
-    public GameGroup(GameEntity ... groupOfEntities){
+    private final boolean living;
+
+    public boolean isLiving() {
+        return living;
+    }
+
+    public GameGroup(boolean living, GameEntity ... groupOfEntities){
         entities = new ArrayList<>();
         addedEntities = new HashSet<>();
         commands = new ArrayList<>();
         entities.addAll(Arrays.asList(groupOfEntities));
-        for(GameEntity entity:groupOfEntities)
+        for(GameEntity entity:groupOfEntities) {
             entity.setParentGroup(this);
+        }
+        this.living = living;
+    }
+    public GameGroup(GameEntity ... groupOfEntities){
+       this(false,groupOfEntities);
     }
     public GameGroup(ArrayList<GameEntity> groupOfEntities){
         entities = groupOfEntities;
         addedEntities = new HashSet<>();
         commands = new ArrayList<>();
-        for(GameEntity entity:groupOfEntities)
+        for(GameEntity entity:groupOfEntities) {
             entity.setParentGroup(this);
+        }
+        living = false;
     }
 
     public void addGameEntity(GameEntity entity) {

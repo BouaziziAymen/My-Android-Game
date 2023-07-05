@@ -13,6 +13,7 @@ import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.modifier.QuadraticBezierCurveMoveModifier;
 import org.andengine.entity.particle.BatchedPseudoSpriteParticleSystem;
+import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
@@ -22,9 +23,9 @@ import org.andengine.util.adt.color.Color;
 import java.util.List;
 
 public class PulverizationParticleWrapperWithPolygonEmitter {
-    private static final float RATE_MIN = 3 * 100;
-    private static final float RATE_MAX = 5 * 100;
-    private static final int PARTICLES_MAX = 10 * 100;
+        private static final float RATE_MIN =   1000;
+    private static final float RATE_MAX = 1000;
+    private static final int PARTICLES_MAX = 1000;
     public BatchedPseudoSpriteParticleSystem particleSystem;
     public PowderEmitter emitter;
     private int step = 0;
@@ -48,7 +49,7 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         AirFieldVelocityInitializer velocityInitializer = new AirFieldVelocityInitializer(worldFacade, bodyVelocity);
        this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.05f));
-        this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(1f));
+        this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(10f));
        //this.colorParticleInitializer = new ColorParticleInitializer<>(layerBlock.getProperties().getDefaultColor());
         addGravity();
        // this.particleSystem.addParticleInitializer(colorParticleInitializer);
@@ -65,12 +66,23 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         return particleSystem;
     }
 
+    public boolean allExpired(){
+        for(Particle particle:particleSystem.getParticles()){
+            if(particle!=null&&!particle.isExpired()){
+                return false;
+            }
+        }
+        return true;
+    }
     public void update() {
         step++;
         if(step>30){
-            particleSystem.detachSelf();
-            alive = false;
+           finishSelf();
         }
+    }
+    public void finishSelf() {
+        particleSystem.setParticlesSpawnEnabled(false);
+        this.alive = false;
     }
 
     public boolean isAlive() {

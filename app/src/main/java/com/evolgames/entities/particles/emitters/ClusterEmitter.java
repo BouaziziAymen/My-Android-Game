@@ -19,8 +19,8 @@ public class ClusterEmitter extends AbsoluteEmitter {
     @Override
     public void getPositionOffset(float[] pOffset) {
         int index = Utils.RAND.nextInt(data.length/2);
-        pOffset[VERTEX_INDEX_X] = this.data[2*index]+(1f-2*(float)Math.random())*2;
-        pOffset[VERTEX_INDEX_Y] = this.data[2*index+1]+(1f-2*(float)Math.random())*2;
+        pOffset[VERTEX_INDEX_X] = this.data[2*index];
+        pOffset[VERTEX_INDEX_Y] = this.data[2*index+1];
     }
 
     @Override

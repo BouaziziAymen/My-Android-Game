@@ -5,20 +5,20 @@ import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.view.inputs.Button;
 
-public class TargetField extends ItemField {
-    public TargetField(int primaryKey, int secondaryKey, ItemWindowController controller) {
+public class ProjectileField extends ItemField {
+    public ProjectileField(int primaryKey, int secondaryKey, ItemWindowController controller) {
         super(primaryKey, secondaryKey, controller);
         Button<ItemWindowController> itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
         itemRemoveButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
             @Override
             public void informControllerButtonClicked() {
-                controller.onTargetRemoveButtonClicked(TargetField.this);
+                controller.onProjectileRemoveButtonClicked(ProjectileField.this);
             }
 
             @Override
             public void informControllerButtonReleased() {
-                controller.onTargetRemoveButtonReleased(TargetField.this);
+                controller.onProjectileRemoveButtonReleased(ProjectileField.this);
             }
         });
         this.setHeight(itemRemoveButton.getHeight());
@@ -34,7 +34,7 @@ public class TargetField extends ItemField {
 
             @Override
             public void informControllerButtonReleased() {
-                controller.onTargetSettingsButtonReleased(TargetField.this);
+                controller.onProjectileSettingsButtonReleased(ProjectileField.this);
             }
         });
 

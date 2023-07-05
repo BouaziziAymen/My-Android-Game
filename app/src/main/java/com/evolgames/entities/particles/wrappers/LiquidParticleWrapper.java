@@ -2,6 +2,8 @@ package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.particles.pools.LiquidParticlePool;
 import com.evolgames.entities.particles.emitters.AbsoluteEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
@@ -37,10 +39,9 @@ public abstract class LiquidParticleWrapper {
     private boolean alive = true;
     private final Vector2 splashVelocity;
 
-    public LiquidParticleWrapper(GameEntity gameEntity, Color color, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
+    public LiquidParticleWrapper(GameEntity gameEntity, LayerBlock layerBlock, Color color, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
         this.color = color;
         this.splashVelocity = splashVelocity;
-
         emitter = createEmitter(data);
         IEntityFactory<Entity> ief = LiquidParticlePool::obtain;
 
@@ -93,12 +94,12 @@ public abstract class LiquidParticleWrapper {
         }
         timer++;
 
-        if(timer<120){
+
             if(splashVelocity !=null) {
-                float percentage = EaseStrongInOut.getInstance().getPercentage(timer,60);
-                velocityInitializer.getIndependentVelocity().set(splashVelocity.x *percentage, splashVelocity.y *percentage);
+                float percentage = EaseStrongInOut.getInstance().getPercentage(timer,30);
+                velocityInitializer.getIndependentVelocity().set((float) (splashVelocity.x *(percentage+Math.random()*0.1f)), (float) (splashVelocity.y *(percentage+Math.random()*0.1f)));
             }
-        }
+
         float x = parent.getMesh().getX();
         float y = parent.getMesh().getY();
         float rot = parent.getMesh().getRotation();

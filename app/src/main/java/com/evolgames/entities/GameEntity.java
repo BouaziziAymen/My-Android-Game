@@ -45,7 +45,7 @@ public class GameEntity extends EntityWithBody {
     private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
     private boolean isFireSetup;
     private GameEntity parentGameEntity;
-    private Filter initialFilter;
+
 
     public GameScene getGameScene() {
         return gameScene;
@@ -403,11 +403,4 @@ public class GameEntity extends EntityWithBody {
         return parentGameEntity;
     }
 
-    public void setInitialFilter(Filter initialFilter) {
-        this.initialFilter = initialFilter;
-    }
-
-    public Filter getInitialFilter() {
-        return initialFilter;
-    }
 }

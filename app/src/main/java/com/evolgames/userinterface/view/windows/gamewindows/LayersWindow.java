@@ -15,7 +15,7 @@ import com.evolgames.userinterface.view.layouts.TwoLevelSectionLayout;
 public class LayersWindow extends AbstractTwoLevelSectionedAdvancedWindow<BodyField1,LayerField1,DecorationField1> {
     private LayerWindowController layerWindowController;
     public LayersWindow(float pX, float pY, LayerWindowController controller) {
-        super(pX, pY, 8, 8, controller);
+        super(pX, pY, 8, 8,true, controller);
         layerWindowController = controller;
         Text text = new Text("Bodies:",2);
         LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal);

@@ -444,6 +444,9 @@ public class PersistenceCaretaker {
         }
 
         for (BodyModel body : toolModel.getBodies()) {
+            if(body.getAmmoModels().size()>0){
+                body.getAmmoCounter().set(body.getAmmoModels().stream().mapToInt(AmmoModel::getAmmoId).max().getAsInt() + 1);
+            }
             if (body.getProjectiles().size() > 0) {
                 body.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
             }

@@ -1,5 +1,8 @@
 package com.evolgames.userinterface.model;
 
+import static com.evolgames.physics.CollisionConstants.GUN_CATEGORY;
+import static com.evolgames.physics.CollisionConstants.GUN_MASK;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
@@ -197,8 +200,8 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             if (blocks.size() == 0 || center == null){
                 return;
             }
-            BodyInit bodyInit = new TransformInit(new BodyInitImpl(),center.x / 32F, center.y / 32F, 0);
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
+            BodyInit bodyInit = new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createDollPart(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
@@ -346,7 +349,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public AmmoModel createNewAmmo(AmmoShape ammoShape, int bodyId) {
-        int ammoId = Objects.requireNonNull(getBodyById(bodyId)).getProjectileCounter().getAndIncrement();
+        int ammoId = Objects.requireNonNull(getBodyById(bodyId)).getAmmoCounter().getAndIncrement();
         AmmoModel ammoModel = new AmmoModel(bodyId, ammoId, ammoShape);
         getBodyModelById(bodyId).getAmmoModels().add(ammoModel);
         return ammoModel;

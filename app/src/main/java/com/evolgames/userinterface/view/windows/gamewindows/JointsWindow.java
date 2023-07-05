@@ -11,7 +11,7 @@ public class JointsWindow extends AbstractZeroLevelSectionedAdvancedWindow<Joint
     private final JointWindowController jointWindowController;
 
     public JointsWindow(float pX, float pY, JointWindowController controller) {
-        super(pX, pY, 6, 8, controller);
+        super(pX, pY, 6, 8,true, controller);
         jointWindowController = controller;
         Text text = new Text("Joints:",2);
         text.setPadding(5);

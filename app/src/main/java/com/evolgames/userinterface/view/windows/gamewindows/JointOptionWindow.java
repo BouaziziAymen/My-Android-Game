@@ -16,7 +16,7 @@ import java.util.Comparator;
 
 public class JointOptionWindow extends AbstractOneLevelSectionedAdvancedWindow<SimplePrimary<?>,SimpleSecondary<?>> {
     public JointOptionWindow(float pX, float pY, JointSettingsWindowController controller) {
-        super(pX, pY, 10, 7, controller);
+        super(pX, pY, 10, 7,true, controller);
         SimpleTitleField titleField = new SimpleTitleField("Joint Settings:");
         titleField.setPadding(5);
         addPrimary(titleField);

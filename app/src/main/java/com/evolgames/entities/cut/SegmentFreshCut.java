@@ -14,8 +14,6 @@ public class SegmentFreshCut extends FreshCut {
         this.limit = computeLimit(block);
     }
 
-
-
     public SegmentFreshCut(Vector2 first, Vector2 second, float limit) {
         this.first = first;
         this.second = second;
@@ -24,5 +22,13 @@ public class SegmentFreshCut extends FreshCut {
     @Override
     public float getLength() {
         return first.dst(second);
+    }
+
+    @Override
+    public String toString() {
+        return "SegmentFreshCut{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
     }
 }

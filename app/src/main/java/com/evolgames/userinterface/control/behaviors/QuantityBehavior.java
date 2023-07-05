@@ -12,16 +12,15 @@ public abstract class QuantityBehavior<C extends AdvancedWindowController<?>> ex
     private boolean touched;
     private int pointerId;
     private Action changeAction;
-
-    public void setCondition(Condition condition) {
-        this.condition = condition;
-    }
-
     private Condition condition;
 
     public QuantityBehavior(C controller, Quantity<C> quantity) {
-        super(controller,quantity);
+        super(controller, quantity);
         this.quantity = quantity;
+    }
+
+    public void setCondition(Condition condition) {
+        this.condition = condition;
     }
 
     public void setChangeAction(Action changeAction) {
@@ -35,32 +34,38 @@ public abstract class QuantityBehavior<C extends AdvancedWindowController<?>> ex
     public boolean processTouch(TouchEvent touchEvent, boolean touched) {
         if (touchEvent.isActionDown())
             if (quantity.isInBounds(touchEvent.getX(), touchEvent.getY())) {
-            this.touched = true;
-            pointerId = touchEvent.getPointerID();
+                this.touched = true;
+                pointerId = touchEvent.getPointerID();
             }
-            if(touchEvent.getPointerID()==pointerId) {
-                if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel())
-                    this.touched = false;
+        if (touchEvent.getPointerID() == pointerId) {
+            if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel())
+                this.touched = false;
 
-                if (this.touched) {
-                    float ratio = (touchEvent.getX() - quantity.getAbsoluteX()) / quantity.getWidth();
-                    if (ratio > 1) ratio = 1;
-                    if (ratio < 0) ratio = 0;
-                  boolean isCondition = (condition != null) && condition.isCondition(ratio);
-                  if(condition==null||isCondition) {
-                      quantity.updateRatio(ratio);
-                      informControllerQuantityUpdated(quantity);
-                      if (changeAction != null) changeAction.performAction();
-                      return true;
-                  }  else {
-                      if(quantity.getErrorDisplay()!=null){
-                          showError = true;
-                          quantity.getErrorDisplay().showError(condition.getError());
-                          updateWindowLayout();
-                      }
-                  }
+            if (this.touched) {
+                float ratio = (touchEvent.getX() - (quantity.getAbsoluteX()+(quantity.isLeftSlot()?27:5))) / (quantity.getWidth()-(quantity.isLeftSlot()?27:5)-(quantity.isRightSlot()?27:5));
+                if (ratio > 1) {
+                    ratio = 1;
+                }
+                if (ratio < 0) {
+                    ratio = 0;
+                }
+                boolean isCondition = (condition != null) && condition.isCondition(ratio);
+                if (condition == null || isCondition) {
+                    quantity.updateRatio(ratio);
+                    informControllerQuantityUpdated(quantity);
+                    if (changeAction != null) {
+                        changeAction.performAction();
+                    }
+                    return true;
+                } else {
+                    if (quantity.getErrorDisplay() != null) {
+                        showError = true;
+                        quantity.getErrorDisplay().showError(condition.getError());
+                        updateWindowLayout();
+                    }
                 }
             }
+        }
         return false;
     }
 

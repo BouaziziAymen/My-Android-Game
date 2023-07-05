@@ -11,6 +11,11 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 public class ClickableImage<C extends Controller, B extends ClickableBehavior<C>> extends ClickableContainer<C,B> {
 
 
+    @Override
+    public boolean isVisible() {
+        return image.isVisible();
+    }
+
     protected final Image image;
 
     public ClickableImage(ITextureRegion textureRegion, B behavior, boolean createBounds) {

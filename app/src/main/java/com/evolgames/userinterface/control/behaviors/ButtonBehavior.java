@@ -33,64 +33,62 @@ public abstract class ButtonBehavior<C extends Controller> extends ClickableBeha
 
     @Override
     public boolean processTouch(TouchEvent touchEvent, boolean touched) {
-        if(button.getState()== Button.State.DISABLED)return false;
+        if (button.getState() == Button.State.DISABLED) {
+            return false;
+        }
 
-        if(touched) {
+        if (touched) {
             if (button.getType() == Button.ButtonType.OneClick) {
-                if (touchEvent.getAction() == TouchEvent.ACTION_UP) {
+                if (touchEvent.getAction() == TouchEvent.ACTION_UP || touchEvent.getAction() == TouchEvent.ACTION_CANCEL || touchEvent.getAction() == TouchEvent.ACTION_OUTSIDE) {
                     if (button.getState() == Button.State.PRESSED) {
                         button.updateState(Button.State.NORMAL);
                         informControllerButtonReleased();
-                        if (releaseAction != null) releaseAction.performAction();
+                        if (releaseAction != null) {
+                            releaseAction.performAction();
+                        }
                     }
                 }
 
             }
             return false;
         }
-        boolean isTouched = button.isInBounds(touchEvent.getX(),touchEvent.getY());
+        boolean isInBounds = button.isInBounds(touchEvent.getX(), touchEvent.getY());
 
 
-       if(button.getType()== Button.ButtonType.OneClick){
-           if(touchEvent.getAction()==TouchEvent.ACTION_DOWN){
-               if(button.getState()== Button.State.NORMAL&&isTouched) {
-                   button.updateState(Button.State.PRESSED);
-                   informControllerButtonClicked();
-                   if(pushAction!=null) pushAction.performAction();
-               }
-           }
-           else if(touchEvent.getAction()==TouchEvent.ACTION_UP){
-               if(button.getState()== Button.State.PRESSED) {
-                   button.updateState(Button.State.NORMAL);
-                   informControllerButtonReleased();
-                   if(releaseAction!=null) releaseAction.performAction();
-               }
-           }
-         else if(touchEvent.getAction()==TouchEvent.ACTION_MOVE){
-               if(button.getState()== Button.State.PRESSED) {
-                   isTouched = true;
-               }
-           }
-       }
-
-       if(isTouched)
-        if(button.getType()== Button.ButtonType.Selector){
-            if(touchEvent.getAction()==TouchEvent.ACTION_UP){
-                if(button.getState()== Button.State.NORMAL) {
+        if (button.getType() == Button.ButtonType.OneClick) {
+            if (touchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                if (button.getState() == Button.State.NORMAL && isInBounds) {
                     button.updateState(Button.State.PRESSED);
                     informControllerButtonClicked();
-                   if(pushAction!=null) pushAction.performAction();
+                    if (pushAction != null) pushAction.performAction();
                 }
-               else if(button.getState()== Button.State.PRESSED) {
+            } else if (touchEvent.getAction() == TouchEvent.ACTION_UP || touchEvent.getAction() == TouchEvent.ACTION_CANCEL || touchEvent.getAction() == TouchEvent.ACTION_OUTSIDE) {
+                if (button.getState() == Button.State.PRESSED) {
                     button.updateState(Button.State.NORMAL);
                     informControllerButtonReleased();
-                   if(releaseAction!=null) releaseAction.performAction();
+                    if (releaseAction != null) releaseAction.performAction();
+                }
+            } else if (touchEvent.getAction() == TouchEvent.ACTION_MOVE) {
+                if (button.getState() == Button.State.PRESSED) {
+                    isInBounds = true;
+                }
+            }
+        } else if (button.getType() == Button.ButtonType.Selector && isInBounds) {
+            if (touchEvent.getAction() == TouchEvent.ACTION_UP) {
+                if (button.getState() == Button.State.NORMAL) {
+                    button.updateState(Button.State.PRESSED);
+                    informControllerButtonClicked();
+                    if (pushAction != null) pushAction.performAction();
+                } else if (button.getState() == Button.State.PRESSED) {
+                    button.updateState(Button.State.NORMAL);
+                    informControllerButtonReleased();
+                    if (releaseAction != null) releaseAction.performAction();
                 }
             }
 
         }
 
 
-       return isTouched;
+        return isInBounds;
     }
 }

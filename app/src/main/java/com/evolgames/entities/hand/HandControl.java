@@ -20,16 +20,17 @@ public abstract class HandControl {
     }
 
     public void run(){
-        if(dead)return;
+        if(dead){
+            return;
+        }
         if(hasLifespan) {
             count++;
-            if(count>lifespan)dead = true;
+            if(count>lifespan){
+                dead = true;
+            }
         }
     }
 
-    public Body getWeapon() {
-        return weapon;
-    }
     public boolean isDead(){
         return dead;
     }

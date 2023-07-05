@@ -1,5 +1,7 @@
 package com.evolgames.scenes;
 
+import static com.evolgames.physics.CollisionConstants.PROJECTILE_CATEGORY;
+import static com.evolgames.physics.CollisionConstants.PROJECTILE_MASK;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
@@ -24,6 +26,8 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
+import com.evolgames.entities.hand.HandControl;
+import com.evolgames.entities.hand.HoldHandControl;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
@@ -38,10 +42,12 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.physics.CollisionConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.AmmoOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -180,14 +186,15 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
-        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, outlineController);
+        AmmoOptionController ammoOptionController = new AmmoOptionController(this, keyboardController,toolModel);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController,ammoOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
 
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController,ammoOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
 
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
@@ -240,7 +247,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerBlock block1;
 
         ArrayList<Vector2> vertices = VerticesFactory.createPolygon(0, 0, 64, 64, 4);
-        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 0, 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block1);
@@ -249,7 +256,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         vertices = VerticesFactory.createPolygon(0, 0, 30, 30, 7);
-        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
         blocks.add(block1);
@@ -275,7 +282,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (false) {
 
 
-            gameGroup = GameEntityFactory.getInstance().createGameGroup(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
+            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
             gameGroup.getGameEntityByIndex(0).redrawStains();
 
@@ -339,11 +346,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         vertices3.add(Vector2Pool.obtain(62.9f,-15.5f));
         vertices3.add(Vector2Pool.obtain(45.2f,0.2f));*/
 
-        Filter groundFilter = new Filter();
-        groundFilter.categoryBits = 1;
-        groundFilter.maskBits = 1 + 2 + 4 + 8 + 16 + 32;
-
-        LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
+        LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0);
         //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
 
         blocks2.clear();
@@ -353,7 +356,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroup(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", groundFilter);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY,(short)-1);
         getWorldFacade().setGround(groundGroup);
         //groundGroup.setCenter(center);
         //attachChild(groundGroup.getMesh());
@@ -433,6 +436,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         for (GameGroup gameGroup : gameGroups) {
             gameGroup.onStep(pSecondsElapsed);
         }
+        if(false) {
+            if (step == 120) {
+                ragdoll.getGameEntities().forEach(e -> {
+                    e.getBlocks().forEach(b -> worldFacade.pulverizeBlock(b, e));
+                    worldFacade.addGameEntityToDestroy(e, false);
+                });
+            }
+        }
 
         if (false)
             if (gameGroup.getGameEntityByIndex(0).getBody() != null) {
@@ -456,7 +467,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             if (step % 120 == 0) {
                 Random rand = new Random();
                 ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, (float) (Math.random() * Math.PI), 100, 100, rand.nextInt(6) + 3);
-                LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+                LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
                 LayerBlock block = BlockFactory.createLayerBlock(list, properties, 0);
                 properties.setDefaultColor(Utils.getRandomColor(0.5f));
 
@@ -475,7 +486,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
                 //vertices.clear();
                 //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
-                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0), new Filter()), 0);
+                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0)), 0);
                 BlockUtils.computeCoatingBlocks(layerBlock);
             }
 
@@ -497,14 +508,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 vertices1.add(obtain(0, 15));
                 vertices1.add(obtain(6, -5));
 
-                LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), projectileFilter);
+                LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
                 LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
                 ArrayList<LayerBlock> blocks = new ArrayList<>();
                 blocks.add(block1);
 
-                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
+                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY,PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+                GameEntity gameEntity = GameEntityFactory.getInstance().createDollPart(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
                 GameGroup proj = new GameGroup(gameEntity);
                 attachChild(gameEntity.getMesh());
                 gameEntity.setProjectile(true);
@@ -555,62 +566,90 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
 
         if (action == PlayerAction.Drag) {
-            int pointerID = touchEvent.getPointerID();
-            if (touchEvent.isActionDown()) {
-                for (GameGroup gameGroup : gameGroups)
-                    for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
-                        GameEntity entity = gameGroup.getGameEntities().get(k);
-                        if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                            if (!hands.containsKey(pointerID)) {
-                                hand = new Hand(worldFacade);
-                                hands.put(pointerID, hand);
-                            }
-
-                            Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
-                            break;
-                        }
-                    }
-
-            }
-            if (hands.get(pointerID) != null) {
-                Objects.requireNonNull(hands.get(pointerID)).onSceneTouchEvent(touchEvent);
-            }
+            processGrabbing(touchEvent);
         }
 
 
         if (action == PlayerAction.Slice) {
-            if (touchEvent.isActionDown()) {
-                point1 = new Vector2(touchEvent.getX(), touchEvent.getY());
-                point2 = new Vector2(point1);
-                line = new Line(point1.x, point1.y, point2.x, point2.y, ResourceManager.getInstance().vbom);
-                line.setColor(Color.PINK);
-                line.setZIndex(999);
-                this.attachChild(line);
-                this.sortChildren();
-            }
-            if (touchEvent.isActionMove()) {
-                if (point2 != null) {
-                    point2.set(touchEvent.getX(), touchEvent.getY());
-                    line.setPosition(point1.x, point1.y, point2.x, point2.y);
-                }
-            }
-            if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
-                if (point1 != null && point2 != null)
-                    worldFacade.performScreenCut(point1.mul(1 / 32f), point2.mul(1 / 32f));
-                point1 = null;
-                point2 = null;
-                line.detachSelf();
-
-            }
+            processSlicing(touchEvent);
         }
         if (touchEvent.isActionUp())
             if (new Vector2(400, 240).dst(touchEvent.getX(), touchEvent.getY()) < 16) {
-                if (action == PlayerAction.Drag) action = PlayerAction.Slice;
-                else action = PlayerAction.Drag;
+                if (action == PlayerAction.Drag){
+                    action = PlayerAction.Slice;
+                }
+                else {
+                    action = PlayerAction.Drag;
+                }
             }
 
         recycle(touch);
         return false;
+    }
+
+    private void processSlicing(TouchEvent touchEvent) {
+        if (touchEvent.isActionDown()) {
+            point1 = new Vector2(touchEvent.getX(), touchEvent.getY());
+            point2 = new Vector2(point1);
+            line = new Line(point1.x, point1.y, point2.x, point2.y, ResourceManager.getInstance().vbom);
+            line.setColor(Color.PINK);
+            line.setZIndex(999);
+            this.attachChild(line);
+            this.sortChildren();
+        }
+        if (touchEvent.isActionMove()) {
+            if (point2 != null) {
+                point2.set(touchEvent.getX(), touchEvent.getY());
+                line.setPosition(point1.x, point1.y, point2.x, point2.y);
+            }
+        }
+        if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
+            if (point1 != null && point2 != null)
+                worldFacade.performScreenCut(point1.mul(1 / 32f), point2.mul(1 / 32f));
+            point1 = null;
+            point2 = null;
+            line.detachSelf();
+
+        }
+    }
+
+    private void processGrabbing(TouchEvent touchEvent) {
+        int pointerID = touchEvent.getPointerID();
+        if (touchEvent.isActionDown()) {
+            for (GameGroup gameGroup : gameGroups)
+                for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
+                    GameEntity entity = gameGroup.getGameEntities().get(k);
+                    if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                        if (!hands.containsKey(pointerID)) {
+                            hand = new Hand(worldFacade);
+                            hands.put(pointerID, hand);
+                        }
+
+                        Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
+                        if (entity.hasTriggers()){
+                            userInterface.showFireButtons();
+                        }
+                        break;
+                    }
+                }
+
+        } else  if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
+            if (hand!=null&&!hand.getHandControlStack().isEmpty()) {
+                HandControl handControl = hand.getHandControlStack().peek();
+                if (handControl instanceof HoldHandControl) {
+                    if (hand.getGrabbedEntity() != null) {
+                        if(!hand.getGrabbedEntity().hasTriggers()) {
+                            hand.releaseGrabbedEntity(handControl);
+                        } else {
+                            hand.getGrabbedEntity().setHanged(false);
+                        }
+                    }
+                }
+            }
+        }
+        if (hands.get(pointerID) != null) {
+            Objects.requireNonNull(hands.get(pointerID)).onSceneTouchEvent(touchEvent);
+        }
     }
 
     public void onDestroyMouseJoint(MouseJoint j) {

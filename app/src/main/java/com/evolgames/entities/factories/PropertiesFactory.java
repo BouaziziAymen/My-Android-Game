@@ -13,14 +13,11 @@ public class PropertiesFactory {
         return INSTANCE;
     }
 
-    public LayerProperties createProperties(Material material, Filter filter) {
+    public LayerProperties createProperties(Material material) {
 
         LayerProperties properties = new LayerProperties();
         properties.setJuicy(material.isJuicy());
         properties.setFlammable(material.isFlammable());
-        properties.setCategoryBits(filter.categoryBits);
-        properties.setMaskBits(filter.maskBits);
-        properties.setGroupIndex(filter.groupIndex);
         properties.setDensity(material.getDensity());
         properties.setRestitution(material.getRestitution());
         properties.setFriction(material.getFriction());
@@ -52,9 +49,6 @@ public class PropertiesFactory {
         properties.setJuicinessLowerPressure(original.getJuicinessLowerPressure());
         properties.setJuicinessUpperPressure(original.getJuicinessUpperPressure());
         properties.setDefaultColor(new Color(original.getDefaultColor()));
-        properties.setCategoryBits(original.getCategoryBits());
-        properties.setMaskBits(original.getMaskBits());
-        properties.setGroupIndex(original.getGroupIndex());
         properties.setOrder(original.getOrder());
         properties.setJuicy(original.isJuicy());
         properties.setFlammable(original.isFlammable());

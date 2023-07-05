@@ -34,7 +34,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         this.bodyId = bodyId;
         this.layerId = layerId;
         this.decorations = new ArrayList<>();
-        this.properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter());
+        this.properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
         ((LayerProperties) this.properties).setLayerName("Layer" + layerId);
         this.bodyModel = bodyModel;
     }

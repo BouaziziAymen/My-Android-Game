@@ -3,6 +3,7 @@ package com.evolgames.userinterface.view.visitor;
 import android.util.Log;
 
 import com.evolgames.userinterface.view.basics.Element;
+import com.evolgames.userinterface.view.basics.Limited;
 import com.evolgames.userinterface.view.inputs.Touchable;
 
 import org.andengine.input.touch.TouchEvent;
@@ -18,10 +19,13 @@ public class TouchVisitBehavior extends VisitBehavior{
     }
     @Override
     protected void visitElement(Element e) {
-        if(e.isVisible())
-        if(e instanceof Touchable){
-            boolean touched = ((Touchable)e).onTouchHud(sceneTouchEvent,isTouched);
-            if(touched) isTouched = true;
+        if(e.isVisible()) {
+            if (e instanceof Touchable) {
+                boolean touched = ((Touchable) e).onTouchHud(sceneTouchEvent, isTouched);
+                if (touched) {
+                    isTouched = true;
+                }
+            }
         }
     }
 

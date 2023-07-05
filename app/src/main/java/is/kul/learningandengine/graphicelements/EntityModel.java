@@ -503,18 +503,14 @@ setActiveJointID(ID);
     }
 
     public GameGroup create() {
-
-
-        ArrayList<ArrayList<Block>> blocks = new ArrayList<ArrayList<Block>>();
-        ArrayList<Integer> zindexes = new ArrayList<Integer>();
+        ArrayList<ArrayList<Block>> blocks = new ArrayList<>();
+        ArrayList<Integer> zindexes = new ArrayList<>();
         for (int i = 0; i < this.bodies.getChildCount(); i++) {
             Body body = (Body) this.bodies.getChildByIndex(i);
             blocks.add(body.generateBlocks(false));
             zindexes.add(body.ZINDEX);
         }
-
-
-        ArrayList<Vector2> points1 = new ArrayList<Vector2>();
+        ArrayList<Vector2> points1 = new ArrayList<>();
         points1.add(new Vector2(400, 280));
         points1.add(new Vector2(400, 200));
         points1.add(new Vector2(300, 280));
@@ -523,7 +519,7 @@ setActiveJointID(ID);
         decoration1.blockType = BlockType.IMAGE;
         decoration1.blockSubType = BlockImageSubType.DECORATION;
         decoration1.color = Color.GREEN;
-        ArrayList<Vector2> points2 = new ArrayList<Vector2>();
+        ArrayList<Vector2> points2 = new ArrayList<>();
         points2.add(new Vector2(450, 280));
         points2.add(new Vector2(400, 200));
         points2.add(new Vector2(300, 250));

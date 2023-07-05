@@ -24,17 +24,17 @@ public class AmmoField extends ItemField {
         this.setHeight(itemRemoveButton.getHeight());
 
 
-        Button<ItemWindowController> targetOptionsButton = new Button<>(ResourceManager.getInstance().smallOptionsTextureRegion, Button.ButtonType.OneClick, true);
-        addToLayout(targetOptionsButton);
+        Button<ItemWindowController> ammoOptionsButton = new Button<>(ResourceManager.getInstance().smallOptionsTextureRegion, Button.ButtonType.OneClick, true);
+        addToLayout(ammoOptionsButton);
         addToLayout(itemRemoveButton);
-        targetOptionsButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, targetOptionsButton) {
+        ammoOptionsButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, ammoOptionsButton) {
             @Override
             public void informControllerButtonClicked() {
             }
 
             @Override
             public void informControllerButtonReleased() {
-                controller.onAmmoButtonReleased(AmmoField.this);
+                controller.onAmmoOptionButtonReleased(AmmoField.this);
             }
         });
 

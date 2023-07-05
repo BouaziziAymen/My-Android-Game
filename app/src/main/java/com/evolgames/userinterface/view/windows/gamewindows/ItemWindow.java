@@ -9,14 +9,13 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.AmmoFiel
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.HandField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
-import com.evolgames.userinterface.view.windows.windowfields.itemwindow.TargetField;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
 public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyField, ItemField> {
     private final ItemWindowController itemWindowController;
 
     public ItemWindow(float pX, float pY, ItemWindowController controller) {
-        super(pX, pY, 8, 8, controller);
+        super(pX, pY, 8, 8,true, controller);
         this.itemWindowController = controller;
         Text text = new Text("Tool Indicators:",2);
         text.setPadding(5);
@@ -30,11 +29,11 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         bodyField.setText(name);
         return bodyField;
     }
-    public TargetField addProjectileField(String name, int primaryKey, int secondaryKey){
-        TargetField targetField = new TargetField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(targetField,primaryKey,secondaryKey);
-        targetField.setText(name);
-        return targetField;
+    public ProjectileField addProjectileField(String name, int primaryKey, int secondaryKey){
+        ProjectileField projectileField = new ProjectileField(primaryKey, secondaryKey, itemWindowController);
+        addSecondary(projectileField,primaryKey,secondaryKey);
+        projectileField.setText(name);
+        return projectileField;
     }
 
     public AmmoField addAmmoField(String name, int primaryKey, int secondaryKey){
@@ -56,7 +55,7 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
     }
 
     @Override
-    public TargetField createSecondary(int primaryKey, int secondaryKey) {
+    public ProjectileField createSecondary(int primaryKey, int secondaryKey) {
         return null;
     }
 

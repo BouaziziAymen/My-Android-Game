@@ -210,7 +210,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
 
 
-        TitledQuantity<LayerSettingsWindowController> titledBouncinessQuantity = new TitledQuantity<>("Bounciness:", 10, 1, 5, 76);
+        TitledQuantity<LayerSettingsWindowController> titledBouncinessQuantity = new TitledQuantity<>("Bounciness:", 10, "b", 5, 76);
         bouncinessQuantity = titledBouncinessQuantity.getAttachment();
         titledBouncinessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledBouncinessQuantity.getAttachment()) {
             @Override
@@ -223,7 +223,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         bouncinessQuantity.getBehavior().setChangeAction(()-> layerProperty.setRestitution(bouncinessQuantity.getRatio()));
 
 
-        TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity = new TitledQuantity<>("Friction:", 10, 4, 5, 76);
+        TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity = new TitledQuantity<>("Friction:", 10, "r", 5, 76);
         frictionQuantity = titledFrictionQuantity.getAttachment();
         titledFrictionQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledFrictionQuantity.getAttachment()) {
             @Override
@@ -237,7 +237,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
 
 
-        TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Tenacity:", 10, 5, 5, 76);
+        TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Tenacity:", 10, "t", 5, 76);
         hardnessQuantity = titledTenacityQuantity.getAttachment();
         titledTenacityQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledTenacityQuantity.getAttachment()) {
             @Override
@@ -332,7 +332,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         window.addTertiary(juicePropertiesSection);
 
 
-        TitledQuantity<LayerSettingsWindowController> juicinessQuantity = new TitledQuantity<>("Juiciness:", 10, 5, 5);
+        TitledQuantity<LayerSettingsWindowController> juicinessQuantity = new TitledQuantity<>("Juiciness:", 10, "r", 5);
         juicinessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, juicinessQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
@@ -344,7 +344,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         juicinessQuantity.getAttachment().getBehavior().setChangeAction(() -> layerProperty.setJuicinessDensity(juicinessQuantity.getAttachment().getRatio()));
 
 
-        TitledQuantity<LayerSettingsWindowController> lowerRateQuantity = new TitledQuantity<>("Lower Rate:", 10, 5, 5, 75);
+        TitledQuantity<LayerSettingsWindowController> lowerRateQuantity = new TitledQuantity<>("Lower Rate:", 10, "g", 5, 75);
         lowerRateQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, lowerRateQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
@@ -369,7 +369,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
 
 
-        TitledQuantity<LayerSettingsWindowController> upperRateQuantity = new TitledQuantity<>("Upper Rate:", 10, 5, 5, 75);
+        TitledQuantity<LayerSettingsWindowController> upperRateQuantity = new TitledQuantity<>("Upper Rate:", 10, "r", 5, 75);
         upperRateQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, upperRateQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
@@ -416,7 +416,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
 
 
-        TitledQuantity<LayerSettingsWindowController> juiceCombEnergyQuantity = new TitledQuantity<>("Energy:", 10, 5, 5);
+        TitledQuantity<LayerSettingsWindowController> juiceCombEnergyQuantity = new TitledQuantity<>("Energy:", 10, "g", 5);
         juiceCombEnergyQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, juiceCombEnergyQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {

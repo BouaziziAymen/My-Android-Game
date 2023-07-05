@@ -27,8 +27,10 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import is.kul.learningandengine.BitmapTextureAtlasSource;
@@ -63,7 +65,7 @@ public class ResourceManager {
     public TiledTextureRegion addTextureRegion;
     public ArrayList<TiledTextureRegion> upButtonTextureRegions = new ArrayList<>();
     public ArrayList<TiledTextureRegion> downButtonTextureRegions = new ArrayList<>();
-    public ArrayList<ArrayList<ITextureRegion>> quantity;
+    public HashMap<String,ArrayList<ITextureRegion>> quantity;
     public ArrayList<TiledTextureRegion> keyboardButtons;
     public TiledTextureRegion smallOptionsTextureRegion;
     public TextureRegion colorSelectorTextureRegion;
@@ -128,6 +130,9 @@ public class ResourceManager {
     public TextureRegion pixelParticle;
     public ArrayList<ITextureRegion> buttonRegionsA;
     public TiledTextureRegion infoBlueButton;
+    public TiledTextureRegion rotationAntiClockTextureRegion;
+    public TiledTextureRegion rotationClockTextureRegion;
+    public TiledTextureRegion reload1;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -218,6 +223,8 @@ public class ResourceManager {
 
         this.upButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
         this.downButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
+      this.rotationAntiClockTextureRegion =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationanticlock.png", 1, 3);
+        this.rotationClockTextureRegion =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationclock.png", 1, 3);
 
         this.upButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "uparrowblack.png", 1, 3));
         this.downButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "downarrowblack.png", 1, 3));
@@ -235,10 +242,8 @@ public class ResourceManager {
         this.handTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "hand.png");
         this.armTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "arm.png");
 
-        this.handle1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/handle1.png");
-        this.base1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/base1.png");
-
-        this.trigger1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/buttons1.png", 2, 1);
+        this.trigger1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/buttons1.png", 1, 2);
+        this.reload1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/reload1.png", 1, 2);
 
 
         this.handPointTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");
@@ -275,14 +280,15 @@ public class ResourceManager {
             panel.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "panel/p" + i + ".png"));
 
 
-        this.quantity = new ArrayList<>();
+        this.quantity = new HashMap<>();
 
-        String key = "abgnrtz";
-        for (int k = 0; k < key.length(); k++) {
-            this.quantity.add(new ArrayList<>());
-            for (int i = 0; i < 3; i++)
-                this.quantity.get(k).add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "quantity/" + key.charAt(k) + i + ".png"));
-        }
+        String letters = "abcgnrtz";
+        for (int k = 0; k < letters.length(); k++) {
+            String key = String.valueOf(letters.charAt(k));
+            this.quantity.put(key,new ArrayList<>());
+            for (int i = 0; i < 3; i++){
+                Objects.requireNonNull(this.quantity.get(key)).add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "quantity/" + letters.charAt(k) + i + ".png"));
+        }}
 
 
         this.scrollerKnobTextureRegion = createEmptyTextureRegion(10, 100);

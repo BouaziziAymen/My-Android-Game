@@ -13,7 +13,7 @@ public abstract class SettingsWindow  extends AbstractThreeLevelSectionedAdvance
 
 
     public SettingsWindow(float pX, float pY, int rows, int columns, LinearLayoutAdvancedWindowController<?> controller) {
-        super(pX, pY, rows, columns, controller);
+        super(pX, pY, rows, columns, false,controller);
     }
 
     public void addPrimary(SimplePrimary<?> primaryInterface){

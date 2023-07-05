@@ -404,7 +404,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
 
 
             DistanceJointDef jointDef = (DistanceJointDef) jointModel.getJointDef();
-            TitledQuantity<JointSettingsWindowController> titledDampingQuantity = new TitledQuantity<>("Damping:", 10, 1, 5, 76);
+            TitledQuantity<JointSettingsWindowController> titledDampingQuantity = new TitledQuantity<>("Damping:", 10, "b", 5, 76);
             dampingQuantity = titledDampingQuantity.getAttachment();
             titledDampingQuantity.getAttachment().setBehavior(new QuantityBehavior<JointSettingsWindowController>(this, titledDampingQuantity.getAttachment()) {
                 @Override

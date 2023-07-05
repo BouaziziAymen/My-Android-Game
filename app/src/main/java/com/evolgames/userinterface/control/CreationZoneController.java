@@ -190,7 +190,7 @@ public class CreationZoneController extends Controller {
     private void processAbortedIndicators() {
         if (indicatorArrow != null && indicatorArrow.isAborted()) {
             if (action == CreationAction.PROJECTILE) {
-                itemWindowController.onTargetAborted(((ProjectileShape) indicatorArrow).getModel());
+                itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
             } else if (action == CreationAction.AMMO) {
                 itemWindowController.onAmmoAborted(((AmmoShape) indicatorArrow).getModel());
             } else if (action == CreationAction.HAND) {

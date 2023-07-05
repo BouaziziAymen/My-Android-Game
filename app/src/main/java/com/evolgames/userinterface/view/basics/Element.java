@@ -210,6 +210,7 @@ public abstract class Element implements Comparable<Element> {
         if (visible != isVisible) {
             setUpdated(true);
         }
+        System.out.println(this.getClass().getCanonicalName()+"/ set visible:"+isVisible);
         isVisible = visible;
     }
 
