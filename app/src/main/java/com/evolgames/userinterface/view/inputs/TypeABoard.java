@@ -1,8 +1,6 @@
 package com.evolgames.userinterface.view.inputs;
 
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
-import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;

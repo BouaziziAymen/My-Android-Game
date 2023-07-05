@@ -161,43 +161,45 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         Color bodyBColor = Colors.palette1_joint_b_color;
         bodyBSection.getMain().setTextColor(bodyBColor);
         window.addPrimary(bodyBSection);
-        ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
-        bodies.add(0, ToolModel.groundBodyModel);
+        if(toolModel!=null) {
+            ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
+            bodies.add(0, ToolModel.groundBodyModel);
 
-        for (int i = 0; i < bodies.size(); i++) {
-            BodyModel bodyModel = bodies.get(i);
-            ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(1, bodyModel.getBodyId(), bodyButton);
-            window.addSecondary(bodyField);
-            bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    onFirstBodyButtonClicked(bodyModel, bodyField);
-                }
+            for (int i = 0; i < bodies.size(); i++) {
+                BodyModel bodyModel = bodies.get(i);
+                ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+                SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(1, bodyModel.getBodyId(), bodyButton);
+                window.addSecondary(bodyField);
+                bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        onFirstBodyButtonClicked(bodyModel, bodyField);
+                    }
 
-                @Override
-                public void informControllerButtonReleased() {
-                    onFirstBodyButtonReleased(bodyModel, bodyField);
-                }
-            });
-        }
+                    @Override
+                    public void informControllerButtonReleased() {
+                        onFirstBodyButtonReleased(bodyModel, bodyField);
+                    }
+                });
+            }
 
-        for (int i = 0; i < bodies.size(); i++) {
-            BodyModel bodyModel = bodies.get(i);
-            ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-            SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2, bodyModel.getBodyId(), bodyButton);
-            window.addSecondary(bodyField);
-            bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    onSecondBodyButtonClicked(bodyModel, bodyField);
-                }
+            for (int i = 0; i < bodies.size(); i++) {
+                BodyModel bodyModel = bodies.get(i);
+                ButtonWithText<JointSettingsWindowController> bodyButton = new ButtonWithText<>(bodyModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+                SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField = new SimpleSecondary<>(2, bodyModel.getBodyId(), bodyButton);
+                window.addSecondary(bodyField);
+                bodyButton.setBehavior(new ButtonBehavior<JointSettingsWindowController>(this, bodyButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        onSecondBodyButtonClicked(bodyModel, bodyField);
+                    }
 
-                @Override
-                public void informControllerButtonReleased() {
-                    onSecondBodyButtonReleased(bodyModel, bodyField);
-                }
-            });
+                    @Override
+                    public void informControllerButtonReleased() {
+                        onSecondBodyButtonReleased(bodyModel, bodyField);
+                    }
+                });
+            }
         }
         onUpdated();
     }

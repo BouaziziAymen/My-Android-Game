@@ -20,7 +20,7 @@ public class Image extends Element implements Limited,Touchable {
         super(pX,pY,pTextureRegion.getWidth(),pTextureRegion.getHeight());
 
         textureRegion = pTextureRegion;
-        setBounds(new RectangularBounds(this,getWidth(),getHeight()));
+        //setBounds(new RectangularBounds(this,getWidth(),getHeight()));
     }
 
     @Override
