@@ -67,8 +67,6 @@ public final class Caliper
             if(maxY < p.y)
                 maxY = p.y;
         }
-
-        //System.out.println(minX + " " + minY);
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
 }

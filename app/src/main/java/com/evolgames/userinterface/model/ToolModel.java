@@ -25,10 +25,10 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -148,7 +148,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public void removeLayer(int bodyId, int layerId) {
-        System.out.println("Delete "+this.hashCode());
         Objects.requireNonNull(getBodyById(bodyId)).removeLayer(layerId);
     }
 
@@ -201,7 +200,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                 return;
             }
             BodyInit bodyInit = new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0);
-            GameEntity gameEntity = GameEntityFactory.getInstance().createDollPart(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
@@ -295,8 +294,8 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return null;
     }
 
-    public AmmoModel getAmmoById(int primaryKey, int secondaryKey) {
-        Optional<AmmoModel> res = getBodyModelById(primaryKey).getAmmoModels().stream().filter(e -> e.getAmmoId() == secondaryKey).findFirst();
+    public CasingModel getAmmoById(int primaryKey, int secondaryKey) {
+        Optional<CasingModel> res = getBodyModelById(primaryKey).getAmmoModels().stream().filter(e -> e.getCasingId() == secondaryKey).findFirst();
         return res.orElse(null);
     }
     public ProjectileModel getProjectileById(int primaryKey, int secondaryKey) {
@@ -348,15 +347,16 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return -1;
     }
 
-    public AmmoModel createNewAmmo(AmmoShape ammoShape, int bodyId) {
+    public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
         int ammoId = Objects.requireNonNull(getBodyById(bodyId)).getAmmoCounter().getAndIncrement();
-        AmmoModel ammoModel = new AmmoModel(bodyId, ammoId, ammoShape);
+        CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoShape);
         getBodyModelById(bodyId).getAmmoModels().add(ammoModel);
         return ammoModel;
     }
 
     public void removeAmmo(int bodyId, int ammoId) {
-
+        BodyModel body = getBodyModelById(bodyId);
+        body.getAmmoModels().remove(body.getAmmoModelById(ammoId));
     }
 }
 

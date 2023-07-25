@@ -824,7 +824,7 @@ public class WorldFacade implements ContactObserver {
             this.contactListener.addNonCollidingPair(penetrator, penetrated);
         }
         penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
-        checkOnePointImpact(penetratedBlock, point, collisionImpulse * massFraction, penetrated);
+        checkOnePointImpact(penetratedBlock, point, 5*collisionImpulse * massFraction, penetrated);
     }
 
     private void handlePenetrationEffects(Vector2 normal, int direction, GameEntity penetrated, float dT, Set<EPoint> ePoints, float advance) {

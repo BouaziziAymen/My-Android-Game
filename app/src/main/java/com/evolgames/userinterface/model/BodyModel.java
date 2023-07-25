@@ -4,8 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.AmmoOptionController;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private final int bodyId;
     private final ArrayList<LayerModel> layers;
     private final ArrayList<ProjectileModel> projectiles;
-    private final ArrayList<AmmoModel> ammoModels;
+    private final ArrayList<CasingModel> ammoModels;
     private final ArrayList<HandModel> hands;
     private GameEntity gameEntity;
     private BodyCategory category;
@@ -61,7 +60,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     LayerModel createLayer() {
         LayerModel layerModel = new LayerModel(bodyId, layerCounter.getAndIncrement(), this);
         layers.add(layerModel);
-        System.out.println("Creating layer:" + layerCounter.get());
         return layerModel;
     }
 
@@ -71,9 +69,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         }
         return null;
     }
-    public AmmoModel getAmmoModelById(int ammoId) {
-        for (AmmoModel ammoModel : ammoModels) {
-            if (ammoModel.getAmmoId() == ammoId) return ammoModel;
+    public CasingModel getAmmoModelById(int ammoId) {
+        for (CasingModel ammoModel : ammoModels) {
+            if (ammoModel.getCasingId() == ammoId) return ammoModel;
         }
         return null;
     }
@@ -142,7 +140,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         throw new UnsupportedOperationException();
     }
 
-    public List<AmmoModel> getAmmoModels() {
+    public List<CasingModel> getAmmoModels() {
         return ammoModels;
     }
 

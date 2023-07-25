@@ -1,7 +1,6 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -12,7 +11,6 @@ import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.input.touch.TouchEvent;
@@ -36,7 +34,7 @@ public class GameEntity extends EntityWithBody {
     private TexturedMeshBatch batch;
     private String name;
     private final ArrayList<LayerBlock> layerBlocks;
-    private List<Trigger> triggers;
+    private Trigger trigger;
     private MosaicMesh mesh;
     private int stainDataLimit;
     private Vector2 center;
@@ -176,8 +174,8 @@ public class GameEntity extends EntityWithBody {
         if (!this.getName().equals("Ground")) {
             updateGrains();
         }
-        if (triggers != null) {
-            this.triggers.forEach(t -> t.onStep(timeStep));
+        if (trigger != null) {
+            this.trigger.onStep(timeStep);
         }
 
         if (isFireSetup) {
@@ -372,27 +370,20 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public void setTriggers(List<Trigger> triggers) {
-        this.triggers = triggers;
+    public void setTrigger(Trigger trigger) {
+        this.trigger = trigger;
     }
 
-    public boolean hasTriggers() {
-        if (this.triggers == null) {
-            return false;
-        }
-        return this.triggers.size() > 0;
+    public boolean hasTrigger() {
+        return this.trigger!=null;
     }
 
     public void onTriggerPushed() {
-        if (!hasTriggers()) return;
-        Trigger trigger = triggers.get(0);
-        trigger.onTriggerPulled();
+        this.trigger.onTriggerPulled();
     }
 
     public void onTriggerReleased() {
-        if (!hasTriggers()) return;
-        Trigger trigger = triggers.get(0);
-        trigger.onTriggerReleased();
+        this.trigger.onTriggerReleased();
     }
 
     public void setParentGameEntity(GameEntity parentGameEntity) {

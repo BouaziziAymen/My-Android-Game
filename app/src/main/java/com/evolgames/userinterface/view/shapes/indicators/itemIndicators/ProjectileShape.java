@@ -96,8 +96,8 @@ public class ProjectileShape extends AngleIndicator implements MovablesContainer
 
     public void bindModel(ProjectileModel model) {
         this.model = model;
-        model.getProperties().getProjectileOrigin().set(begin.x,begin.y);
-        model.getProperties().getProjectileDirection().set(direction);
+        updateDirection(model.getProperties().getProjectileDirection());
+        model.setProjectileShape(this);
         onTurnAround();
     }
 

@@ -2,7 +2,6 @@ package com.evolgames.userinterface.view.basics;
 
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Touchable;
-import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -18,9 +17,7 @@ public class Image extends Element implements Limited,Touchable {
     }
     public Image(float pX, float pY, ITextureRegion pTextureRegion) {
         super(pX,pY,pTextureRegion.getWidth(),pTextureRegion.getHeight());
-
         textureRegion = pTextureRegion;
-        //setBounds(new RectangularBounds(this,getWidth(),getHeight()));
     }
 
     @Override

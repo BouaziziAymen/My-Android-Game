@@ -40,7 +40,6 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
             float pulverizationEnergy = PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
 
             if (availableEnergy > pulverizationEnergy) {
-                System.out.println("Pulverization:"+pulverizationEnergy+"/"+availableEnergy);
                 layerBlock.setAborted(true);
                 layerBlock.getBlockGrid().getCoatingBlocks().forEach(coatingBlock -> coatingBlock.setPulverized(true));
                 worldFacade.pulverizeBlock(layerBlock,gameEntity);

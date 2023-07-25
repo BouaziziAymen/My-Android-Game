@@ -68,7 +68,7 @@ public class GameEntityFactory {
     }
 
 
-    public GameEntity createDollPart(float x, float y, float rot, BodyInit bodyInit, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name, List<ProjectileModel> projectiles) {
+    public GameEntity createGameEntity(float x, float y, float rot, BodyInit bodyInit, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name, List<ProjectileModel> projectiles) {
         Collections.sort(blocks);
 
         for (LayerBlock b : blocks) {
@@ -79,7 +79,7 @@ public class GameEntityFactory {
 
         GameEntity entity = new GameEntity(mesh, scene, name, blocks);
         if (projectiles != null) {
-            entity.setTriggers(projectiles.stream().map(p -> new Trigger(p, entity)).collect(Collectors.toList()));
+            entity.setTrigger(new Trigger(projectiles, entity));
         }
 
         entity.setMesh(mesh);
@@ -165,7 +165,7 @@ public class GameEntityFactory {
 
             GeometryUtils.rotateVectorRad(translationToOrigin, rot);
             BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new AngularVelocityInit(new BodyInitImpl(filter.categoryBits,filter.maskBits), angularVelocity), linearVelocity), x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot);
-            GameEntity e = GameEntityFactory.getInstance().createDollPart(x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot, bodyInit, group, BodyDef.BodyType.DynamicBody, name + splinterId, new ArrayList<>());
+            GameEntity e = GameEntityFactory.getInstance().createGameEntity(x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot, bodyInit, group, BodyDef.BodyType.DynamicBody, name + splinterId, new ArrayList<>());
             scene.attachChild(e.getMesh());
             e.redrawStains();
             scene.sortChildren();
@@ -178,7 +178,7 @@ public class GameEntityFactory {
     public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType, String name, short category, short mask) {
         GameGroup gameGroup = new GameGroup();
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(category,mask), position.x, position.y, 0);
-        GameEntity entity = createDollPart(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name, new ArrayList<>());
+        GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name, new ArrayList<>());
         gameGroup.addGameEntity(entity);
         scene.attachChild(entity.getMesh());
         scene.addGameGroup(gameGroup);
@@ -186,7 +186,7 @@ public class GameEntityFactory {
     }
 
     public GameEntity createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile, String name) {
-        GameEntity entity = createDollPart(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, name, null);
+        GameEntity entity = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, name, null);
         entity.setProjectile(isProjectile);
         parentGroup.addGameEntity(entity);
         scene.attachChild(entity.getMesh());
@@ -196,7 +196,7 @@ public class GameEntityFactory {
     public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType) {
         GameGroup gameGroup = new GameGroup();
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY, (short) -1), position.x, position.y, 0);
-        GameEntity entity = createDollPart(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, "", null);
+        GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, "", null);
         gameGroup.addGameEntity(entity);
         scene.attachChild(entity.getMesh());
         scene.addGameGroup(gameGroup);
@@ -204,14 +204,14 @@ public class GameEntityFactory {
     }
 
 
-    GameEntity createDollPart(float x, float y, float rot, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
+    GameEntity createGameEntity(float x, float y, float rot, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(DOLL_CATEGORY,DOLL_MASK), x, y, rot);
-        return this.createDollPart(x, y, rot, bodyInit, blocks, bodyType, name, null);
+        return this.createGameEntity(x, y, rot, bodyInit, blocks, bodyType, name, null);
     }
 
-    GameEntity createDollPart(float x, float y, float rot, Filter filter, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
+    GameEntity createGameEntity(float x, float y, float rot, Filter filter, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(filter), x, y, rot);
-        return this.createDollPart(x, y, rot, bodyInit, blocks, bodyType, name, null);
+        return this.createGameEntity(x, y, rot, bodyInit, blocks, bodyType, name, null);
     }
 
     public Ragdoll createRagdoll(float x, float y) {
@@ -257,7 +257,7 @@ public class GameEntityFactory {
         LayerBlock block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
-        GameEntity head = createDollPart(x, y, 0, headFilter, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity head = createGameEntity(x, y, 0, headFilter, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(head.getMesh());
 
 
@@ -288,7 +288,7 @@ public class GameEntityFactory {
 
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
-        GameEntity upperTorso = createDollPart(x, level0, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity upperTorso = createGameEntity(x, level0, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         //   blocks.add(block);
@@ -300,14 +300,14 @@ public class GameEntityFactory {
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
-        GameEntity upperArmRight = createDollPart(x + (SHOULDER_WIDTH / 2 + ARM_LENGTH / 2 + UPPERARM_CIR1) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity upperArmRight = createGameEntity(x + (SHOULDER_WIDTH / 2 + ARM_LENGTH / 2 + UPPERARM_CIR1) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
         points = VerticesFactory.createShape1(ARM_LENGTH, UPPERARM_CIR1, UPPERARM_CIR2);
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
-        GameEntity upperArmLeft = createDollPart(x - (SHOULDER_WIDTH / 2 + ARM_LENGTH / 2 + UPPERARM_CIR1) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity upperArmLeft = createGameEntity(x - (SHOULDER_WIDTH / 2 + ARM_LENGTH / 2 + UPPERARM_CIR1) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.createShape2(ARM_LENGTH, LOWERARM_CIR1, LOWERARM_CIR2);
@@ -315,7 +315,7 @@ public class GameEntityFactory {
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
-        GameEntity lowerArmR = createDollPart(x + (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity lowerArmR = createGameEntity(x + (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.createShape2(ARM_LENGTH, LOWERARM_CIR1, LOWERARM_CIR2);
@@ -323,21 +323,21 @@ public class GameEntityFactory {
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
-        GameEntity lowerArmL = createDollPart(x - (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) -Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity lowerArmL = createGameEntity(x - (SHOULDER_WIDTH / 2 + 3 * ARM_LENGTH / 2 + UPPERARM_CIR1 + UPPERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, (float) -Math.PI / 2, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.createSquare(HAND_SIDE);
         blocks = new ArrayList<>();
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         blocks.add(block);
-        GameEntity rightHand = createDollPart(x + (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity rightHand = createGameEntity(x + (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(rightHand.getMesh());
 
         points = VerticesFactory.createSquare(HAND_SIDE);
         blocks = new ArrayList<>();
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         blocks.add(block);
-        GameEntity leftHand = createDollPart(x - (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity leftHand = createGameEntity(x - (SHOULDER_WIDTH / 2 + 2 * ARM_LENGTH + UPPERARM_CIR1 + UPPERARM_CIR2 + LOWERARM_CIR1 + LOWERARM_CIR2) / 32f, y - (HEAD_RAY + UPPERARM_CIR1) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(leftHand.getMesh());
 
         //problem here!
@@ -352,7 +352,7 @@ public class GameEntityFactory {
         block.getProperties().setDefaultColor(pantColor);
 
 
-        GameEntity upperLegR = createDollPart(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + hLegLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "upperLeg");
+        GameEntity upperLegR = createGameEntity(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + hLegLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "upperLeg");
 
 
         points = VerticesFactory.createShape4(UPPERLEG_L1, UPPERLEG_L1, UPPERLEG_CIR1, UPPERLEG_CIR2);
@@ -363,7 +363,7 @@ public class GameEntityFactory {
         blocks = new ArrayList<>();
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
-        GameEntity upperLegL = createDollPart(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + hLegLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity upperLegL = createGameEntity(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + hLegLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         float lowerLegHalfLength = (LOWERLEG_LENGTH1 + LOWERLEG_LENGTH2 + LOWERLEG_CIR2 + LOWERLEG_CIR1) / 2;
@@ -372,28 +372,28 @@ public class GameEntityFactory {
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
-        GameEntity lowerLegR = createDollPart(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity lowerLegR = createGameEntity(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
         points = VerticesFactory.createShape5(LOWERLEG_LENGTH1, LOWERLEG_LENGTH2, LOWERLEG_THICKNESS, LOWERLEG_CIR2, LOWERLEG_CIR1);
         blocks = new ArrayList<>();
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
-        GameEntity lowerLegL = createDollPart(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity lowerLegL = createGameEntity(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + lowerLegHalfLength) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.createShape6(LOWERLEG_CIR2, FOOT_LENGTH);
         blocks = new ArrayList<>();
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         blocks.add(block);
-        GameEntity leftFoot = createDollPart(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity leftFoot = createGameEntity(x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, (float) 0, blocks, BodyDef.BodyType.DynamicBody, "head");
 
 
         points = VerticesFactory.mirrorShapeX(points);
         blocks = new ArrayList<>();
         block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         blocks.add(block);
-        GameEntity rightFoot = createDollPart(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
+        GameEntity rightFoot = createGameEntity(x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f, y - (HEAD_RAY + TORSO_HEIGHT + 2 * hLegLength + 2 * lowerLegHalfLength + LOWERLEG_CIR2) / 32f, 0, blocks, BodyDef.BodyType.DynamicBody, "head");
         scene.attachChild(rightFoot.getMesh());
         scene.attachChild(leftFoot.getMesh());
 

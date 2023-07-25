@@ -3,7 +3,7 @@ package com.evolgames.userinterface.view.shapes.indicators.itemIndicators;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.indicators.MovablesContainer;
@@ -11,23 +11,23 @@ import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import java.util.ArrayList;
 
-public class AmmoShape  extends AngleIndicator implements MovablesContainer {
+public class CasingShape extends AngleIndicator implements MovablesContainer {
     private final UserInterface userInterface;
     private final ControllerPointImage originPoint;
-    private AmmoModel model;
+    private CasingModel model;
 
-    public AmmoShape(Vector2 begin, GameScene scene) {
+    public CasingShape(Vector2 begin, GameScene scene) {
         super(begin, scene, 24, 1);
 
         this.userInterface = scene.getUserInterface();
         this.originPoint = new ControllerPointImage(ResourceManager.getInstance().diskTextureRegion, begin.cpy()) {
             @Override
             protected void performControl(float dx, float dy) {
-                float x = AmmoShape.this.begin.x;
-                float y = AmmoShape.this.begin.y;
+                float x = CasingShape.this.begin.x;
+                float y = CasingShape.this.begin.y;
                 model.getProperties().getAmmoOrigin().set(x,y);
-                AmmoShape.this.updateBegin(x + dx, y + dy);
-                AmmoShape.this.drawSelf();
+                CasingShape.this.updateBegin(x + dx, y + dy);
+                CasingShape.this.drawSelf();
             }
         };
         this.direction = new Vector2();
@@ -86,14 +86,14 @@ public class AmmoShape  extends AngleIndicator implements MovablesContainer {
         super.onControllerMoved(dx, dy);
     }
 
-    public AmmoModel getModel() {
+    public CasingModel getModel() {
         return model;
     }
 
-    public void bindModel(AmmoModel model) {
+    public void bindModel(CasingModel model) {
         this.model = model;
-        model.getProperties().getAmmoOrigin().set(begin.x,begin.y);
-        model.getProperties().getAmmoDirection().set(direction);
+        updateDirection(model.getProperties().getAmmoDirection());
+        model.setCasingShape(this);
         onTurnAround();
     }
 

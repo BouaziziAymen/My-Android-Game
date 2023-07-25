@@ -155,4 +155,8 @@ public class LayerProperties extends ColoredProperties {
     public void setJuiceColor(Color juiceColor) {
         this.juiceColor = juiceColor;
     }
+
+    public void setJuicinessVolume(float juicinessVolume) {
+        this.juicinessVolume = juicinessVolume;
+    }
 }

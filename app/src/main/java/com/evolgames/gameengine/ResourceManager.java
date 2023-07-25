@@ -387,7 +387,6 @@ public class ResourceManager {
                 int n = numbers[i - 1];
                 List<Sound> list = new ArrayList<>();
                 for (int j = 1; j <= n; j++) {
-                    System.out.println(i+"------"+j);
                     Sound soundShot = SoundFactory.createSoundFromAsset
                             (this.activity.getSoundManager(), this.activity, "gunshot/gun" + i + "/" + j + ".wav");
                     list.add(soundShot);

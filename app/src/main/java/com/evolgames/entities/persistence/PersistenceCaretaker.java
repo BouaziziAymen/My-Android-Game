@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
-import com.evolgames.entities.properties.AmmoProperties;
+import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
@@ -24,8 +24,9 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
 
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.adt.color.ColorUtils;
@@ -212,16 +213,16 @@ public class PersistenceCaretaker {
         }
         bodyElement.appendChild(projectilesElement);
         Element ammoListElement = document.createElement(AMMO_LIST_TAG);
-        for (AmmoModel ammoModel : bodyModel.getAmmoModels()) {
+        for (CasingModel ammoModel : bodyModel.getAmmoModels()) {
             ammoListElement.appendChild(createAmmoElement(document, ammoModel));
         }
         bodyElement.appendChild(ammoListElement);
         return bodyElement;
     }
 
-    private Element createAmmoElement(Document document, AmmoModel ammoModel) {
+    private Element createAmmoElement(Document document, CasingModel ammoModel) {
         Element ammoElement = document.createElement(AMMO_TAG);
-        ammoElement.setAttribute(ID, String.valueOf(ammoModel.getAmmoId()));
+        ammoElement.setAttribute(ID, String.valueOf(ammoModel.getCasingId()));
         ammoElement.setIdAttribute(ID, true);
         ammoElement.setAttribute(NAME, String.valueOf(ammoModel.getModelName()));
         Element propertiesElement = createPropertiesElement(document, ammoModel.getProperties());
@@ -236,9 +237,22 @@ public class PersistenceCaretaker {
         projectileElement.setAttribute(NAME, String.valueOf(projectileModel.getModelName()));
         Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
         projectileElement.appendChild(propertiesElement);
-        projectileElement.setAttribute(PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getModelName() + ".xml");
-       projectileElement.setAttribute(AMMO_ID_TAG,String.valueOf(projectileModel.getAmmoModel().getAmmoId()));
+        projectileElement.setAttribute(PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getMissileModel().getModelName() + ".xml");
+       projectileElement.setAttribute(AMMO_ID_TAG,String.valueOf(projectileModel.getAmmoModel().getCasingId()));
         return projectileElement;
+    }
+    public static String convertIntListToString(List<Integer> numbers) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < numbers.size(); i++) {
+            sb.append(numbers.get(i));
+
+            if (i != numbers.size() - 1) {
+                sb.append(" ");
+            }
+        }
+
+        return sb.toString();
     }
 
     private Element createLayerElement(Document document, LayerModel layerModel) {
@@ -327,6 +341,9 @@ public class PersistenceCaretaker {
                         float x = Float.parseFloat(propertiesElement.getAttribute(field.getName() + "X"));
                         float y = Float.parseFloat(propertiesElement.getAttribute(field.getName() + "Y"));
                         method.invoke(properties, new Vector2(x, y));
+                    } else if (field.getType() == ProjectileTriggerType.class){
+                        int v = Integer.parseInt(propertiesElement.getAttribute(field.getName()));
+                        method.invoke(properties,ProjectileTriggerType.getFromValue(v));
                     }
                 } catch (Throwable t) {
                     t.printStackTrace();
@@ -348,7 +365,7 @@ public class PersistenceCaretaker {
         }
         Arrays.stream(allFields).forEach(field -> {
             try {
-                if ((field.getType().isPrimitive() || field.getType() == Color.class || field.getType() == Vector2.class || field.getType() == String.class)) {
+                if ((field.getType().isPrimitive() || field.getType() == Color.class|| field.getType() == ProjectileTriggerType.class || field.getType() == Vector2.class || field.getType() == String.class)) {
                     String methodName = (field.getType() == boolean.class ? "is" : "get") + StringUtils.capitalize(field.getName());
                     Method method = properties.getClass().getMethod(methodName);
                     if (field.getType().isPrimitive() || field.getType() == String.class) {
@@ -361,6 +378,12 @@ public class PersistenceCaretaker {
                         if (color != null) {
                             int packedIntColor = color.getARGBPackedInt();
                             propertiesElement.setAttribute(field.getName(), String.valueOf(packedIntColor));
+                        }
+                    } else if (field.getType() == ProjectileTriggerType.class) {
+                        ProjectileTriggerType projectileTriggerType = (ProjectileTriggerType) method.invoke(properties);
+                        if (projectileTriggerType != null) {
+                            int value = projectileTriggerType.getValue();
+                            propertiesElement.setAttribute(field.getName(), String.valueOf(value));
                         }
                     } else {
                         Vector2 vector = (Vector2) method.invoke(properties);
@@ -445,7 +468,7 @@ public class PersistenceCaretaker {
 
         for (BodyModel body : toolModel.getBodies()) {
             if(body.getAmmoModels().size()>0){
-                body.getAmmoCounter().set(body.getAmmoModels().stream().mapToInt(AmmoModel::getAmmoId).max().getAsInt() + 1);
+                body.getAmmoCounter().set(body.getAmmoModels().stream().mapToInt(CasingModel::getCasingId).max().getAsInt() + 1);
             }
             if (body.getProjectiles().size() > 0) {
                 body.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
@@ -486,11 +509,11 @@ public class PersistenceCaretaker {
         bodyModel.getLayers().addAll(layers);
 
         Element ammoListElement = (Element) element.getElementsByTagName(AMMO_LIST_TAG).item(0);
-        List<AmmoModel> ammoModels = bodyModel.getAmmoModels();
+        List<CasingModel> ammoModels = bodyModel.getAmmoModels();
         if (ammoListElement != null) {
             for (int i = 0; i < ammoListElement.getChildNodes().getLength(); i++) {
                 Element ammoElement = (Element) ammoListElement.getChildNodes().item(i);
-                AmmoModel ammoModel = readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
+                CasingModel ammoModel = readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
                 ammoModels.add(ammoModel);
             }
         }
@@ -503,21 +526,32 @@ public class PersistenceCaretaker {
                 ProjectileModel projectileModel = readProjectileModel(projectileElement, bodyId, Integer.parseInt(projectileElement.getAttribute(ID)));
                 projectiles.add(projectileModel);
                 if (!projectileElement.getAttribute(AMMO_ID_TAG).isEmpty()) {
-                    int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
-                    projectileModel.setAmmoModel(ammoModels.stream().filter(am -> am.getAmmoId() == ammoId).findFirst().get());
+                   int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
+                    projectileModel.setAmmoModel(ammoModels.stream().filter(am -> am.getCasingId()==ammoId).findFirst().orElseGet(null));
                 }
 
             }
         }
         return bodyModel;
     }
+    public static List<Integer> convertStringToIntList(String input) {
+        String[] numberStrings = input.split(" ");
+        List<Integer> numbers = new ArrayList<>();
+
+        for (String numberString : numberStrings) {
+            int number = Integer.parseInt(numberString);
+            numbers.add(number);
+        }
+
+        return numbers;
+    }
 
 
-    private AmmoModel readAmmoModel(Element ammoElement, int bodyId, int ammoId) {
+    private CasingModel readAmmoModel(Element ammoElement, int bodyId, int ammoId) {
         Element propertiesElement = (Element) ammoElement.getElementsByTagName(PROPERTIES_TAG).item(0);
-        AmmoModel ammoModel = new AmmoModel(bodyId, ammoId, ammoElement.getAttribute(NAME));
-        AmmoProperties ammoProperties = loadProperties(propertiesElement, AmmoProperties.class);
-        ammoModel.setProperties(ammoProperties);
+        CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoElement.getAttribute(NAME));
+        CasingProperties casingProperties = loadProperties(propertiesElement, CasingProperties.class);
+        ammoModel.setProperties(casingProperties);
         return ammoModel;
     }
 

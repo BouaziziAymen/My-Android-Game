@@ -39,6 +39,7 @@ public abstract class AngleIndicator extends TurnableIndicator {
     }
 
     public void updateDirection(Vector2 direction){
+        this.direction = direction;
         end = begin.cpy().add(direction.x*length,direction.y*length);
         updateEnd(end.x,end.y);
     }

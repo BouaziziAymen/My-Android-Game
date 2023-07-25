@@ -15,7 +15,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
@@ -28,7 +28,7 @@ import com.evolgames.userinterface.view.shapes.indicators.RotateImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ScaleImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftArrowShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftImageShape;
-import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.AmmoShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
@@ -138,7 +138,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (indicatorArrow != null) {
-            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof AmmoShape || indicatorArrow instanceof HandShape)) {
+            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof CasingShape || indicatorArrow instanceof HandShape)) {
                 indicatorArrow.detach();
             }
             indicatorArrow = null;
@@ -192,7 +192,7 @@ public class CreationZoneController extends Controller {
             if (action == CreationAction.PROJECTILE) {
                 itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
             } else if (action == CreationAction.AMMO) {
-                itemWindowController.onAmmoAborted(((AmmoShape) indicatorArrow).getModel());
+                itemWindowController.onAmmoAborted(((CasingShape) indicatorArrow).getModel());
             } else if (action == CreationAction.HAND) {
                 itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
             }
@@ -352,11 +352,11 @@ public class CreationZoneController extends Controller {
 
         if (action == CreationAction.AMMO) {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
-                indicatorArrow = new AmmoShape(new Vector2(x, y), gameScene);
-                AmmoModel ammoModel = userInterface.getToolModel().createNewAmmo((AmmoShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
+                indicatorArrow = new CasingShape(new Vector2(x, y), gameScene);
+                CasingModel ammoModel = userInterface.getToolModel().createNewAmmo((CasingShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
                 if (ammoModel != null) {
                     itemWindowController.onAmmoCreated(ammoModel);
-                    ((AmmoShape) indicatorArrow).bindModel(ammoModel);
+                    ((CasingShape) indicatorArrow).bindModel(ammoModel);
                 }
                 return;
             }

@@ -705,8 +705,6 @@ public class GeometryUtils {
     }
 
     private static boolean doPolygonsIntersect(List<Vector2> vertices1, List<Vector2> vertices2) {
-        System.out.println("----------------");
-        System.out.println(""+vertices2);
         for (int i = 0; i < vertices1.size(); i++) {
             int ni = (i == vertices1.size() - 1) ? 0 : i + 1;
             Vector2 p1 = vertices1.get(i);

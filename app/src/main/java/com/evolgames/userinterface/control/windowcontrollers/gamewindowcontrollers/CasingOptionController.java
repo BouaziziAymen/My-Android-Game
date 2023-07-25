@@ -1,13 +1,13 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.properties.AmmoProperties;
+import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.inputs.Quantity;
 import com.evolgames.userinterface.view.inputs.RotationQuantity;
@@ -15,14 +15,14 @@ import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledRotationQuantity;
 
-public class AmmoOptionController  extends SettingsWindowController<AmmoProperties> {
+public class CasingOptionController extends SettingsWindowController<CasingProperties> {
     private final GameScene gameScene;
     private final ToolModel toolModel;;
-    private AmmoModel ammoModel;
-    private TitledRotationQuantity<AmmoOptionController> titledRotationQuantity;
-    private Quantity<AmmoOptionController> ejectionSpeedQuantity;
+    private CasingModel ammoModel;
+    private TitledRotationQuantity<CasingOptionController> titledRotationQuantity;
+    private Quantity<CasingOptionController> ejectionSpeedQuantity;
 
-    public AmmoOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
+    public CasingOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
         this.toolModel = toolModel;
         this.gameScene = gameScene;
@@ -38,15 +38,16 @@ public class AmmoOptionController  extends SettingsWindowController<AmmoProperti
 
 
     @Override
-    void onModelUpdated(ProperModel<AmmoProperties> model) {
+    void onModelUpdated(ProperModel<CasingProperties> model) {
         super.onModelUpdated(model);
         if (model == null) {
             return;
         }
 
-        this.ammoModel = (AmmoModel) model;
-        setRotationSpeed(ammoModel.getRotationSpeed());
-        this.titledRotationQuantity.getAttachment().setClockwise(ammoModel.getRotationOrientation());
+        this.ammoModel = (CasingModel) model;
+        setRotationSpeed(ammoModel.getAmmoProperties().getRotationSpeed());
+        setLinearSpeed(ammoModel.getAmmoProperties().getLinearSpeed());
+        this.titledRotationQuantity.getAttachment().setClockwise(ammoModel.getAmmoProperties().isRotationOrientation());
     }
 
 
@@ -54,40 +55,40 @@ public class AmmoOptionController  extends SettingsWindowController<AmmoProperti
     @Override
     public void init() {
         super.init();
-        SectionField<AmmoOptionController> generalSettingsSection = new SectionField<>(1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SectionField<CasingOptionController> generalSettingsSection = new SectionField<>(1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(generalSettingsSection);
         onPrimaryButtonClicked(generalSettingsSection);
 
        titledRotationQuantity = new TitledRotationQuantity<>("Ang Velocity", 10, "g", 10f,80f,this);
-        titledRotationQuantity.getAttachment().setBehavior(new QuantityBehavior<AmmoOptionController>(this, titledRotationQuantity.getAttachment()) {
+        titledRotationQuantity.getAttachment().setBehavior(new QuantityBehavior<CasingOptionController>(this, titledRotationQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
                 float ratio = ((RotationQuantity<?>)quantity).getRatio();
-                ammoModel.setRotationSpeed(ratio);
+                ammoModel.getAmmoProperties().setRotationSpeed(ratio);
             }
         });
         titledRotationQuantity.getAttachment().setAnticlockwiseButtonsAction(() -> {
-            ammoModel.setRotationOrientation(false);
+            ammoModel.getAmmoProperties().setRotationOrientation(false);
         });
         titledRotationQuantity.getAttachment().setClockwiseButtonsAction(() -> {
-            ammoModel.setRotationOrientation(true);
+            ammoModel.getAmmoProperties().setRotationOrientation(true);
         });
         SimpleSecondary<TitledRotationQuantity<?>> rotationQuantitySimpleSecondary = new SimpleSecondary<>(1,1, titledRotationQuantity);
         window.addSecondary(rotationQuantitySimpleSecondary);
 
 
 
-        TitledQuantity<AmmoOptionController> titledEjectionSpeedQuantity = new TitledQuantity<>("Lin. Velocity:", 10, "b", 5, 85);
+        TitledQuantity<CasingOptionController> titledEjectionSpeedQuantity = new TitledQuantity<>("Lin. Velocity:", 10, "b", 5, 85);
         ejectionSpeedQuantity = titledEjectionSpeedQuantity.getAttachment();
-        titledEjectionSpeedQuantity.getAttachment().setBehavior(new QuantityBehavior<AmmoOptionController>(this, titledEjectionSpeedQuantity.getAttachment()) {
+        titledEjectionSpeedQuantity.getAttachment().setBehavior(new QuantityBehavior<CasingOptionController>(this, titledEjectionSpeedQuantity.getAttachment()) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
 
             }
         });
-        SimpleSecondary<TitledQuantity<AmmoOptionController>> bouncinessElement = new SimpleSecondary<>(1, 2, titledEjectionSpeedQuantity);
+        SimpleSecondary<TitledQuantity<CasingOptionController>> bouncinessElement = new SimpleSecondary<>(1, 2, titledEjectionSpeedQuantity);
         window.addSecondary(bouncinessElement);
-        ejectionSpeedQuantity.getBehavior().setChangeAction(()-> ammoModel.setLinearSpeed(ejectionSpeedQuantity.getRatio()));
+        ejectionSpeedQuantity.getBehavior().setChangeAction(()-> ammoModel.getAmmoProperties().setLinearSpeed(ejectionSpeedQuantity.getRatio()));
 
 
         window.createScroller();

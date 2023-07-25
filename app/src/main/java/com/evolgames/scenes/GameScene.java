@@ -47,7 +47,7 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.AmmoOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -186,7 +186,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
-        AmmoOptionController ammoOptionController = new AmmoOptionController(this, keyboardController,toolModel);
+        CasingOptionController ammoOptionController = new CasingOptionController(this, keyboardController,toolModel);
         ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController,ammoOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
@@ -515,7 +515,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 blocks.add(block1);
 
                 BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY,PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-                GameEntity gameEntity = GameEntityFactory.getInstance().createDollPart(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
+                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
                 GameGroup proj = new GameGroup(gameEntity);
                 attachChild(gameEntity.getMesh());
                 gameEntity.setProjectile(true);
@@ -626,8 +626,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                         }
 
                         Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
-                        if (entity.hasTriggers()){
+                        if (entity.hasTrigger()){
                             userInterface.showFireButtons();
+                        } else {
+                            userInterface.hideFireButtons();
                         }
                         break;
                     }
@@ -638,7 +640,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 HandControl handControl = hand.getHandControlStack().peek();
                 if (handControl instanceof HoldHandControl) {
                     if (hand.getGrabbedEntity() != null) {
-                        if(!hand.getGrabbedEntity().hasTriggers()) {
+                        if(!hand.getGrabbedEntity().hasTrigger()) {
                             hand.releaseGrabbedEntity(handControl);
                         } else {
                             hand.getGrabbedEntity().setHanged(false);

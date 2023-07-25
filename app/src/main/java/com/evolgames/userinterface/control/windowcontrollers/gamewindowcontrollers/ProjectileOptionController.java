@@ -14,7 +14,7 @@ import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.model.toolmodels.AmmoModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
@@ -85,27 +85,24 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         SectionField<ProjectileOptionController> shellSection = new SectionField<>(1, "Shell:", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(shellSection);
 
-        List<AmmoModel> ammoModels = toolModel.getBodyModelById(((ProjectileModel) model).getBodyId()).getAmmoModels();
+        List<CasingModel> ammoModels = toolModel.getBodyModelById(((ProjectileModel) model).getBodyId()).getAmmoModels();
 
         ammoModels.forEach(this::createShellToolButton);
         this.onUpdated();
     }
-    private void createShellToolButton(AmmoModel ammoModel) {
+    private void createShellToolButton(CasingModel ammoModel) {
 
         ButtonWithText<ProjectileOptionController> shellButton = new ButtonWithText<>(ammoModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-        SimpleSecondary<ButtonWithText<ProjectileOptionController>> shellField = new SimpleSecondary<>(1, ammoModel.getAmmoId(), shellButton);
+        SimpleSecondary<ButtonWithText<ProjectileOptionController>> shellField = new SimpleSecondary<>(1, ammoModel.getCasingId(), shellButton);
         window.addSecondary(shellField);
         shellButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, shellButton) {
             @Override
             public void informControllerButtonClicked() {
-
                 projectileModel.setAmmoModel(ammoModel);
-                onShellButtonClicked(shellField);
             }
 
             @Override
             public void informControllerButtonReleased() {
-
             }
         });
         if(projectileModel.getAmmoModel()==ammoModel){
@@ -140,19 +137,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
             }
         });
-    }
-    void onShellButtonClicked(SimpleSecondary<?> shellButton) {
-        int primaryKey = shellButton.getPrimaryKey();
-        int secondaryKey = shellButton.getSecondaryKey();
-        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
-            if (element.getSecondaryKey() != secondaryKey) {
-                Element main = element.getMain();
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
-        }
     }
 
     void onProjectileBodyButtonClicked(SimpleSecondary<?> projectileButton) {
