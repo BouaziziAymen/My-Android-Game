@@ -6,6 +6,9 @@
         <option value="$PROJECT_DIR$/.idea" />
         <option value="$PROJECT_DIR$/.gradle" />
         <option value="$PROJECT_DIR$/gradle" />
+        <option value="$PROJECT_DIR$/andEngine" />
+        <option value="$PROJECT_DIR$/andEnginePhysicsBox2DExtension" />
+        <option value="$PROJECT_DIR$/app/src/main/java/is" />
       </list>
     </option>
   </component>

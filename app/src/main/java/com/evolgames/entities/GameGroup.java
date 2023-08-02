@@ -8,7 +8,6 @@ import java.util.HashSet;
 
 public class GameGroup {
     private final ArrayList<GameEntity> entities;
-    private final HashSet<GameEntity> addedEntities;
     private final ArrayList<Command> commands;
     private final boolean living;
 
@@ -18,7 +17,6 @@ public class GameGroup {
 
     public GameGroup(boolean living, GameEntity ... groupOfEntities){
         entities = new ArrayList<>();
-        addedEntities = new HashSet<>();
         commands = new ArrayList<>();
         entities.addAll(Arrays.asList(groupOfEntities));
         for(GameEntity entity:groupOfEntities) {
@@ -31,7 +29,6 @@ public class GameGroup {
     }
     public GameGroup(ArrayList<GameEntity> groupOfEntities){
         entities = groupOfEntities;
-        addedEntities = new HashSet<>();
         commands = new ArrayList<>();
         for(GameEntity entity:groupOfEntities) {
             entity.setParentGroup(this);
@@ -40,7 +37,7 @@ public class GameGroup {
     }
 
     public void addGameEntity(GameEntity entity) {
-        addedEntities.add(entity);
+        entities.add(entity);
         entity.setParentGroup(this);
     }
     public GameEntity getGameEntityByIndex(int index){
@@ -56,8 +53,6 @@ public class GameGroup {
         for (GameEntity entity : entities){
             entity.onStep(timeStep);
         }
-        entities.addAll(addedEntities);
-        addedEntities.clear();
     }
 
     public ArrayList<Command> getCommands() {

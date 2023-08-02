@@ -62,6 +62,7 @@ import com.evolgames.physics.entities.callbacks.GameEntityQueryCallBack;
 import com.evolgames.physics.entities.callbacks.SimpleDetectionRayCastCallback;
 import com.evolgames.physics.entities.explosions.Explosion;
 import com.evolgames.scenes.GameScene;
+import com.evolgames.userinterface.model.BodyModel;
 
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.ParticleSystem;
@@ -106,6 +107,7 @@ public class WorldFacade implements ContactObserver {
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
+    private final BodyModel groundModel;
 
 
     public WorldFacade(GameScene scene) {
@@ -118,6 +120,9 @@ public class WorldFacade implements ContactObserver {
         scene.registerUpdateHandler(physicsWorld);
         physicsWorld.setVelocityIterations(8);
         physicsWorld.setPositionIterations(3);
+
+        this.groundModel = new BodyModel(-1);
+        this.groundModel.setModelName("Ground");
     }
 
     public void onStep(float deltaTime) {
@@ -582,6 +587,11 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.rayCast(detectionRayCastCallback, worldBegin, worldEnd);
         return detectionRayCastCallback.getIntersectionPoint();
     }
+
+    public BodyModel getGroundModel() {
+        return this.groundModel;
+    }
+
     enum EPointType{
         ENTERING, LEAVING
     }
@@ -1287,6 +1297,7 @@ public class WorldFacade implements ContactObserver {
 
     public void setGround(GameGroup ground) {
         this.ground = ground;
+        this.groundModel.setGameEntity(ground.getGameEntityByIndex(0));
     }
 
     public void recreateJoint(JointBlock jointBlock, GameEntity splinter) {

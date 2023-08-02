@@ -8,9 +8,7 @@ public class ProjectileProperties extends Properties {
 
     private Vector2 projectileOrigin;
     private Vector2 projectileDirection;
-    private ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.MANUAL;
     private float muzzleVelocity = 200f;
-    private int fireRate = 60;
     private float recoil = 0.3f;
     private float upperLimit;
     private int fireSound = 1;
@@ -29,11 +27,9 @@ public class ProjectileProperties extends Properties {
         properties.setFireSound(fireSound);
         properties.setUpperLimit(upperLimit);
         properties.setRecoil(recoil);
-        properties.setFireRate(fireRate);
         properties.setMuzzleVelocity(muzzleVelocity);
         properties.setProjectileDirection(projectileDirection.cpy());
         properties.setProjectileOrigin(projectileOrigin.cpy());
-        properties.setProjectileTriggerType(projectileTriggerType);
         return properties;
     }
 
@@ -53,28 +49,12 @@ public class ProjectileProperties extends Properties {
         this.projectileDirection = projectileDirection;
     }
 
-    public ProjectileTriggerType getProjectileTriggerType() {
-        return projectileTriggerType;
-    }
-
-    public void setProjectileTriggerType(ProjectileTriggerType projectileTriggerType) {
-        this.projectileTriggerType = projectileTriggerType;
-    }
-
     public float getMuzzleVelocity() {
         return muzzleVelocity;
     }
 
     public void setMuzzleVelocity(float muzzleVelocity) {
         this.muzzleVelocity = muzzleVelocity;
-    }
-
-    public int getFireRate() {
-        return fireRate;
-    }
-
-    public void setFireRate(int fireRate) {
-        this.fireRate = fireRate;
     }
 
     public float getRecoil() {

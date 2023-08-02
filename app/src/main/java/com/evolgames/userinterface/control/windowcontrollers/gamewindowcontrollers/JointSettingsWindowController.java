@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -53,6 +54,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private final NumericValidator frequencyValidator = new NumericValidator(false, true, 0.1f, 999f, 3, 1);
 
     private final OutlineController outlineController;
+    private final GameScene gameScene;
     DecimalFormat format = new DecimalFormat("##.##");
     @SuppressWarnings("unused")
     DecimalFormat format2 = new DecimalFormat("###.##");
@@ -78,10 +80,11 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     private TextField<JointSettingsWindowController> lengthTextField;
 
 
-    public JointSettingsWindowController(KeyboardController keyboardController, OutlineController outlineController, ToolModel toolModel) {
+    public JointSettingsWindowController(GameScene gameScene, KeyboardController keyboardController, OutlineController outlineController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
         this.outlineController = outlineController;
         this.toolModel = toolModel;
+        this.gameScene = gameScene;
         revoluteLowerAngleValidator.setValidationCondition(new Condition() {
             @Override
             public boolean isCondition(float value) {
@@ -163,7 +166,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
         window.addPrimary(bodyBSection);
         if(toolModel!=null) {
             ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
-            bodies.add(0, ToolModel.groundBodyModel);
+            bodies.add(0,gameScene.getWorldFacade().getGroundModel() );
 
             for (int i = 0; i < bodies.size(); i++) {
                 BodyModel bodyModel = bodies.get(i);

@@ -34,6 +34,7 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
@@ -144,9 +145,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     }
 
-    public GameEntity getGround() {
-        return worldFacade.getGround().getGameEntityByIndex(0);
-    }
+
 
     public HUD getHud() {
         return hud;
@@ -179,11 +178,11 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         try {
             toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver_latest.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
-        } catch (IOException | ParserConfigurationException | SAXException e) {
+        } catch (IOException | ParserConfigurationException | SAXException |PersistenceException e) {
             e.printStackTrace();
         }
 
-        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(keyboardController, outlineController, toolModel);
+        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this,keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
         CasingOptionController ammoOptionController = new CasingOptionController(this, keyboardController,toolModel);
@@ -333,18 +332,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         vertices2.add(obtain(-4000, 20));
         vertices2.add(obtain(4400, 20));
         vertices2.add(obtain(4400, 0));
-/*
-        vertices2.add(Vector2Pool.obtain(-28.1f,-4.5f));
-        vertices2.add(Vector2Pool.obtain(-30.2f,-18.8f));
-        vertices2.add(Vector2Pool.obtain(45.6f,-34.0f));
-        vertices2.add(Vector2Pool.obtain(19.8f,-11.6f));
-        vertices2.add(Vector2Pool.obtain(3.0f,-0.7f));
-        ArrayList<Vector2> vertices3 = new ArrayList<>();
-        vertices3.add(Vector2Pool.obtain(9.9f,-20.0f));
-        vertices3.add(Vector2Pool.obtain(12.9f,-28.7f));
-        vertices3.add(Vector2Pool.obtain(45.6f,-34.0f));
-        vertices3.add(Vector2Pool.obtain(62.9f,-15.5f));
-        vertices3.add(Vector2Pool.obtain(45.2f,0.2f));*/
+
 
         LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0);
         //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
@@ -357,9 +345,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY,(short)-1);
-        getWorldFacade().setGround(groundGroup);
-        //groundGroup.setCenter(center);
-        //attachChild(groundGroup.getMesh());
+        this.worldFacade.setGround(groundGroup);
+
         if (true) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
@@ -470,10 +457,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
                 LayerBlock block = BlockFactory.createLayerBlock(list, properties, 0);
                 properties.setDefaultColor(Utils.getRandomColor(0.5f));
-
-                // groundGroup.getMesh().addLayer(MeshFactory.getInstance().createMeshPartBluePrint(block));
-
-                //  groundGroup.getMesh().updateData();
             }
 
 
@@ -515,9 +498,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 blocks.add(block1);
 
                 BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY,PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
+                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
                 GameGroup proj = new GameGroup(gameEntity);
-                attachChild(gameEntity.getMesh());
                 gameEntity.setProjectile(true);
                 addGameGroup(proj);
             }

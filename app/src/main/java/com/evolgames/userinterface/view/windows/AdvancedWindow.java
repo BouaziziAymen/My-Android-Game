@@ -16,7 +16,7 @@ public class AdvancedWindow<C extends AdvancedWindowController> extends Window {
     private static final float FOLD_UNFOLD_BUTTON_RAY = 8f;
     private Button<AdvancedWindowController<?>> foldButton;
     private Button<AdvancedWindowController<?>> closeButton;
-    private C controller;
+    private final C controller;
 
 
     public AdvancedWindow(float pX, float pY, int rows, int columns, C controller, boolean hasPadding) {

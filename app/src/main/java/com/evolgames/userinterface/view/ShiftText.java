@@ -23,7 +23,7 @@ public class ShiftText<C extends AdvancedWindowController<?>> extends Container 
         board.setBounds(null);
         Button<C> infoButton = new Button<>(ResourceManager.getInstance().infoBlueButton, Button.ButtonType.Selector, true);
         infoButton.setPosition(5, 4);
-        infoButton.setBehavior(new ButtonBehavior<C>(controller, infoButton,true) {
+        infoButton.setBehavior(new ButtonBehavior<C>(controller, infoButton) {
             @Override
             public void informControllerButtonClicked() {
             }

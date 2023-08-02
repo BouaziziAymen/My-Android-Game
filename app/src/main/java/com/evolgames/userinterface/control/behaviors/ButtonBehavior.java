@@ -10,7 +10,6 @@ import org.andengine.input.touch.TouchEvent;
 
 public abstract class ButtonBehavior<C extends Controller> extends ClickableBehavior<C> {
     private final Button<C> button;
-    private boolean deb = false;
     private Action pushAction;
     private Action releaseAction;
 
@@ -18,11 +17,7 @@ public abstract class ButtonBehavior<C extends Controller> extends ClickableBeha
         super(controller);
         this.button = button;
     }
-    protected ButtonBehavior(C controller, Button<C> button,boolean deb) {
-        super(controller);
-        this.button = button;
-        this.deb = true;
-    }
+
 
     public void setPushAction(Action pushAction) {
         this.pushAction = pushAction;
@@ -39,9 +34,6 @@ public abstract class ButtonBehavior<C extends Controller> extends ClickableBeha
 
     @Override
     public boolean processTouch(TouchEvent touchEvent, boolean touched) {
-        if(deb){
-            System.out.println("CLICKED!!!!!!!!!!!!!!");
-        }
         if (button.getState() == Button.State.DISABLED) {
             return false;
         }

@@ -1,6 +1,7 @@
 package com.evolgames.helpers.utilities;
 
 import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.userinterface.model.ToolModel;
 
@@ -18,13 +19,8 @@ public class ToolUtils {
     public static List<String> getToolNamesByCategory(GameActivity activity, String categoryPrefix){
         return Arrays.stream(activity.fileList()).filter(f->f.startsWith(categoryPrefix)).collect(Collectors.toList());
     }
-    public static ToolModel getProjectileModel(String fileName){
-            try {
+    public static ToolModel getProjectileModel(String fileName) throws PersistenceException, IOException, ParserConfigurationException, SAXException {
                return PersistenceCaretaker.getInstance().loadToolModel(fileName);
-            } catch (IOException | ParserConfigurationException | SAXException e) {
-                e.printStackTrace();
-                return null;
-            }
         }
 
 

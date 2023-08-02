@@ -3,43 +3,48 @@ package com.evolgames.userinterface.model;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
-import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.UsageModel;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class BodyModel extends OutlineModel<BodyProperties> {
-    public static final ArrayList<BodyCategory> allCategories = new ArrayList<>(Arrays.asList(BodyCategory.ARMOR, BodyCategory.MELEE, BodyCategory.PROJECTILE));
+    public static final ArrayList<BodyUsageCategory> allCategories = new ArrayList<>(EnumSet.allOf(BodyUsageCategory.class));
     private final AtomicInteger layerCounter = new AtomicInteger();
-    private final AtomicInteger projectileCounter = new AtomicInteger();
-    private final AtomicInteger ammoCounter = new AtomicInteger();
     private final int bodyId;
     private final ArrayList<LayerModel> layers;
     private final ArrayList<ProjectileModel> projectiles;
     private final ArrayList<CasingModel> ammoModels;
-    private final ArrayList<HandModel> hands;
     private GameEntity gameEntity;
-    private BodyCategory category;
+    private final List<UsageModel<?>> usageModels;
+    @SuppressWarnings("unchecked")
+    public <T extends Properties> T getUsageModelProperties(BodyUsageCategory bodyUsageCategory){
+        return ((UsageModel<T>)usageModels.stream().filter(e->e.getType()==bodyUsageCategory).findFirst().get()).getProperties();
+    }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Properties> UsageModel<T> getUsageModel(BodyUsageCategory bodyUsageCategory){
+        return ((UsageModel<T>)usageModels.stream().filter(e->e.getType()==bodyUsageCategory).findFirst().get());
+    }
     public BodyModel(int bodyId) {
         super("Body" + bodyId);
         this.bodyId = bodyId;
         layers = new ArrayList<>();
         projectiles = new ArrayList<>();
         ammoModels = new ArrayList<>();
-        hands = new ArrayList<>();
         properties = new BodyProperties();
+        usageModels = new ArrayList<>();
     }
 
-    public void setCategory(BodyCategory category) {
-        this.category = category;
-    }
+
 
     public void onChildLayerOutlineUpdated(int layerId) {
     }
@@ -86,7 +91,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     }
 
 
-    DecorationModel createNewDecroation(int layerId) {
+    DecorationModel createNewDecoration(int layerId) {
         return Objects.requireNonNull(getLayerModelById(layerId)).createDecoration();
     }
 
@@ -111,21 +116,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return layerCounter;
     }
 
-    public ArrayList<ProjectileModel> getProjectiles() {
-        return projectiles;
-    }
-
-    public ArrayList<HandModel> getHands() {
-        return hands;
-    }
-
-    public AtomicInteger getProjectileCounter() {
-        return projectileCounter;
-    }
-
-    public AtomicInteger getAmmoCounter() {
-        return ammoCounter;
-    }
 
     public Vector2 getCenter() {
         List<List<Vector2>> list = new ArrayList<>();
@@ -144,8 +134,11 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return ammoModels;
     }
 
+    public List<UsageModel<?>> getUsageModels() {
+        return usageModels;
+    }
 
-    public enum BodyCategory {
-        PROJECTILE, ARMOR, MELEE;
+    public ArrayList<ProjectileModel> getProjectiles() {
+        return projectiles;
     }
 }

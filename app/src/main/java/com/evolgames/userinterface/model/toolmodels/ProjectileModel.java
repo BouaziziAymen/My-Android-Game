@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
@@ -12,6 +13,7 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     private final int bodyId;
     private ToolModel missileModel;
     private CasingModel ammoModel;
+    private GameEntity muzzleEntity;
 
     public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
         super("Proj" + projectileId);
@@ -56,5 +58,13 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
     public void setAmmoModel(CasingModel ammoModel) {
         this.ammoModel = ammoModel;
+    }
+
+    public GameEntity getMuzzleEntity() {
+        return muzzleEntity;
+    }
+
+    public void setMuzzleEntity(GameEntity muzzleEntity) {
+        this.muzzleEntity = muzzleEntity;
     }
 }

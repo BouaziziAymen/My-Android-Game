@@ -98,7 +98,6 @@ public class CreationZoneController extends Controller {
             case MIRROR:
             case SHIFT:
             case REVOLUTE:
-            case HAND:
             case PROJECTILE:
             case NONE:
             case ADD_POLYGON:
@@ -154,10 +153,6 @@ public class CreationZoneController extends Controller {
             userInterface.getJointButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
         }
-        if (action == CreationAction.PROJECTILE || action == CreationAction.HAND) {
-            userInterface.getToolButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
-        }
         if (action == CreationAction.PIPING) {
             userInterface.getImageButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
@@ -193,8 +188,6 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
             } else if (action == CreationAction.AMMO) {
                 itemWindowController.onAmmoAborted(((CasingShape) indicatorArrow).getModel());
-            } else if (action == CreationAction.HAND) {
-                itemWindowController.onHandAborted(((HandShape) indicatorArrow).getModel());
             }
         }
     }
@@ -361,16 +354,6 @@ public class CreationZoneController extends Controller {
                 return;
             }
         }
-        if (action == CreationAction.HAND) {
-            if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
-                indicatorArrow = new HandShape(new Vector2(x, y), gameScene);
-                HandModel handModel = userInterface.getToolModel().createNewHand((HandShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
-                itemWindowController.onNewHandCreated(handModel);
-                ((HandShape) indicatorArrow).setModel(handModel);
-                return;
-            }
-        }
-
 
         if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
             indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), gameScene);
@@ -526,7 +509,7 @@ public class CreationZoneController extends Controller {
 
 
     public enum CreationAction {
-        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, HAND, AMMO;
+        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO;
     }
 }
 

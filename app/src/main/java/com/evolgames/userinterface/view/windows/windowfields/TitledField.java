@@ -17,20 +17,24 @@ public class TitledField<A extends Element> extends LinearLayout {
     public TitledField(String titleString, A attachment) {
         this(titleString,attachment,10);
     }
-
-    public TitledField(String titleString, A attachment,float margin) {
+    public TitledField(String titleString, A attachment,float margin, boolean attachmentFirst) {
         super(LinearLayout.Direction.Horizontal, margin);
         this.mAttachment = attachment;
         Text title = new Text(titleString, 2);
         title.setLowerBottomY(attachment.getHeight()/2);
-
-        addToLayout(title);
-        addToLayout(attachment);
+        if(attachmentFirst) {
+            addToLayout(attachment);
+            addToLayout(title);
+        } else {
+            addToLayout(title);
+            addToLayout(attachment);
+        }
         float maxY = Math.max(title.getLowerBottomY()+title.getHeight(), attachment.getLowerBottomY()+attachment.getHeight());
         float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
         setHeight(maxY- minY);
-
-
+    }
+    public TitledField(String titleString, A attachment,float margin) {
+      this(titleString,attachment,margin,false);
     }
 
      TitledField(String titleString, A attachment,float margin, float minX) {

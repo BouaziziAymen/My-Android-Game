@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.GameSound;
@@ -11,7 +12,6 @@ import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
-import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -32,25 +32,27 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.userinterface.view.windows.windowfields.projectieoptionwindow.SoundField;
 
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 public class ProjectileOptionController extends SettingsWindowController<ProjectileProperties> {
     private final GameScene gameScene;
     private final AlphaNumericValidator projectileNameValidator = new AlphaNumericValidator(8, 5);
-    private final NumericValidator muzzleVelocityValidator = new NumericValidator(false, true, 0, 2000, 4, 1);
-    private final NumericValidator fireRateValidator = new NumericValidator(false, true, 0, 1000, 3, 1);
     private final ToolModel toolModel;
     private final Hashtable<String, ToolModel> missileTable;
     private final Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable;
     private TextField<ProjectileOptionController> projectileNameField;
-    private TextField<ProjectileOptionController> muzzleVelocityTextField;
-    private TextField<ProjectileOptionController> fireRateTextField;
-    private Quantity<ProjectileOptionController> recoilQuantity;
     private ProjectileProperties projectileProperties;
     private ProjectileModel projectileModel;
+    private Quantity<ProjectileOptionController> velocityQuantity;
+    private Quantity<ProjectileOptionController> recoilQuantity;
 
     public ProjectileOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
@@ -122,13 +124,18 @@ public class ProjectileOptionController extends SettingsWindowController<Project
             public void informControllerButtonClicked() {
                 ToolModel missileModel;
                 if (!missileTable.containsKey(fileName)) {
-                    missileModel = ToolUtils.getProjectileModel(fileName);
-                    missileTable.put(fileName, missileModel);
+                    try {
+                        missileModel = ToolUtils.getProjectileModel(fileName);
+                        missileTable.put(fileName, missileModel);
+                        projectileModel.setMissileModel(missileModel);
+                    } catch (PersistenceException | SAXException | ParserConfigurationException | IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     missileModel = missileTable.get(fileName);
+                    projectileModel.setMissileModel(missileModel);
                 }
 
-                projectileModel.setMissileModel(missileModel);
                 onProjectileBodyButtonClicked(missileField);
             }
 
@@ -171,42 +178,25 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         this.projectileProperties = model.getProperties();
         setBody(projectileModel.getBodyId());
         setProjectileName(this.model.getModelName());
-        setFireRate(this.projectileProperties.getFireRate());
+        setFireSound(this.projectileProperties.getFireSound());
         setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
-        setFireSound(this.projectileProperties.getFireSound());
-        setProjectileTriggerType(this.projectileProperties.getProjectileTriggerType());
         setProjectileName(projectileModel.getModelName());
         if(projectileModel.getMissileModel()!=null) {
             setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix()+"_" +projectileModel.getMissileModel().getModelName()+".xml");
         }
     }
 
+    private void setRecoil(float recoil) {
+        this.recoilQuantity.updateRatio(recoil);
+    }
+
+    private void setMuzzleVelocity(float muzzleVelocity) {
+        this.velocityQuantity.updateRatio(muzzleVelocity);
+    }
+
     private void setBody(int bodyId) {
 
-    }
-
-    private void setProjectileTriggerType(ProjectileTriggerType projectileTriggerType) {
-        if (projectileTriggerType != null) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(3, projectileTriggerType.getValue());
-            ((ButtonWithText<?>) element.getMain()).updateState(Button.State.PRESSED);
-        }
-    }
-
-    private void onTypeButtonClicked(SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField) {
-        int primaryKey = typeField.getPrimaryKey();
-        int secondaryKey = typeField.getSecondaryKey();
-        ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.getFromValue(secondaryKey);
-        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
-            if (element.getSecondaryKey() != secondaryKey) {
-                Element main = element.getMain();
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
-        }
-        projectileProperties.setProjectileTriggerType(projectileTriggerType);
     }
 
     @Override
@@ -265,98 +255,22 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
 
 
-        SectionField<ProjectileOptionController> typeSection = new SectionField<>(3, "Type", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SectionField<ProjectileOptionController> typeSection = new SectionField<>(3, "Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(typeSection);
-        for (int i = 0; i < 3; i++) {
-            ProjectileTriggerType projectileTriggerType = ProjectileTriggerType.getFromValue(i);
-            assert projectileTriggerType != null;
-            String title;
-            switch (projectileTriggerType) {
-                case MANUAL:
-                    title = "Manual";
-                    break;
-                case SEMI_AUTOMATIC:
-                    title = "Semi Automatic";
-                    break;
-                case AUTOMATIC:
-                    title = "Automatic";
-                    break;
-                default:
-                    title = "";
-                    break;
-            }
-            ButtonWithText<ProjectileOptionController> typeButton = new ButtonWithText<>
-                    (title, 3, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
 
-
-            SimpleSecondary<ButtonWithText<ProjectileOptionController>> typeField = new SimpleSecondary<>(3, i, typeButton);
-            window.addSecondary(typeField);
-            typeButton.setBehavior(new ButtonBehavior<ProjectileOptionController>(this, typeButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    onTypeButtonClicked(typeField);
-                }
-
-                @Override
-                public void informControllerButtonReleased() {
-
-                }
-            });
-
-        }
-
-        SectionField<ProjectileOptionController> projectileOptionsField = new SectionField<>(4, "Physical Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addPrimary(projectileOptionsField);
-
-        TitledTextField<ProjectileOptionController> muzzleVelocityField = new TitledTextField<>("Muzzle Velocity:", 6, 5, 100);
-        muzzleVelocityTextField = muzzleVelocityField.getAttachment();
-
-        muzzleVelocityField.getAttachment().setBehavior(new TextFieldBehavior<ProjectileOptionController>(this, muzzleVelocityField.getAttachment(), Keyboard.KeyboardType.Numeric, muzzleVelocityValidator, true) {
+        TitledQuantity<ProjectileOptionController> titleVelocityQuantity = new TitledQuantity<>("Velocity:", 16, "r", 5, 50);
+        velocityQuantity = titleVelocityQuantity.getAttachment();
+        titleVelocityQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, velocityQuantity) {
             @Override
-            protected void informControllerTextFieldTapped() {
-                ProjectileOptionController.super.onTextFieldTapped(muzzleVelocityTextField);
-            }
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
 
-            @Override
-            protected void informControllerTextFieldReleased() {
-                ProjectileOptionController.super.onTextFieldReleased(muzzleVelocityTextField);
             }
         });
 
-        FieldWithError muzzleVelocityFieldWithError = new FieldWithError(muzzleVelocityField);
-        SimpleSecondary<FieldWithError> muzzleVelocityElement = new SimpleSecondary<>(4, 1, muzzleVelocityFieldWithError);
+        FieldWithError muzzleVelocityFieldWithError = new FieldWithError(titleVelocityQuantity);
+        SimpleSecondary<FieldWithError> muzzleVelocityElement = new SimpleSecondary<>(3, 1, muzzleVelocityFieldWithError);
         window.addSecondary(muzzleVelocityElement);
-
-        muzzleVelocityTextField.getBehavior().setReleaseAction(() -> {
-            float muzzleVelocity = Float.parseFloat(muzzleVelocityTextField.getTextString());
-            projectileProperties.setMuzzleVelocity(muzzleVelocity);
-        });
-
-
-        TitledTextField<ProjectileOptionController> fireRateField = new TitledTextField<>("Rate:", 6, 5, 50);
-        fireRateTextField = fireRateField.getAttachment();
-
-        fireRateField.getAttachment().setBehavior(new TextFieldBehavior<ProjectileOptionController>(this, fireRateTextField, Keyboard.KeyboardType.Numeric, fireRateValidator, true) {
-            @Override
-            protected void informControllerTextFieldTapped() {
-                ProjectileOptionController.super.onTextFieldTapped(fireRateTextField);
-            }
-
-            @Override
-            protected void informControllerTextFieldReleased() {
-                ProjectileOptionController.super.onTextFieldReleased(fireRateTextField);
-            }
-        });
-
-        FieldWithError fireRateFieldWithError = new FieldWithError(fireRateField);
-        SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(4, 2, fireRateFieldWithError);
-        window.addSecondary(fireRateElement);
-
-        fireRateTextField.getBehavior().setReleaseAction(() -> {
-            int rate = Integer.parseInt(fireRateTextField.getTextString());
-            projectileProperties.setFireRate(rate);
-        });
-
+        velocityQuantity.getBehavior().setChangeAction(() -> projectileModel.getProperties().setMuzzleVelocity(velocityQuantity.getRatio()));
 
         TitledQuantity<ProjectileOptionController> titledRecoilQuantity = new TitledQuantity<>("Recoil:", 10, "b", 5, 50);
         recoilQuantity = titledRecoilQuantity.getAttachment();
@@ -366,9 +280,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
             }
         });
-        SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(4, 3, titledRecoilQuantity);
+        SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(3, 2, titledRecoilQuantity);
         window.addSecondary(recoilElement);
-        recoilQuantity.getBehavior().setChangeAction(() -> projectileProperties.setRecoil(recoilQuantity.getRatio()));
+        recoilQuantity.getBehavior().setChangeAction(() -> projectileModel.getProperties().setRecoil(recoilQuantity.getRatio()));
+
+
         window.createScroller();
         window.getLayout().updateLayout();
         window.setVisible(false);
@@ -383,18 +299,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     private void setProjectileName(String name) {
         projectileNameField.getBehavior().setTextValidated(name);
-    }
-
-    private void setFireRate(int fireRate) {
-        fireRateTextField.getBehavior().setTextValidated("" + fireRate);
-    }
-
-    private void setMuzzleVelocity(float muzzleVelocity) {
-        muzzleVelocityTextField.getBehavior().setTextValidated("" + Math.floor(muzzleVelocity));
-    }
-
-    private void setRecoil(float recoil) {
-        recoilQuantity.updateRatio(recoil);
     }
 
     private void setFireSound(int fireSound) {

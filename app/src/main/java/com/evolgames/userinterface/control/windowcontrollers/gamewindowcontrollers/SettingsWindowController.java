@@ -21,8 +21,9 @@ public class SettingsWindowController<P extends Properties> extends ThreeLevelSe
     }
 
     public void onCancelSettings() {
-        if (tempProperty != null)
+        if (tempProperty != null){
             model.setProperties(tempProperty);
+        }
         closeWindow();
     }
 

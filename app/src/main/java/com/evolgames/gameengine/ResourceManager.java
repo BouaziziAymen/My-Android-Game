@@ -4,8 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.MyLetter;
+
 import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
@@ -26,19 +28,17 @@ import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import is.kul.learningandengine.BitmapTextureAtlasSource;
 
 public class ResourceManager {
     // single instance is created only
     private static final ResourceManager INSTANCE = new ResourceManager();
-    public TextureRegion Aregion;
     public GameActivity activity;
     public TextureRegion diskTextureRegion;
     public Camera firstCamera;
@@ -65,7 +65,7 @@ public class ResourceManager {
     public TiledTextureRegion addTextureRegion;
     public ArrayList<TiledTextureRegion> upButtonTextureRegions = new ArrayList<>();
     public ArrayList<TiledTextureRegion> downButtonTextureRegions = new ArrayList<>();
-    public HashMap<String,ArrayList<ITextureRegion>> quantity;
+    public HashMap<String, ArrayList<ITextureRegion>> quantity;
     public ArrayList<TiledTextureRegion> keyboardButtons;
     public TiledTextureRegion smallOptionsTextureRegion;
     public TextureRegion colorSelectorTextureRegion;
@@ -81,7 +81,6 @@ public class ResourceManager {
     public TiledTextureRegion onoffTextureRegion;
     public Engine engine;
     public TiledTextureRegion decaleTextureRegion;
-    public ITextureRegion bloodParicle;
     public TiledTextureRegion optionsCenterTextureRegion;
     public TextureRegion mOnScreenControlBaseTextureRegion;
     public TiledTextureRegion controlButton;
@@ -119,8 +118,6 @@ public class ResourceManager {
     public TextureRegion handTextureRegion;
     public TextureRegion armTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
-    public TextureRegion handle1;
-    public TextureRegion base1;
     public TiledTextureRegion trigger1;
     public ArrayList<GameSound> gunshotSounds;
     private FontLoader fontLoader;
@@ -133,14 +130,14 @@ public class ResourceManager {
     public TiledTextureRegion rotationAntiClockTextureRegion;
     public TiledTextureRegion rotationClockTextureRegion;
     public TiledTextureRegion reload1;
+    public TiledTextureRegion longButtonTextureRegion;
+    public TiledTextureRegion checkBoxTextureRegion;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
     }
 
     public void loadFonts() {
-
-
         this.font = FontFactory.create(this.activity.getFontManager(),
                 this.activity.getTextureManager(), 256, 256,
                 Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL), 8,
@@ -223,8 +220,8 @@ public class ResourceManager {
 
         this.upButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
         this.downButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
-      this.rotationAntiClockTextureRegion =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationanticlock.png", 1, 3);
-        this.rotationClockTextureRegion =  BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationclock.png", 1, 3);
+        this.rotationAntiClockTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationanticlock.png", 1, 3);
+        this.rotationClockTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "rotationclock.png", 1, 3);
 
         this.upButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "uparrowblack.png", 1, 3));
         this.downButtonTextureRegions.add(BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "downarrowblack.png", 1, 3));
@@ -273,7 +270,7 @@ public class ResourceManager {
         this.smallButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "smallButton.png", 1, 2);
 
         this.simpleButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "simplefourbutton.png", 1, 2);
-
+        this.longButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "longfourbutton.png", 1, 2);
         this.onoffTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "onoff.png", 2, 1);
         this.panel = new ArrayList<>();
         for (int i = 0; i < 3; i++)
@@ -285,10 +282,11 @@ public class ResourceManager {
         String letters = "abcgnrtz";
         for (int k = 0; k < letters.length(); k++) {
             String key = String.valueOf(letters.charAt(k));
-            this.quantity.put(key,new ArrayList<>());
-            for (int i = 0; i < 3; i++){
+            this.quantity.put(key, new ArrayList<>());
+            for (int i = 0; i < 3; i++) {
                 Objects.requireNonNull(this.quantity.get(key)).add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "quantity/" + letters.charAt(k) + i + ".png"));
-        }}
+            }
+        }
 
 
         this.scrollerKnobTextureRegion = createEmptyTextureRegion(10, 100);
@@ -303,9 +301,10 @@ public class ResourceManager {
         this.rotateTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
         this.decaleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
         this.ammoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
+        this.checkBoxTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);
+
 
         this.fontLoader = new FontLoader(gameTextureAtlas);
-
 
 
         this.buttonRegionsA = new ArrayList<>();
@@ -334,10 +333,10 @@ public class ResourceManager {
     public float getFontHeight(int fontId) {
         return fontLoader.getHeight(fontId);
     }
-    public float getFontWidth(int fontId, String text) {
-        return fontLoader.getWidth(fontId,text);
-    }
 
+    public float getFontWidth(int fontId, String text) {
+        return fontLoader.getWidth(fontId, text);
+    }
 
 
     private TextureRegion createEmptyTextureRegion(int width, int height) {
@@ -365,18 +364,6 @@ public class ResourceManager {
 
     public void loadGameAudio() {
         try {
-            Map<String, Integer> map = Stream.of(new Object[][]{
-                    {"shot1", 1},
-                    {"assault1", 4},
-                    {"assault2", 2},
-                    {"shot2", 1},
-                    {"shot3", 1},
-                    {"assault3", 3},
-                    {"shot4", 1},
-                    {"shot5", 1},
-                    {"shot6", 1},
-                    {"shot7", 1},
-            }).collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
             String[] names = new String[]{"shot1", "assault1", "assault2", "shot2", "shot3", "assault3", "shot4", "shot5", "shot6", "shot7"};
             int[] numbers = new int[]{1, 4, 2, 1, 1, 3, 1, 1, 1, 1};
 
@@ -395,8 +382,6 @@ public class ResourceManager {
             }
 
             MusicFactory.setAssetBasePath("mfx/");
-//            this.music = MusicFactory.createMusicFromAsset
-//                    (this.activity.getMusicManager(), this.activity, "music.mp3");
         } catch (Exception e) {
             throw new RuntimeException("Error while loading audio", e);
         }

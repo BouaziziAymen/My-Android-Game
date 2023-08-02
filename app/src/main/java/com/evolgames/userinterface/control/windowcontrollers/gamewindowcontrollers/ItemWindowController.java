@@ -64,12 +64,6 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             model.getCasingShape().select();
         }
 
-        if (itemField instanceof HandField) {
-            HandModel model = userInterface.getToolModel().getHandById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-            // handOptionController.updateHandModel(model);
-            model.getHandShape().select();
-        }
-
     }
 
     @Override
@@ -84,10 +78,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             // projectileOptionController.onModelUpdated(model);
             model.getCasingShape().release();
         }
-        if (itemField instanceof HandField) {
-            HandModel model = userInterface.getToolModel().getHandById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-            model.getHandShape().release();
-        }
+
         if (selectedSecondaryField == itemField){
             selectedSecondaryField = null;
         }

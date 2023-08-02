@@ -193,6 +193,7 @@ public class UserInterface extends Container implements Touchable {
 
         layerWindowController.setUserInterface(this);
         layerSettingsController.setUserInterface(this);
+        bodySettingsWindowController.setUserInterface(this);
 
         Keyboard keyboard = new Keyboard(0, 0, keyboardController);
         keyboardController.setKeyboard(keyboard);

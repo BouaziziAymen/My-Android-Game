@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.ItemCategory;
+import com.evolgames.entities.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
@@ -20,46 +21,46 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.ToolProperties;
+import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
-import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
-import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
     private final GameScene scene;
     private final AtomicInteger bodyCounter = new AtomicInteger();
     private final AtomicInteger jointCounter = new AtomicInteger();
-    private final AtomicInteger handCounter = new AtomicInteger();
+    private final AtomicInteger projectileCounter = new AtomicInteger();
+    private final AtomicInteger ammoCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
     private final ArrayList<JointModel> joints;
     private ItemCategory toolCategory;
-    public static BodyModel groundBodyModel;
+
 
     public ToolModel(GameScene gameScene, int toolId) {
         super("Tool" + toolId);
         scene = gameScene;
         bodies = new ArrayList<>();
-
         joints = new ArrayList<>();
-        groundBodyModel = new BodyModel(-1);
 
-        groundBodyModel.setModelName("Ground");
     }
+
 
     public BodyModel createNewBody() {
         BodyModel bodyModel = new BodyModel(bodyCounter.getAndIncrement());
@@ -80,7 +81,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public ProjectileModel createNewProjectile(ProjectileShape projectileShape, int bodyId) {
-        int projectileId = Objects.requireNonNull(getBodyById(bodyId)).getProjectileCounter().getAndIncrement();
+        int projectileId = projectileCounter.getAndIncrement();
         ProjectileModel projectileModel = new ProjectileModel(bodyId, projectileId, projectileShape);
         getBodyModelById(bodyId).getProjectiles().add(projectileModel);
         return projectileModel;
@@ -140,7 +141,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
 
     public DecorationModel createNewDecoration(int bodyId, int layerId) {
-        return Objects.requireNonNull(getBodyById(bodyId)).createNewDecroation(layerId);
+        return Objects.requireNonNull(getBodyById(bodyId)).createNewDecoration(layerId);
     }
 
     public void removeBody(int bodyId) {
@@ -200,42 +201,31 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                 return;
             }
             BodyInit bodyInit = new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0);
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created", bodyModel.getProjectiles());
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "created");
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
-
-           // createHands(bodyModel, gameEntity);
         }
-        GameGroup gameGroup = new GameGroup(gameEntities);
-        scene.addGameGroup(gameGroup);
-        for (GameEntity entity : gameEntities){
-            scene.attachChild(entity.getMesh());
-        }
-        scene.sortChildren();
-        groundBodyModel.setGameEntity(scene.getGround());
+        // Handle usage
+        List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
+        projectileModels.forEach(projectileModel -> projectileModel.setMuzzleEntity(bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny().orElseThrow(() -> new RuntimeException("Body not found!")).getGameEntity()));
+        bodies.forEach(bodyModel -> {
+            bodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
+               RangedProperties rangedProperties = (RangedProperties) e.getProperties();
+                List<ProjectileModel> projectileModelList = rangedProperties.getProjectileModelList();
+                Trigger trigger = new Trigger(bodyModel.getGameEntity(), projectileModelList);
+                bodyModel.getGameEntity().setTrigger(trigger);
+            });
+        });
 
-
-        for (JointModel jointModel : joints) {
+        //Create joints
+        for (JointModel jointModel : this.joints) {
             createJointFromModel(jointModel);
         }
-    }
-
-    private void createHands(BodyModel bodyModel, GameEntity gameEntity) {
-        for (HandModel hand : bodyModel.getHands()) {
-            Vector2 u1 = hand.getHandShape().getCenter().cpy().sub(gameEntity.getCenter());
-            Vector2 u2 = hand.getHandShape().getCenter().cpy().sub(GameEntityFactory.getInstance().hand.getBody().getWorldCenter().cpy().mul(1 / 32f));
-            RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-            revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
-            revoluteJointDef.localAnchorB.set(u2.mul(0));
-            revoluteJointDef.enableLimit = true;
-            revoluteJointDef.lowerAngle = 0f;
-            revoluteJointDef.upperAngle = 0f;
-            Vector2 u = hand.getHandShape().getDir().nor();
-            revoluteJointDef.referenceAngle = (float) Math.atan2(-u.y, u.x);
-            revoluteJointDef.collideConnected = false;
-            //scene.getWorldFacade().addJointToCreate(revoluteJointDef, gameEntity, GameEntityFactory.getInstance().hand);
-        }
+        // Create game group
+        GameGroup gameGroup = new GameGroup(gameEntities);
+        scene.addGameGroup(gameGroup);
+        scene.sortChildren();
     }
 
     private void createJointFromModel(JointModel jointModel) {
@@ -303,20 +293,8 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return res.orElse(null);
     }
 
-    public HandModel getHandById(int primaryKey, int secondaryKey) {
-        Optional<HandModel> res = getBodyModelById(primaryKey).getHands().stream().filter(e -> e.getHandId() == secondaryKey).findFirst();
-        return res.orElse(null);
-    }
-
     public void removeProjectile(int primaryKey, int secondaryKey) {
         getBodyModelById(primaryKey).getProjectiles().removeIf(e -> e.getProjectileId() == secondaryKey);
-    }
-
-    public HandModel createNewHand(HandShape handShape, int bodyId) {
-        int handId = handCounter.getAndIncrement();
-        HandModel handModel = new HandModel(bodyId, handId, handShape);
-        getBodyModelById(bodyId).getHands().add(handModel);
-        return handModel;
     }
 
 
@@ -329,6 +307,13 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
 
+    public AtomicInteger getProjectileCounter() {
+        return projectileCounter;
+    }
+
+    public AtomicInteger getAmmoCounter() {
+        return ammoCounter;
+    }
 
     public AtomicInteger getBodyCounter() {
         return bodyCounter;
@@ -348,7 +333,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
-        int ammoId = Objects.requireNonNull(getBodyById(bodyId)).getAmmoCounter().getAndIncrement();
+        int ammoId = ammoCounter.getAndIncrement();
         CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoShape);
         getBodyModelById(bodyId).getAmmoModels().add(ammoModel);
         return ammoModel;

@@ -13,12 +13,17 @@ import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.properties.usage.AutomaticProperties;
+import com.evolgames.entities.properties.usage.ManualProperties;
+import com.evolgames.entities.properties.usage.RangedProperties;
+import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.helpers.utilities.XmlUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
@@ -27,6 +32,7 @@ import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
+import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.adt.color.ColorUtils;
@@ -46,8 +52,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -65,6 +74,10 @@ public class PersistenceCaretaker {
     public static final String BODY_TAG = "body";
     public static final String PROJECTILES_TAG = "projectiles";
     public static final String AMMO_LIST_TAG = "ammoList";
+    public static final String USAGE_LIST_TAG = "usageList";
+    public static final String USAGE_TAG = "usage";
+    public static final String USAGE_PROPERTIES_PROJECTILES_TAG = "projectiles";
+    public static final String USAGE_TYPE_TAG = "type";
     public static final String AMMO_TAG = "ammo";
     public static final String AMMO_ID_TAG = "ammoId";
     public static final String TOOL_TAG = "tool";
@@ -217,6 +230,23 @@ public class PersistenceCaretaker {
             ammoListElement.appendChild(createAmmoElement(document, ammoModel));
         }
         bodyElement.appendChild(ammoListElement);
+
+
+        Element usageListElement = document.createElement(USAGE_LIST_TAG);
+        for (UsageModel usageModel : bodyModel.getUsageModels()) {
+            Element usageElement = document.createElement(USAGE_TAG);
+            Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
+            Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
+            if(usageModel.getType() == BodyUsageCategory.RANGED_AUTOMATIC||usageModel.getType()==BodyUsageCategory.RANGED_MANUAL||usageModel.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC) {
+                RangedProperties rangedProperties = bodyModel.getUsageModelProperties(usageModel.getType());
+                propertiesElement.setAttribute(USAGE_PROPERTIES_PROJECTILES_TAG, convertIntListToString(rangedProperties.getProjectileModelList().stream().map(ProjectileModel::getProjectileId).collect(Collectors.toList())));
+
+            }
+            usageElement.appendChild(propertiesElement);
+            usageElement.setAttribute(USAGE_TYPE_TAG,usageModel.getType().getName());
+            usageListElement.appendChild(usageElement);
+        }
+        bodyElement.appendChild(usageListElement);
         return bodyElement;
     }
 
@@ -241,19 +271,7 @@ public class PersistenceCaretaker {
        projectileElement.setAttribute(AMMO_ID_TAG,String.valueOf(projectileModel.getAmmoModel().getCasingId()));
         return projectileElement;
     }
-    public static String convertIntListToString(List<Integer> numbers) {
-        StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < numbers.size(); i++) {
-            sb.append(numbers.get(i));
-
-            if (i != numbers.size() - 1) {
-                sb.append(" ");
-            }
-        }
-
-        return sb.toString();
-    }
 
     private Element createLayerElement(Document document, LayerModel layerModel) {
         Element layerElement = createElementFromPointsModel(document, layerModel, layerModel.getLayerId(), LAYER_TAG);
@@ -301,7 +319,7 @@ public class PersistenceCaretaker {
     }
 
 
-    private <T extends Properties> T loadProperties(Element propertiesElement, Class<T> theClass) {
+    private <T extends Properties> T loadProperties(Element propertiesElement, Class<T> theClass) throws PersistenceException {
         try {
             Constructor<T> constructor = theClass.getConstructor();
             T properties = constructor.newInstance();
@@ -345,14 +363,12 @@ public class PersistenceCaretaker {
                         int v = Integer.parseInt(propertiesElement.getAttribute(field.getName()));
                         method.invoke(properties,ProjectileTriggerType.getFromValue(v));
                     }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
+                } catch (Throwable ignored) {}
             });
             return properties;
 
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
-            return null;
+            throw new PersistenceException("Error reading properties:"+theClass);
         }
     }
 
@@ -365,7 +381,7 @@ public class PersistenceCaretaker {
         }
         Arrays.stream(allFields).forEach(field -> {
             try {
-                if ((field.getType().isPrimitive() || field.getType() == Color.class|| field.getType() == ProjectileTriggerType.class || field.getType() == Vector2.class || field.getType() == String.class)) {
+                if (field.getType()==ProjectileModel.class||field.getType().isPrimitive() || field.getType() == Color.class|| field.getType() == ProjectileTriggerType.class || field.getType() == Vector2.class || field.getType() == String.class) {
                     String methodName = (field.getType() == boolean.class ? "is" : "get") + StringUtils.capitalize(field.getName());
                     Method method = properties.getClass().getMethod(methodName);
                     if (field.getType().isPrimitive() || field.getType() == String.class) {
@@ -401,7 +417,7 @@ public class PersistenceCaretaker {
     }
 
 
-    public ToolModel loadToolModel(String toolFileName) throws IOException, ParserConfigurationException, SAXException {
+    public ToolModel loadToolModel(String toolFileName) throws IOException, ParserConfigurationException, SAXException, PersistenceException {
         if(toolFileName.isEmpty()){
             return new ToolModel(gameScene,0);
         }
@@ -415,9 +431,23 @@ public class PersistenceCaretaker {
         List<BodyModel> bodyModels = new ArrayList<>();
         for (int i = 0; i < bodiesElement.getChildNodes().getLength(); i++) {
             Element bodyElement = (Element) bodiesElement.getChildNodes().item(i);
-            BodyModel bodyModel = readBodyModel(bodyElement, Integer.parseInt(bodyElement.getAttribute(ID)));
-            bodyModels.add(bodyModel);
+            BodyModel bodyModel;
+            try {
+                bodyModel = readBodyModel(bodyElement, Integer.parseInt(bodyElement.getAttribute(ID)));
+                bodyModels.add(bodyModel);
+            } catch (PersistenceException e) {
+               System.err.println(e.getMessage());
+               throw new PersistenceException("Error reading body model:"+ID,e);
+            }
         }
+        List<ProjectileModel> allProjectiles = bodyModels.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
+        bodyModels.forEach(bodyModel -> {
+            bodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL)
+                    .forEach(e->{
+                        RangedProperties rangedProperties = (RangedProperties) e.getProperties();
+                        rangedProperties.getProjectileModelList().addAll(allProjectiles.stream().filter(p->rangedProperties.getProjectileIds().contains(p.getProjectileId())).collect(Collectors.toList()));
+                    });
+        });
         ToolModel toolModel = new ToolModel(gameScene, 0);
         toolModel.setModelName(toolFileName.substring(3, toolFileName.length() - 4));
         toolModel.getBodies().addAll(bodyModels);
@@ -427,7 +457,12 @@ public class PersistenceCaretaker {
         if(jointsElement!=null) {
             for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
                 Element jointElement = (Element) jointsElement.getChildNodes().item(i);
-                JointModel jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
+                JointModel jointModel = null;
+                try {
+                    jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading joint:"+ID,e);
+                }
                 jointModels.add(jointModel);
             }
             toolModel.getJoints().addAll(jointModels);
@@ -436,12 +471,11 @@ public class PersistenceCaretaker {
         return toolModel;
     }
 
-    LayerModel readLayerModel(Element element, BodyModel bodyModel, int layerId) {
+    LayerModel readLayerModel(Element element, BodyModel bodyModel, int layerId) throws PersistenceException{
         Element verticesElement = (Element) element.getElementsByTagName(VERTICES_TAG).item(0);
         Element outlineElement = (Element) element.getElementsByTagName(OUTLINE_TAG).item(0);
         Element refVerticesElement = (Element) element.getElementsByTagName(REF_VERTICES_TAG).item(0);
         List<Vector2> vertices = readVectors(verticesElement);
-        List<Vector2> outlinePoints = readVectors(outlineElement);
         List<Vector2> referencePoints;
         if(refVerticesElement!=null) {
              referencePoints = readVectors(refVerticesElement);
@@ -468,10 +502,10 @@ public class PersistenceCaretaker {
 
         for (BodyModel body : toolModel.getBodies()) {
             if(body.getAmmoModels().size()>0){
-                body.getAmmoCounter().set(body.getAmmoModels().stream().mapToInt(CasingModel::getCasingId).max().getAsInt() + 1);
+                toolModel.getAmmoCounter().set(body.getAmmoModels().stream().mapToInt(CasingModel::getCasingId).max().getAsInt() + 1);
             }
             if (body.getProjectiles().size() > 0) {
-                body.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
+                toolModel.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
             }
             if (body.getLayers().size() > 0) {
                 body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().getAsInt() + 1);
@@ -496,15 +530,20 @@ public class PersistenceCaretaker {
         return vertices;
     }
 
-    BodyModel readBodyModel(Element element, int bodyId) {
+    BodyModel readBodyModel(Element element, int bodyId) throws PersistenceException {
         BodyModel bodyModel = new BodyModel(bodyId);
         Element layersElement = (Element) element.getElementsByTagName(LAYERS_TAG).item(0);
         List<LayerModel> layers = new ArrayList<>();
         NodeList childNodes = layersElement.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Element layerElement = (Element) childNodes.item(i);
-            LayerModel layerModel = readLayerModel(layerElement, bodyModel, Integer.parseInt(layerElement.getAttribute(ID)));
-            layers.add(layerModel);
+            LayerModel layerModel;
+            try {
+                layerModel = readLayerModel(layerElement, bodyModel, Integer.parseInt(layerElement.getAttribute(ID)));
+                layers.add(layerModel);
+            } catch (PersistenceException e) {
+               throw new PersistenceException("Error reading layer model",e);
+            }
         }
         bodyModel.getLayers().addAll(layers);
 
@@ -513,8 +552,14 @@ public class PersistenceCaretaker {
         if (ammoListElement != null) {
             for (int i = 0; i < ammoListElement.getChildNodes().getLength(); i++) {
                 Element ammoElement = (Element) ammoListElement.getChildNodes().item(i);
-                CasingModel ammoModel = readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
-                ammoModels.add(ammoModel);
+                CasingModel ammoModel = null;
+                try {
+                    ammoModel = readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
+                    ammoModels.add(ammoModel);
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading ammo model",e);
+                }
+
             }
         }
 
@@ -523,16 +568,60 @@ public class PersistenceCaretaker {
             List<ProjectileModel> projectiles = bodyModel.getProjectiles();
             for (int i = 0; i < projectilesElement.getChildNodes().getLength(); i++) {
                 Element projectileElement = (Element) projectilesElement.getChildNodes().item(i);
-                ProjectileModel projectileModel = readProjectileModel(projectileElement, bodyId, Integer.parseInt(projectileElement.getAttribute(ID)));
-                projectiles.add(projectileModel);
-                if (!projectileElement.getAttribute(AMMO_ID_TAG).isEmpty()) {
-                   int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
-                    projectileModel.setAmmoModel(ammoModels.stream().filter(am -> am.getCasingId()==ammoId).findFirst().orElseGet(null));
+                ProjectileModel projectileModel;
+                try {
+                    projectileModel = readProjectileModel(projectileElement, bodyId, Integer.parseInt(projectileElement.getAttribute(ID)));
+                    projectiles.add(projectileModel);
+                    if (!projectileElement.getAttribute(AMMO_ID_TAG).isEmpty()) {
+                        int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
+                        projectileModel.setAmmoModel(ammoModels.stream().filter(am -> am.getCasingId()==ammoId).findFirst().orElseGet(null));
+                    }
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading projectile model",e);
                 }
-
             }
         }
+        Element usageListElement = (Element) element.getElementsByTagName(USAGE_LIST_TAG).item(0);
+
+       if(usageListElement!=null) {
+           for (int i = 0; i < usageListElement.getChildNodes().getLength(); i++) {
+               Element usageElement = (Element) usageListElement.getChildNodes().item(i);
+               UsageModel<?> usageModel = readUsageModel(usageElement);
+               bodyModel.getUsageModels().add(usageModel);
+           }
+       }
         return bodyModel;
+    }
+
+    private UsageModel readUsageModel(Element usageElement) throws PersistenceException {
+        Element propertiesElement = (Element) usageElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+        List<Integer> usageProjectileIds = convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+        BodyUsageCategory bodyUsageCategory = BodyModel.allCategories.stream().filter(bm->bm.getName().equals(usageElement.getAttribute(USAGE_TYPE_TAG))).findFirst().get();
+        UsageModel<Properties> usageModel = new UsageModel<>("", bodyUsageCategory);
+        switch (bodyUsageCategory){
+            case RANGED_MANUAL:
+                ManualProperties rangedManualProperties = loadProperties(propertiesElement, ManualProperties.class);
+                rangedManualProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(rangedManualProperties);
+                break;
+            case RANGED_SEMI_AUTOMATIC:
+                SemiAutomaticProperties rangedSemiAutomaticProperties = loadProperties(propertiesElement, SemiAutomaticProperties.class);
+                rangedSemiAutomaticProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(rangedSemiAutomaticProperties);
+                break;
+            case RANGED_AUTOMATIC:
+                AutomaticProperties rangedAutomaticProperties = loadProperties(propertiesElement, AutomaticProperties.class);
+                rangedAutomaticProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(rangedAutomaticProperties);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
+        }
+       return usageModel;
+    }
+
+    public static  String convertIntListToString(List<Integer> list) {
+        return list.stream().map(Objects::toString).collect(Collectors.joining(" "));
     }
     public static List<Integer> convertStringToIntList(String input) {
         String[] numberStrings = input.split(" ");
@@ -547,7 +636,7 @@ public class PersistenceCaretaker {
     }
 
 
-    private CasingModel readAmmoModel(Element ammoElement, int bodyId, int ammoId) {
+    private CasingModel readAmmoModel(Element ammoElement, int bodyId, int ammoId) throws PersistenceException{
         Element propertiesElement = (Element) ammoElement.getElementsByTagName(PROPERTIES_TAG).item(0);
         CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoElement.getAttribute(NAME));
         CasingProperties casingProperties = loadProperties(propertiesElement, CasingProperties.class);
@@ -555,19 +644,26 @@ public class PersistenceCaretaker {
         return ammoModel;
     }
 
-    private ProjectileModel readProjectileModel(Element projectileElement, int bodyId, int projectileId) {
+    private ProjectileModel readProjectileModel(Element projectileElement, int bodyId, int projectileId) throws PersistenceException {
         Element propertiesElement = (Element) projectileElement.getElementsByTagName(PROPERTIES_TAG).item(0);
         ProjectileModel projectileModel = new ProjectileModel(bodyId, projectileId, projectileElement.getAttribute(NAME));
         ProjectileProperties projectileProperties = loadProperties(propertiesElement, ProjectileProperties.class);
         projectileModel.setProperties(projectileProperties);
         String fileName = projectileElement.getAttribute(PROJECTILE_FILE_TAG);
-        ToolModel missile = ToolUtils.getProjectileModel(fileName);
-        projectileModel.setMissileModel(missile);
+        ToolModel missile;
+       try {
+            missile = ToolUtils.getProjectileModel(fileName);
+            projectileModel.setMissileModel(missile);
+        } catch (IOException| ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+            throw new PersistenceException("Error loading projectile model's missile");
+        }
+
 
         return projectileModel;
     }
 
-    private JointModel readJointModel(int jointId, Element jointElement, List<BodyModel> bodyModels) {
+    private JointModel readJointModel(int jointId, Element jointElement, List<BodyModel> bodyModels) throws PersistenceException{
         JointDef.JointType jointType = JointDef.JointType.valueTypes[Integer.parseInt(jointElement.getAttribute(JOINT_TYPE_ATTRIBUTE))];
         JointDef jointDef = null;
         switch (jointType) {
