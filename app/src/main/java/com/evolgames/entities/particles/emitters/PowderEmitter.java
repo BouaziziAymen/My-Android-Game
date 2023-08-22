@@ -9,8 +9,5 @@ public class PowderEmitter extends PolygonEmitter{
         super(coatingBlockList,CoatingBlock::isPulverized);
     }
 
-    public Object getUserData() {
-        return associatedCoatingBlocks[selectedTriangle];
-    }
 
 }

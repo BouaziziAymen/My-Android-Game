@@ -105,10 +105,10 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
 
     protected void onTextFieldTapped(TextField<?> pTextField) {
         if (selectedTextField != null) {
-            onTextFieldReleased(selectedTextField);
+            return;
         }
         selectedTextField = pTextField;
-        TextFieldBehavior<?> textFieldBehavior = (TextFieldBehavior<?>) pTextField.getBehavior();
+        TextFieldBehavior<?> textFieldBehavior = pTextField.getBehavior();
         if (textFieldBehavior.isResetText()){
             textFieldBehavior.setTextString("");
         }
@@ -121,8 +121,10 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     }
 
     protected void onTextFieldReleased(TextField<?> textField) {
-        selectedTextField = null;
-        TextFieldBehavior<?> textFieldBehavior = (TextFieldBehavior<?>) textField.getBehavior();
+        if(textField!=selectedTextField){
+            return;
+        }
+        TextFieldBehavior<?> textFieldBehavior = textField.getBehavior();
         if (textFieldBehavior.getValidator() == null || textFieldBehavior.validate()) {
             textFieldBehavior.setLastValidTextString(textField.getTextString());
             if (textFieldBehavior.getReleaseAction() != null)
@@ -135,5 +137,6 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
             keyboardController.unbindTextField();
             keyboardController.closeKeyboard();
         }
+        selectedTextField = null;
     }
 }

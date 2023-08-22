@@ -7,7 +7,7 @@ import com.evolgames.helpers.utilities.Utils;
 
 import java.util.Arrays;
 
-public class ClusterEmitter extends AbsoluteEmitter {
+public class ClusterEmitter extends DataEmitter {
 
     protected final float[] dataCopy;
 

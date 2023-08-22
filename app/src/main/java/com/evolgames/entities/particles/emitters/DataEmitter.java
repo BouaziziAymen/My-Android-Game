@@ -3,10 +3,10 @@ package com.evolgames.entities.particles.emitters;
 import org.andengine.entity.particle.emitter.BaseParticleEmitter;
 import org.andengine.util.adt.transformation.Transformation;
 
-public abstract class AbsoluteEmitter extends BaseParticleEmitter {
+public abstract class DataEmitter extends BaseParticleEmitter {
 
     protected final float[] data;
-     AbsoluteEmitter(float pCenterX, float pCenterY, float[] data) {
+     DataEmitter(float pCenterX, float pCenterY, float[] data) {
         super(pCenterX, pCenterY);
         this.data = data;
     }

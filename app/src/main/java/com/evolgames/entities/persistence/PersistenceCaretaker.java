@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.properties.CasingProperties;
+import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
@@ -363,6 +364,10 @@ public class PersistenceCaretaker {
                         int v = Integer.parseInt(propertiesElement.getAttribute(field.getName()));
                         method.invoke(properties,ProjectileTriggerType.getFromValue(v));
                     }
+                    else if (field.getType() == Explosive.class){
+                        int v = Integer.parseInt(propertiesElement.getAttribute(field.getName()));
+                        method.invoke(properties,Explosive.values()[v]);
+                    }
                 } catch (Throwable ignored) {}
             });
             return properties;
@@ -381,7 +386,7 @@ public class PersistenceCaretaker {
         }
         Arrays.stream(allFields).forEach(field -> {
             try {
-                if (field.getType()==ProjectileModel.class||field.getType().isPrimitive() || field.getType() == Color.class|| field.getType() == ProjectileTriggerType.class || field.getType() == Vector2.class || field.getType() == String.class) {
+                if (field.getType()==ProjectileModel.class||field.getType().isPrimitive() || field.getType() == Color.class|| field.getType() == ProjectileTriggerType.class||field.getType()==Explosive.class || field.getType() == Vector2.class || field.getType() == String.class) {
                     String methodName = (field.getType() == boolean.class ? "is" : "get") + StringUtils.capitalize(field.getName());
                     Method method = properties.getClass().getMethod(methodName);
                     if (field.getType().isPrimitive() || field.getType() == String.class) {
@@ -401,7 +406,13 @@ public class PersistenceCaretaker {
                             int value = projectileTriggerType.getValue();
                             propertiesElement.setAttribute(field.getName(), String.valueOf(value));
                         }
-                    } else {
+                    } else if (field.getType() == Explosive.class) {
+                        Explosive explosive = (Explosive) method.invoke(properties);
+                        if (explosive != null) {
+                            int value = explosive.ordinal();
+                            propertiesElement.setAttribute(field.getName(), String.valueOf(value));
+                        }
+                    } else if (field.getType() == Vector2.class) {
                         Vector2 vector = (Vector2) method.invoke(properties);
                         if (vector != null) {
                             propertiesElement.setAttribute(field.getName() + "X", String.valueOf(vector.x));
@@ -440,14 +451,19 @@ public class PersistenceCaretaker {
                throw new PersistenceException("Error reading body model:"+ID,e);
             }
         }
-        List<ProjectileModel> allProjectiles = bodyModels.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
-        bodyModels.forEach(bodyModel -> {
-            bodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL)
-                    .forEach(e->{
-                        RangedProperties rangedProperties = (RangedProperties) e.getProperties();
-                        rangedProperties.getProjectileModelList().addAll(allProjectiles.stream().filter(p->rangedProperties.getProjectileIds().contains(p.getProjectileId())).collect(Collectors.toList()));
-                    });
-        });
+        List<ProjectileModel> allProjectiles = new ArrayList<>();
+        for (BodyModel model : bodyModels) {
+            ArrayList<ProjectileModel> projectiles = model.getProjectiles();
+            allProjectiles.addAll(projectiles);
+        }
+        for (BodyModel bodyModel : bodyModels) {
+            for (UsageModel<?> e : bodyModel.getUsageModels()) {
+                if (e.getType().toString().startsWith("Ranged")) {
+                    RangedProperties rangedProperties = (RangedProperties) e.getProperties();
+                    rangedProperties.getProjectileModelList().addAll(allProjectiles.stream().filter(p -> rangedProperties.getProjectileIds().contains(p.getProjectileId())).collect(Collectors.toList()));
+                }
+            }
+        }
         ToolModel toolModel = new ToolModel(gameScene, 0);
         toolModel.setModelName(toolFileName.substring(3, toolFileName.length() - 4));
         toolModel.getBodies().addAll(bodyModels);

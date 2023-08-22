@@ -3,11 +3,14 @@ package com.evolgames.entities.particles.emitters;
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.particles.wrappers.DataLiquidParticleWrapper;
+import com.evolgames.scenes.GameScene;
 
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.math.MathUtils;
 
-public class SegmentEmitter extends AbsoluteEmitter {
+public class SegmentEmitter extends DataEmitter {
 
     private final float beginX;
     private final float beginY;
@@ -26,8 +29,8 @@ public class SegmentEmitter extends AbsoluteEmitter {
     public void getPositionOffset(float[] pOffset) {
         float rand = MathUtils.RANDOM.nextFloat();
         float slope = (data[3]-data[1])/(data[2]-data[0]);
-        pOffset[VERTEX_INDEX_X] = this.data[0] + rand * (this.data[2]-data[0]) - DataLiquidParticleWrapper.LIQUID_PARTICLE_WIDTH /2;
-        pOffset[VERTEX_INDEX_Y] = this.data[1] + slope * rand * (this.data[2]-data[0])- DataLiquidParticleWrapper.LIQUID_PARTICLE_HEIGHT /2;
+        pOffset[VERTEX_INDEX_X] = this.data[0] + rand * (this.data[2]-data[0]);
+        pOffset[VERTEX_INDEX_Y] = this.data[1] + slope * rand * (this.data[2]-data[0]);
     }
 
     @Override

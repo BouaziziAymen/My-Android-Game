@@ -104,13 +104,11 @@ public class Scroller extends LinearLayout implements Touchable {
             knobHeight = effectiveHeight * ratio;
             updateKnobSize();
             correctKnob();
-            updateKnobLowerButtomY();
             updateAdvance();
-
+            updateKnobLowerButtomY();
             mController.onVisibleZoneUpdate();
            // mController.onScrolled(mAdvance);
         }
-
 
     }
 
@@ -163,16 +161,19 @@ public class Scroller extends LinearLayout implements Touchable {
     @Override
     public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
         if (!knob.isVisible()) return false;
-        if(pTouchEvent.isActionDown())
-        if (Math.abs(pTouchEvent.getX() - getAbsoluteX()) < UPPER_WIDTH/2)
+        if(pTouchEvent.isActionDown()){
+        if (Math.abs(pTouchEvent.getX() - getAbsoluteX()) < UPPER_WIDTH/2) {
             if (pTouchEvent.getY() < getEffectiveSup() && pTouchEvent.getY() > getEffectiveInf()) {
-            this.isTouched = true;
+                this.isTouched = true;
             }
+        }
+        }
 
-        if(this.isTouched)
-        if (pTouchEvent.isActionOutside() || pTouchEvent.isActionCancel() || pTouchEvent.isActionUp()){
-            this.isTouched = false;
-            return true;
+        if(this.isTouched) {
+            if (pTouchEvent.isActionOutside() || pTouchEvent.isActionCancel() || pTouchEvent.isActionUp()) {
+                this.isTouched = false;
+                return true;
+            }
         }
 
 

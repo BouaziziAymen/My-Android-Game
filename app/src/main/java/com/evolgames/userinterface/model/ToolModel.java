@@ -13,7 +13,10 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.ItemCategory;
-import com.evolgames.entities.Trigger;
+import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.properties.Explosive;
+import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
@@ -21,10 +24,10 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.ToolProperties;
-import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
+import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -205,16 +208,27 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
+            bodyModel.getProjectiles().forEach(p->{
+                ProjectileProperties properties = p.getProperties();
+                if(properties.getExplosive()== Explosive.NONE){
+                   Vector2 end = properties.getProjectileEnd();
+                   Vector2 dir = end.cpy().sub(properties.getProjectileOrigin()).nor();
+                   Vector2 nor = new Vector2(-dir.y,dir.x);
+                   Vector2 e = end.cpy().sub(gameEntity.getCenter());
+                   float extent = ToolUtils.getAxisExtent(p.getMissileModel(),nor)/2f;
+                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),properties.getFireIntensity());
+                   fireSource.setSpawnEnabled(false);
+                   p.setFireSource(fireSource);
+               }
+            });
         }
         // Handle usage
         List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
         projectileModels.forEach(projectileModel -> projectileModel.setMuzzleEntity(bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny().orElseThrow(() -> new RuntimeException("Body not found!")).getGameEntity()));
-        bodies.forEach(bodyModel -> {
-            bodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
-               RangedProperties rangedProperties = (RangedProperties) e.getProperties();
-                List<ProjectileModel> projectileModelList = rangedProperties.getProjectileModelList();
-                Trigger trigger = new Trigger(bodyModel.getGameEntity(), projectileModelList);
-                bodyModel.getGameEntity().setTrigger(trigger);
+        bodies.forEach(usageBodyModel -> {
+            usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
+                Trigger trigger = new Trigger(e);
+                usageBodyModel.getGameEntity().setTrigger(trigger);
             });
         });
 

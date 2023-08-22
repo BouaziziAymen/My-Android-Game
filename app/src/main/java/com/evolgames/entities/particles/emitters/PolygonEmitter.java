@@ -120,11 +120,11 @@ public abstract class PolygonEmitter  extends BaseParticleEmitter {
         GeometryUtils.generateRandomPointInTriangle(pOffset, x1, y1, x2, y2, x3, y3);
     }
 
-
     public float getCoverageRatio() {
         return coverageRatio;
     }
 
-
-    public abstract Object getUserData();
+    public CoatingBlock getActiveCoatingBlock() {
+        return associatedCoatingBlocks[selectedTriangle];
+    }
 }

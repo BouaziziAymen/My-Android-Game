@@ -41,20 +41,25 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
     @Override
     protected void onTextFieldTapped(TextField<?> pTextField) {
         super.onTextFieldTapped(pTextField);
+       if(getSelectedTextField()==pTextField) {
            ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
            shadeVisitBehavior.setExcepted(pTextField);
            shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Hide);
            contentTraverser.setBehavior(shadeVisitBehavior);
-           contentTraverser.traverse(window.getLayout(),false);
+           contentTraverser.traverse(window.getLayout(), false);
+       }
     }
 
     @Override
     protected void onTextFieldReleased(TextField<?> textField) {
         super.onTextFieldReleased(textField);
-        ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
-        shadeVisitBehavior.setExcepted(textField);
-        shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Show);
-        contentTraverser.setBehavior(shadeVisitBehavior);
-        contentTraverser.traverse(window.getLayout(),false);
+        if(getSelectedTextField()==null) {
+            ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
+            shadeVisitBehavior.setExcepted(textField);
+            shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Show);
+            contentTraverser.setBehavior(shadeVisitBehavior);
+            contentTraverser.traverse(window.getLayout(), false);
+
+        }
     }
 }

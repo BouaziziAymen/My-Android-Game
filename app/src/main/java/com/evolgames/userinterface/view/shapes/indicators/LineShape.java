@@ -81,7 +81,7 @@ public class LineShape {
         if (lineStrip != null){
             lineStrip.detachSelf();
         }
-        this.lineStrip = new LineStrip(0, 0, 3, 100, ResourceManager.getInstance().vbom);
+        this.lineStrip = new LineStrip(0, 0, 5, 100, ResourceManager.getInstance().vbom);
         creationScene.attachChild(lineStrip);
         lineStrip.setZIndex(2);
         creationScene.sortChildren();

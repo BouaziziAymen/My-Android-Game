@@ -9,6 +9,7 @@ import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.usage.Trigger;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.GameScene;
@@ -19,7 +20,6 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 
 public class GameEntity extends EntityWithBody {
@@ -384,6 +384,10 @@ public class GameEntity extends EntityWithBody {
 
     public void onTriggerReleased() {
         this.trigger.onTriggerReleased();
+    }
+
+    public void onReloadPushed(Runnable onReloadFinished) {
+        this.trigger.onReloadPushed(onReloadFinished);
     }
 
     public void setParentGameEntity(GameEntity parentGameEntity) {

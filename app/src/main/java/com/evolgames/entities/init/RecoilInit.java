@@ -20,7 +20,7 @@ public class RecoilInit extends BodyInitDecorator{
     @Override
     public void initialize(Body body) {
         super.initialize(body);
-        Vector2 impulse = muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil*120);
+        Vector2 impulse = muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil*muzzleVelocity.len());
         muzzleBody.applyLinearImpulse(impulse,point);
     }
 }

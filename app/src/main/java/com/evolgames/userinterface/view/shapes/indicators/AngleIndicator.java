@@ -6,48 +6,48 @@ import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 
-public abstract class AngleIndicator extends TurnableIndicator {
-    protected float angle = 0;
-    public ControllerPointImage getLimit() {
-        return limit;
-    }
-
+public abstract class AngleIndicator extends TurnAroundIndicator {
     private final ControllerPointImage limit;
-
+    protected float angle = 0;
 
     public AngleIndicator(Vector2 begin, GameScene scene, float length) {
-   this(begin,scene,length,0);
+        this(begin, scene, length, 0);
     }
-    public AngleIndicator(Vector2 begin, GameScene scene, float length,int size) {
-        super(begin, scene, length,size);
-        limit = new ControllerPointImage(ResourceManager.getInstance().diamondTextureRegion,end) {
+
+
+    public AngleIndicator(Vector2 begin, GameScene scene, float length, int size) {
+        super(begin, scene, length, size);
+        limit = new ControllerPointImage(ResourceManager.getInstance().diamondTextureRegion, end) {
             @Override
             protected void performControl(float dx, float dy) {
-                AngleIndicator.this.onControllerMoved(dx,dy);
+                AngleIndicator.this.onControllerMoved(dx, dy);
             }
         };
 
         scene.getUserInterface().addElement(limit);
     }
 
+    public ControllerPointImage getLimit() {
+        return limit;
+    }
 
     @Override
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
-        updateLimit(end.x,end.y);
-        angle = (float) (MathUtils.radiansToDegrees*Math.atan2(direction.y, direction.x));
+        updateLimit(end.x, end.y);
+        angle = (float) (MathUtils.radiansToDegrees * Math.atan2(direction.y, direction.x));
     }
 
-    public void updateDirection(Vector2 direction){
+    public void updateDirection(Vector2 direction) {
         this.direction = direction;
-        end = begin.cpy().add(direction.x*length,direction.y*length);
-        updateEnd(end.x,end.y);
+        end = begin.cpy().add(direction.x * length, direction.y * length);
+        updateEnd(end.x, end.y);
     }
 
     public void turnAround(float dA) {
         angle += dA;
-        direction = MathUtils.getRotatedVectorByRadianAngle(new Vector2(1,0),angle*MathUtils.degreesToRadians);
-        updateEnd(begin.x+direction.x*length,begin.y+direction.y*length);
+        direction = MathUtils.getRotatedVectorByRadianAngle(new Vector2(1, 0), angle * MathUtils.degreesToRadians);
+        updateEnd(begin.x + direction.x * length, begin.y + direction.y * length);
     }
 
     @Override
@@ -62,8 +62,8 @@ public abstract class AngleIndicator extends TurnableIndicator {
         limit.setVisible(b);
     }
 
-    public void drawLimit(){
-        updateLimit(end.x,end.y);
+    public void drawLimit() {
+        updateLimit(end.x, end.y);
     }
 
 
@@ -76,10 +76,10 @@ public abstract class AngleIndicator extends TurnableIndicator {
         onTurnAroundCommand(dy);
     }
 
-   public void updateLimit(float x, float y){
-        limit.setPosition(x,y);
+    public void updateLimit(float x, float y) {
+        limit.setPosition(x, y);
         limit.setUpdated(true);
-   }
+    }
 
     @Override
     public void detach() {

@@ -1,6 +1,12 @@
 package com.evolgames.physics;
 
 
+import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
+import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
+import static java.lang.Math.min;
+
+import android.util.Pair;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -13,19 +19,19 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.blocks.Block;
+import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.blockvisitors.BreakVisitor;
 import com.evolgames.entities.blockvisitors.GameEntityMultiShatterVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.commandtemplate.TimedCommand;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.blocks.StainBlock;
-import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.contact.ContactObserver;
 import com.evolgames.entities.contact.GameEntityContactListener;
@@ -34,18 +40,19 @@ import com.evolgames.entities.cut.CutType;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.Segment;
-
 import com.evolgames.entities.cut.SegmentFreshCut;
-import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.particles.systems.Spark;
-import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
-import com.evolgames.entities.properties.JointProperties;
-import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.particles.systems.SpawnAction;
+import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.Fire;
+import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.properties.JointProperties;
+import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.utilities.BlockUtils;
@@ -64,8 +71,8 @@ import com.evolgames.physics.entities.explosions.Explosion;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.BodyModel;
 
+import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
-import org.andengine.entity.particle.ParticleSystem;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
@@ -76,21 +83,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
-import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
-import static java.lang.Math.min;
-
-import android.util.Pair;
-
 public class WorldFacade implements ContactObserver {
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final HashSet<PulverizationParticleWrapperWithPolygonEmitter> powderParticleWrappers = new HashSet<>();
-    private final ArrayList<ParticleSystem<?>> flames = new ArrayList<>();
+    private final ArrayList<Fire> flames = new ArrayList<>();
     private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback = new SimpleDetectionRayCastCallback();
     private final ArrayList<TimedCommand> timedCommands = new ArrayList<>();
     private final GameEntityContactListener contactListener;
@@ -103,12 +103,12 @@ public class WorldFacade implements ContactObserver {
     private final CutRayCastCallback cutRayCastCallback = new CutRayCastCallback();
     private final HashSet<Touch> touches = new HashSet<>();
     private final HashSet<Explosion> explosions = new HashSet<>();
+    private final HashSet<ExplosiveParticleWrapper> explosives = new HashSet<>();
     Random random = new Random();
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
     private final BodyModel groundModel;
-
 
     public WorldFacade(GameScene scene) {
         gameScene = scene;
@@ -137,6 +137,10 @@ public class WorldFacade implements ContactObserver {
 
         clearPulverizationWrappers();
         clearLiquidWrappers();
+        for(ExplosiveParticleWrapper explosiveParticleWrapper:explosives){
+            explosiveParticleWrapper.update();
+        }
+
 
         if (false) {
             plotTouch();
@@ -148,9 +152,9 @@ public class WorldFacade implements ContactObserver {
     }
 
 
-    public void removeFireParticleWrapper(FireParticleWrapperWithPolygonEmitter fireParticleWrapper) {
-        fireParticleWrapper.getParticleSystem().detachSelf();
-        flames.remove(fireParticleWrapper.getParticleSystem());
+    public void removeFireParticleWrapper(Fire fireParticleWrapper) {
+        fireParticleWrapper.getFireParticleSystem().detachSelf();
+        flames.remove(fireParticleWrapper);
     }
 
     public void computeSplinters(List<LayerBlock> splinterBlocks, GameEntity parentEntity) {
@@ -194,8 +198,8 @@ public class WorldFacade implements ContactObserver {
         return simpleDetectionRayCastCallback.getIntersectionPoint();
     }
 
-    private void addFlame(FireParticleWrapperWithPolygonEmitter fireParticleWrapper) {
-        flames.add(fireParticleWrapper.getParticleSystem());
+    private void addFlame(Fire fireParticleWrapper) {
+        flames.add(fireParticleWrapper);
     }
 
     public void createJuiceSource(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut) {
@@ -209,30 +213,49 @@ public class WorldFacade implements ContactObserver {
         }
         LiquidParticleWrapper particleWrapper =
                 gameScene.getWorldFacade().createLiquidParticleWrapper(parentEntity, layerBlock,freshCut, (layerBlock.getProperties().getJuiceColor() != null) ? layerBlock.getProperties().getJuiceColor() : Utils.getRandomColor(), lowerRate, higherRate);
-        particleWrapper.setSpawnAction(() -> {
+      SpawnAction spawnAction = (Particle<Entity> p) -> {
             layerBlock.decrementLiquidQuantity(freshCut.getLength());
             freshCut.decrementLimit();
             if (layerBlock.getLiquidQuantity() <= 0&&freshCut.isAlive()) {
                 particleWrapper.finishSelf();
                 freshCut.setAlive(false);
             }
-        });
+        };
+      particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
     }
 
-    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, LayerBlock layerBlock,FreshCut freshCut, Color color, int lowerRate, int higherRate) {
+    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, int lowerRate, int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
             SegmentFreshCut sfc = (SegmentFreshCut) freshCut;
-            return new SegmentLiquidParticleWrapper(parentEntity,layerBlock, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y}, color, lowerRate, higherRate);
+            return new SegmentLiquidParticleWrapper(parentEntity, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y},color, lowerRate, higherRate);
 
         } else {
             PointsFreshCut pfc = (PointsFreshCut) freshCut;
             float[] data = Utils.mapPointsToArray(pfc.getPoints());
-            return new ClusterLiquidParticleWrapper(parentEntity, layerBlock,color, data, pfc.getSplashVelocity(), lowerRate, higherRate);
+            return new ClusterLiquidParticleWrapper(parentEntity, color, data, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
+    }
+    public SegmentExplosiveParticleWrapper  createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float fireRatio, float smokeRatio, float sparkRatio, float intensity){
+        Vector2 dir = v1.cpy().sub(v2).nor();
+        Vector2 normal = new Vector2(-dir.y,dir.x);
+
+        SegmentExplosiveParticleWrapper explosiveParticleWrapper = new SegmentExplosiveParticleWrapper(entity,
+                new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * 600f / 10f), fireRatio, smokeRatio, sparkRatio,intensity);
+        explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
+        explosiveParticleWrapper.getSmokeParticleSystem().setZIndex(5);
+        explosiveParticleWrapper.getSparkParticleSystem().setZIndex(5);
+        explosiveParticleWrapper.setParent(entity);
+        gameScene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
+        gameScene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
+        gameScene.attachChild(explosiveParticleWrapper.getSparkParticleSystem());
+        gameScene.sortChildren();
+        this.explosives.add(explosiveParticleWrapper);
+        this.addFlame(explosiveParticleWrapper);
+        return explosiveParticleWrapper;
     }
 
     public LiquidParticleWrapper createLiquidParticleWrapper(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut, Color color, int lowerRate, int higherRate) {
-        LiquidParticleWrapper liquidSource = liquidParticleWrapperFromFreshCut(parentEntity,layerBlock, freshCut, color, lowerRate, higherRate);
+        LiquidParticleWrapper liquidSource = liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
         gameScene.attachChild(liquidSource.getParticleSystem());
@@ -272,7 +295,6 @@ public class WorldFacade implements ContactObserver {
             LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
             liquidParticleWrapper.update();
             if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
-                liquidParticleWrapper.recycleParticles();
                 liquidParticleWrapper.getParticleSystem().detachSelf();
                 wrapperIterator.remove();
             }
@@ -342,7 +364,7 @@ public class WorldFacade implements ContactObserver {
                                         Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
                                         ArrayList<LayerBlock> blocks = entity.getBlocks();
                                         for (int i = blocks.size() - 1; i >= 0; i--) {
-                                            boolean applied = applyLiquidStain(entity, localPoint.x, localPoint.y, blocks.get(i), liquidSource.getColor(), index);
+                                            boolean applied = applyLiquidStain(entity, localPoint.x, localPoint.y, blocks.get(i), liquidSource.getLiquidColor(), index);
                                             if (applied) {
                                                 affected = true;
                                                 break;
@@ -394,12 +416,12 @@ public class WorldFacade implements ContactObserver {
     private void computeConvection() {
         //convection
         Collections.shuffle(flames);
-        for (ParticleSystem<?> fire : flames) {
-            Particle<?>[] particles = fire.getParticles();
-            for (Particle<?> p : particles) {
+        for (Fire fire : flames) {
+            Particle<Entity>[] particles = fire.getFireParticleSystem().getParticles();
+            for (Particle<Entity> p : particles) {
                 if (p == null || p.isExpired()) continue;
 
-                Spark spark = (Spark) p.getEntity();
+                Entity spark =  p.getEntity();
 
                 float x = spark.getX();
                 float y = spark.getY();
@@ -423,8 +445,8 @@ public class WorldFacade implements ContactObserver {
                     recycle(localPosition);
 
                     if (nearestCoatingBlock != null) {
-                        double sparkTemperature = ((CoatingBlock) spark.getUserData()).getFlameTemperature();
-                        PhysicsUtils.transferHeatByConvection(0.05f, 1f, 1f, sparkTemperature, nearestCoatingBlock);
+                        double sparkTemperature = fire.getParticleTemperature(p);
+                        PhysicsUtils.transferHeatByConvection(0.05f, 1f, 1f, sparkTemperature, nearestCoatingBlock, true);
                     }
                 }
             }
@@ -438,7 +460,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(0.0001f, 100f, 0.00125f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(0.0001f, 100f, 0.00125f, PhysicsConstants.ambient_temperature, grain, (gameEntity.getName().equals("test")));
                     }
                 }
             }
@@ -1280,10 +1302,8 @@ public class WorldFacade implements ContactObserver {
             float area1 = coatingBlock.getArea();
             float area2 = other.getArea();
             float length = (float) (area1 <= area2 ? Math.sqrt(area1) : Math.sqrt(area2));
-            PhysicsUtils.transferHeatByConduction(density, density, length, coatingBlock, other, 0.01f, 0.01f, 100000f, 100000f);
+            PhysicsUtils.transferHeatByConduction(density, density, length, coatingBlock, other, 0.1f, 0.1f, 10f, 10f);
         }
-
-
     }
 
     public void scheduleGameEntityToDestroy(GameEntity entity, int time) {

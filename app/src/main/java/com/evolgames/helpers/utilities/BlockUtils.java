@@ -708,7 +708,7 @@ public class BlockUtils {
         float xLen = X.len();
 
         float yLen = Y.len();
-        final float step = PhysicsConstants.grain_spacing;
+        final float step = PhysicsConstants.GRAIN_SPACING;
         int xCount = (int) Math.floor(xLen / step);
         int yCount = (int) Math.floor(yLen / step);
         final Vector2 stepX = Vector2Pool.obtain(uX).mul(xLen / (xCount + 1));

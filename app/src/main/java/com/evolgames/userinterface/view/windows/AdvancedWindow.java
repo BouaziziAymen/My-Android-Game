@@ -13,7 +13,7 @@ public class AdvancedWindow<C extends AdvancedWindowController> extends Window {
     private static final float SLOT2_DECALATION = 18f;
     private static final float SLOT3_DECALATION = 14f;
     private static final float SLOT_VERTICAL_DECALATION = 14.5f;
-    private static final float FOLD_UNFOLD_BUTTON_RAY = 8f;
+    private static final float FOLD_UNFOLD_BUTTON_RAY = 12f;
     private Button<AdvancedWindowController<?>> foldButton;
     private Button<AdvancedWindowController<?>> closeButton;
     private final C controller;

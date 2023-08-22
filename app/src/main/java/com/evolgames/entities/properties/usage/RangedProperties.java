@@ -9,6 +9,9 @@ import java.util.List;
 public class RangedProperties extends Properties {
     private final List<ProjectileModel> projectileModelList;
     private List<Integer> projectileIds;
+    private int numberOfRounds = 1;
+    private float reloadTime = 1;
+
     public RangedProperties() {
         this.projectileModelList = new ArrayList<>();
     }
@@ -27,5 +30,21 @@ public class RangedProperties extends Properties {
 
     public void setProjectileIds(List<Integer> projectileIds) {
         this.projectileIds = projectileIds;
+    }
+
+    public int getNumberOfRounds() {
+        return numberOfRounds;
+    }
+
+    public void setNumberOfRounds(int numberOfRounds) {
+        this.numberOfRounds = numberOfRounds;
+    }
+
+    public float getReloadTime() {
+        return reloadTime;
+    }
+
+    public void setReloadTime(float reloadTime) {
+        this.reloadTime = reloadTime;
     }
 }

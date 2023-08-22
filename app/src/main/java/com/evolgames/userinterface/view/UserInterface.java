@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
+import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -88,41 +89,43 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 
 public class UserInterface extends Container implements Touchable {
+    //batches
     public final static SpriteBatch hudBatcher = new SpriteBatch(ResourceManager.getInstance().gameTextureAtlas, 10000, ResourceManager.getInstance().vbom);
     public final static SpriteBatch sceneBatcher = new SpriteBatch(ResourceManager.getInstance().gameTextureAtlas, 10000, ResourceManager.getInstance().vbom);
-
+    //boards
     private final ButtonBoard drawButtonBoard;
     private final ButtonBoard jointButtonBoard;
     private final ButtonBoard imageButtonBoard;
     private final ButtonBoard toolButtonBoard;
     private final ControlPanel panel;
+    //windows
     private final LayersWindow layersWindow;
     private final JointsWindow jointsWindow;
-    private final JointOptionWindow jointOptionWindow;
-    private final OptionsWindow optionsWindow;
     private final ItemWindow itemWindow;
     private final ItemSaveWindow itemSaveWindow;
     private final CreationZone creationZone;
+    //controllers
     private final OutlineController outlineController;
-    private final ColorSelectorWindow colorSelector;
     private final OptionsWindowController optionsWindowController;
     private final LayerWindowController layersWindowController;
-    private final DecorationSettingsWindowController decorationSettingsWindowController;
     private final ToolButtonBoardController toolButtonBoardController;
     private final ItemWindowController itemWindowController;
-    private final ProjectileOptionWindow projectileOptionWindow;
     private final DrawButtonBoardController drawButtonBoardController;
     private final JointButtonBoardController jointButtonBoardController;
-    private final BodySettingsWindowController bodySettingsWindowController;
     private final ProjectileOptionController projectileOptionController;
     private final ImageButtonBoardController imageButtonBoardController;
-    private final LayerSettingsWindowController layerSettingsWindowController;
     private final JointSettingsWindowController jointSettingsWindowController;
     private final CreationZoneController creationZoneController;
     private final ItemSaveWindowController itemSaveWindowController;
+    //other
     private final GameActivity activity;
     private Button<DrawButtonBoardController> triggerButton;
+    private Button<DrawButtonBoardController> reloadButton;
     private final ContentTraverser contentTraverser = new ContentTraverser();
+    private ImageShape imageShape;
+    private ToolModel toolModel;
+    private float zoomFactor = 1f;
+    //behaviors
     private final StepVisitBehavior updateVisitBehavior = new StepVisitBehavior();
     private final VisitBehavior resetUpdateVisitBehavior = new VisitBehavior() {
         @Override
@@ -163,13 +166,8 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
-    private final AmmoOptionWindow ammoOptionWindow;
-    private final CasingOptionController ammoOptionController;
-    private Button<DrawButtonBoardController> reloadButton;
-    private Screen selectedScreen = Screen.DRAW_SCREEN;
-    private ImageShape imageShape;
-    private ToolModel toolModel;
-    private float zoomFactor = 1f;
+
+
 
     public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, CasingOptionController casingOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
         this.activity = gameActivity;
@@ -181,8 +179,6 @@ public class UserInterface extends Container implements Touchable {
 
         new Grid(pGameScene);
         this.scene = pGameScene;
-        this.layerSettingsWindowController = layerSettingsController;
-        this.bodySettingsWindowController = bodySettingsWindowController;
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;
         this.itemSaveWindowController = itemSaveWindowController;
@@ -216,7 +212,7 @@ public class UserInterface extends Container implements Touchable {
         layerSettingsWindow.setPosition(800 - layerSettingsWindow.getWidth() - 12, 480 - layerSettingsWindow.getHeight());
 
 
-        layerWindowController.setLayerSettingsWindowController(layerSettingsWindowController);
+        layerWindowController.setLayerSettingsWindowController(layerSettingsController);
 
 
         BodySettingsWindow bodySettingsWindow = new BodySettingsWindow(0, 0, bodySettingsWindowController);
@@ -225,8 +221,6 @@ public class UserInterface extends Container implements Touchable {
 
 
         layerWindowController.setBodySettingsWindowController(bodySettingsWindowController);
-
-        this.decorationSettingsWindowController = decorationSettingsWindowController;
 
         layerWindowController.setDecorationSettingsWindowController(decorationSettingsWindowController);
 
@@ -244,26 +238,25 @@ public class UserInterface extends Container implements Touchable {
         jointsWindow.setVisible(false);
 
 
-        optionsWindow = new OptionsWindow(0, 0, optionsWindowController);
+        OptionsWindow optionsWindow = new OptionsWindow(0, 0, optionsWindowController);
         addElement(optionsWindow);
 
 
-        jointOptionWindow = new JointOptionWindow(0, 0, jointSettingsWindowController);
+        JointOptionWindow jointOptionWindow = new JointOptionWindow(0, 0, jointSettingsWindowController);
         jointOptionWindow.setPosition(800 - jointOptionWindow.getWidth() - 12, 480 - jointOptionWindow.getHeight());
         jointOptionWindow.setVisible(false);
         addElement(jointOptionWindow);
 
 
-        projectileOptionWindow = new ProjectileOptionWindow(0, 0, projectileOptionController);
+        ProjectileOptionWindow projectileOptionWindow = new ProjectileOptionWindow(0, 0, projectileOptionController);
         projectileOptionWindow.setPosition(800 - projectileOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - projectileOptionWindow.getHeight());
         addElement(projectileOptionWindow);
         this.projectileOptionController = projectileOptionController;
 
 
-        ammoOptionWindow = new AmmoOptionWindow(0, 0, casingOptionController);
+        AmmoOptionWindow ammoOptionWindow = new AmmoOptionWindow(0, 0, casingOptionController);
         ammoOptionWindow.setPosition(800 - ammoOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - ammoOptionWindow.getHeight());
         addElement(ammoOptionWindow);
-        this.ammoOptionController = casingOptionController;
 
 
         itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
@@ -272,7 +265,7 @@ public class UserInterface extends Container implements Touchable {
         addElement(itemSaveWindow);
 
         ColorSelectorWindowController colorSelectorWindowController = new ColorSelectorWindowController(this);
-        colorSelector = new ColorSelectorWindow(400, 0, colorSelectorWindowController);
+        ColorSelectorWindow colorSelector = new ColorSelectorWindow(400, 0, colorSelectorWindowController);
         colorSelector.setVisible(false);
         addElement(colorSelector);
         ColorSelector selector = colorSelector.getSelector();
@@ -554,8 +547,6 @@ public class UserInterface extends Container implements Touchable {
         jointButtonBoard.addToButtonBoard(button22);
         jointButtonBoard.addToButtonBoard(button23);
         jointButtonBoard.addToButtonBoard(button24);
-        //addElement(new PointImage(ResourceManager.getInstance().centedDiskTextureRegion,new Vector2(100,100)));
-
 
         addElement(new PointImage(ResourceManager.getInstance().centeredDiskTextureRegion, new Vector2(400, 240)));
 
@@ -705,7 +696,7 @@ public class UserInterface extends Container implements Touchable {
         ControlElement controlElementForMovablePoints = new ControlElement(ControlElement.Type.AnalogController, 0, new ControllerAction() {
             @Override
             public void controlMoved(float pX, float pY) {
-                pGameScene.ControlMoveableElementChange(pX, pY);
+                pGameScene.ControlMovableElementChange(pX, pY);
             }
 
             @Override
@@ -725,20 +716,24 @@ public class UserInterface extends Container implements Touchable {
 
     }
 
-    private Button<DrawButtonBoardController> createTriggerButton(GameScene pGameScene) {
-        triggerButton = new Button<>(ResourceManager.getInstance().trigger1, Button.ButtonType.OneClick, true);
+    private Button<DrawButtonBoardController> createTriggerButton(GameScene gameScene) {
+        triggerButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
         triggerButton.setBehavior(new ButtonBehavior<DrawButtonBoardController>(drawButtonBoardController, triggerButton) {
             @Override
             public void informControllerButtonClicked() {
-                if (pGameScene.getHand()!=null&&pGameScene.getHand().getGrabbedEntity() != null && pGameScene.getHand().getGrabbedEntity().hasTrigger()) {
-                    pGameScene.getHand().getGrabbedEntity().onTriggerPushed();
+                for(Hand hand:gameScene.getHands().values()) {
+                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
+                        hand.getGrabbedEntity().onTriggerPushed();
+                    }
                 }
             }
 
             @Override
             public void informControllerButtonReleased() {
-                if (pGameScene.getHand()!=null&&pGameScene.getHand().getGrabbedEntity() != null && pGameScene.getHand().getGrabbedEntity().hasTrigger()) {
-                    pGameScene.getHand().getGrabbedEntity().onTriggerReleased();
+                for(Hand hand:gameScene.getHands().values()) {
+                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
+                        hand.getGrabbedEntity().onTriggerReleased();
+                    }
                 }
             }
         });
@@ -748,18 +743,27 @@ public class UserInterface extends Container implements Touchable {
     }
 
 
-    private Button<DrawButtonBoardController> createReloadButton(GameScene pGameScene) {
-        reloadButton = new Button<>(ResourceManager.getInstance().reload1, Button.ButtonType.OneClick, true);
+    private Button<DrawButtonBoardController> createReloadButton(GameScene gameScene) {
+        reloadButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
         reloadButton.setBehavior(new ButtonBehavior<DrawButtonBoardController>(drawButtonBoardController, reloadButton) {
             @Override
             public void informControllerButtonClicked() {
+                for(Hand hand:gameScene.getHands().values()) {
+                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
+                        reloadButton.setEnabled(false);
+                        hand.getGrabbedEntity().onReloadPushed(() -> {
+                            reloadButton.setEnabled(true);
+                            reloadButton.updateState(Button.State.NORMAL);
+                        });
+                    }
+                }
             }
 
             @Override
             public void informControllerButtonReleased() {
             }
         });
-        reloadButton.setPosition(800 - reloadButton.getWidth(), triggerButton.getHeight());
+        reloadButton.setPosition(800 - reloadButton.getWidth()-triggerButton.getWidth(), 0);
         addElement(reloadButton);
         return reloadButton;
     }
@@ -944,7 +948,6 @@ public class UserInterface extends Container implements Touchable {
     }
 
     public void dispose() {
-        if (false)
             for (Element e : getContents()) {
                 if (e instanceof PointsShape) {
                     Log.e("dispose", "outside:" + e.hashCode());
@@ -974,10 +977,6 @@ public class UserInterface extends Container implements Touchable {
 
     public Scene getScene() {
         return scene;
-    }
-
-    public LayerSettingsWindowController getLayerSettingsWindowController() {
-        return layerSettingsWindowController;
     }
 
 
@@ -1037,10 +1036,6 @@ public class UserInterface extends Container implements Touchable {
         return imageShape;
     }
 
-    public DecorationSettingsWindowController getDecorationSettingsWindowController() {
-        return decorationSettingsWindowController;
-    }
-
     public ControlPanel getPanel() {
         return panel;
     }
@@ -1091,14 +1086,6 @@ public class UserInterface extends Container implements Touchable {
     }
 
 
-    public ToolButtonBoardController getToolButtonBoardController() {
-        return toolButtonBoardController;
-    }
-
-    public OptionsWindowController getOptionsWindowController() {
-        return optionsWindowController;
-    }
-
     public DrawButtonBoardController getDrawButtonBoardController() {
         return drawButtonBoardController;
     }
@@ -1119,12 +1106,7 @@ public class UserInterface extends Container implements Touchable {
         return layersWindowController;
     }
 
-    public Screen getSelectedScreen() {
-        return selectedScreen;
-    }
-
     public void setSelectedScreen(Screen selectedScreen) {
-        this.selectedScreen = selectedScreen;
         outlineController.onScreenChanged(selectedScreen);
     }
 
@@ -1132,6 +1114,7 @@ public class UserInterface extends Container implements Touchable {
         triggerButton.setVisible(true);
         reloadButton.setVisible(true);
     }
+
     public void hideFireButtons() {
         triggerButton.setVisible(false);
         reloadButton.setVisible(false);

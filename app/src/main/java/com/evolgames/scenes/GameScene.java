@@ -26,8 +26,6 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
-import com.evolgames.entities.hand.HandControl;
-import com.evolgames.entities.hand.HoldHandControl;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
@@ -48,8 +46,8 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
@@ -72,7 +70,7 @@ import org.andengine.entity.primitive.Mesh;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.EntityBackground;
-import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
@@ -80,7 +78,6 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
-import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.color.Color;
 import org.xml.sax.SAXException;
 
@@ -118,11 +115,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private HUD hud;
     private boolean scroll = false;
     private float mPinchZoomStartedCameraZoomFactor;
-    private boolean zoom;
     private Movable movable;
     private GameGroup gameGroup;
     private Mesh theMesh;
-    private Hand hand;
+
 
     public GameScene() {
         super();
@@ -144,7 +140,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         createHUD();
 
     }
-
 
 
     public HUD getHud() {
@@ -178,22 +173,22 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         try {
             toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver_latest.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
-        } catch (IOException | ParserConfigurationException | SAXException |PersistenceException e) {
+        } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
         }
 
-        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this,keyboardController, outlineController, toolModel);
+        JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this, keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
-        CasingOptionController ammoOptionController = new CasingOptionController(this, keyboardController,toolModel);
-        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController,ammoOptionController, outlineController);
+        CasingOptionController ammoOptionController = new CasingOptionController(this, keyboardController, toolModel);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, ammoOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
 
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController,ammoOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
 
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
@@ -254,7 +249,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         // attachChild(gameEntity1.getMesh());
 
 
-        vertices = VerticesFactory.createPolygon(0, 0, 30, 30, 7);
+        vertices = VerticesFactory.createPolygon(0, 0, 10, 10, 7);
         properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
@@ -278,51 +273,27 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
             }
 
-        if (false) {
-
+        if (true) {
+            UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
+            this.attachChild(uncoloredSprite);
 
             gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
             gameGroup.getGameEntityByIndex(0).redrawStains();
+            gameGroup.getGameEntityByIndex(0).setName("test");
+            Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
+            Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
+            this.worldFacade.createFireSource(gameGroup.getGameEntityByIndex(0),v1,v2,0.1f,1f,1f,1f);
 
-
-            //  fireParticlePolygon = new FireParticleWrapperWithPolygonEmitter(gameGroup);
-
-
-            //this.attachChild(fireParticlePolygon.getParticleSystem());
-            //Grid grid = new Grid(this);
             if (false)
                 for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                     Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                     layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
                     for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
-                        g.setTemperature(10000);
+                        g.setTemperature(1000000);
                     }
                 }
-//gameGroup.getMesh().onColorsUpdated();
         }
-
-
-        //gameEntity1.setName("Tool");
-        //gameEntity1.applyLiquidStain(0,100,gameEntity1.getBlocks().get(0));
-//       gameEntity1.getMesh().attachChild(plotter2);
-        //              attachChild(plotter);
-        //    gameEntity1.redrawStains();
-        /*
-        for(int k=0;k<10;k++)
-        for(int i=0;i<256;i+=8)
-            for(int j=0;j<256;j+=8)
-        gameEntity1.applyLiquidStain(-128+i,-128+j,gameEntity1.getBlocks().get(0));
-        gameEntity1.redrawStains();
-        */
-        //   attachChild(batch);
-
-
-        // Sprite sprite = new Sprite(-64, -64,region, ResourceManager.getInstance().vbom);
-        //  this.attachChild(sprite);
-
-
-//gameEntity1.applyLiquidStain(100,130,block1);
 
 
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
@@ -344,7 +315,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY,(short)-1);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY, (short) -1);
         this.worldFacade.setGround(groundGroup);
 
         if (true) {
@@ -383,8 +354,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         Log.e("lifecycle", "pause");
         if (userInterface != null) {
             userInterface.dispose();
-
-
         }
     }
 
@@ -399,12 +368,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     protected void onManagedUpdate(float pSecondsElapsed) {
-        sortChildren();
         userInterface.step();
         for (Hand hand : hands.values()) {
             hand.onUpdate();
         }
-
 
         if (!pause) {
             super.onManagedUpdate(pSecondsElapsed);
@@ -423,7 +390,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         for (GameGroup gameGroup : gameGroups) {
             gameGroup.onStep(pSecondsElapsed);
         }
-        if(false) {
+        if (false) {
             if (step == 120) {
                 ragdoll.getGameEntities().forEach(e -> {
                     e.getBlocks().forEach(b -> worldFacade.pulverizeBlock(b, e));
@@ -474,13 +441,11 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
 
 
-//projectiles test
+        //projectiles test
         if (false)
             if (step % 60 == 0) {
                 Filter projectileFilter = new Filter();
                 projectileFilter.groupIndex = -1;
-                // pause = true;
-                Log.e("createproj", "" + step);
                 Vector2 u = new Vector2(0, -1);
                 float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
 
@@ -497,7 +462,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 ArrayList<LayerBlock> blocks = new ArrayList<>();
                 blocks.add(block1);
 
-                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY,PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
                 GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
                 GameGroup proj = new GameGroup(gameEntity);
                 gameEntity.setProjectile(true);
@@ -509,12 +474,12 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-        if(false)
-        if (touchEvent.isActionDown()) {
-            this.x = touchEvent.getX() / 32f;
-            this.y = touchEvent.getY() / 32f;
-             getWorldFacade().createExplosion(x, y, 1000);
-        }
+        if (false)
+            if (touchEvent.isActionDown()) {
+                this.x = touchEvent.getX() / 32f;
+                this.y = touchEvent.getY() / 32f;
+                getWorldFacade().createExplosion(x, y, 1000);
+            }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
 
@@ -557,10 +522,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
         if (touchEvent.isActionUp())
             if (new Vector2(400, 240).dst(touchEvent.getX(), touchEvent.getY()) < 16) {
-                if (action == PlayerAction.Drag){
+                if (action == PlayerAction.Drag) {
                     action = PlayerAction.Slice;
-                }
-                else {
+                } else {
                     action = PlayerAction.Drag;
                 }
             }
@@ -603,12 +567,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                     GameEntity entity = gameGroup.getGameEntities().get(k);
                     if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                         if (!hands.containsKey(pointerID)) {
-                            hand = new Hand(worldFacade);
+                            Hand hand = new Hand(worldFacade);
                             hands.put(pointerID, hand);
+                        } else {
+                            Hand hand = hands.get(pointerID);
+                            hand.resumeGrab();
                         }
-
-                        Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent);
-                        if (entity.hasTrigger()){
+                        Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent, entity.hasTrigger());
+                        if (entity.hasTrigger()) {
                             userInterface.showFireButtons();
                         } else {
                             userInterface.hideFireButtons();
@@ -617,16 +583,13 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                     }
                 }
 
-        } else  if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
-            if (hand!=null&&!hand.getHandControlStack().isEmpty()) {
-                HandControl handControl = hand.getHandControlStack().peek();
-                if (handControl instanceof HoldHandControl) {
-                    if (hand.getGrabbedEntity() != null) {
-                        if(!hand.getGrabbedEntity().hasTrigger()) {
-                            hand.releaseGrabbedEntity(handControl);
-                        } else {
-                            hand.getGrabbedEntity().setHanged(false);
-                        }
+        } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
+            for (Hand hand : hands.values()) {
+                if (hand != null&&hand.getGrabbedEntity()!=null) {
+                    if(!hand.getGrabbedEntity().hasTrigger()) {
+                        hand.release();
+                    } else {
+                        hand.stopFollow();
                     }
                 }
             }
@@ -676,7 +639,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         SmoothCamera cam = (SmoothCamera) this.mainCamera;
         this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
         userInterface.getCreationZoneController().setUpLocked(true);
-        zoom = true;
     }
 
     @Override
@@ -700,7 +662,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             cam.setZoomFactor(zf);
             userInterface.updateZoom(zf);
         }
-        zoom = false;
 
     }
 
@@ -723,8 +684,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         mainCamera.offsetCenter(deltax, deltay);
     }
 
-    public Hand getHand() {
-        return hand;
+    public HashMap<Integer, Hand> getHands() {
+        return hands;
     }
 
     @Override
@@ -732,17 +693,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         scroll = false;
     }
 
-    public Movable getMovable() {
-        return movable;
-    }
-
     public void setMovable(Movable movable) {
         this.movable = movable;
     }
 
-    public void ControlMoveableElementChange(float valueX, float valueY) {
-        if (movable != null)
+    public void ControlMovableElementChange(float valueX, float valueY) {
+        if (movable != null) {
             movable.onControllerMoved(valueX, valueY);
+        }
     }
 
 
@@ -753,10 +711,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     public void setZoomEnabled(boolean pZoomEnabled) {
         mPinchZoomDetector.setEnabled(pZoomEnabled);
-    }
-
-    public boolean isZooming() {
-        return zoom;
     }
 
     public UserInterface getUserInterface() {
@@ -770,13 +724,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     public void addGameGroup(GameGroup gameGroup) {
         gameGroups.add(gameGroup);
-    }
-
-    public void addImage() {
-        TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
-        Sprite sketch = new Sprite(400, 240, region, ResourceManager.getInstance().vbom);
-        sketch.setZIndex(1000);
-        attachChild(sketch);
     }
 
     public GameActivity getActivity() {

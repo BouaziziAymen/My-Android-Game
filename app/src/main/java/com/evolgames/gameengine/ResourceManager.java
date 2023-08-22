@@ -118,7 +118,6 @@ public class ResourceManager {
     public TextureRegion handTextureRegion;
     public TextureRegion armTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
-    public TiledTextureRegion trigger1;
     public ArrayList<GameSound> gunshotSounds;
     private FontLoader fontLoader;
     private BuildableBitmapTextureAtlas texture;
@@ -129,9 +128,9 @@ public class ResourceManager {
     public TiledTextureRegion infoBlueButton;
     public TiledTextureRegion rotationAntiClockTextureRegion;
     public TiledTextureRegion rotationClockTextureRegion;
-    public TiledTextureRegion reload1;
     public TiledTextureRegion longButtonTextureRegion;
     public TiledTextureRegion checkBoxTextureRegion;
+    public TiledTextureRegion arcadeRedTextureRegion;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -239,9 +238,6 @@ public class ResourceManager {
         this.handTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "hand.png");
         this.armTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "arm.png");
 
-        this.trigger1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/buttons1.png", 1, 2);
-        this.reload1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/reload1.png", 1, 2);
-
 
         this.handPointTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");
         this.diskTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/circle.png");
@@ -302,7 +298,7 @@ public class ResourceManager {
         this.decaleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
         this.ammoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
         this.checkBoxTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);
-
+        this.arcadeRedTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "buttons/arcade_red.png", 2, 1);
 
         this.fontLoader = new FontLoader(gameTextureAtlas);
 

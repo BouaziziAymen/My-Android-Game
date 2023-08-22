@@ -1,10 +1,11 @@
 package com.evolgames.entities.particles.pools;
 
-import com.evolgames.entities.particles.systems.Spark;
+import com.evolgames.gameengine.ResourceManager;
 
+import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.pool.GenericPool;
 
-public class SparkPool {
+public class UncoloredSpritePool {
     // ===========================================================
     // PhysicsConstants
     // ===========================================================
@@ -13,25 +14,24 @@ public class SparkPool {
     // Fields
     // ===========================================================
 
-    private static final GenericPool<Spark> POOL = new GenericPool<Spark>() {
-
+    private static final GenericPool<UncoloredSprite> POOL = new GenericPool<UncoloredSprite>() {
         @Override
-        protected Spark onAllocatePoolItem() {
-            return new Spark();
+        protected UncoloredSprite onAllocatePoolItem() {
+           return new UncoloredSprite(0,0,ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
         }
 
     };
 
 
-
-    public static Spark obtain(float pX, float pY) {
-        Spark spark = SparkPool.POOL.obtainPoolItem();
-        spark.setPosition(pX, pY);
-        return spark;
+    public static UncoloredSprite obtain(float pX, float pY) {
+        UncoloredSprite particle = UncoloredSpritePool.POOL.obtainPoolItem();
+        particle.reset();
+        particle.setPosition(pX, pY);
+        return particle;
     }
 
-    public static void recycle(Spark spark) {
-SparkPool.POOL.recyclePoolItem(spark);
+    public static void recycle(UncoloredSprite spark) {
+        UncoloredSpritePool.POOL.recyclePoolItem(spark);
 
     }
 

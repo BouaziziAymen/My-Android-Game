@@ -18,7 +18,6 @@ public class TwoLevelSectionedAdvancedWindowController<W extends AbstractSection
     public void onPrimaryButtonReleased(Primary primary) {
         primary.getSection().setActive(false);
         updateLayout();
-
     }
 
     @Override

@@ -5,6 +5,8 @@ import com.evolgames.entities.commandtemplate.commands.Command;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 public class GameGroup {
     private final ArrayList<GameEntity> entities;
@@ -50,7 +52,8 @@ public class GameGroup {
 
 
     public void onStep(float timeStep) {
-        for (GameEntity entity : entities){
+        List<GameEntity> clone = new ArrayList<>(entities);
+        for (GameEntity entity : clone) {
             entity.onStep(timeStep);
         }
     }

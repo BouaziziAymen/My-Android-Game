@@ -3,7 +3,7 @@ package com.evolgames.entities.properties.usage;
 import com.evolgames.entities.properties.Properties;
 
 public class AutomaticProperties extends RangedProperties {
-    private float fireRate;
+    private float fireRate = 0.5f;
     @Override
     public Properties copy() {
         return null;

@@ -13,8 +13,9 @@ import static android.graphics.Color.red;
 public class MyColorUtils {
     public static final Color bloodColor = new Color(175 / 256f, 17 / 256f, 28 / 256f);
     private static final ArrayList<Color> gradient;
-    private static float[] limits = new float[]{0, 1000, 6000, 12000, 100000};
-    private static ColorTest testBurnRatioAction = new ColorTest() {
+    private static final float[] limits = new float[]{0,500, 1000, 6000, 12000, 100000};
+
+    private static final ColorTest testBurnRatioAction = new ColorTest() {
         @Override
         public void testFactor(Color color, double burnRatio, ColorAction action) {
             if (burnRatio > 0.01f) {
@@ -65,11 +66,12 @@ public class MyColorUtils {
             }
         };
         gradient = new ArrayList<>();
+        gradient.add(new Color(0.5f, 0, 0));
         gradient.add(new Color(1, 0, 0));
         gradient.add(new Color(1, 100 / 255f, 0));
         gradient.add(new Color(1, 1, 1));
-        gradient.add(new Color(173 / 255f, 216 / 255f, 230 / 255f));
-        gradient.add(new Color(0, 1, 1f));
+        gradient.add(new Color(0.5f, 0.5f, 1f));
+        gradient.add(new Color(0, 0, 1f));
 
 
         ArrayList<Color> flameColors = new ArrayList<>();
@@ -81,12 +83,21 @@ public class MyColorUtils {
         flameColors.add(Color.WHITE);
 
     }
-
+public static float getPreviousTemperature(double temperature){
+    int i;
+    for (i = 1; i < 4; i++) {
+        if (temperature < limits[i]) {
+            break;
+        }
+    }
+    return limits[i-1];
+}
     public static Color getColor(double temperature) {
-        if(temperature<0)temperature = 0;
         int i;
         for (i = 1; i < 4; i++) {
-            if (temperature < limits[i]) break;
+            if (temperature < limits[i]) {
+                break;
+            }
         }
         Color color1 = gradient.get(i - 1);
         Color color2 = gradient.get(i);

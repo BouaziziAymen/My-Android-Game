@@ -335,10 +335,10 @@ public class CreationZoneController extends Controller {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new ProjectileShape(new Vector2(x, y), gameScene);
                 ProjectileModel projectileModel = userInterface.getToolModel().createNewProjectile((ProjectileShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
-                if (projectileModel != null) {
-                    itemWindowController.onProjectileCreated(projectileModel);
-                    ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
-                }
+                projectileModel.getProperties().setProjectileOrigin(new Vector2(x,y));
+                projectileModel.getProperties().setProjectileEnd(new Vector2(x,y));
+                itemWindowController.onProjectileCreated(projectileModel);
+                ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
                 return;
             }
         }

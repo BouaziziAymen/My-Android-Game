@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.BodyProperties;
-import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.usage.AutomaticProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
@@ -46,16 +45,18 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private TextField<BodySettingsWindowController> bodyNameTextField;
     private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8, 5);
     private final NumericValidator gunReloadTimeValidator = new NumericValidator(false, false, 0, 1000, 3, 0);
-   //Manual
+    private final NumericValidator roundsValidator = new NumericValidator(false, false, 0, 1000, 3, 0);
+    //Manual
     private TextField<BodySettingsWindowController> rangedManualReloadTimeTextField;
     //Automatic
-    private Quantity<BodySettingsWindowController> rangedAutomaticFireRateQuantity;
+
     //Semi Automatic
-    private Quantity<BodySettingsWindowController> rangedSemAutomaticFireRateQuantity;
+    private Quantity<BodySettingsWindowController> fireRateQuantityField;
 
 
     private BodyModel bodyModel;
     private UserInterface userInterface;
+    private TextField<BodySettingsWindowController> roundsTextField;
 
 
     public BodySettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
@@ -76,37 +77,69 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         createCategorySection();
         updateUsageSettings();
         for(BodyUsageCategory usageCategory:this.bodyModel.getUsageModels().stream().map(UsageModel::getType).collect(Collectors.toList())){
-            switch (usageCategory){
-                case RANGED_MANUAL:
-                    UsageModel<ManualProperties> manualUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                    ManualProperties manualProps =  manualUsageModel.getProperties();
-                    setReloadTime(manualProps.getReloadTime());
-                    break;
-                case RANGED_SEMI_AUTOMATIC:
-                    UsageModel<SemiAutomaticProperties> semiAutomaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                    SemiAutomaticProperties semAutoProps = semiAutomaticUsageModel.getProperties();
-                    setSemAutoFireRate(semAutoProps.getFireRate());
-                    break;
-                case RANGED_AUTOMATIC:
-                    UsageModel<AutomaticProperties> automaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                    AutomaticProperties autoProps = automaticUsageModel.getProperties();
-                    setAutoFireRate(autoProps.getFireRate());
-                    break;
-            }
+            updateUsageCategoryFields(usageCategory);
         }
 
     }
 
-    private void setAutoFireRate(float fireRate) {
-        rangedAutomaticFireRateQuantity.updateRatio(fireRate);
+    private void updateUsageCategoryFields(BodyUsageCategory usageCategory) {
+        switch (usageCategory){
+            case RANGED_MANUAL:
+                UsageModel<ManualProperties> manualUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                ManualProperties manualProps =  manualUsageModel.getProperties();
+                setReloadTime(manualProps.getReloadTime());
+                setNumberOfRounds(manualProps.getNumberOfRounds());
+                break;
+            case RANGED_SEMI_AUTOMATIC:
+                UsageModel<SemiAutomaticProperties> semiAutomaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                SemiAutomaticProperties semAutoProps = semiAutomaticUsageModel.getProperties();
+                setFireRate(semAutoProps.getFireRate());
+                setNumberOfRounds(semAutoProps.getNumberOfRounds());
+                setReloadTime(semAutoProps.getReloadTime());
+                break;
+            case RANGED_AUTOMATIC:
+                UsageModel<AutomaticProperties> automaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                AutomaticProperties autoProps = automaticUsageModel.getProperties();
+                setFireRate(autoProps.getFireRate());
+                setNumberOfRounds(autoProps.getNumberOfRounds());
+                setReloadTime(autoProps.getReloadTime());
+                break;
+        }
     }
 
-    private void setSemAutoFireRate(float fireRate) {
-        rangedSemAutomaticFireRateQuantity.updateRatio(fireRate);
+    private void createNumberOfRoundsTextField(int primaryKey, int secondaryKey, RangedProperties rangedProperties){
+        TitledTextField<BodySettingsWindowController> roundsField = new TitledTextField<>("Rounds:", 5, 5, 76);
+        roundsTextField = roundsField.getAttachment();
+
+        roundsField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, roundsField.getAttachment(), Keyboard.KeyboardType.Numeric, roundsValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                BodySettingsWindowController.super.onTextFieldTapped(roundsTextField);
+            }
+            @Override
+            protected void informControllerTextFieldReleased() {
+                BodySettingsWindowController.super.onTextFieldReleased(roundsTextField);
+            }
+        });
+        FieldWithError titleRoundsFieldWithError = new FieldWithError(roundsField);
+        SimpleSecondary<FieldWithError> roundsElement = new SimpleSecondary<>(primaryKey, secondaryKey, titleRoundsFieldWithError);
+        window.addSecondary(roundsElement);
+        roundsTextField.getBehavior().setReleaseAction(() -> {
+            int rounds = Integer.parseInt(roundsTextField.getTextString());
+            rangedProperties.setNumberOfRounds(rounds);
+        });
+    }
+
+
+    private void setFireRate(float fireRate) {
+        fireRateQuantityField.updateRatio(fireRate);
     }
 
     private void setReloadTime(float reloadTime) {
         rangedManualReloadTimeTextField.getBehavior().setTextValidated(""+Float.valueOf(reloadTime).intValue());
+    }
+    private void setNumberOfRounds(int rounds) {
+        roundsTextField.getBehavior().setTextValidated("" + rounds);
     }
 
     private void setBodyName(String bodyName) {
@@ -178,73 +211,74 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         case RANGED_MANUAL:
                             ManualProperties manualProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_MANUAL);
 
-                            TitledTextField<BodySettingsWindowController> reloadTimeField = new TitledTextField<>("Reload Time:", 6, 5, 80);
-                            rangedManualReloadTimeTextField = reloadTimeField.getAttachment();
-
-                            reloadTimeField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, rangedManualReloadTimeTextField, Keyboard.KeyboardType.Numeric, gunReloadTimeValidator, true) {
-                                @Override
-                                protected void informControllerTextFieldTapped() {
-                                    BodySettingsWindowController.super.onTextFieldTapped(rangedManualReloadTimeTextField);
-                                }
-
-                                @Override
-                                protected void informControllerTextFieldReleased() {
-                                    BodySettingsWindowController.super.onTextFieldReleased(rangedManualReloadTimeTextField);
-                                }
-                            });
-
-                            FieldWithError reloadTimeFieldWithError = new FieldWithError(reloadTimeField);
-                            SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(primaryId, 1, reloadTimeFieldWithError);
-                            window.addSecondary(fireRateElement);
-
-                            rangedManualReloadTimeTextField.getBehavior().setReleaseAction(() -> {
-                                float reloadTime = Integer.parseInt(rangedManualReloadTimeTextField.getTextString());
-                                assert manualProperties != null;
-                                manualProperties.setReloadTime(reloadTime);
-                            });
-
-                            createProjectilesField(primaryId, 2,manualProperties);
+                            createReloadTimeField(primaryId, 1,manualProperties);
+                            createNumberOfRoundsTextField(primaryId,2,manualProperties);
+                            createProjectilesField(primaryId, 3,manualProperties);
                             break;
                         case RANGED_SEMI_AUTOMATIC:
                             SemiAutomaticProperties semiAutomaticProperties =bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_SEMI_AUTOMATIC);
-                            TitledQuantity<BodySettingsWindowController> titledFireRateQuantity = new TitledQuantity<>("Fire Rate:", 16, "r", 5, 50);
-                            rangedSemAutomaticFireRateQuantity = titledFireRateQuantity.getAttachment();
-                            titledFireRateQuantity.getAttachment().setBehavior(new QuantityBehavior<BodySettingsWindowController>(this, rangedSemAutomaticFireRateQuantity) {
-                                @Override
-                                public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-                                }
-                            });
-
-                            FieldWithError muzzleVelocityFieldWithError = new FieldWithError(titledFireRateQuantity);
-                            SimpleSecondary<FieldWithError> rangedAutomaticFireRateElement = new SimpleSecondary<>(primaryId, 1, muzzleVelocityFieldWithError);
-                            window.addSecondary(rangedAutomaticFireRateElement);
-                            rangedSemAutomaticFireRateQuantity.getBehavior().setChangeAction(() ->semiAutomaticProperties.setFireRate(rangedSemAutomaticFireRateQuantity.getRatio()));
-                            createProjectilesField(primaryId,2, semiAutomaticProperties);
+                            createReloadTimeField(primaryId, 0,semiAutomaticProperties);
+                            createFireRateField(primaryId, 1,()->
+                                    fireRateQuantityField.getBehavior().setChangeAction(() -> semiAutomaticProperties.setFireRate(fireRateQuantityField.getRatio())));
+                            createNumberOfRoundsTextField(primaryId,2,semiAutomaticProperties);
+                            createProjectilesField(primaryId,3, semiAutomaticProperties);
                             break;
                         case RANGED_AUTOMATIC:
                             AutomaticProperties automaticProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_AUTOMATIC);
-                            TitledQuantity<BodySettingsWindowController> titledFireRateQuantity_ = new TitledQuantity<>("Fire Rate:", 16, "r", 5, 50);
-                            rangedAutomaticFireRateQuantity = titledFireRateQuantity_.getAttachment();
-                            titledFireRateQuantity_.getAttachment().setBehavior(new QuantityBehavior<BodySettingsWindowController>(this, rangedAutomaticFireRateQuantity) {
-                                @Override
-                                public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-                                }
-                            });
-
-                            FieldWithError muzzleVelocityFieldWithError_ = new FieldWithError(titledFireRateQuantity_);
-                            SimpleSecondary<FieldWithError> rangedAutomaticFireRateElement_ = new SimpleSecondary<>(primaryId, 1, muzzleVelocityFieldWithError_);
-                            window.addSecondary(rangedAutomaticFireRateElement_);
-                            rangedAutomaticFireRateQuantity.getBehavior().setChangeAction(() ->automaticProperties.setFireRate(rangedAutomaticFireRateQuantity.getRatio()));
-
-                            createProjectilesField(primaryId,2, automaticProperties);
+                            createReloadTimeField(primaryId, 1,automaticProperties);
+                            createFireRateField(primaryId, 1,()->
+                                    fireRateQuantityField.getBehavior().setChangeAction(() -> automaticProperties.setFireRate(fireRateQuantityField.getRatio())));
+                            createNumberOfRoundsTextField(primaryId,2,automaticProperties);
+                            createProjectilesField(primaryId,3, automaticProperties);
                             break;
                     }
                 }
             }
         }
         window.getLayout().updateLayout();
+    }
+
+    private void createFireRateField(int primaryId, int secondaryId,Runnable action) {
+        TitledQuantity<BodySettingsWindowController> titledFireRateQuantity = new TitledQuantity<>("Fire Rate:", 16, "r", 5, 50);
+        fireRateQuantityField = titledFireRateQuantity.getAttachment();
+        titledFireRateQuantity.getAttachment().setBehavior(new QuantityBehavior<BodySettingsWindowController>(this, fireRateQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+
+            }
+        });
+
+        FieldWithError fireRateFieldWithError = new FieldWithError(titledFireRateQuantity);
+        SimpleSecondary<FieldWithError> rangedFireRateElement = new SimpleSecondary<>(primaryId, secondaryId, fireRateFieldWithError);
+        window.addSecondary(rangedFireRateElement);
+        action.run();
+    }
+
+    private void createReloadTimeField(int primaryId,int secondaryId, RangedProperties rangedProperties) {
+        TitledTextField<BodySettingsWindowController> reloadTimeField = new TitledTextField<>("Reload Time:", 6, 5, 80);
+        rangedManualReloadTimeTextField = reloadTimeField.getAttachment();
+
+        reloadTimeField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, rangedManualReloadTimeTextField, Keyboard.KeyboardType.Numeric, gunReloadTimeValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                BodySettingsWindowController.super.onTextFieldTapped(rangedManualReloadTimeTextField);
+            }
+
+            @Override
+            protected void informControllerTextFieldReleased() {
+                BodySettingsWindowController.super.onTextFieldReleased(rangedManualReloadTimeTextField);
+            }
+        });
+
+        FieldWithError reloadTimeFieldWithError = new FieldWithError(reloadTimeField);
+        SimpleSecondary<FieldWithError> fireRateElement = new SimpleSecondary<>(primaryId, secondaryId, reloadTimeFieldWithError);
+        window.addSecondary(fireRateElement);
+
+        rangedManualReloadTimeTextField.getBehavior().setReleaseAction(() -> {
+            float reloadTime = Integer.parseInt(rangedManualReloadTimeTextField.getTextString());
+            assert rangedProperties != null;
+            rangedProperties.setReloadTime(reloadTime);
+        });
     }
 
     private void createProjectilesField(int primaryId,int secondaryId, RangedProperties rangedProperties) {
@@ -264,7 +298,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         projectileButton.setBehavior(new ButtonBehavior<BodySettingsWindowController>(this, projectileButton) {
             @Override
             public void informControllerButtonClicked() {
-                onProjectileButtonClicked(projectileButton);
                 rangedProperties.getProjectileModelList().add(projectileModel);
             }
 
@@ -276,10 +309,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         if(rangedProperties.getProjectileIds().contains(projectileModel.getProjectileId())){
             projectileButton.updateState(Button.State.PRESSED);
         }
-    }
-
-    private void onProjectileButtonClicked(ButtonWithText<?> projectileButton) {
-
     }
 
     private void onCategoryButtonPressed(SimpleSecondary<?> categoryField, BodyUsageCategory e) {
@@ -298,6 +327,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         onUsageAdded(e);
         updateUsageSettings();
+        updateUsageCategoryFields(e);
     }
 
     private void onCategoryButtonReleased(SimpleSecondary<?> categoryField, BodyUsageCategory e) {

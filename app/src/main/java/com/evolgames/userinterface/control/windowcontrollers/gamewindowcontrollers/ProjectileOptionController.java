@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.persistence.PersistenceException;
+import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.GameSound;
@@ -16,7 +17,7 @@ import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
+import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.basics.Element;
@@ -28,6 +29,7 @@ import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SecondarySectionField;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
+import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.userinterface.view.windows.windowfields.projectieoptionwindow.SoundField;
@@ -36,6 +38,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,6 +56,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private ProjectileModel projectileModel;
     private Quantity<ProjectileOptionController> velocityQuantity;
     private Quantity<ProjectileOptionController> recoilQuantity;
+    private Quantity<ProjectileOptionController> fireRatioQuantityField;
+    private Quantity<ProjectileOptionController> smokeRatioQuantityField;
+    private Quantity<ProjectileOptionController> sparkRatioQuantityField;
+    private Quantity<ProjectileOptionController> intensityQuantityField;
 
     public ProjectileOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
@@ -61,7 +68,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         this.missileTable = new Hashtable<>();
         this.missileButtonsTable = new Hashtable<>();
     }
-
 
 
     public void updateMissileSelectionFields() {
@@ -77,6 +83,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         missileFilesList.forEach(f -> createProjectileToolButton(f, missileCounter.getAndIncrement()));
         this.onUpdated();
     }
+
     public void updateCasingSelectionFields() {
         if (model == null) {
             return;
@@ -92,6 +99,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         ammoModels.forEach(this::createShellToolButton);
         this.onUpdated();
     }
+
     private void createShellToolButton(CasingModel ammoModel) {
 
         ButtonWithText<ProjectileOptionController> shellButton = new ButtonWithText<>(ammoModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
@@ -107,15 +115,14 @@ public class ProjectileOptionController extends SettingsWindowController<Project
             public void informControllerButtonReleased() {
             }
         });
-        if(projectileModel.getAmmoModel()==ammoModel){
+        if (projectileModel.getAmmoModel() == ammoModel) {
             shellButton.updateState(Button.State.PRESSED);
         }
     }
 
 
-
     private void createProjectileToolButton(String fileName, int missileId) {
-        ButtonWithText<ProjectileOptionController> missileButton = new ButtonWithText<>(fileName.substring(3,fileName.length()-4), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+        ButtonWithText<ProjectileOptionController> missileButton = new ButtonWithText<>(fileName.substring(3, fileName.length() - 4), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
         SimpleSecondary<ButtonWithText<ProjectileOptionController>> missileField = new SimpleSecondary<>(0, missileId, missileButton);
         window.addSecondary(missileField);
         missileButtonsTable.put(fileName, missileButton);
@@ -182,8 +189,15 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
         setProjectileName(projectileModel.getModelName());
-        if(projectileModel.getMissileModel()!=null) {
-            setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix()+"_" +projectileModel.getMissileModel().getModelName()+".xml");
+        if (projectileModel.getMissileModel() != null) {
+            setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix() + "_" + projectileModel.getMissileModel().getModelName() + ".xml");
+        }
+        createExplosiveSection();
+        if(this.projectileProperties.getExplosive()!=Explosive.NONE) {
+            setIntensity(this.projectileProperties.getFireIntensity());
+            setFireRatio(this.projectileProperties.getFireRatio());
+            setSmokeRatio(this.projectileProperties.getSmokeRatio());
+            setSparkRatio(this.projectileProperties.getSparkRatio());
         }
     }
 
@@ -270,7 +284,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         FieldWithError muzzleVelocityFieldWithError = new FieldWithError(titleVelocityQuantity);
         SimpleSecondary<FieldWithError> muzzleVelocityElement = new SimpleSecondary<>(3, 1, muzzleVelocityFieldWithError);
         window.addSecondary(muzzleVelocityElement);
-        velocityQuantity.getBehavior().setChangeAction(() -> projectileModel.getProperties().setMuzzleVelocity(velocityQuantity.getRatio()));
+        velocityQuantity.getBehavior().setChangeAction(() -> this.projectileProperties.setMuzzleVelocity(velocityQuantity.getRatio()));
 
         TitledQuantity<ProjectileOptionController> titledRecoilQuantity = new TitledQuantity<>("Recoil:", 10, "b", 5, 50);
         recoilQuantity = titledRecoilQuantity.getAttachment();
@@ -282,8 +296,9 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         });
         SimpleSecondary<TitledQuantity<?>> recoilElement = new SimpleSecondary<>(3, 2, titledRecoilQuantity);
         window.addSecondary(recoilElement);
-        recoilQuantity.getBehavior().setChangeAction(() -> projectileModel.getProperties().setRecoil(recoilQuantity.getRatio()));
+        recoilQuantity.getBehavior().setChangeAction(() -> this.projectileProperties.setRecoil(recoilQuantity.getRatio()));
 
+        this.createExplosiveSection();
 
         window.createScroller();
         window.getLayout().updateLayout();
@@ -311,4 +326,152 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         missileButtonsTable.forEach((key, value) -> value.release());
         selectedButton.click();
     }
+
+    private void createExplosiveSection() {
+        if (window.getLayout().getPrimaries().size() >= 4) {
+            window.getLayout().removePrimary(4);
+        }
+        SectionField<ProjectileOptionController> explosiveSection = new SectionField<>(4, "Explosive", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        window.addPrimary(explosiveSection);
+        if (projectileModel != null) {
+            Arrays.stream(Explosive.values()).forEach(e -> createCategoryCheckBox(e, this.projectileProperties.getExplosive() == e));
+        }
+    }
+
+    private void createCategoryCheckBox(Explosive explosive, boolean pressed) {
+        TitledButton<ProjectileOptionController> explosiveCheckBox = new TitledButton<>
+                (explosive.getName(), ResourceManager.getInstance().checkBoxTextureRegion, Button.ButtonType.Selector, 5f, true);
+
+        SimpleSecondary<TitledButton<ProjectileOptionController>> explosiveField = new SimpleSecondary<>(4, explosive.ordinal(), explosiveCheckBox);
+        window.addSecondary(explosiveField);
+        explosiveCheckBox.getAttachment().setBehavior(new ButtonBehavior<ProjectileOptionController>(this, explosiveCheckBox.getAttachment()) {
+            @Override
+            public void informControllerButtonClicked() {
+                ProjectileOptionController.this.onExplosiveButtonPressed(explosiveField, explosive);
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+                ProjectileOptionController.this.onExplosiveButtonReleased(explosiveField);
+            }
+        });
+        if (pressed) {
+            explosiveCheckBox.getAttachment().updateState(Button.State.PRESSED);
+        }
+    }
+
+    private void onExplosiveButtonPressed(SimpleSecondary<?> explosiveField, Explosive e) {
+        super.onSecondaryButtonClicked(explosiveField);
+        int size = window.getLayout().getSecondariesSize(4);
+        this.projectileProperties.setExplosive(e);
+        for (int i = 0; i < size; i++) {
+            SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(4, i);
+            if (explosiveField != other) {
+                Element main = other.getMain();
+                if (main instanceof TitledButton) {
+                    ((TitledButton<?>) main).getAttachment().updateState(Button.State.NORMAL);
+                }
+            }
+        }
+        this.updateExplosiveSettings();
+        this.projectileProperties.setFireRatio(e.getFireRatio());
+        setFireRatio(e.getFireRatio());
+        this.projectileProperties.setSmokeRatio(e.getSmokeRatio());
+        setSmokeRatio(e.getSmokeRatio());
+        this.projectileProperties.setSparkRatio(e.getSparkRatio());
+        setSparkRatio(e.getSparkRatio());
+        this.projectileProperties.setFireIntensity(0.5f);
+        setIntensity(0.5f);
+    }
+
+    private void onExplosiveButtonReleased(SimpleSecondary<?> categoryField) {
+        super.onSecondaryButtonReleased(categoryField);
+    }
+
+    private void updateExplosiveSettings() {
+        for (SimplePrimary<?> p : window.getLayout().getPrimaries()) {
+            if (p.getPrimaryKey() >= 5) {
+                window.getLayout().removePrimary(p.getPrimaryKey());
+            }
+        }
+        if (this.projectileProperties.getExplosive() == Explosive.NONE) {
+            return;
+        }
+        SectionField<ProjectileOptionController> explosiveSettingsSection = new SectionField<>(5, "Explosive Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        window.addPrimary(explosiveSettingsSection);
+
+
+        TitledQuantity<ProjectileOptionController> titledFireRatioQuantity = new TitledQuantity<>("Fire:", 10, "r", 5, 70);
+
+        fireRatioQuantityField = titledFireRatioQuantity.getAttachment();
+        titledFireRatioQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, fireRatioQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                ProjectileOptionController.this.projectileProperties.setFireRatio(quantity.getRatio());
+            }
+        });
+
+        FieldWithError fireRatioFieldWithError = new FieldWithError(titledFireRatioQuantity);
+        SimpleSecondary<FieldWithError> fireRatioElement = new SimpleSecondary<>(5, 0, fireRatioFieldWithError);
+        window.addSecondary(fireRatioElement);
+
+        //-----
+        TitledQuantity<ProjectileOptionController> titledSmokeRatioQuantity = new TitledQuantity<>("Smoke:", 10, "t", 5, 70);
+        smokeRatioQuantityField = titledSmokeRatioQuantity.getAttachment();
+        titledSmokeRatioQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, smokeRatioQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                ProjectileOptionController.this.projectileProperties.setSmokeRatio(quantity.getRatio());
+            }
+        });
+
+        FieldWithError smokeRatioFieldWithError = new FieldWithError(titledSmokeRatioQuantity);
+        SimpleSecondary<FieldWithError> smokeRatioElement = new SimpleSecondary<>(5, 1, smokeRatioFieldWithError);
+        window.addSecondary(smokeRatioElement);
+        //-----
+        TitledQuantity<ProjectileOptionController> titledSparkRatioQuantity = new TitledQuantity<>("Sparks:", 10, "g", 5, 70);
+        sparkRatioQuantityField = titledSparkRatioQuantity.getAttachment();
+        titledSparkRatioQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, sparkRatioQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                ProjectileOptionController.this.projectileProperties.setSparkRatio(quantity.getRatio());
+            }
+        });
+
+        FieldWithError sparkRatioFieldWithError = new FieldWithError(titledSparkRatioQuantity);
+        SimpleSecondary<FieldWithError> sparkRatioElement = new SimpleSecondary<>(5, 2, sparkRatioFieldWithError);
+        window.addSecondary(sparkRatioElement);
+
+
+        //-----
+        TitledQuantity<ProjectileOptionController> titledIntensityQuantity = new TitledQuantity<>("Intensity:", 10, "b", 5, 70);
+        intensityQuantityField = titledIntensityQuantity.getAttachment();
+        titledIntensityQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, intensityQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                ProjectileOptionController.this.projectileProperties.setFireIntensity(quantity.getRatio());
+            }
+        });
+
+        FieldWithError intensityFieldWithError = new FieldWithError(titledIntensityQuantity);
+        SimpleSecondary<FieldWithError> intensityElement = new SimpleSecondary<>(5, 3, intensityFieldWithError);
+        window.addSecondary(intensityElement);
+    }
+
+    private void setFireRatio(float fireRatio) {
+        fireRatioQuantityField.updateRatio(fireRatio);
+    }
+
+    private void setSmokeRatio(float smokeRatio) {
+        smokeRatioQuantityField.updateRatio(smokeRatio);
+    }
+
+    private void setSparkRatio(float sparkRatio) {
+        sparkRatioQuantityField.updateRatio(sparkRatio);
+    }
+
+    private void setIntensity(float intensity) {
+        intensityQuantityField.updateRatio(intensity);
+    }
+
 }

@@ -7,18 +7,21 @@ import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.indicators.MovablesContainer;
+import com.evolgames.userinterface.view.shapes.indicators.VectorIndicator;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import org.andengine.entity.primitive.Line;
+import org.andengine.extension.physics.box2d.util.Vector2Pool;
+
 import java.util.ArrayList;
 
-public class ProjectileShape extends AngleIndicator implements MovablesContainer {
+public class ProjectileShape extends VectorIndicator implements MovablesContainer {
     private final UserInterface userInterface;
     private final ControllerPointImage originPoint;
     private ProjectileModel  model;
 
     public ProjectileShape(Vector2 begin, GameScene scene) {
-        super(begin, scene, 32, 1);
+        super(begin, scene, 1);
 
         this.userInterface = scene.getUserInterface();
         this.originPoint = new ControllerPointImage(ResourceManager.getInstance().aimCircleTextureRegion, begin.cpy()) {
@@ -75,19 +78,11 @@ public class ProjectileShape extends AngleIndicator implements MovablesContainer
         userInterface.removeElement(originPoint);
     }
 
-    @Override
-    public void onTurnAroundCommand(float dA) {
-        turnAround(dA);
-        onTurnAround();
-    }
-
-    private void onTurnAround(){
-        model.getProperties().getProjectileDirection().set(direction);
-    }
 
     @Override
     public void onControllerMoved(float dx, float dy) {
         super.onControllerMoved(dx, dy);
+        this.model.getProperties().getProjectileEnd().set(end.x,end.y);
     }
 
     public ProjectileModel getModel() {
@@ -96,9 +91,8 @@ public class ProjectileShape extends AngleIndicator implements MovablesContainer
 
     public void bindModel(ProjectileModel model) {
         this.model = model;
-        updateDirection(model.getProperties().getProjectileDirection());
+        updateEnd(model.getProperties().getProjectileEnd().x,model.getProperties().getProjectileEnd().y);
         model.setProjectileShape(this);
-        onTurnAround();
     }
 
 }

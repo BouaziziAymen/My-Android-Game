@@ -21,7 +21,7 @@ public class PulverizationParticleSystem extends FlowingParticleSystem {
     @Override
     protected void onParticleSpawned(Particle<Entity> particle) {
         super.onParticleSpawned(particle);
-        CoatingBlock coatingBlock = (CoatingBlock) particle.getEntity().getUserData();
+        CoatingBlock coatingBlock = relativePolygonEmitter.getActiveCoatingBlock();
         Color parentColor = coatingBlock.getParent().getProperties().getDefaultColor();
         MyColorUtils.blendColors(parentColor,parentColor,coatingBlock.getProperties().getDefaultColor());
         particle.getEntity().setColor(parentColor);
