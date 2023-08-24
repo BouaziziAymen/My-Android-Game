@@ -30,12 +30,13 @@ public class ToolUtils {
     public static float getAxisExtent(ToolModel toolModel, Vector2 axis){
         float max = -Float.MAX_VALUE;
         float min = Float.MAX_VALUE;
-        for(BodyModel bodyModel:toolModel.getBodies()){
-            for(LayerModel layerModel:bodyModel.getLayers())
-            for(Vector2 v:layerModel.getPoints()){
-                float dot = v.dot(axis);
-                max = Math.max(dot,max);
-                min = Math.min(dot,min);
+        for(BodyModel bodyModel:toolModel.getBodies()) {
+            for (LayerModel layerModel : bodyModel.getLayers()) {
+                for (Vector2 v : layerModel.getPoints()) {
+                    float dot = v.dot(axis);
+                    max = Math.max(dot, max);
+                    min = Math.min(dot, min);
+                }
             }
         }
 

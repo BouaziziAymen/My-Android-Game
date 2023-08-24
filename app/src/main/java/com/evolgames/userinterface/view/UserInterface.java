@@ -948,9 +948,9 @@ public class UserInterface extends Container implements Touchable {
     }
 
     public void dispose() {
+        if(true)return;
             for (Element e : getContents()) {
                 if (e instanceof PointsShape) {
-                    Log.e("dispose", "outside:" + e.hashCode());
                     ((PointsShape) e).dispose();
                 }
             }

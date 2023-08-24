@@ -1,10 +1,9 @@
 package com.evolgames.entities.particles.wrappers;
 
-import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
-import com.evolgames.entities.particles.initializers.GameEntityAttachedMinMaxVelocityInitializer;
+import com.evolgames.entities.particles.initializers.RandomVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.GroundCollisionBump;
 import com.evolgames.entities.particles.modifiers.GroundCollisionExpire;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
@@ -23,25 +22,10 @@ import org.andengine.util.adt.color.Color;
 
 import is.kul.learningandengine.particlesystems.modifiers.AlphaParticleModifier;
 
-public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
-    protected final float[] data;
-    private final Vector2 normal;
-    public SegmentExplosiveParticleWrapper(GameEntity gameEntity, float[] data, Vector2 velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float flameTemp) {
-        super(gameEntity, velocity.len(), fireRatio, smokeRatio,sparkRatio,intensity*particleDensity(data),flameTemp, data);
-        this.data = data;
-        this.normal = velocity.nor();
+public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
+    public PointExplosiveParticleWrapper(GameEntity gameEntity,  float[] data,float velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float flameTemp) {
+        super(gameEntity, velocity, fireRatio, smokeRatio, sparkRatio, intensity,flameTemp, data);
         createSystems();
-    }
-
-    private static float particleDensity(float[] data) {
-        float x = (data[2]-data[0]);
-        float y = (data[3]-data[1]);
-        return (float) Math.sqrt(x*x+y*y);
-    }
-
-    @Override
-    protected DataEmitter createEmitter(float[] data) {
-        return new SegmentEmitter(data);
     }
 
     @Override
@@ -49,22 +33,27 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         return flameTemperature;
     }
 
+    @Override
+    protected DataEmitter createEmitter(float[] data) {
+        return new SegmentEmitter(data);
+    }
+
     protected BaseParticleSystem createSparkSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
         this.sparkParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
         Color fireColor = MyColorUtils.getColor(flameTemperature);
-        this.sparkParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
+         this.sparkParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         this.sparkParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
         this.sparkParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.9f));
         this.sparkParticleSystem.addParticleModifier(new AlphaParticleModifier<>(0f, 0.3f, 0.9f, 0f));
         this.sparkParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.3f, 0.1f, 0.1f));
         this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.3f));
-      this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
+        this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
         return sparkParticleSystem;
     }
 
     protected BaseParticleSystem createFireSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
         this.fireParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
-        this.fireParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
+        this.fireParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         Color fireColor = MyColorUtils.getColor(flameTemperature);
         Color secondColor = MyColorUtils.getColor(MyColorUtils.getPreviousTemperature(flameTemperature));
         this.fireParticleSystem.addParticleModifier(
@@ -79,7 +68,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
 
     protected BaseParticleSystem createSmokeSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
         this.smokeParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
-        this.smokeParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
+        this.smokeParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         this.smokeParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(0.3f, 0.3f, 0.3f));
         this.smokeParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.2f));
         this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 5f, 0.2f, 0f));
@@ -88,4 +77,5 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.smokeParticleSystem.addParticleModifier(new GroundCollisionBump(20));
         return smokeParticleSystem;
     }
+
 }

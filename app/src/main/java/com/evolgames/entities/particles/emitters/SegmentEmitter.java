@@ -28,9 +28,15 @@ public class SegmentEmitter extends DataEmitter {
     @Override
     public void getPositionOffset(float[] pOffset) {
         float rand = MathUtils.RANDOM.nextFloat();
-        float slope = (data[3]-data[1])/(data[2]-data[0]);
-        pOffset[VERTEX_INDEX_X] = this.data[0] + rand * (this.data[2]-data[0]);
-        pOffset[VERTEX_INDEX_Y] = this.data[1] + slope * rand * (this.data[2]-data[0]);
+        if(data[2]-data[0]!=0.0) {
+            float slope = (data[3] - data[1]) / (data[2] - data[0]);
+            pOffset[VERTEX_INDEX_X] = this.data[0] + rand * (this.data[2] - data[0]);
+            pOffset[VERTEX_INDEX_Y] = this.data[1] + slope * rand * (this.data[2] - data[0]);
+        } else {
+            pOffset[VERTEX_INDEX_X] = this.data[0];
+            pOffset[VERTEX_INDEX_Y] = this.data[1] +  rand * (this.data[3] - data[1]);
+        }
+      //  GameScene.plotter2.drawPoint( new Vector2(pOffset[VERTEX_INDEX_X],  pOffset[VERTEX_INDEX_Y]) ,Color.RED,1);
     }
 
     @Override

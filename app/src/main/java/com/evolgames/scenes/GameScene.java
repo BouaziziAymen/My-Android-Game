@@ -31,6 +31,7 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
@@ -282,9 +283,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
             Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
-            Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
-            this.worldFacade.createFireSource(gameGroup.getGameEntityByIndex(0),v1,v2,0.1f,1f,1f,1f);
-
+           // Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
+          //  PointExplosiveParticleWrapper pointExplosive = this.worldFacade.createPointFireSource(null, new Vector2(400,240), 3000f,1f, 0.1f, 0.1f, 10f, 2000f);
+           //pointExplosive.detachFromParent();
             if (false)
                 for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                     Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
@@ -474,11 +475,11 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-        if (false)
+        if (true)
             if (touchEvent.isActionDown()) {
                 this.x = touchEvent.getX() / 32f;
                 this.y = touchEvent.getY() / 32f;
-                getWorldFacade().createExplosion(x, y, 1000);
+                getWorldFacade().createExplosion(x, y, 10000);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

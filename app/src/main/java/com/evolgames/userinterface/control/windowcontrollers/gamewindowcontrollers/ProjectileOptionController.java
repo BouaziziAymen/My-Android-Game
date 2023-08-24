@@ -192,13 +192,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (projectileModel.getMissileModel() != null) {
             setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix() + "_" + projectileModel.getMissileModel().getModelName() + ".xml");
         }
-        createExplosiveSection();
-        if(this.projectileProperties.getExplosive()!=Explosive.NONE) {
-            setIntensity(this.projectileProperties.getFireIntensity());
-            setFireRatio(this.projectileProperties.getFireRatio());
-            setSmokeRatio(this.projectileProperties.getSmokeRatio());
-            setSparkRatio(this.projectileProperties.getSparkRatio());
-        }
+        setIntensity(this.projectileProperties.getFireIntensity());
+        setFireRatio(this.projectileProperties.getFireRatio());
+        setSmokeRatio(this.projectileProperties.getSmokeRatio());
+        setSparkRatio(this.projectileProperties.getSparkRatio());
+        checkExplosive();
     }
 
     private void setRecoil(float recoil) {
@@ -299,11 +297,13 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         recoilQuantity.getBehavior().setChangeAction(() -> this.projectileProperties.setRecoil(recoilQuantity.getRatio()));
 
         this.createExplosiveSection();
+        this.createExplosiveSettings();
 
         window.createScroller();
         window.getLayout().updateLayout();
         window.setVisible(false);
     }
+
 
     @Override
     public void onSubmitSettings() {
@@ -327,18 +327,29 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         selectedButton.click();
     }
 
+    private void checkExplosive() {
+        final int size = window.getLayout().getSecondariesSize(4);
+        for (int i = 0; i < size; i++) {
+            SimpleSecondary<TitledButton<ProjectileOptionController>> secondary = (SimpleSecondary<TitledButton<ProjectileOptionController>>) window.getLayout().getSecondaryByIndex(4, i);
+            if (secondary.getSecondaryKey() == this.projectileProperties.getExplosive().ordinal()) {
+                secondary.getMain().getAttachment().updateState(Button.State.PRESSED);
+            } else {
+                secondary.getMain().getAttachment().updateState(Button.State.NORMAL);
+            }
+        }
+    }
+
     private void createExplosiveSection() {
+
         if (window.getLayout().getPrimaries().size() >= 4) {
             window.getLayout().removePrimary(4);
         }
         SectionField<ProjectileOptionController> explosiveSection = new SectionField<>(4, "Explosive", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSection);
-        if (projectileModel != null) {
-            Arrays.stream(Explosive.values()).forEach(e -> createCategoryCheckBox(e, this.projectileProperties.getExplosive() == e));
-        }
+        Arrays.stream(Explosive.values()).forEach(this::createCategoryCheckBox);
     }
 
-    private void createCategoryCheckBox(Explosive explosive, boolean pressed) {
+    private void createCategoryCheckBox(Explosive explosive) {
         TitledButton<ProjectileOptionController> explosiveCheckBox = new TitledButton<>
                 (explosive.getName(), ResourceManager.getInstance().checkBoxTextureRegion, Button.ButtonType.Selector, 5f, true);
 
@@ -347,7 +358,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         explosiveCheckBox.getAttachment().setBehavior(new ButtonBehavior<ProjectileOptionController>(this, explosiveCheckBox.getAttachment()) {
             @Override
             public void informControllerButtonClicked() {
-                ProjectileOptionController.this.onExplosiveButtonPressed(explosiveField, explosive);
+                ProjectileOptionController.this.onExplosiveButtonPressed(explosiveField, explosive, true);
             }
 
             @Override
@@ -355,12 +366,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                 ProjectileOptionController.this.onExplosiveButtonReleased(explosiveField);
             }
         });
-        if (pressed) {
-            explosiveCheckBox.getAttachment().updateState(Button.State.PRESSED);
-        }
+
     }
 
-    private void onExplosiveButtonPressed(SimpleSecondary<?> explosiveField, Explosive e) {
+    private void onExplosiveButtonPressed(SimpleSecondary<?> explosiveField, Explosive e, boolean changeRatios) {
         super.onSecondaryButtonClicked(explosiveField);
         int size = window.getLayout().getSecondariesSize(4);
         this.projectileProperties.setExplosive(e);
@@ -373,14 +382,16 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                 }
             }
         }
-        this.updateExplosiveSettings();
-        this.projectileProperties.setFireRatio(e.getFireRatio());
-        setFireRatio(e.getFireRatio());
-        this.projectileProperties.setSmokeRatio(e.getSmokeRatio());
-        setSmokeRatio(e.getSmokeRatio());
-        this.projectileProperties.setSparkRatio(e.getSparkRatio());
-        setSparkRatio(e.getSparkRatio());
-        this.projectileProperties.setFireIntensity(0.5f);
+        if (changeRatios) {
+            this.projectileProperties.setFireRatio(e.getFireRatio());
+            setFireRatio(e.getFireRatio());
+            this.projectileProperties.setSmokeRatio(e.getSmokeRatio());
+            setSmokeRatio(e.getSmokeRatio());
+            this.projectileProperties.setSparkRatio(e.getSparkRatio());
+            setSparkRatio(e.getSparkRatio());
+            this.projectileProperties.setFireIntensity(0.5f);
+        }
+
         setIntensity(0.5f);
     }
 
@@ -388,15 +399,13 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         super.onSecondaryButtonReleased(categoryField);
     }
 
-    private void updateExplosiveSettings() {
+    private void createExplosiveSettings() {
         for (SimplePrimary<?> p : window.getLayout().getPrimaries()) {
             if (p.getPrimaryKey() >= 5) {
                 window.getLayout().removePrimary(p.getPrimaryKey());
             }
         }
-        if (this.projectileProperties.getExplosive() == Explosive.NONE) {
-            return;
-        }
+
         SectionField<ProjectileOptionController> explosiveSettingsSection = new SectionField<>(5, "Explosive Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
@@ -408,6 +417,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
                 ProjectileOptionController.this.projectileProperties.setFireRatio(quantity.getRatio());
+                ProjectileOptionController.this.onExplosiveOptionsChanged();
             }
         });
 
@@ -456,6 +466,26 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         FieldWithError intensityFieldWithError = new FieldWithError(titledIntensityQuantity);
         SimpleSecondary<FieldWithError> intensityElement = new SimpleSecondary<>(5, 3, intensityFieldWithError);
         window.addSecondary(intensityElement);
+    }
+
+    private void onExplosiveOptionsChanged() {
+        if (!projectileProperties.getExplosive().equals(Explosive.OTHER)) {
+            SimpleSecondary<?> secondary = window.getLayout().getSecondary(4, 0);
+            Element main = secondary.getMain();
+            ((TitledButton<?>) main).getAttachment().updateState(Button.State.PRESSED);
+            projectileProperties.setExplosive(Explosive.OTHER);
+            onExplosiveButtonPressed(secondary, projectileProperties.getExplosive(), false);
+        }
+    }
+
+    @Override
+    public void onPrimaryButtonReleased(SimplePrimary<?> simplePrimary) {
+        super.onPrimaryButtonReleased(simplePrimary);
+    }
+
+    @Override
+    public void onPrimaryButtonClicked(SimplePrimary<?> simplePrimary) {
+        super.onPrimaryButtonClicked(simplePrimary);
     }
 
     private void setFireRatio(float fireRatio) {

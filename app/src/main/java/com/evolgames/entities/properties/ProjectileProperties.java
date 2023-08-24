@@ -10,7 +10,7 @@ public class ProjectileProperties extends Properties {
     private float muzzleVelocity = 200f;
     private float recoil = 0.3f;
     private int fireSound = 1;
-    private Explosive explosive = Explosive.NONE;
+    private Explosive explosive = Explosive.OTHER;
     private float smokeRatio;
     private float fireRatio;
     private float sparkRatio;

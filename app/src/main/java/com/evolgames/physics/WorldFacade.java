@@ -47,6 +47,7 @@ import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
@@ -235,22 +236,52 @@ public class WorldFacade implements ContactObserver {
             return new ClusterLiquidParticleWrapper(parentEntity, color, data, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
     }
-    public SegmentExplosiveParticleWrapper  createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float fireRatio, float smokeRatio, float sparkRatio, float intensity){
+    public SegmentExplosiveParticleWrapper  createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float temperature){
         Vector2 dir = v1.cpy().sub(v2).nor();
         Vector2 normal = new Vector2(-dir.y,dir.x);
-
         SegmentExplosiveParticleWrapper explosiveParticleWrapper = new SegmentExplosiveParticleWrapper(entity,
-                new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * 600f / 10f), fireRatio, smokeRatio, sparkRatio,intensity);
-        explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
-        explosiveParticleWrapper.getSmokeParticleSystem().setZIndex(5);
-        explosiveParticleWrapper.getSparkParticleSystem().setZIndex(5);
+                new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * velocity / 10f), fireRatio, smokeRatio, sparkRatio,intensity,temperature);
+
         explosiveParticleWrapper.setParent(entity);
-        gameScene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
-        gameScene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
-        gameScene.attachChild(explosiveParticleWrapper.getSparkParticleSystem());
-        gameScene.sortChildren();
+        if(explosiveParticleWrapper.getFireParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
+            explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
+            this.addFlame(explosiveParticleWrapper);
+        }
+        if(explosiveParticleWrapper.getSmokeParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
+            explosiveParticleWrapper.getSmokeParticleSystem().setZIndex(5);
+        }
+        if(explosiveParticleWrapper.getSparkParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getSparkParticleSystem());
+            explosiveParticleWrapper.getSparkParticleSystem().setZIndex(5);
+        }
         this.explosives.add(explosiveParticleWrapper);
-        this.addFlame(explosiveParticleWrapper);
+        gameScene.sortChildren();
+        return explosiveParticleWrapper;
+    }
+
+    public PointExplosiveParticleWrapper createPointFireSource(GameEntity entity, Vector2 p, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float temperature){
+
+        PointExplosiveParticleWrapper explosiveParticleWrapper = new PointExplosiveParticleWrapper(entity,
+                new float[]{p.x, p.y,p.x, p.y}, 32f * velocity / 10f, fireRatio, smokeRatio, sparkRatio,intensity,temperature);
+
+        explosiveParticleWrapper.setParent(entity);
+        if(explosiveParticleWrapper.getFireParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
+            explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
+            this.addFlame(explosiveParticleWrapper);
+        }
+        if(explosiveParticleWrapper.getSmokeParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
+            explosiveParticleWrapper.getSmokeParticleSystem().setZIndex(5);
+        }
+        if(explosiveParticleWrapper.getSparkParticleSystem()!=null) {
+            gameScene.attachChild(explosiveParticleWrapper.getSparkParticleSystem());
+            explosiveParticleWrapper.getSparkParticleSystem().setZIndex(5);
+        }
+        this.explosives.add(explosiveParticleWrapper);
+        gameScene.sortChildren();
         return explosiveParticleWrapper;
     }
 
@@ -285,7 +316,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void createExplosion(float x, float y, float energy) {
-        Explosion explosion = new Explosion(gameScene, new Vector2(x, y), energy);
+        Explosion explosion = new Explosion(gameScene, new Vector2(x, y), energy,1f,0.3f,0.2f,10f,2000f);
         explosions.add(explosion);
     }
 

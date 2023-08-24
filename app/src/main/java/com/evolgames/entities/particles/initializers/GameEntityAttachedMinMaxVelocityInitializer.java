@@ -35,7 +35,6 @@ public class GameEntityAttachedMinMaxVelocityInitializer implements IParticleIni
             return;
         }
         this.worldPoint.set(pParticle.getEntity().getX() / 32f, pParticle.getEntity().getY() / 32f);
-        Vector2 linVel = gameEntity.getBody().getLinearVelocityFromWorldPoint(worldPoint);
         float ta = (float) (minX+Math.random()*(maxX-minX));
         float na = (float) (minY+Math.random()*(maxY-minY));
 

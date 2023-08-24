@@ -28,6 +28,7 @@ import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -210,13 +211,13 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             gameEntity.setCenter(center);
             bodyModel.getProjectiles().forEach(p->{
                 ProjectileProperties properties = p.getProperties();
-                if(properties.getExplosive()== Explosive.NONE){
+                if(properties.getFireRatio()>=0.1f||properties.getSmokeRatio()>=0.1f||properties.getSparkRatio()>=0.1f){
                    Vector2 end = properties.getProjectileEnd();
                    Vector2 dir = end.cpy().sub(properties.getProjectileOrigin()).nor();
                    Vector2 nor = new Vector2(-dir.y,dir.x);
                    Vector2 e = end.cpy().sub(gameEntity.getCenter());
                    float extent = ToolUtils.getAxisExtent(p.getMissileModel(),nor)/2f;
-                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),properties.getFireIntensity());
+                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y), PhysicsConstants.getProjectileVelocity(properties.getMuzzleVelocity()),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),properties.getFireIntensity(),2000);
                    fireSource.setSpawnEnabled(false);
                    p.setFireSource(fireSource);
                }

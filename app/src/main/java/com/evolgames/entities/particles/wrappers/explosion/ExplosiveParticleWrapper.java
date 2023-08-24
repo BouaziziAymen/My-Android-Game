@@ -1,56 +1,57 @@
 package com.evolgames.entities.particles.wrappers.explosion;
 
-import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
-import com.evolgames.entities.particles.initializers.GameEntityAttachedMinMaxVelocityInitializer;
 import com.evolgames.entities.particles.pools.UncoloredSpritePool;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.Fire;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MyColorUtils;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.Particle;
-import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
-import org.andengine.entity.particle.initializer.ColorParticleInitializer;
-import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
-import org.andengine.entity.particle.modifier.ScaleParticleModifier;
-import org.andengine.util.adt.color.Color;
-
-import is.kul.learningandengine.particlesystems.modifiers.AlphaParticleModifier;
 
 public abstract class ExplosiveParticleWrapper implements Fire {
 
-    private static final float RATE_MIN = 40;
-    private static final float RATE_MAX = 120;
-    private static final int PARTICLES_MAX = 480;
-    private final DataEmitter emitter;
-    private final Vector2 normal;
-    private BaseParticleSystem fireParticleSystem;
-    private BaseParticleSystem smokeParticleSystem;
-    private BaseParticleSystem sparkParticleSystem;
-    private GameEntity parent;
+    private static final float RATE_MIN = 500;
+    private static final float RATE_MAX = 1000;
+    private static final int PARTICLES_MAX = 2000;
+    protected final DataEmitter emitter;
+    protected final float particleDensity;
+    private final float fireRatio;
+    private final float smokeRatio;
+    private final float sparkRatio;
+    private final float velocity;
+    protected float flameTemperature;
+    protected BaseParticleSystem fireParticleSystem;
+    protected BaseParticleSystem smokeParticleSystem;
+    protected BaseParticleSystem sparkParticleSystem;
+    protected GameEntity parent;
     private boolean alive = true;
-    private int timer = 0;
+    protected boolean attachedToParent = true;
 
-    public ExplosiveParticleWrapper(GameEntity gameEntity, Vector2 baseVelocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float[] data) {
-        float velocity = baseVelocity.len();
-        this.normal = baseVelocity.nor();
+    public ExplosiveParticleWrapper(GameEntity gameEntity, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float particleDensity, float flameTemperature, float[] data) {
         this.emitter = createEmitter(data);
         this.parent = gameEntity;
-        float length = sourceLength(data);
-        int rateMinFire = (int) (fireRatio * intensity * length * RATE_MIN);
-        int rateMaxFire = (int) (fireRatio * intensity * length * RATE_MAX);
-        int particlesMaxFire = (int) (fireRatio * intensity * length * PARTICLES_MAX);
-        int rateMinSmoke = (int) (smokeRatio * intensity * length * RATE_MIN);
-        int rateMaxSmoke = (int) (smokeRatio * intensity * length * RATE_MAX);
-        int particlesMaxSmoke = (int) (smokeRatio * intensity * length * PARTICLES_MAX);
-        int rateMinSpark = (int) (sparkRatio * intensity * length * RATE_MIN);
-        int rateMaxSpark = (int) (sparkRatio * intensity * length * RATE_MAX);
-        int particlesMaxSpark = (int) (sparkRatio * intensity * length * PARTICLES_MAX);
+        this.velocity = velocity;
+        this.fireRatio = fireRatio;
+        this.smokeRatio = smokeRatio;
+        this.sparkRatio = sparkRatio;
+        this.particleDensity = particleDensity;
+        this.flameTemperature = flameTemperature;
+        this.updateEmitter();
+    }
+
+    public void createSystems() {
+        int rateMinFire = (int) (fireRatio * particleDensity * RATE_MIN);
+        int rateMaxFire = (int) (fireRatio * particleDensity * RATE_MAX);
+        int particlesMaxFire = (int) (fireRatio * particleDensity * PARTICLES_MAX);
+        int rateMinSmoke = (int) (smokeRatio * particleDensity * RATE_MIN);
+        int rateMaxSmoke = (int) (smokeRatio * particleDensity * RATE_MAX);
+        int particlesMaxSmoke = (int) (smokeRatio * particleDensity * PARTICLES_MAX);
+        int rateMinSpark = (int) (sparkRatio * particleDensity * RATE_MIN);
+        int rateMaxSpark = (int) (sparkRatio * particleDensity * RATE_MAX);
+        int particlesMaxSpark = (int) (sparkRatio * particleDensity * PARTICLES_MAX);
 
         float fireVerticalSpeed = 0.08f * velocity;
         float smokeVerticalSpeed = 0.02f * velocity;
@@ -58,50 +59,22 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         float fireHorizontalSpeed = 0.01f * velocity;
         float smokeHorizontalSpeed = 0.01f * velocity;
         float sparkHorizontalSpeed = 0;
-
-        this.fireParticleSystem = createFireSystem(rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed, UncoloredSpritePool::obtain);
-        this.smokeParticleSystem = createSmokeSystem(rateMinSmoke, rateMaxSmoke, particlesMaxSmoke, smokeVerticalSpeed, smokeHorizontalSpeed, UncoloredSpritePool::obtain);
-        this.sparkParticleSystem = createSparkSystem(rateMinSpark, rateMaxSpark, particlesMaxSpark, sparkVerticalSpeed, sparkHorizontalSpeed, UncoloredSpritePool::obtain);
+        if (fireRatio > 0) {
+            this.fireParticleSystem = createFireSystem(rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed, UncoloredSpritePool::obtain);
+        }
+        if (smokeRatio > 0) {
+            this.smokeParticleSystem = createSmokeSystem(rateMinSmoke, rateMaxSmoke, particlesMaxSmoke, smokeVerticalSpeed, smokeHorizontalSpeed, UncoloredSpritePool::obtain);
+        }
+        if (sparkRatio > 0) {
+            this.sparkParticleSystem = createSparkSystem(rateMinSpark, rateMaxSpark, particlesMaxSpark, sparkVerticalSpeed, sparkHorizontalSpeed, UncoloredSpritePool::obtain);
+        }
     }
 
-    abstract protected float sourceLength(float[] data);
+    protected abstract BaseParticleSystem createSparkSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
 
-    private BaseParticleSystem createSparkSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
-        this.sparkParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().pixelParticle, ResourceManager.getInstance().vbom);
-        Color fireColor = MyColorUtils.getColor(3000);
-        this.sparkParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
-        this.sparkParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
-        this.sparkParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.9f));
-        this.sparkParticleSystem.addParticleModifier(new AlphaParticleModifier<>(0f, 0.3f, 0.9f, 0f));
-        this.sparkParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.3f, 0.05f, 0.04f));
-        this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.3f));
-        return sparkParticleSystem;
-    }
+    protected abstract BaseParticleSystem createFireSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
 
-    private BaseParticleSystem createFireSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
-        this.fireParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
-        this.fireParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
-        Color fireColor = MyColorUtils.getColor(2000);
-        Color secondColor = MyColorUtils.getColor(500);
-        this.fireParticleSystem.addParticleModifier(
-                new org.andengine.entity.particle.modifier.ColorParticleModifier<>(0f, 0.3f, fireColor.getRed(), secondColor.getRed(), fireColor.getGreen(), secondColor.getGreen(), fireColor.getBlue(), secondColor.getBlue()));
-        this.fireParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
-        this.fireParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.6f));
-        this.fireParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.5f, 0f));
-        this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
-        return fireParticleSystem;
-    }
-
-    private BaseParticleSystem createSmokeSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief) {
-        this.smokeParticleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, maxParticles, ResourceManager.getInstance().plasmaParticle4, ResourceManager.getInstance().vbom);
-        this.smokeParticleSystem.addParticleInitializer(new GameEntityAttachedMinMaxVelocityInitializer(parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
-        this.smokeParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(0.3f, 0.3f, 0.3f));
-        this.smokeParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.2f));
-        this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 5f, 0.2f, 0f));
-        this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 5f, 0.99f, 0.99f));
-        this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
-        return smokeParticleSystem;
-    }
+    protected abstract BaseParticleSystem createSmokeSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
 
     protected abstract DataEmitter createEmitter(float[] data);
 
@@ -109,7 +82,14 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         this.parent = entity;
     }
 
+    public void detachFromParent() {
+        attachedToParent = false;
+    }
+
     public void update() {
+        if (!attachedToParent||parent==null) {
+            return;
+        }
         if (!parent.isAlive()) {
             finishSelf();
         }
@@ -123,16 +103,6 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         if (parent == null) {
             return;
         }
-        transformEmitter();
-    }
-
-    public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
-        this.fireParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
-        this.smokeParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
-        this.sparkParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
-    }
-
-    private void transformEmitter() {
         float x = parent.getMesh().getX();
         float y = parent.getMesh().getY();
         float rot = parent.getMesh().getRotation();
@@ -141,6 +111,19 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         GeometryUtils.transformation.preRotate(-rot);
         emitter.onStep(GeometryUtils.transformation);
     }
+
+    public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
+        if (fireParticleSystem != null) {
+            this.fireParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
+        }
+        if (smokeParticleSystem != null) {
+            this.smokeParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
+        }
+        if (sparkParticleSystem != null) {
+            this.sparkParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
+        }
+    }
+
 
     public BaseParticleSystem getFireParticleSystem() {
         return fireParticleSystem;
@@ -155,9 +138,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     }
 
     public void finishSelf() {
-        fireParticleSystem.setParticlesSpawnEnabled(false);
-        sparkParticleSystem.setParticlesSpawnEnabled(false);
-        smokeParticleSystem.setParticlesSpawnEnabled(false);
+        setSpawnEnabled(false);
         this.alive = false;
     }
 
