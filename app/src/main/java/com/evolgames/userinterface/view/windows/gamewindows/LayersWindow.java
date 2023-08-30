@@ -39,7 +39,6 @@ public class LayersWindow extends AbstractTwoLevelSectionedAdvancedWindow<BodyFi
         layout.addDummySection(mainField);
         mainField.setPadding(10);
         createScroller();
-        layerWindowController.init();
     }
 
 

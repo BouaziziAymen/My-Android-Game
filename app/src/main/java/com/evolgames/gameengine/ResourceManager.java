@@ -131,6 +131,10 @@ public class ResourceManager {
     public TiledTextureRegion longButtonTextureRegion;
     public TiledTextureRegion checkBoxTextureRegion;
     public TiledTextureRegion arcadeRedTextureRegion;
+    public TiledTextureRegion bombTextureRegion;
+    public TextureRegion targetShapeTextureRegion;
+    public TextureRegion bombShapeTextureRegion;
+    public TextureRegion casingShapeTextureRegion;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -164,7 +168,7 @@ public class ResourceManager {
         this.base = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "base.png");
         this.knob = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "knob.png");
         this.pokemon = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "bulbasaur.png");
-        this.liquidParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/waterSmall.png");
+        this.liquidParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/water2.png");
         this.plasmaParticle1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f1.png");
         this.plasmaParticle2 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f2.png");
         this.plasmaParticle3 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f3.png");
@@ -249,6 +253,9 @@ public class ResourceManager {
         this.targetCircleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/targetcircle.png");
         this.aimCircleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/aimcircle.png");
 
+        this.targetShapeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/target.png");
+        this.bombShapeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/bomb.png");
+        this.casingShapeTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
 
         this.scaleButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/scale.png", 1, 3);
         this.rotateImageButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
@@ -297,6 +304,7 @@ public class ResourceManager {
         this.rotateTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
         this.decaleTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
         this.ammoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
+        this.bombTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/bomb.png", 1, 3);
         this.checkBoxTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);
         this.arcadeRedTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "buttons/arcade_red.png", 2, 1);
 

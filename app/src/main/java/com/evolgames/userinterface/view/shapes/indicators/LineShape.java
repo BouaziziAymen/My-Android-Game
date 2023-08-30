@@ -118,6 +118,7 @@ public class LineShape {
     }
 
     public void setVisible(boolean b) {
+        if(lineStrip != null)
         lineStrip.setVisible(b);
         this.visible = b;
     }

@@ -31,7 +31,6 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
@@ -47,7 +46,9 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
+import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -119,6 +120,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private Movable movable;
     private GameGroup gameGroup;
     private Mesh theMesh;
+    private UsageButtonsController usageButtonsController;
 
 
     public GameScene() {
@@ -181,16 +183,18 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this, keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
-        CasingOptionController ammoOptionController = new CasingOptionController(this, keyboardController, toolModel);
-        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, ammoOptionController, outlineController);
+        CasingOptionController ammoOptionController = new CasingOptionController(keyboardController);
+        BombOptionController bombOptionController = new BombOptionController(keyboardController);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, ammoOptionController,bombOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
 
-        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
-
+        userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, bombOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
+        this.usageButtonsController = new UsageButtonsController(userInterface,this);
+        this.usageButtonsController.init();
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
         jointWindowController.setUserInterface(userInterface);
@@ -275,8 +279,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
 
         if (true) {
-            UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
-            this.attachChild(uncoloredSprite);
+           // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
+           // this.attachChild(uncoloredSprite);
 
             gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
@@ -479,7 +483,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             if (touchEvent.isActionDown()) {
                 this.x = touchEvent.getX() / 32f;
                 this.y = touchEvent.getY() / 32f;
-                getWorldFacade().createExplosion(x, y, 10000);
+                getWorldFacade().createExplosion(x, y, 1f,0.4f,0.2f,1f,0.2f,0.1f,1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
@@ -521,7 +525,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (action == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
-        if (touchEvent.isActionUp())
+        if (touchEvent.isActionUp()&& false)
             if (new Vector2(400, 240).dst(touchEvent.getX(), touchEvent.getY()) < 16) {
                 if (action == PlayerAction.Drag) {
                     action = PlayerAction.Slice;
@@ -551,53 +555,52 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
         }
         if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
-            if (point1 != null && point2 != null)
+            if (point1 != null && point2 != null) {
                 worldFacade.performScreenCut(point1.mul(1 / 32f), point2.mul(1 / 32f));
-            point1 = null;
-            point2 = null;
-            line.detachSelf();
-
+                point1 = null;
+                point2 = null;
+                line.detachSelf();
+            }
         }
     }
 
     private void processGrabbing(TouchEvent touchEvent) {
         int pointerID = touchEvent.getPointerID();
+        if (!hands.containsKey(pointerID)) {
+            hands.put(pointerID,  new Hand(worldFacade));
+        }
+        Hand hand = hands.get(pointerID);
         if (touchEvent.isActionDown()) {
             for (GameGroup gameGroup : gameGroups)
                 for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                     GameEntity entity = gameGroup.getGameEntities().get(k);
                     if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                        if (!hands.containsKey(pointerID)) {
-                            Hand hand = new Hand(worldFacade);
-                            hands.put(pointerID, hand);
-                        } else {
-                            Hand hand = hands.get(pointerID);
-                            hand.resumeGrab();
-                        }
-                        Objects.requireNonNull(hands.get(pointerID)).grab(entity, touchEvent, entity.hasTrigger());
-                        if (entity.hasTrigger()) {
-                            userInterface.showFireButtons();
-                        } else {
-                            userInterface.hideFireButtons();
-                        }
+                                if(hand.getGrabbedEntity()==null||hand.getGrabbedEntity()!=entity) {
+                                    if(hand.getGrabbedEntity()!=null) {
+                                        usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
+                                        hand.release();
+                                    }
+                                    hand.grab(entity, touchEvent, entity.shouldBeHeld());
+                                    usageButtonsController.addGameEntityControls(entity);
+                                } else {
+                                    hand.resumeGrab();
+                                }
                         break;
+                        }
                     }
-                }
-
         } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
-            for (Hand hand : hands.values()) {
                 if (hand != null&&hand.getGrabbedEntity()!=null) {
-                    if(!hand.getGrabbedEntity().hasTrigger()) {
+                    if(!hand.getGrabbedEntity().shouldBeHeld()) {
+                        usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
                         hand.release();
                     } else {
                         hand.stopFollow();
                     }
                 }
-            }
         }
-        if (hands.get(pointerID) != null) {
-            Objects.requireNonNull(hands.get(pointerID)).onSceneTouchEvent(touchEvent);
-        }
+      for(Hand h:hands.values()){
+          h.onSceneTouchEvent(touchEvent);
+      }
     }
 
     public void onDestroyMouseJoint(MouseJoint j) {

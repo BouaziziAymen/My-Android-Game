@@ -2,9 +2,13 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.usage.AutomaticProperties;
+import com.evolgames.entities.properties.usage.BombUsageProperties;
+import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
+import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
+import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -15,6 +19,7 @@ import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.sections.basic.SimplePrimary;
@@ -46,6 +51,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8, 5);
     private final NumericValidator gunReloadTimeValidator = new NumericValidator(false, false, 0, 1000, 3, 0);
     private final NumericValidator roundsValidator = new NumericValidator(false, false, 0, 1000, 3, 0);
+    private final NumericValidator bombDelayValidator = new NumericValidator(false, true, 0.01f, 1000f, 3, 2);
+    private final NumericValidator bombMinImpactValidator = new NumericValidator(false, true, 0.01f, 9999f, 4, 2);
     //Manual
     private TextField<BodySettingsWindowController> rangedManualReloadTimeTextField;
     //Automatic
@@ -57,6 +64,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private BodyModel bodyModel;
     private UserInterface userInterface;
     private TextField<BodySettingsWindowController> roundsTextField;
+    private TextField<BodySettingsWindowController> bombDelayTextField;
+    private TextField<BodySettingsWindowController> bombMinImpactTextField;
 
 
     public BodySettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
@@ -104,6 +113,22 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setNumberOfRounds(autoProps.getNumberOfRounds());
                 setReloadTime(autoProps.getReloadTime());
                 break;
+            case TIME_BOMB:
+                UsageModel<TimeBombUsageProperties> timeBombUsagePropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                TimeBombUsageProperties timeBombUsageProperties = timeBombUsagePropertiesUsageModel.getProperties();
+                setBombDelay(timeBombUsageProperties.getDelay());
+                break;
+            case FUZE_BOMB:
+                UsageModel<FuzeBombUsageProperties> fuzeBombUsageUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                FuzeBombUsageProperties fuzeBombUsageProperties = fuzeBombUsageUsageModel.getProperties();
+               setBombDelay(fuzeBombUsageProperties.getDelay());
+                break;
+            case IMPACT_BOMB:
+                UsageModel<ImpactBombUsageProperties> impactBombUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                ImpactBombUsageProperties impactBombUsageProperties = impactBombUsageModel.getProperties();
+                setBombDelay(impactBombUsageProperties.getDelay());
+                setBombMinImpact(impactBombUsageProperties.getMinImpact());
+                break;
         }
     }
 
@@ -137,6 +162,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void setReloadTime(float reloadTime) {
         rangedManualReloadTimeTextField.getBehavior().setTextValidated(""+Float.valueOf(reloadTime).intValue());
+    }
+    private void setBombDelay(float delay) {
+         bombDelayTextField.getBehavior().setTextValidated(""+ delay);
+    }
+    private void setBombMinImpact(float delay) {
+        bombMinImpactTextField.getBehavior().setTextValidated(""+ delay);
     }
     private void setNumberOfRounds(int rounds) {
         roundsTextField.getBehavior().setTextValidated("" + rounds);
@@ -231,6 +262,22 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createNumberOfRoundsTextField(primaryId,2,automaticProperties);
                             createProjectilesField(primaryId,3, automaticProperties);
                             break;
+                        case TIME_BOMB:
+                            TimeBombUsageProperties timeBombProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.TIME_BOMB);
+                          createTimeBombDelayField(primaryId,1,timeBombProperties);
+                          createBombsField(primaryId,2,timeBombProperties);
+                            break;
+                        case FUZE_BOMB:
+                            FuzeBombUsageProperties fuzeBombProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.FUZE_BOMB);
+                            createTimeBombDelayField(primaryId,1,fuzeBombProperties);
+                            createBombsField(primaryId,2,fuzeBombProperties);
+                            break;
+                        case IMPACT_BOMB:
+                            ImpactBombUsageProperties impactBombProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.IMPACT_BOMB);
+                            createTimeBombDelayField(primaryId,1,impactBombProperties);
+                           createBombMinImpactField(primaryId,2,impactBombProperties);
+                            createBombsField(primaryId,3,impactBombProperties);
+                            break;
                     }
                 }
             }
@@ -280,6 +327,63 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             rangedProperties.setReloadTime(reloadTime);
         });
     }
+
+
+    private void createTimeBombDelayField(int primaryId, int secondaryId, BombUsageProperties bombUsageProperties) {
+        TitledTextField<BodySettingsWindowController> bombDelayField = new TitledTextField<>("Delay:", 6, 5, 80);
+        bombDelayTextField = bombDelayField.getAttachment();
+
+        bombDelayField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, bombDelayTextField, Keyboard.KeyboardType.Numeric, bombDelayValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                BodySettingsWindowController.super.onTextFieldTapped(rangedManualReloadTimeTextField);
+            }
+
+            @Override
+            protected void informControllerTextFieldReleased() {
+                BodySettingsWindowController.super.onTextFieldReleased(rangedManualReloadTimeTextField);
+            }
+        });
+
+        FieldWithError delayFieldWithError = new FieldWithError(bombDelayField);
+        SimpleSecondary<FieldWithError> delayElement = new SimpleSecondary<>(primaryId, secondaryId, delayFieldWithError);
+        window.addSecondary(delayElement);
+
+        bombDelayTextField.getBehavior().setReleaseAction(() -> {
+            float delay = Float.parseFloat(bombDelayTextField.getTextString());
+            assert bombUsageProperties != null;
+            bombUsageProperties.setDelay(delay);
+        });
+    }
+    private void createBombMinImpactField(int primaryId, int secondaryId, ImpactBombUsageProperties bombUsageProperties) {
+        TitledTextField<BodySettingsWindowController> minImpactField = new TitledTextField<>("Min Impact:", 6, 5, 80);
+        bombMinImpactTextField = minImpactField.getAttachment();
+
+        minImpactField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, bombMinImpactTextField, Keyboard.KeyboardType.Numeric, bombMinImpactValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                BodySettingsWindowController.super.onTextFieldTapped(bombMinImpactTextField);
+            }
+
+            @Override
+            protected void informControllerTextFieldReleased() {
+                BodySettingsWindowController.super.onTextFieldReleased(bombMinImpactTextField);
+            }
+        });
+
+        FieldWithError minImpactFieldWithError = new FieldWithError(minImpactField);
+        SimpleSecondary<FieldWithError> impactElement = new SimpleSecondary<>(primaryId, secondaryId, minImpactFieldWithError);
+        window.addSecondary(impactElement);
+
+        bombDelayTextField.getBehavior().setReleaseAction(() -> {
+            float minImpact = Float.parseFloat(bombMinImpactTextField.getTextString());
+            assert bombUsageProperties != null;
+            bombUsageProperties.setMinImpact(minImpact);
+        });
+    }
+
+
+
 
     private void createProjectilesField(int primaryId,int secondaryId, RangedProperties rangedProperties) {
         SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(primaryId,secondaryId, "Projectiles", ResourceManager.getInstance().mainButtonTextureRegion, this);
@@ -343,7 +447,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             properties.setProjectileIds(new ArrayList<>());
             bodyModel.getUsageModels().add(usage);
         }
-
+        if(e==BodyUsageCategory.TIME_BOMB||e==BodyUsageCategory.FUZE_BOMB||e==BodyUsageCategory.IMPACT_BOMB) {
+            UsageModel<BombUsageProperties> usage = new UsageModel<>("", e);
+            BombUsageProperties properties = usage.getProperties();
+            properties.setBombIds(new ArrayList<>());
+            bodyModel.getUsageModels().add(usage);
+        }
     }
 
     public void onUsageRemoved(BodyUsageCategory bodyUsageCategory) {
@@ -382,6 +491,43 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         });
         if(pressed){
             categoryCheckbox.getAttachment().updateState(Button.State.PRESSED);
+        }
+    }
+
+
+
+
+
+
+
+
+    private void createBombsField(int primaryId,int secondaryId, BombUsageProperties bombUsageProperties) {
+        SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(primaryId,secondaryId, "Projectiles", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        window.addSecondary(projectileField);
+        List<BombModel> bombModelList = userInterface.getToolModel().getBodies().stream().map(BodyModel::getBombModels).flatMap(Collection::stream).collect(Collectors.toList());
+        for(BombModel bombModel:bombModelList){
+            createBombButton(primaryId,secondaryId,bombModel, bombUsageProperties);
+        }
+    }
+
+    private void createBombButton(int primaryKey, int secondaryKey, BombModel bombModel, BombUsageProperties bombUsageProperties){
+        ButtonWithText<BodySettingsWindowController> bombButton = new ButtonWithText<>
+                (bombModel.getModelName(), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+        SimpleTertiary<ButtonWithText<?>> bombField = new SimpleTertiary<>(primaryKey, secondaryKey, bombModel.getBombId(), bombButton);
+        window.addTertiary(bombField);
+        bombButton.setBehavior(new ButtonBehavior<BodySettingsWindowController>(this, bombButton) {
+            @Override
+            public void informControllerButtonClicked() {
+                bombUsageProperties.getBombModelList().add(bombModel);
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+                bombUsageProperties.getBombModelList().remove(bombModel);
+            }
+        });
+        if(bombUsageProperties.getBombModelList().stream().anyMatch(b->bombModel.getBombId()==b.getBombId())){
+            bombButton.updateState(Button.State.PRESSED);
         }
     }
 

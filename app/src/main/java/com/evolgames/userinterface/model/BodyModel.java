@@ -5,6 +5,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
@@ -25,6 +26,8 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private final ArrayList<CasingModel> ammoModels;
     private GameEntity gameEntity;
     private final List<UsageModel<?>> usageModels;
+    private List<BombModel> bombModels;
+
     @SuppressWarnings("unchecked")
     public <T extends Properties> T getUsageModelProperties(BodyUsageCategory bodyUsageCategory){
         return ((UsageModel<T>)usageModels.stream().filter(e->e.getType()==bodyUsageCategory).findFirst().get()).getProperties();
@@ -42,6 +45,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         ammoModels = new ArrayList<>();
         properties = new BodyProperties();
         usageModels = new ArrayList<>();
+        bombModels = new ArrayList<>();
     }
 
 
@@ -130,7 +134,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         throw new UnsupportedOperationException();
     }
 
-    public List<CasingModel> getAmmoModels() {
+    public List<CasingModel> getCasingModels() {
         return ammoModels;
     }
 
@@ -140,5 +144,17 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
     public ArrayList<ProjectileModel> getProjectiles() {
         return projectiles;
+    }
+
+    public List<BombModel> getBombModels() {
+        return bombModels;
+    }
+
+    public void setBombModels(List<BombModel> bombModels) {
+        this.bombModels = bombModels;
+    }
+
+    public BombModel getBombModelById(int bombId) {
+        return bombModels.stream().filter(bombModel -> bombModel.getBombId() == bombId).findFirst().orElse(null);
     }
 }

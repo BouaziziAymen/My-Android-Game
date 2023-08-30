@@ -18,10 +18,6 @@ public class JointsWindow extends AbstractZeroLevelSectionedAdvancedWindow<Joint
         layout.addDummySection(text);
         createScroller();
         layout.updateLayout();
-
-
-
-
     }
 
     @Override

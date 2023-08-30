@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
 
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
 import com.evolgames.userinterface.view.Screen;
 import com.evolgames.userinterface.view.UserInterface;
@@ -9,10 +10,12 @@ import com.evolgames.userinterface.view.layouts.ButtonBoard;
 
 public class MainButtonBoardController extends ButtonBoardController {
     private final UserInterface userInterface;
+    private final OutlineController outlineController;
 
-    public MainButtonBoardController(ButtonBoard buttonBoard, UserInterface userInterface) {
+    public MainButtonBoardController(ButtonBoard buttonBoard, UserInterface userInterface, OutlineController outlineController) {
         super(buttonBoard);
         this.userInterface = userInterface;
+        this.outlineController = outlineController;
     }
 
 
@@ -27,14 +30,14 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setSaveWindowVisible(false);
         userInterface.setLayersWindowVisible(true);
         userInterface.setJointsWindowVisible(false);
-        userInterface.setSelectedScreen(Screen.DRAW_SCREEN);
+        userInterface.changeSelectedScreen(Screen.DRAW_SCREEN);
     }
 
     public void onDrawOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setDrawButtonBoardVisible(false);
         userInterface.setLayersWindowVisible(false);
-        userInterface.setSelectedScreen(Screen.NONE);
+        userInterface.changeSelectedScreen(Screen.NONE);
     }
 
     public void onImageOptionClicked(Button<MainButtonBoardController> button) {
@@ -49,13 +52,13 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setSaveWindowVisible(false);
         userInterface.setItemWindowVisible(false);
         userInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
-        userInterface.setSelectedScreen(Screen.IMAGE_SCREEN);
+        userInterface.changeSelectedScreen(Screen.IMAGE_SCREEN);
     }
 
     public void onImageOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setImageButtonBoardVisible(false);
-        userInterface.setSelectedScreen(Screen.NONE);
+        userInterface.changeSelectedScreen(Screen.NONE);
     }
 
 
@@ -69,14 +72,14 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setItemWindowVisible(false);
         userInterface.setSaveWindowVisible(false);
         userInterface.setJointsWindowVisible(true);
-        userInterface.setSelectedScreen(Screen.JOINTS_SCREEN);
+        userInterface.changeSelectedScreen(Screen.JOINTS_SCREEN);
     }
 
     public void onJointOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setJointButtonBoardVisible(false);
         userInterface.setJointsWindowVisible(false);
-        userInterface.setSelectedScreen(Screen.NONE);
+        userInterface.changeSelectedScreen(Screen.NONE);
     }
 
     public void onToolOptionClicked(Button<MainButtonBoardController> button) {
@@ -89,13 +92,13 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setItemWindowVisible(true);
         userInterface.setSaveWindowVisible(false);
         userInterface.setItemButtonBoardVisible(true);
-        userInterface.setSelectedScreen(Screen.ITEMS_SCREEN);
+        userInterface.changeSelectedScreen(Screen.ITEMS_SCREEN);
     }
 
     public void onToolOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         userInterface.setItemButtonBoardVisible(false);
-        userInterface.setSelectedScreen(Screen.NONE);
+        userInterface.changeSelectedScreen(Screen.NONE);
     }
 
     public void onSaveOptionClicked(Button<MainButtonBoardController> button) {
@@ -108,12 +111,12 @@ public class MainButtonBoardController extends ButtonBoardController {
         userInterface.setJointsWindowVisible(false);
         userInterface.setItemWindowVisible(false);
         userInterface.setItemButtonBoardVisible(false);
-        userInterface.setSelectedScreen(Screen.SAVE_SCREEN);
+        userInterface.changeSelectedScreen(Screen.SAVE_SCREEN);
     }
 
     public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
-        userInterface.setSelectedScreen(Screen.NONE);
+        userInterface.changeSelectedScreen(Screen.NONE);
         // userInterface.setItemButtonBoardVisible(false);
     }
 }

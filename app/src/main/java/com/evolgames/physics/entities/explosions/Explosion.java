@@ -22,17 +22,23 @@ public class Explosion {
     private final GameScene gameScene;
     private final ArrayList<ImpactData> impacts = new ArrayList<>();
     private final Vector2 center;
-    private final float energy;
+    private final float force;
+    private final float heat;
+    private final float velocity;
+
     private PointExplosiveParticleWrapper explosionParticleWrapper;
     private int time = 0;
     private boolean alive = true;
 
-    public Explosion(GameScene gameScene, Vector2 center, float energy, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float temperature) {
+    public Explosion(GameScene gameScene, Vector2 center, float particles, float force, float speed, float heat, float fireRatio, float smokeRatio, float sparkRatio) {
         this.gameScene = gameScene;
         this.center = center;
-        this.energy = energy;
+        this.force = force;
+        this.heat = heat;
+        this.velocity = (1000 + speed * 2000);
+
         if (fireRatio > 0.1f || smokeRatio > 0.1f || sparkRatio > 0.1f) {
-            this.explosionParticleWrapper = gameScene.getWorldFacade().createPointFireSource(null, center.cpy().mul(32f), energy, fireRatio, smokeRatio, sparkRatio, intensity, temperature);
+            this.explosionParticleWrapper = gameScene.getWorldFacade().createPointFireSource(null, center.cpy().mul(32f), velocity, fireRatio, smokeRatio, sparkRatio, particles, 2000, false);
         }
     }
 
@@ -41,23 +47,20 @@ public class Explosion {
     }
 
     public void update() {
-        if (time > 10) {
+        if (!alive) return;
+        if (time < 60) {
+            if(time==5){
+             //   this.runExplosion();
+            }
             this.explosionParticleWrapper.setSpawnEnabled(false);
         }
-        if (time < 60) {
-            runExplosion(time % 60 == 0, time % 10 == 0, time % 60 == 0);
-        } else {
-
-            alive = false;
-        }
-        time++;
+        this.time++;
     }
 
     private void detectImpacts(HitInterface hitInterface) {
         impacts.clear();
-        gameScene.getWorldFacade().performFlux(center, (layerBlock, entity, direction, start, end, angle) -> {
-            float dA = (float) (angle / (2 * Math.PI));
-            float impulseValue = energy * dA / 60f;
+        gameScene.getWorldFacade().performFlux(center, (layerBlock, entity, direction, start, end, dA) -> {
+            float impulseValue = 1000 * force * dA;
             if (hitInterface != null) {
                 hitInterface.rayHit(entity, direction, end, impulseValue);
             }
@@ -66,37 +69,24 @@ public class Explosion {
     }
 
     private void applyImpulse(GameEntity entity, Vector2 direction, Vector2 end, float impulseValue) {
-        entity.getBody().applyLinearImpulse(direction.x * impulseValue / 60, direction.y * impulseValue / 60, end.x, end.y);
+        entity.getBody().applyLinearImpulse(direction.x * impulseValue / 60 / 60, direction.y * impulseValue / 60, end.x, end.y);
     }
 
-    private void runExplosion(boolean heat, boolean forces, boolean collisions) {
-        if (forces || heat || collisions) {
-            if (forces) {
-                detectImpacts(this::applyImpulse);
-            } else {
-                detectImpacts(null);
-            }
-        }
+    private void runExplosion() {
+        detectImpacts(this::applyImpulse);
         Map<GameEntity, List<ImpactData>> map = impacts.stream()
                 .collect(groupingBy(ImpactData::getGameEntity));
         map.forEach((e, imp) -> {
-            if (collisions) {
-                gameScene.getWorldFacade().applyImpacts(e, imp);
-            }
-            if (heat) {
-                gameScene.getWorldFacade().applyImpactHeat(imp);
-            }
+            gameScene.getWorldFacade().applyImpacts(e, imp);
+            gameScene.getWorldFacade().applyImpactHeat(imp, heat);
         });
-
-        //
-
     }
 
     public Vector2 getCenter() {
         return center;
     }
 
-    public float getEnergy() {
-        return energy;
+    public float getVelocity() {
+        return velocity;
     }
 }

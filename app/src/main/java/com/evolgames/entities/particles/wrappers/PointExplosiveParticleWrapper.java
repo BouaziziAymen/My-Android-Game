@@ -23,8 +23,8 @@ import org.andengine.util.adt.color.Color;
 import is.kul.learningandengine.particlesystems.modifiers.AlphaParticleModifier;
 
 public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
-    public PointExplosiveParticleWrapper(GameEntity gameEntity,  float[] data,float velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float flameTemp) {
-        super(gameEntity, velocity, fireRatio, smokeRatio, sparkRatio, intensity,flameTemp, data);
+    public PointExplosiveParticleWrapper(GameEntity gameEntity,  float[] data,float velocity, float fireRatio, float smokeRatio, float sparkRatio, float particles, float flameTemp) {
+        super(gameEntity, velocity, fireRatio, smokeRatio, sparkRatio, particles,flameTemp, data);
         createSystems();
     }
 
@@ -44,9 +44,10 @@ public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
          this.sparkParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         this.sparkParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
         this.sparkParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.9f));
-        this.sparkParticleSystem.addParticleModifier(new AlphaParticleModifier<>(0f, 0.3f, 0.9f, 0f));
-        this.sparkParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.3f, 0.1f, 0.1f));
-        this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.3f));
+        float lifeSpan = 0.6f;
+        this.sparkParticleSystem.addParticleModifier(new AlphaParticleModifier<>(0f, lifeSpan, 0.9f, 0f));
+        this.sparkParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifeSpan, 0.1f, 0.1f));
+        this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
         this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
         return sparkParticleSystem;
     }
@@ -56,12 +57,13 @@ public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.fireParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         Color fireColor = MyColorUtils.getColor(flameTemperature);
         Color secondColor = MyColorUtils.getColor(MyColorUtils.getPreviousTemperature(flameTemperature));
+        float lifeSpan = 1f;
         this.fireParticleSystem.addParticleModifier(
-                new org.andengine.entity.particle.modifier.ColorParticleModifier<>(0f, 0.3f, fireColor.getRed(), secondColor.getRed(), fireColor.getGreen(), secondColor.getGreen(), fireColor.getBlue(), secondColor.getBlue()));
+                new org.andengine.entity.particle.modifier.ColorParticleModifier<>(0f, lifeSpan, fireColor.getRed(), secondColor.getRed(), fireColor.getGreen(), secondColor.getGreen(), fireColor.getBlue(), secondColor.getBlue()));
         this.fireParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
         this.fireParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.6f));
-        this.fireParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.5f, 0f));
-        this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
+        this.fireParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifeSpan, 0.5f, 0f));
+        this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
         this.fireParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
         return fireParticleSystem;
     }
@@ -71,9 +73,10 @@ public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.smokeParticleSystem.addParticleInitializer(new RandomVelocityInitializer(0,verticalSpeed));
         this.smokeParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(0.3f, 0.3f, 0.3f));
         this.smokeParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.2f));
-        this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 5f, 0.2f, 0f));
-        this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 5f, 0.99f, 0.99f));
-        this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
+        float lifeSpan = 3f;
+        this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, lifeSpan, 0.2f, 0f));
+        this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifeSpan, 0.99f, 0.99f));
+        this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
         this.smokeParticleSystem.addParticleModifier(new GroundCollisionBump(20));
         return smokeParticleSystem;
     }

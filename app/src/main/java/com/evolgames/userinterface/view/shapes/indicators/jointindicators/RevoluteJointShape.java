@@ -10,6 +10,7 @@ import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RevoluteJointShape extends JointShape {
 
@@ -88,8 +89,8 @@ public class RevoluteJointShape extends JointShape {
     }
 
     @Override
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
-        ArrayList<PointImage> result = super.getMovables(moveLimits);
+    public List<PointImage> getMovables(boolean moveLimits) {
+        List<PointImage> result = super.getMovables(moveLimits);
         if (isIndicatorsVisible()) {
             result.add(referenceAngleIndicator.getLimit());
             result.add(lowerAngleIndicator.getLimit());

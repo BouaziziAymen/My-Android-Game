@@ -32,10 +32,11 @@ public class Container extends Element {
         contents.add(0,element);
     }
 
-
-
     public void setVisible(boolean visible) {
         super.setVisible(visible);
+        for(Element e:contents) {
+           e.setVisible(visible);
+        }
     }
 
     @Override

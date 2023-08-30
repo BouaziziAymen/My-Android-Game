@@ -81,7 +81,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
             lineLoop.detachSelf();
         }
         this.lineLoop = new LineLoop(0, 0, 4f, 100, ResourceManager.getInstance().vbom);
-        lineLoop.setZIndex(2);
+        lineLoop.setZIndex(0);
         lineLoop.setColor(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
         userInterface.getScene().attachChild(lineLoop);
         userInterface.getScene().sortChildren();

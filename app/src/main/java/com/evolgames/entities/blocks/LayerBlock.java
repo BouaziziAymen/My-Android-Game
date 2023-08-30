@@ -165,12 +165,14 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
                 getBlockGrid().addCoatingBlock(coatingBlock);
             }
         }
+        if(this.getBlockGrid().getCoatingBlocks().isEmpty()){
+          setAborted(true);
+          return;
+        }
 
         for (CoatingBlock coatingBlock : getBlockGrid().getCoatingBlocks()) {
             coatingBlock.setNeighbors(blockGrid.findNeighbors(coatingBlock));
         }
-
-
     }
 
     public void addFreshCut(FreshCut freshCut) {

@@ -10,6 +10,7 @@ import com.evolgames.userinterface.view.shapes.indicators.MovablesContainer;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CasingShape extends AngleIndicator implements MovablesContainer {
     private final UserInterface userInterface;
@@ -20,7 +21,7 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
         super(begin, scene, 24, 1);
 
         this.userInterface = scene.getUserInterface();
-        this.originPoint = new ControllerPointImage(ResourceManager.getInstance().diskTextureRegion, begin.cpy()) {
+        this.originPoint = new ControllerPointImage(ResourceManager.getInstance().casingShapeTextureRegion, begin.cpy()) {
             @Override
             protected void performControl(float dx, float dy) {
                 float x = CasingShape.this.begin.x;
@@ -30,10 +31,9 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
                 CasingShape.this.drawSelf();
             }
         };
+
         this.direction = new Vector2();
         this.userInterface.addElement(originPoint);
-
-
         userInterface.setUpdated(true);
     }
 
@@ -48,17 +48,25 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
     public void select() {
         super.select();
         originPoint.select();
+        originPoint.setDepth(2);
+        setVisible(true);
     }
 
     @Override
     public void release() {
         super.release();
         originPoint.release();
+        originPoint.setDepth(1);
+        super.setVisible(false);
     }
 
-
     @Override
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        this.originPoint.setVisible(b);
+    }
+    @Override
+    public List<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> movables = new ArrayList<>();
             movables.add(getLimit());
             movables.add(originPoint);

@@ -10,6 +10,7 @@ import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HandShape extends AngleIndicator implements MovablesContainer {
     private final UserInterface userInterface;
@@ -49,7 +50,7 @@ public class HandShape extends AngleIndicator implements MovablesContainer {
     }
 
     @Override
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
+    public List<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> movables = new ArrayList<>();
         movables.add(getLimit());
         movables.add(originPoint);

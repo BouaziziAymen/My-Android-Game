@@ -71,6 +71,7 @@ public abstract class Element implements Comparable<Element> {
 
     public void setDepth(int zIndex) {
         this.depth = zIndex;
+        setUpdated(true);
     }
 
     public Section getSection() {
@@ -189,10 +190,6 @@ public abstract class Element implements Comparable<Element> {
 
     public boolean isScaled() {
         return isScaled;
-    }
-
-    public void setScaled(boolean isScaled) {
-        this.isScaled = isScaled;
     }
 
     public void setScale(float pScaleX, float pScaleY) {

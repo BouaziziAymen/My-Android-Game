@@ -36,7 +36,7 @@ public class CreationZone {
     }
 
     public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
-        if(scroll)return;
+
         Vector2 touch =(creationZoneController.isMagnet())? applyMagnet(pTouchEvent.getX(),pTouchEvent.getY()):new Vector2(pTouchEvent.getX(),pTouchEvent.getY());
 
         if(pTouchEvent.isActionUp()){

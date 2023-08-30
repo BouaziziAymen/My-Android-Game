@@ -14,8 +14,9 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
-import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
+import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
@@ -31,8 +32,10 @@ import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -45,6 +48,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
     private final GameScene scene;
@@ -52,6 +56,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     private final AtomicInteger jointCounter = new AtomicInteger();
     private final AtomicInteger projectileCounter = new AtomicInteger();
     private final AtomicInteger ammoCounter = new AtomicInteger();
+    private final AtomicInteger bombCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
     private final ArrayList<JointModel> joints;
     private ItemCategory toolCategory;
@@ -209,6 +214,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
+            bodyModel.getBombModels().forEach(bombModel -> bombModel.setGameEntity(gameEntity));
             bodyModel.getProjectiles().forEach(p->{
                 ProjectileProperties properties = p.getProperties();
                 if(properties.getFireRatio()>=0.1f||properties.getSmokeRatio()>=0.1f||properties.getSparkRatio()>=0.1f){
@@ -217,7 +223,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                    Vector2 nor = new Vector2(-dir.y,dir.x);
                    Vector2 e = end.cpy().sub(gameEntity.getCenter());
                    float extent = ToolUtils.getAxisExtent(p.getMissileModel(),nor)/2f;
-                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y), PhysicsConstants.getProjectileVelocity(properties.getMuzzleVelocity()),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),properties.getFireIntensity(),2000);
+                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y), PhysicsConstants.getProjectileVelocity(properties.getMuzzleVelocity()),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),0.1f,2000);
                    fireSource.setSpawnEnabled(false);
                    p.setFireSource(fireSource);
                }
@@ -226,12 +232,17 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         // Handle usage
         List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
         projectileModels.forEach(projectileModel -> projectileModel.setMuzzleEntity(bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny().orElseThrow(() -> new RuntimeException("Body not found!")).getGameEntity()));
-        bodies.forEach(usageBodyModel -> {
-            usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
-                Trigger trigger = new Trigger(e);
-                usageBodyModel.getGameEntity().setTrigger(trigger);
-            });
-        });
+
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
+            Trigger trigger = new Trigger(e);
+            usageBodyModel.getGameEntity().getUseList().add(trigger);
+        }));
+
+
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.TIME_BOMB).forEach(e->{
+            TimeBomb timeBomb = new TimeBomb(e,scene.getWorldFacade());
+            usageBodyModel.getGameEntity().getUseList().add(timeBomb);
+        }));
 
         //Create joints
         for (JointModel jointModel : this.joints) {
@@ -300,8 +311,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public CasingModel getAmmoById(int primaryKey, int secondaryKey) {
-        Optional<CasingModel> res = getBodyModelById(primaryKey).getAmmoModels().stream().filter(e -> e.getCasingId() == secondaryKey).findFirst();
-        return res.orElse(null);
+        return getBodyModelById(primaryKey).getCasingModels().stream().filter(e -> e.getCasingId() == secondaryKey).findAny().orElse(null);
     }
     public ProjectileModel getProjectileById(int primaryKey, int secondaryKey) {
         Optional<ProjectileModel> res = getBodyModelById(primaryKey).getProjectiles().stream().filter(e -> e.getProjectileId() == secondaryKey).findFirst();
@@ -338,6 +348,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return jointCounter;
     }
 
+    public AtomicInteger getBombCounter() {
+        return bombCounter;
+    }
+
     public int getSelectedBodyId() {
         for(BodyModel bodyModel:bodies){
             if(bodyModel.isSelected()){
@@ -350,13 +364,25 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
         int ammoId = ammoCounter.getAndIncrement();
         CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoShape);
-        getBodyModelById(bodyId).getAmmoModels().add(ammoModel);
+        getBodyModelById(bodyId).getCasingModels().add(ammoModel);
         return ammoModel;
     }
 
     public void removeAmmo(int bodyId, int ammoId) {
         BodyModel body = getBodyModelById(bodyId);
-        body.getAmmoModels().remove(body.getAmmoModelById(ammoId));
+        body.getCasingModels().remove(body.getAmmoModelById(ammoId));
+    }
+
+    public BombModel createNewBomb(BombShape bombShape, int bodyId) {
+       int bombId = bombCounter.getAndIncrement();
+       BombModel bombModel = new BombModel(bodyId,bombId,bombShape);
+        getBodyModelById(bodyId).getBombModels().add(bombModel);
+        bombShape.bindModel(bombModel);
+        return  bombModel;
+    }
+
+    public BombModel getBombById(int primaryKey, int secondaryKey) {
+        return getBodyModelById(primaryKey).getBombModels().stream().filter(e -> e.getBombId() == secondaryKey).findAny().orElse(null);
     }
 }
 

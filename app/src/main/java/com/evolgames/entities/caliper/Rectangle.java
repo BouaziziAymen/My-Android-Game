@@ -1,4 +1,4 @@
-package com.evolgames.caliper;//NAME: Justin Ward
+package com.evolgames.entities.caliper;//NAME: Justin Ward
 //ALGORITHM PAPER: Rotating Calipers
 //COURSE TITLE: Data Structures and Algorithms
 //COURSE NUMBER:CPSC 4355

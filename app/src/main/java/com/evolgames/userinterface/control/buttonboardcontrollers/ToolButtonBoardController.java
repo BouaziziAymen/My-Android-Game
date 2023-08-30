@@ -51,4 +51,16 @@ public class ToolButtonBoardController extends ButtonBoardController {
         creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
         optionsWindowController.selectSettingsType(SettingsType.NONE);
     }
+
+    public void onBombButtonClicked(Button<ToolButtonBoardController> button) {
+        onButtonClicked(button);
+        creationZoneController.setAction(CreationZoneController.CreationAction.BOMB);
+        optionsWindowController.selectSettingsType(SettingsType.BOMB_TOOL_POINT_SETTING);
+    }
+
+    public void onBombButtonReleased(Button<ToolButtonBoardController> button) {
+        onButtonReleased(button);
+        creationZoneController.setAction(CreationZoneController.CreationAction.NONE);
+        optionsWindowController.selectSettingsType(SettingsType.NONE);
+    }
 }

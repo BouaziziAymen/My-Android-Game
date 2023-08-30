@@ -60,6 +60,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private Quantity<ProjectileOptionController> smokeRatioQuantityField;
     private Quantity<ProjectileOptionController> sparkRatioQuantityField;
     private Quantity<ProjectileOptionController> intensityQuantityField;
+    private ItemWindowController itemWindowController;
+
+    public void setItemWindowController(ItemWindowController itemWindowController) {
+        this.itemWindowController = itemWindowController;
+    }
 
     public ProjectileOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
         this.keyboardController = keyboardController;
@@ -94,7 +99,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         SectionField<ProjectileOptionController> shellSection = new SectionField<>(1, "Shell:", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(shellSection);
 
-        List<CasingModel> ammoModels = toolModel.getBodyModelById(((ProjectileModel) model).getBodyId()).getAmmoModels();
+        List<CasingModel> ammoModels = toolModel.getBodyModelById(((ProjectileModel) model).getBodyId()).getCasingModels();
 
         ammoModels.forEach(this::createShellToolButton);
         this.onUpdated();
@@ -309,6 +314,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     public void onSubmitSettings() {
         super.onSubmitSettings();
         ProjectileModel projectileModel = (ProjectileModel) model;
+        this.itemWindowController.onResume();
         userInterface.getItemWindowController().changeItemName(model.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
     }
 
@@ -318,6 +324,12 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     private void setFireSound(int fireSound) {
 
+    }
+
+    @Override
+    public void onCancelSettings() {
+        super.onCancelSettings();
+        this.itemWindowController.onResume();
     }
 
     private void setMissileName(String fileName) {

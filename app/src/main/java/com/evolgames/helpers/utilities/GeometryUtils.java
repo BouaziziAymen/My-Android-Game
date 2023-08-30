@@ -1,10 +1,9 @@
 package com.evolgames.helpers.utilities;
 
-import android.util.Pair;
-
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.caliper.Caliper;
-import com.evolgames.caliper.Polygon;
+import com.evolgames.entities.caliper.Caliper;
+import com.evolgames.entities.caliper.Polygon;
+import com.evolgames.entities.caliper.Rectangle;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.Hull;
 import com.evolgames.helpers.VectorComparator;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import is.kul.learningandengine.helpers.MathUtils;
 
@@ -400,7 +398,7 @@ public class GeometryUtils {
             return null;
         }
         Polygon polygon = new Polygon(Arrays.asList(vertices));
-        com.evolgames.caliper.Rectangle rectangle = Caliper.minimumBox(polygon);
+        Rectangle rectangle = Caliper.minimumBox(polygon);
         return rectangle.getCenter();
     }
 

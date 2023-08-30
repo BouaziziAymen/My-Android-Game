@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
+import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -13,7 +14,9 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
+import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.particle.modifier.OffCameraExpireParticleModifier;
+import org.andengine.entity.particle.modifier.RotationParticleModifier;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.ease.EaseStrongInOut;
 
@@ -41,13 +44,12 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(velocityInitializer);
 
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(liquidColor.getRed(), liquidColor.getGreen(), liquidColor.getBlue()));
-        this.particleSystem.addParticleInitializer(new AlphaParticleInitializer<>(liquidColor.getAlpha()));
-        addGravity();
-        particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, liquidColor.getAlpha(), 0f));
-        particleSystem.addParticleModifier(new OffCameraExpireParticleModifier<>(ResourceManager.getInstance().firstCamera));
+        this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.4f));
+        this.addGravity();
+        this.particleSystem.addParticleModifier(new SmoothRotationModifier());
+        this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 1f, 0f));
+        this.particleSystem.addParticleModifier(new OffCameraExpireParticleModifier<>(ResourceManager.getInstance().firstCamera));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(3f));
-
-
     }
 
     private void addGravity() {

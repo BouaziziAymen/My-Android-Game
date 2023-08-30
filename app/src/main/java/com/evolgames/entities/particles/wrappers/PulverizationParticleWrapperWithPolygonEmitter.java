@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.PowderEmitter;
 import com.evolgames.entities.particles.initializers.AirFieldVelocityInitializer;
+import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
+import com.evolgames.entities.particles.modifiers.GroundCollisionExpire;
+import com.evolgames.entities.particles.modifiers.GroundCollisionStop;
 import com.evolgames.entities.particles.pools.UncoloredSpritePool;
 import com.evolgames.entities.particles.systems.PulverizationParticleSystem;
 import com.evolgames.physics.WorldFacade;
@@ -44,6 +47,8 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
        this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.05f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(10f));
+      this.particleSystem.addParticleModifier(new GroundCollisionStop(20));
+     this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(8f,10f,1f,0));
        //this.colorParticleInitializer = new ColorParticleInitializer<>(layerBlock.getProperties().getDefaultColor());
         addGravity();
        // this.particleSystem.addParticleInitializer(colorParticleInitializer);
@@ -69,13 +74,13 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         return true;
     }
     public void update() {
-        step++;
-        if(step>30){
-           finishSelf();
+        if(step>10){
+            particleSystem.setParticlesSpawnEnabled(false);
         }
+        step++;
     }
     public void finishSelf() {
-        particleSystem.setParticlesSpawnEnabled(false);
+        particleSystem.detachSelf();
         this.alive = false;
     }
 

@@ -7,6 +7,7 @@ import com.evolgames.userinterface.view.layouts.OneLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractOneLevelSectionedAdvancedWindow;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.AmmoField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.HandField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
@@ -21,7 +22,6 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         text.setPadding(5);
         layout.addDummySection(text);
         createScroller();
-
     }
 
     public BodyField addBodyField(String name, int bodyFieldKey, boolean isActive){
@@ -42,12 +42,13 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         ammoField.setText(name);
         return ammoField;
     }
-    public HandField addHandField(String name, int primaryKey, int secondaryKey){
-        HandField handField = new HandField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(handField,primaryKey,secondaryKey);
-        handField.setText(name);
-        return handField;
+    public BombField addBombField(String name, int primaryKey, int secondaryKey){
+        BombField bombField = new BombField(primaryKey, secondaryKey, itemWindowController);
+        addSecondary(bombField,primaryKey,secondaryKey);
+        bombField.setText(name);
+        return bombField;
     }
+
 
     @Override
     public BodyField createPrimary(int primaryKey) {

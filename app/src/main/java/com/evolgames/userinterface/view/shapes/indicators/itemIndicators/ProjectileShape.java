@@ -5,15 +5,13 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.indicators.MovablesContainer;
 import com.evolgames.userinterface.view.shapes.indicators.VectorIndicator;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
-import org.andengine.entity.primitive.Line;
-import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProjectileShape extends VectorIndicator implements MovablesContainer {
     private final UserInterface userInterface;
@@ -24,7 +22,7 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
         super(begin, scene, 1);
 
         this.userInterface = scene.getUserInterface();
-        this.originPoint = new ControllerPointImage(ResourceManager.getInstance().aimCircleTextureRegion, begin.cpy()) {
+        this.originPoint = new ControllerPointImage(ResourceManager.getInstance().targetShapeTextureRegion, begin.cpy()) {
             @Override
             protected void performControl(float dx, float dy) {
                 float x = ProjectileShape.this.begin.x;
@@ -53,17 +51,22 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
     public void select() {
         super.select();
         originPoint.select();
+        originPoint.setDepth(2);
+        setVisible(true);
     }
 
     @Override
     public void release() {
         super.release();
         originPoint.release();
+        originPoint.setDepth(1);
+        super.setVisible(false);
     }
 
 
+
     @Override
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
+    public List<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> movables = new ArrayList<>();
 
             movables.add(getLimit());
@@ -78,6 +81,11 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
         userInterface.removeElement(originPoint);
     }
 
+    @Override
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        this.originPoint.setVisible(b);
+    }
 
     @Override
     public void onControllerMoved(float dx, float dy) {

@@ -31,9 +31,6 @@ public class Hand {
     }
 
     public void grab(GameEntity entity, TouchEvent touchEvent, boolean hold) {
-            if(grabbedEntity!=null&&!handControlStack.isEmpty()){
-                releaseGrabbedEntity();
-            }
             entity.setHanged(true);
             grabbedEntity = entity;
             if(hold) {
@@ -67,6 +64,7 @@ public class Hand {
                 handControlStack.peek().setDead(true);
             }
             grabbedEntity.setHanged(false);
+            this.grabbedEntity = null;
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
@@ -97,7 +95,7 @@ public class Hand {
     }
 
     public void resumeGrab() {
-
+        grabbedEntity.setHanged(true);
     }
 
     public void stopFollow() {

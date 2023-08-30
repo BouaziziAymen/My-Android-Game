@@ -3,7 +3,6 @@ package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.UserInterface;
@@ -14,6 +13,7 @@ import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import org.andengine.entity.primitive.Line;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PrismaticJointShape extends JointShape {
 
@@ -93,7 +93,7 @@ public class PrismaticJointShape extends JointShape {
     }
 
     @Override
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
+    public List<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> result = new ArrayList<>();
         if (!moveLimits) {
             result.addAll(super.getMovables(false));

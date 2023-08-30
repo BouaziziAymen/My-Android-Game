@@ -13,9 +13,9 @@ import org.andengine.entity.particle.Particle;
 
 public abstract class ExplosiveParticleWrapper implements Fire {
 
-    private static final float RATE_MIN = 500;
-    private static final float RATE_MAX = 1000;
-    private static final int PARTICLES_MAX = 2000;
+    private static final float RATE_MIN = 6000;
+    private static final float RATE_MAX = 8000;
+    private static final int PARTICLES_MAX = 20000;
     protected final DataEmitter emitter;
     protected final float particleDensity;
     private final float fireRatio;
@@ -54,8 +54,8 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         int particlesMaxSpark = (int) (sparkRatio * particleDensity * PARTICLES_MAX);
 
         float fireVerticalSpeed = 0.08f * velocity;
-        float smokeVerticalSpeed = 0.02f * velocity;
-        float sparkVerticalSpeed = 0.05f * velocity;
+        float smokeVerticalSpeed = 0.04f * velocity;
+        float sparkVerticalSpeed = 0.06f * velocity;
         float fireHorizontalSpeed = 0.01f * velocity;
         float smokeHorizontalSpeed = 0.01f * velocity;
         float sparkHorizontalSpeed = 0;

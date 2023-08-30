@@ -413,10 +413,6 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
         window.getLayout().getPrimaryByKey(primaryKey).getBodyControl().setTitle(bodyName);
     }
 
-    public void onResume() {
-        fold();
-    }
-
     public void setBodySettingsWindowController(BodySettingsWindowController bodySettingsWindowController) {
         this.bodySettingsWindowController = bodySettingsWindowController;
     }

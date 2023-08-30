@@ -73,6 +73,9 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     public void init() {
 
     }
+    public void onResume(){
+        fold();
+    }
 
     public void unfold() {
         hideWindowBody();

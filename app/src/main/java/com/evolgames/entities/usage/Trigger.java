@@ -20,15 +20,21 @@ import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.physics.CollisionConstants;
+import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.basics.Element;
+import com.evolgames.userinterface.view.inputs.Button;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Trigger {
-
+public class Trigger extends Use{
+    private Button<UsageButtonsController> reloadButton;
+    private Button<UsageButtonsController> triggerButton;
     private final List<ProjectileModel> projectileModels;
     private final UsageModel<?> usageModel;
     private final float cyclicTime;
@@ -39,7 +45,6 @@ public class Trigger {
     private int rounds;
     private float loadingTimer;
     private final float reloadTime;
-    private Runnable onReloadFinished;
     private float readyTimer;
     private boolean continueFire;
 
@@ -71,7 +76,7 @@ public class Trigger {
         }
     }
 
-    public void onTriggerPulled() {
+    private void onTriggerPulled() {
         if (!this.loaded) {
             return;
         }
@@ -85,10 +90,11 @@ public class Trigger {
         this.loading = true;
     }
 
-    public void onTriggerReleased() {
+    private void onTriggerReleased() {
         this.continueFire = false;
     }
 
+    @Override
     public void onStep(float deltaTime) {
         for (ProjectileModel projectileModel : this.projectileModels) {
             if (projectileModel.getFireSource() != null) {
@@ -101,9 +107,9 @@ public class Trigger {
                 this.loaded = true;
                 this.rounds = this.maxRounds;
                 this.loading = false;
-                if (this.onReloadFinished != null) {
-                    this.onReloadFinished.run();
-                }
+                this.reloadButton.setEnabled(true);
+                this.reloadButton.updateState(Button.State.NORMAL);
+               //Reload finished
             }
             return;
         }
@@ -145,7 +151,7 @@ public class Trigger {
         } else {
             this.loaded = false;
         }
-        if(projectileModel.getFireSource()!=null) {
+        if (projectileModel.getFireSource() != null) {
             projectileModel.getFireSource().setSpawnEnabled(true);
         }
     }
@@ -181,8 +187,63 @@ public class Trigger {
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
     }
 
-    public void onReloadPushed(Runnable onReloadFinished) {
-        this.onReloadFinished = onReloadFinished;
+    private void onReloadPushed() {
         startReload();
+        reloadButton.setEnabled(false);
+    }
+
+    @Override
+    public void createControls(UsageButtonsController usageButtonsController, UserInterface userInterface) {
+       super.createControls(usageButtonsController,userInterface);
+        triggerButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
+        triggerButton.setBehavior(new ButtonBehavior<UsageButtonsController>(usageButtonsController, triggerButton) {
+            @Override
+            public void informControllerButtonClicked() {
+                onTriggerPulled();
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+                onTriggerReleased();
+            }
+        });
+        triggerButton.setPosition(800 - triggerButton.getWidth(), 0);
+
+        reloadButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
+        reloadButton.setBehavior(new ButtonBehavior<UsageButtonsController>(usageButtonsController, reloadButton) {
+            @Override
+            public void informControllerButtonClicked() {
+                onReloadPushed();
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+            }
+        });
+        reloadButton.setPosition(800 - reloadButton.getWidth() - triggerButton.getWidth(), 0);
+        userInterface.addElement(reloadButton);
+        userInterface.addElement(triggerButton);
+    }
+
+    @Override
+    public float getUIWidth() {
+        return triggerButton.getWidth()+reloadButton.getWidth();
+    }
+
+    @Override
+    public void updateUIPosition(int row, int offset) {
+        reloadButton.setPosition(800 -offset- reloadButton.getWidth() - triggerButton.getWidth(), row * 32f);
+        triggerButton.setPosition(800-offset - triggerButton.getWidth(), 0);
+    }
+
+    @Override
+    public void showControlButtons() {
+        triggerButton.setVisible(true);
+        reloadButton.setVisible(true);
+    }
+    @Override
+    public void hideControlButtons() {
+        triggerButton.setVisible(false);
+        reloadButton.setVisible(false);
     }
 }

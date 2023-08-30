@@ -10,6 +10,7 @@ import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.usage.Trigger;
+import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.GameScene;
@@ -20,6 +21,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 public class GameEntity extends EntityWithBody {
@@ -34,7 +36,7 @@ public class GameEntity extends EntityWithBody {
     private TexturedMeshBatch batch;
     private String name;
     private final ArrayList<LayerBlock> layerBlocks;
-    private Trigger trigger;
+    private List<Use> useList;
     private MosaicMesh mesh;
     private int stainDataLimit;
     private Vector2 center;
@@ -55,7 +57,7 @@ public class GameEntity extends EntityWithBody {
         this.gameScene = scene;
         this.name = entityName;
         this.layerBlocks = layerBlocks;
-
+        this.useList = new ArrayList<>();
 
         for (LayerBlock layerBlock : this.layerBlocks) {
             layerBlock.setGameEntity(this);
@@ -174,8 +176,8 @@ public class GameEntity extends EntityWithBody {
         if (!this.getName().equals("Ground")) {
             updateGrains();
         }
-        if (trigger != null) {
-            this.trigger.onStep(timeStep);
+        for (Use use:useList) {
+           use.onStep(timeStep);
         }
 
         if (isFireSetup) {
@@ -370,24 +372,14 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public void setTrigger(Trigger trigger) {
-        this.trigger = trigger;
+
+    public boolean shouldBeHeld() {
+        return this.useList.size()>0;
     }
 
-    public boolean hasTrigger() {
-        return this.trigger!=null;
-    }
 
-    public void onTriggerPushed() {
-        this.trigger.onTriggerPulled();
-    }
-
-    public void onTriggerReleased() {
-        this.trigger.onTriggerReleased();
-    }
-
-    public void onReloadPushed(Runnable onReloadFinished) {
-        this.trigger.onReloadPushed(onReloadFinished);
+    public List<Use> getUseList() {
+        return useList;
     }
 
     public void setParentGameEntity(GameEntity parentGameEntity) {

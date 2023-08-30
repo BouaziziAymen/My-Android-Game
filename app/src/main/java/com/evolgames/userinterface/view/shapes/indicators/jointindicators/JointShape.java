@@ -12,6 +12,7 @@ import com.evolgames.userinterface.view.shapes.indicators.LineShape;
 import org.andengine.opengl.texture.region.TextureRegion;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JointShape extends LineShape implements MovablesContainer {
     final JointPointImage endPoint;
@@ -70,7 +71,7 @@ public class JointShape extends LineShape implements MovablesContainer {
         return end;
     }
 
-    public ArrayList<PointImage> getMovables(boolean moveLimits) {
+    public List<PointImage> getMovables(boolean moveLimits) {
         ArrayList<PointImage> result = new ArrayList<>();
         result.add(beginPoint);
         result.add(endPoint);

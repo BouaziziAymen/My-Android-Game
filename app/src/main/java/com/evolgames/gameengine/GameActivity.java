@@ -253,8 +253,8 @@ public class GameActivity extends BaseGameActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
             Bitmap b = BitmapFactory.decodeFile(picturePath);
-            int width = (b.getWidth() >= 2048) ? 2048 : b.getWidth();
-            int height = (b.getHeight() >= 2048) ? 2048 : b.getHeight();
+            int width = Math.min(b.getWidth(), 2048);
+            int height = Math.min(b.getHeight(), 2048);
             Bitmap bitmap = GameActivity.decodeSampledBitmapFromResource(picturePath, width, height);
 
             if (bitmap != null) {
@@ -311,7 +311,7 @@ public class GameActivity extends BaseGameActivity {
     public static Bitmap decodeSampledBitmapFromResource(String strPath, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
+       // options.inJustDecodeBounds = true;
         Bitmap bitmap = BitmapFactory.decodeFile(strPath, options);
         // Calculate inSampleSize
         options.inSampleSize = GameActivity.calculateInSampleSize(options, reqWidth,

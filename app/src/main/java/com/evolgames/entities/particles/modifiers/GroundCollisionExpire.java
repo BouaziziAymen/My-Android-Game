@@ -14,7 +14,7 @@ public class GroundCollisionExpire implements IParticleModifier<Entity> {
     }
     @Override
     public void onUpdateParticle(Particle<Entity> pParticle) {
-        if(pParticle.getEntity().getY()-(pParticle.getEntity().getHeight()/3f*pParticle.getEntity().getScaleX())<20){
+        if(pParticle.getEntity().getY()-(pParticle.getEntity().getHeight()/3f*pParticle.getEntity().getScaleX())<groundY){
              pParticle.setExpired(true);
         }
     }

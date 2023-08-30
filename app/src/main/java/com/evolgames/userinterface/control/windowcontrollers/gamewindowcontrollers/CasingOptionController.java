@@ -16,24 +16,16 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledRotationQuantity;
 
 public class CasingOptionController extends SettingsWindowController<CasingProperties> {
-    private final GameScene gameScene;
-    private final ToolModel toolModel;;
+
+    private  ItemWindowController itemWindowController;
     private CasingModel ammoModel;
     private TitledRotationQuantity<CasingOptionController> titledRotationQuantity;
     private Quantity<CasingOptionController> ejectionSpeedQuantity;
-
-    public CasingOptionController(GameScene gameScene, KeyboardController keyboardController, ToolModel toolModel) {
-        this.keyboardController = keyboardController;
-        this.toolModel = toolModel;
-        this.gameScene = gameScene;
+    public void setItemWindowController(ItemWindowController itemWindowController) {
+        this.itemWindowController = itemWindowController;
     }
-
-
-
-
-    public void onUpdated() {
-        window.getLayout().updateLayout();
-        onLayoutChanged();
+    public CasingOptionController(KeyboardController keyboardController) {
+        this.keyboardController = keyboardController;
     }
 
 
@@ -97,8 +89,15 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
     }
 
     @Override
+    public void onCancelSettings() {
+        super.onCancelSettings();
+        itemWindowController.onResume();
+    }
+
+    @Override
     public void onSubmitSettings() {
         super.onSubmitSettings();
+        itemWindowController.onResume();
        // ProjectileModel projectileModel = (ProjectileModel) model;
       //  userInterface.getItemWindowController().changeItemName(model.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
     }

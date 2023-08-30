@@ -15,8 +15,8 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
-import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.CreationZone;
@@ -28,6 +28,7 @@ import com.evolgames.userinterface.view.shapes.indicators.RotateImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ScaleImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftArrowShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftImageShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
@@ -112,6 +113,7 @@ public class CreationZoneController extends Controller {
             case REMOVE_POINT:
             case MOVE_POINT:
             case ADD_POINT:
+            case BOMB:
                 gameScene.setScrollerEnabled(true);
                 gameScene.setZoomEnabled(true);
                 break;
@@ -143,8 +145,12 @@ public class CreationZoneController extends Controller {
             indicatorArrow = null;
             creationZone.setTouchLocked(false);
         }
-        processMoveablePoints(x, y);
+        processMobilePoints(x, y);
 
+        releaseBoardsButtons();
+    }
+
+    private void releaseBoardsButtons() {
         if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
             userInterface.getDrawButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
@@ -157,8 +163,10 @@ public class CreationZoneController extends Controller {
             userInterface.getImageButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
         }
-
-
+        if (action == CreationAction.BOMB||action == CreationAction.PROJECTILE||action == CreationAction.AMMO) {
+            userInterface.getToolButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
     }
 
     private void processRemovePoint(float x, float y) {
@@ -202,7 +210,7 @@ public class CreationZoneController extends Controller {
         }
     }
 
-    private void processMoveablePoints(float x, float y) {
+    private void processMobilePoints(float x, float y) {
         List<PointImage> movablePointImages = null;
         switch (action) {
             case MOVE_POINT:
@@ -342,7 +350,14 @@ public class CreationZoneController extends Controller {
                 return;
             }
         }
-
+        if (action == CreationAction.BOMB) {
+            if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                BombShape bombShape = new BombShape(new Vector2(x,y),gameScene);
+                BombModel bombModel = userInterface.getToolModel().createNewBomb(bombShape,userInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onBombCreated(bombModel);
+                bombShape.bindModel(bombModel);
+            }
+        }
         if (action == CreationAction.AMMO) {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new CasingShape(new Vector2(x, y), gameScene);
@@ -499,9 +514,6 @@ public class CreationZoneController extends Controller {
         this.congruentAnchors = congruentAnchors;
     }
 
-    public CreationZone getCreationZone() {
-        return creationZone;
-    }
 
     public void setCreationZone(CreationZone creationZone) {
         this.creationZone = creationZone;
@@ -509,7 +521,7 @@ public class CreationZoneController extends Controller {
 
 
     public enum CreationAction {
-        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO;
+        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO, BOMB;
     }
 }
 

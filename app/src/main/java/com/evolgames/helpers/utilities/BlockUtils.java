@@ -5,8 +5,8 @@ import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.caliper.Caliper;
-import com.evolgames.caliper.Polygon;
+import com.evolgames.entities.caliper.Caliper;
+import com.evolgames.entities.caliper.Polygon;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
@@ -15,6 +15,7 @@ import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.Polarity;
+import com.evolgames.entities.caliper.Rectangle;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.PointsFreshCut;
@@ -684,7 +685,7 @@ public class BlockUtils {
 
 
         Polygon polygon = new Polygon(root.getVertices());
-        com.evolgames.caliper.Rectangle rectangle = Caliper.minimumBox(polygon);
+        Rectangle rectangle = Caliper.minimumBox(polygon);
 
         rectangle.getPoint(0).add(center);
         rectangle.getPoint(1).add(center);

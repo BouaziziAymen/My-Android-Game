@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.HandModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
@@ -13,6 +14,7 @@ import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.AmmoField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.HandField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
@@ -26,11 +28,16 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     private UserInterface userInterface;
     private BodyModel selectedBodyModel;
     private final CasingOptionController ammoOptionController;
+    private final BombOptionController bombOptionController;
 
-    public ItemWindowController(ProjectileOptionController projectileOptionController, CasingOptionController ammoOptionController, OutlineController outlineController) {
+    public ItemWindowController(ProjectileOptionController projectileOptionController, CasingOptionController ammoOptionController, BombOptionController bombOptionController, OutlineController outlineController) {
         this.projectileOptionController = projectileOptionController;
         this.outlineController = outlineController;
         this.ammoOptionController = ammoOptionController;
+        this.bombOptionController = bombOptionController;
+        this.projectileOptionController.setItemWindowController(this);
+        this.ammoOptionController.setItemWindowController(this);
+        this.bombOptionController.setItemWindowController(this);
     }
 
     public void setUserInterface(UserInterface userInterface) {
@@ -47,6 +54,10 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             CasingModel model = userInterface.getToolModel().getAmmoById(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
             return model.getCasingShape().getMovables(moveLimits);
         }
+        if (selectedSecondaryField instanceof BombField) {
+            BombModel model = userInterface.getToolModel().getBombById(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+            return model.getBombShape().getMovables(moveLimits);
+        }
         return null;
     }
     @Override
@@ -56,12 +67,16 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         if (itemField instanceof ProjectileField) {
             ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             projectileOptionController.onModelUpdated(model);
-            model.getProjectileShape().select();
+           outlineController.onItemSelectionUpdated(model);
         }
         if (itemField instanceof AmmoField) {
             CasingModel model = userInterface.getToolModel().getAmmoById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-           // projectileOptionController.onModelUpdated(model);
-            model.getCasingShape().select();
+            outlineController.onItemSelectionUpdated(model);
+        }
+
+        if (itemField instanceof BombField) {
+            BombModel model = userInterface.getToolModel().getBombById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
+            outlineController.onItemSelectionUpdated(model);
         }
 
     }
@@ -71,14 +86,13 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         super.onSecondaryButtonReleased(itemField);
         if (itemField instanceof ProjectileField) {
             ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-            model.getProjectileShape().release();
+
         }
         if (itemField instanceof AmmoField) {
             CasingModel model = userInterface.getToolModel().getAmmoById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
             // projectileOptionController.onModelUpdated(model);
-            model.getCasingShape().release();
         }
-
+        outlineController.onItemSelectionUpdated(null);
         if (selectedSecondaryField == itemField){
             selectedSecondaryField = null;
         }
@@ -88,7 +102,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onSecondaryAdded(ItemField itemField) {
         super.onSecondaryAdded(itemField);
         ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getSecondaryKey());
-        model.getProjectileShape().select();
+        outlineController.onItemSelectionUpdated(model);
         selectedSecondaryField = itemField;
     }
 
@@ -130,8 +144,11 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             for(ProjectileModel projectileModel:bodyModel.getProjectiles()){
                 onProjectileCreated(projectileModel);
             }
-            for(CasingModel ammoModel:bodyModel.getAmmoModels()){
+            for(CasingModel ammoModel:bodyModel.getCasingModels()){
                 onAmmoCreated(ammoModel);
+            }
+            for(BombModel bombModel:bodyModel.getBombModels()){
+                onBombCreated(bombModel);
             }
         }
         BodyModel selectedBody = getSelectedBody();
@@ -240,15 +257,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
         ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getSecondaryKey());
         projectileOptionController.openWindow();
         projectileOptionController.onModelUpdated(projectileModel);
-    }
-
-    public void onHandAborted(HandModel model) {
-
-    }
-
-    public void onNewHandCreated(HandModel handModel) {
-        window.addHandField(handModel.getModelName(), handModel.getBodyId(), handModel.getHandId());
-        updateLayout();
+        unfold();
     }
 
     public void onHandRemoveButtonClicked(HandField handField) {
@@ -287,9 +296,31 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
     public void onAmmoOptionButtonReleased(AmmoField ammoField) {
         this.ammoOptionController.onModelUpdated(selectedBodyModel.getAmmoModelById(ammoField.getSecondaryKey()));
         this.ammoOptionController.openWindow();
+        unfold();
     }
 
     public boolean hasSelectedItem() {
         return selectedSecondaryField!=null;
+    }
+
+    public void onBombCreated(BombModel bombModel) {
+        BombField bombField = window.addBombField(bombModel.getModelName(), bombModel.getBodyId(), bombModel.getBombId());
+        updateLayout();
+        onSecondaryButtonClicked(bombField);
+        bombField.getControl().updateState(Button.State.PRESSED);
+    }
+
+    public void onBombOptionsButtonReleased(BombField bombField) {
+        this.bombOptionController.onModelUpdated(selectedBodyModel.getBombModelById(bombField.getSecondaryKey()));
+        this.bombOptionController.openWindow();
+        unfold();
+    }
+
+    public void onBombRemoveButtonClicked(BombField bombField) {
+
+    }
+
+    public void onBombRemoveButtonReleased(BombField bombField) {
+
     }
 }

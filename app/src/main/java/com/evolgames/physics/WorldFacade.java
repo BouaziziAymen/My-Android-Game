@@ -121,6 +121,7 @@ public class WorldFacade implements ContactObserver {
         scene.registerUpdateHandler(physicsWorld);
         physicsWorld.setVelocityIterations(8);
         physicsWorld.setPositionIterations(3);
+        physicsWorld.setContinuousPhysics(true);
 
         this.groundModel = new BodyModel(-1);
         this.groundModel.setModelName("Ground");
@@ -204,7 +205,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void createJuiceSource(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut) {
-        if (layerBlock.getLiquidQuantity() <= 0) {
+        if (layerBlock.getLiquidQuantity() <= 0||!freshCut.isAlive()) {
             return;
         }
         int lowerRate = (int) (layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
@@ -213,11 +214,11 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         LiquidParticleWrapper particleWrapper =
-                gameScene.getWorldFacade().createLiquidParticleWrapper(parentEntity, layerBlock,freshCut, (layerBlock.getProperties().getJuiceColor() != null) ? layerBlock.getProperties().getJuiceColor() : Utils.getRandomColor(), lowerRate, higherRate);
+                gameScene.getWorldFacade().createLiquidParticleWrapper(parentEntity, freshCut, (layerBlock.getProperties().getJuiceColor() != null) ? layerBlock.getProperties().getJuiceColor() : Utils.getRandomColor(), lowerRate, higherRate);
       SpawnAction spawnAction = (Particle<Entity> p) -> {
             layerBlock.decrementLiquidQuantity(freshCut.getLength());
             freshCut.decrementLimit();
-            if (layerBlock.getLiquidQuantity() <= 0&&freshCut.isAlive()) {
+            if (layerBlock.getLiquidQuantity() <= 0||freshCut.getLimit()<=0) {
                 particleWrapper.finishSelf();
                 freshCut.setAlive(false);
             }
@@ -240,7 +241,7 @@ public class WorldFacade implements ContactObserver {
         Vector2 dir = v1.cpy().sub(v2).nor();
         Vector2 normal = new Vector2(-dir.y,dir.x);
         SegmentExplosiveParticleWrapper explosiveParticleWrapper = new SegmentExplosiveParticleWrapper(entity,
-                new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * velocity / 10f), fireRatio, smokeRatio, sparkRatio,intensity,temperature);
+                new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * velocity), fireRatio, smokeRatio, sparkRatio,intensity,temperature);
 
         explosiveParticleWrapper.setParent(entity);
         if(explosiveParticleWrapper.getFireParticleSystem()!=null) {
@@ -261,16 +262,18 @@ public class WorldFacade implements ContactObserver {
         return explosiveParticleWrapper;
     }
 
-    public PointExplosiveParticleWrapper createPointFireSource(GameEntity entity, Vector2 p, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float temperature){
+    public PointExplosiveParticleWrapper createPointFireSource(GameEntity entity, Vector2 p, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float particles, float temperature, boolean trackFireParticles){
 
         PointExplosiveParticleWrapper explosiveParticleWrapper = new PointExplosiveParticleWrapper(entity,
-                new float[]{p.x, p.y,p.x, p.y}, 32f * velocity / 10f, fireRatio, smokeRatio, sparkRatio,intensity,temperature);
+                new float[]{p.x, p.y,p.x, p.y}, 32f * velocity / 10f, fireRatio, smokeRatio, sparkRatio,particles,temperature);
 
         explosiveParticleWrapper.setParent(entity);
         if(explosiveParticleWrapper.getFireParticleSystem()!=null) {
             gameScene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
             explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
-            this.addFlame(explosiveParticleWrapper);
+            if(trackFireParticles) {
+                this.addFlame(explosiveParticleWrapper);
+            }
         }
         if(explosiveParticleWrapper.getSmokeParticleSystem()!=null) {
             gameScene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
@@ -285,7 +288,7 @@ public class WorldFacade implements ContactObserver {
         return explosiveParticleWrapper;
     }
 
-    public LiquidParticleWrapper createLiquidParticleWrapper(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut, Color color, int lowerRate, int higherRate) {
+    public LiquidParticleWrapper createLiquidParticleWrapper(GameEntity parentEntity, final FreshCut freshCut, Color color, int lowerRate, int higherRate) {
         LiquidParticleWrapper liquidSource = liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
@@ -315,8 +318,8 @@ public class WorldFacade implements ContactObserver {
         return null;
     }
 
-    public void createExplosion(float x, float y, float energy) {
-        Explosion explosion = new Explosion(gameScene, new Vector2(x, y), energy,1f,0.3f,0.2f,10f,2000f);
+    public void createExplosion(float x, float y, float fireRatio, float smokeRatio, float sparkRatio,float particles,float force, float heat, float speed) {
+        Explosion explosion = new Explosion(gameScene, new Vector2(x, y),particles,force,speed,heat,fireRatio,smokeRatio,sparkRatio);
         explosions.add(explosion);
     }
 
@@ -339,7 +342,7 @@ public class WorldFacade implements ContactObserver {
             particleWrapper.update();
             if (!particleWrapper.isAlive()&&particleWrapper.allExpired()) {
                 iterator.remove();
-                particleWrapper.getParticleSystem().detachSelf();
+                particleWrapper.finishSelf();
             }
         }
     }
@@ -781,7 +784,7 @@ public class WorldFacade implements ContactObserver {
 
         float infX = Math.max(infTPenetrator, infTPenetrated);
         float supX = Math.min(supTPenetrator, supTPenetrated);
-        float dT = Math.abs(supX - infX) / PhysicsConstants.PRECISION;
+        float dT = Math.abs(supX - infX) / PhysicsConstants.PENETRATION_PRECISION;
 
 
         int n = 0;
@@ -851,13 +854,13 @@ public class WorldFacade implements ContactObserver {
 
         float penetrationLength = getPenetrationLength(penetrated, p, penetratedTopography, penetratorTopography);
         LayerBlock penetratedBlock = penetrated.getBlocks().contains(block1) ? block1 : block2;
-        float stepAdvance = penetrationLength / PhysicsConstants.PRECISION;
+        float stepAdvance = penetrationLength / PhysicsConstants.PENETRATION_PRECISION;
 
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
 
         int step = 0;
         float consumedEnergy = 0;
-        while (step < PhysicsConstants.PRECISION) {
+        while (step < PhysicsConstants.PENETRATION_PRECISION) {
             final float advance = (step + 1) * stepAdvance;
             consumedEnergy = 0;
             for (index = 0; index < penetratedTopography.length; index++) {
@@ -867,7 +870,7 @@ public class WorldFacade implements ContactObserver {
                 }
             }
             if (collisionImpulse - consumedEnergy < 0) {
-                if (step >= PhysicsConstants.PRECISION / 10) {
+                if (step >= PhysicsConstants.PENETRATION_PRECISION / 10) {
                     handlePenetrationEffects(normal,direction, penetrated, dT, ePoints, advance);
                     penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
                     checkOnePointImpact(penetratedBlock, point, collisionImpulse * massFraction, penetrated);
@@ -877,7 +880,7 @@ public class WorldFacade implements ContactObserver {
             step++;
         }
 
-        handlePenetrationEffects(normal,direction, penetrated, dT, ePoints, PhysicsConstants.PRECISION*stepAdvance);
+        handlePenetrationEffects(normal,direction, penetrated, dT, ePoints, PhysicsConstants.PENETRATION_PRECISION *stepAdvance);
 
         if(penetrated.getParentGroup().isLiving()){
             for(GameEntity other: penetrated.getParentGroup().getGameEntities()){
@@ -1096,8 +1099,9 @@ public class WorldFacade implements ContactObserver {
             for (LayerBlock block : gameEntity.getBlocks()) {
                 for (Vector2 v : block.getVertices()) {
                     joker.set(v.x / 32f, v.y / 32f);
-                    Vector2 worldPoint = obtain(gameEntity.getBody().getWorldPoint(joker));
-                    float angle = (float) (MathUtils.radiansToDegrees * Math.atan2(worldPoint.x - sourceWorldPoint.x, worldPoint.y - sourceWorldPoint.y));
+                    Vector2 worldPoint = obtain(gameEntity.getBody().getWorldPoint(joker)).cpy();
+                    Vector2 dir = worldPoint.cpy().sub(sourceWorldPoint).nor();
+                    float angle = (float) (MathUtils.radiansToDegrees * Math.atan2(dir.y, dir.x));
                     if (angle < minAngle) {
                         minAngle = angle;
                         low = worldPoint;
@@ -1128,9 +1132,6 @@ public class WorldFacade implements ContactObserver {
                         recycle(target);
                     }
                     recycle(direction);
-                    if (draw && target != null) {
-                        GameScene.plotter2.drawPoint(target.cpy().mul(32f), Color.RED, 1, 1);
-                    }
                 }
                 Vector2 highDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
                 fluxInterface.computeFluxEffect(highBlock, gameEntity, highDirection, sourceWorldPoint, high, dAngle);
@@ -1300,7 +1301,9 @@ public class WorldFacade implements ContactObserver {
                 vector2.set(worldVector);
             });
         }
-        PulverizationParticleWrapperWithPolygonEmitter pulverizationParticleWrapper = new PulverizationParticleWrapperWithPolygonEmitter(this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
+        float v = gameEntity.getBody().getLinearVelocity().len();
+        Vector2 particleVelocity = v<PhysicsConstants.PARTICLE_TERMINAL_VELOCITY?gameEntity.getBody().getLinearVelocity().cpy():gameEntity.getBody().getLinearVelocity().cpy().nor().mul(PhysicsConstants.PARTICLE_TERMINAL_VELOCITY);
+        PulverizationParticleWrapperWithPolygonEmitter pulverizationParticleWrapper = new PulverizationParticleWrapperWithPolygonEmitter(this, layerBlock, particleVelocity);
         powderParticleWrappers.add(pulverizationParticleWrapper);
         gameScene.attachChild(pulverizationParticleWrapper.getParticleSystem());
     }
@@ -1316,10 +1319,10 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public void applyImpactHeat(List<ImpactData> impactData) {
+    public void applyImpactHeat(List<ImpactData> impactData, float heat) {
         impactData.forEach(impact -> {
             CoatingBlock coatingCenter = impact.getImpactedBlock().getBlockGrid().getNearestCoatingBlockSimple(impact.getLocalImpactPoint());
-            coatingCenter.applyDeltaTemperature(impact.getImpactEnergy() / PhysicsConstants.HEAT_CONSTANT);
+            coatingCenter.applyDeltaTemperature(100*heat);
         });
     }
 
@@ -1401,7 +1404,7 @@ public class WorldFacade implements ContactObserver {
         sum.set(0, 0);
         for (Explosion explosion : explosions) {
             if (explosion.isAlive()) {
-                float velocity = (float) (1.64 * Math.pow(explosion.getEnergy(), (1 / 5f)));
+                float velocity = explosion.getVelocity();
                 result = worldPoint.cpy().sub(explosion.getCenter()).nor().mul(velocity);
                 sum.add(result);
             }

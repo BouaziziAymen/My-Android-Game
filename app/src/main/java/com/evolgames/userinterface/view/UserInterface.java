@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.view;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
@@ -20,8 +18,10 @@ import com.evolgames.userinterface.control.buttonboardcontrollers.ImageButtonBoa
 import com.evolgames.userinterface.control.buttonboardcontrollers.JointButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.MainButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.ToolButtonBoardController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
+import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -38,6 +38,7 @@ import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.basics.Container;
@@ -56,6 +57,7 @@ import com.evolgames.userinterface.view.shapes.CreationZone;
 import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
@@ -72,6 +74,7 @@ import com.evolgames.userinterface.view.visitor.TouchVisitBehavior;
 import com.evolgames.userinterface.view.visitor.VisitBehavior;
 import com.evolgames.userinterface.view.windows.gamewindows.AmmoOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.BodySettingsWindow;
+import com.evolgames.userinterface.view.windows.gamewindows.BombOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ColorSelectorWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.DecorationSettingsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemSaveWindow;
@@ -119,12 +122,7 @@ public class UserInterface extends Container implements Touchable {
     private final ItemSaveWindowController itemSaveWindowController;
     //other
     private final GameActivity activity;
-    private Button<DrawButtonBoardController> triggerButton;
-    private Button<DrawButtonBoardController> reloadButton;
     private final ContentTraverser contentTraverser = new ContentTraverser();
-    private ImageShape imageShape;
-    private ToolModel toolModel;
-    private float zoomFactor = 1f;
     //behaviors
     private final StepVisitBehavior updateVisitBehavior = new StepVisitBehavior();
     private final VisitBehavior resetUpdateVisitBehavior = new VisitBehavior() {
@@ -166,16 +164,17 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
-
-
-
-    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, CasingOptionController casingOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
+    private ImageShape imageShape;
+    private ToolModel toolModel;
+    private float zoomFactor = 1f;
+    public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, CasingOptionController casingOptionController, BombOptionController bombOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
         this.activity = gameActivity;
         pGameScene.getHud().attachChild(hudBatcher);
         pGameScene.attachChild(sceneBatcher);
 
         hudBatcher.setZIndex(1);
         sceneBatcher.setZIndex(1);
+
 
         new Grid(pGameScene);
         this.scene = pGameScene;
@@ -249,14 +248,22 @@ public class UserInterface extends Container implements Touchable {
 
 
         ProjectileOptionWindow projectileOptionWindow = new ProjectileOptionWindow(0, 0, projectileOptionController);
-        projectileOptionWindow.setPosition(800 - projectileOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - projectileOptionWindow.getHeight());
+        projectileOptionWindow.setPosition(800 - projectileOptionWindow.getWidth() - 12, 480 - projectileOptionWindow.getHeight()-32);
         addElement(projectileOptionWindow);
         this.projectileOptionController = projectileOptionController;
 
 
         AmmoOptionWindow ammoOptionWindow = new AmmoOptionWindow(0, 0, casingOptionController);
-        ammoOptionWindow.setPosition(800 - ammoOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - ammoOptionWindow.getHeight());
+        ammoOptionWindow.setPosition(800 - ammoOptionWindow.getWidth() - 12, 480 - ammoOptionWindow.getHeight()-32);
         addElement(ammoOptionWindow);
+
+        BombOptionWindow bombOptionWindow = new BombOptionWindow(0, 0, bombOptionController);
+       // bombOptionWindow.setPosition(800 - bombOptionWindow.getWidth() - itemWindow.getWidth() - 16, 480 - bombOptionWindow.getHeight());
+        bombOptionWindow.setPosition(800 - bombOptionWindow.getWidth() - 12, 480 - bombOptionWindow.getHeight()-32);
+
+
+        addElement(bombOptionWindow);
+
 
 
         itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
@@ -285,7 +292,7 @@ public class UserInterface extends Container implements Touchable {
 
 
         ButtonBoard mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
-        MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this);
+        MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this,outlineController);
         addElement(mainButtonBoard);
         Button<MainButtonBoardController> button10 = new Button<>(ResourceManager.getInstance().drawBigButton, Button.ButtonType.Selector, true);
         button10.setBehavior(new ButtonBehavior<MainButtonBoardController>(controller, button10) {
@@ -636,8 +643,6 @@ public class UserInterface extends Container implements Touchable {
         addElement(createButton);
 
 
-        triggerButton = createTriggerButton(pGameScene);
-        reloadButton = createReloadButton(pGameScene);
 
         toolButtonBoard = new ButtonBoard(0, 480 - 41, LinearLayout.Direction.Horizontal, 0);
         toolButtonBoard.setVisible(false);
@@ -672,12 +677,25 @@ public class UserInterface extends Container implements Touchable {
             }
         });
 
-
-        Button<ToolButtonBoardController> button42 = new Button<>(ResourceManager.getInstance().movePointTextureRegion, Button.ButtonType.Selector, true);
+        Button<ToolButtonBoardController> button42 = new Button<>(ResourceManager.getInstance().bombTextureRegion, Button.ButtonType.Selector, true);
         button42.setBehavior(new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button42) {
             @Override
             public void informControllerButtonClicked() {
-                getController().onMovePointButtonClicked(button42);
+                getController().onBombButtonClicked(button42);
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+                getController().onBombButtonReleased(button42);
+            }
+        });
+
+
+        Button<ToolButtonBoardController> button43 = new Button<>(ResourceManager.getInstance().movePointTextureRegion, Button.ButtonType.Selector, true);
+        button43.setBehavior(new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button43) {
+            @Override
+            public void informControllerButtonClicked() {
+                getController().onMovePointButtonClicked(button43);
             }
 
             @Override
@@ -688,6 +706,7 @@ public class UserInterface extends Container implements Touchable {
         toolButtonBoard.addToButtonBoard(button40);
         toolButtonBoard.addToButtonBoard(button41);
         toolButtonBoard.addToButtonBoard(button42);
+        toolButtonBoard.addToButtonBoard(button43);
         toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
 
 
@@ -716,57 +735,6 @@ public class UserInterface extends Container implements Touchable {
 
     }
 
-    private Button<DrawButtonBoardController> createTriggerButton(GameScene gameScene) {
-        triggerButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
-        triggerButton.setBehavior(new ButtonBehavior<DrawButtonBoardController>(drawButtonBoardController, triggerButton) {
-            @Override
-            public void informControllerButtonClicked() {
-                for(Hand hand:gameScene.getHands().values()) {
-                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
-                        hand.getGrabbedEntity().onTriggerPushed();
-                    }
-                }
-            }
-
-            @Override
-            public void informControllerButtonReleased() {
-                for(Hand hand:gameScene.getHands().values()) {
-                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
-                        hand.getGrabbedEntity().onTriggerReleased();
-                    }
-                }
-            }
-        });
-        triggerButton.setPosition(800 - triggerButton.getWidth(), 0);
-        addElement(triggerButton);
-        return triggerButton;
-    }
-
-
-    private Button<DrawButtonBoardController> createReloadButton(GameScene gameScene) {
-        reloadButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
-        reloadButton.setBehavior(new ButtonBehavior<DrawButtonBoardController>(drawButtonBoardController, reloadButton) {
-            @Override
-            public void informControllerButtonClicked() {
-                for(Hand hand:gameScene.getHands().values()) {
-                    if (hand != null && hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasTrigger()) {
-                        reloadButton.setEnabled(false);
-                        hand.getGrabbedEntity().onReloadPushed(() -> {
-                            reloadButton.setEnabled(true);
-                            reloadButton.updateState(Button.State.NORMAL);
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void informControllerButtonReleased() {
-            }
-        });
-        reloadButton.setPosition(800 - reloadButton.getWidth()-triggerButton.getWidth(), 0);
-        addElement(reloadButton);
-        return reloadButton;
-    }
 
     public ToolModel getToolModel() {
         return toolModel;
@@ -786,8 +754,8 @@ public class UserInterface extends Container implements Touchable {
                 }
             }
         }
-        itemSaveWindowController.onModelUpdated(toolModel);
-        jointSettingsWindowController.setToolModel(toolModel);
+        this.itemSaveWindowController.onModelUpdated(toolModel);
+        this.jointSettingsWindowController.setToolModel(toolModel);
         this.toolModel = toolModel;
 
         for (BodyModel bodyModel : toolModel.getBodies()) {
@@ -812,9 +780,14 @@ public class UserInterface extends Container implements Touchable {
                 projectileShape.bindModel(projectileModel);
             }
 
-            for (CasingModel casingModel : bodyModel.getAmmoModels()) {
+            for (CasingModel casingModel : bodyModel.getCasingModels()) {
                 CasingShape casingShape = new CasingShape(casingModel.getProperties().getAmmoOrigin(), scene);
                 casingShape.bindModel(casingModel);
+            }
+
+            for (BombModel bombModel : bodyModel.getBombModels()) {
+                BombShape bombShape = new BombShape( new Vector2(400,240), scene);
+                bombShape.bindModel(bombModel);
             }
         }
         for (JointModel jointModel : toolModel.getJoints()) {
@@ -879,10 +852,11 @@ public class UserInterface extends Container implements Touchable {
         }
         toolModel.updateMesh();
 
-        layersWindowController.init();
+        outlineController.init();
         itemWindowController.init();
         jointsWindowController.init();
-        outlineController.init();
+        layersWindowController.init();
+
     }
 
     public CreationZoneController getCreationZoneController() {
@@ -905,10 +879,7 @@ public class UserInterface extends Container implements Touchable {
         if (isUpdated()) {
             drawSelf();
         }
-
         resetUpdate();
-
-
     }
 
     private void resetUpdate() {
@@ -932,9 +903,9 @@ public class UserInterface extends Container implements Touchable {
 
         if (creationZoneController.getAction() == CreationZoneController.CreationAction.PIPING && imageShape != null) {
             Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), 10);
-            if (color != null)
+            if (color != null) {
                 optionsWindowController.updatePipeColor(color);
-            Log.e("pipe", "color:" + color);
+            }
         }
 
     }
@@ -948,12 +919,7 @@ public class UserInterface extends Container implements Touchable {
     }
 
     public void dispose() {
-        if(true)return;
-            for (Element e : getContents()) {
-                if (e instanceof PointsShape) {
-                    ((PointsShape) e).dispose();
-                }
-            }
+
     }
 
     public float getZoomFactor() {
@@ -1098,6 +1064,10 @@ public class UserInterface extends Container implements Touchable {
         return imageButtonBoardController;
     }
 
+    public ToolButtonBoardController getToolButtonBoardController() {
+        return toolButtonBoardController;
+    }
+
     public ProjectileOptionController getProjectileOptionsController() {
         return projectileOptionController;
     }
@@ -1106,17 +1076,8 @@ public class UserInterface extends Container implements Touchable {
         return layersWindowController;
     }
 
-    public void setSelectedScreen(Screen selectedScreen) {
+    public void changeSelectedScreen(Screen selectedScreen) {
         outlineController.onScreenChanged(selectedScreen);
     }
 
-    public void showFireButtons() {
-        triggerButton.setVisible(true);
-        reloadButton.setVisible(true);
-    }
-
-    public void hideFireButtons() {
-        triggerButton.setVisible(false);
-        reloadButton.setVisible(false);
-    }
 }
