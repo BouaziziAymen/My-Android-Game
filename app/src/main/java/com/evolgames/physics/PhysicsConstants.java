@@ -9,7 +9,7 @@ public class PhysicsConstants {
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 36f;
     public static final float PENETRATION_CONSTANT = 100f;
     public static final float PULVERIZATION_CONSTANT = 3.41f;
-    public static final int FLUX_PRECISION = 10;
+    public static final int FLUX_PRECISION = 500;
     public static final float BACKOFF = 0.05f;
     public static final int PENETRATION_PRECISION = 50;
     public static final float BLEEDING_CONSTANT = 10f;

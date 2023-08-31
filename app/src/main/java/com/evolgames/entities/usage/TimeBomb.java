@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.WorldFacade;
@@ -41,7 +42,9 @@ public class TimeBomb extends Use{
                 Body body = bombModel.getGameEntity().getBody();
                 Vector2 pos = bombModel.getProperties().getBombPosition().cpy().sub(bombModel.getGameEntity().getCenter()).mul(1 / 32f);
                 Vector2 worldPos = body.getWorldPoint(pos).cpy();
-              //  worldFacade.createExplosion(worldPos.x, worldPos.y, bombModel.getProperties().getForce());
+                BombProperties bp = bombModel.getProperties();
+               worldFacade.createExplosion(bombModel.getGameEntity(),worldPos.x, worldPos.y,bp.getFireRatio(),bp.getSmokeRatio(),bp.getSparkRatio(),
+                       bp.getParticles(),bp.getForce(),bp.getHeat(),bp.getSpeed());
             }
             this.alive = false;
         }

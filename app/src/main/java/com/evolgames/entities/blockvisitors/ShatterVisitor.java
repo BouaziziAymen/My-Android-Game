@@ -90,8 +90,6 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
 
             deque.pop();
         }
-
-
         Iterator<LayerBlock> iterator = cutBlock.createIterator();
         while (iterator.hasNext()) {
             LayerBlock bl = iterator.next();

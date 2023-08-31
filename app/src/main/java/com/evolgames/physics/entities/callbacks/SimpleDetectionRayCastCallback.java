@@ -13,7 +13,7 @@ import java.util.HashSet;
 public class SimpleDetectionRayCastCallback implements RayCastCallback {
     private Vector2 intersectionPoint;
     private float minFraction;
-    private HashSet<GameEntity> exceptedGroup = new HashSet<>();
+    private final HashSet<GameEntity> exceptedGroup = new HashSet<>();
 
     public Vector2 getIntersectionPoint() {
         return intersectionPoint;

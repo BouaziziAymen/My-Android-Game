@@ -55,7 +55,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
 
         float fireVerticalSpeed = 0.08f * velocity;
         float smokeVerticalSpeed = 0.04f * velocity;
-        float sparkVerticalSpeed = 0.06f * velocity;
+        float sparkVerticalSpeed = 0.1f * velocity;
         float fireHorizontalSpeed = 0.01f * velocity;
         float smokeHorizontalSpeed = 0.01f * velocity;
         float sparkHorizontalSpeed = 0;

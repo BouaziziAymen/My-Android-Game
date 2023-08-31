@@ -174,7 +174,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver_latest.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_grenade.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
@@ -479,11 +479,12 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-        if (true)
+        this.x = touchEvent.getX() / 32f;
+        this.y = touchEvent.getY() / 32f;
+
+        if (false)
             if (touchEvent.isActionDown()) {
-                this.x = touchEvent.getX() / 32f;
-                this.y = touchEvent.getY() / 32f;
-                getWorldFacade().createExplosion(x, y, 1f,0.4f,0.2f,1f,0.2f,0.1f,1f);
+                getWorldFacade().createExplosion(null,x, y, 1f,0.3f,1f,1f,0.1f,0.1f,1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

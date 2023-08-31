@@ -1,6 +1,7 @@
 package com.evolgames.physics;
 
 
+import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 import static java.lang.Math.min;
@@ -58,7 +59,6 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.helpers.utilities.PhysicsUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.entities.Data;
@@ -66,9 +66,11 @@ import com.evolgames.physics.entities.Touch;
 import com.evolgames.physics.entities.callbacks.BlockQueryCallBack;
 import com.evolgames.physics.entities.callbacks.CutRayCastCallback;
 import com.evolgames.physics.entities.callbacks.DetectionRayCastCallback;
+import com.evolgames.physics.entities.callbacks.FluxRayCastCallback;
 import com.evolgames.physics.entities.callbacks.GameEntityQueryCallBack;
 import com.evolgames.physics.entities.callbacks.SimpleDetectionRayCastCallback;
 import com.evolgames.physics.entities.explosions.Explosion;
+import com.evolgames.physics.entities.explosions.ImpactInterface;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.model.BodyModel;
 
@@ -84,6 +86,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,6 +96,7 @@ public class WorldFacade implements ContactObserver {
     private final HashSet<PulverizationParticleWrapperWithPolygonEmitter> powderParticleWrappers = new HashSet<>();
     private final ArrayList<Fire> flames = new ArrayList<>();
     private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback = new SimpleDetectionRayCastCallback();
+    private final FluxRayCastCallback fluxRayCastCallback = new FluxRayCastCallback();
     private final ArrayList<TimedCommand> timedCommands = new ArrayList<>();
     private final GameEntityContactListener contactListener;
     private final GameEntityQueryCallBack queryCallBack = new GameEntityQueryCallBack();
@@ -199,6 +203,18 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.rayCast(simpleDetectionRayCastCallback, first, second);
         return simpleDetectionRayCastCallback.getIntersectionPoint();
     }
+    public ImpactData detectFirstIntersectionData(Vector2 first, Vector2 second) {
+        fluxRayCastCallback.reset();
+        physicsWorld.rayCast(fluxRayCastCallback, first, second);
+        return fluxRayCastCallback.getImpactData();
+    }
+    public ImpactData detectFirstIntersectionData(Vector2 first, Vector2 second, GameEntity excepted) {
+        fluxRayCastCallback.reset();
+        fluxRayCastCallback.setExcepted(excepted);
+        physicsWorld.rayCast(fluxRayCastCallback, first, second);
+        return fluxRayCastCallback.getImpactData();
+    }
+
 
     private void addFlame(Fire fireParticleWrapper) {
         flames.add(fireParticleWrapper);
@@ -318,8 +334,8 @@ public class WorldFacade implements ContactObserver {
         return null;
     }
 
-    public void createExplosion(float x, float y, float fireRatio, float smokeRatio, float sparkRatio,float particles,float force, float heat, float speed) {
-        Explosion explosion = new Explosion(gameScene, new Vector2(x, y),particles,force,speed,heat,fireRatio,smokeRatio,sparkRatio);
+    public void createExplosion(GameEntity source,float x, float y, float fireRatio, float smokeRatio, float sparkRatio,float particles,float force, float heat, float speed) {
+        Explosion explosion = new Explosion(gameScene,source, new Vector2(x, y),particles,force,speed,heat,fireRatio,smokeRatio,sparkRatio);
         explosions.add(explosion);
     }
 
@@ -873,7 +889,7 @@ public class WorldFacade implements ContactObserver {
                 if (step >= PhysicsConstants.PENETRATION_PRECISION / 10) {
                     handlePenetrationEffects(normal,direction, penetrated, dT, ePoints, advance);
                     penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
-                    checkOnePointImpact(penetratedBlock, point, collisionImpulse * massFraction, penetrated);
+                    checkOnePointImpact(penetratedBlock, obtain(point), collisionImpulse * massFraction, penetrated);
                 }
                 return;
             }
@@ -890,7 +906,7 @@ public class WorldFacade implements ContactObserver {
             this.contactListener.addNonCollidingPair(penetrator, penetrated);
         }
         penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
-        checkOnePointImpact(penetratedBlock, point, 5*collisionImpulse * massFraction, penetrated);
+        checkOnePointImpact(penetratedBlock, obtain(point), 5*collisionImpulse * massFraction, penetrated);
     }
 
     private void handlePenetrationEffects(Vector2 normal, int direction, GameEntity penetrated, float dT, Set<EPoint> ePoints, float advance) {
@@ -1080,72 +1096,26 @@ public class WorldFacade implements ContactObserver {
         entity.setAlive(false);
     }
 
-    public void performFlux(Vector2 sourceWorldPoint, FluxInterface fluxInterface, boolean draw) {
-        //find surrounding entities
-        HashSet<GameEntity> surroundingEntities = this.findEntitiesInZone(sourceWorldPoint.x, sourceWorldPoint.y, 100, 100);
-        //for each entity
-        for (GameEntity gameEntity : surroundingEntities) {
-            if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
-                continue;
+    public void performFlux(Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
+        Vector2 v = new Vector2(1,0);
+        List<ImpactData> list = new ArrayList<>();
+        for(int i=0;i<FLUX_PRECISION;i++){
+            v.set(1,0);
+            GeometryUtils.rotateVectorDeg(v,i*360/(float)FLUX_PRECISION);
+            Vector2 end = new Vector2(sourceWorldPoint.x+v.x*100,sourceWorldPoint.y+v.y*100);
+            ImpactData data1 = this.detectFirstIntersectionData(sourceWorldPoint, end);
+            if(data1!=null) {
+                list.add(data1);
             }
-            //find lower and higher angles
-            float minAngle = Float.MAX_VALUE;
-            float maxAngle = -Float.MAX_VALUE;
-            Vector2 low = null;
-            Vector2 high = null;
-            LayerBlock lowBlock = null;
-            LayerBlock highBlock = null;
-            Vector2 joker = new Vector2();
-            for (LayerBlock block : gameEntity.getBlocks()) {
-                for (Vector2 v : block.getVertices()) {
-                    joker.set(v.x / 32f, v.y / 32f);
-                    Vector2 worldPoint = obtain(gameEntity.getBody().getWorldPoint(joker)).cpy();
-                    Vector2 dir = worldPoint.cpy().sub(sourceWorldPoint).nor();
-                    float angle = (float) (MathUtils.radiansToDegrees * Math.atan2(dir.y, dir.x));
-                    if (angle < minAngle) {
-                        minAngle = angle;
-                        low = worldPoint;
-                        lowBlock = block;
-                    }
-                    if (angle > maxAngle) {
-                        maxAngle = angle;
-                        high = worldPoint;
-                        highBlock = block;
-                    }
+            if(source!=null) {
+                ImpactData data2 = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
+                if (data2 != null) {
+                    list.add(data2);
                 }
             }
-            if (low != null && high != null) {
-                float angleDifference = maxAngle - minAngle;
-                float dAngle = angleDifference / PhysicsConstants.FLUX_PRECISION;
-                Vector2 lowDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
-                fluxInterface.computeFluxEffect(lowBlock, gameEntity, lowDirection, sourceWorldPoint, low, dAngle);
-                recycle(lowDirection);
-                for (int i = 1; i < PhysicsConstants.FLUX_PRECISION; i++) {
-                    Vector2 direction = obtain(low.x - sourceWorldPoint.x, low.y - sourceWorldPoint.y).nor();
-                    float angle = i * dAngle;
-                    GeometryUtils.rotateVectorDeg(direction, -angle);
-                    Vector2 detectionEnd = obtain(sourceWorldPoint.x + direction.x * 200, sourceWorldPoint.y + direction.y * 200);
-                    Vector2 target = detectIntersectionWithEntity(gameEntity, sourceWorldPoint, detectionEnd);
-                    recycle(detectionEnd);
-                    if (target != null) {
-                        fluxInterface.computeFluxEffect(detectionRayCastCallback.getLayerBlock(), gameEntity, direction, sourceWorldPoint, target, dAngle);
-                        recycle(target);
-                    }
-                    recycle(direction);
-                }
-                Vector2 highDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
-                fluxInterface.computeFluxEffect(highBlock, gameEntity, highDirection, sourceWorldPoint, high, dAngle);
-                recycle(highDirection);
-                if (draw) {
-                    GameScene.plotter2.drawLine2(sourceWorldPoint.cpy().mul(32f), low.mul(32f), Color.BLUE, 1);
-                    GameScene.plotter2.drawLine2(sourceWorldPoint.cpy().mul(32f), high.mul(32f), Color.RED, 1);
-                }
-                recycle(high);
-                recycle(low);
-            }
-
-
         }
+        Map<GameEntity, List<ImpactData>> res = list.stream().collect(Collectors.groupingBy(ImpactData::getGameEntity));
+        res.forEach(impactInterface::processImpacts);
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
@@ -1278,14 +1248,13 @@ public class WorldFacade implements ContactObserver {
 
     private void checkOnePointImpact(LayerBlock block, Vector2 worldPoint, float energy, GameEntity gameEntity) {
         if (gameEntity.getBody().getType() == BodyDef.BodyType.DynamicBody && energy > 3 * PhysicsConstants.TENACITY_FACTOR) {
-            Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
-            applyOnePointImpactToEntity(block, energy, gameEntity, localPoint);
+            applyOnePointImpactToEntity(block, energy, gameEntity, worldPoint);
         }
     }
 
-    private void applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 localPoint) {
+    private void applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 worldPoint) {
         List<ImpactData> impactData = new ArrayList<>();
-        impactData.add(new ImpactData(gameEntity, block, localPoint, energy));
+        impactData.add(new ImpactData(gameEntity, block, worldPoint, energy));
         applyImpacts(gameEntity, impactData);
     }
 
@@ -1319,7 +1288,7 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public void applyImpactHeat(List<ImpactData> impactData, float heat) {
+    public void applyImpactHeat(float heat, List<ImpactData> impactData) {
         impactData.forEach(impact -> {
             CoatingBlock coatingCenter = impact.getImpactedBlock().getBlockGrid().getNearestCoatingBlockSimple(impact.getLocalImpactPoint());
             coatingCenter.applyDeltaTemperature(100*heat);
