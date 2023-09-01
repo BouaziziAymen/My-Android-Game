@@ -4,7 +4,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.FireEmitter;
-import com.evolgames.entities.particles.pools.UncoloredSpritePool;
+import com.evolgames.entities.particles.pools.FireSpritePool;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;
@@ -12,6 +12,7 @@ import com.evolgames.helpers.utilities.MyColorUtils;
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.BatchedPseudoSpriteParticleSystem;
+import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.ParticleSystem;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
@@ -27,14 +28,14 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
     private static final float RATE_MAX = 50 * 3;
     private static final int PARTICLES_MAX = 75 * 3;
 
-    public BatchedPseudoSpriteParticleSystem particleSystem;
+    public BatchedSpriteParticleSystem particleSystem;
     public FireEmitter emitter;
-    private ColorParticleModifier<Entity> colorModifier;
+    private ColorParticleModifier<UncoloredSprite> colorModifier;
     private final GameEntity gameEntity;
 
     public FireParticleWrapperWithPolygonEmitter(GameEntity entity) {
       this.gameEntity = entity;
-        IEntityFactory<Entity> ief = UncoloredSpritePool::obtain;
+        IEntityFactory<UncoloredSprite> ief = FireSpritePool::obtain;
         this.emitter = new FireEmitter(entity);
 
         float area = 0;
@@ -47,12 +48,12 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
                 this.emitter,
                 FireParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
                 FireParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
-                (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1), ResourceManager.getInstance().plasmaParticle4
+                (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1), ResourceManager.getInstance().plasmaParticle
         );
 
         particleSystem.setZIndex(entity.getMesh().getZIndex() + 1);
 
-        VelocityParticleInitializer<Entity> velocityInitializer = new VelocityParticleInitializer<>(0, 0, 120, 140);
+        VelocityParticleInitializer<UncoloredSprite> velocityInitializer = new VelocityParticleInitializer<>(0, 0, 120, 140);
         this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.9f, 0f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
@@ -83,7 +84,7 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
     }
 
     @Override
-    public ParticleSystem<Entity> getFireParticleSystem() {
+    public ParticleSystem<UncoloredSprite> getFireParticleSystem() {
         return particleSystem;
     }
 

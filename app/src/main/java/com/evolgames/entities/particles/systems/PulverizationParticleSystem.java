@@ -2,24 +2,21 @@ package com.evolgames.entities.particles.systems;
 
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
-import com.evolgames.entities.particles.emitters.PowderEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;
 
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.Particle;
-import org.andengine.opengl.texture.region.TextureRegion;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
 public class PulverizationParticleSystem extends FlowingParticleSystem {
-    public PulverizationParticleSystem(IEntityFactory<Entity> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax) {
-        super(ief, emitter, rateMin, rateMax, particlesMax, ResourceManager.getInstance().pixelParticle);
+    public PulverizationParticleSystem(IEntityFactory<UncoloredSprite> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax) {
+        super(emitter, rateMin, rateMax, particlesMax, ResourceManager.getInstance().pixelParticle);
     }
 
     @Override
-    protected void onParticleSpawned(Particle<Entity> particle) {
+    protected void onParticleSpawned(Particle<UncoloredSprite> particle) {
         super.onParticleSpawned(particle);
         CoatingBlock coatingBlock = relativePolygonEmitter.getActiveCoatingBlock();
         Color parentColor = coatingBlock.getParent().getProperties().getDefaultColor();

@@ -2,20 +2,18 @@ package com.evolgames.entities.particles.wrappers.explosion;
 
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
-import com.evolgames.entities.particles.pools.UncoloredSpritePool;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.helpers.utilities.GeometryUtils;
 
-import org.andengine.entity.Entity;
-import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.Particle;
+import org.andengine.entity.sprite.UncoloredSprite;
 
 public abstract class ExplosiveParticleWrapper implements Fire {
 
-    private static final float RATE_MIN = 6000;
-    private static final float RATE_MAX = 8000;
-    private static final int PARTICLES_MAX = 20000;
+    private static final float RATE_MIN = 3000;
+    private static final float RATE_MAX = 4000;
+    private static final int PARTICLES_MAX = 10000;
     protected final DataEmitter emitter;
     protected final float particleDensity;
     private final float fireRatio;
@@ -28,7 +26,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     protected BaseParticleSystem sparkParticleSystem;
     protected GameEntity parent;
     private boolean alive = true;
-    protected boolean attachedToParent = true;
+    protected boolean followParent = true;
 
     public ExplosiveParticleWrapper(GameEntity gameEntity, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float particleDensity, float flameTemperature, float[] data) {
         this.emitter = createEmitter(data);
@@ -60,21 +58,21 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         float smokeHorizontalSpeed = 0.01f * velocity;
         float sparkHorizontalSpeed = 0;
         if (fireRatio > 0) {
-            this.fireParticleSystem = createFireSystem(rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed, UncoloredSpritePool::obtain);
+            this.fireParticleSystem = createFireSystem(rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed);
         }
         if (smokeRatio > 0) {
-            this.smokeParticleSystem = createSmokeSystem(rateMinSmoke, rateMaxSmoke, particlesMaxSmoke, smokeVerticalSpeed, smokeHorizontalSpeed, UncoloredSpritePool::obtain);
+            this.smokeParticleSystem = createSmokeSystem(rateMinSmoke, rateMaxSmoke, particlesMaxSmoke, smokeVerticalSpeed, smokeHorizontalSpeed);
         }
         if (sparkRatio > 0) {
-            this.sparkParticleSystem = createSparkSystem(rateMinSpark, rateMaxSpark, particlesMaxSpark, sparkVerticalSpeed, sparkHorizontalSpeed, UncoloredSpritePool::obtain);
+            this.sparkParticleSystem = createSparkSystem(rateMinSpark, rateMaxSpark, particlesMaxSpark, sparkVerticalSpeed, sparkHorizontalSpeed);
         }
     }
 
-    protected abstract BaseParticleSystem createSparkSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
+    protected abstract BaseParticleSystem createSparkSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
 
-    protected abstract BaseParticleSystem createFireSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
+    protected abstract BaseParticleSystem createFireSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
 
-    protected abstract BaseParticleSystem createSmokeSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, IEntityFactory<Entity> ief);
+    protected abstract BaseParticleSystem createSmokeSystem(int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
 
     protected abstract DataEmitter createEmitter(float[] data);
 
@@ -82,21 +80,23 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         this.parent = entity;
     }
 
-    public void detachFromParent() {
-        attachedToParent = false;
+    public void stopFollowingParent() {
+        followParent = false;
     }
 
     public void update() {
-        if (!attachedToParent||parent==null) {
-            return;
-        }
-        if (!parent.isAlive()) {
-            finishSelf();
+        if (parent!=null&&!parent.isAlive()) {
+            stopFinal();
         }
         if (!isAlive()) {
+            if(isAllParticlesExpired()){
+                finishSelf();
+            }
             return;
         }
-        updateEmitter();
+        if (followParent && parent!=null) {
+            updateEmitter();
+        }
     }
 
     private void updateEmitter() {
@@ -125,6 +125,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     }
 
 
+    @Override
     public BaseParticleSystem getFireParticleSystem() {
         return fireParticleSystem;
     }
@@ -137,16 +138,38 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         return sparkParticleSystem;
     }
 
-    public void finishSelf() {
+    public void stopFinal() {
         setSpawnEnabled(false);
         this.alive = false;
     }
+    private void finishSelf(){
+        if(smokeParticleSystem!=null)
+      this.smokeParticleSystem.detachSelf();
+        if(sparkParticleSystem!=null)
+      this.sparkParticleSystem.detachSelf();
+        if(fireParticleSystem!=null)
+      this.fireParticleSystem.detachSelf();
+    }
 
     public boolean isAllParticlesExpired() {
-        for (Particle<Entity> p : getFireParticleSystem().getParticles())
+        if(getFireParticleSystem()!=null)
+        for (Particle<UncoloredSprite> p : getFireParticleSystem().getParticles()) {
             if (p != null && !p.isExpired()) {
                 return false;
             }
+        }
+        if(getSmokeParticleSystem()!=null)
+        for (Particle<UncoloredSprite> p : getSmokeParticleSystem().getParticles()) {
+            if (p != null && !p.isExpired()) {
+                return false;
+            }
+        }
+        if(getSparkParticleSystem()!=null)
+        for (Particle<UncoloredSprite> p : getSparkParticleSystem().getParticles()) {
+            if (p != null && !p.isExpired()) {
+                return false;
+            }
+        }
         return true;
     }
 

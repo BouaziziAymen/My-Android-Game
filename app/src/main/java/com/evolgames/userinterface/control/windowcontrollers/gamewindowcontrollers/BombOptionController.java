@@ -68,13 +68,13 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
         SectionField<BombOptionController> explosiveSettingsSection = new SectionField<>(1, "Explosive Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
-        particlesQuantityField =this.createQuantity("Particles",1,1,10,70,"b",(q)->bombProperties.setParticles(q));
-        speedQuantityField =this.createQuantity("Speed",1,2,10,70,"b",(q)->bombProperties.setSpeed(q));
-        forceQuantityField =this.createQuantity("Force",1,3,10,70,"n",(q)->bombProperties.setForce(q));
-        heatQuantityField =this.createQuantity("Heat",1,4,10,70,"r",(q)->bombProperties.setHeat(q));
-        fireRatioQuantityField = this.createQuantity("Fire",1,5,10,70,"r",(q)->bombProperties.setFireRatio(q));
-        smokeRatioQuantityField = this.createQuantity("Smoke",1,6,10,70,"t",(q)->bombProperties.setSmokeRatio(q));
-        sparkRatioQuantityField =this.createQuantity("Sparks",1,7,10,70,"g",(q)->bombProperties.setSparkRatio(q));
+        particlesQuantityField =this.createQuantity("Particles:",1,1,10,60,"b",(q)->bombProperties.setParticles(q));
+        speedQuantityField =this.createQuantity("Speed:",1,2,10,40,"b",(q)->bombProperties.setSpeed(q));
+        forceQuantityField =this.createQuantity("Force:",1,3,20,40,"n",(q)->bombProperties.setForce(q));
+        heatQuantityField =this.createQuantity("Heat:",1,4,10,40,"r",(q)->bombProperties.setHeat(q));
+        fireRatioQuantityField = this.createQuantity("Fire:",1,5,10,40,"r",(q)->bombProperties.setFireRatio(q));
+        smokeRatioQuantityField = this.createQuantity("Smoke:",1,6,10,50,"t",(q)->bombProperties.setSmokeRatio(q));
+        sparkRatioQuantityField =this.createQuantity("Sparks:",1,7,10,50,"g",(q)->bombProperties.setSparkRatio(q));
 
         window.createScroller();
         window.getLayout().updateLayout();

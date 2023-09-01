@@ -223,7 +223,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                    Vector2 nor = new Vector2(-dir.y,dir.x);
                    Vector2 e = end.cpy().sub(gameEntity.getCenter());
                    float extent = ToolUtils.getAxisExtent(p.getMissileModel(),nor)/2f;
-                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y), PhysicsConstants.getProjectileVelocity(properties.getMuzzleVelocity()),properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),0.1f,2000);
+                   ExplosiveParticleWrapper fireSource = scene.getWorldFacade().createFireSource(gameEntity,e.cpy().sub(extent*nor.x,extent*nor.y),e.cpy().add(extent*nor.x,extent*nor.y), PhysicsConstants.getProjectileVelocity(properties.getMuzzleVelocity())/10f,properties.getFireRatio(),properties.getSmokeRatio(),properties.getSparkRatio(),0.1f,2000);
                    fireSource.setSpawnEnabled(false);
                    p.setFireSource(fireSource);
                }

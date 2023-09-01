@@ -103,7 +103,7 @@ public class ResourceManager {
     public TiledTextureRegion rotateImageButtonTextureRegion;
     public TiledTextureRegion pipeButtonTextureRegion;
     public TiledTextureRegion moveImageButtonTextureRegion;
-    public TextureRegion plasmaParticle1, plasmaParticle2, plasmaParticle3, plasmaParticle4;
+    public TextureRegion dotParticle, smokeParticle, plasmaParticle3, plasmaParticle;
     public TextureRegion slotInnerTextureRegion;
     public TextureRegion sketchTextureRegion;
     public Bitmap sketchBitmap;
@@ -168,11 +168,11 @@ public class ResourceManager {
         this.base = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "base.png");
         this.knob = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "knob.png");
         this.pokemon = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "bulbasaur.png");
-        this.liquidParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/water2.png");
-        this.plasmaParticle1 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f1.png");
-        this.plasmaParticle2 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f2.png");
+        this.liquidParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
+        this.dotParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/dot.png");
+        this.smokeParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/smoke.png");
         this.plasmaParticle3 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f3.png");
-        this.plasmaParticle4 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f4.png");
+        this.plasmaParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/plasma.png");
         this.pixelParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/pixel.png");
 
         this.button = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);

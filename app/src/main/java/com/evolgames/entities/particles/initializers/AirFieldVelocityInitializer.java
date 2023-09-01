@@ -8,9 +8,10 @@ import com.evolgames.scenes.GameScene;
 import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.IParticleInitializer;
+import org.andengine.entity.sprite.UncoloredSprite;
 
 
-public class AirFieldVelocityInitializer  implements IParticleInitializer<Entity> {
+public class AirFieldVelocityInitializer  implements IParticleInitializer<UncoloredSprite> {
 
 
     private final WorldFacade worldFacade;
@@ -23,7 +24,7 @@ public class AirFieldVelocityInitializer  implements IParticleInitializer<Entity
     }
 
     @Override
-    public void onInitializeParticle(Particle<Entity> pParticle) {
+    public void onInitializeParticle(Particle<UncoloredSprite> pParticle) {
         this.worldPoint.set(pParticle.getEntity().getX() / 32f, pParticle.getEntity().getY() / 32f);
             Vector2 velocity = worldFacade.getAirVelocity(worldPoint);
             pParticle.getPhysicsHandler().setVelocity((velocity.x+this.bodyVelocity.x)*32f, (velocity.y+this.bodyVelocity.y)*32f);

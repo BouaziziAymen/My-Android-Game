@@ -9,14 +9,12 @@ import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 
-import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
-import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
 import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.particle.modifier.OffCameraExpireParticleModifier;
-import org.andengine.entity.particle.modifier.RotationParticleModifier;
+import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.ease.EaseStrongInOut;
 
@@ -53,7 +51,7 @@ public abstract class LiquidParticleWrapper {
     }
 
     private void addGravity() {
-        GravityParticleInitializer<Entity> gravity = new GravityParticleInitializer<>();
+        GravityParticleInitializer<UncoloredSprite> gravity = new GravityParticleInitializer<>();
         gravity.setAccelerationY(-3 * 10 * 32);
         this.particleSystem.addParticleInitializer(gravity);
     }
@@ -112,7 +110,7 @@ public abstract class LiquidParticleWrapper {
 
 
     public boolean isAllParticlesExpired() {
-        for (Particle<Entity> p : getParticleSystem().getParticles())
+        for (Particle<UncoloredSprite> p : getParticleSystem().getParticles())
             if (p != null && !p.isExpired()) {
                 return false;
             }

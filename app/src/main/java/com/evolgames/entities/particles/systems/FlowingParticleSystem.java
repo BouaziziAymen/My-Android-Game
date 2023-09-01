@@ -3,13 +3,11 @@ package com.evolgames.entities.particles.systems;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 
-import org.andengine.entity.Entity;
-import org.andengine.entity.IEntityFactory;
-import org.andengine.entity.particle.BatchedPseudoSpriteParticleSystem;
+import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.math.MathUtils;
 
-public abstract class FlowingParticleSystem extends BatchedPseudoSpriteParticleSystem {
+public abstract class FlowingParticleSystem extends BatchedSpriteParticleSystem {
 
     protected final PolygonEmitter relativePolygonEmitter;
     private float rateMin;
@@ -17,8 +15,8 @@ public abstract class FlowingParticleSystem extends BatchedPseudoSpriteParticleS
     private final float originalRateMin;
     private final float originalRateMax;
 
-    public FlowingParticleSystem(IEntityFactory<Entity> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax, TextureRegion particleTextureRegion) {
-        super(ief, emitter, rateMin, rateMax, particlesMax, particleTextureRegion, ResourceManager.getInstance().vbom);
+    public FlowingParticleSystem(PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax, TextureRegion particleTextureRegion) {
+        super(emitter, rateMin, rateMax, particlesMax, particleTextureRegion, ResourceManager.getInstance().vbom);
         relativePolygonEmitter = emitter;
         this.rateMin = rateMin;
         this.rateMax = rateMax;

@@ -8,7 +8,7 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public class GameEntityAttachedMinMaxVelocityInitializer implements IParticleInitializer<Entity> {
+public class GameEntityAttachedMinMaxVelocityInitializer implements IParticleInitializer<UncoloredSprite> {
     private final GameEntity gameEntity;
     private final Vector2 normal;
     private final Vector2 tangent;
@@ -30,7 +30,7 @@ public class GameEntityAttachedMinMaxVelocityInitializer implements IParticleIni
     }
 
     @Override
-    public void onInitializeParticle(Particle<Entity> pParticle) {
+    public void onInitializeParticle(Particle<UncoloredSprite> pParticle) {
         if (gameEntity.getBody() == null) {
             return;
         }

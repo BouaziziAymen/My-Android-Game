@@ -6,8 +6,9 @@ import com.evolgames.entities.GameEntity;
 import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.IParticleInitializer;
+import org.andengine.entity.sprite.UncoloredSprite;
 
-public class GameEntityAttachedVelocityInitializer implements IParticleInitializer<Entity> {
+public class GameEntityAttachedVelocityInitializer implements IParticleInitializer<UncoloredSprite> {
 
     private final GameEntity gameEntity;
     private final Vector2 independentVelocity;
@@ -24,7 +25,7 @@ public class GameEntityAttachedVelocityInitializer implements IParticleInitializ
     }
 
     @Override
-    public void onInitializeParticle(Particle<Entity> pParticle) {
+    public void onInitializeParticle(Particle<UncoloredSprite> pParticle) {
         if (gameEntity.getBody() == null) {
             return;
         }
