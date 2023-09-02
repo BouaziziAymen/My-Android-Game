@@ -18,14 +18,14 @@ public class Scroller extends LinearLayout implements Touchable {
     private final static float TRAIL_HEIGHT = 32f;
     private final Image knob;
 
-    private final LinearLayoutAdvancedWindowController mController;
+    private final LinearLayoutAdvancedWindowController<?> mController;
     private final float effectiveHeight;
     private float knobHeight;
     private float mAdvance;
-    private float visibilityLength;
+    private final float visibilityLength;
     private boolean isTouched;
 
-    public Scroller(float pX, float pY, int rows, LinearLayoutAdvancedWindowController controller, float visibilityLength) {
+    public Scroller(float pX, float pY, int rows, LinearLayoutAdvancedWindowController<?> controller, float visibilityLength) {
         super(pX, pY, Direction.Vertical, SPACE_MARGIN);
         this.mController = controller;
         this.visibilityLength = visibilityLength;
@@ -44,9 +44,9 @@ public class Scroller extends LinearLayout implements Touchable {
         addToLayout(lower);
 
 
-        Button<LinearLayoutAdvancedWindowController> upArrowButton = new Button<>(upper.getLowerBottomX() + upper.getWidth() / 2 - 8, upper.getLowerBottomY() + 15 - 7, ResourceManager.getInstance().upButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
+        Button<LinearLayoutAdvancedWindowController<?>> upArrowButton = new Button<>(upper.getLowerBottomX() + upper.getWidth() / 2 - 8, upper.getLowerBottomY() + 15 - 7, ResourceManager.getInstance().upButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
         addElement(upArrowButton);
-        upArrowButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController>(controller, upArrowButton) {
+        upArrowButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController<?>>(controller, upArrowButton) {
             @Override
             public void informControllerButtonClicked() {
                 incrementAdvance(-0.1f);
@@ -57,11 +57,11 @@ public class Scroller extends LinearLayout implements Touchable {
             }
         });
 
-        Button<LinearLayoutAdvancedWindowController> downArrowButton = new Button<>(lower.getLowerBottomX() + lower.getWidth() / 2 - 8, lower.getLowerBottomY() + 12 - 7, ResourceManager.getInstance().downButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
+        Button<LinearLayoutAdvancedWindowController<?>> downArrowButton = new Button<>(lower.getLowerBottomX() + lower.getWidth() / 2 - 8, lower.getLowerBottomY() + 12 - 7, ResourceManager.getInstance().downButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
         addElement(downArrowButton);
 
 
-        downArrowButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController>(controller, downArrowButton) {
+        downArrowButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController<?>>(controller, downArrowButton) {
             @Override
             public void informControllerButtonClicked() {
                 incrementAdvance(0.1f);
@@ -80,8 +80,6 @@ public class Scroller extends LinearLayout implements Touchable {
         addElement(knob);
         knob.setColor(143 / 255f, 86 / 255f, 59 / 255f);
         knob.setDepth(1);
-
-
     }
 
     private float getEffectiveSup() {
@@ -104,10 +102,9 @@ public class Scroller extends LinearLayout implements Touchable {
             knobHeight = effectiveHeight * ratio;
             updateKnobSize();
             correctKnob();
+            updateKnobLowerBottomY();
             updateAdvance();
-            updateKnobLowerButtomY();
             mController.onVisibleZoneUpdate();
-           // mController.onScrolled(mAdvance);
         }
 
     }
@@ -150,7 +147,7 @@ public class Scroller extends LinearLayout implements Touchable {
         mAdvance = -(knob.getLowerBottomY() + knobHeight + UPPER_HEIGHT) / effectiveHeight;
     }
 
-    private void updateKnobLowerButtomY() {
+    private void updateKnobLowerBottomY() {
         knob.setLowerBottomY(-(mAdvance * effectiveHeight + knobHeight + UPPER_HEIGHT));
     }
 
@@ -175,8 +172,6 @@ public class Scroller extends LinearLayout implements Touchable {
                 return true;
             }
         }
-
-
         if (this.isTouched) {
             float newY = pTouchEvent.getY() - getAbsoluteY()-knobHeight/2;
             knob.setLowerBottomY(newY);

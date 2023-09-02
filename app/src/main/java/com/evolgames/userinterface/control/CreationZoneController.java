@@ -164,7 +164,7 @@ public class CreationZoneController extends Controller {
             action = CreationAction.NONE;
         }
         if (action == CreationAction.BOMB||action == CreationAction.PROJECTILE||action == CreationAction.AMMO) {
-            userInterface.getToolButtonBoardController().releaseButtons();
+            userInterface.getItemButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
         }
     }

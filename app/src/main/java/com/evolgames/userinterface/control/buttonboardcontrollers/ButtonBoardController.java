@@ -14,6 +14,12 @@ public class ButtonBoardController extends Controller {
         this.buttonBoard = buttonBoard;
     }
 
+    public void openBoard(){
+        buttonBoard.setVisible(true);
+    }
+    public void closeBoard(){
+        buttonBoard.setVisible(false);
+    }
     public void releaseButtons() {
         for (Element e : buttonBoard.getContents()) {
             Button otherButton = (Button) e;

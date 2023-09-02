@@ -87,14 +87,14 @@ public class KeyboardController extends Controller {
     public void openKeyboard(float absoluteX, float absoluteY, float textFieldWidth, float textFieldHeight) {
         float keyboardWidth = keyboard.getWidth();
         float keyboardHeight = keyboard.getHeight();
-        Log.e("keyboard",keyboardWidth+"/"+keyboardHeight);
-float x = absoluteX + textFieldWidth/2 - keyboardWidth/2;
-float y = absoluteY+textFieldHeight;
-if(x+keyboardWidth>800)x = 800-keyboardWidth;
-if(y+keyboardHeight>480)y = absoluteY-keyboardHeight-16;
-
-        getKeyboard().setPosition(x,y);
+        Log.e("keyboard", keyboardWidth + "/" + keyboardHeight);
+        float x = absoluteX + textFieldWidth / 2 - keyboardWidth / 2;
+        float y = absoluteY + textFieldHeight;
+        if (x + keyboardWidth > 800) x = 800 - keyboardWidth;
+        if (y + keyboardHeight > 480) y = absoluteY - keyboardHeight - 16;
+        getKeyboard().setPosition(x, y);
         getKeyboard().setVisible(true);
+
     }
 
     public void closeKeyboard() {

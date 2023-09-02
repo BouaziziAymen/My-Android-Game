@@ -174,7 +174,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_revolver_latest.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_grenade.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
@@ -207,7 +207,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         this.attachChild(plotter);
         this.attachChild(plotter2);
-
 
         //plotter2.drawLine2(new Vector2(0,240),new Vector2(400,240),Color.RED,3);
         ArrayList<Vector2> testPoints = new ArrayList<>();
@@ -254,7 +253,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         // attachChild(gameEntity1.getMesh());
 
 
-        vertices = VerticesFactory.createPolygon(0, 0, 10, 10, 15);
+        vertices = VerticesFactory.createPolygon(0, 0, 20, 20, 8);
         properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
@@ -294,9 +293,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                     Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                     layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
-                    for (CoatingBlock g : layerBlock.getBlockGrid().getCoatingBlocks()) {
-                        g.setTemperature(1000000);
-                    }
                 }
         }
 
@@ -374,6 +370,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     @Override
     protected void onManagedUpdate(float pSecondsElapsed) {
         userInterface.step();
+
         for (Hand hand : hands.values()) {
             hand.onUpdate();
         }
@@ -485,9 +482,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if(touchEvent.isActionDown()){
             getWorldFacade().performFlux(new Vector2(x,y),null,gameGroup.getGameEntityByIndex(0));
         }
-        if (true)
+        if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null,x, y, 1f,0.4f,0.1f,1f,0.5f,0.1f,0.5f);
+                getWorldFacade().createExplosion(null,x, y, 1f,0.4f,0.1f,1f,1f,0.1f,1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

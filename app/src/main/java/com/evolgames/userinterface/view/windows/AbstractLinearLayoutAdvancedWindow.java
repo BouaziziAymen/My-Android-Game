@@ -12,10 +12,6 @@ public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout>
     private final Point visibilitySup;
     private final Point visibilityInf;
 
-    public AbstractLinearLayoutAdvancedWindow(float pX, float pY, int rows, int columns, LinearLayoutAdvancedWindowController<?> controller) {
-        this(pX, pY, rows, columns, true, controller);
-    }
-
     public AbstractLinearLayoutAdvancedWindow(float pX, float pY, int rows, int columns, boolean hasPadding, LinearLayoutAdvancedWindowController<?> controller) {
         super(pX, pY, rows, columns, controller, hasPadding);
         visibilitySup = new Point(0f, rows * TILE_SIDE - rows - 5f);
@@ -30,10 +26,6 @@ public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout>
 
     public Scroller getScroller() {
         return scroller;
-    }
-
-    public void setScroller(Scroller scroller) {
-        this.scroller = scroller;
     }
 
     public float getVisibilitySup() {
@@ -63,13 +55,11 @@ public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout>
         if (mRows < 3) {
             throw new UnsupportedOperationException();
         }
-        Scroller scroller = new Scroller(TILE_SIDE * mColumns - Scroller.UPPER_WIDTH / 2, getLocalVisibilitySup(), mRows - 2, getController(), getVisibilityZoneLength());
-        setScroller(scroller);
+        this.scroller = new Scroller(TILE_SIDE * mColumns - Scroller.UPPER_WIDTH / 2, getLocalVisibilitySup(), mRows - 2, getController(), getVisibilityZoneLength());
         scroller.setDepth(5);
-        addElement(scroller);
-        scroller.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
+        scroller.setWindowPartIdentifier(WindowPartIdentifier.SCROLLER);
         scroller.onHeightUpdated(getLayout().getHeight());
+        addElement(scroller);
     }
-
 
 }

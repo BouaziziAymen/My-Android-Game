@@ -9,6 +9,12 @@ import com.evolgames.userinterface.view.windows.AbstractLinearLayoutAdvancedWind
 public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayoutAdvancedWindow<?>> extends AdvancedWindowController<W> {
 
 
+    @Override
+    protected void showWindowBody() {
+        super.showWindowBody();
+        updateScroller();
+    }
+
     public void onLayoutChanged() {
         onVisibleZoneUpdate();
         updateScroller();
@@ -20,13 +26,19 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
         onVisibleZoneUpdate();
     }
     private final ContentTraverser contentTraverser = new ContentTraverser();
-     protected void updateScroller(){
+     public void updateScroller(){
         if (window.getScroller() != null){
             window.getScroller().onHeightUpdated(window.getLayout().getHeight());
         }
     }
 
-     public void onVisibleZoneUpdate() {
+    @Override
+    public void openWindow() {
+        super.openWindow();
+        this.updateScroller();
+    }
+
+    public void onVisibleZoneUpdate() {
         LimitBehavior behavior = new LimitBehavior();
         behavior.setInf(window.getVisibilityInf());
         behavior.setSup(window.getVisibilitySup());
@@ -62,4 +74,5 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
 
         }
     }
+
 }

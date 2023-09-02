@@ -113,7 +113,6 @@ public class ResourceManager {
     public TiledTextureRegion optionsDirTextureRegion;
     public TiledTextureRegion optionsMagnetTextureRegion;
     public TiledTextureRegion optionsLinesTextureRegion;
-    public Camera secondCamera;
     public TiledTextureRegion targetButtonTextureRegion;
     public TextureRegion handTextureRegion;
     public TextureRegion armTextureRegion;
@@ -356,11 +355,10 @@ public class ResourceManager {
         return BitmapTextureAtlasTextureRegionFactory.createFromSource(gameTextureAtlas, new BitmapTextureAtlasSource(bitmap));
     }
 
-    public void create(GameActivity activity, Engine engine, Camera firstCamera, Camera secondCamera, VertexBufferObjectManager vbom) {
+    public void create(GameActivity activity, Engine engine, Camera firstCamera, VertexBufferObjectManager vbom) {
         this.activity = activity;
         this.engine = engine;
         this.firstCamera = firstCamera;
-        this.secondCamera = secondCamera;
         this.vbom = vbom;
 
     }

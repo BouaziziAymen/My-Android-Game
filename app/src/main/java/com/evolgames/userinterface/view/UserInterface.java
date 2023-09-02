@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
-import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -18,7 +17,6 @@ import com.evolgames.userinterface.control.buttonboardcontrollers.ImageButtonBoa
 import com.evolgames.userinterface.control.buttonboardcontrollers.JointButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.MainButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.ToolButtonBoardController;
-import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
@@ -292,7 +290,7 @@ public class UserInterface extends Container implements Touchable {
 
 
         ButtonBoard mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
-        MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this,outlineController);
+        MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this);
         addElement(mainButtonBoard);
         Button<MainButtonBoardController> button10 = new Button<>(ResourceManager.getInstance().drawBigButton, Button.ButtonType.Selector, true);
         button10.setBehavior(new ButtonBehavior<MainButtonBoardController>(controller, button10) {
@@ -945,42 +943,24 @@ public class UserInterface extends Container implements Touchable {
         return scene;
     }
 
-
-    public void setSaveWindowVisible(boolean b) {
-        itemSaveWindow.setVisible(b);
-    }
-
-    public void setLayersWindowVisible(boolean b) {
-        layersWindow.setVisible(b);
-    }
-
-    public void setJointsWindowVisible(boolean b) {
-        jointsWindow.setVisible(b);
-    }
-
-    public void setItemWindowVisible(boolean b) {
-        itemWindow.setVisible(b);
-    }
-
-    public void setDrawButtonBoardVisible(boolean b) {
-        drawButtonBoard.setVisible(b);
-    }
-
-    public void setImageButtonBoardVisible(boolean b) {
-        imageButtonBoard.setVisible(b);
-    }
-
-    public void setJointButtonBoardVisible(boolean b) {
-        jointButtonBoard.setVisible(b);
-    }
-
-    public void setItemButtonBoardVisible(boolean b) {
-        toolButtonBoard.setVisible(b);
-    }
-
-
     public JointSettingsWindowController getJointSettingsWindowController() {
         return jointSettingsWindowController;
+    }
+
+    public OptionsWindowController getOptionsWindowController() {
+        return optionsWindowController;
+    }
+
+    public ProjectileOptionController getProjectileOptionController() {
+        return projectileOptionController;
+    }
+
+    public ItemSaveWindowController getItemSaveWindowController() {
+        return itemSaveWindowController;
+    }
+
+    public JointWindowController getJointsWindowController() {
+        return jointsWindowController;
     }
 
     public void updateOptionsWindow(SettingsType settingsType) {
@@ -1064,7 +1044,7 @@ public class UserInterface extends Container implements Touchable {
         return imageButtonBoardController;
     }
 
-    public ToolButtonBoardController getToolButtonBoardController() {
+    public ToolButtonBoardController getItemButtonBoardController() {
         return toolButtonBoardController;
     }
 

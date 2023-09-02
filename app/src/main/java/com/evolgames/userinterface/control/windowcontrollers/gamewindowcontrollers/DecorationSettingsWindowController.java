@@ -88,7 +88,7 @@ public class DecorationSettingsWindowController extends SettingsWindowController
         });
         SimplePrimary<TitledField> secondaryElement2 = new SimplePrimary<>(2, colorSelectionField);
         window.addPrimary(secondaryElement2);
-        window.getLayout().updateLayout();
+       updateLayout();
     }
 
     private void setDecorationColorSlot() {

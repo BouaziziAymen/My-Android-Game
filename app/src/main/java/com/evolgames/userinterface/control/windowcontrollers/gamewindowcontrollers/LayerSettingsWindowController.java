@@ -456,17 +456,11 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
             protected void informControllerTextFieldTapped() {
                 LayerSettingsWindowController.super.onTextFieldTapped(ignitionTextField);
             }
-
             @Override
             protected void informControllerTextFieldReleased() {
                 LayerSettingsWindowController.super.onTextFieldReleased(ignitionTextField);
             }
-
-
         });
-
-        //SimpleTertiary<TitledTextField> ignitionElement = new SimpleTertiary<>(3, 5, 0, ignitionTemperatureField);
-
         FieldWithError ignitionFieldWithError = new FieldWithError(ignitionTemperatureField);
         SimpleTertiary<FieldWithError> ignitionElement = new SimpleTertiary<>(3, 5, 0, ignitionFieldWithError);
         window.addTertiary(ignitionElement);
@@ -538,8 +532,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
 
         window.createScroller();
-        window.getLayout().updateLayout();
-
+        updateLayout();
     }
 
     private String getMaterialNameByIndex(int i) {

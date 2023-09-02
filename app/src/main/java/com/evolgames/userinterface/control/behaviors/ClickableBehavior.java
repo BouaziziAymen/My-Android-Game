@@ -19,7 +19,6 @@ public abstract class ClickableBehavior<C extends Controller> extends Behavior<C
     }
      protected  void updateWindowLayout(){
         if(getController() instanceof LinearLayoutAdvancedWindowController){
-
             LinearLayoutAdvancedWindowController<?> linearLayoutAdvancedWindowController = (LinearLayoutAdvancedWindowController<?>)getController() ;
             linearLayoutAdvancedWindowController.updateLayout();
         }

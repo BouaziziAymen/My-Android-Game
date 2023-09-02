@@ -157,7 +157,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
             onPrimaryButtonClicked(firstBodyButton);
             firstBodyButton.getControl().updateState(Button.State.PRESSED);
         }
-        window.getLayout().updateLayout();
+        updateLayout();
     }
 
     @Override
@@ -177,7 +177,7 @@ public class ItemWindowController extends OneLevelGameWindowController<ItemWindo
 
     public void onBodyCreated(BodyModel bodyModel) {
         window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), true);
-        window.getLayout().updateLayout();
+        updateLayout();
     }
 
     public void onProjectileCreated(ProjectileModel projectileModel) {

@@ -18,10 +18,10 @@ public class LayerProperties extends ColoredProperties {
     private float tenacity;
     private boolean juicy;
     private float juicinessDensity;
-    private float juicinessVolume;
     private float juicinessLowerPressure;
     private float juicinessUpperPressure;
     private Color juiceColor = new Color(Color.RED);
+    private float heatResistance = 10f;
 
     public LayerProperties copy() {
         return PropertiesFactory.getInstance().createProperties(this);
@@ -157,6 +157,13 @@ public class LayerProperties extends ColoredProperties {
     }
 
     public void setJuicinessVolume(float juicinessVolume) {
-        this.juicinessVolume = juicinessVolume;
+    }
+
+    public float getHeatResistance() {
+        return heatResistance;
+    }
+
+    public void setHeatResistance(float heatResistance) {
+        this.heatResistance = heatResistance;
     }
 }

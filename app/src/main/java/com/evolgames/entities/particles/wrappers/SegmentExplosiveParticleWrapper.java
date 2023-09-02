@@ -34,7 +34,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
     private static float particleDensity(float[] data) {
         float x = (data[2]-data[0]);
         float y = (data[3]-data[1]);
-        return (float) Math.sqrt(x*x+y*y);
+        return (float) (Math.sqrt(x*x+y*y));
     }
 
     @Override

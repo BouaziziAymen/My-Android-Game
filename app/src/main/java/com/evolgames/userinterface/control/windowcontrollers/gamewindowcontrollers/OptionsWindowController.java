@@ -250,19 +250,16 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
                         userInterface.onAddImageButtonClicked();
                     }
                 });
-
-
                 break;
         }
-        window.getLayout().updateLayout();
-
+        updateLayout();
     }
 
     @Override
     public void init() {
         super.init();
         setBodyOnly();
-        window.getLayout().updateLayout();
+       updateLayout();
 
     }
 

@@ -45,8 +45,7 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.4f));
         this.addGravity();
         this.particleSystem.addParticleModifier(new SmoothRotationModifier());
-        this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 1f, 0f));
-        this.particleSystem.addParticleModifier(new OffCameraExpireParticleModifier<>(ResourceManager.getInstance().firstCamera));
+        this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 0.5f, 0.4f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(3f));
     }
 

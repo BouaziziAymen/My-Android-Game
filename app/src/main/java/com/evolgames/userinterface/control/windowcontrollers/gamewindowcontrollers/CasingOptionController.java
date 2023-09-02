@@ -84,7 +84,7 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
 
 
         window.createScroller();
-        window.getLayout().updateLayout();
+       updateLayout();
         window.setVisible(false);
     }
 

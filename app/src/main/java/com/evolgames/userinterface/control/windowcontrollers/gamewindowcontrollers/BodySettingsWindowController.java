@@ -88,7 +88,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         for(BodyUsageCategory usageCategory:this.bodyModel.getUsageModels().stream().map(UsageModel::getType).collect(Collectors.toList())){
             updateUsageCategoryFields(usageCategory);
         }
-
+       updateScroller();
     }
 
     private void updateUsageCategoryFields(BodyUsageCategory usageCategory) {
@@ -114,14 +114,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setReloadTime(autoProps.getReloadTime());
                 break;
             case TIME_BOMB:
+            case FUZE_BOMB:
                 UsageModel<TimeBombUsageProperties> timeBombUsagePropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
                 TimeBombUsageProperties timeBombUsageProperties = timeBombUsagePropertiesUsageModel.getProperties();
                 setBombDelay(timeBombUsageProperties.getDelay());
-                break;
-            case FUZE_BOMB:
-                UsageModel<FuzeBombUsageProperties> fuzeBombUsageUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                FuzeBombUsageProperties fuzeBombUsageProperties = fuzeBombUsageUsageModel.getProperties();
-               setBombDelay(fuzeBombUsageProperties.getDelay());
                 break;
             case IMPACT_BOMB:
                 UsageModel<ImpactBombUsageProperties> impactBombUsageModel =  this.bodyModel.getUsageModel(usageCategory);
@@ -204,12 +200,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         window.addSecondary(secondaryElement1);
 
         createCategorySection();
-
         updateUsageSettings();
 
-
+        updateLayout();
         window.createScroller();
-        window.getLayout().updateLayout();
     }
 
     private void createCategorySection() {
@@ -282,7 +276,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 }
             }
         }
-        window.getLayout().updateLayout();
+        updateLayout();
     }
 
     private void createFireRateField(int primaryId, int secondaryId,Runnable action) {
@@ -432,6 +426,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         onUsageAdded(e);
         updateUsageSettings();
         updateUsageCategoryFields(e);
+        onLayoutChanged();
     }
 
     private void onCategoryButtonReleased(SimpleSecondary<?> categoryField, BodyUsageCategory e) {
@@ -495,14 +490,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     }
 
 
-
-
-
-
-
-
     private void createBombsField(int primaryId,int secondaryId, BombUsageProperties bombUsageProperties) {
-        SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(primaryId,secondaryId, "Projectiles", ResourceManager.getInstance().mainButtonTextureRegion, this);
+        SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(primaryId,secondaryId, "Bombs", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addSecondary(projectileField);
         List<BombModel> bombModelList = userInterface.getToolModel().getBodies().stream().map(BodyModel::getBombModels).flatMap(Collection::stream).collect(Collectors.toList());
         for(BombModel bombModel:bombModelList){

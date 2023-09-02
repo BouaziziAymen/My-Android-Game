@@ -80,9 +80,8 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
                 }
             });
         }
-
+        updateLayout();
         window.createScroller();
-        window.getLayout().updateLayout();
     }
 
     private void onCategoryButtonClicked(SimpleSecondary<ButtonWithText<ItemSaveWindowController>> categoryField) {

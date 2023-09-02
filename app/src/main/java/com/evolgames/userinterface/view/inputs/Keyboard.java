@@ -32,31 +32,39 @@ public class Keyboard extends Container {
 
     @Override
     public float getWidth() {
-       if(currentType==KeyboardType.Numeric)return numericButtons.getWidth();
-       else return alphaNumericButtons.getWidth();
+        if (currentType == KeyboardType.Numeric) return numericButtons.getWidth();
+        else return alphaNumericButtons.getWidth();
     }
 
     @Override
     public float getHeight() {
-        if(currentType==KeyboardType.Numeric)return numericButtons.getHeight();
+        if (currentType == KeyboardType.Numeric) return numericButtons.getHeight();
         else return alphaNumericButtons.getHeight();
     }
 
     public void setCurrentType(KeyboardType currentType) {
         this.currentType = currentType;
-        if(currentType==KeyboardType.Numeric){
-            numericButtons.setVisible(true);
-            alphaNumericButtons.setVisible(false);
+    }
 
+    @Override
+    public void setVisible(boolean visible) {
+        if(visible){
+            if (currentType == KeyboardType.Numeric) {
+                numericButtons.setVisible(true);
+                alphaNumericButtons.setVisible(false);
+            } else {
+                numericButtons.setVisible(false);
+                alphaNumericButtons.setVisible(true);
+            }
         } else {
             numericButtons.setVisible(false);
-            alphaNumericButtons.setVisible(true);
+            alphaNumericButtons.setVisible(false);
         }
     }
 
     public void load(KeyboardType keyboardType, Container container) {
-float width=  0;
-float height = 0;
+        float width = 0;
+        float height = 0;
         String[] strings = keyboardType == KeyboardType.AlphaNumeric ? new String[]{
                 "0123456789",
                 "azertyuiop",
@@ -68,7 +76,7 @@ float height = 0;
         float y = BUTTON_SIDE * 4;
         for (int j = 0; j < strings.length; j++) {
             LinearLayout lineLayout = new LinearLayout(j == 4 ? keyboardType == KeyboardType.AlphaNumeric ? 1.5f * BUTTON_SIDE : 0.5f * BUTTON_SIDE : 0, y, LinearLayout.Direction.Horizontal, -1);
-            Log.e("keyposition",""+lineLayout.getLowerBottomX());
+            Log.e("keyposition", "" + lineLayout.getLowerBottomX());
             for (int i = 0; i < strings[j].length(); i++) {
                 Button.ButtonType type = Button.ButtonType.OneClick;
                 int n;
@@ -136,9 +144,9 @@ float height = 0;
                 buttons.add(button);
             }
             container.addElement(lineLayout);
-            if(lineLayout.getWidth()>width)width = lineLayout.getWidth();
-            Log.e("keyboard","lineheight:"+lineLayout.getHeight());
-            height+= lineLayout.getHeight();
+            if (lineLayout.getWidth() > width) width = lineLayout.getWidth();
+            Log.e("keyboard", "lineheight:" + lineLayout.getHeight());
+            height += lineLayout.getHeight();
             y -= (BUTTON_SIDE - 1);
         }
         container.setWidth(width);

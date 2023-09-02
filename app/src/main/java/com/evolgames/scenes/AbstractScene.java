@@ -16,9 +16,6 @@ public abstract class AbstractScene extends Scene {
     protected GameActivity activity = this.res.activity;
     protected VertexBufferObjectManager vbom = this.res.vbom;
     protected Camera mainCamera = this.res.firstCamera;
-
-
-    protected Camera secondCamera = this.res.secondCamera;
     public abstract void populate();
     public void destroy() {
     }

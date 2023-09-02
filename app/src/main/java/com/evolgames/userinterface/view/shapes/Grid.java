@@ -11,7 +11,7 @@ import org.andengine.entity.primitive.LineStrip;
 public class Grid {
 
     private LineChain lineChain;
-    private GameScene gameScene;
+    private final GameScene gameScene;
 
     public Grid(GameScene gameScene) {
         this.gameScene = gameScene;
@@ -20,7 +20,7 @@ public class Grid {
 
     private void update() {
         if (lineChain != null) lineChain.detachSelf();
-        this.lineChain = new LineStrip(0, 0, 1, 1000, ResourceManager.getInstance().vbom);
+        this.lineChain = new LineStrip(0, 0, 2, 1000, ResourceManager.getInstance().vbom);
         lineChain.setZIndex(-1);
         gameScene.attachChild(lineChain);
         gameScene.sortChildren();

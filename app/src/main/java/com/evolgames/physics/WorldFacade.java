@@ -243,6 +243,7 @@ public class WorldFacade implements ContactObserver {
             if (layerBlock.getLiquidQuantity() <= 0 || freshCut.getLimit() <= 0) {
                 particleWrapper.finishSelf();
                 freshCut.setAlive(false);
+                layerBlock.getFreshCuts().remove(freshCut);
             }
         };
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
@@ -503,7 +504,7 @@ public class WorldFacade implements ContactObserver {
 
                     if (nearestCoatingBlock != null) {
                         double sparkTemperature = fire.getParticleTemperature(p);
-                        PhysicsUtils.transferHeatByConvection(0.05f, 1f, 1f, sparkTemperature, nearestCoatingBlock, true);
+                        PhysicsUtils.transferHeatByConvection(nearestCoatingBlock.getProperties().getHeatResistance(), sparkTemperature, nearestCoatingBlock);
                     }
                 }
             }
@@ -517,7 +518,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(0.0001f, 100f, 0.00125f, PhysicsConstants.ambient_temperature, grain, (gameEntity.getName().equals("test")));
+                        PhysicsUtils.transferHeatByConvection( 10f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }

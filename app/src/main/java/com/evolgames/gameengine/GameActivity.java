@@ -52,8 +52,6 @@ public class GameActivity extends BaseGameActivity {
 
     private GameScene scene;
     public Engine engine;
-    private Camera secondCamera;
-
 
     @Override
     public Engine onCreateEngine(EngineOptions pEngineOptions) {
@@ -78,9 +76,6 @@ public class GameActivity extends BaseGameActivity {
     public EngineOptions onCreateEngineOptions() {
         this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000f, 1000f, 5f);
         this.camera.setZClippingPlanes(-1, 1);
-        this.secondCamera = new SmoothCamera(-100, 0, 100, 100, 1000f, 1000f, 5f);
-        this.secondCamera.setZClippingPlanes(-1, 1);
-
 
         IResolutionPolicy resolutionPolicy = new
                 FillResolutionPolicy();
@@ -112,7 +107,7 @@ public class GameActivity extends BaseGameActivity {
             IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback)
             throws IOException {
         ResourceManager.getInstance().create(this, this.getEngine(),
-                camera, secondCamera, this.getVertexBufferObjectManager());
+                camera, this.getVertexBufferObjectManager());
         ResourceManager.getInstance().loadFonts();
         ResourceManager.getInstance().loadImages();
         ResourceManager.getInstance().loadGameAudio();

@@ -86,7 +86,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
 
     public void onRemoveButtonReleased(JointField jointField) {
         window.getLayout().removePrimary(jointField.getPrimaryKey());
-        window.getLayout().updateLayout();
+        updateLayout();
         JointModel jointModel = userInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
         JointShape jointShape = jointModel.getJointShape();
         jointShape.detach();

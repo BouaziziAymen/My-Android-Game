@@ -139,4 +139,7 @@ public class CoatingProperties extends ColoredProperties {
     public void setChemicalEnergy(double chemicalEnergy) {
         this.chemicalEnergy = chemicalEnergy;
     }
+    public float getHeatResistance(){
+        return parentProperties.getHeatResistance();
+    }
 }

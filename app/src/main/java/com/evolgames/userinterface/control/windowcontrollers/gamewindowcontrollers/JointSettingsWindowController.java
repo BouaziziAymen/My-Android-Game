@@ -218,7 +218,7 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     }
 
     public void onUpdated() {
-        window.getLayout().updateLayout();
+       updateLayout();
     }
 
     private void onFirstBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body1Field) {
@@ -811,27 +811,26 @@ public class JointSettingsWindowController extends OneLevelSectionedAdvancedWind
     public void setRevoluteHasLimits(boolean hasLimits) {
         revoluteLimitsField.getMain().getAttachment().updateState(hasLimits ? Button.State.PRESSED : Button.State.NORMAL);
         revoluteLimitsField.getSection().setActive(hasLimits);
-        window.getLayout().updateLayout();
-
+       updateLayout();
     }
 
     public void setPrismaticHasLimits(boolean hasLimits) {
         prismaticLimitsField.getMain().getAttachment().updateState(hasLimits ? Button.State.PRESSED : Button.State.NORMAL);
         prismaticLimitsField.getSection().setActive(hasLimits);
-        window.getLayout().updateLayout();
+        updateLayout();
     }
 
 
     public void setRevoluteHasMotor(boolean hasMotor) {
         revoluteHasMotorField.getMain().getAttachment().updateState(hasMotor ? Button.State.PRESSED : Button.State.NORMAL);
         revoluteHasMotorField.getSection().setActive(hasMotor);
-        window.getLayout().updateLayout();
+        updateLayout();
     }
 
     public void setPrismaticHasMotor(boolean hasMotor) {
         prismaticHasMotorField.getMain().getAttachment().updateState(hasMotor ? Button.State.PRESSED : Button.State.NORMAL);
         prismaticHasMotorField.getSection().setActive(hasMotor);
-        window.getLayout().updateLayout();
+       updateLayout();
     }
 
     public void setJointWindowController(JointWindowController jointWindowController) {

@@ -27,10 +27,9 @@ public class PhysicsUtils {
     }
 
 
-    public static void transferHeatByConvection(float heat_conductivity, float specificHeat, float density, double gas_temperature, CoatingBlock solidCoatingBlock, boolean b){
+    public static void transferHeatByConvection(float specificHeat, double gas_temperature, CoatingBlock solidCoatingBlock){
         double deltaT = gas_temperature-solidCoatingBlock.getTemperature();
-        double Q = heat_conductivity * deltaT;
-        double deltaT1 = Q/(density*specificHeat*100);
+        double deltaT1 = deltaT/(specificHeat*100);
 
        if(solidCoatingBlock.getTemperature()+deltaT1>0)
        solidCoatingBlock.applyDeltaTemperature(deltaT1);

@@ -55,7 +55,7 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
 
         VelocityParticleInitializer<UncoloredSprite> velocityInitializer = new VelocityParticleInitializer<>(0, 0, 120, 140);
         this.particleSystem.addParticleInitializer(velocityInitializer);
-        this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.9f, 0f));
+        this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
         setFlameColor();
     }

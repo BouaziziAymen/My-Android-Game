@@ -2,14 +2,11 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
-import com.evolgames.userinterface.control.validators.IntegerValidator;
+import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.Quantity;
@@ -22,15 +19,15 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 public class BombOptionController extends SettingsWindowController<BombProperties> {
 
     private ItemWindowController itemWindowController;
-    private BombModel bombModel;
     private BombProperties bombProperties;
     private Quantity<BombOptionController> fireRatioQuantityField;
     private Quantity<BombOptionController> smokeRatioQuantityField;
     private Quantity<BombOptionController> sparkRatioQuantityField;
     private Quantity<BombOptionController> speedQuantityField;
     private Quantity<BombOptionController> particlesQuantityField;
-    private Quantity<BombOptionController> forceQuantityField;
     private Quantity<BombOptionController> heatQuantityField;
+    private TextField<BombOptionController> forceTextField;
+    private final NumericValidator forceValidator = new NumericValidator(false, true, 0, 10, 2, 2);
 
 
     public BombOptionController(KeyboardController keyboardController) {
@@ -70,21 +67,40 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
 
         particlesQuantityField =this.createQuantity("Particles:",1,1,10,60,"b",(q)->bombProperties.setParticles(q));
         speedQuantityField =this.createQuantity("Speed:",1,2,10,40,"b",(q)->bombProperties.setSpeed(q));
-        forceQuantityField =this.createQuantity("Force:",1,3,20,40,"n",(q)->bombProperties.setForce(q));
+
+        TitledTextField<BombOptionController> forceField = new TitledTextField<>("Force:", 5, 5, 60);
+        forceTextField = forceField.getAttachment();
+        forceField.getAttachment().setBehavior(new TextFieldBehavior<BombOptionController>(this, forceField.getAttachment(), Keyboard.KeyboardType.Numeric, forceValidator, true) {
+            @Override
+            protected void informControllerTextFieldTapped() {
+                BombOptionController.super.onTextFieldTapped(forceTextField);
+            }
+            @Override
+            protected void informControllerTextFieldReleased() {
+                BombOptionController.super.onTextFieldReleased(forceTextField);
+            }
+        });
+        FieldWithError forceFieldWithError = new FieldWithError(forceField);
+        SimpleSecondary<FieldWithError> forceElement = new SimpleSecondary<>(1, 3, forceFieldWithError);
+        window.addSecondary(forceElement);
+        forceTextField.getBehavior().setReleaseAction(() -> {
+            float force = Float.parseFloat(forceTextField.getTextString());
+            bombProperties.setForce(force);
+        });
+
         heatQuantityField =this.createQuantity("Heat:",1,4,10,40,"r",(q)->bombProperties.setHeat(q));
         fireRatioQuantityField = this.createQuantity("Fire:",1,5,10,40,"r",(q)->bombProperties.setFireRatio(q));
         smokeRatioQuantityField = this.createQuantity("Smoke:",1,6,10,50,"t",(q)->bombProperties.setSmokeRatio(q));
         sparkRatioQuantityField =this.createQuantity("Sparks:",1,7,10,50,"g",(q)->bombProperties.setSparkRatio(q));
 
         window.createScroller();
-        window.getLayout().updateLayout();
+        updateLayout();
         window.setVisible(false);
     }
 
     @Override
     void onModelUpdated(ProperModel<BombProperties> model) {
         super.onModelUpdated(model);
-        this.bombModel = (BombModel) model;
         this.bombProperties = model.getProperties();
 
         this.setFireRatio(bombProperties.getFireRatio());
@@ -130,7 +146,7 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
         heatQuantityField.updateRatio(heatRatio);
     }
     private void setForceRatio(float forceRatio) {
-        forceQuantityField.updateRatio(forceRatio);
+        forceTextField.getBehavior().setTextValidated(String.valueOf(forceRatio));
     }
 
 }

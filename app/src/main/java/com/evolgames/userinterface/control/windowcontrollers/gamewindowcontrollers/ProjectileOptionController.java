@@ -197,7 +197,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (projectileModel.getMissileModel() != null) {
             setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix() + "_" + projectileModel.getMissileModel().getModelName() + ".xml");
         }
-        setIntensity(this.projectileProperties.getFireIntensity());
+        setIntensity(this.projectileProperties.getParticles());
         setFireRatio(this.projectileProperties.getFireRatio());
         setSmokeRatio(this.projectileProperties.getSmokeRatio());
         setSparkRatio(this.projectileProperties.getSparkRatio());
@@ -305,7 +305,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         this.createExplosiveSettings();
 
         window.createScroller();
-        window.getLayout().updateLayout();
+       updateLayout();
         window.setVisible(false);
     }
 
@@ -401,7 +401,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
             setSmokeRatio(e.getSmokeRatio());
             this.projectileProperties.setSparkRatio(e.getSparkRatio());
             setSparkRatio(e.getSparkRatio());
-            this.projectileProperties.setFireIntensity(0.5f);
+            this.projectileProperties.setParticles(0.5f);
         }
 
         setIntensity(0.5f);
@@ -466,12 +466,12 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
 
         //-----
-        TitledQuantity<ProjectileOptionController> titledIntensityQuantity = new TitledQuantity<>("Intensity:", 10, "b", 5, 70);
+        TitledQuantity<ProjectileOptionController> titledIntensityQuantity = new TitledQuantity<>("Particles:", 10, "b", 5, 70);
         intensityQuantityField = titledIntensityQuantity.getAttachment();
         titledIntensityQuantity.getAttachment().setBehavior(new QuantityBehavior<ProjectileOptionController>(this, intensityQuantityField) {
             @Override
             public void informControllerQuantityUpdated(Quantity<?> quantity) {
-                ProjectileOptionController.this.projectileProperties.setFireIntensity(quantity.getRatio());
+                ProjectileOptionController.this.projectileProperties.setParticles(quantity.getRatio());
             }
         });
 

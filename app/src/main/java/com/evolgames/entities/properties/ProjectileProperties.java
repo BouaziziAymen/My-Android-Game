@@ -14,7 +14,7 @@ public class ProjectileProperties extends Properties {
     private float smokeRatio;
     private float fireRatio;
     private float sparkRatio;
-    private float fireIntensity;
+    private float particles;
 
     public ProjectileProperties(Vector2 begin, Vector2 end) {
         this.projectileOrigin = begin.cpy();
@@ -107,11 +107,11 @@ public class ProjectileProperties extends Properties {
         this.sparkRatio = sparkRatio;
     }
 
-    public float getFireIntensity() {
-        return fireIntensity;
+    public float getParticles() {
+        return particles;
     }
 
-    public void setFireIntensity(float fireIntensity) {
-        this.fireIntensity = fireIntensity;
+    public void setParticles(float particles) {
+        this.particles = particles;
     }
 }

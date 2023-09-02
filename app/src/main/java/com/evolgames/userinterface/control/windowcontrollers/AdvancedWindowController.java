@@ -35,21 +35,24 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     }
 
     protected void setBodyOnly() {
-        for (Element e : window.getContents()){
+        for (Element e : window.getContents()) {
             if (!isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY)) {
                 e.setVisible(false);
-            }}
+            }
+        }
     }
 
-    private void hideWindowBody() {
-        for (Element e : window.getContents())
-            if (isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY) || isElementPartOf(e, WindowPartIdentifier.WINDOW_MID_PADDING))
-                e.setVisible(false);
-    }
-
-    private void showWindowBody() {
+    protected void hideWindowBody() {
         for (Element e : window.getContents()) {
-            if (isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY) || isElementPartOf(e, WindowPartIdentifier.WINDOW_MID_PADDING)) {
+            if (isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY) || isElementPartOf(e, WindowPartIdentifier.SCROLLER)|| isElementPartOf(e, WindowPartIdentifier.WINDOW_MID_PADDING)) {
+                e.setVisible(false);
+            }
+        }
+    }
+
+    protected void showWindowBody() {
+        for (Element e : window.getContents()) {
+            if (isElementPartOf(e, WindowPartIdentifier.WINDOW_BODY) || isElementPartOf(e, WindowPartIdentifier.SCROLLER) || isElementPartOf(e, WindowPartIdentifier.WINDOW_MID_PADDING)) {
                 e.setVisible(true);
             }
         }
@@ -64,16 +67,15 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     }
 
     public void openWindow() {
-        if (window != null) {
-            window.setVisible(true);
-        }
+        window.setVisible(true);
     }
 
     @Override
     public void init() {
 
     }
-    public void onResume(){
+
+    public void onResume() {
         fold();
     }
 
@@ -85,7 +87,6 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
     public void fold() {
         showWindowBody();
         enableFoldButton();
-
     }
 
     private void disableFoldButton() {
@@ -112,19 +113,17 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
         }
         selectedTextField = pTextField;
         TextFieldBehavior<?> textFieldBehavior = pTextField.getBehavior();
-        if (textFieldBehavior.isResetText()){
+        if (textFieldBehavior.isResetText()) {
             textFieldBehavior.setTextString("");
         }
         textFieldBehavior.setSelected(true);
         keyboardController.bindWithTextField(pTextField);
         keyboardController.getKeyboard().setCurrentType(textFieldBehavior.getKeyboardType());
-
         keyboardController.openKeyboard(pTextField.getAbsoluteX(), pTextField.getAbsoluteY(), selectedTextField.getWidth(), selectedTextField.getHeight());
-
     }
 
     protected void onTextFieldReleased(TextField<?> textField) {
-        if(textField!=selectedTextField){
+        if (textField != selectedTextField) {
             return;
         }
         TextFieldBehavior<?> textFieldBehavior = textField.getBehavior();
