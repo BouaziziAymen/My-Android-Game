@@ -9,10 +9,10 @@ import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.input.touch.TouchEvent;
@@ -36,7 +36,7 @@ public class GameEntity extends EntityWithBody {
     private TexturedMeshBatch batch;
     private String name;
     private final ArrayList<LayerBlock> layerBlocks;
-    private List<Use> useList;
+    private final List<Use> useList;
     private MosaicMesh mesh;
     private int stainDataLimit;
     private Vector2 center;
@@ -144,8 +144,6 @@ public class GameEntity extends EntityWithBody {
             stainLimit = 1;
         }
         stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
-
-
         batch = new TexturedMeshBatch(ResourceManager.getInstance().texturedMesh, stainDataLimit + 12, ResourceManager.getInstance().vbom);
         mesh.attachChild(batch);
 
@@ -176,8 +174,8 @@ public class GameEntity extends EntityWithBody {
         if (!this.getName().equals("Ground")) {
             updateGrains();
         }
-        for (Use use:useList) {
-           use.onStep(timeStep);
+        for (Use use : useList) {
+            use.onStep(timeStep);
         }
 
         if (isFireSetup) {
@@ -238,19 +236,35 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public boolean stainHasTwin(LayerBlock block, StainBlock stainBlock) {
+    public boolean validStainPosition(LayerBlock block, StainBlock stainBlock) {
         float x = stainBlock.getLocalCenterX();
         float y = stainBlock.getLocalCenterY();
         for (Block<?, ?> b : block.getAssociatedBlocks()) {
             if (b instanceof StainBlock) {
-                StainBlock sblock = (StainBlock) b;
-                float distance = GeometryUtils.dst(x, y, sblock.getLocalCenterX(), sblock.getLocalCenterY());
+                StainBlock other = (StainBlock) b;
+                float distance = GeometryUtils.dst(x, y, other.getLocalCenterX(), other.getLocalCenterY());
                 if (distance < 1f) {
                     return true;
                 }
+
             }
         }
-        return false;
+
+        for (Vector2 v : stainBlock.getVertices()) {
+            boolean isInsideAnyOtherStain = false;
+        for (Block<?, ?> b : block.getAssociatedBlocks()) {
+            if (b instanceof StainBlock) {
+                if(Utils.PointInPolygon(v,b.getVertices())){
+                    isInsideAnyOtherStain = true;
+                    break;
+                }
+                }
+            }
+        if(!isInsideAnyOtherStain){
+            return false;
+        }
+        }
+        return true;
     }
 
     public void addStain(LayerBlock block, StainBlock stainBlock) {
@@ -372,9 +386,8 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-
     public boolean shouldBeHeld() {
-        return this.useList.size()>0;
+        return this.useList.size() > 0;
     }
 
 

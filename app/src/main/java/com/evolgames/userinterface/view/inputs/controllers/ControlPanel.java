@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ControlPanel {
-    private ArrayList<ControlElement> registeredElements;
-    private Camera camera;
-    private GameScene scene;
+    private final ArrayList<ControlElement> registeredElements;
+    private final Camera camera;
+    private final GameScene scene;
 
     public ControlPanel(GameScene scene) {
         this.camera = scene.getMainCamera();
         this.scene = scene;
-        registeredElements = new ArrayList<>();
-
+        this.registeredElements = new ArrayList<>();
     }
 
     public ControlElement getControlElementByID(int ID) {
@@ -29,26 +28,22 @@ public class ControlPanel {
             if (!registeredElements.contains(e)) {
                 switch (e.getType()) {
                     case AnalogController: {
-                        float x = 800 - 128f / 2;
-                        float y = 128f / 2;
-                        MyAnalogOnScreenControl control = new MyAnalogOnScreenControl(x, y, this.camera, 0.1f, createAnalogListener());
+                        float x = 800 - 64f / 2;
+                        float y = 64f / 2;
+                        AnalogController control = new AnalogController(x, y, this.camera, 0.1f, createAnalogListener());
                         control.setUserData(e);
                         e.setAssociate(control);
                         registeredElements.add(e);
-                        control.getControlBase().setScale(0.75f);
-                        control.getControlKnob().setScale(0.75f);
-                        control.refreshControlKnobPosition();
-
                         scene.setChildScene(control);
                         control.setVisible(false);
                     }
                     break;
 
                     case DigitalController: {
-                        float x = 800 - 128 / 2;
-                        float y = 128 / 2;
-                        MyDigitalOnScreenControl control = new MyDigitalOnScreenControl(x, y, this.camera, 0.1f, false, createBaseListener());
-                        control.setType(MyBaseOnScreenControl.Type.XYD);
+                        float x = 800 - 64f / 2f;
+                        float y = 64f / 2f;
+                        DigitalController control = new DigitalController(x, y, this.camera, 0.1f, false, createBaseListener());
+                       // control.setType(Controller.Type.XYD);
                         control.setUserData(e);
                         e.setAssociate(control);
                         registeredElements.add(e);
@@ -62,7 +57,7 @@ public class ControlPanel {
         }
     }
 
-    private MyBaseOnScreenControl.IOnScreenControlListener createBaseListener() {
+    private Controller.IOnScreenControlListener createBaseListener() {
 
         return (pBaseOnScreenControl, pValueX, pValueY) -> {
             if (Math.abs(pValueX) > 0.05f || Math.abs(pValueY) > 0.05)
@@ -70,21 +65,21 @@ public class ControlPanel {
         };
     }
 
-    private MyAnalogOnScreenControl.IAnalogOnScreenControlListener createAnalogListener() {
+    private AnalogController.IAnalogOnScreenControlListener createAnalogListener() {
 
-        return new MyAnalogOnScreenControl.IAnalogOnScreenControlListener() {
+        return new AnalogController.IAnalogOnScreenControlListener() {
             @Override
-            public void onControlClick(MyAnalogOnScreenControl pAnalogOnScreenControl) {
+            public void onControlClick(AnalogController pAnalogOnScreenControl) {
                 processAnalogControllerClickSignal(pAnalogOnScreenControl);
             }
             @Override
-            public void onControlReleased(MyAnalogOnScreenControl pAnalogOnScreenControl){
+            public void onControlReleased(AnalogController pAnalogOnScreenControl){
                 processAnalogControllerReleaseSignal(pAnalogOnScreenControl);
             }
 
             @Override
             public void onControlChange(
-                    MyBaseOnScreenControl pBaseOnScreenControl,
+                    Controller pBaseOnScreenControl,
                     float pValueX, float pValueY) {
 
                 if (Math.abs(pValueX) > 0.05f || Math.abs(pValueY) > 0.05) {
@@ -95,28 +90,28 @@ public class ControlPanel {
         };
     }
 
-    private void processAnalogControllerReleaseSignal(MyBaseOnScreenControl source) {
+    private void processAnalogControllerReleaseSignal(Controller source) {
         ControlElement controlElement = (ControlElement) source.getUserData();
         if(controlElement==null)return;
         ControllerAction action = controlElement.getAction();
         action.controlReleased();
     }
 
-    private void processAnalogControllerChangeSignal(MyBaseOnScreenControl source, float valueX, float valueY) {
+    private void processAnalogControllerChangeSignal(Controller source, float valueX, float valueY) {
         ControlElement controlElement = (ControlElement) source.getUserData();
         ControllerAction action = controlElement.getAction();
         action.controlMoved(valueX, valueY);
 
     }
 
-    private void processDigitalControllerChangeSignal(MyBaseOnScreenControl source, float valueX, float valueY) {
+    private void processDigitalControllerChangeSignal(Controller source, float valueX, float valueY) {
         ControlElement controlElement = (ControlElement) source.getUserData();
         ControllerAction action = controlElement.getAction();
         action.controlMoved(valueX, valueY);
 
     }
 
-    private void processAnalogControllerClickSignal(MyBaseOnScreenControl source) {
+    private void processAnalogControllerClickSignal(Controller source) {
         ControlElement controlElement = (ControlElement) source.getUserData();
         ControllerAction action = controlElement.getAction();
         action.controlClicked();
@@ -127,13 +122,13 @@ public class ControlPanel {
         //scene.setChildScene((MyAnalogOnScreenControl) this.getControlElementByID(0).getAssociate());
         ControlElement item = Objects.requireNonNull(this.getControlElementByID(ID));
         item.setVisible(true);
-        ((MyAnalogOnScreenControl)item.getAssociate()).setTouchEnabled(true);
+        ((AnalogController)item.getAssociate()).setTouchEnabled(true);
     }
 
     public void hideControlElement(int ID) {
         //scene.clearChildScene();
         ControlElement item = Objects.requireNonNull(this.getControlElementByID(ID));
         item.setVisible(false);
-        ((MyAnalogOnScreenControl)item.getAssociate()).setTouchEnabled(false);
+        ((AnalogController)item.getAssociate()).setTouchEnabled(false);
     }
 }

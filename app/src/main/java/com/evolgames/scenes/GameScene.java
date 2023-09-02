@@ -72,7 +72,6 @@ import org.andengine.entity.primitive.Mesh;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.EntityBackground;
-import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
@@ -387,7 +386,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (ragdoll != null) {
             ragdoll.onUpdate(pSecondsElapsed);
         }
-        getWorldFacade().onStep(pSecondsElapsed);
+        getWorldFacade().onStep();
 
         for (GameGroup gameGroup : gameGroups) {
             gameGroup.onStep(pSecondsElapsed);
@@ -484,7 +483,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
         if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null,x, y, 1f,0.4f,0.1f,1f,1f,0.1f,1f);
+                getWorldFacade().createExplosion(null,x, y, 0.1f,0f,1f,1f,0f,0.1f,0.1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

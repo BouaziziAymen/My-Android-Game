@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blockvisitors.ImpactData;
+import com.evolgames.entities.pools.ImpactDataPool;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
@@ -47,7 +48,7 @@ public class FluxInnerRayCastCallback implements RayCastCallback {
         if(!found){
             return  null;
         }
-        return new ImpactData(gameEntity,layerBlock,intersectionPoint);
+        return ImpactDataPool.obtain(gameEntity,layerBlock,intersectionPoint);
     }
 
     public void setRestricted(GameEntity restricted) {

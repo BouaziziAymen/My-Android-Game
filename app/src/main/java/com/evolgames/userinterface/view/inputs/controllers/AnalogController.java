@@ -13,7 +13,7 @@ import org.andengine.util.math.MathUtils;
  * @author Nicolas Gramlich
  * @since 00:21:55 - 11.07.2010
  */
-public class MyAnalogOnScreenControl extends MyBaseOnScreenControl implements IClickDetectorListener {
+public class AnalogController extends Controller implements IClickDetectorListener {
     // ===========================================================
     // PhysicsConstants
     // ===========================================================
@@ -32,13 +32,13 @@ public class MyAnalogOnScreenControl extends MyBaseOnScreenControl implements IC
     // Constructors
     // ===========================================================
 
-    public MyAnalogOnScreenControl(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final MyAnalogOnScreenControl.IAnalogOnScreenControlListener pAnalogOnScreenControlListener) {
+    public AnalogController(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final AnalogController.IAnalogOnScreenControlListener pAnalogOnScreenControlListener) {
         super(pX, pY, pCamera, pTimeBetweenUpdates, pAnalogOnScreenControlListener);
 
         this.mClickDetector.setEnabled(false);
     }
 
-    public MyAnalogOnScreenControl(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final long pOnControlClickMaximumMilliseconds, MyAnalogOnScreenControl.IAnalogOnScreenControlListener pAnalogOnScreenControlListener) {
+    public AnalogController(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final long pOnControlClickMaximumMilliseconds, AnalogController.IAnalogOnScreenControlListener pAnalogOnScreenControlListener) {
         super(pX, pY, pCamera, pTimeBetweenUpdates, pAnalogOnScreenControlListener);
 
         this.mClickDetector.setTriggerClickMaximumMilliseconds(pOnControlClickMaximumMilliseconds);
@@ -49,8 +49,8 @@ public class MyAnalogOnScreenControl extends MyBaseOnScreenControl implements IC
     // ===========================================================
 
     @Override
-    public MyAnalogOnScreenControl.IAnalogOnScreenControlListener getOnScreenControlListener() {
-        return (MyAnalogOnScreenControl.IAnalogOnScreenControlListener)super.getOnScreenControlListener();
+    public AnalogController.IAnalogOnScreenControlListener getOnScreenControlListener() {
+        return (AnalogController.IAnalogOnScreenControlListener)super.getOnScreenControlListener();
     }
 
     public void setOnControlClickEnabled(final boolean pOnControlClickEnabled) {
@@ -108,9 +108,9 @@ if(pSceneTouchEvent.isActionUp())getOnScreenControlListener().onControlReleased(
         // Methods
         // ===========================================================
 
-        public void onControlClick(final MyAnalogOnScreenControl pAnalogOnScreenControl);
+        public void onControlClick(final AnalogController pAnalogOnScreenControl);
 
-        void onControlReleased(MyAnalogOnScreenControl pAnalogOnScreenControl);
+        void onControlReleased(AnalogController pAnalogOnScreenControl);
     }
 }
 

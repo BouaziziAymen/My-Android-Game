@@ -14,12 +14,12 @@ public class PhysicsConstants {
     public static final int PENETRATION_PRECISION = 50;
     public static final float BLEEDING_CONSTANT = 10f;
     public static final float LIQUID_DENSITY_CONSTANT = 100;
-    public static final float STAINING_PROBABILITY = 0.02f;
+    public static final float STAINING_PROBABILITY = 0.05f;
     public static final float MIN_PROJECTILE_VELOCITY = 10f;
     public static final float MAX_PROJECTILE_VELOCITY = 1000f;
     public static final float MIN_FIRE_RATE = 1f;
     public static final float MAX_FIRE_RATE = 10f;
-    public static final float GRAIN_SPACING = 10f;
+    public static final float GRAIN_SPACING = 32f;
     public static final float PARTICLE_TERMINAL_VELOCITY = 100f;
     public static float gravity = - 3 * SensorManager.GRAVITY_EARTH;
     public static float ambient_temperature = 60;

@@ -5,9 +5,7 @@ import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 import static java.lang.Math.min;
-
 import android.util.Pair;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -53,6 +51,7 @@ import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWit
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.gameengine.ResourceManager;
@@ -117,6 +116,7 @@ public class WorldFacade implements ContactObserver {
     Vector2 sum = new Vector2();
     private GameGroup ground;
     private final BodyModel groundModel;
+    private int step;
 
     public WorldFacade(GameScene scene) {
         gameScene = scene;
@@ -134,7 +134,7 @@ public class WorldFacade implements ContactObserver {
         this.groundModel.setModelName("Ground");
     }
 
-    public void onStep(float deltaTime) {
+    public void onStep() {
 
         for (TimedCommand timedCommand : timedCommands) {
             timedCommand.update();
@@ -157,7 +157,8 @@ public class WorldFacade implements ContactObserver {
         computeConduction();
         computeConvection();
         createFires();
-        computeLiquidStaining();
+        handleLiquidStaining();
+        step++;
     }
 
 
@@ -384,9 +385,8 @@ public class WorldFacade implements ContactObserver {
             }
     }
 
-    private void computeLiquidStaining() {
+    private void handleLiquidStaining() {
         HashSet<GameEntity> affectedEntities = new HashSet<>();
-
         for (LiquidParticleWrapper liquidSource : liquidParticleWrappers)
             if (liquidSource.getParticleSystem().hasParent())
                 if (liquidSource.getParticleSystem().getParticles().length > 0) {
@@ -446,8 +446,10 @@ public class WorldFacade implements ContactObserver {
                         }
                     }
                 }
-        for (GameEntity entity : affectedEntities) {
-            entity.redrawStains();
+        if(step%10==0) {
+            for (GameEntity entity : affectedEntities) {
+                entity.redrawStains();
+            }
         }
     }
 
@@ -676,7 +678,7 @@ public class WorldFacade implements ContactObserver {
         ENTERING, LEAVING
     }
 
-    class EPoint {
+   static class EPoint {
         GameEntity gameEntity;
         LayerBlock layerBlock;
         Vector2 localPoint;
@@ -1108,13 +1110,12 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void performFlux(Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
-        GameScene.plotter2.detachChildren();
         Vector2 v = new Vector2(1, 0);
         List<ImpactData> list = new ArrayList<>();
         for (int i = 0; i < FLUX_PRECISION; i++) {
             v.set(1, 0);
             GeometryUtils.rotateVectorDeg(v, i * 360 / (float) FLUX_PRECISION);
-            Vector2 end = new Vector2(sourceWorldPoint.x + v.x * 100, sourceWorldPoint.y + v.y * 100);
+            Vector2 end = obtain(sourceWorldPoint.x + v.x * 100, sourceWorldPoint.y + v.y * 100);
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
                 list.add(dataOuter);
@@ -1130,6 +1131,7 @@ public class WorldFacade implements ContactObserver {
         if (impactInterface != null) {
             res.forEach(impactInterface::processImpacts);
         }
+        list.forEach(ImpactDataPool::recycle);
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
@@ -1199,7 +1201,7 @@ public class WorldFacade implements ContactObserver {
 
         StainBlock stainBlock = BlockFactory.createStainBlock(localPosition, angle, concernedBlock.getVertices(), textureRegion, color);
 
-        if (stainBlock != null && stainBlock.isNotAborted() && !gameEntity.stainHasTwin(concernedBlock, stainBlock)) {
+        if (stainBlock != null && stainBlock.isNotAborted() && !gameEntity.validStainPosition(concernedBlock, stainBlock)) {
             stainBlock.setId(index);
             gameEntity.addStain(concernedBlock, stainBlock);
             return true;
@@ -1395,8 +1397,4 @@ public class WorldFacade implements ContactObserver {
         return sum;
     }
 
-
-    public void addNonCollidingPair(GameEntity entity1, GameEntity entity2) {
-        this.contactListener.addNonCollidingPair(entity1, entity2);
-    }
 }

@@ -25,7 +25,7 @@ public class Grid {
         gameScene.attachChild(lineChain);
         gameScene.sortChildren();
         float y = 0;
-        float s = 32f;
+        final float s = 32f;
         float h = GameActivity.CAMERA_HEIGHT;
         float w = GameActivity.CAMERA_WIDTH;
         while (y <= h) {

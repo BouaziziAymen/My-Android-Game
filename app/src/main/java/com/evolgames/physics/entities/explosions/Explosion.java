@@ -43,13 +43,13 @@ public class Explosion {
         if (!alive) {
             return;
         }
-        if (time == 0) {
+        if (time < 1) {
             gameScene.getWorldFacade().performFlux(center, (gameEntity, impacts) -> {
                impacts.forEach(i->{
                    Vector2 p = i.getWorldPoint();
                    vector.set(p.x-center.x,p.y-center.y);
                    float d = Math.max(1f,vector.len());
-                   i.setImpactEnergy(50000f * force/(d));
+                   i.setImpactEnergy(100f * force/(d));
                    vector.mul(i.getImpactEnergy()/320f);
                    gameEntity.getBody().applyLinearImpulse(vector.x,vector.y,p.x,p.y);
                });

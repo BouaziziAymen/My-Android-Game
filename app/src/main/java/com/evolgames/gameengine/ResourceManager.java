@@ -44,7 +44,6 @@ public class ResourceManager {
     public Camera firstCamera;
     public VertexBufferObjectManager vbom;
     public BuildableBitmapTextureAtlas gameTextureAtlas;
-    public TextureRegion base, knob;
     public BitmapTextureAtlas texturedMesh;
     public TiledTextureRegion imageTextureRegion;
     public TextureRegion liquidParticle;
@@ -82,8 +81,7 @@ public class ResourceManager {
     public Engine engine;
     public TiledTextureRegion decaleTextureRegion;
     public TiledTextureRegion optionsCenterTextureRegion;
-    public TextureRegion mOnScreenControlBaseTextureRegion;
-    public TiledTextureRegion controlButton;
+    public TextureRegion controlButton;
     public TiledTextureRegion addPointTextureRegion;
     public TiledTextureRegion movePointTextureRegion;
     public TiledTextureRegion removePointTextureRegion;
@@ -135,6 +133,7 @@ public class ResourceManager {
     public TextureRegion bombShapeTextureRegion;
     public TextureRegion casingShapeTextureRegion;
 
+
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
     }
@@ -164,8 +163,6 @@ public class ResourceManager {
 
 
         this.gameTextureAtlas = new BuildableBitmapTextureAtlas(this.activity.getTextureManager(), 2048, 2048, BitmapTextureFormat.RGBA_8888, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        this.base = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "base.png");
-        this.knob = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "knob.png");
         this.pokemon = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "bulbasaur.png");
         this.liquidParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
         this.dotParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/dot.png");
@@ -263,9 +260,7 @@ public class ResourceManager {
 
         this.targetButtonTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "boards/target.png", 1, 3);
 
-
-        this.mOnScreenControlBaseTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "base.png");
-        this.controlButton = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/controller.png", 4, 1);
+        this.controlButton = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/control.png");
 
         this.panelButtonTextureRegion1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "panel/panelButton1.png", 3, 1);
         this.panelButtonTextureRegion2 = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "panel/panelButton2.png", 3, 1);

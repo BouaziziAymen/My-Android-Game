@@ -48,7 +48,7 @@ import com.evolgames.userinterface.view.inputs.Touchable;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
 import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
-import com.evolgames.userinterface.view.inputs.controllers.MyAnalogOnScreenControl;
+import com.evolgames.userinterface.view.inputs.controllers.AnalogController;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.CreationZone;
@@ -174,7 +174,7 @@ public class UserInterface extends Container implements Touchable {
         sceneBatcher.setZIndex(1);
 
 
-        new Grid(pGameScene);
+      //  new Grid(pGameScene);
         this.scene = pGameScene;
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;
@@ -988,7 +988,7 @@ public class UserInterface extends Container implements Touchable {
 
     public void onActionChanged(CreationZoneController.CreationAction action) {
         if (panel != null) {
-            MyAnalogOnScreenControl analog = (MyAnalogOnScreenControl) panel.getControlElementByID(0).getAssociate();
+            AnalogController analog = (AnalogController) panel.getControlElementByID(0).getAssociate();
             switch (action) {
                 case ADD_POINT:
                 case REMOVE_POINT:

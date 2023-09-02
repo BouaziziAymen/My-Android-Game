@@ -1,12 +1,9 @@
 package com.evolgames.userinterface.view.inputs.controllers;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.opengl.texture.region.ITiledTextureRegion;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.math.MathUtils;
 
-public class MyDigitalOnScreenControl extends MyBaseOnScreenControl {
+public class DigitalController extends Controller {
 
     // ===========================================================
     // PhysicsConstants
@@ -27,11 +24,7 @@ public class MyDigitalOnScreenControl extends MyBaseOnScreenControl {
     // Constructors
     // ===========================================================
 
-    public MyDigitalOnScreenControl(final float pX, final float pY, final Camera pCamera, final ITiledTextureRegion pControlBaseTextureRegion, final ITextureRegion pControlKnobTextureRegion, final float pTimeBetweenUpdates, final VertexBufferObjectManager pVertexBufferObjectManager, final IOnScreenControlListener pOnScreenControlListener) {
-        this(pX, pY, pCamera,  pTimeBetweenUpdates, false, pOnScreenControlListener);
-    }
-
-    public MyDigitalOnScreenControl(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final boolean pAllowDiagonal, final IOnScreenControlListener pOnScreenControlListener) {
+    public DigitalController(final float pX, final float pY, final Camera pCamera, final float pTimeBetweenUpdates, final boolean pAllowDiagonal, final IOnScreenControlListener pOnScreenControlListener) {
         super(pX, pY, pCamera, pTimeBetweenUpdates, pOnScreenControlListener);
 
         this.mAllowDiagonal = pAllowDiagonal;

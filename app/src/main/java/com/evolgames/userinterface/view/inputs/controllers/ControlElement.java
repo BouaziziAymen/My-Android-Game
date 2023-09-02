@@ -4,8 +4,8 @@ import org.andengine.entity.Entity;
 
 public class ControlElement {
     private ControllerAction action;
-    private Type type;
-    private int ID;
+    private final Type type;
+    private final int ID;
     private Entity associate;
     private boolean visible;
 
@@ -21,7 +21,9 @@ public class ControlElement {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-        if (associate != null) associate.setVisible(visible);
+        if (associate != null) {
+            associate.setVisible(visible);
+        }
     }
 
     public int getID() {

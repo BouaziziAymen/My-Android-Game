@@ -45,12 +45,15 @@ public static int recyledTimes;
             recycledBlock.recycleSelf();
             recycledBlock.setDead(false);
         }
-        if(recycledBlock.getFreshCuts()!=null)
+        if(recycledBlock.getFreshCuts()!=null) {
             recycledBlock.getFreshCuts().clear();
-        if(recycledBlock.getAssociatedBlocks()!=null)
-        recycledBlock.getAssociatedBlocks().clear();
-        if(recycledBlock.getFreshCuts()!=null)
-        recycledBlock.getFreshCuts().clear();
+        }
+        if(recycledBlock.getAssociatedBlocks()!=null) {
+            recycledBlock.getAssociatedBlocks().clear();
+        }
+        if(recycledBlock.getFreshCuts()!=null) {
+            recycledBlock.getFreshCuts().clear();
+        }
         POOL.recyclePoolItem(recycledBlock);
     }
 

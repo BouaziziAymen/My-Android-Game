@@ -1,8 +1,12 @@
 package com.evolgames.entities.blockvisitors;
 
+import static com.evolgames.physics.PhysicsConstants.TENACITY_FACTOR;
+
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.physics.WorldFacade;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,14 +24,21 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
     @Override
     public void visitTheElement(GameEntity gameEntity) {
         Iterator<LayerBlock> iterator = gameEntity.getBlocks().iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             LayerBlock layerBlock = iterator.next();
             MultiShatterVisitor blockShatterVisitor = new MultiShatterVisitor(impacts.stream().filter(impactData ->
-                    impactData.getImpactedBlock() == layerBlock).collect(Collectors.toList()),worldFacade,gameEntity);
+                    impactData.getImpactedBlock() == layerBlock).collect(Collectors.toList()), worldFacade, gameEntity);
+
             blockShatterVisitor.visitTheElement(layerBlock);
             if (blockShatterVisitor.isShatterPerformed()) {
                 shatterPerformed = true;
                 iterator.remove();
+            } else {
+                float energy = (float) impacts.stream().filter(e -> e.getImpactedBlock() == layerBlock).mapToDouble(ImpactData::getImpactEnergy).sum();
+                LayerProperties properties = layerBlock.getProperties();
+                float ratio = Math.min(0.3f,0.00001f * energy);
+                float newTenacity = properties.getTenacity() * (1f-ratio);
+                properties.setTenacity(newTenacity);
             }
             this.splintersBlocks.addAll(blockShatterVisitor.getSplintersBlocks());
         }

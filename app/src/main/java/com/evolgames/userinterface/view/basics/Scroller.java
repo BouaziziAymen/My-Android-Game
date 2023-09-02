@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.view.basics;
 
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -20,6 +21,8 @@ public class Scroller extends LinearLayout implements Touchable {
 
     private final LinearLayoutAdvancedWindowController<?> mController;
     private final float effectiveHeight;
+    private final Button<LinearLayoutAdvancedWindowController<?>> upArrowButton;
+    private final Button<LinearLayoutAdvancedWindowController<?>> downArrowButton;
     private float knobHeight;
     private float mAdvance;
     private final float visibilityLength;
@@ -44,7 +47,7 @@ public class Scroller extends LinearLayout implements Touchable {
         addToLayout(lower);
 
 
-        Button<LinearLayoutAdvancedWindowController<?>> upArrowButton = new Button<>(upper.getLowerBottomX() + upper.getWidth() / 2 - 8, upper.getLowerBottomY() + 15 - 7, ResourceManager.getInstance().upButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
+        upArrowButton = new Button<>(upper.getLowerBottomX() + upper.getWidth() / 2 - 8, upper.getLowerBottomY() + 15 - 7, ResourceManager.getInstance().upButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
         addElement(upArrowButton);
         upArrowButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController<?>>(controller, upArrowButton) {
             @Override
@@ -57,7 +60,7 @@ public class Scroller extends LinearLayout implements Touchable {
             }
         });
 
-        Button<LinearLayoutAdvancedWindowController<?>> downArrowButton = new Button<>(lower.getLowerBottomX() + lower.getWidth() / 2 - 8, lower.getLowerBottomY() + 12 - 7, ResourceManager.getInstance().downButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
+        downArrowButton = new Button<>(lower.getLowerBottomX() + lower.getWidth() / 2 - 8, lower.getLowerBottomY() + 12 - 7, ResourceManager.getInstance().downButtonTextureRegions.get(0), Button.ButtonType.OneClick, true);
         addElement(downArrowButton);
 
 
@@ -93,11 +96,15 @@ public class Scroller extends LinearLayout implements Touchable {
     public void onHeightUpdated(float height) {
         float ratio = visibilityLength / height;
         if (ratio >= 1) {
+            upArrowButton.updateState(Button.State.DISABLED);
+            downArrowButton.updateState(Button.State.DISABLED);
             knob.setVisible(false);
             knob.setLowerBottomY(-knobHeight - UPPER_HEIGHT);
             updateAdvance();
             mController.onScrolled(mAdvance);
         } else {
+            upArrowButton.updateState(Button.State.NORMAL);
+            downArrowButton.updateState(Button.State.NORMAL);
             knob.setVisible(true);
             knobHeight = effectiveHeight * ratio;
             updateKnobSize();

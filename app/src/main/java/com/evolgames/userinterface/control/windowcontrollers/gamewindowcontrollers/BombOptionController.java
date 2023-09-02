@@ -5,6 +5,7 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
+import com.evolgames.userinterface.control.validators.IntegerValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
@@ -27,7 +28,7 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
     private Quantity<BombOptionController> particlesQuantityField;
     private Quantity<BombOptionController> heatQuantityField;
     private TextField<BombOptionController> forceTextField;
-    private final NumericValidator forceValidator = new NumericValidator(false, true, 0, 10, 2, 2);
+    private final IntegerValidator forceValidator = new IntegerValidator( 0, 10000);
 
 
     public BombOptionController(KeyboardController keyboardController) {
