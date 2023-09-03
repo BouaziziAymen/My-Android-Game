@@ -5,7 +5,9 @@ import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 import static java.lang.Math.min;
+
 import android.util.Pair;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -446,7 +448,7 @@ public class WorldFacade implements ContactObserver {
                         }
                     }
                 }
-        if(step%10==0) {
+        if (step % 10 == 0) {
             for (GameEntity entity : affectedEntities) {
                 entity.redrawStains();
             }
@@ -520,7 +522,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection( 10f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(10f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
@@ -678,7 +680,7 @@ public class WorldFacade implements ContactObserver {
         ENTERING, LEAVING
     }
 
-   static class EPoint {
+    static class EPoint {
         GameEntity gameEntity;
         LayerBlock layerBlock;
         Vector2 localPoint;
@@ -1135,19 +1137,27 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
+        Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
+        final float L = 10;
+        Vector2 L1 = worldPoint1.cpy().sub(u.x * L, u.y * L);
+        Vector2 L2 = worldPoint2.cpy().add(u.x * L, u.y * L);
+        final float f1 = L / (2 * L + worldPoint1.dst(worldPoint2));
+        final float f2 = 1 - f1;
+
         cutRayCastCallback.reset();
         cutRayCastCallback.setDirection(true);
-        getPhysicsWorld().rayCast(cutRayCastCallback, worldPoint1, worldPoint2);
+        getPhysicsWorld().rayCast(cutRayCastCallback, L1, L2);
         cutRayCastCallback.setDirection(false);
-        getPhysicsWorld().rayCast(cutRayCastCallback, worldPoint2, worldPoint1);
+        getPhysicsWorld().rayCast(cutRayCastCallback, L2, L1);
         ArrayList<ArrayList<Flag>> flags = cutRayCastCallback.getFlags();
         ArrayList<LayerBlock> blocks = cutRayCastCallback.getCoveredBlocks();
         ArrayList<Fixture> fixtures = cutRayCastCallback.getCoveredFixtures();
         ArrayList<ArrayList<Segment>> allSegments = new ArrayList<>();
         ArrayList<GameEntity> entities = new ArrayList<>();
-        for (ArrayList<Flag> list : flags) {
+        for (int i = 0; i < flags.size(); i++) {
+            List<Flag> list = flags.get(i);
             Collections.sort(list);
-            int i = flags.indexOf(list);
+
             LayerBlock block = blocks.get(i);
             Body body = fixtures.get(i).getBody();
             GameEntity entity = (GameEntity) body.getUserData();
@@ -1160,25 +1170,34 @@ public class WorldFacade implements ContactObserver {
 
             boolean firstInside = block.testPoint(body, worldPoint1.x, worldPoint1.y);
             boolean secondInside = block.testPoint(body, worldPoint2.x, worldPoint2.y);
+
             Vector2 p1;
             Vector2 p2;
             if (firstInside && secondInside) {
-                p1 = body.getLocalPoint(worldPoint1);
-                p2 = body.getLocalPoint(worldPoint2);
-                // entityCutsList.add(new Segment(p1,p2,block,CutType.InnerCut));
+               // p1 = body.getLocalPoint(worldPoint1);
+               // p2 = body.getLocalPoint(worldPoint2);
+               // Map<LayerBlock, List<Flag>> res = list.stream().filter(e -> e.getBlock().getProperties().isJuicy()).collect(Collectors.groupingBy(Flag::getBlock));
+               // for (List<Flag> fc : res.values()) {
+                     p1 = worldPoint1.cpy().mul(32f);
+                     p2 = worldPoint2.cpy().mul(32f);
+                    GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
+               // }
             } else if (firstInside) {
-                p1 = body.getLocalPoint(worldPoint1);
-                p2 = list.get(list.size() - 1).getPoint();
-                //entityCutsList.add(new Segment(p1,p2,block,CutType.halfCutFirstInside));
+                p1 = worldPoint1.cpy().mul(32f);
+                p2 = list.get(list.size() - 1).getPoint().cpy().mul(32f);
+                GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
             } else if (secondInside) {
-                p1 = list.get(0).getPoint();
-                p2 = body.getLocalPoint(worldPoint2);
-                // entityCutsList.add(new Segment(p1,p2,block,CutType.halfCutSecondInside));
+                p1 = list.get(0).getPoint().cpy().mul(32f);
+                p2 = worldPoint2.cpy().mul(32f);
+                GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
             } else {
+                List<Flag> cutList = list.stream().filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2).collect(Collectors.toList());
                 //perform the cut
-                p1 = list.get(0).getPoint();
-                p2 = list.get(list.size() - 1).getPoint();
-                entitySegments.add(new Segment(p1, p2, block, CutType.fullCut));
+                if (cutList.size() >= 2) {
+                    p1 = list.get(0).getPoint();
+                    p2 = list.get(list.size() - 1).getPoint();
+                    entitySegments.add(new Segment(p1, p2, block, CutType.fullCut));
+                }
             }
         }
 

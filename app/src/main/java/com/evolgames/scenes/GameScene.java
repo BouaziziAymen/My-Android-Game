@@ -111,7 +111,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private Vector2 point1;
     private Vector2 point2;
     private Line line;
-    private PlayerAction action = PlayerAction.Drag;
+    private PlayerAction action = PlayerAction.Slice;
     private UserInterface userInterface;
     private HUD hud;
     private boolean scroll = false;

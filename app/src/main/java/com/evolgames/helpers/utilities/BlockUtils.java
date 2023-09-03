@@ -509,17 +509,14 @@ public class BlockUtils {
             if (fc instanceof SegmentFreshCut) {
                 SegmentFreshCut sfc = (SegmentFreshCut) fc;
                 boolean divided = false;
-
                 if ((cut.getLower1() == sfc.first && cut.getHigher1() == sfc.second)) {
                     if (cut.getP1() != sfc.first && cut.getP1() != sfc.second) {
                         float ratio = cut.getP1().dst(sfc.second) / cut.getLength();
                         SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second, ratio * sfc.getLimit());
                         SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother(), (1 - ratio) * sfc.getLimit());
-                        block1.addFreshCut(halfFreshCut1);
-                        block2.addFreshCut(halfFreshCut2);
+                        block1.addFreshCut(halfFreshCut1);block2.addFreshCut(halfFreshCut2);
                         divided = true;
                     }
-
                 } else if ((cut.getLower2() == sfc.first && cut.getHigher2() == sfc.second)) {
                     if (cut.getP2() != sfc.first && cut.getP2() != sfc.second) {
                         float ratio = cut.getP2().dst(sfc.first) / cut.getLength();
@@ -529,7 +526,6 @@ public class BlockUtils {
                         block2.addFreshCut(halfFreshCut2);
                         divided = true;
                     }
-
                 }
                 if (!divided) {
 
