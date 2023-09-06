@@ -12,7 +12,7 @@ public class PhysicsConstants {
     public static final int FLUX_PRECISION = 100;
     public static final float BACKOFF = 0.05f;
     public static final int PENETRATION_PRECISION = 50;
-    public static final float BLEEDING_CONSTANT = 4f;
+    public static final float BLEEDING_CONSTANT = 1f;
     public static final float LIQUID_DENSITY_CONSTANT = 100;
     public static final float STAINING_PROBABILITY = 0.1f;
     public static final float MIN_PROJECTILE_VELOCITY = 10f;

@@ -240,35 +240,20 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public boolean validStainPosition(LayerBlock block, StainBlock stainBlock) {
+    public boolean isNonValidStainPosition(LayerBlock block, StainBlock stainBlock) {
         float x = stainBlock.getLocalCenterX();
         float y = stainBlock.getLocalCenterY();
         for (Block<?, ?> b : block.getAssociatedBlocks()) {
             if (b instanceof StainBlock) {
                 StainBlock other = (StainBlock) b;
                 float distance = GeometryUtils.dst(x, y, other.getLocalCenterX(), other.getLocalCenterY());
-                if (distance < 1f) {
+                if (distance < 2f) {
                     return true;
                 }
 
             }
         }
-
-        for (Vector2 v : stainBlock.getVertices()) {
-            boolean isInsideAnyOtherStain = false;
-            for (Block<?, ?> b : block.getAssociatedBlocks()) {
-                if (b instanceof StainBlock) {
-                    if (Utils.PointInPolygon(v, b.getVertices())) {
-                        isInsideAnyOtherStain = true;
-                        break;
-                    }
-                }
-            }
-            if (!isInsideAnyOtherStain) {
-                return false;
-            }
-        }
-        return true;
+    return false;
     }
 
     public void addStain(LayerBlock block, StainBlock stainBlock) {

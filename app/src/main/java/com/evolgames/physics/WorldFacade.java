@@ -115,11 +115,11 @@ public class WorldFacade implements ContactObserver {
     private final HashSet<Touch> touches = new HashSet<>();
     private final HashSet<Explosion> explosions = new HashSet<>();
     private final HashSet<ExplosiveParticleWrapper> explosives = new HashSet<>();
+    private final BodyModel groundModel;
     Random random = new Random();
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
-    private final BodyModel groundModel;
     private int step;
 
     public WorldFacade(GameScene scene) {
@@ -243,10 +243,10 @@ public class WorldFacade implements ContactObserver {
         LiquidParticleWrapper particleWrapper =
                 gameScene.getWorldFacade().createLiquidParticleWrapper(parentEntity, freshCut, (layerBlock.getProperties().getJuiceColor() != null) ? layerBlock.getProperties().getJuiceColor() : Utils.getRandomColor(), lowerRate, higherRate);
         SpawnAction spawnAction = (Particle<UncoloredSprite> p) -> {
-               freshCut.decrementLimit();
-               if(freshCut.getLimit()<=0){
-                   particleWrapper.finishSelf();
-               }
+            freshCut.decrementLimit();
+            if (freshCut.getLimit() <= 0) {
+                particleWrapper.finishSelf();
+            }
         };
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
         particleWrapper.updateEmitter();
@@ -410,10 +410,8 @@ public class WorldFacade implements ContactObserver {
                         }
                     }
                 }
-        if (step % 10 == 0) {
-            for (GameEntity entity : affectedEntities) {
-                entity.redrawStains();
-            }
+        for (GameEntity entity : affectedEntities) {
+            entity.redrawStains();
         }
         Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
         while (wrapperIterator.hasNext()) {
@@ -432,7 +430,7 @@ public class WorldFacade implements ContactObserver {
             PulverizationParticleWrapperWithPolygonEmitter particleWrapper = iterator.next();
             particleWrapper.update();
             if (!particleWrapper.isAlive() && particleWrapper.isAllParticlesExpired()) {
-               iterator.remove();
+                iterator.remove();
                 particleWrapper.finishSelf();
             }
         }
@@ -673,37 +671,6 @@ public class WorldFacade implements ContactObserver {
         return this.groundModel;
     }
 
-    enum EPointType {
-        ENTERING, LEAVING
-    }
-
-    static class EPoint {
-        GameEntity gameEntity;
-        LayerBlock layerBlock;
-        Vector2 localPoint;
-        EPointType ePointType;
-
-        public LayerBlock getLayerBlock() {
-            return layerBlock;
-        }
-
-        public EPoint(GameEntity gameEntity, LayerBlock layerBlock, Vector2 localPoint, EPointType ePointType) {
-            this.gameEntity = gameEntity;
-            this.layerBlock = layerBlock;
-            this.localPoint = localPoint;
-            this.ePointType = ePointType;
-        }
-
-        @Override
-        public String toString() {
-            return "EPoint{" +
-                    "layerBlock=" + layerBlock.hashCode() +
-                    ", localPoint=" + localPoint +
-                    ", ePointType=" + ePointType +
-                    '}';
-        }
-    }
-
     private HashSet<EPoint> findEPoints(GameEntity penetrated, Data data1, float DIRECTION, Vector2 normal) {
         float[][] data = data1.getData();
         HashSet<EPoint> result = new HashSet<>();
@@ -932,7 +899,7 @@ public class WorldFacade implements ContactObserver {
             if (!bleedingPoints.isEmpty()) {
                 float length = dT * 32f * advance * 32f * bleedingPoints.size();
                 if (length > 1) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length*layerBlock.getProperties().getJuicinessDensity()*BLEEDING_CONSTANT), normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()));
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()));
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
@@ -941,7 +908,7 @@ public class WorldFacade implements ContactObserver {
             if (!bleedingPoints.isEmpty()) {
                 float length = dT * 32f * bleedingPoints.size();
                 if (length > 1) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length,(int) (length*layerBlock.getProperties().getJuicinessDensity()*BLEEDING_CONSTANT), new Vector2());
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), new Vector2());
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
@@ -963,7 +930,6 @@ public class WorldFacade implements ContactObserver {
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
         addJointToCreate(jointDef, receiver, traveler);
     }
-
 
     private float getPenetrationLength(GameEntity penetrated, int topographyLength, Data[] penetratedTopography, Data[] penetratorTopography) {
         float penetrationLength = 0;
@@ -1184,26 +1150,26 @@ public class WorldFacade implements ContactObserver {
             if (firstInside && secondInside) {
                 p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
-                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true,block.getProperties().getJuicinessDensity());
+                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true, block.getProperties().getJuicinessDensity());
                 block.addFreshCut(fc);
-                createInnerCut(fc, entity,block);
+                createInnerCut(fc, entity, block);
             } else if (firstInside) {
                 p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
                 p2 = body.getLocalPoint(list.get(list.size() - 1).getPoint()).cpy().mul(32f);
                 Vector2 V = p1.cpy().sub(p2);
                 if (V.len() > 4) {
-                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true,block.getProperties().getJuicinessDensity());
+                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true, block.getProperties().getJuicinessDensity());
                     block.addFreshCut(fc);
-                    createInnerCut(fc, entity,block);
+                    createInnerCut(fc, entity, block);
                 }
             } else if (secondInside) {
                 p1 = body.getLocalPoint(list.get(0).getPoint()).cpy().mul(32f);
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
                 Vector2 V = p2.cpy().sub(p1);
                 if (V.len() > 4) {
-                  SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true,block.getProperties().getJuicinessDensity());
-                  block.addFreshCut(fc);
-                 createInnerCut(fc, entity,block);
+                    SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true, block.getProperties().getJuicinessDensity());
+                    block.addFreshCut(fc);
+                    createInnerCut(fc, entity, block);
                 }
             } else {
                 List<Flag> cutList = list.stream().filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2).collect(Collectors.toList());
@@ -1235,12 +1201,13 @@ public class WorldFacade implements ContactObserver {
 
         StainBlock stainBlock = BlockFactory.createStainBlock(localPosition, angle, concernedBlock.getVertices(), textureRegion, color);
 
-        if (stainBlock != null && stainBlock.isNotAborted() && !gameEntity.validStainPosition(concernedBlock, stainBlock)) {
+        if (stainBlock != null && stainBlock.isNotAborted() && !gameEntity.isNonValidStainPosition(concernedBlock, stainBlock)) {
             stainBlock.setId(index);
             gameEntity.addStain(concernedBlock, stainBlock);
             return true;
-        } else
+        } else {
             return false;
+        }
     }
 
     private void applySlice(GameEntity gameEntity, ArrayList<Segment> entitySegments) {
@@ -1424,6 +1391,37 @@ public class WorldFacade implements ContactObserver {
             }
         }
         return sum;
+    }
+
+    enum EPointType {
+        ENTERING, LEAVING
+    }
+
+    static class EPoint {
+        GameEntity gameEntity;
+        LayerBlock layerBlock;
+        Vector2 localPoint;
+        EPointType ePointType;
+
+        public EPoint(GameEntity gameEntity, LayerBlock layerBlock, Vector2 localPoint, EPointType ePointType) {
+            this.gameEntity = gameEntity;
+            this.layerBlock = layerBlock;
+            this.localPoint = localPoint;
+            this.ePointType = ePointType;
+        }
+
+        public LayerBlock getLayerBlock() {
+            return layerBlock;
+        }
+
+        @Override
+        public String toString() {
+            return "EPoint{" +
+                    "layerBlock=" + layerBlock.hashCode() +
+                    ", localPoint=" + localPoint +
+                    ", ePointType=" + ePointType +
+                    '}';
+        }
     }
 
 }

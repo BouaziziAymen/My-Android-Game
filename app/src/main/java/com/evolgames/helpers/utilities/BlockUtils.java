@@ -607,11 +607,11 @@ public class BlockUtils {
 
 
         LayerBlock block1 = BlockFactory.createLayerBlock(result.first, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-       if(pair1.getLength()>4f)
+       if(pair1.getLength()>6f)
         block1.addFreshCut(pair1);
         block1.setPolarity(Polarity.YIN);
         LayerBlock block2 = BlockFactory.createLayerBlock(result.second, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-       if(pair2.getLength()>4f)
+       if(pair2.getLength()>6f)
         block2.addFreshCut(pair2);
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
