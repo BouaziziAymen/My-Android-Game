@@ -132,10 +132,9 @@ public class BlockUtils {
     public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices, LayerBlock block) {
 
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, vertices);
-
-        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), block);
-        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother(), block);
-
+        float density = block.getProperties().getJuicinessDensity();
+        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), false,density);
+        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother(), false,density);
         return new Pair<>(result, new Pair<>(pair1, pair2));
     }
 
@@ -508,40 +507,74 @@ public class BlockUtils {
         for (FreshCut fc : freshCuts) {
             if (fc instanceof SegmentFreshCut) {
                 SegmentFreshCut sfc = (SegmentFreshCut) fc;
-                boolean divided = false;
-                if ((cut.getLower1() == sfc.first && cut.getHigher1() == sfc.second)) {
-                    if (cut.getP1() != sfc.first && cut.getP1() != sfc.second) {
-                        float ratio = cut.getP1().dst(sfc.second) / cut.getLength();
-                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second, ratio * sfc.getLimit());
-                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother(), (1 - ratio) * sfc.getLimit());
-                        block1.addFreshCut(halfFreshCut1);block2.addFreshCut(halfFreshCut2);
-                        divided = true;
-                    }
-                } else if ((cut.getLower2() == sfc.first && cut.getHigher2() == sfc.second)) {
-                    if (cut.getP2() != sfc.first && cut.getP2() != sfc.second) {
-                        float ratio = cut.getP2().dst(sfc.first) / cut.getLength();
-                        SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(sfc.first, cut.getP2(), ratio * sfc.getLimit());
-                        SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(cut.getP2Brother(), sfc.second, (1 - ratio) * sfc.getLimit());
-                        block1.addFreshCut(halfFreshCut1);
-                        block2.addFreshCut(halfFreshCut2);
-                        divided = true;
-                    }
-                }
-                if (!divided) {
-
-                    if (block1.getVertices().contains(sfc.first) && block1.getVertices().contains(sfc.second)) {
-                        block1.addFreshCut(sfc);
-                    } else if (block2.getVertices().contains(sfc.first) || block2.getVertices().contains(sfc.second)) {
-                        if (!block2.getVertices().contains(sfc.first)) {
-                            sfc.first = (sfc.first == cut.getP1()) ? cut.getP1Brother() : cut.getP2Brother();
+                if(!sfc.isInner()) {
+                    boolean divided = false;
+                    if ((cut.getLower1() == sfc.first && cut.getHigher1() == sfc.second)) {
+                        if (cut.getP1() != sfc.first && cut.getP1() != sfc.second) {
+                            float ratio = cut.getP1().dst(sfc.second)/sfc.getLength();
+                            SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(cut.getP1(), sfc.second,(int) (sfc.getLimit()*ratio), false);
+                            SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(sfc.first, cut.getP1Brother(),(int) (sfc.getLimit()*(1f-ratio)), false);
+                            block1.addFreshCut(halfFreshCut1);
+                            block2.addFreshCut(halfFreshCut2);
+                            divided = true;
                         }
-                        if (!block2.getVertices().contains(sfc.second)) {
-                            sfc.second = (sfc.second == cut.getP2()) ? cut.getP2Brother() : cut.getP1Brother();
+                    } else if ((cut.getLower2() == sfc.first && cut.getHigher2() == sfc.second)) {
+                        if (cut.getP2() != sfc.first && cut.getP2() != sfc.second) {
+                            float ratio = cut.getP2().dst(sfc.first)/sfc.getLength();
+                            SegmentFreshCut halfFreshCut1 = new SegmentFreshCut(sfc.first, cut.getP2(),(int) (sfc.getLimit()*ratio),false);
+                            SegmentFreshCut halfFreshCut2 = new SegmentFreshCut(cut.getP2Brother(), sfc.second,(int) (sfc.getLimit()*(1f-ratio)), false);
+                            block1.addFreshCut(halfFreshCut1);
+                            block2.addFreshCut(halfFreshCut2);
+                            divided = true;
+                        }
+                    }
+                    if (!divided) {
+
+                        if (block1.getVertices().contains(sfc.first) && block1.getVertices().contains(sfc.second)) {
+                            block1.addFreshCut(sfc);
+                        } else if (block2.getVertices().contains(sfc.first) || block2.getVertices().contains(sfc.second)) {
+                            if (!block2.getVertices().contains(sfc.first)) {
+                                sfc.first = (sfc.first == cut.getP1()) ? cut.getP1Brother() : cut.getP2Brother();
+                            }
+                            if (!block2.getVertices().contains(sfc.second)) {
+                                sfc.second = (sfc.second == cut.getP2()) ? cut.getP2Brother() : cut.getP1Brother();
+                            }
+                            block2.addFreshCut(sfc);
                         }
 
-                        block2.addFreshCut(sfc);
                     }
+                } else {
+                    Vector2 inter = GeometryUtils.lineIntersectPoint(sfc.first,sfc.second,cut.getP1(),cut.getP2());
+                    if(inter==null){
+                        if(GeometryUtils.PointInPolygon(sfc.first,block1.getVertices())&&GeometryUtils.PointInPolygon(sfc.second,block1.getVertices())){
+                           block1.addFreshCut(sfc);
+                        } else {
+                            block2.addFreshCut(sfc);
+                        }
+                    } else {
+                        Vector2 u = sfc.first.cpy().sub(sfc.second).nor();
+                        float dst1 = inter.dst(sfc.first);
+                        if(dst1 >4f){
+                            float ratio = dst1/sfc.getLength();
+                            SegmentFreshCut child1 = new SegmentFreshCut(sfc.first.cpy().sub(u),inter.cpy(),(int) (ratio*sfc.getLimit()), true);
+                            if(GeometryUtils.PointInPolygon(child1.first,block1.getVertices())){
+                                block1.addFreshCut(child1);
+                            } else {
+                                block2.addFreshCut(child1);
+                            }
+                        }
+                        float dst2 = inter.dst(sfc.second);
+                        if(dst2 >4f){
+                            float ratio = dst2/sfc.getLength();
+                            SegmentFreshCut child2 = new SegmentFreshCut(inter,sfc.second.cpy().add(u),(int) (ratio*sfc.getLimit()), true);
+                            if(GeometryUtils.PointInPolygon(child2.second,block1.getVertices())){
+                                block1.addFreshCut(child2);
+                            } else {
+                                block2.addFreshCut(child2);
+                            }
+                        }
 
+                    }
                 }
             } else if (fc instanceof PointsFreshCut) {
                 PointsFreshCut fpc = (PointsFreshCut) fc;
@@ -560,10 +593,12 @@ public class BlockUtils {
                 }
                 float ratio = (float)newPoints1.size() / (float)fpc.getPoints().size();
                 if (!newPoints1.isEmpty()) {
-                    block1.addFreshCut(new PointsFreshCut(newPoints1, ratio * fpc.getLength(), fpc.getSplashVelocity(), fpc.getLimit() * ratio));
+                    PointsFreshCut child1 = new PointsFreshCut(newPoints1, fpc.getLength(),(int) (ratio*fpc.getLimit()), fpc.getSplashVelocity());
+                    block1.addFreshCut(child1);
                 }
                 if (!newPoints2.isEmpty()) {
-                    block2.addFreshCut(new PointsFreshCut(newPoints2, (1 - ratio) * fpc.getLength(), fpc.getSplashVelocity(), (1 - ratio) * fpc.getLimit()));
+                    PointsFreshCut child2 = new PointsFreshCut(newPoints2, fpc.getLength(),(int) ((1-ratio)*fpc.getLimit()), fpc.getSplashVelocity());
+                    block2.addFreshCut(child2);
                 }
             }
         }
@@ -573,7 +608,7 @@ public class BlockUtils {
     public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
 
         Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>>
-                splitResult = BlockUtils.splitVertices(cut, block.getVertices(), block);
+                splitResult = BlockUtils.splitVertices(cut, block.getVertices(),block);
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
         Pair<SegmentFreshCut, SegmentFreshCut> limits = splitResult.second;
 
@@ -719,7 +754,9 @@ public class BlockUtils {
                 EXBegin.add(stepX);
                 EXEnd.add(stepX);
                 Cut cut = findCut(currentTx.getVertices(), EXBegin, EXEnd);
-                if (cut == null) continue;
+                if (cut == null) {
+                    continue;
+                }
 
                 currentTx.performCut(cut);
                 currentTx.setAborted(true);
@@ -736,8 +773,9 @@ public class BlockUtils {
                 EYBegin.add(stepY);
                 EYEnd.add(stepY);
                 Cut cutY = findCut(currenty.getVertices(), EYBegin, EYEnd);
-                if (cutY == null) continue;
-
+                if (cutY == null) {
+                    continue;
+                }
                 currenty.performCut(cutY);
                 currenty.setAborted(true);
 

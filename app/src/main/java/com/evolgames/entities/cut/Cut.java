@@ -17,7 +17,7 @@ public class Cut implements Comparable<Cut> {
     private final Vector2 lower2;
     private final Vector2 higher2;
 
-    private float length;
+    private final float length;
     private Vector2 copy1;
     private Vector2 copy2;
     public Vector2 center;

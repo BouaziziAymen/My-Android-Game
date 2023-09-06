@@ -8,6 +8,7 @@ import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.Utils;
 
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
@@ -27,26 +28,28 @@ public abstract class LiquidParticleWrapper {
     private final DataEmitter emitter;
     private final BaseParticleSystem particleSystem;
     private final GameEntityAttachedVelocityInitializer velocityInitializer;
-    private GameEntity parent;
+    private final GameEntity parent;
     private boolean alive = true;
     private final Vector2 splashVelocity;
 
     public LiquidParticleWrapper(GameEntity gameEntity, Color liquidColor, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
         this.liquidColor = liquidColor;
         this.splashVelocity = splashVelocity;
-        emitter = createEmitter(data);
+        this.emitter = createEmitter(data);
+        this.parent = gameEntity;
 
-        this.particleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
+        this.particleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, 10*higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
 
         this.velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
         this.particleSystem.addParticleInitializer(velocityInitializer);
 
-        this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(liquidColor.getRed(), liquidColor.getGreen(), liquidColor.getBlue()));
+        this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(this.liquidColor.getRed(), this.liquidColor.getGreen(), this.liquidColor.getBlue()));
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.4f));
         this.addGravity();
         this.particleSystem.addParticleModifier(new SmoothRotationModifier());
         this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 0.5f, 0.4f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(3f));
+        this.particleSystem.setParticlesSpawnEnabled(false);
     }
 
     private void addGravity() {
@@ -62,33 +65,30 @@ public abstract class LiquidParticleWrapper {
         return liquidColor;
     }
 
-    public void setParent(GameEntity entity) {
-        this.parent = entity;
-    }
-
     public void update() {
-        if (!parent.isAlive()) {
-            finishSelf();
-        }
-        if (!isAlive()) {
-            return;
-        }
-        updateEmitter();
-    }
-
-    private int timer = 0;
-
-    private void updateEmitter() {
-        if (parent == null) {
-            return;
-        }
         timer++;
-
         if (splashVelocity != null) {
             float percentage = EaseStrongInOut.getInstance().getPercentage(timer, 30);
             velocityInitializer.getIndependentVelocity().set((float) (splashVelocity.x * (percentage + Math.random() * 0.1f)), (float) (splashVelocity.y * (percentage + Math.random() * 0.1f)));
         }
+        if (!parent.isAlive()) {
+            this.particleSystem.setParticlesSpawnEnabled(false);
+            if(isAllParticlesExpired()) {
+                particleSystem.detachSelf();
+            }
+           return;
+        }
+        if(isAlive()) {
+            if(!this.particleSystem.isParticlesSpawnEnabled()) {
+                this.particleSystem.setParticlesSpawnEnabled(true);
+            }
+            updateEmitter();
+        }
+    }
 
+    private int timer = 0;
+
+    public void updateEmitter() {
         float x = parent.getMesh().getX();
         float y = parent.getMesh().getY();
         float rot = parent.getMesh().getRotation();

@@ -7,21 +7,20 @@ import com.evolgames.physics.PhysicsConstants;
 public class SegmentFreshCut extends FreshCut {
     public Vector2 first;
     public Vector2 second;
+    private final boolean isInner;
 
-    public SegmentFreshCut(Vector2 first, Vector2 second, LayerBlock block) {
+    public SegmentFreshCut(Vector2 first, Vector2 second, boolean isInner, float density) {
+        super(first.dst(second), (int) (first.dst(second)* PhysicsConstants.BLEEDING_CONSTANT*density));
         this.first = first;
         this.second = second;
-        this.limit = computeLimit(block);
+        this.isInner = isInner;
     }
 
-    public SegmentFreshCut(Vector2 first, Vector2 second, float limit) {
+    public SegmentFreshCut(Vector2 first, Vector2 second,int limit, boolean isInner) {
+        super(first.dst(second),limit);
         this.first = first;
         this.second = second;
-        this.limit = limit;
-    }
-    @Override
-    public float getLength() {
-        return first.dst(second);
+        this.isInner = isInner;
     }
 
     @Override
@@ -30,5 +29,9 @@ public class SegmentFreshCut extends FreshCut {
                 "first=" + first +
                 ", second=" + second +
                 '}';
+    }
+
+    public boolean isInner() {
+        return isInner;
     }
 }

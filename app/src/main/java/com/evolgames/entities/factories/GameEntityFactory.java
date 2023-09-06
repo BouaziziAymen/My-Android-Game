@@ -9,30 +9,28 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.EntityWithBody;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
-
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.entity.primitive.Line;
@@ -80,26 +78,11 @@ public class GameEntityFactory {
         this.scene.attachChild(entity.getMesh());
         Invoker.addBodyCreationCommand(entity, bodyType, bodyInit);
 
-        for (LayerBlock block : entity.getBlocks()) {
-            LayerProperties properties = block.getProperties();
-            createJuiceSources(entity, block, properties);
-        }
-
         return entity;
     }
 
 
-    private void createJuiceSources(GameEntity entity, LayerBlock block, LayerProperties properties) {
-        if (properties.isJuicy()) {
-            ArrayList<FreshCut> freshCuts = block.getFreshCuts();
-            for (FreshCut freshCut : freshCuts) {
-                if (freshCut.getLength() < 1f){
-                    continue;
-                }
-                scene.getWorldFacade().createJuiceSource(entity, block,freshCut);
-            }
-        }
-    }
+
 
      @SuppressWarnings("unused")
     private void drawFreshCuts(ArrayList<LayerBlock> blocks, MosaicMesh mesh) {
@@ -147,6 +130,13 @@ public class GameEntityFactory {
                     a.translate(translationToOrigin);
                 }
                 for(FreshCut freshCut:b.getFreshCuts()){
+                    if(freshCut instanceof SegmentFreshCut){
+                        SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
+                        if(segmentFreshCut.isInner()) {
+                            Utils.translatePoint(segmentFreshCut.first,translationToOrigin);
+                            Utils.translatePoint(segmentFreshCut.second,translationToOrigin);
+                        }
+                    }
                     if(freshCut instanceof PointsFreshCut){
                         PointsFreshCut pointsFreshCut = (PointsFreshCut) freshCut;
                         Utils.translatePoints(pointsFreshCut.getPoints(), translationToOrigin);

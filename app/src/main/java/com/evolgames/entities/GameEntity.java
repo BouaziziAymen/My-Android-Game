@@ -6,15 +6,19 @@ import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
+import com.evolgames.entities.cut.FreshCut;
+import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.scenes.GameScene;
 
+import org.andengine.entity.primitive.Line;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 
@@ -252,17 +256,17 @@ public class GameEntity extends EntityWithBody {
 
         for (Vector2 v : stainBlock.getVertices()) {
             boolean isInsideAnyOtherStain = false;
-        for (Block<?, ?> b : block.getAssociatedBlocks()) {
-            if (b instanceof StainBlock) {
-                if(Utils.PointInPolygon(v,b.getVertices())){
-                    isInsideAnyOtherStain = true;
-                    break;
-                }
+            for (Block<?, ?> b : block.getAssociatedBlocks()) {
+                if (b instanceof StainBlock) {
+                    if (Utils.PointInPolygon(v, b.getVertices())) {
+                        isInsideAnyOtherStain = true;
+                        break;
+                    }
                 }
             }
-        if(!isInsideAnyOtherStain){
-            return false;
-        }
+            if (!isInsideAnyOtherStain) {
+                return false;
+            }
         }
         return true;
     }
@@ -403,4 +407,28 @@ public class GameEntity extends EntityWithBody {
         return parentGameEntity;
     }
 
+    public void createJuiceSources() {
+        for (LayerBlock block : this.getBlocks()) {
+            LayerProperties properties = block.getProperties();
+            if (properties.isJuicy()) {
+                ArrayList<FreshCut> freshCuts = block.getFreshCuts();
+                for (FreshCut freshCut : freshCuts) {
+                    if (freshCut.getLength() < 1f) {
+                        continue;
+                    }
+                    if(freshCut.getLimit()>0) {
+                        gameScene.getWorldFacade().createJuiceSource(this, block, freshCut);
+                    }
+                    if (freshCut instanceof SegmentFreshCut) {
+                        SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
+                        if (segmentFreshCut.isInner()) {
+                            Line line = new Line(segmentFreshCut.first.x, segmentFreshCut.first.y, segmentFreshCut.second.x, segmentFreshCut.second.y, 2, ResourceManager.getInstance().vbom);
+                            line.setColor(Color.RED);
+                            mesh.attachChild(line);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

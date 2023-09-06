@@ -1,6 +1,7 @@
 package com.evolgames.physics;
 
 
+import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
@@ -78,6 +79,7 @@ import com.evolgames.userinterface.model.BodyModel;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
+import org.andengine.entity.primitive.Line;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -230,7 +232,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void createJuiceSource(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut) {
-        if (layerBlock.getLiquidQuantity() <= 0 || !freshCut.isAlive()) {
+        if (layerBlock.getLiquidQuantity() <= 0) {
             return;
         }
         int lowerRate = (int) (layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
@@ -241,15 +243,13 @@ public class WorldFacade implements ContactObserver {
         LiquidParticleWrapper particleWrapper =
                 gameScene.getWorldFacade().createLiquidParticleWrapper(parentEntity, freshCut, (layerBlock.getProperties().getJuiceColor() != null) ? layerBlock.getProperties().getJuiceColor() : Utils.getRandomColor(), lowerRate, higherRate);
         SpawnAction spawnAction = (Particle<UncoloredSprite> p) -> {
-            layerBlock.decrementLiquidQuantity(freshCut.getLength());
-            freshCut.decrementLimit();
-            if (layerBlock.getLiquidQuantity() <= 0 || freshCut.getLimit() <= 0) {
-                particleWrapper.finishSelf();
-                freshCut.setAlive(false);
-                layerBlock.getFreshCuts().remove(freshCut);
-            }
+               freshCut.decrementLimit();
+               if(freshCut.getLimit()<=0){
+                   particleWrapper.finishSelf();
+               }
         };
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
+        particleWrapper.updateEmitter();
     }
 
     private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, int lowerRate, int higherRate) {
@@ -321,7 +321,6 @@ public class WorldFacade implements ContactObserver {
         liquidSource.getParticleSystem().setZIndex(5);
         gameScene.attachChild(liquidSource.getParticleSystem());
         gameScene.sortChildren();
-        liquidSource.setParent(parentEntity);
         return liquidSource;
     }
 
@@ -935,7 +934,7 @@ public class WorldFacade implements ContactObserver {
             if (!bleedingPoints.isEmpty()) {
                 float length = dT * 32f * advance * 32f * bleedingPoints.size();
                 if (length > 1) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()), layerBlock);
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length*layerBlock.getProperties().getJuicinessDensity()*BLEEDING_CONSTANT), normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()));
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
@@ -944,7 +943,7 @@ public class WorldFacade implements ContactObserver {
             if (!bleedingPoints.isEmpty()) {
                 float length = dT * 32f * bleedingPoints.size();
                 if (length > 1) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, new Vector2(), layerBlock);
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length,(int) (length*layerBlock.getProperties().getJuicinessDensity()*BLEEDING_CONSTANT), new Vector2());
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
@@ -1136,6 +1135,16 @@ public class WorldFacade implements ContactObserver {
         list.forEach(ImpactDataPool::recycle);
     }
 
+    public void createInnerCut(SegmentFreshCut innerCut, GameEntity gameEntity) {
+        float x1 = innerCut.first.x;
+        float y1 = innerCut.first.y;
+        float x2 = innerCut.second.x;
+        float y2 = innerCut.second.y;
+        Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
+        line.setColor(Color.RED);
+        gameEntity.getMesh().attachChild(line);
+    }
+
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
         Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
         final float L = 10;
@@ -1174,22 +1183,29 @@ public class WorldFacade implements ContactObserver {
             Vector2 p1;
             Vector2 p2;
             if (firstInside && secondInside) {
-               // p1 = body.getLocalPoint(worldPoint1);
-               // p2 = body.getLocalPoint(worldPoint2);
-               // Map<LayerBlock, List<Flag>> res = list.stream().filter(e -> e.getBlock().getProperties().isJuicy()).collect(Collectors.groupingBy(Flag::getBlock));
-               // for (List<Flag> fc : res.values()) {
-                     p1 = worldPoint1.cpy().mul(32f);
-                     p2 = worldPoint2.cpy().mul(32f);
-                    GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
-               // }
+                p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
+                p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
+                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true,block.getProperties().getJuicinessDensity());
+                block.addFreshCut(fc);
+                createInnerCut(fc, entity);
             } else if (firstInside) {
-                p1 = worldPoint1.cpy().mul(32f);
-                p2 = list.get(list.size() - 1).getPoint().cpy().mul(32f);
-                GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
+                p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
+                p2 = body.getLocalPoint(list.get(list.size() - 1).getPoint()).cpy().mul(32f);
+                Vector2 V = p1.cpy().sub(p2);
+                if (V.len() > 4) {
+                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true,block.getProperties().getJuicinessDensity());
+                    block.addFreshCut(fc);
+                    createInnerCut(fc, entity);
+                }
             } else if (secondInside) {
-                p1 = list.get(0).getPoint().cpy().mul(32f);
-                p2 = worldPoint2.cpy().mul(32f);
-                GameScene.plotter2.drawLine2(p1, p2, Color.RED, 1);
+                p1 = body.getLocalPoint(list.get(0).getPoint()).cpy().mul(32f);
+                p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
+                Vector2 V = p2.cpy().sub(p1);
+                if (V.len() > 4) {
+                  SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true,block.getProperties().getJuicinessDensity());
+                  block.addFreshCut(fc);
+                 createInnerCut(fc, entity);
+                }
             } else {
                 List<Flag> cutList = list.stream().filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2).collect(Collectors.toList());
                 //perform the cut

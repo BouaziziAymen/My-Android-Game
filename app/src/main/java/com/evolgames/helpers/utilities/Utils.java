@@ -106,6 +106,10 @@ public class Utils {
         return dist;
 
     }
+
+    public static void translatePoint(Vector2 point, Vector2 center) {
+      point.sub(center);
+    }
     public static void translatePoints(List<Vector2> points, Vector2 center) {
         for (Vector2 v : points){
             v.sub(center);

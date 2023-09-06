@@ -1,5 +1,7 @@
 package com.evolgames.entities;
 
+import com.evolgames.physics.PhysicsConstants;
+
 import org.andengine.util.adt.color.Color;
 
 public class Material {
@@ -42,7 +44,7 @@ public class Material {
         Juicy = true;
         JuicinessLowerPressure = jlp;
         JuicinessUpperPressure = jup;
-        JuicinessDensity = jd;
+        JuicinessDensity = jd * PhysicsConstants.BLEEDING_CONSTANT;
         this.juiceColor = Juice.getProperties().getDefaultColor();
         this.Flammable = flammable;
         this.ignitionTemperature = ignitionTemperature;

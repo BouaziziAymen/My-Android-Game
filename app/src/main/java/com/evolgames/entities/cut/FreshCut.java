@@ -1,31 +1,24 @@
 package com.evolgames.entities.cut;
 
-import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.physics.PhysicsConstants;
-
 public abstract class FreshCut {
-    private boolean alive = true;
-    protected float limit;
+    private final float length;
+    private int limit;
 
-    public boolean isAlive() {
-        return alive;
+    public FreshCut(float length, int limit) {
+        this.length = length;
+        this.limit = limit;
     }
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
+    public float getLength() {
+        return length;
     }
 
-    protected float computeLimit(LayerBlock block) {
-        return block.getProperties().getJuicinessLowerPressure() * getLength() * PhysicsConstants.BLEEDING_CONSTANT;
+    public void decrementLimit(){
+        limit--;
     }
 
-    public abstract float getLength();
-
-    public void decrementLimit() {
-        limit-=getLength();
-    }
-
-    public float getLimit() {
+    public int getLimit() {
         return limit;
     }
+
 }

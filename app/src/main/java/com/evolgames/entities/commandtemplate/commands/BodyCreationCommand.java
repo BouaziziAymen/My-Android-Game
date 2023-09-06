@@ -30,8 +30,8 @@ public class BodyCreationCommand extends Command {
         entity.setBody(body);
         entity.setVisible(true);
         bodyInit.initialize(body);
+        entity.createJuiceSources();
     }
-
 
     public GameEntity getGameEntity() {
         return entity;

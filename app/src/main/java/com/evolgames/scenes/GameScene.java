@@ -252,8 +252,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         // attachChild(gameEntity1.getMesh());
 
 
-        vertices = VerticesFactory.createPolygon(0, 0, 20, 20, 8);
-        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
+        vertices = VerticesFactory.createPolygon(0, 0, 60, 60, 4);
+        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
         blocks.add(block1);
@@ -277,23 +277,24 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
 
         if (true) {
-           // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
-           // this.attachChild(uncoloredSprite);
+            // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
+            // this.attachChild(uncoloredSprite);
 
             gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
             Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
-           // Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
-          //  PointExplosiveParticleWrapper pointExplosive = this.worldFacade.createPointFireSource(null, new Vector2(400,240), 3000f,1f, 0.1f, 0.1f, 10f, 2000f);
-           //pointExplosive.detachFromParent();
+            // Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
+            //  PointExplosiveParticleWrapper pointExplosive = this.worldFacade.createPointFireSource(null, new Vector2(400,240), 3000f,1f, 0.1f, 0.1f, 10f, 2000f);
+            //pointExplosive.detachFromParent();
             if (false)
                 for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
                     Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                     layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
                 }
         }
+
 
 
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
@@ -477,10 +478,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
         this.x = touchEvent.getX() / 32f;
         this.y = touchEvent.getY() / 32f;
- if(false)
-        if(touchEvent.isActionDown()){
-            getWorldFacade().performFlux(new Vector2(x,y),null,gameGroup.getGameEntityByIndex(0));
-        }
+        if(false)
+            if(touchEvent.isActionDown()){
+                getWorldFacade().performFlux(new Vector2(x,y),null,gameGroup.getGameEntityByIndex(0));
+            }
         if (false)
             if (touchEvent.isActionDown()) {
                 getWorldFacade().createExplosion(null,x, y, 0.1f,0f,1f,1f,0f,0.1f,0.1f);
@@ -525,7 +526,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (action == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
-        if (touchEvent.isActionUp()&& false)
+        if (touchEvent.isActionUp())
             if (new Vector2(400, 240).dst(touchEvent.getX(), touchEvent.getY()) < 16) {
                 if (action == PlayerAction.Drag) {
                     action = PlayerAction.Slice;
@@ -575,32 +576,32 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                     GameEntity entity = gameGroup.getGameEntities().get(k);
                     if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                                if(hand.getGrabbedEntity()==null||hand.getGrabbedEntity()!=entity) {
-                                    if(hand.getGrabbedEntity()!=null) {
-                                        usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
-                                        hand.release();
-                                    }
-                                    hand.grab(entity, touchEvent, entity.shouldBeHeld());
-                                    usageButtonsController.addGameEntityControls(entity);
-                                } else {
-                                    hand.resumeGrab();
-                                }
-                        break;
+                        if(hand.getGrabbedEntity()==null||hand.getGrabbedEntity()!=entity) {
+                            if(hand.getGrabbedEntity()!=null) {
+                                usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
+                                hand.release();
+                            }
+                            hand.grab(entity, touchEvent, entity.shouldBeHeld());
+                            usageButtonsController.addGameEntityControls(entity);
+                        } else {
+                            hand.resumeGrab();
                         }
-                    }
-        } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
-                if (hand != null&&hand.getGrabbedEntity()!=null) {
-                    if(!hand.getGrabbedEntity().shouldBeHeld()) {
-                        usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
-                        hand.release();
-                    } else {
-                        hand.stopFollow();
+                        break;
                     }
                 }
+        } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
+            if (hand != null&&hand.getGrabbedEntity()!=null) {
+                if(!hand.getGrabbedEntity().shouldBeHeld()) {
+                    usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
+                    hand.release();
+                } else {
+                    hand.stopFollow();
+                }
+            }
         }
-      for(Hand h:hands.values()){
-          h.onSceneTouchEvent(touchEvent);
-      }
+        for(Hand h:hands.values()){
+            h.onSceneTouchEvent(touchEvent);
+        }
     }
 
     public void onDestroyMouseJoint(MouseJoint j) {
