@@ -149,7 +149,7 @@ public class WorldFacade implements ContactObserver {
         this.contactListener.getNonCollidingEntities().removeIf(pair -> !pair.first.isAlive() || !pair.second.isAlive());
 
         clearPulverizationWrappers();
-        clearLiquidWrappers();
+        updateLiquidWrappers();
         for (ExplosiveParticleWrapper explosiveParticleWrapper : explosives) {
             explosiveParticleWrapper.update();
         }
@@ -160,8 +160,8 @@ public class WorldFacade implements ContactObserver {
         }
         computeConduction();
         computeConvection();
+        updateLiquidWrappers();
         createFires();
-        handleLiquidStaining();
         step++;
     }
 
@@ -349,44 +349,7 @@ public class WorldFacade implements ContactObserver {
         explosions.add(explosion);
     }
 
-    private void clearLiquidWrappers() {
-        Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
-        while (wrapperIterator.hasNext()) {
-            LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
-            liquidParticleWrapper.update();
-            if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
-                liquidParticleWrapper.getParticleSystem().detachSelf();
-                wrapperIterator.remove();
-            }
-        }
-    }
-
-    private void clearPulverizationWrappers() {
-        Iterator<PulverizationParticleWrapperWithPolygonEmitter> iterator = powderParticleWrappers.iterator();
-        while (iterator.hasNext()) {
-            PulverizationParticleWrapperWithPolygonEmitter particleWrapper = iterator.next();
-            particleWrapper.update();
-            if (!particleWrapper.isAlive() && particleWrapper.allExpired()) {
-                iterator.remove();
-                particleWrapper.finishSelf();
-            }
-        }
-    }
-
-    private void computeConduction() {
-        for (GameGroup gameGroup : gameScene.getGameGroups())
-            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                if (!gameEntity.getName().equals("Ground")) {
-                    for (LayerBlock block : gameEntity.getBlocks()) {
-                        for (CoatingBlock coatingBlock : block.getBlockGrid().getCoatingBlocks()) {
-                            computeInternalConduction(coatingBlock);
-                        }
-                    }
-                }
-            }
-    }
-
-    private void handleLiquidStaining() {
+    private void updateLiquidWrappers() {
         HashSet<GameEntity> affectedEntities = new HashSet<>();
         for (LiquidParticleWrapper liquidSource : liquidParticleWrappers)
             if (liquidSource.getParticleSystem().hasParent())
@@ -452,7 +415,42 @@ public class WorldFacade implements ContactObserver {
                 entity.redrawStains();
             }
         }
+        Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
+        while (wrapperIterator.hasNext()) {
+            LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
+            liquidParticleWrapper.update();
+            if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
+                liquidParticleWrapper.getParticleSystem().detachSelf();
+                wrapperIterator.remove();
+            }
+        }
     }
+
+    private void clearPulverizationWrappers() {
+        Iterator<PulverizationParticleWrapperWithPolygonEmitter> iterator = powderParticleWrappers.iterator();
+        while (iterator.hasNext()) {
+            PulverizationParticleWrapperWithPolygonEmitter particleWrapper = iterator.next();
+            particleWrapper.update();
+            if (!particleWrapper.isAlive() && particleWrapper.isAllParticlesExpired()) {
+               iterator.remove();
+                particleWrapper.finishSelf();
+            }
+        }
+    }
+
+    private void computeConduction() {
+        for (GameGroup gameGroup : gameScene.getGameGroups())
+            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                if (!gameEntity.getName().equals("Ground")) {
+                    for (LayerBlock block : gameEntity.getBlocks()) {
+                        for (CoatingBlock coatingBlock : block.getBlockGrid().getCoatingBlocks()) {
+                            computeInternalConduction(coatingBlock);
+                        }
+                    }
+                }
+            }
+    }
+
 
     private void createFires() {
         for (GameGroup gameGroup : gameScene.getGameGroups())
@@ -1135,7 +1133,7 @@ public class WorldFacade implements ContactObserver {
         list.forEach(ImpactDataPool::recycle);
     }
 
-    public void createInnerCut(SegmentFreshCut innerCut, GameEntity gameEntity) {
+    public void createInnerCut(SegmentFreshCut innerCut, GameEntity gameEntity, LayerBlock block) {
         float x1 = innerCut.first.x;
         float y1 = innerCut.first.y;
         float x2 = innerCut.second.x;
@@ -1143,6 +1141,7 @@ public class WorldFacade implements ContactObserver {
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
         line.setColor(Color.RED);
         gameEntity.getMesh().attachChild(line);
+        gameScene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
@@ -1187,7 +1186,7 @@ public class WorldFacade implements ContactObserver {
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
                 SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true,block.getProperties().getJuicinessDensity());
                 block.addFreshCut(fc);
-                createInnerCut(fc, entity);
+                createInnerCut(fc, entity,block);
             } else if (firstInside) {
                 p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
                 p2 = body.getLocalPoint(list.get(list.size() - 1).getPoint()).cpy().mul(32f);
@@ -1195,7 +1194,7 @@ public class WorldFacade implements ContactObserver {
                 if (V.len() > 4) {
                     SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true,block.getProperties().getJuicinessDensity());
                     block.addFreshCut(fc);
-                    createInnerCut(fc, entity);
+                    createInnerCut(fc, entity,block);
                 }
             } else if (secondInside) {
                 p1 = body.getLocalPoint(list.get(0).getPoint()).cpy().mul(32f);
@@ -1204,7 +1203,7 @@ public class WorldFacade implements ContactObserver {
                 if (V.len() > 4) {
                   SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true,block.getProperties().getJuicinessDensity());
                   block.addFreshCut(fc);
-                 createInnerCut(fc, entity);
+                 createInnerCut(fc, entity,block);
                 }
             } else {
                 List<Flag> cutList = list.stream().filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2).collect(Collectors.toList());
@@ -1311,9 +1310,6 @@ public class WorldFacade implements ContactObserver {
 
     public void pulverizeBlock(LayerBlock layerBlock, GameEntity gameEntity) {
         Body body = gameEntity.getBody();
-        if (body == null) {
-            return;
-        }
         for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
             coatingBlock.setPulverized(true);
             coatingBlock.getTriangles().forEach(vector2 -> {
@@ -1321,9 +1317,7 @@ public class WorldFacade implements ContactObserver {
                 vector2.set(worldVector);
             });
         }
-        float v = gameEntity.getBody().getLinearVelocity().len();
-        Vector2 particleVelocity = v < PhysicsConstants.PARTICLE_TERMINAL_VELOCITY ? gameEntity.getBody().getLinearVelocity().cpy() : gameEntity.getBody().getLinearVelocity().cpy().nor().mul(PhysicsConstants.PARTICLE_TERMINAL_VELOCITY);
-        PulverizationParticleWrapperWithPolygonEmitter pulverizationParticleWrapper = new PulverizationParticleWrapperWithPolygonEmitter(this, layerBlock, particleVelocity);
+        PulverizationParticleWrapperWithPolygonEmitter pulverizationParticleWrapper = new PulverizationParticleWrapperWithPolygonEmitter(this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
         powderParticleWrappers.add(pulverizationParticleWrapper);
         gameScene.attachChild(pulverizationParticleWrapper.getParticleSystem());
     }

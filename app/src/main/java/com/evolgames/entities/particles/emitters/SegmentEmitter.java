@@ -36,7 +36,7 @@ public class SegmentEmitter extends DataEmitter {
             pOffset[VERTEX_INDEX_X] = this.data[0];
             pOffset[VERTEX_INDEX_Y] = this.data[1] +  rand * (this.data[3] - data[1]);
         }
-      //  GameScene.plotter2.drawPoint( new Vector2(pOffset[VERTEX_INDEX_X],  pOffset[VERTEX_INDEX_Y]) ,Color.RED,1);
+      //  GameScene.Controller.drawPoint( new Vector2(pOffset[VERTEX_INDEX_X],  pOffset[VERTEX_INDEX_Y]) ,Color.RED,1);
     }
 
     @Override

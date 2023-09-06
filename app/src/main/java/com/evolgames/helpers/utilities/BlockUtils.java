@@ -129,14 +129,6 @@ public class BlockUtils {
         return new Pair<>(chunk1, chunk2);
     }
 
-    public static Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>> splitVertices(Cut cut, ArrayList<Vector2> vertices, LayerBlock block) {
-
-        Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, vertices);
-        float density = block.getProperties().getJuicinessDensity();
-        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), false,density);
-        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother(), false,density);
-        return new Pair<>(result, new Pair<>(pair1, pair2));
-    }
 
     private static Vector2 findTheOne(ArrayList<Vector2> Vertices, Vector2 A, Vector2 B, Vector2 centroid) {
         if (GeometryUtils.PointOnLineSegment(A, B, centroid, 0.01f)) return centroid;
@@ -607,16 +599,20 @@ public class BlockUtils {
 
     public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
 
-        Pair<Pair<ArrayList<Vector2>, ArrayList<Vector2>>, Pair<SegmentFreshCut, SegmentFreshCut>>
-                splitResult = BlockUtils.splitVertices(cut, block.getVertices(),block);
-        Pair<ArrayList<Vector2>, ArrayList<Vector2>> group = splitResult.first;
-        Pair<SegmentFreshCut, SegmentFreshCut> limits = splitResult.second;
 
-        LayerBlock block1 = BlockFactory.createLayerBlock(group.first, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-        block1.addFreshCut(limits.first);
+        Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, block.getVertices());
+        float density = block.getProperties().getJuicinessDensity();
+        SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), false,density);
+        SegmentFreshCut pair2 = new SegmentFreshCut(cut.getP1Brother(), cut.getP2Brother(), false,density);
+
+
+        LayerBlock block1 = BlockFactory.createLayerBlock(result.first, block.getProperties().copy(), block.getId(), block.getOrder(), false);
+       if(pair1.getLength()>4f)
+        block1.addFreshCut(pair1);
         block1.setPolarity(Polarity.YIN);
-        LayerBlock block2 = BlockFactory.createLayerBlock(group.second, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-        block2.addFreshCut(limits.second);
+        LayerBlock block2 = BlockFactory.createLayerBlock(result.second, block.getProperties().copy(), block.getId(), block.getOrder(), false);
+       if(pair2.getLength()>4f)
+        block2.addFreshCut(pair2);
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
         block1.setLiquidQuantity((int) (liquidQuantity * block1.getBlockArea() / block.getBlockArea()));

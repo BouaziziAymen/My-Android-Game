@@ -484,7 +484,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
         if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null,x, y, 0.1f,0f,1f,1f,0f,0.1f,0.1f);
+                getWorldFacade().createExplosion(null,x, y, 1f,0.3f,0.3f,0.2f,50f,0.1f,1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 

@@ -274,4 +274,14 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         this.liquidQuantity = liquidQuantity;
     }
 
+    public float calculatePulverizationEnergy(LayerBlock layerBlock) {
+        float totalRatio = 0;
+        for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
+            float ratio = (float) (1 - coatingBlock.getProperties().getBurnRatio() / 1.1f);
+            totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
+        }
+        totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
+        return PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
+    }
+
 }

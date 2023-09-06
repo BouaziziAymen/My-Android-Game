@@ -1,9 +1,11 @@
 package com.evolgames.entities.particles.systems;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.scenes.GameScene;
 
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.Particle;
@@ -11,7 +13,7 @@ import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
 public class PulverizationParticleSystem extends FlowingParticleSystem {
-    public PulverizationParticleSystem(IEntityFactory<UncoloredSprite> ief, PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax) {
+    public PulverizationParticleSystem(PolygonEmitter emitter, float rateMin, float rateMax, int particlesMax) {
         super(emitter, rateMin, rateMax, particlesMax, ResourceManager.getInstance().pixelParticle);
     }
 
@@ -22,5 +24,6 @@ public class PulverizationParticleSystem extends FlowingParticleSystem {
         Color parentColor = coatingBlock.getParent().getProperties().getDefaultColor();
         MyColorUtils.blendColors(parentColor,parentColor,coatingBlock.getProperties().getDefaultColor());
         particle.getEntity().setColor(parentColor);
+       // GameScene.plotter2.drawPoint(new Vector2(particle.getEntity().getX(),particle.getEntity().getY()),Color.YELLOW,1);
     }
 }

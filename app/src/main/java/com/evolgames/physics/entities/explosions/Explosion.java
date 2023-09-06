@@ -28,7 +28,7 @@ public class Explosion {
         this.center = center;
         this.force = force;
         this.heat = heat;
-        this.velocity = (1000 + speed * 1500);
+        this.velocity = (1000 + speed * 1000);
 
         if (fireRatio > 0.1f || smokeRatio > 0.1f || sparkRatio > 0.1f) {
             this.explosionParticleWrapper = gameScene.getWorldFacade().createPointFireSource(null, center.cpy().mul(32f), velocity, fireRatio, smokeRatio, sparkRatio, particles, 2000, false);

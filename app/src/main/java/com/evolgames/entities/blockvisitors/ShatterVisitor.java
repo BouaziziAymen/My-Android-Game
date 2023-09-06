@@ -31,13 +31,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
 
     private void processBlock(LayerBlock layerBlock) {
         if (layerBlock.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA) {
-            float totalRatio = 0;
-            for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
-                float ratio = (float) (1 - coatingBlock.getProperties().getBurnRatio() / 1.1f);
-                totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
-            }
-            totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
-            float pulverizationEnergy = PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
+            float pulverizationEnergy = calculatePulverizationEnergy(layerBlock);
 
             if (availableEnergy > pulverizationEnergy) {
                 layerBlock.setAborted(true);
@@ -64,6 +58,16 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
                 availableEnergy -= data.getDestructionEnergy();
             }
         }
+    }
+
+    public float calculatePulverizationEnergy(LayerBlock layerBlock) {
+        float totalRatio = 0;
+        for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
+            float ratio = (float) (1 - coatingBlock.getProperties().getBurnRatio() / 1.1f);
+            totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
+        }
+        totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
+        return 100f *PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
     }
 
     @Override

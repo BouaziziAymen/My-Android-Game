@@ -2,6 +2,7 @@ package com.evolgames.entities.particles.initializers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.GameScene;
 
@@ -11,7 +12,7 @@ import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;
 
 
-public class AirFieldVelocityInitializer  implements IParticleInitializer<UncoloredSprite> {
+public class AirFieldVelocityInitializer implements IParticleInitializer<UncoloredSprite> {
 
 
     private final WorldFacade worldFacade;
@@ -26,7 +27,9 @@ public class AirFieldVelocityInitializer  implements IParticleInitializer<Uncolo
     @Override
     public void onInitializeParticle(Particle<UncoloredSprite> pParticle) {
         this.worldPoint.set(pParticle.getEntity().getX() / 32f, pParticle.getEntity().getY() / 32f);
-            Vector2 velocity = worldFacade.getAirVelocity(worldPoint);
-            pParticle.getPhysicsHandler().setVelocity((velocity.x+this.bodyVelocity.x)*32f, (velocity.y+this.bodyVelocity.y)*32f);
+        Vector2 velocity = worldFacade.getAirVelocity(worldPoint).add(bodyVelocity);
+        float value = velocity.len();
+        velocity = value < PhysicsConstants.PARTICLE_TERMINAL_VELOCITY ? velocity : velocity.cpy().nor().mul(PhysicsConstants.PARTICLE_TERMINAL_VELOCITY);
+        pParticle.getPhysicsHandler().setVelocity(velocity.x* 32f, velocity.y * 32f);
     }
 }
