@@ -11,6 +11,8 @@ public class Image extends Element implements Limited,Touchable {
     private boolean isLimited;
     private float limitY0;
     private float limitY1;
+    private float limitX0;
+    private float limitX1;
 
     public Image(ITextureRegion pTextureRegion) {
         this(0,0,pTextureRegion);
@@ -18,6 +20,11 @@ public class Image extends Element implements Limited,Touchable {
     public Image(float pX, float pY, ITextureRegion pTextureRegion) {
         super(pX,pY,pTextureRegion.getWidth(),pTextureRegion.getHeight());
         textureRegion = pTextureRegion;
+        this.limitY0 = 0;
+        this.limitY1 = pTextureRegion.getHeight();
+        this.limitX0 = 0;
+        this.limitX1 = pTextureRegion.getWidth();
+
     }
 
     @Override
@@ -43,7 +50,7 @@ public class Image extends Element implements Limited,Touchable {
     public void drawImage() {
         if (isLimited) {
             if(limitY0<limitY1) {
-                UserInterface.hudBatcher.drawLimited(textureRegion, getAbsoluteX(), getAbsoluteY(), red(), green(), blue(), 1f, 0, getWidth(), limitY0, limitY1);
+                UserInterface.hudBatcher.drawLimited(textureRegion, getAbsoluteX(), getAbsoluteY(), red(), green(), blue(), 1f, limitX0, limitX1, limitY0, limitY1);
             }
         }
         else {
@@ -86,6 +93,20 @@ drawImage();
         this.limitY1 = limitY1;
     }
 
+    public void setLimitX0(float limitX0) {
+        if(limitX0>getWidth())limitX0=getWidth();
+        if(limitX0<0)limitX0=0;
+        this.limitX0 = limitX0;
+        setUpdated(true);
+    }
+
+
+    public void setLimitX1(float limitX1) {
+        if(limitX1>getWidth())limitX1=getWidth();
+        if(limitX1<0)limitX1=0;
+        this.limitX1 = limitX1;
+        setUpdated(true);
+    }
     public void setTextureRegion(ITextureRegion textureRegion) {
         this.textureRegion = textureRegion;
     }

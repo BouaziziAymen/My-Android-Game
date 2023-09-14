@@ -20,6 +20,9 @@ public abstract class HandControl {
     }
 
     public void run(){
+        if(weapon==null){
+            dead = true;
+        }
         if(dead){
             return;
         }

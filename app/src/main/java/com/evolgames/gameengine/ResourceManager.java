@@ -30,6 +30,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -132,7 +133,10 @@ public class ResourceManager {
     public TextureRegion targetShapeTextureRegion;
     public TextureRegion bombShapeTextureRegion;
     public TextureRegion casingShapeTextureRegion;
-
+    public TextureRegion switcher, switcherBackground;
+    public List<TextureRegion> usages;
+    public List<TextureRegion> generalUsages;
+    public TiledTextureRegion  switcherLeft, switcherRight;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -237,8 +241,20 @@ public class ResourceManager {
         this.slotInnerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "slotinner.png");
         this.handTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "hand.png");
         this.armTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "arm.png");
+        this.switcher = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcher.png");
+        this.switcherBackground = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcherBackground.png");
+        this.usages = new ArrayList<>();
+        for(int i=1;i<=6;i++) {
+            this.usages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/usages/" + i + ".png"));
+        }
 
-
+        this.generalUsages = new ArrayList<>();
+        for(int i=1;i<=6;i++) {
+            this.generalUsages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/general/" + i + ".png"));
+        }
+        Collections.reverse(generalUsages);
+        this.switcherLeft = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/leftButton.png", 1, 3);
+        this.switcherRight = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/rightButton.png", 1, 3);
         this.handPointTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");
         this.diskTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/circle.png");
         this.centeredDiskTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "shapes/centercircle.png");

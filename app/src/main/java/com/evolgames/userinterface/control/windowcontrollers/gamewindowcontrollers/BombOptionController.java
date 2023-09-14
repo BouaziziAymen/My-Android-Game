@@ -28,7 +28,7 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
     private Quantity<BombOptionController> particlesQuantityField;
     private Quantity<BombOptionController> heatQuantityField;
     private TextField<BombOptionController> forceTextField;
-    private final IntegerValidator forceValidator = new IntegerValidator( 0, 10000);
+    private final IntegerValidator forceValidator = new IntegerValidator( 0, 100000);
 
 
     public BombOptionController(KeyboardController keyboardController) {

@@ -13,7 +13,6 @@ import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
-import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;
 
 public class PulverizationParticleWrapperWithPolygonEmitter {
@@ -39,7 +38,6 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
 
         AirFieldVelocityInitializer velocityInitializer = new AirFieldVelocityInitializer(worldFacade, bodyVelocity);
         this.particleSystem.addParticleInitializer(velocityInitializer);
-        this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(2f));
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
         this.particleSystem.addParticleModifier(new GroundCollisionStop(20));
         this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(8f, 10f, 1f, 0));
@@ -71,7 +69,7 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         if(!isAlive()){
             return;
         }
-        if (step > 10) {
+        if (step > 5) {
             particleSystem.setParticlesSpawnEnabled(false);
             this.alive = false;
         }

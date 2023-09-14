@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
+import com.evolgames.scenes.PlayerAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -47,12 +48,9 @@ import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.Touchable;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
 import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
-import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
-import com.evolgames.userinterface.view.inputs.controllers.AnalogController;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.CreationZone;
-import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
@@ -165,6 +163,8 @@ public class UserInterface extends Container implements Touchable {
     private ImageShape imageShape;
     private ToolModel toolModel;
     private float zoomFactor = 1f;
+    private ControlElement moveElementController;
+
     public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, CasingOptionController casingOptionController, BombOptionController bombOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
         this.activity = gameActivity;
         pGameScene.getHud().attachChild(hudBatcher);
@@ -182,6 +182,15 @@ public class UserInterface extends Container implements Touchable {
         this.optionsWindowController = optionsWindowController;
         this.jointsWindowController = jointWindowController;
         this.outlineController = outlineController;
+
+        Switcher switcher1 = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->{});
+        switcher1.reset();
+        addElement(switcher1);
+
+
+        Switcher switcher2 = new Switcher(800f-72f,300f+64f,ResourceManager.getInstance().generalUsages,32f,(index)->pGameScene.setAction(PlayerAction.values()[index]));
+        switcher2.reset(0,1,2,3,4,5);
+        addElement(switcher2);
 
 
         layerWindowController.setUserInterface(this);
@@ -710,23 +719,9 @@ public class UserInterface extends Container implements Touchable {
 
         panel = new ControlPanel(pGameScene);
 
-        ControlElement controlElementForMovablePoints = new ControlElement(ControlElement.Type.AnalogController, 0, new ControllerAction() {
-            @Override
-            public void controlMoved(float pX, float pY) {
-                pGameScene.ControlMovableElementChange(pX, pY);
-            }
 
-            @Override
-            public void controlClicked() {
-                pGameScene.controlClicked();
-            }
+        //panel.allocateController( 800 - 64f / 2,64/2f,ControlElement.Type.AnalogController,null);
 
-            @Override
-            public void controlReleased() {
-                pGameScene.controlReleased();
-            }
-        });
-        panel.addControlElements(controlElementForMovablePoints);
         //panel.showControlElement(0);
 
         setUpdated(true);
@@ -988,7 +983,6 @@ public class UserInterface extends Container implements Touchable {
 
     public void onActionChanged(CreationZoneController.CreationAction action) {
         if (panel != null) {
-            AnalogController analog = (AnalogController) panel.getControlElementByID(0).getAssociate();
             switch (action) {
                 case ADD_POINT:
                 case REMOVE_POINT:
@@ -1004,14 +998,14 @@ public class UserInterface extends Container implements Touchable {
                 case DISTANCE:
                 case SCALE_IMAGE:
                 case ROTATE_IMAGE:
-                    panel.hideControlElement(0);
-                    analog.setOnControlClickEnabled(false);
+                    if(getMoveElementControlElement()!=null) {
+                        getPanel().hideControlElement(getMoveElementControlElement().getID());
+                    }
                     break;
                 case MOVE_TOOL_POINT:
                 case MOVE_POINT:
                 case MOVE_JOINT_POINT:
-                    panel.showControlElement(0);
-                    analog.setOnControlClickEnabled(true);
+
                     break;
             }
         }
@@ -1060,4 +1054,11 @@ public class UserInterface extends Container implements Touchable {
         outlineController.onScreenChanged(selectedScreen);
     }
 
+    public void setMoveElementController(ControlElement moveElementController) {
+        this.moveElementController = moveElementController;
+    }
+
+    public ControlElement getMoveElementControlElement() {
+        return moveElementController;
+    }
 }

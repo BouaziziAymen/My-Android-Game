@@ -18,6 +18,6 @@ public abstract class Use {
     public abstract float getUIWidth();
 
     public abstract void updateUIPosition(int row, int offset);
-    public abstract void showControlButtons();
-    public abstract void hideControlButtons();
+    public abstract void showUI();
+    public abstract void hideUI();
 }

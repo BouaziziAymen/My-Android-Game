@@ -1,5 +1,5 @@
 package com.evolgames.scenes;
 
 public enum PlayerAction {
-    Drag,Other,Slice
+    Drag,Hold, Throw, Slice,Select, Turn
 }

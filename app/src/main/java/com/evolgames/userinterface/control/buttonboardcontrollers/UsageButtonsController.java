@@ -1,8 +1,6 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.usage.TimeBomb;
-import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.Controller;
@@ -28,7 +26,7 @@ public class UsageButtonsController extends Controller {
         int col = 0;
         for (Use use : gameEntity.getUseList()) {
                 if (use.isControlsCreated()) {
-                    use.showControlButtons();
+                    use.showUI();
                 } else {
                     use.createControls(this, userInterface);
                 }
@@ -55,7 +53,7 @@ public class UsageButtonsController extends Controller {
 
     public void removeGameEntityControls(GameEntity gameEntity) {
         for (Use use : gameEntity.getUseList()) {
-         use.hideControlButtons();
+         use.hideUI();
         }
         uiElements.removeIf(e -> e.key == gameEntity);
         updateLayout();

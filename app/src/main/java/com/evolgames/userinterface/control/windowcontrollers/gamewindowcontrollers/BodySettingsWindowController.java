@@ -8,6 +8,7 @@ import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
+import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -114,16 +115,28 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setReloadTime(autoProps.getReloadTime());
                 break;
             case TIME_BOMB:
-            case FUZE_BOMB:
                 UsageModel<TimeBombUsageProperties> timeBombUsagePropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
                 TimeBombUsageProperties timeBombUsageProperties = timeBombUsagePropertiesUsageModel.getProperties();
                 setBombDelay(timeBombUsageProperties.getDelay());
+                break;
+            case FUZE_BOMB:
+                UsageModel<FuzeBombUsageProperties> fuzeBombUsagePropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                FuzeBombUsageProperties fuzeBombUsageProperties = fuzeBombUsagePropertiesUsageModel.getProperties();
+                setBombDelay(fuzeBombUsageProperties.getDelay());
                 break;
             case IMPACT_BOMB:
                 UsageModel<ImpactBombUsageProperties> impactBombUsageModel =  this.bodyModel.getUsageModel(usageCategory);
                 ImpactBombUsageProperties impactBombUsageProperties = impactBombUsageModel.getProperties();
                 setBombDelay(impactBombUsageProperties.getDelay());
                 setBombMinImpact(impactBombUsageProperties.getMinImpact());
+                break;
+            case SLASHER:
+                break;
+            case BLUNT:
+                break;
+            case STABBER:
+                break;
+            case THROWING:
                 break;
         }
     }
@@ -272,6 +285,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                            createBombMinImpactField(primaryId,2,impactBombProperties);
                             createBombsField(primaryId,3,impactBombProperties);
                             break;
+                        case SLASHER:
+                            SlashProperties slasherProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.SLASHER);
+                            break;
+                        case BLUNT:
+                            break;
+                        case STABBER:
+                            break;
+                        case THROWING:
+                            break;
                     }
                 }
             }
@@ -330,12 +352,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         bombDelayField.getAttachment().setBehavior(new TextFieldBehavior<BodySettingsWindowController>(this, bombDelayTextField, Keyboard.KeyboardType.Numeric, bombDelayValidator, true) {
             @Override
             protected void informControllerTextFieldTapped() {
-                BodySettingsWindowController.super.onTextFieldTapped(rangedManualReloadTimeTextField);
+                BodySettingsWindowController.super.onTextFieldTapped(bombDelayTextField);
             }
 
             @Override
             protected void informControllerTextFieldReleased() {
-                BodySettingsWindowController.super.onTextFieldReleased(rangedManualReloadTimeTextField);
+                BodySettingsWindowController.super.onTextFieldReleased(bombDelayTextField);
             }
         });
 
@@ -446,6 +468,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             UsageModel<BombUsageProperties> usage = new UsageModel<>("", e);
             BombUsageProperties properties = usage.getProperties();
             properties.setBombIds(new ArrayList<>());
+            bodyModel.getUsageModels().add(usage);
+        }
+        if(e==BodyUsageCategory.SLASHER){
+            UsageModel<SlashProperties> usage = new UsageModel<>("", e);
+            SlashProperties properties = usage.getProperties();
             bodyModel.getUsageModels().add(usage);
         }
     }

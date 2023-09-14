@@ -7,6 +7,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.HandControl;
 import com.evolgames.entities.hand.HoldHandControl;
+import com.evolgames.entities.hand.SwingHandControl;
 import com.evolgames.physics.WorldFacade;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
@@ -21,6 +22,7 @@ public class Hand {
     Stack<HandControl> handControlStack = new Stack<>();
     private GameEntity grabbedEntity;
     private MouseJoint mouseJoint;
+    private int step = 0;
 
     public Hand(WorldFacade worldFacade) {
         this.worldFacade = worldFacade;
@@ -30,12 +32,10 @@ public class Hand {
         return grabbedEntity;
     }
 
-    public void grab(GameEntity entity, TouchEvent touchEvent, boolean hold) {
+    public void grab(GameEntity entity, TouchEvent touchEvent) {
             entity.setHanged(true);
             grabbedEntity = entity;
-            if(hold) {
-                handControlStack.push(new HoldHandControl(grabbedEntity.getBody(), 0));
-            }
+
             final MouseJointDef mouseJointDef = new MouseJointDef();
             entity.setHangedPointerId(touchEvent.getPointerID());
             mouseJointDef.dampingRatio = 0.5f;
@@ -46,7 +46,12 @@ public class Hand {
             mousePointerId = touchEvent.getPointerID();
             worldFacade.addJointToCreate(mouseJointDef, worldFacade.getGround().getGameEntityByIndex(0), entity);
         }
-
+        public void holdHand(float degree){
+                handControlStack.push(new HoldHandControl(grabbedEntity.getBody(), 0));
+        }
+        public void swingHand(){
+        handControlStack.push(new SwingHandControl(grabbedEntity.getBody(),this.mouseJoint,30,10,5000));
+        }
     public void onUpdate() {
         if (!handControlStack.isEmpty()) {
             HandControl top = handControlStack.peek();
@@ -78,6 +83,13 @@ public class Hand {
 
                 this.mouseJoint.setTarget(vec);
                 Vector2Pool.recycle(vec);
+            }
+        }
+        if(!handControlStack.isEmpty()){
+            if(handControlStack.peek() instanceof HoldHandControl){
+                if(touchEvent.isActionDown()&&this.mouseJoint!=null){
+                    swingHand();
+                }
             }
         }
     }

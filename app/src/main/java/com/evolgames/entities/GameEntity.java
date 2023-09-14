@@ -307,7 +307,7 @@ public class GameEntity extends EntityWithBody {
         batch.reset();
         ArrayList<StainBlock> allStains = getStains();
         int stainDataCount = getStainDataCount(allStains);
-        while (stainDataCount >= stainDataLimit) {
+        while (stainDataCount > stainDataLimit) {
             StainBlock removedStainBlock = allStains.get(0);
             for (LayerBlock b : layerBlocks) {
                 if (b.getAssociatedBlocks().contains(removedStainBlock)) {
@@ -372,11 +372,6 @@ public class GameEntity extends EntityWithBody {
 
     public void setHangedPointerId(int hangedPointerId) {
         this.hangedPointerId = hangedPointerId;
-    }
-
-
-    public boolean shouldBeHeld() {
-        return this.useList.size() > 0;
     }
 
 

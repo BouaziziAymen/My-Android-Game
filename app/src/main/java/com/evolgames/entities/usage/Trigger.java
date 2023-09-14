@@ -237,12 +237,12 @@ public class Trigger extends Use{
     }
 
     @Override
-    public void showControlButtons() {
+    public void showUI() {
         triggerButton.setVisible(true);
         reloadButton.setVisible(true);
     }
     @Override
-    public void hideControlButtons() {
+    public void hideUI() {
         triggerButton.setVisible(false);
         reloadButton.setVisible(false);
     }

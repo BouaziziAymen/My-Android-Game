@@ -19,6 +19,8 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
+import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import com.evolgames.userinterface.view.shapes.CreationZone;
 import com.evolgames.userinterface.view.shapes.indicators.LineShape;
 import com.evolgames.userinterface.view.shapes.indicators.MirrorArrowShape;
@@ -125,7 +127,6 @@ public class CreationZoneController extends Controller {
 
     }
 
-
     public void onZoneActionUp(float x, float y) {
         if (upLocked) {
             return;
@@ -163,7 +164,7 @@ public class CreationZoneController extends Controller {
             userInterface.getImageButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
         }
-        if (action == CreationAction.BOMB||action == CreationAction.PROJECTILE||action == CreationAction.AMMO) {
+        if (action == CreationAction.BOMB || action == CreationAction.PROJECTILE || action == CreationAction.AMMO) {
             userInterface.getItemButtonBoardController().releaseButtons();
             action = CreationAction.NONE;
         }
@@ -260,14 +261,27 @@ public class CreationZoneController extends Controller {
     public void selectPointImage(PointImage pointImage) {
         pointImage.doubleSelect();
         selectedPointImage = pointImage;
-        gameScene.setMovable(pointImage);
+        userInterface.setMoveElementController(userInterface.getPanel().allocateController(800 - 64 / 2f, 64 / 2f, ControlElement.Type.AnalogController, new ControllerAction() {
+            @Override
+            public void controlMoved(float pX, float pY) {
+                pointImage.onControllerMoved(pX, pY);
+            }
+
+            @Override
+            public void controlClicked() {}
+
+            @Override
+            public void controlReleased() {
+
+            }
+        }));
+
     }
 
     public void onPointImageReleased(PointImage pointImage) {
         if (selectedPointImage != null) {
             selectedPointImage.undoDoubleSelect();
             selectedPointImage.release();
-            gameScene.setMovable(null);
             selectedPointImage = null;
         }
     }
@@ -343,8 +357,8 @@ public class CreationZoneController extends Controller {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 indicatorArrow = new ProjectileShape(new Vector2(x, y), gameScene);
                 ProjectileModel projectileModel = userInterface.getToolModel().createNewProjectile((ProjectileShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
-                projectileModel.getProperties().setProjectileOrigin(new Vector2(x,y));
-                projectileModel.getProperties().setProjectileEnd(new Vector2(x,y));
+                projectileModel.getProperties().setProjectileOrigin(new Vector2(x, y));
+                projectileModel.getProperties().setProjectileEnd(new Vector2(x, y));
                 itemWindowController.onProjectileCreated(projectileModel);
                 ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
                 return;
@@ -352,8 +366,8 @@ public class CreationZoneController extends Controller {
         }
         if (action == CreationAction.BOMB) {
             if (userInterface.getItemWindowController().getSelectedBodyId() != -1) {
-                BombShape bombShape = new BombShape(new Vector2(x,y),gameScene);
-                BombModel bombModel = userInterface.getToolModel().createNewBomb(bombShape,userInterface.getItemWindowController().getSelectedBodyId());
+                BombShape bombShape = new BombShape(new Vector2(x, y), gameScene);
+                BombModel bombModel = userInterface.getToolModel().createNewBomb(bombShape, userInterface.getItemWindowController().getSelectedBodyId());
                 itemWindowController.onBombCreated(bombModel);
                 bombShape.bindModel(bombModel);
             }
@@ -521,7 +535,7 @@ public class CreationZoneController extends Controller {
 
 
     public enum CreationAction {
-        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO, BOMB;
+        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO, BOMB
     }
 }
 

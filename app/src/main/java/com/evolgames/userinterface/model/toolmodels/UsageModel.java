@@ -6,6 +6,7 @@ import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
+import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
@@ -34,6 +35,15 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
                 break;
             case IMPACT_BOMB:
                 this.properties = (T) new ImpactBombUsageProperties();
+                break;
+            case SLASHER:
+                this.properties = (T) new SlashProperties();
+                break;
+            case BLUNT:
+                break;
+            case STABBER:
+                break;
+            case THROWING:
                 break;
         }
         this.type = type;

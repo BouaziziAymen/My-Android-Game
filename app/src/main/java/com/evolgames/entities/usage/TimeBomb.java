@@ -84,11 +84,11 @@ public class TimeBomb extends Use{
         triggerButton.setPosition(800 -offset- triggerButton.getWidth(), row*32f);
     }
     @Override
-    public void showControlButtons() {
+    public void showUI() {
         triggerButton.setVisible(true);
     }
     @Override
-    public void hideControlButtons() {
+    public void hideUI() {
         triggerButton.setVisible(false);
     }
 }

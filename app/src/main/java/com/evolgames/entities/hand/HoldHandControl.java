@@ -21,6 +21,6 @@ public class HoldHandControl extends HandControl {
         while (error < -Math.PI) error += 2 * Math.PI;
         while (error > Math.PI) error -= 2 * Math.PI;
         if (Math.abs(error) > 0.005f)
-            body.setAngularVelocity(100 * error);
+            body.setAngularVelocity(10 * error);
     }
 }

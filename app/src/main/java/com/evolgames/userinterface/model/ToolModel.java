@@ -16,6 +16,7 @@ import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
+import com.evolgames.entities.usage.Slash;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -242,6 +243,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.TIME_BOMB).forEach(e->{
             TimeBomb timeBomb = new TimeBomb(e,scene.getWorldFacade());
             usageBodyModel.getGameEntity().getUseList().add(timeBomb);
+        }));
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.SLASHER).forEach(e->{
+            Slash slash = new Slash(usageBodyModel.getGameEntity(),scene.getWorldFacade());
+            usageBodyModel.getGameEntity().getUseList().add(slash);
         }));
 
         //Create joints

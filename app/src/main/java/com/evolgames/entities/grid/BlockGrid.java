@@ -61,6 +61,9 @@ public class BlockGrid {
 
 
     public CoatingBlock getNearestCoatingBlockSimple(Vector2 center) {
+        if(this.getCoatingBlocks().size()==0){
+            return null;
+        }
         float distance = Float.MAX_VALUE;
         CoatingBlock result = null;
         while(result==null) {

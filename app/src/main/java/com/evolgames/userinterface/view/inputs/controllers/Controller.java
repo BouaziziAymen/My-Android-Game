@@ -153,4 +153,9 @@ public abstract class Controller extends HUD implements IOnSceneTouchListener {
     public interface IOnScreenControlListener {
         void onControlChange(final Controller pBaseOnScreenControl, final float pValueX, final float pValueY);
     }
+
+    @Override
+    public void setPosition(float pX, float pY) {
+        getControlBase().setPosition(pX, pY);
+    }
 }

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public class Explosion {
     private final GameScene gameScene;
-    private final ArrayList<ImpactData> impacts = new ArrayList<>();
     private final Vector2 center;
     private final float force;
     private final float heat;

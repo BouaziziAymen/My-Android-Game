@@ -26,6 +26,9 @@ public class MultiShatterVisitor extends BreakVisitor<LayerBlock> {
         LayerBlock result = null;
         for (LayerBlock layerBlock : blocks) {
             CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(point);
+            if(nearest==null){
+                continue;
+            }
             float distance = nearest.distance(point);
             if (distance < minDistance) {
                 result = layerBlock;

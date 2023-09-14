@@ -111,7 +111,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private Vector2 point1;
     private Vector2 point2;
     private Line line;
-    private PlayerAction action = PlayerAction.Slice;
+    private PlayerAction action = PlayerAction.Drag;
     private UserInterface userInterface;
     private HUD hud;
     private boolean scroll = false;
@@ -300,10 +300,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
 
-        vertices2.add(obtain(-4000, 0));
-        vertices2.add(obtain(-4000, 20));
-        vertices2.add(obtain(4400, 20));
-        vertices2.add(obtain(4400, 0));
+        vertices2.add(obtain(-400, 0));
+        vertices2.add(obtain(-400, 20));
+        vertices2.add(obtain(400, 20));
+        vertices2.add(obtain(400, 0));
 
 
         LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0);
@@ -370,18 +370,14 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     @Override
     protected void onManagedUpdate(float pSecondsElapsed) {
         userInterface.step();
+        if (!pause) {
+            super.onManagedUpdate(pSecondsElapsed);
+        }
+        step++;
 
         for (Hand hand : hands.values()) {
             hand.onUpdate();
         }
-
-        if (!pause) {
-            super.onManagedUpdate(pSecondsElapsed);
-        }
-
-        // if (false && step == 60) GameEntityFactory.getInstance().createLinks();
-
-        step++;
 
         Invoker.onStep();
         if (ragdoll != null) {
@@ -392,85 +388,70 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         for (GameGroup gameGroup : gameGroups) {
             gameGroup.onStep(pSecondsElapsed);
         }
-        if (false) {
-            if (step == 120) {
-                ragdoll.getGameEntities().forEach(e -> {
-                    e.getBlocks().forEach(b -> worldFacade.pulverizeBlock(b, e));
-                    worldFacade.addGameEntityToDestroy(e, false);
-                });
-            }
-        }
 
-        if (false)
-            if (gameGroup.getGameEntityByIndex(0).getBody() != null) {
-                gameGroup.getGameEntityByIndex(0).getBody().setLinearVelocity(30, 10 - step / 100f);
-                mainCamera.setCenter(gameGroup.getGameEntityByIndex(0).getMesh().getX(), gameGroup.getGameEntityByIndex(0).getMesh().getY());
-            }
 
-        if (false)
-            if (step % 15 == 0) {
-                theMesh.setScale(1);
-                theMesh.setColor(Color.WHITE);
-            } else {
-                theMesh.setScale(1 + (step % 15) * 10);
-            }
-        if (step == 180) {
-            //getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
 
-        }
-
-        if (false)
-            if (step % 120 == 0) {
-                Random rand = new Random();
-                ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, (float) (Math.random() * Math.PI), 100, 100, rand.nextInt(6) + 3);
-                LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
-                LayerBlock block = BlockFactory.createLayerBlock(list, properties, 0);
-                properties.setDefaultColor(Utils.getRandomColor(0.5f));
-            }
+        if(false)
+        pulverizationTest();
 
 
         if (false)
-            if (step % 5 == 0) {
-
-                LayerBlock layerBlock = new LayerBlock();
-                Random random = new Random();
-                //VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float) (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
-                ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
-                //vertices.clear();
-                //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
-                layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0)), 0);
-                BlockUtils.computeCoatingBlocks(layerBlock);
-            }
+            coatingTest();
 
 
         //projectiles test
         if (false)
-            if (step % 60 == 0) {
-                Filter projectileFilter = new Filter();
-                projectileFilter.groupIndex = -1;
-                Vector2 u = new Vector2(0, -1);
-                float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
+            projectileTest();
 
-                GeometryUtils.rotateVectorRad(u, angle);
-                ArrayList<Vector2> vertices1 = new ArrayList<>();
-                vertices1.add(obtain(0, -10));
-                vertices1.add(obtain(-6, -5));
-                vertices1.add(obtain(0, 15));
-                vertices1.add(obtain(6, -5));
+    }
 
-                LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
-                LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
+    private void pulverizationTest() {
+        if (step == 180) {
+            getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
 
-                ArrayList<LayerBlock> blocks = new ArrayList<>();
-                blocks.add(block1);
+        }
+    }
 
-                BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(60)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-                GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
-                GameGroup proj = new GameGroup(gameEntity);
-                gameEntity.setProjectile(true);
-                addGameGroup(proj);
-            }
+    private void coatingTest() {
+        if (step % 5 == 0) {
 
+            LayerBlock layerBlock = new LayerBlock();
+            Random random = new Random();
+            //VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float) (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
+            ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
+            //vertices.clear();
+            //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
+            layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0)), 0);
+            BlockUtils.computeCoatingBlocks(layerBlock);
+        }
+    }
+
+    private void projectileTest() {
+        if (step % 60 == 0) {
+            Filter projectileFilter = new Filter();
+            projectileFilter.groupIndex = -1;
+            Vector2 u = new Vector2(0, -1);
+            float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
+
+            GeometryUtils.rotateVectorRad(u, angle);
+            ArrayList<Vector2> vertices1 = new ArrayList<>();
+            vertices1.add(obtain(0, -10));
+            vertices1.add(obtain(-6, -5));
+            vertices1.add(obtain(0, 15));
+            vertices1.add(obtain(6, -5));
+
+            LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
+            LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
+
+            ArrayList<LayerBlock> blocks = new ArrayList<>();
+            blocks.add(block1);
+
+            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(30)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
+            GameGroup proj = new GameGroup(gameEntity);
+            gameEntity.setProjectile(true);
+            addGameGroup(proj);
+        }
     }
 
 
@@ -484,7 +465,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             }
         if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null,x, y, 1f,0.3f,0.3f,0.2f,500f,0.1f,1f);
+                getWorldFacade().createExplosion(null,x, y, 1f,0.3f,0.3f,0.2f,100f,0.1f,1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
@@ -504,21 +485,19 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             if (mPinchZoomDetector.isZooming()) {
                 mScrollDetector.setEnabled(false);
             } else {
-                // userInterface.getCreationZoneController().resetScrollAndZoom();
                 if (!hudTouched)
                     mScrollDetector.onTouchEvent(touchEvent);
             }
         } else {
             if (!hudTouched) {
                 mScrollDetector.onTouchEvent(touchEvent);
-                Log.e("touch", "scroll");
             }
         }
 
 
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
 
-        if (action == PlayerAction.Drag) {
+        if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
             processGrabbing(touchEvent);
         }
 
@@ -526,14 +505,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (action == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
-        if (touchEvent.isActionUp())
-            if (new Vector2(400, 240).dst(touchEvent.getX(), touchEvent.getY()) < 16) {
-                if (action == PlayerAction.Drag) {
-                    action = PlayerAction.Slice;
-                } else {
-                    action = PlayerAction.Drag;
-                }
-            }
 
         recycle(touch);
         return false;
@@ -567,6 +538,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     private void processGrabbing(TouchEvent touchEvent) {
         int pointerID = touchEvent.getPointerID();
+
         if (!hands.containsKey(pointerID)) {
             hands.put(pointerID,  new Hand(worldFacade));
         }
@@ -576,12 +548,16 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                     GameEntity entity = gameGroup.getGameEntities().get(k);
                     if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                        assert hand != null;
                         if(hand.getGrabbedEntity()==null||hand.getGrabbedEntity()!=entity) {
                             if(hand.getGrabbedEntity()!=null) {
                                 usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
                                 hand.release();
                             }
-                            hand.grab(entity, touchEvent, entity.shouldBeHeld());
+                            hand.grab(entity, touchEvent);
+                            if(action==PlayerAction.Hold){
+                                hand.holdHand(0);
+                            }
                             usageButtonsController.addGameEntityControls(entity);
                         } else {
                             hand.resumeGrab();
@@ -591,7 +567,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 }
         } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
             if (hand != null&&hand.getGrabbedEntity()!=null) {
-                if(!hand.getGrabbedEntity().shouldBeHeld()) {
+                if(this.action != PlayerAction.Hold) {
                     usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
                     hand.release();
                 } else {
@@ -698,17 +674,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         scroll = false;
     }
 
-    public void setMovable(Movable movable) {
-        this.movable = movable;
-    }
-
-    public void ControlMovableElementChange(float valueX, float valueY) {
-        if (movable != null) {
-            movable.onControllerMoved(valueX, valueY);
-        }
-    }
-
-
     public void setScrollerEnabled(boolean pScrollerEnabled) {
         mScrollDetector.setEnabled(pScrollerEnabled);
         Log.e("scroller", "enabled:" + pScrollerEnabled);
@@ -735,12 +700,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         return activity;
     }
 
-    public void controlReleased() {
-
-    }
-
-    public void controlClicked() {
-
+    public void setAction(PlayerAction action) {
+        this.action = action;
     }
 }
 

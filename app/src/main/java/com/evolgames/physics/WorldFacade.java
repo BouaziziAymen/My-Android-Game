@@ -493,7 +493,9 @@ public class WorldFacade implements ContactObserver {
                 if (list.size() == 0) continue;
 
                 for (LayerBlock block : list) {
-                    if (block.getFixtures().size() == 0) continue;
+                    if (block.getFixtures().size() == 0) {
+                        continue;
+                    }
                     Body body = block.getBody();
 
                     if (body == null) continue;
@@ -1076,6 +1078,7 @@ public class WorldFacade implements ContactObserver {
 
     public void performFlux(Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
         Vector2 v = new Vector2(1, 0);
+        //GameScene.plotter2.detachChildren();
         List<ImpactData> list = new ArrayList<>();
         for (int i = 0; i < FLUX_PRECISION; i++) {
             v.set(1, 0);
@@ -1084,6 +1087,7 @@ public class WorldFacade implements ContactObserver {
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
                 list.add(dataOuter);
+             //  GameScene.plotter2.drawPoint(dataOuter.getWorldPoint().cpy().mul(32f),Color.RED,2);
             }
             if (source != null) {
                 ImpactData dataInner = this.detectFirstIntersectionDataInner(end, sourceWorldPoint, source);
