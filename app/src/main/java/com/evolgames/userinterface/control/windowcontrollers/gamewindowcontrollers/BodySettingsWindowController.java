@@ -61,6 +61,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     //Semi Automatic
     private Quantity<BodySettingsWindowController> fireRateQuantityField;
 
+    private Quantity<BodySettingsWindowController> slashSpeedQuantityField;
+
 
     private BodyModel bodyModel;
     private UserInterface userInterface;
@@ -131,6 +133,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setBombMinImpact(impactBombUsageProperties.getMinImpact());
                 break;
             case SLASHER:
+                UsageModel<SlashProperties> slashPropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
+                setSlashSpeed(slashUsageProperties.getSpeed());
                 break;
             case BLUNT:
                 break;
@@ -163,7 +168,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             rangedProperties.setNumberOfRounds(rounds);
         });
     }
-
+    private void setSlashSpeed(float speed) {
+        slashSpeedQuantityField.updateRatio(speed);
+    }
 
     private void setFireRate(float fireRate) {
         fireRateQuantityField.updateRatio(fireRate);
@@ -287,6 +294,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             break;
                         case SLASHER:
                             SlashProperties slasherProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.SLASHER);
+                           createSlashSpeedField(primaryId,1,()->
+                                   slashSpeedQuantityField.getBehavior().setChangeAction(() -> slasherProperties.setSpeed(slashSpeedQuantityField.getRatio())));
                             break;
                         case BLUNT:
                             break;
@@ -299,6 +308,22 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             }
         }
         updateLayout();
+    }
+
+    private void createSlashSpeedField(int primaryId, int secondaryId, Runnable action) {
+        TitledQuantity<BodySettingsWindowController> titledSlashSpeedQuantity = new TitledQuantity<>("Speed:", 8, "b", 5, 50);
+        slashSpeedQuantityField = titledSlashSpeedQuantity.getAttachment();
+        titledSlashSpeedQuantity.getAttachment().setBehavior(new QuantityBehavior<BodySettingsWindowController>(this, slashSpeedQuantityField) {
+            @Override
+            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+
+            }
+        });
+
+        FieldWithError slashSpeedFieldWithError = new FieldWithError(titledSlashSpeedQuantity);
+        SimpleSecondary<FieldWithError> slashSpeedElement = new SimpleSecondary<>(primaryId, secondaryId, slashSpeedFieldWithError);
+        window.addSecondary(slashSpeedElement);
+        action.run();
     }
 
     private void createFireRateField(int primaryId, int secondaryId,Runnable action) {
@@ -472,7 +497,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         if(e==BodyUsageCategory.SLASHER){
             UsageModel<SlashProperties> usage = new UsageModel<>("", e);
-            SlashProperties properties = usage.getProperties();
             bodyModel.getUsageModels().add(usage);
         }
     }

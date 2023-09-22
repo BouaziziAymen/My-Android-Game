@@ -15,11 +15,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
@@ -34,7 +32,6 @@ import com.evolgames.entities.blockvisitors.GameEntityMultiShatterVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.commandtemplate.TimedCommand;
-import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.contact.ContactObserver;
 import com.evolgames.entities.contact.GameEntityContactListener;
 import com.evolgames.entities.cut.Cut;
@@ -55,7 +52,6 @@ import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.pools.ImpactDataPool;
-import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
@@ -189,7 +185,16 @@ public class WorldFacade implements ContactObserver {
             }
             splinter.setParentGameEntity(parentEntity);
             ArrayList<LayerBlock> layerBlocks = splinter.getBlocks();
-            layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream()).filter(associated -> associated instanceof JointBlock).map(associated -> (JointBlock) associated).forEachOrdered(jointBlock -> this.recreateJoint(jointBlock, splinter));
+            //Recreate Joints
+            layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream()).
+                    filter(associated -> associated instanceof JointBlock).
+                    map(associated -> (JointBlock) associated).
+                    forEachOrdered(jointBlock -> gameScene.getHands().forEach((k, h)->{
+                        if(h.isTouching() || jointBlock.getJointType() != JointDef.JointType.MouseJoint){
+                                jointBlock.recreate(splinter);
+                        }
+                    }));
+
             parentEntity.getParentGroup().addGameEntity(splinter);
             if (parentEntity.getType() == SpecialEntityType.Head) {
                 if (GeometryUtils.PointInPolygon(0, 9, splinter.getBlocks().get(0).getVertices())) {
@@ -203,6 +208,7 @@ public class WorldFacade implements ContactObserver {
         });
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
+
 
     public Vector2 detectFirstIntersectionPointWithExceptions(Vector2 first, Vector2 second, List<GameEntity> excepted) {
         simpleDetectionRayCastCallback.reset();
@@ -1055,12 +1061,6 @@ public class WorldFacade implements ContactObserver {
         if (!entity.isAlive()) {
             return;
         }
-        ArrayList<JointEdge> jointsEdges = entity.getBody().getJointList();
-        for (JointEdge jointedge : jointsEdges) {
-            if (jointedge.joint instanceof MouseJoint) {
-                gameScene.onDestroyMouseJoint((MouseJoint) jointedge.joint);
-            }
-        }
         Invoker.addBodyDestructionCommand(entity);
 
         if (recycle) {
@@ -1113,15 +1113,17 @@ public class WorldFacade implements ContactObserver {
         gameEntity.getMesh().attachChild(line);
         gameScene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
     }
-
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
+        this.performScreenCut(worldPoint1,worldPoint2,null);
+    }
+    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2,GameEntity excepted) {
         Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
         final float L = 10;
         Vector2 L1 = worldPoint1.cpy().sub(u.x * L, u.y * L);
         Vector2 L2 = worldPoint2.cpy().add(u.x * L, u.y * L);
         final float f1 = L / (2 * L + worldPoint1.dst(worldPoint2));
         final float f2 = 1 - f1;
-
+        cutRayCastCallback.setExcepted(excepted);
         cutRayCastCallback.reset();
         cutRayCastCallback.setDirection(true);
         getPhysicsWorld().rayCast(cutRayCastCallback, L1, L2);
@@ -1326,6 +1328,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void scheduleGameEntityToDestroy(GameEntity entity, int time) {
+
         TimedCommand command = new TimedCommand(time, () -> addGameEntityToDestroy(entity, true));
         timedCommands.add(command);
     }
@@ -1339,50 +1342,12 @@ public class WorldFacade implements ContactObserver {
         this.groundModel.setGameEntity(ground.getGameEntityByIndex(0));
     }
 
-    public void recreateJoint(JointBlock jointBlock, GameEntity splinter) {
-        jointBlock.substitute(splinter);
-    }
+
 
     public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
-        JointCreationCommand jointCreationCommand = Invoker.addJointCreationCommand(jointDef, entity1.getParentGroup(), entity1, entity2);
-        JointBlock jointBlock1 = new JointBlock();
-        JointBlock jointBlock2 = new JointBlock();
-        jointBlock1.setCommand(jointCreationCommand);
-        jointBlock2.setCommand(jointCreationCommand);
-        Vector2 anchorA = null;
-        Vector2 anchorB = null;
-
-        switch (jointDef.type) {
-            case Unknown:
-            case GearJoint:
-            case MouseJoint:
-            case LineJoint:
-            case PulleyJoint:
-            case DistanceJoint:
-            case FrictionJoint:
-                break;
-            case RevoluteJoint:
-                anchorA = ((RevoluteJointDef) jointDef).localAnchorA.cpy().mul(32f);
-                anchorB = ((RevoluteJointDef) jointDef).localAnchorB.cpy().mul(32f);
-                break;
-            case PrismaticJoint:
-                anchorA = ((PrismaticJointDef) jointDef).localAnchorA.cpy().mul(32f);
-                anchorB = ((PrismaticJointDef) jointDef).localAnchorB.cpy().mul(32f);
-                break;
-            case WeldJoint:
-                anchorA = ((WeldJointDef) jointDef).localAnchorA.cpy().mul(32f);
-                anchorB = ((WeldJointDef) jointDef).localAnchorB.cpy().mul(32f);
-                break;
-        }
-
-        if (anchorA != null) {
-            jointBlock1.initialization(new ArrayList<>(Collections.singletonList(anchorA)), new JointProperties(jointDef), 0, JointBlock.JointZoneType.PUNCTUAL, JointBlock.Position.A);
-            entity1.getBlocks().get(0).addAssociatedBlock(jointBlock1);
-        }
-        if (anchorB != null) {
-            jointBlock2.initialization(new ArrayList<>(Collections.singletonList(anchorB)), new JointProperties(jointDef), 0, JointBlock.JointZoneType.PUNCTUAL, JointBlock.Position.B);
-            entity2.getBlocks().get(0).addAssociatedBlock(jointBlock2);
-        }
+        if(entity1.getName().equals("Ground"))
+      Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2);
+        else Invoker.addJointCreationCommand(jointDef, entity1.getParentGroup(), entity1, entity2);
     }
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {
@@ -1427,5 +1392,7 @@ public class WorldFacade implements ContactObserver {
                     '}';
         }
     }
-
+    public void addNonCollidingPair(GameEntity entity1, GameEntity entity2){
+        this.contactListener.addNonCollidingPair(entity1,entity2);
+    }
 }

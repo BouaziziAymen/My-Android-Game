@@ -26,6 +26,7 @@ public class Switcher extends Container implements Temporal {
     private final IntConsumer onIndexChanged;
     private SwitcherState state = SwitcherState.REST;
     private float f;
+    private int index;
     private int counter;
 
     public Switcher(float x, float y, List<TextureRegion> regions, float imageWidth, IntConsumer onIndexChanged) {
@@ -120,6 +121,12 @@ public class Switcher extends Container implements Temporal {
             correctF();
         }
         counter--;
+        if(index==list.size()-1){
+            index = 0;
+        } else {
+            index = index + 1;
+        }
+        onIndexChanged.accept(index);
     }
 
     private void moveBackward() {
@@ -129,15 +136,24 @@ public class Switcher extends Container implements Temporal {
             correctF();
         }
         counter++;
+        if(index==0){
+            index = list.size()-1;
+        } else {
+            index = index - 1;
+        }
+        onIndexChanged.accept(index);
     }
 
     private void resetVisibility() {
         for (Image image : list) {
             image.setVisible(false);
         }
+
         if (list.size() >= 2) {
-            getPrevious().setVisible(true);
             getCurrent().setVisible(true);
+            getPrevious().setVisible(true);
+        } if(list.size()==1) {
+            getPrevious().setVisible(true);
         }
     }
 
@@ -173,12 +189,6 @@ public class Switcher extends Container implements Temporal {
                 else f = Math.round(f) + 0.001f;
                 state = SwitcherState.REST;
             }
-            int round = Math.round(f);
-            if (round == 0) {
-                onIndexChanged.accept(list.size() - 1);
-            } else {
-                onIndexChanged.accept(round - 1);
-            }
         }
         resetVisibility();
         float a = EaseStrongIn.getValue(f % 1.0f) * imageWidth;
@@ -187,30 +197,37 @@ public class Switcher extends Container implements Temporal {
         float u2 = 0;
         float U2 = imageWidth - a;
         float p2 = a - imageWidth;
+
         Image right = getCurrent();
-        Image left = getPrevious();
-        left.setLimitX0(u1);
-        left.setLimitX1(U1);
         right.setLimitX0(u2);
         right.setLimitX1(U2);
         right.setLowerBottomX(a + marginX);
-        left.setLowerBottomX(p2 + marginX);
+        if(list.size()>1) {
+            Image left = getPrevious();
+            left.setLimitX0(u1);
+            left.setLimitX1(U1);
+            left.setLowerBottomX(p2 + marginX);
+        }
     }
 
     public void reset(int... usageTextureRegions) {
-        this.onIndexChanged.accept(0);
+        if(usageTextureRegions.length>0) {
+            index = 0;
+            this.onIndexChanged.accept(index);
+        }
         for (Image image : list) {
             this.removeElement(image);
         }
         for (int index : usageTextureRegions) {
             this.addImage(new Image(marginX, marginY, regions.get(index)));
         }
-        this.resetVisibility();
         this.f = 1f;
-        if (usageTextureRegions.length == 0) {
+        this.resetVisibility();
+
+        if (usageTextureRegions.length == 0||usageTextureRegions.length==1) {
             left.updateState(Button.State.DISABLED);
             right.updateState(Button.State.DISABLED);
-        } else {
+        }  else {
             left.updateState(Button.State.NORMAL);
             right.updateState(Button.State.NORMAL);
         }

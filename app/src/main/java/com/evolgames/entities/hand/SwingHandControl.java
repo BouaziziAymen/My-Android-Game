@@ -1,38 +1,37 @@
 package com.evolgames.entities.hand;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.evolgames.entities.GameEntity;
+import com.evolgames.scenes.hand.Hand;
+
+import org.andengine.util.math.MathConstants;
 
 public class SwingHandControl extends HandControl {
-    private final int duration;
-    private final float impulse;
-    private final MouseJoint mouseJoint;
-    private float dx = -2f;
+    private final float speed;
+    private final Hand hand;
+    private final float initialAngle;
 
-    public SwingHandControl(Body weapon, MouseJoint mouseJoint,int lifespan, int duration, float impulse) {
-        super(weapon,lifespan);
-        this.impulse = impulse;
-        this.duration = duration;
-        this.mouseJoint = mouseJoint;
+    public SwingHandControl(Hand hand, int speed) {
+        super((int) ((0.3f*600)/speed));
+        this.speed = speed;
+        this.hand = hand;
+        this.initialAngle = this.hand.getGrabbedEntity().getBody().getAngle();
     }
-private boolean affected = false;
+
     @Override
     public void run() {
         super.run();
-        this.weapon.setBullet(true);
-
-        if(!isDead()&&count<duration/2){
-            if(!affected){
-                affected = true;
-                this.mouseJoint.setTarget(this.mouseJoint.getTarget().cpy().add(dx,0));
+        if(hand.getMouseJoint()==null){
+            return;
+        }
+        Body body = hand.getMouseJoint().getBodyB();
+        if(body!=null) {
+            if(!isDead()) {
+                body.setAngularVelocity(speed);
+            } else {
+                body.setAngularVelocity(0f);
             }
-            weapon.setAngularVelocity(impulse/100);
-        } else {
-            if(affected){
-                affected = false;
-                this.mouseJoint.setTarget(this.mouseJoint.getTarget().cpy().add(-dx,0));
-            }
-           // this.weapon.setBullet(false);
         }
     }
 }

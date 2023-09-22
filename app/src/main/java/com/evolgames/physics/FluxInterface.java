@@ -1,7 +1,6 @@
 package com.evolgames.physics;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 

@@ -1,6 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -15,7 +16,6 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.scenes.GameScene;
 
 import org.andengine.entity.primitive.Line;
@@ -189,8 +189,7 @@ public class GameEntity extends EntityWithBody {
 
 
     public boolean computeTouch(TouchEvent touch) {
-
-        float[] converted = mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
+        float[] converted = this.mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
         for (Block<?, ?> block : layerBlocks) {
             if (GeometryUtils.PointInPolygon(converted[0], converted[1], block.getVertices())) {
                 return true;
@@ -410,5 +409,12 @@ public class GameEntity extends EntityWithBody {
                 }
             }
         }
+    }
+
+    public boolean isPointInside(Vector2 target) {
+        for(Fixture f:body.getFixtureList()){
+            if(f.testPoint(target))return true;
+        }
+        return false;
     }
 }

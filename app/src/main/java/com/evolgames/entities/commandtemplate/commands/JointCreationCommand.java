@@ -5,14 +5,20 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.properties.JointProperties;
+import com.evolgames.helpers.utilities.BlockUtils;
+
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JointCreationCommand extends Command {
@@ -21,6 +27,9 @@ public class JointCreationCommand extends Command {
     private GameEntity entity1;
     private GameEntity entity2;
     private Joint joint;
+    private JointBlock jointBlock1;
+    private JointBlock jointBlock2;
+    private boolean createdJointBlocks;
 
     public JointCreationCommand(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
         this.jointDef = jointDef;
@@ -31,11 +40,64 @@ public class JointCreationCommand extends Command {
     @Override
     protected void run() {
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
+        if(this.joint!=null&& this.joint instanceof MouseJoint){
+            MouseJointDef mouseJointDef = (MouseJointDef) this.jointDef;
+            Vector2 point = mouseJointDef.bodyB.getWorldPoint(jointBlock2.getVertices().get(0).cpy().mul(1/32f)).cpy();
+            mouseJointDef.target.set(point);
+        }
         this.joint = physicsWorld.createJoint(jointDef);
         if (this.joint instanceof MouseJoint) {
             Invoker.gameScene.setMouseJoint((MouseJoint) joint, entity2.getHangedPointerId());
         }
+        if(!createdJointBlocks) {
+            addJointBlocks();
+        }
         setAborted(true);
+    }
+
+    private void addJointBlocks() {
+        this.createdJointBlocks = true;
+        jointBlock1 = new JointBlock();
+        jointBlock2 = new JointBlock();
+        jointBlock1.setCommand(this);
+        jointBlock2.setCommand(this);
+        Vector2 anchorA = null;
+        Vector2 anchorB = null;
+
+        switch (jointDef.type) {
+            case Unknown:
+            case GearJoint:
+            case MouseJoint:
+                MouseJointDef mouseJointDef = ((MouseJointDef) jointDef) ;
+                anchorB = jointDef.bodyB.getLocalPoint(mouseJointDef.target).cpy().mul(32);
+                System.out.println("AncherB:"+anchorB);
+            case LineJoint:
+            case PulleyJoint:
+            case DistanceJoint:
+            case FrictionJoint:
+                break;
+            case RevoluteJoint:
+                anchorA = ((RevoluteJointDef) jointDef).localAnchorA.cpy().mul(32f);
+                anchorB = ((RevoluteJointDef) jointDef).localAnchorB.cpy().mul(32f);
+                break;
+            case PrismaticJoint:
+                anchorA = ((PrismaticJointDef) jointDef).localAnchorA.cpy().mul(32f);
+                anchorB = ((PrismaticJointDef) jointDef).localAnchorB.cpy().mul(32f);
+                break;
+            case WeldJoint:
+                anchorA = ((WeldJointDef) jointDef).localAnchorA.cpy().mul(32f);
+                anchorB = ((WeldJointDef) jointDef).localAnchorB.cpy().mul(32f);
+                break;
+        }
+
+        if (anchorA != null) {
+            jointBlock1.initialization(jointDef.type,new ArrayList<>(Collections.singletonList(anchorA)), new JointProperties(jointDef), 0, JointBlock.Position.A);
+            BlockUtils.getNearestBlock(anchorA,entity1.getBlocks()).addAssociatedBlock(jointBlock1);
+        }
+        if (anchorB != null) {
+            jointBlock2.initialization(jointDef.type,new ArrayList<>(Collections.singletonList(anchorB)), new JointProperties(jointDef), 0, JointBlock.Position.B);
+            BlockUtils.getNearestBlock(anchorB,entity2.getBlocks()).addAssociatedBlock(jointBlock2);
+        }
     }
 
     @Override
@@ -43,10 +105,6 @@ public class JointCreationCommand extends Command {
         jointDef.bodyA = entity1.getBody();
         jointDef.bodyB = entity2.getBody();
         return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
-    }
-
-    public Joint getJoint() {
-        return this.joint;
     }
 
     public void substitute(GameEntity splinter, JointBlock.Position position) {
@@ -58,7 +116,6 @@ public class JointCreationCommand extends Command {
                entity2 = splinter;
                break;
        }
-        setAborted(false);
     }
 
     public void updateAnchor(Vector2 anchor, JointBlock.Position position) {
@@ -86,6 +143,8 @@ public class JointCreationCommand extends Command {
            case PulleyJoint:
                break;
            case MouseJoint:
+               MouseJointDef mouseJointDef = (MouseJointDef) jointDef;
+               mouseJointDef.target.set(((MouseJoint)this.joint).getTarget());
                break;
            case GearJoint:
                break;
@@ -105,8 +164,8 @@ public class JointCreationCommand extends Command {
 
     }
 
-    public boolean isConcerned(GameEntity entity) {
-        return entity==entity1||entity==entity2;
+    public JointDef getJointDef() {
+        return jointDef;
     }
 
     private boolean isBodyAlive(Body body){
@@ -120,5 +179,9 @@ public class JointCreationCommand extends Command {
             }
         });
         return result.get();
+    }
+
+    public Joint getJoint() {
+        return joint;
     }
 }

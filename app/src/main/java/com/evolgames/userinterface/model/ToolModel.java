@@ -15,8 +15,7 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.ProjectileProperties;
-import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.entities.usage.Slash;
+import com.evolgames.entities.usage.Slasher;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -49,7 +48,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
     private final GameScene scene;
@@ -183,6 +181,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         meshes.clear();
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) continue;
+            if(bodyModel.getLayers().stream().allMatch(e->e.getPoints().size()<3))continue;
             Vector2 center = GeometryUtils.calculateCentroid(bodyModel.getLayers().get(0).getPoints());
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel, center);
             MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(center.x, center.y, 0, blocks);
@@ -245,8 +244,8 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             usageBodyModel.getGameEntity().getUseList().add(timeBomb);
         }));
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.SLASHER).forEach(e->{
-            Slash slash = new Slash(usageBodyModel.getGameEntity(),scene.getWorldFacade());
-            usageBodyModel.getGameEntity().getUseList().add(slash);
+            Slasher slasher = new Slasher(usageBodyModel.getGameEntity(),scene.getWorldFacade());
+            usageBodyModel.getGameEntity().getUseList().add(slasher);
         }));
 
         //Create joints

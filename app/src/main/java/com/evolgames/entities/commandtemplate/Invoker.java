@@ -1,16 +1,13 @@
 package com.evolgames.entities.commandtemplate;
 
-import android.graphics.Paint;
-
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.commands.BodyCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.BodyDestructionCommand;
 import com.evolgames.entities.commandtemplate.commands.Command;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
@@ -94,9 +91,9 @@ public class Invoker {
         }
     }
 
-    public static JointCreationCommand addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2){
+    public static void addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2){
         JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2);
         gameGroup.getCommands().add(command);
-        return command;
     }
+
 }

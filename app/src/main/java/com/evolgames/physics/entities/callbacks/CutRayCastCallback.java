@@ -17,6 +17,7 @@ public class CutRayCastCallback implements RayCastCallback {
     private final ArrayList<ArrayList<Flag>> flags;
     private final ArrayList<LayerBlock> coveredBlocks;
     private final ArrayList<Fixture> coveredFixtures;
+    private GameEntity excepted;
 
 
     public CutRayCastCallback() {
@@ -47,7 +48,7 @@ public class CutRayCastCallback implements RayCastCallback {
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
         LayerBlock block = (LayerBlock) fixture.getUserData();
         GameEntity gameEntity = (GameEntity) fixture.getBody().getUserData();
-        if(!gameEntity.isAlive()){
+        if((excepted!=null&&excepted==gameEntity)||!gameEntity.isAlive()){
             return 1;
         }
         Vector2 Point = Vector2Pool.obtain(point);
@@ -77,4 +78,9 @@ public class CutRayCastCallback implements RayCastCallback {
     public ArrayList<Fixture> getCoveredFixtures() {
         return coveredFixtures;
     }
+
+    public void setExcepted(GameEntity excepted) {
+        this.excepted = excepted;
+    }
+
 }

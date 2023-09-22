@@ -9,6 +9,7 @@ import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.scenes.PlayerAction;
+import com.evolgames.scenes.PlayerSpecialAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -51,6 +52,7 @@ import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.CreationZone;
+import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
@@ -86,6 +88,9 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserInterface extends Container implements Touchable {
     //batches
@@ -160,6 +165,8 @@ public class UserInterface extends Container implements Touchable {
             return true;
         }
     };
+    private final Switcher particularUsageSwitcher;
+    private final Switcher generalUsageSwitcher;
     private ImageShape imageShape;
     private ToolModel toolModel;
     private float zoomFactor = 1f;
@@ -174,7 +181,7 @@ public class UserInterface extends Container implements Touchable {
         sceneBatcher.setZIndex(1);
 
 
-      //  new Grid(pGameScene);
+        new Grid(pGameScene);
         this.scene = pGameScene;
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;
@@ -183,14 +190,14 @@ public class UserInterface extends Container implements Touchable {
         this.jointsWindowController = jointWindowController;
         this.outlineController = outlineController;
 
-        Switcher switcher1 = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->{});
-        switcher1.reset();
-        addElement(switcher1);
+        particularUsageSwitcher = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->pGameScene.setSpecialAction(PlayerSpecialAction.values()[index+1]));
+        particularUsageSwitcher.reset();
+        addElement(particularUsageSwitcher);
 
 
-        Switcher switcher2 = new Switcher(800f-72f,300f+64f,ResourceManager.getInstance().generalUsages,32f,(index)->pGameScene.setAction(PlayerAction.values()[index]));
-        switcher2.reset(0,1,2,3,4,5);
-        addElement(switcher2);
+        generalUsageSwitcher = new Switcher(800f-72f,300f+64f,ResourceManager.getInstance().generalUsages,32f,(index)->pGameScene.setAction(PlayerAction.values()[index]));
+        generalUsageSwitcher.reset(0,1,2,3,4,5);
+        addElement(generalUsageSwitcher);
 
 
         layerWindowController.setUserInterface(this);
@@ -1057,8 +1064,13 @@ public class UserInterface extends Container implements Touchable {
     public void setMoveElementController(ControlElement moveElementController) {
         this.moveElementController = moveElementController;
     }
+    private List<Integer> particularUsageIds = new ArrayList<>();
 
     public ControlElement getMoveElementControlElement() {
         return moveElementController;
+    }
+
+    public void onParticularUsageUpdated(int[] usages){
+       this.particularUsageSwitcher.reset(usages);
     }
 }

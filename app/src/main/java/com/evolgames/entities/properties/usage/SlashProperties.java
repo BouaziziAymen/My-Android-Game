@@ -3,17 +3,17 @@ package com.evolgames.entities.properties.usage;
 import com.evolgames.entities.properties.Properties;
 
 public class SlashProperties extends Properties {
-    private float force;
+    private float speed;
     @Override
     public Properties copy() {
         return null;
     }
 
-    public float getForce() {
-        return force;
+    public float getSpeed() {
+        return speed;
     }
 
-    public void setForce(float force) {
-        this.force = force;
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 }

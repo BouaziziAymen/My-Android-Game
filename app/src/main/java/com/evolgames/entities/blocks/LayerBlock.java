@@ -12,7 +12,6 @@ import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.physics.PhysicsConstants;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
@@ -272,16 +271,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
 
     public void setLiquidQuantity(int liquidQuantity) {
         this.liquidQuantity = liquidQuantity;
-    }
-
-    public float calculatePulverizationEnergy(LayerBlock layerBlock) {
-        float totalRatio = 0;
-        for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
-            float ratio = (float) (1 - coatingBlock.getProperties().getBurnRatio() / 1.1f);
-            totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
-        }
-        totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
-        return PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
     }
 
 }

@@ -24,14 +24,18 @@ public class UsageButtonsController extends Controller {
 
     public void addGameEntityControls(GameEntity gameEntity) {
         int col = 0;
+        List<Integer> usageIds = new ArrayList<>();
         for (Use use : gameEntity.getUseList()) {
-                if (use.isControlsCreated()) {
-                    use.showUI();
-                } else {
-                    use.createControls(this, userInterface);
-                }
-            uiElements.add(new UIElement(gameEntity, use, col++));
+            if (use.getUseId() != -1) {
+                usageIds.add(use.getUseId());
             }
+            if (use.isControlsCreated()) {
+                use.showUI();
+            } else {
+                use.createControls(this, userInterface);
+            }
+            uiElements.add(new UIElement(gameEntity, use, col++));
+        }
         updateLayout();
     }
 
@@ -52,8 +56,12 @@ public class UsageButtonsController extends Controller {
     }
 
     public void removeGameEntityControls(GameEntity gameEntity) {
+        List<Integer> usageIds = new ArrayList<>();
         for (Use use : gameEntity.getUseList()) {
-         use.hideUI();
+            if (use.getUseId() != -1) {
+                usageIds.add(use.getUseId());
+            }
+            use.hideUI();
         }
         uiElements.removeIf(e -> e.key == gameEntity);
         updateLayout();

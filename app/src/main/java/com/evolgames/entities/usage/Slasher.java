@@ -2,12 +2,18 @@ package com.evolgames.entities.usage;
 
 import com.evolgames.entities.GameEntity;
 import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.hand.Hand;
 
-public class Slash extends Use {
+import org.andengine.input.touch.TouchEvent;
 
+public class Slasher extends Use {
 
-    public Slash(GameEntity gameEntity, WorldFacade worldFacade) {
+    private final GameEntity slashingEntity;
+    private final WorldFacade worldFacade;
 
+    public Slasher(GameEntity gameEntity, WorldFacade worldFacade) {
+       this.slashingEntity = gameEntity;
+       this.worldFacade = worldFacade;
     }
 
     @Override
@@ -34,4 +40,10 @@ public class Slash extends Use {
     public void hideUI() {
 
     }
+
+    @Override
+    public int getUseId() {
+        return 5;
+    }
+
 }

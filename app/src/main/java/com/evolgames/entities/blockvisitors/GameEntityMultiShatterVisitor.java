@@ -1,7 +1,5 @@
 package com.evolgames.entities.blockvisitors;
 
-import static com.evolgames.physics.PhysicsConstants.TENACITY_FACTOR;
-
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.properties.LayerProperties;

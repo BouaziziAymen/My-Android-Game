@@ -20,4 +20,5 @@ public abstract class Use {
     public abstract void updateUIPosition(int row, int offset);
     public abstract void showUI();
     public abstract void hideUI();
+    public abstract int getUseId();
 }

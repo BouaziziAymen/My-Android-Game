@@ -1,28 +1,29 @@
 package com.evolgames.entities.hand;
 
-import com.badlogic.gdx.physics.box2d.Body;
-
 public abstract class HandControl {
-    protected Body weapon;
+
     protected int count;
+    protected Runnable runnable;
     private  boolean dead = false;
-    private boolean hasLifespan = false;
-    private int lifespan;
+    private final boolean hasLifespan;
+    protected int lifespan;
+    private final HandAction handAction;
 
-    public HandControl(Body weapon) {
-        this.weapon = weapon;
+    public HandControl(){
+        this.hasLifespan = false;
+        this.handAction = HandAction.NONE;
     }
-
-    public HandControl(Body weapon, int lifespan) {
+    public HandControl(HandAction handAction){
+        this.hasLifespan = false;
+        this.handAction = handAction;
+    }
+    public HandControl(int lifespan) {
         this.hasLifespan = true;
-        this.weapon = weapon;
         this.lifespan = lifespan;
+        this.handAction = HandAction.NONE;
     }
 
     public void run(){
-        if(weapon==null){
-            dead = true;
-        }
         if(dead){
             return;
         }
@@ -40,5 +41,13 @@ public abstract class HandControl {
 
     public void setDead(boolean dead) {
         this.dead = dead;
+    }
+
+    public HandAction getHandAction() {
+        return handAction;
+    }
+
+    public void setRunnable(Runnable runnable) {
+        this.runnable = runnable;
     }
 }

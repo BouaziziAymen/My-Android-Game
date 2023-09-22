@@ -26,7 +26,6 @@ import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 
 import java.util.ArrayList;
@@ -245,5 +244,10 @@ public class Trigger extends Use{
     public void hideUI() {
         triggerButton.setVisible(false);
         reloadButton.setVisible(false);
+    }
+
+    @Override
+    public int getUseId() {
+        return 3;
     }
 }

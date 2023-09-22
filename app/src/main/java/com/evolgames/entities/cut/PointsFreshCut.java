@@ -1,7 +1,6 @@
 package com.evolgames.entities.cut;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blocks.LayerBlock;
 
 import java.util.List;
 

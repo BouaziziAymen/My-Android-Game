@@ -9,7 +9,6 @@ import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.Utils;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 

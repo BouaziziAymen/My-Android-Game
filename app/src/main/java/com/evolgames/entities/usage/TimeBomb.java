@@ -91,4 +91,9 @@ public class TimeBomb extends Use{
     public void hideUI() {
         triggerButton.setVisible(false);
     }
+
+    @Override
+    public int getUseId() {
+        return -1;
+    }
 }

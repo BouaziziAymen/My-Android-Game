@@ -247,6 +247,7 @@ public class ResourceManager {
         for(int i=1;i<=6;i++) {
             this.usages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/usages/" + i + ".png"));
         }
+        Collections.reverse(usages);
 
         this.generalUsages = new ArrayList<>();
         for(int i=1;i<=6;i++) {

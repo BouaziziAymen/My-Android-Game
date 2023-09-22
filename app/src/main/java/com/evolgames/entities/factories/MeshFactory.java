@@ -19,7 +19,7 @@ import static com.evolgames.helpers.utilities.GeometryUtils.transformation;
 
 public class MeshFactory {
 
-    private static EarClippingTriangulator triangulator = new EarClippingTriangulator();
+    private static final EarClippingTriangulator triangulator = new EarClippingTriangulator();
     private static final MeshFactory INSTANCE = new MeshFactory();
     private GameScene gameScene;
 

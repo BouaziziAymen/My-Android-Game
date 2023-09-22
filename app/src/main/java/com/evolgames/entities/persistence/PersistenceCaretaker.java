@@ -22,6 +22,7 @@ import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
+import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.helpers.utilities.ToolUtils;
@@ -705,6 +706,16 @@ public class PersistenceCaretaker {
                 usageModel.setProperties(impactBombUsageProperties);
                 usageBombIds = convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
                 impactBombUsageProperties.setBombIds(usageBombIds);
+                break;
+            case SLASHER:
+                SlashProperties slashProperties = loadProperties(propertiesElement, SlashProperties.class);
+                usageModel.setProperties(slashProperties);
+                break;
+            case BLUNT:
+                break;
+            case STABBER:
+                break;
+            case THROWING:
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);

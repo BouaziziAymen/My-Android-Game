@@ -18,6 +18,7 @@ import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -61,7 +62,6 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.inputs.controllers.Movable;
 
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.camera.hud.HUD;
@@ -97,30 +97,29 @@ import javax.xml.parsers.ParserConfigurationException;
 public class GameScene extends AbstractScene implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener,
         IOnSceneTouchListener {
+    private static final ArrayList<GameGroup> gameGroups = new ArrayList<>();
     public static int step;
     public static boolean pause = false;
     public static Plotter plotter;
     public static Plotter plotter2;
-    private static final ArrayList<GameGroup> gameGroups = new ArrayList<>();
     private final WorldFacade worldFacade;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     public Ragdoll ragdoll;
     HashMap<Integer, Hand> hands = new HashMap<>();
     float x, y;
-    private Vector2 point1;
-    private Vector2 point2;
+    private Vector2 point1,point2;
     private Line line;
-    private PlayerAction action = PlayerAction.Drag;
     private UserInterface userInterface;
     private HUD hud;
     private boolean scroll = false;
     private float mPinchZoomStartedCameraZoomFactor;
-    private Movable movable;
     private GameGroup gameGroup;
     private Mesh theMesh;
     private UsageButtonsController usageButtonsController;
-
+    private PlayerAction action = PlayerAction.Drag;
+    private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
+    private JointCreationCommand mouseJointCreationCommand;
 
     public GameScene() {
         super();
@@ -173,7 +172,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c2_grenade.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_sword.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
@@ -184,7 +183,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ProjectileOptionController projectileOptionController = new ProjectileOptionController(this, keyboardController, toolModel);
         CasingOptionController ammoOptionController = new CasingOptionController(keyboardController);
         BombOptionController bombOptionController = new BombOptionController(keyboardController);
-        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, ammoOptionController,bombOptionController, outlineController);
+        ItemWindowController itemWindowController = new ItemWindowController(projectileOptionController, ammoOptionController, bombOptionController, outlineController);
         LayerSettingsWindowController layerSettingsWindowController = new LayerSettingsWindowController(layerWindowController, keyboardController);
         BodySettingsWindowController bodySettingsWindowController = new BodySettingsWindowController(layerWindowController, keyboardController);
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
@@ -192,7 +191,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
 
         userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, bombOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
-        this.usageButtonsController = new UsageButtonsController(userInterface,this);
+        this.usageButtonsController = new UsageButtonsController(userInterface, this);
         this.usageButtonsController.init();
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
@@ -296,7 +295,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
 
 
-
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
         ArrayList<Vector2> vertices2 = new ArrayList<>();
 
@@ -390,9 +388,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
 
 
-
-        if(false)
-        pulverizationTest();
+        if (false) {
+            pulverizationTest();
+        }
 
 
         if (false)
@@ -459,13 +457,13 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
         this.x = touchEvent.getX() / 32f;
         this.y = touchEvent.getY() / 32f;
-        if(false)
-            if(touchEvent.isActionDown()){
-                getWorldFacade().performFlux(new Vector2(x,y),null,gameGroup.getGameEntityByIndex(0));
+        if (false)
+            if (touchEvent.isActionDown()) {
+                getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup.getGameEntityByIndex(0));
             }
         if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null,x, y, 1f,0.3f,0.3f,0.2f,100f,0.1f,1f);
+                getWorldFacade().createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f);
             }
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
@@ -498,10 +496,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
 
         if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
-            processGrabbing(touchEvent);
+            processHandling(touchEvent);
         }
-
-
         if (action == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
@@ -536,53 +532,34 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
     }
 
-    private void processGrabbing(TouchEvent touchEvent) {
+    public GameEntity getTouchedEntity(TouchEvent touchEvent) {
+        for (GameGroup gameGroup : gameGroups)
+            for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
+                GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                    return entity;
+                }
+            }
+        return null;
+    }
+
+
+    private void processHandling(TouchEvent touchEvent) {
         int pointerID = touchEvent.getPointerID();
 
         if (!hands.containsKey(pointerID)) {
-            hands.put(pointerID,  new Hand(worldFacade));
+            hands.put(pointerID, new Hand(this));
         }
         Hand hand = hands.get(pointerID);
-        if (touchEvent.isActionDown()) {
-            for (GameGroup gameGroup : gameGroups)
-                for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
-                    GameEntity entity = gameGroup.getGameEntities().get(k);
-                    if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                        assert hand != null;
-                        if(hand.getGrabbedEntity()==null||hand.getGrabbedEntity()!=entity) {
-                            if(hand.getGrabbedEntity()!=null) {
-                                usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
-                                hand.release();
-                            }
-                            hand.grab(entity, touchEvent);
-                            if(action==PlayerAction.Hold){
-                                hand.holdHand(0);
-                            }
-                            usageButtonsController.addGameEntityControls(entity);
-                        } else {
-                            hand.resumeGrab();
-                        }
-                        break;
-                    }
-                }
-        } else if (touchEvent.isActionCancel() || touchEvent.isActionOutside() || touchEvent.isActionUp()) {
-            if (hand != null&&hand.getGrabbedEntity()!=null) {
-                if(this.action != PlayerAction.Hold) {
-                    usageButtonsController.removeGameEntityControls(hand.getGrabbedEntity());
-                    hand.release();
-                } else {
-                    hand.stopFollow();
-                }
-            }
-        }
-        for(Hand h:hands.values()){
-            h.onSceneTouchEvent(touchEvent);
-        }
+        assert hand != null;
+        hand.onSceneTouchEvent(touchEvent);
+
     }
+
 
     public void onDestroyMouseJoint(MouseJoint j) {
         Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
-        hand.ifPresent(value -> value.setMouseJoint(null));
+        hand.ifPresent(Hand::onMouseJointDestroyed);
     }
 
     public void setMouseJoint(MouseJoint joint, int hangedPointerId) {
@@ -701,7 +678,34 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     public void setAction(PlayerAction action) {
+        System.out.println("------------------"+action);
         this.action = action;
+    }
+    public void setSpecialAction(PlayerSpecialAction action) {
+        this.specialAction = action;
+    }
+    public PlayerSpecialAction getSpecialAction() {
+        return specialAction;
+    }
+
+    public PlayerAction getPlayerAction() {
+        return action;
+    }
+
+    public void onUsagesUpdated() {
+            List<Integer> usageSet = new ArrayList<>();
+            this.hands.forEach((key,h)->{
+               if(h.getGrabbedEntity()!=null){
+                   h.getGrabbedEntity().getUseList().forEach(u->{
+                       if(this.action == PlayerAction.Hold)
+                       usageSet.add(u.getUseId());
+                   });
+               }
+            });
+            if(!usageSet.contains(specialAction.ordinal())){
+                this.setSpecialAction(PlayerSpecialAction.None);
+            }
+            this.userInterface.onParticularUsageUpdated(usageSet.stream().mapToInt(e-> e).toArray());
     }
 }
 

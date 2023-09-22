@@ -5,13 +5,13 @@ import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.caliper.Caliper;
 import com.evolgames.entities.caliper.Polygon;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.Polarity;
@@ -596,7 +596,22 @@ public class BlockUtils {
         }
 
     }
-
+    public static LayerBlock getNearestBlock(Vector2 point, List<LayerBlock> blocks) {
+        float minDistance = Float.MAX_VALUE;
+        LayerBlock result = null;
+        for (LayerBlock layerBlock : blocks) {
+            CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(point);
+            if(nearest==null){
+                continue;
+            }
+            float distance = nearest.distance(point);
+            if (distance < minDistance) {
+                result = layerBlock;
+                minDistance = distance;
+            }
+        }
+        return result;
+    }
     public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
 
 
@@ -712,6 +727,9 @@ public class BlockUtils {
 
 
         Polygon polygon = new Polygon(root.getVertices());
+        if(polygon.edgeCount()==0){
+            return;
+        }
         Rectangle rectangle = Caliper.minimumBox(polygon);
 
         rectangle.getPoint(0).add(center);
