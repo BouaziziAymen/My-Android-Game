@@ -2,7 +2,8 @@ package com.evolgames.entities.usage;
 
 import com.evolgames.scenes.PlayerSpecialAction;
 
-public class Slasher extends MeleeUse {
+public class Stabber extends MeleeUse{
+    private boolean active;
 
     @Override
     public void onStep(float deltaTime) {
@@ -31,8 +32,14 @@ public class Slasher extends MeleeUse {
 
     @Override
     public PlayerSpecialAction getAction() {
-        return PlayerSpecialAction.Slash;
+        return PlayerSpecialAction.Stab;
     }
 
+    public boolean isActive() {
+        return active;
+    }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

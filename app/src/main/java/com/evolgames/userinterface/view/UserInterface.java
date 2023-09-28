@@ -52,7 +52,6 @@ import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.CreationZone;
-import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
@@ -90,6 +89,9 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserInterface extends Container implements Touchable {
@@ -171,6 +173,7 @@ public class UserInterface extends Container implements Touchable {
     private ToolModel toolModel;
     private float zoomFactor = 1f;
     private ControlElement moveElementController;
+    private PlayerSpecialAction[] particularUsages;
 
     public UserInterface(GameActivity gameActivity, GameScene pGameScene, LayerWindowController layerWindowController, JointWindowController jointWindowController, LayerSettingsWindowController layerSettingsController, BodySettingsWindowController bodySettingsWindowController, JointSettingsWindowController jointSettingsWindowController, ItemWindowController itemWindowController, ProjectileOptionController projectileOptionController, CasingOptionController casingOptionController, BombOptionController bombOptionController, ItemSaveWindowController itemSaveWindowController, DecorationSettingsWindowController decorationSettingsWindowController, OptionsWindowController optionsWindowController, OutlineController outlineController, KeyboardController keyboardController) {
         this.activity = gameActivity;
@@ -181,7 +184,7 @@ public class UserInterface extends Container implements Touchable {
         sceneBatcher.setZIndex(1);
 
 
-        new Grid(pGameScene);
+        //new Grid(pGameScene);
         this.scene = pGameScene;
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;
@@ -190,7 +193,7 @@ public class UserInterface extends Container implements Touchable {
         this.jointsWindowController = jointWindowController;
         this.outlineController = outlineController;
 
-        particularUsageSwitcher = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->pGameScene.setSpecialAction(PlayerSpecialAction.values()[index+1]));
+        particularUsageSwitcher = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->pGameScene.setSpecialAction(this.particularUsages[index]));
         particularUsageSwitcher.reset();
         addElement(particularUsageSwitcher);
 
@@ -1064,13 +1067,17 @@ public class UserInterface extends Container implements Touchable {
     public void setMoveElementController(ControlElement moveElementController) {
         this.moveElementController = moveElementController;
     }
-    private List<Integer> particularUsageIds = new ArrayList<>();
 
     public ControlElement getMoveElementControlElement() {
         return moveElementController;
     }
 
-    public void onParticularUsageUpdated(int[] usages){
-       this.particularUsageSwitcher.reset(usages);
+
+    public void updateParticularUsageSwitcher(PlayerSpecialAction[] usages){
+        Arrays.sort(usages, Comparator.comparingInt(PlayerSpecialAction::ordinal));
+        this.particularUsages = Arrays.copyOf(usages,usages.length);
+        Arrays.sort(usages, Comparator.comparingInt(PlayerSpecialAction::ordinal).reversed());
+       this.particularUsageSwitcher.reset(Arrays.stream(usages).mapToInt(e->e.iconId).toArray());
     }
+
 }

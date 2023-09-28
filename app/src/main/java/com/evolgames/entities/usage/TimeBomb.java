@@ -6,6 +6,7 @@ import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.PlayerSpecialAction;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
@@ -93,7 +94,9 @@ public class TimeBomb extends Use{
     }
 
     @Override
-    public int getUseId() {
-        return -1;
+    public PlayerSpecialAction getAction() {
+        return null;
     }
+
+
 }

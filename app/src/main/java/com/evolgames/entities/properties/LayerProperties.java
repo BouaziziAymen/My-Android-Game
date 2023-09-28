@@ -16,6 +16,7 @@ public class LayerProperties extends ColoredProperties {
     private float restitution;
     private float friction;
     private float tenacity;
+    private float sharpness;
     private boolean juicy;
     private float juicinessDensity;
     private float juicinessLowerPressure;
@@ -165,5 +166,13 @@ public class LayerProperties extends ColoredProperties {
 
     public void setHeatResistance(float heatResistance) {
         this.heatResistance = heatResistance;
+    }
+
+    public float getSharpness() {
+        return sharpness;
+    }
+
+    public void setSharpness(float sharpness) {
+        this.sharpness = sharpness;
     }
 }

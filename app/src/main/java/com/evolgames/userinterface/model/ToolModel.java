@@ -16,6 +16,8 @@ import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.usage.Slasher;
+import com.evolgames.entities.usage.Stabber;
+import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.entities.usage.Trigger;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -244,8 +246,16 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             usageBodyModel.getGameEntity().getUseList().add(timeBomb);
         }));
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.SLASHER).forEach(e->{
-            Slasher slasher = new Slasher(usageBodyModel.getGameEntity(),scene.getWorldFacade());
+            Slasher slasher = new Slasher();
             usageBodyModel.getGameEntity().getUseList().add(slasher);
+        }));
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.STABBER).forEach(e->{
+            Stabber stabber = new Stabber();
+            usageBodyModel.getGameEntity().getUseList().add(stabber);
+        }));
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.THROWING).forEach(e->{
+            Throw throwable = new Throw();
+            usageBodyModel.getGameEntity().getUseList().add(throwable);
         }));
 
         //Create joints

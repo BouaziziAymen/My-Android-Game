@@ -11,16 +11,15 @@ public class Data {
 
     private int length = 0;
     private final float[][] data;
-    private float delta;
     private final GameEntity[] entities;
     private final LayerBlock[] blocks;
     private final Vector2 base;
 
     public Data(int n,Vector2 base) {
-        data = new float[n][3];
+        this.data = new float[n][4];
         this.base = base;
-        entities = new GameEntity[n];
-        blocks = new LayerBlock[n];
+        this.entities = new GameEntity[n];
+        this.blocks = new LayerBlock[n];
     }
 
 
@@ -32,11 +31,7 @@ public class Data {
         return entities;
     }
 
-    public float getDelta() {
-        return delta;
-    }
-
-    public void add(float begin, float end, float weight, GameEntity entity, LayerBlock layerBlock) {
+    public void add(float begin, float end, float weight,float sharpness, GameEntity entity, LayerBlock layerBlock) {
         if (begin <= end) {
             data[length][0] = begin;
             data[length][1] = end;
@@ -47,6 +42,7 @@ public class Data {
         entities[length] = entity;
         blocks[length] = layerBlock;
         data[length][2] = weight;
+        data[length][3] = sharpness;
         length++;
 
     }
@@ -55,6 +51,18 @@ public class Data {
         return length;
     }
 
+    public float getAverageSharpnessForAdvance(float advance) {
+        float sharpness = 0;
+        for (int i = 0; i < length; i++) {
+            float inf = data[i][0];
+            float sup = data[i][1];
+            if (advance >= inf) {
+                float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
+                sharpness += xAdvance * data[i][3];
+            }
+        }
+        return sharpness/advance;
+    }
     public float getEnergyForAdvance(float advance, float dL) {
         float energy = 0;
         for (int i = 0; i < length; i++) {
@@ -119,7 +127,7 @@ public class Data {
 
 
     public void findDelta() {
-        delta = getMax() - getMin();
+        float delta = getMax() - getMin();
     }
 
 

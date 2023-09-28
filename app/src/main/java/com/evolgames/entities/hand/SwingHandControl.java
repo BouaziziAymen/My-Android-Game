@@ -13,7 +13,7 @@ public class SwingHandControl extends HandControl {
     private final float initialAngle;
 
     public SwingHandControl(Hand hand, int speed) {
-        super((int) ((0.3f*600)/speed));
+        super((int) ((0.3f*600)/Math.abs(speed)));
         this.speed = speed;
         this.hand = hand;
         this.initialAngle = this.hand.getGrabbedEntity().getBody().getAngle();

@@ -6,6 +6,7 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -37,6 +38,7 @@ import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
+import com.evolgames.entities.usage.Projectile;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
@@ -191,7 +193,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
 
         userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, bombOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
-        this.usageButtonsController = new UsageButtonsController(userInterface, this);
+        this.usageButtonsController = new UsageButtonsController();
         this.usageButtonsController.init();
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
@@ -294,30 +296,46 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 }
         }
 
+        List<Vector2> countries = new ArrayList<Vector2>() {
+            {
+
+            }
+        };
 
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
-        ArrayList<Vector2> vertices2 = new ArrayList<>();
 
-        vertices2.add(obtain(-400, 0));
-        vertices2.add(obtain(-400, 20));
-        vertices2.add(obtain(400, 20));
-        vertices2.add(obtain(400, 0));
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+            add(obtain(-400, 0));
+            add(obtain(-400, 20));
+            add(obtain(400, 20));
+            add(obtain(400, 0));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0));
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+            add(obtain(200, 15));
+            add(obtain(200, 20));
+            add(obtain(340, 20));
+            add(obtain(340, 15));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
 
-
-        LayerBlock block3 = BlockFactory.createLayerBlock(vertices2, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0);
-        //LayerBlock block4 = BlockFactory.createBlockA(vertices3, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), groundFilter), 0);
-
-        blocks2.clear();
-//        blocks2.add(block1);
-        blocks2.add(block3);
-        // blocks2.add(block4);
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+            add(obtain(100, 18));
+            add(obtain(100, 20));
+            add(obtain(50, 20));
+            add(obtain(50, 18));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+            add(obtain(140, 18));
+            add(obtain(140, 16));
+            add(obtain(50, 16));
+            add(obtain(50, 18));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(3)), 0));
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
         GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY, (short) -1);
         this.worldFacade.setGround(groundGroup);
 
-        if (true) {
+        if (false) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
 //GameEntityFactory.getInstance().createTest();
@@ -401,6 +419,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         if (false)
             projectileTest();
 
+
     }
 
     private void pulverizationTest() {
@@ -416,11 +435,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             LayerBlock layerBlock = new LayerBlock();
             Random random = new Random();
             //VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float) (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
-            ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6);
+            ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6,400,240,50);
             //vertices.clear();
             //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
             layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0)), 0);
             BlockUtils.computeCoatingBlocks(layerBlock);
+        }
+    }
+    private ArrayList<Vector2> points;
+    private void projectionTest(TouchEvent touchEvent){
+        GameScene.plotter2.detachChildren();
+        if(this.points==null) {
+            this.points = GeometryUtils.generateRandomSpecialConvexPolygon(9, 400, 240, 90);
+        }
+        GameScene.plotter2.drawPolygon(this.points,Color.RED);
+        Vector2 p = new Vector2(touchEvent.getX(),touchEvent.getY());
+        Vector2 proj = GeometryUtils.calculateProjection(p, this.points);
+        if(proj!=null) {
+            GameScene.plotter2.drawPoint(proj, Color.GREEN, 3);
+            GameScene.plotter2.drawPoint(p, Color.YELLOW, 3);
+            GameScene.plotter2.drawLine2(proj, p, Color.GREEN, 3);
         }
     }
 
@@ -433,7 +467,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
             GeometryUtils.rotateVectorRad(u, angle);
             ArrayList<Vector2> vertices1 = new ArrayList<>();
-            vertices1.add(obtain(0, -10));
+            vertices1.add(obtain(0, -20));
             vertices1.add(obtain(-6, -5));
             vertices1.add(obtain(0, 15));
             vertices1.add(obtain(6, -5));
@@ -447,7 +481,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(30)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
             GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
             GameGroup proj = new GameGroup(gameEntity);
-            gameEntity.setProjectile(true);
+            gameEntity.getUseList().add(new Projectile());
             addGameGroup(proj);
         }
     }
@@ -457,6 +491,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
         this.x = touchEvent.getX() / 32f;
         this.y = touchEvent.getY() / 32f;
+        if(false)
+        projectionTest(touchEvent);
         if (false)
             if (touchEvent.isActionDown()) {
                 getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup.getGameEntityByIndex(0));
@@ -532,14 +568,29 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
     }
 
-    public GameEntity getTouchedEntity(TouchEvent touchEvent) {
-        for (GameGroup gameGroup : gameGroups)
+    public Pair<GameEntity,Vector2> getTouchedEntity(TouchEvent touchEvent) {
+        GameEntity result = null;
+        Vector2 anchor = null;
+        float minDis = 12f;
+        for (GameGroup gameGroup : gameGroups) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
-                if (entity.computeTouch(touchEvent) && entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                    return entity;
+                if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                    Vector2 proj = entity.computeTouch(touchEvent);
+                    if (proj != null) {
+                        float dis = proj.dst(touchEvent.getX(), touchEvent.getY());
+                        if(dis<minDis){
+                            minDis = dis;
+                            result = entity;
+                            anchor = proj;
+                        }
+                    }
                 }
             }
+        }
+        if(result!=null) {
+            return new Pair<>(result, anchor);
+        }
         return null;
     }
 
@@ -562,9 +613,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         hand.ifPresent(Hand::onMouseJointDestroyed);
     }
 
-    public void setMouseJoint(MouseJoint joint, int hangedPointerId) {
-        if (hands.get(hangedPointerId) != null) {
-            Objects.requireNonNull(hands.get(hangedPointerId)).setMouseJoint(joint);
+    public void setMouseJoint(MouseJoint joint, GameEntity gameEntity) {
+        if (hands.get(gameEntity.getHangedPointerId()) != null) {
+            Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId())).setMouseJoint(joint,gameEntity);
         }
     }
 
@@ -678,8 +729,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     public void setAction(PlayerAction action) {
-        System.out.println("------------------"+action);
         this.action = action;
+        if(action!=PlayerAction.Hold){
+            this.specialAction = PlayerSpecialAction.None;
+        }
     }
     public void setSpecialAction(PlayerSpecialAction action) {
         this.specialAction = action;
@@ -693,19 +746,24 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     public void onUsagesUpdated() {
-            List<Integer> usageSet = new ArrayList<>();
+            List<PlayerSpecialAction> usageSet = new ArrayList<>();
             this.hands.forEach((key,h)->{
                if(h.getGrabbedEntity()!=null){
                    h.getGrabbedEntity().getUseList().forEach(u->{
-                       if(this.action == PlayerAction.Hold)
-                       usageSet.add(u.getUseId());
+                       if(this.action == PlayerAction.Hold) {
+                           if(u.getAction()!=null&&u.getAction().iconId!=-1) {
+                               usageSet.add(u.getAction());
+                           }
+                       }
                    });
                }
             });
-            if(!usageSet.contains(specialAction.ordinal())){
-                this.setSpecialAction(PlayerSpecialAction.None);
+            if(!usageSet.isEmpty()) {
+                if (!usageSet.contains(specialAction)) {
+                    this.setSpecialAction(PlayerSpecialAction.None);
+                }
             }
-            this.userInterface.onParticularUsageUpdated(usageSet.stream().mapToInt(e-> e).toArray());
+            this.userInterface.updateParticularUsageSwitcher(usageSet.toArray(new PlayerSpecialAction[0]));
     }
 }
 

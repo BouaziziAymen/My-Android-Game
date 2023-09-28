@@ -20,6 +20,7 @@ import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.physics.CollisionConstants;
+import com.evolgames.scenes.PlayerSpecialAction;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.model.BodyUsageCategory;
@@ -182,7 +183,8 @@ public class Trigger extends Use{
         float muzzleVelocity = getProjectileVelocity(projectileModel.getProperties().getMuzzleVelocity());
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
         BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(CollisionConstants.PROJECTILE_CATEGORY, CollisionConstants.PROJECTILE_MASK), muzzleVelocityVector), endProjected.x, endProjected.y, muzzleEntity.getBody().getAngle()), true);
-        GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, muzzleEntity.getBody().getAngle(), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true, "bullet");
+        GameEntity bullet = GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, muzzleEntity.getBody().getAngle(), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true, "bullet");
+        bullet.getUseList().add(new Projectile());
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
     }
 
@@ -247,7 +249,8 @@ public class Trigger extends Use{
     }
 
     @Override
-    public int getUseId() {
-        return 3;
+    public PlayerSpecialAction getAction() {
+        return null;
     }
+
 }

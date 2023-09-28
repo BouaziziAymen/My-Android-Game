@@ -57,6 +57,7 @@ public class PropertiesFactory {
         properties.setIgnitionTemperature(original.getIgnitionTemperature());
         properties.setFlameTemperature(original.getFlameTemperature());
         properties.setChemicalEnergy(original.getChemicalEnergy());
+        properties.setSharpness(original.getSharpness());
         return properties;
     }
 

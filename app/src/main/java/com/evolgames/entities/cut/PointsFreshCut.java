@@ -6,19 +6,14 @@ import java.util.List;
 
 public class PointsFreshCut extends FreshCut{
     private final List<Vector2> points;
-    private final Vector2 splashVelocity;
 
     public PointsFreshCut(List<Vector2> pointsData, float length, int limit, Vector2 velocity) {
-        super(length,limit);
+        super(length,limit, velocity);
         this.points = pointsData;
-        this.splashVelocity = velocity;
     }
 
     public List<Vector2> getPoints() {
         return points;
     }
 
-    public Vector2 getSplashVelocity() {
-        return splashVelocity;
-    }
 }

@@ -9,14 +9,20 @@ public class SegmentFreshCut extends FreshCut {
     private final boolean isInner;
 
     public SegmentFreshCut(Vector2 first, Vector2 second, boolean isInner, float density) {
-        super(first.dst(second), (int) (first.dst(second)* PhysicsConstants.BLEEDING_CONSTANT*density));
+        super(first.dst(second), (int) (first.dst(second)* PhysicsConstants.BLEEDING_CONSTANT*density),null);
+        this.first = first;
+        this.second = second;
+        this.isInner = isInner;
+    }
+    public SegmentFreshCut(Vector2 first, Vector2 second, boolean isInner, float density, Vector2 splashVelocity) {
+        super(first.dst(second), (int) (first.dst(second)* PhysicsConstants.BLEEDING_CONSTANT*density),splashVelocity);
         this.first = first;
         this.second = second;
         this.isInner = isInner;
     }
 
     public SegmentFreshCut(Vector2 first, Vector2 second,int limit, boolean isInner) {
-        super(first.dst(second),limit);
+        super(first.dst(second),limit, null);
         this.first = first;
         this.second = second;
         this.isInner = isInner;

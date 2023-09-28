@@ -73,24 +73,7 @@ public int getNumberOfEntities(){
 	return this.entities.getChildCount();
 }
 public void recreateJoint(final JointBluePrint bp){
-
-	ResourceManager.getInstance().activity.runOnUpdateThread(new Runnable() {
-																 @Override
-																 public void run() {
-
-																	 BasicFactory.createJoint(bp.definition);
-
-																 }
-
-
-															 }
-	);
-
-
-
-	
-		
-	
+	ResourceManager.getInstance().activity.runOnUpdateThread(() -> BasicFactory.createJoint(bp.definition));
 }
 
 public GameGroup.pairtype0 distance(Vector2 anchor, int ID){

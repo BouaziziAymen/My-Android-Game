@@ -7,6 +7,8 @@ import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
+import com.evolgames.entities.properties.usage.StabProperties;
+import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
@@ -42,8 +44,10 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
             case BLUNT:
                 break;
             case STABBER:
+                this.properties = (T) new StabProperties();
                 break;
             case THROWING:
+                this.properties = (T) new ThrowProperties();
                 break;
         }
         this.type = type;

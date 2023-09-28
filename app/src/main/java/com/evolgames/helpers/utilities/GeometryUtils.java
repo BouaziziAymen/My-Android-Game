@@ -372,13 +372,112 @@ public class GeometryUtils {
         else return -A;
     }
 
-    public static ArrayList<Vector2> generateRandomSpecialConvexPolygon(int n) {
+    public static ArrayList<Vector2> generateRandomSpecialConvexPolygon(int n, float x, float y, float L) {
         ArrayList<Vector2> polygon;
         do {
-            polygon = generateRandomConvexPolygon(n);
+            polygon = generateRandomConvexPolygon(L,x,y,n);
         } while (!testPolygon(polygon));
         return polygon;
     }
+    private static ArrayList<Vector2> generateRandomConvexPolygon(float L, float xC, float yC,int n) {
+        // Generate two lists of random X and Y coordinates
+        ArrayList<Float> xPool = new ArrayList<>(n);
+        ArrayList<Float> yPool = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+            xPool.add(Utils.RAND.nextFloat() * L + xC);
+            yPool.add(Utils.RAND.nextFloat() * L + yC);
+        }
+
+        // Sort them
+        Collections.sort(xPool);
+        Collections.sort(yPool);
+
+        // Isolate the extreme points
+        Float minX = xPool.get(0);
+        Float maxX = xPool.get(n - 1);
+        Float minY = yPool.get(0);
+        Float maxY = yPool.get(n - 1);
+
+        // Divide the interior points into two chains & Extract the vector components
+        ArrayList<Float> xVec = new ArrayList<>(n);
+        ArrayList<Float> yVec = new ArrayList<>(n);
+
+        float lastTop = minX, lastBot = minX;
+
+        for (int i = 1; i < n - 1; i++) {
+            float X = xPool.get(i);
+
+            if (Utils.RAND.nextBoolean()) {
+                xVec.add(X - lastTop);
+                lastTop = X;
+            } else {
+                xVec.add(lastBot - X);
+                lastBot = X;
+            }
+        }
+
+        xVec.add(maxX - lastTop);
+        xVec.add(lastBot - maxX);
+
+        float lastLeft = minY, lastRight = minY;
+
+        for (int i = 1; i < n - 1; i++) {
+            float Y = yPool.get(i);
+
+            if (Utils.RAND.nextBoolean()) {
+                yVec.add(Y - lastLeft);
+                lastLeft = Y;
+            } else {
+                yVec.add(lastRight - Y);
+                lastRight = Y;
+            }
+        }
+
+        yVec.add(maxY - lastLeft);
+        yVec.add(lastRight - maxY);
+
+        // Randomly CutFlag up the X- and Y-components
+        Collections.shuffle(yVec);
+
+        // Combine the paired up components into vectors
+        ArrayList<Vector2> vec = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+            vec.add(Vector2Pool.obtain(xVec.get(i), yVec.get(i)));
+        }
+
+        // Sort the vectors by angle
+        Collections.sort(vec, new VectorComparator());
+
+        // Lay them end-to-end
+        float x = 0, y = 0;
+        float minPolygonX = 0;
+        float minPolygonY = 0;
+        ArrayList<Vector2> points = new ArrayList<>(n);
+
+        for (int i = 0; i < n; i++) {
+            points.add(Vector2Pool.obtain(x, y));
+
+            x += vec.get(i).x;
+            y += vec.get(i).y;
+
+            minPolygonX = Math.min(minPolygonX, x);
+            minPolygonY = Math.min(minPolygonY, y);
+        }
+
+        // Move the polygon to the original min and max coordinates
+        float xShift = minX - minPolygonX;
+        float yShift = minY - minPolygonY;
+
+        for (int i = 0; i < n; i++) {
+            Vector2 p = points.get(i);
+            points.set(i, Vector2Pool.obtain(p.x + xShift, p.y + yShift));
+        }
+
+        return points;
+    }
+
 
     private static boolean testPolygon(ArrayList<Vector2> polygon) {
         for (int i = 0; i < polygon.size(); i++) {
@@ -711,5 +810,69 @@ public class GeometryUtils {
         }
         return false;
     }
+
+    public static Vector2 calculateProjection(Vector2 point, ArrayList<Vector2> vertices){
+        if(GeometryUtils.PointInPolygon(point,vertices)){
+            return point.cpy();
+        }
+        Vector2 result = null;
+        float minDis = Float.MAX_VALUE;
+        for(int i=0;i<vertices.size();i++){
+            int ni = i==vertices.size()-1?0:i+1;
+            Vector2 p1 = vertices.get(i).cpy();
+            Vector2 p2 = vertices.get(ni).cpy();
+            Vector2 proj = GeometryUtils.calculateProjection(p1,p2,point);
+            Vector2 p = PointOnLineSegment(p1,p2,proj,1f)?proj:proj.dst(p1)<proj.dst(p2)?p1:p2;
+            float dis = p.dst(point);
+            if(dis<minDis){
+                minDis = dis;
+                result = p;
+            }
+        }
+
+        return result;
+    }
+
+    public static Vector2 calculateProjection(Vector2 startPoint, Vector2 endPoint, Vector2 point) {
+        // Calculate the vector representing the line segment
+        float lineVectorX = endPoint.x - startPoint.x;
+        float lineVectorY = endPoint.y - startPoint.y;
+
+        // Calculate the vector from the line segment's start point to the given point
+        float pointVectorX = point.x - startPoint.x;
+        float pointVectorY = point.y - startPoint.y;
+
+        // Calculate the dot product of the two vectors
+        float dotProduct = (pointVectorX * lineVectorX) + (pointVectorY * lineVectorY);
+
+        // Calculate the magnitude squared of the line segment vector
+        float lineMagnitudeSquared = (lineVectorX * lineVectorX) + (lineVectorY * lineVectorY);
+
+        // Calculate the projection factor
+        float projectionFactor = dotProduct / lineMagnitudeSquared;
+
+        // Calculate the projection vector
+        float projectionX = startPoint.x + (projectionFactor * lineVectorX);
+        float projectionY = startPoint.y + (projectionFactor * lineVectorY);
+
+        // Create and return the projection point
+        return new Vector2(projectionX, projectionY);
+    }
+
+    public static boolean isPointInPolygon(float x, float y, List<Vector2> points) {
+
+        int i, j, nvert = points.size();
+        boolean c = false;
+
+        for (i = 0, j = nvert - 1; i < nvert; j = i++) {
+            if (points.get(i).y >= y != points.get(j).y >= y &&
+                    x <= (points.get(j).x - points.get(i).x) * (y - points.get(i).y) / (points.get(j).y - points.get(i).y) + points.get(i).x
+            )
+                c = !c;
+        }
+
+        return c;
+    }
+
 
 }

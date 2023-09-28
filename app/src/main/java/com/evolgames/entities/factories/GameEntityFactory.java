@@ -168,7 +168,6 @@ public class GameEntityFactory {
 
     public GameEntity createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile, String name) {
         GameEntity entity = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, name);
-        entity.setProjectile(isProjectile);
         parentGroup.addGameEntity(entity);
         return entity;
     }

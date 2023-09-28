@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.evolgames.entities.GameEntity;
 
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class GameEntityContactListener implements ContactListener {
     private final ContactObserver observer;
@@ -81,5 +82,9 @@ public class GameEntityContactListener implements ContactListener {
             }
         }
         return false;
+    }
+
+    public void removeNonCollidingPair(GameEntity entity1, GameEntity entity2) {
+        nonCollidingEntities.removeIf(pair -> (pair.first == entity1 && pair.second == entity2) || (pair.second == entity1 && pair.first == entity2));
     }
 }

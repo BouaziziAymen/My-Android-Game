@@ -39,7 +39,4 @@ public enum BodyUsageCategory {
         return name;
     }
 
-    public int getRegionIndex() {
-        return regionIndex;
-    }
 }

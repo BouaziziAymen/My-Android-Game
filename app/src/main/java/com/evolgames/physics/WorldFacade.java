@@ -7,6 +7,7 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 import static java.lang.Math.min;
 
+import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -15,9 +16,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
@@ -48,15 +47,18 @@ import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWithPolygonEmitter;
-import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.ragdoll.Ragdoll;
+import com.evolgames.entities.usage.Projectile;
+import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.helpers.utilities.PhysicsUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.entities.Data;
@@ -189,9 +191,9 @@ public class WorldFacade implements ContactObserver {
             layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream()).
                     filter(associated -> associated instanceof JointBlock).
                     map(associated -> (JointBlock) associated).
-                    forEachOrdered(jointBlock -> gameScene.getHands().forEach((k, h)->{
-                        if(h.isTouching() || jointBlock.getJointType() != JointDef.JointType.MouseJoint){
-                                jointBlock.recreate(splinter);
+                    forEachOrdered(jointBlock -> gameScene.getHands().forEach((k, h) -> {
+                        if (h.isTouching() || jointBlock.getJointType() != JointDef.JointType.MouseJoint) {
+                            jointBlock.recreate(splinter);
                         }
                     }));
 
@@ -261,7 +263,7 @@ public class WorldFacade implements ContactObserver {
     private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, int lowerRate, int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
             SegmentFreshCut sfc = (SegmentFreshCut) freshCut;
-            return new SegmentLiquidParticleWrapper(parentEntity, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y}, color, lowerRate, higherRate);
+            return new SegmentLiquidParticleWrapper(parentEntity, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y}, sfc.getSplashVelocity(), color, lowerRate, higherRate);
 
         } else {
             PointsFreshCut pfc = (PointsFreshCut) freshCut;
@@ -598,13 +600,17 @@ public class WorldFacade implements ContactObserver {
             touches.add(newTouch);
         }
 
-        if (entity1 == null || entity2 == null) {
+        if (entity1 == null || entity2 == null|| !entity1.isAlive() || !entity2.isAlive()) {
             return;
         }
-        if (!entity1.isAlive() || !entity2.isAlive()) {
-            return;
-        }
-        if (!(entity1.isProjectile() || entity2.isProjectile())) {
+
+        if (
+                !(
+                        entity1.hasUsage(Projectile.class)
+                        || entity2.hasUsage(Projectile.class)
+                        || (entity1.hasUsage(Stabber.class) && entity1.getUsage(Stabber.class).isActive())
+                        || (entity2.hasUsage(Stabber.class) && entity2.getUsage(Stabber.class).isActive())
+                )) {
             return;
         }
 
@@ -759,7 +765,7 @@ public class WorldFacade implements ContactObserver {
 
         final float collisionImpulse = computeCollisionImpulse(V1, V2, normal, m1, m2);
 
-        GameEntity penetrator = entity1.isProjectile() ? entity1 : entity2;
+        GameEntity penetrator = (entity1.hasUsage(Projectile.class)||entity1.hasUsage(Stabber.class)) ? entity1 : entity2;
         GameEntity penetrated = penetrator == entity1 ? entity2 : entity1;
 
 
@@ -788,7 +794,8 @@ public class WorldFacade implements ContactObserver {
 
         float infX = Math.max(infTPenetrator, infTPenetrated);
         float supX = Math.min(supTPenetrator, supTPenetrated);
-        float dT = Math.abs(supX - infX) / PhysicsConstants.PENETRATION_PRECISION;
+        float width = Math.abs(supX - infX);
+        float dT = width / PhysicsConstants.PENETRATION_PRECISION;
 
 
         int n = 0;
@@ -810,7 +817,7 @@ public class WorldFacade implements ContactObserver {
         Data[] penetratorTopography = new Data[p];
 
         int counter = 0;
-
+        Log.e("stab","----------BEGIN PENETRATION-----------");
 
         int index = 0;
         Vector2 movingPenetratorDetectionOriginStart = obtain();
@@ -869,22 +876,30 @@ public class WorldFacade implements ContactObserver {
             consumedEnergy = 0;
             for (index = 0; index < penetratedTopography.length; index++) {
                 if (penetratedTopography[index] != null && penetratorTopography[index] != null) {
-                    float dE = penetratedTopography[index].getEnergyForAdvance(advance, dT);
+                    float sharpness =   1f;
+                    float dE = penetratedTopography[index].getEnergyForAdvance(advance, dT) / (sharpness*10f+0.1f);
                     consumedEnergy += dE;
                 }
             }
             if (collisionImpulse - consumedEnergy < 0) {
                 if (step >= PhysicsConstants.PENETRATION_PRECISION / 10) {
-                    handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, advance);
-                    penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
+                    handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, advance,false);
+                    penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * 0.1f*consumedEnergy * massFraction), point);
                     checkOnePointImpact(penetratedBlock, obtain(point), collisionImpulse * massFraction, penetrated);
+                    if(penetrator.hasUsage(Projectile.class)) {
+                        mergeEntities(penetrated, penetrator, normal.cpy().mul(direction * advance), point);
+                    }
+                }
+                if(penetrator.hasUsage(Stabber.class))  {
+                    penetrator.getUsage(Stabber.class).getTargetGameEntities().add(penetrated);
+                    addNonCollidingPair(penetrator,penetrated);
                 }
                 return;
             }
             step++;
         }
 
-        handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, PhysicsConstants.PENETRATION_PRECISION * stepAdvance);
+        handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, PhysicsConstants.PENETRATION_PRECISION * stepAdvance,true);
 
         if (penetrated.getParentGroup().isLiving()) {
             for (GameEntity other : penetrated.getParentGroup().getGameEntities()) {
@@ -897,7 +912,7 @@ public class WorldFacade implements ContactObserver {
         checkOnePointImpact(penetratedBlock, obtain(point), 5 * collisionImpulse * massFraction, penetrated);
     }
 
-    private void handlePenetrationEffects(Vector2 normal, int direction, GameEntity penetrated, float dT, Set<EPoint> ePoints, float advance) {
+    private void handlePenetrationEffects(Vector2 normal, int direction, GameEntity penetrated, float dT, Set<EPoint> ePoints, float advance,boolean goThrough) {
 
         ePoints.stream().collect(Collectors.groupingBy(EPoint::getLayerBlock)).forEach((layerBlock, exPoints) -> {
             if (!layerBlock.getProperties().isJuicy()) {
@@ -905,20 +920,22 @@ public class WorldFacade implements ContactObserver {
             }
             List<Vector2> bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.ENTERING).map(v -> v.localPoint).collect(Collectors.toList());
             if (!bleedingPoints.isEmpty()) {
-                float length = dT * 32f * advance * 32f * bleedingPoints.size();
+                float length = 2f * 32f * dT * advance * bleedingPoints.size();
                 if (length > 1) {
                     FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()));
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
             }
-            bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.LEAVING).map(v -> v.localPoint).collect(Collectors.toList());
-            if (!bleedingPoints.isEmpty()) {
-                float length = dT * 32f * bleedingPoints.size();
-                if (length > 1) {
-                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), new Vector2());
-                    this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
-                    layerBlock.addFreshCut(freshCut);
+            if(goThrough) {
+                bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.LEAVING).map(v -> v.localPoint).collect(Collectors.toList());
+                if (!bleedingPoints.isEmpty()) {
+                    float length = 2f * 32f * advance * dT * bleedingPoints.size();
+                    if (length > 1) {
+                        FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), new Vector2());
+                        this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
+                        layerBlock.addFreshCut(freshCut);
+                    }
                 }
             }
         });
@@ -1021,6 +1038,7 @@ public class WorldFacade implements ContactObserver {
             Body body = entity.getBody();
 
             float density = layerBlock.getProperties().getDensity();
+            float sharpness = layerBlock.getProperties().getSharpness();
 
             boolean firstInside = layerBlock.testPoint(body, begin.x, begin.y);
             boolean secondInside = layerBlock.testPoint(body, end.x, end.y);
@@ -1029,20 +1047,20 @@ public class WorldFacade implements ContactObserver {
                 //inneer cut
                 float projection1 = GeometryUtils.projection(begin, center, eVector);
                 float projection2 = GeometryUtils.projection(end, center, eVector);
-                data.add(projection1, projection2, density, entity, layerBlock);
+                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
 
             } else if (firstInside) {
                 //half cut
                 Flag last = list.get(list.size() - 1);
                 float projection1 = GeometryUtils.projection(begin, center, eVector);
                 float projection2 = GeometryUtils.projection(last.getPoint(), center, eVector);
-                data.add(projection1, projection2, density, entity, layerBlock);
+                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
             } else if (secondInside) {
                 //half cut
                 Flag first = list.get(0);
                 float projection1 = GeometryUtils.projection(first.getPoint(), center, eVector);
                 float projection2 = GeometryUtils.projection(end, center, eVector);
-                data.add(projection1, projection2, density, entity, layerBlock);
+                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
 
             } else {
                 //full cut
@@ -1050,7 +1068,7 @@ public class WorldFacade implements ContactObserver {
                 Flag last = list.get(list.size() - 1);
                 float projection1 = GeometryUtils.projection(first.getPoint(), center, eVector);
                 float projection2 = GeometryUtils.projection(last.getPoint(), center, eVector);
-                data.add(projection1, projection2, density, entity, layerBlock);
+                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
             }
         }
 
@@ -1076,6 +1094,72 @@ public class WorldFacade implements ContactObserver {
         entity.setAlive(false);
     }
 
+    public void performScanFlux(Vector2 sourceWorldPoint, GameEntity gameEntity, FluxInterface fluxInterface, final int precision, boolean draw) {
+
+        //find lower and higher angles
+        float minAngle = Float.MAX_VALUE;
+        float maxAngle = -Float.MAX_VALUE;
+        Vector2 low = null;
+        Vector2 high = null;
+        LayerBlock lowBlock = null;
+        LayerBlock highBlock = null;
+        Vector2 joker = new Vector2();
+        for (LayerBlock block : gameEntity.getBlocks()) {
+            for (Vector2 v : block.getVertices()) {
+                joker.set(v.x / 32f, v.y / 32f);
+                Vector2 worldPoint = obtain(gameEntity.getBody().getWorldPoint(joker));
+                float angle = (float) (MathUtils.radiansToDegrees * Math.atan2(worldPoint.x - sourceWorldPoint.x, worldPoint.y - sourceWorldPoint.y));
+                if (angle < minAngle) {
+                    minAngle = angle;
+                    low = worldPoint;
+                    lowBlock = block;
+                }
+                if (angle > maxAngle) {
+                    maxAngle = angle;
+                    high = worldPoint;
+                    highBlock = block;
+                }
+            }
+        }
+        if (low != null && high != null) {
+            float angleDifference = maxAngle - minAngle;
+            float dAngle = angleDifference / precision;
+            Vector2 lowDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
+            if (fluxInterface != null) {
+                fluxInterface.computeFluxEffect(lowBlock, gameEntity, lowDirection, sourceWorldPoint, low, dAngle);
+            }
+            recycle(lowDirection);
+            for (int i = 1; i < precision; i++) {
+                Vector2 direction = obtain(low.x - sourceWorldPoint.x, low.y - sourceWorldPoint.y).nor();
+                float angle = i * dAngle;
+                GeometryUtils.rotateVectorDeg(direction, -angle);
+                Vector2 detectionEnd = obtain(sourceWorldPoint.x + direction.x * 200, sourceWorldPoint.y + direction.y * 200);
+                Vector2 target = detectIntersectionWithEntity(gameEntity, sourceWorldPoint, detectionEnd);
+                recycle(detectionEnd);
+                if (target != null && fluxInterface != null) {
+                    fluxInterface.computeFluxEffect(detectionRayCastCallback.getLayerBlock(), gameEntity, direction, sourceWorldPoint, target, dAngle);
+                    recycle(target);
+                }
+                recycle(direction);
+                if (draw && target != null) {
+                    GameScene.plotter2.drawPoint(target.cpy().mul(32f), Color.RED, 1, 1);
+                }
+            }
+            Vector2 highDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
+            if (fluxInterface != null) {
+                fluxInterface.computeFluxEffect(highBlock, gameEntity, highDirection, sourceWorldPoint, high, dAngle);
+            }
+            recycle(highDirection);
+            if (draw) {
+                GameScene.plotter2.drawLine2(sourceWorldPoint.cpy().mul(32f), low.mul(32f), Color.BLUE, 1);
+                GameScene.plotter2.drawLine2(sourceWorldPoint.cpy().mul(32f), high.mul(32f), Color.RED, 1);
+            }
+            recycle(high);
+            recycle(low);
+        }
+
+    }
+
     public void performFlux(Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
         Vector2 v = new Vector2(1, 0);
         //GameScene.plotter2.detachChildren();
@@ -1087,7 +1171,7 @@ public class WorldFacade implements ContactObserver {
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
                 list.add(dataOuter);
-             //  GameScene.plotter2.drawPoint(dataOuter.getWorldPoint().cpy().mul(32f),Color.RED,2);
+                //  GameScene.plotter2.drawPoint(dataOuter.getWorldPoint().cpy().mul(32f),Color.RED,2);
             }
             if (source != null) {
                 ImpactData dataInner = this.detectFirstIntersectionDataInner(end, sourceWorldPoint, source);
@@ -1109,14 +1193,16 @@ public class WorldFacade implements ContactObserver {
         float x2 = innerCut.second.x;
         float y2 = innerCut.second.y;
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
-        line.setColor(Color.RED);
+        line.setColor(Color.BLACK);
         gameEntity.getMesh().attachChild(line);
         gameScene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
     }
+
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
-        this.performScreenCut(worldPoint1,worldPoint2,null);
+        this.performScreenCut(worldPoint1, worldPoint2, null);
     }
-    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2,GameEntity excepted) {
+
+    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2, GameEntity excepted) {
         Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
         final float L = 10;
         Vector2 L1 = worldPoint1.cpy().sub(u.x * L, u.y * L);
@@ -1150,13 +1236,14 @@ public class WorldFacade implements ContactObserver {
 
             boolean firstInside = block.testPoint(body, worldPoint1.x, worldPoint1.y);
             boolean secondInside = block.testPoint(body, worldPoint2.x, worldPoint2.y);
-
+            Vector2 splashVelocity = worldPoint1.cpy().sub(worldPoint2).nor().mul(1000);
             Vector2 p1;
             Vector2 p2;
             if (firstInside && secondInside) {
                 p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
-                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true, block.getProperties().getJuicinessDensity());
+
+                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true, block.getProperties().getJuicinessDensity(), splashVelocity);
                 block.addFreshCut(fc);
                 createInnerCut(fc, entity, block);
             } else if (firstInside) {
@@ -1164,7 +1251,7 @@ public class WorldFacade implements ContactObserver {
                 p2 = body.getLocalPoint(list.get(list.size() - 1).getPoint()).cpy().mul(32f);
                 Vector2 V = p1.cpy().sub(p2);
                 if (V.len() > 4) {
-                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true, block.getProperties().getJuicinessDensity());
+                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true, block.getProperties().getJuicinessDensity(), splashVelocity);
                     block.addFreshCut(fc);
                     createInnerCut(fc, entity, block);
                 }
@@ -1173,7 +1260,7 @@ public class WorldFacade implements ContactObserver {
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
                 Vector2 V = p2.cpy().sub(p1);
                 if (V.len() > 4) {
-                    SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true, block.getProperties().getJuicinessDensity());
+                    SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true, block.getProperties().getJuicinessDensity(), splashVelocity);
                     block.addFreshCut(fc);
                     createInnerCut(fc, entity, block);
                 }
@@ -1343,10 +1430,9 @@ public class WorldFacade implements ContactObserver {
     }
 
 
-
     public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
-        if(entity1.getName().equals("Ground"))
-      Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2);
+        if (entity1.getName().equals("Ground"))
+            Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2);
         else Invoker.addJointCreationCommand(jointDef, entity1.getParentGroup(), entity1, entity2);
     }
 
@@ -1360,6 +1446,14 @@ public class WorldFacade implements ContactObserver {
             }
         }
         return sum;
+    }
+
+    public void addNonCollidingPair(GameEntity entity1, GameEntity entity2) {
+        this.contactListener.addNonCollidingPair(entity1, entity2);
+    }
+
+    public void removeNonCollidingPair(GameEntity entity1, GameEntity entity2) {
+        this.contactListener.removeNonCollidingPair(entity1, entity2);
     }
 
     enum EPointType {
@@ -1391,8 +1485,5 @@ public class WorldFacade implements ContactObserver {
                     ", ePointType=" + ePointType +
                     '}';
         }
-    }
-    public void addNonCollidingPair(GameEntity entity1, GameEntity entity2){
-        this.contactListener.addNonCollidingPair(entity1,entity2);
     }
 }

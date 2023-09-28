@@ -172,9 +172,9 @@ public class Switcher extends Container implements Temporal {
         }
         int index = currentIndex();
         if (state == SwitcherState.FORWARD) {
-            f += 0.05f;
+            f += 0.03f;
         } else if (state == SwitcherState.BACKWARD) {
-            f -= 0.05f;
+            f -= 0.03f;
         }
         correctF();
         int newIndex = currentIndex();
@@ -218,6 +218,7 @@ public class Switcher extends Container implements Temporal {
         for (Image image : list) {
             this.removeElement(image);
         }
+        list.clear();
         for (int index : usageTextureRegions) {
             this.addImage(new Image(marginX, marginY, regions.get(index)));
         }

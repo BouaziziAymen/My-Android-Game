@@ -9,6 +9,8 @@ import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
+import com.evolgames.entities.properties.usage.StabProperties;
+import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -135,7 +137,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             case SLASHER:
                 UsageModel<SlashProperties> slashPropertiesUsageModel =  this.bodyModel.getUsageModel(usageCategory);
                 SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
-                setSlashSpeed(slashUsageProperties.getSpeed());
+               // setSlashSpeed(slashUsageProperties.getSpeed());
                 break;
             case BLUNT:
                 break;
@@ -294,8 +296,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             break;
                         case SLASHER:
                             SlashProperties slasherProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.SLASHER);
-                           createSlashSpeedField(primaryId,1,()->
-                                   slashSpeedQuantityField.getBehavior().setChangeAction(() -> slasherProperties.setSpeed(slashSpeedQuantityField.getRatio())));
+                           //createSlashSpeedField(primaryId,1,()->
+                           //        slashSpeedQuantityField.getBehavior().setChangeAction(() -> slasherProperties.setSpeed(slashSpeedQuantityField.getRatio())));
                             break;
                         case BLUNT:
                             break;
@@ -497,6 +499,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         if(e==BodyUsageCategory.SLASHER){
             UsageModel<SlashProperties> usage = new UsageModel<>("", e);
+            bodyModel.getUsageModels().add(usage);
+        }
+        if(e==BodyUsageCategory.STABBER){
+            UsageModel<StabProperties> usage = new UsageModel<>("", e);
+            bodyModel.getUsageModels().add(usage);
+        }
+
+        if(e==BodyUsageCategory.THROWING){
+            UsageModel<ThrowProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
         }
     }

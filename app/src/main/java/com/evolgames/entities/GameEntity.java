@@ -1,7 +1,6 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -13,6 +12,7 @@ import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -36,7 +36,6 @@ public class GameEntity extends EntityWithBody {
     private SpecialEntityType type = SpecialEntityType.Default;
     private GameGroup parentGroup;
     private boolean alive = true;
-    private boolean projectile;
     private TexturedMeshBatch batch;
     private String name;
     private final ArrayList<LayerBlock> layerBlocks;
@@ -119,15 +118,6 @@ public class GameEntity extends EntityWithBody {
         return isFireSetup;
     }
 
-
-    public boolean isProjectile() {
-        return projectile;
-    }
-
-    public void setProjectile(boolean projectile) {
-        this.projectile = projectile;
-    }
-
     public void setupFire() {
         isFireSetup = true;
         fireParticleWrapperWithPolygonEmitter = new FireParticleWrapperWithPolygonEmitter(this);
@@ -188,14 +178,24 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public boolean computeTouch(TouchEvent touch) {
-        float[] converted = this.mesh.convertSceneCoordinatesToLocalCoordinates(touch.getX(), touch.getY());
+    public Vector2 computeTouch(TouchEvent touch) {
+        Vector2 t = this.body.getLocalPoint(new Vector2(touch.getX()/32f, touch.getY()/32f)).cpy().mul(32f);
+        Vector2 result = null;
+        float minDis = Float.MAX_VALUE;
         for (Block<?, ?> block : layerBlocks) {
-            if (GeometryUtils.PointInPolygon(converted[0], converted[1], block.getVertices())) {
-                return true;
+            Vector2 point = GeometryUtils.calculateProjection(t, block.getVertices());
+            if(point!=null) {
+                float dis = t.dst(point);
+                if(dis<minDis){
+                    minDis = dis;
+                    result = point;
+                }
             }
         }
-        return false;
+        if(result!=null) {
+            return body.getWorldPoint(result.cpy().mul(1/32f)).cpy().mul(32f);
+        }
+        return null;
     }
 
 
@@ -411,9 +411,19 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
-    public boolean isPointInside(Vector2 target) {
-        for(Fixture f:body.getFixtureList()){
-            if(f.testPoint(target))return true;
+    public  <T extends Use> T getUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj)) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
+    public  <T> boolean hasUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj)) {
+                return true;
+            }
         }
         return false;
     }

@@ -8,13 +8,14 @@ public class MoveWithRevertHandControl extends HandControl {
 
     private final Hand hand;
     private final Vector2 start;
+    private final HoldHandControl control;
 
     public MoveWithRevertHandControl(Hand hand, Vector2 target) {
         super(60);
         this.start = hand.getMouseJoint().getTarget().cpy();
         this.hand = hand;
         hand.getMouseJoint().setTarget(target);
-
+        this.control = new HoldHandControl(hand.getGrabbedEntity());
     }
 
     @Override
@@ -29,6 +30,7 @@ public class MoveWithRevertHandControl extends HandControl {
               runnable.run();
         }
         if (!isDead()) {
+            control.run();
             Vector2 v = mouseJoint.getBodyB().getLinearVelocity();
             if((v.len()<0.01f&&count>10)){
                setDead(true);

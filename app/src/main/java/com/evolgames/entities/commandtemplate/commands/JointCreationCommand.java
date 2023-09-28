@@ -47,7 +47,7 @@ public class JointCreationCommand extends Command {
         }
         this.joint = physicsWorld.createJoint(jointDef);
         if (this.joint instanceof MouseJoint) {
-            Invoker.gameScene.setMouseJoint((MouseJoint) joint, entity2.getHangedPointerId());
+            Invoker.gameScene.setMouseJoint((MouseJoint) joint, entity2);
         }
         if(!createdJointBlocks) {
             addJointBlocks();

@@ -954,7 +954,9 @@ public class BlockUtils {
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         for (LayerModel layerModel : bodyModel.getLayers()) {
             Vector2[] layerPointsArray = layerModel.getOutlinePoints();
-            if (layerPointsArray == null || layerPointsArray.length < 3) continue;
+            if (layerPointsArray == null || layerPointsArray.length < 3) {
+                continue;
+            }
 
             LayerProperties layerProperty = layerModel.getProperties();
 
