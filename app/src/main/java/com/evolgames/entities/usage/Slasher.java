@@ -10,29 +10,8 @@ public class Slasher extends MeleeUse {
     }
 
     @Override
-    public float getUIWidth() {
-        return 0;
-    }
-
-    @Override
-    public void updateUIPosition(int row, int offset) {
-
-    }
-
-    @Override
-    public void showUI() {
-
-    }
-
-    @Override
-    public void hideUI() {
-
-    }
-
-    @Override
     public PlayerSpecialAction getAction() {
         return PlayerSpecialAction.Slash;
     }
-
 
 }

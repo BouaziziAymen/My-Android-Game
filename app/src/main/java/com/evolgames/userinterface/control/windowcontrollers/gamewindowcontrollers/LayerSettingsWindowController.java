@@ -258,7 +258,6 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
 
 
-
         TitledQuantity<LayerSettingsWindowController> titledSharpnessQuantity = new TitledQuantity<>("Sharpness:", 10, "t", 5, 76);
         sharpnessQuantity = titledSharpnessQuantity.getAttachment();
         titledSharpnessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledSharpnessQuantity.getAttachment()) {

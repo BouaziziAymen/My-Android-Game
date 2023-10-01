@@ -22,6 +22,7 @@ import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
@@ -383,6 +384,7 @@ public class GameEntityFactory {
         leftHand.setName("leftHand");
         rightFoot.setName("rightFoot");
         leftFoot.setName("leftFoot");
+
 
 
         RevoluteJointDef revoluteJointDef = new RevoluteJointDef();

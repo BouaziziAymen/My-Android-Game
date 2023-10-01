@@ -12,7 +12,6 @@ import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
@@ -178,11 +177,15 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-    public Vector2 computeTouch(TouchEvent touch) {
+    public Vector2 computeTouch(TouchEvent touch, boolean withHold) {
         Vector2 t = this.body.getLocalPoint(new Vector2(touch.getX()/32f, touch.getY()/32f)).cpy().mul(32f);
         Vector2 result = null;
         float minDis = Float.MAX_VALUE;
         for (Block<?, ?> block : layerBlocks) {
+          LayerProperties layerProperties = (LayerProperties) block.getProperties();
+          if(layerProperties.getSharpness()>0.0f&&withHold){
+              continue;
+          }
             Vector2 point = GeometryUtils.calculateProjection(t, block.getVertices());
             if(point!=null) {
                 float dis = t.dst(point);
@@ -389,25 +392,24 @@ public class GameEntity extends EntityWithBody {
     public void createJuiceSources() {
         for (LayerBlock block : this.getBlocks()) {
             LayerProperties properties = block.getProperties();
-            if (properties.isJuicy()) {
                 ArrayList<FreshCut> freshCuts = block.getFreshCuts();
                 for (FreshCut freshCut : freshCuts) {
                     if (freshCut.getLength() < 1f) {
                         continue;
                     }
-                    if(freshCut.getLimit()>0) {
+                    if(freshCut.getLimit()>0&&properties.isJuicy()) {
                         gameScene.getWorldFacade().createJuiceSource(this, block, freshCut);
                     }
                     if (freshCut instanceof SegmentFreshCut) {
                         SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
                         if (segmentFreshCut.isInner()) {
                             Line line = new Line(segmentFreshCut.first.x, segmentFreshCut.first.y, segmentFreshCut.second.x, segmentFreshCut.second.y, 2, ResourceManager.getInstance().vbom);
-                            line.setColor(Color.RED);
+                            line.setColor(Color.BLACK);
                             mesh.attachChild(line);
                         }
                     }
                 }
-            }
+
         }
     }
 
@@ -421,7 +423,7 @@ public class GameEntity extends EntityWithBody {
     }
     public  <T> boolean hasUsage(Class<T> targetType) {
         for (Use obj : this.useList) {
-            if (targetType.isInstance(obj)) {
+            if (targetType.isInstance(obj) && obj.isActive()) {
                 return true;
             }
         }

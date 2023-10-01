@@ -75,23 +75,6 @@ public class TimeBomb extends Use{
         count = true;
     }
 
-    @Override
-    public float getUIWidth() {
-        return triggerButton.getWidth();
-    }
-
-    @Override
-    public void updateUIPosition(int row, int offset) {
-        triggerButton.setPosition(800 -offset- triggerButton.getWidth(), row*32f);
-    }
-    @Override
-    public void showUI() {
-        triggerButton.setVisible(true);
-    }
-    @Override
-    public void hideUI() {
-        triggerButton.setVisible(false);
-    }
 
     @Override
     public PlayerSpecialAction getAction() {

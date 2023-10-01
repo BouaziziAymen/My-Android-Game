@@ -16,7 +16,7 @@ public class LayerProperties extends ColoredProperties {
     private float restitution;
     private float friction;
     private float tenacity;
-    private float sharpness;
+    private float sharpness = 0f;
     private boolean juicy;
     private float juicinessDensity;
     private float juicinessLowerPressure;

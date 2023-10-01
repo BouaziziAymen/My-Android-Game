@@ -110,7 +110,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public Ragdoll ragdoll;
     HashMap<Integer, Hand> hands = new HashMap<>();
     float x, y;
-    private Vector2 point1,point2;
+    private Vector2 point1, point2;
     private Line line;
     private UserInterface userInterface;
     private HUD hud;
@@ -122,6 +122,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private PlayerAction action = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private JointCreationCommand mouseJointCreationCommand;
+    private ArrayList<Vector2> points;
+
 
     public GameScene() {
         super();
@@ -143,7 +145,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         createHUD();
 
     }
-
 
     public HUD getHud() {
         return hud;
@@ -304,26 +305,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
 
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(-400, 0));
             add(obtain(-400, 20));
             add(obtain(400, 20));
             add(obtain(400, 0));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0));
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(200, 15));
             add(obtain(200, 20));
             add(obtain(340, 20));
             add(obtain(340, 15));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
 
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(100, 18));
             add(obtain(100, 20));
             add(obtain(50, 20));
             add(obtain(50, 18));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>(){{
+        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(140, 18));
             add(obtain(140, 16));
             add(obtain(50, 16));
@@ -335,7 +336,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY, (short) -1);
         this.worldFacade.setGround(groundGroup);
 
-        if (false) {
+        if (true) {
             ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
         }
 //GameEntityFactory.getInstance().createTest();
@@ -435,23 +436,23 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             LayerBlock layerBlock = new LayerBlock();
             Random random = new Random();
             //VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float) (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
-            ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6,400,240,50);
+            ArrayList<Vector2> vertices = GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6, 400, 240, 50);
             //vertices.clear();
             //Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
             layerBlock.initialization(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().materials.get(0)), 0);
             BlockUtils.computeCoatingBlocks(layerBlock);
         }
     }
-    private ArrayList<Vector2> points;
-    private void projectionTest(TouchEvent touchEvent){
+
+    private void projectionTest(TouchEvent touchEvent) {
         GameScene.plotter2.detachChildren();
-        if(this.points==null) {
+        if (this.points == null) {
             this.points = GeometryUtils.generateRandomSpecialConvexPolygon(9, 400, 240, 90);
         }
-        GameScene.plotter2.drawPolygon(this.points,Color.RED);
-        Vector2 p = new Vector2(touchEvent.getX(),touchEvent.getY());
+        GameScene.plotter2.drawPolygon(this.points, Color.RED);
+        Vector2 p = new Vector2(touchEvent.getX(), touchEvent.getY());
         Vector2 proj = GeometryUtils.calculateProjection(p, this.points);
-        if(proj!=null) {
+        if (proj != null) {
             GameScene.plotter2.drawPoint(proj, Color.GREEN, 3);
             GameScene.plotter2.drawPoint(p, Color.YELLOW, 3);
             GameScene.plotter2.drawLine2(proj, p, Color.GREEN, 3);
@@ -473,6 +474,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             vertices1.add(obtain(6, -5));
 
             LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
+            properties1.setSharpness(1f);
             LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
             ArrayList<LayerBlock> blocks = new ArrayList<>();
@@ -491,8 +493,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
         this.x = touchEvent.getX() / 32f;
         this.y = touchEvent.getY() / 32f;
-        if(false)
-        projectionTest(touchEvent);
+        if (false)
+            projectionTest(touchEvent);
         if (false)
             if (touchEvent.isActionDown()) {
                 getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup.getGameEntityByIndex(0));
@@ -568,7 +570,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
     }
 
-    public Pair<GameEntity,Vector2> getTouchedEntity(TouchEvent touchEvent) {
+    public Pair<GameEntity, Vector2> getTouchedEntity(TouchEvent touchEvent, boolean withHold) {
         GameEntity result = null;
         Vector2 anchor = null;
         float minDis = 12f;
@@ -576,10 +578,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
                 if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
-                    Vector2 proj = entity.computeTouch(touchEvent);
+                    Vector2 proj = entity.computeTouch(touchEvent, withHold);
                     if (proj != null) {
                         float dis = proj.dst(touchEvent.getX(), touchEvent.getY());
-                        if(dis<minDis){
+                        if (dis < minDis) {
                             minDis = dis;
                             result = entity;
                             anchor = proj;
@@ -588,7 +590,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 }
             }
         }
-        if(result!=null) {
+        if (result != null) {
             return new Pair<>(result, anchor);
         }
         return null;
@@ -603,8 +605,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
         Hand hand = hands.get(pointerID);
         assert hand != null;
-        hand.onSceneTouchEvent(touchEvent);
-
+        if (touchEvent.getPointerID() == hand.getMousePointerId()) {
+            hand.onSceneTouchEvent(touchEvent);
+        }
     }
 
 
@@ -615,7 +618,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     public void setMouseJoint(MouseJoint joint, GameEntity gameEntity) {
         if (hands.get(gameEntity.getHangedPointerId()) != null) {
-            Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId())).setMouseJoint(joint,gameEntity);
+            Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId())).setMouseJoint(joint, gameEntity);
         }
     }
 
@@ -730,15 +733,45 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     public void setAction(PlayerAction action) {
         this.action = action;
-        if(action!=PlayerAction.Hold){
+        if (action != PlayerAction.Hold) {
             this.specialAction = PlayerSpecialAction.None;
         }
+        if (action == PlayerAction.Drag) {
+            this.hands.forEach((key, h) -> {
+                if (h.getMouseJoint() != null) {
+                    h.getMouseJoint().setMaxForce(h.getGrabbedEntity().getMassOfGroup() * 1000);
+                }
+            });
+        }
     }
-    public void setSpecialAction(PlayerSpecialAction action) {
-        this.specialAction = action;
-    }
+
     public PlayerSpecialAction getSpecialAction() {
         return specialAction;
+    }
+
+    public void setSpecialAction(PlayerSpecialAction action) {
+        this.specialAction = action;
+        final float maxHandForce;
+        switch (action) {
+            case None:
+                maxHandForce = 20000;
+                break;
+            case Slash:
+                maxHandForce = 20000;
+                break;
+            case Stab:
+                maxHandForce = 35000;
+                break;
+            case Throw:
+                maxHandForce = 50000;
+                break;
+            default:
+                maxHandForce = 0;
+        }
+        this.hands.forEach((key, h) -> {
+                    if (h.getMouseJoint() != null) h.getMouseJoint().setMaxForce(maxHandForce);
+                }
+        );
     }
 
     public PlayerAction getPlayerAction() {
@@ -746,24 +779,22 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     public void onUsagesUpdated() {
-            List<PlayerSpecialAction> usageSet = new ArrayList<>();
-            this.hands.forEach((key,h)->{
-               if(h.getGrabbedEntity()!=null){
-                   h.getGrabbedEntity().getUseList().forEach(u->{
-                       if(this.action == PlayerAction.Hold) {
-                           if(u.getAction()!=null&&u.getAction().iconId!=-1) {
-                               usageSet.add(u.getAction());
-                           }
-                       }
-                   });
-               }
-            });
-            if(!usageSet.isEmpty()) {
-                if (!usageSet.contains(specialAction)) {
-                    this.setSpecialAction(PlayerSpecialAction.None);
-                }
+        List<PlayerSpecialAction> usageSet = new ArrayList<>();
+        this.hands.forEach((key, h) -> {
+            if (h.getGrabbedEntity() != null) {
+                h.getGrabbedEntity().getUseList().forEach(u -> {
+                    if (this.action == PlayerAction.Hold) {
+                        if (u.getAction() != null && u.getAction().iconId != -1) {
+                            usageSet.add(u.getAction());
+                        }
+                    }
+                });
             }
-            this.userInterface.updateParticularUsageSwitcher(usageSet.toArray(new PlayerSpecialAction[0]));
+        });
+        if (!usageSet.contains(specialAction)) {
+            this.setSpecialAction(PlayerSpecialAction.None);
+        }
+        this.userInterface.updateParticularUsageSwitcher(usageSet.toArray(new PlayerSpecialAction[0]));
     }
 }
 

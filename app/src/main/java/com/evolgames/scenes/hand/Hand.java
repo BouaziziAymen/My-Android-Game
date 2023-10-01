@@ -32,8 +32,9 @@ import java.util.List;
 import java.util.Stack;
 
 public class Hand {
-    public static final int PRECISION = 5;
+    public static final int PRECISION = 50;
     private static final float HAND_EXTENT = 2f;
+    public static final float STAB_ADVANCE = 3f;
     private final GameScene gameScene;
     Stack<HandControl> handControlStack = new Stack<>();
     private int mousePointerId;
@@ -69,27 +70,29 @@ public class Hand {
     }
 
     public void moveToSlash(Vector2 target, GameEntity targetEntity) {
-        Log.e("stab","---------MOVE TO SLASH-----------");
         this.initialPoint = this.mouseJoint.getTarget().cpy();
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
-        this.grabbedEntity.getUsage(Slasher.class).getTargetGameEntities().add(targetEntity);
+        grabbedEntity.getUsage(Slasher.class).setActive(true);
+        grabbedEntity.getMesh().setZIndex(1);
+        gameScene.sortChildren();
 
-        final float[] values = new float[6];
+        final float[] values = new float[]{Float.MAX_VALUE,-Float.MAX_VALUE,0f,0f,Float.MAX_VALUE,-Float.MAX_VALUE,0f};
         gameScene.getWorldFacade().performScanFlux(target, grabbedEntity, (block, entity, direction, source, point, angle) -> {
             float blockSharpness = block.getProperties().getSharpness();
-            float dy = initialPoint.y - point.y;
+            float dy = point.y - initialPoint.y;
             if (dy < values[4]) {
                 values[4] = dy;
             }
             if (dy > values[5]) {
                 values[5] = dy;
             }
-            if (blockSharpness > 0.0f) {
+            if (blockSharpness >= 0.1f) {
+                float blockHardness = block.getProperties().getTenacity();
                 if (point.y > initialPoint.y) {
+                    values[6]+=blockHardness;
                     values[2] += blockSharpness;
                     values[3]++;
                 }
-
                 if (dy < values[0]) {
                     values[0] = dy;
                 }
@@ -103,7 +106,7 @@ public class Hand {
         float sharpLength = values[1] - values[0];
         float swordLength = values[5] - values[4];
         float sharpness = values[2] / values[3];
-
+        float hardness = values[6] / values[3];
         float distance = this.mouseJoint.getTarget().dst(target);
         Vector2 U = target.cpy().sub(mouseJoint.getTarget()).nor();
         Vector2 handTarget = mouseJoint.getTarget().cpy().add(U.cpy().mul(Math.max(0, distance - sharpLength / 2)));
@@ -112,7 +115,7 @@ public class Hand {
             return;
         }
         HandControl handControl1 = new SwingHandControl(this, (int) (-Math.signum(U.x) * 20));
-        MoveWithRevertHandControl handControl2 = new MoveWithRevertHandControl(this, handTarget);
+        MoveWithRevertHandControl handControl2 = new MoveWithRevertHandControl(this, handTarget, this.localPoint);
         List<Vector2> path = new ArrayList<>();
 
         handControl2.setRunnable(() -> {
@@ -121,11 +124,11 @@ public class Hand {
             if (path.size() >= 3 && Utils.PointInPolygon(target, path)) {
                 Vector2 u = new Vector2(1, 0);
                 GeometryUtils.rotateVectorDeg(u, (float) (Math.random() * 360));
-                float cutHalfLength = 0.2f * sharpness * sharpLength;
+                float cutHalfLength = 0.5f * sharpness * sharpLength;
                 Vector2 point1 = target.cpy().add(cutHalfLength * u.x, cutHalfLength * u.y);
                 Vector2 point2 = target.cpy().add(-cutHalfLength * u.x, -cutHalfLength * u.y);
                 if (cutHalfLength > 0.05f) {
-                    gameScene.getWorldFacade().performScreenCut(point1, point2, grabbedEntity);
+                    gameScene.getWorldFacade().performScreenCut(point1, point2, grabbedEntity,hardness);
                 }
                 path.clear();
             }
@@ -134,6 +137,9 @@ public class Hand {
 
         for (GameEntity gameEntity : targetEntity.getParentGroup().getGameEntities()) {
             gameScene.getWorldFacade().addNonCollidingPair(grabbedEntity, gameEntity);
+            if(this.grabbedEntity.hasUsage(Slasher.class)) {
+                this.grabbedEntity.getUsage(Slasher.class).getTargetGameEntities().add(gameEntity);
+            }
         }
 
     }
@@ -149,6 +155,8 @@ public class Hand {
         if (grabbedEntity != null && !targetEntities.isEmpty() && localPoint != null) {
             Vector2 point = grabbedEntity.getBody().getWorldPoint(localPoint).cpy();
             if (point.dst(initialPoint) < 0.01f && handControlStack.peek() instanceof HoldHandControl) {
+                grabbedEntity.getMesh().setZIndex(0);
+                gameScene.sortChildren();
                 if(grabbedEntity.hasUsage(Stabber.class)) {
                     Stabber stabber = grabbedEntity.getUsage(Stabber.class);
                     stabber.getTargetGameEntities().clear();
@@ -157,6 +165,7 @@ public class Hand {
                 if(grabbedEntity.hasUsage(Slasher.class)) {
                     Slasher slasher = grabbedEntity.getUsage(Slasher.class);
                     slasher.getTargetGameEntities().clear();
+                    slasher.setActive(false);
                 }
                 for(GameEntity targetEntity:targetEntities) {
                         gameScene.getWorldFacade().removeNonCollidingPair(grabbedEntity, targetEntity);
@@ -175,16 +184,10 @@ public class Hand {
     }
 
     private void releaseGrabbedEntity() {
+        grabbedEntity.getBody().setBullet(false);
         Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
         if (!handControlStack.isEmpty()) {
             handControlStack.peek().setDead(true);
-        }
-        if (this.grabbedEntity.getBody() != null) {
-            this.grabbedEntity.getBody().setBullet(false);
-        }
-        if(grabbedEntity.hasUsage(Stabber.class)){
-            Stabber stabber = grabbedEntity.getUsage(Stabber.class);
-            stabber.setActive(false);
         }
         this.grabbedEntity = null;
         this.mouseJoint = null;
@@ -192,9 +195,6 @@ public class Hand {
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
-        if (touchEvent.getPointerID() != this.mousePointerId) {
-            return;
-        }
         if (touchEvent.isActionDown()) {
             this.isTouching = true;
         }
@@ -208,7 +208,7 @@ public class Hand {
                 }
             }
             if (touchEvent.isActionDown() && mouseJoint == null) {
-                Pair<GameEntity, Vector2> touchData = gameScene.getTouchedEntity(touchEvent);
+                Pair<GameEntity, Vector2> touchData = gameScene.getTouchedEntity(touchEvent,false);
                 if (touchData != null) {
                     grab(touchData.first, touchEvent, touchData.second);
                 }
@@ -224,7 +224,7 @@ public class Hand {
                 }
             }
             if (touchEvent.isActionDown()) {
-                Pair<GameEntity, Vector2> touchData = gameScene.getTouchedEntity(touchEvent);
+                Pair<GameEntity, Vector2> touchData = gameScene.getTouchedEntity(touchEvent,true);
                 if (touchData != null) {
                     if (gameScene.getSpecialAction() == PlayerSpecialAction.None) {
                         if (grabbedEntity != null) {
@@ -251,7 +251,7 @@ public class Hand {
                         } else {
                             if (grabbedEntity != null) {
                                 Vector2 target = new Vector2(touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT, touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                                moveToStab(target, touchData.first);
+                                moveToStab(target);
                             }
                         }
                     }
@@ -264,17 +264,30 @@ public class Hand {
         }
     }
 
-    private void moveToStab(Vector2 target, GameEntity targetEntity) {
-        this.initialPoint = this.mouseJoint.getTarget().cpy();
-        this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
+    private void moveToStab(Vector2 target) {
+        if(grabbedEntity.getUsage(Stabber.class).isActive()){
+            return;
+        }
         Vector2 p = this.mouseJoint.getTarget();
         Vector2 u = target.cpy().sub(p).nor();
-        grabbedEntity.getUsage(Stabber.class).setActive(true);
-        Log.e("stab","---------MOVE TO STAB-----------");
-        HandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x+u.x*2f,p.y+u.y*2f));
+        float angle = (float) Math.atan2(u.y,u.x);
+        if(Math.cos(angle)>-0.8f){
+            return;
+        }
+        this.initialPoint = this.mouseJoint.getTarget().cpy();
+        this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
 
+
+        grabbedEntity.getMesh().setZIndex(-1);
+        gameScene.sortChildren();
+
+        Log.e("stab","---------MOVE TO STAB-----------");
+        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x+u.x* STAB_ADVANCE,p.y+u.y*3f),this.localPoint);
+        grabbedEntity.getUsage(Stabber.class).setActive(true);
+        grabbedEntity.getUsage(Stabber.class).setHandControl(handControl);
         handControlStack.add(handControl);
     }
+
 
     private void moveHand(TouchEvent touchEvent) {
         Vector2 vec = Vector2Pool.obtain(touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT, (touchEvent.getY()) / PIXEL_TO_METER_RATIO_DEFAULT);
@@ -304,5 +317,9 @@ public class Hand {
 
     public boolean isTouching() {
         return isTouching;
+    }
+
+    public int getMousePointerId() {
+        return mousePointerId;
     }
 }

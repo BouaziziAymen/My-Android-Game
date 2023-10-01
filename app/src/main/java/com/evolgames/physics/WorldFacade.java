@@ -53,6 +53,7 @@ import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrap
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.entities.usage.Projectile;
+import com.evolgames.entities.usage.Slasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
@@ -170,13 +171,27 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void computeSplinters(List<LayerBlock> splinterBlocks, GameEntity parentEntity) {
-
         Body body = parentEntity.getBody();
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float rot = body.getAngle();
         ArrayList<GameEntity> splinters = GameEntityFactory.getInstance().createSplinterEntities(x, y, rot, BlockUtils.getDivisionGroups(splinterBlocks), body.getLinearVelocity(), body.getAngularVelocity(), parentEntity.getName(), parentEntity);
         HashSet<Pair<GameEntity, GameEntity>> setOfPairs = new HashSet<>();
+        gameScene.getHands().forEach((key, hand) -> {
+            if (hand.getGrabbedEntity() != null) {
+                GameEntity grabbedEntity = hand.getGrabbedEntity();
+                if (grabbedEntity != null) {
+                    if (grabbedEntity.hasUsage(Stabber.class)) {
+                        Stabber stabber = grabbedEntity.getUsage(Stabber.class);
+                        stabber.getTargetGameEntities().addAll(splinters);
+                    }
+                    if (grabbedEntity.hasUsage(Slasher.class)) {
+                        Slasher slasher = grabbedEntity.getUsage(Slasher.class);
+                        slasher.getTargetGameEntities().addAll(splinters);
+                    }
+                }
+            }
+        });
         splinters.forEach(splinter -> {
             for (Pair<GameEntity, GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
                 if (pair.first == parentEntity) {
@@ -600,22 +615,38 @@ public class WorldFacade implements ContactObserver {
             touches.add(newTouch);
         }
 
-        if (entity1 == null || entity2 == null|| !entity1.isAlive() || !entity2.isAlive()) {
+        if (entity1 == null || entity2 == null || !entity1.isAlive() || !entity2.isAlive()) {
             return;
         }
 
         if (
                 !(
                         entity1.hasUsage(Projectile.class)
-                        || entity2.hasUsage(Projectile.class)
-                        || (entity1.hasUsage(Stabber.class) && entity1.getUsage(Stabber.class).isActive())
-                        || (entity2.hasUsage(Stabber.class) && entity2.getUsage(Stabber.class).isActive())
+                                || entity2.hasUsage(Projectile.class)
+                                || entity1.hasUsage(Stabber.class)
+                                || entity2.hasUsage(Stabber.class)
                 )) {
             return;
         }
 
         if (entitiesAreInvolvedInPenetration(entity1, entity2)) {
             return;
+        }
+
+        if (entity1.hasUsage(Stabber.class)) {
+            Stabber stabber = entity1.getUsage(Stabber.class);
+
+            if (contact.getWorldManifold().getNumberOfContactPoints() == 0 || stabber.getHandControl().getGrabbedEntity().getBody() == null) {
+                stabber.getHandControl().goBack();
+                stabber.setActive(false);
+            }
+        }
+        if (entity2.hasUsage(Stabber.class)) {
+            Stabber stabber = entity2.getUsage(Stabber.class);
+            if (contact.getWorldManifold().getNumberOfContactPoints() == 0 || stabber.getHandControl().getGrabbedEntity().getBody() == null) {
+                stabber.getHandControl().goBack();
+                stabber.setActive(false);
+            }
         }
 
         computePenetrationImpact(contact, entity1, entity2);
@@ -692,7 +723,7 @@ public class WorldFacade implements ContactObserver {
             if (data1.getEntities()[i] != penetrated) {
                 continue;
             }
-            float[] datum = data1.getData()[i];
+            float[] datum = data[i];
             boolean found1 = false;
             boolean found2 = false;
             float inf = datum[0];
@@ -716,12 +747,12 @@ public class WorldFacade implements ContactObserver {
             if (!found1) {
                 Vector2 worldPoint = data1.getBase().cpy().add(normal.x * inf * DIRECTION, normal.y * inf * DIRECTION);
                 Vector2 localPoint = data1.getEntities()[i].getBody().getLocalPoint(worldPoint).cpy().mul(32f);
-                result.add(new EPoint(data1.getBlocks()[i].getGameEntity(), data1.getBlocks()[i], localPoint, EPointType.ENTERING));
+                result.add(new EPoint(data1.getBlocks()[i].getGameEntity(), data1.getBlocks()[i], localPoint, EPointType.ENTERING, inf));
             }
             if (!found2) {
                 Vector2 worldPoint = data1.getBase().cpy().add(normal.x * sup * DIRECTION, normal.y * sup * DIRECTION);
                 Vector2 localPoint = data1.getEntities()[i].getBody().getLocalPoint(worldPoint).cpy().mul(32f);
-                result.add(new EPoint(data1.getBlocks()[i].getGameEntity(), data1.getBlocks()[i], localPoint, EPointType.LEAVING));
+                result.add(new EPoint(data1.getBlocks()[i].getGameEntity(), data1.getBlocks()[i], localPoint, EPointType.LEAVING, sup));
             }
         }
         return result;
@@ -745,12 +776,7 @@ public class WorldFacade implements ContactObserver {
     private void computePenetrationImpact(Contact contact, GameEntity entity1, GameEntity entity2) {
 
         Vector2[] points = contact.getWorldManifold().getPoints();
-        Vector2 point;
-        if (contact.getWorldManifold().getNumberOfContactPoints() == 1) {
-            point = points[0];
-        } else {
-            point = points[0].add(points[1]).mul(0.5f);
-        }
+        Vector2 point = points[0];
 
 
         LayerBlock block1 = (LayerBlock) contact.getFixtureA().getUserData();
@@ -765,7 +791,7 @@ public class WorldFacade implements ContactObserver {
 
         final float collisionImpulse = computeCollisionImpulse(V1, V2, normal, m1, m2);
 
-        GameEntity penetrator = (entity1.hasUsage(Projectile.class)||entity1.hasUsage(Stabber.class)) ? entity1 : entity2;
+        GameEntity penetrator = (entity1.hasUsage(Projectile.class) || entity1.hasUsage(Stabber.class)) ? entity1 : entity2;
         GameEntity penetrated = penetrator == entity1 ? entity2 : entity1;
 
 
@@ -817,7 +843,7 @@ public class WorldFacade implements ContactObserver {
         Data[] penetratorTopography = new Data[p];
 
         int counter = 0;
-        Log.e("stab","----------BEGIN PENETRATION-----------");
+        Log.e("stab", "----------BEGIN PENETRATION-----------");
 
         int index = 0;
         Vector2 movingPenetratorDetectionOriginStart = obtain();
@@ -869,73 +895,100 @@ public class WorldFacade implements ContactObserver {
 
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
 
+
         int step = 0;
         float consumedEnergy = 0;
         while (step < PhysicsConstants.PENETRATION_PRECISION) {
-            final float advance = (step + 1) * stepAdvance;
-            consumedEnergy = 0;
+            float advance = (step + 1) * stepAdvance;
             for (index = 0; index < penetratedTopography.length; index++) {
                 if (penetratedTopography[index] != null && penetratorTopography[index] != null) {
-                    float sharpness =   1f;
-                    float dE = penetratedTopography[index].getEnergyForAdvance(advance, dT) / (sharpness*10f+0.1f);
+                    float sharpness = penetratorTopography[index].getAverageSharpnessForAdvance(advance);
+                    float dE = penetratedTopography[index].getEnergyForAdvance(advance, dT) / (sharpness * 1000f + 0.1f);
                     consumedEnergy += dE;
                 }
             }
             if (collisionImpulse - consumedEnergy < 0) {
+                penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * 0.005f * consumedEnergy * massFraction), point);
+                float actualAdvance = step * stepAdvance;
                 if (step >= PhysicsConstants.PENETRATION_PRECISION / 10) {
-                    handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, advance,false);
-                    penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * 0.1f*consumedEnergy * massFraction), point);
-                    checkOnePointImpact(penetratedBlock, obtain(point), collisionImpulse * massFraction, penetrated);
-                    if(penetrator.hasUsage(Projectile.class)) {
-                        mergeEntities(penetrated, penetrator, normal.cpy().mul(direction * advance), point);
+                    if (penetrator.hasUsage(Projectile.class)) {
+                        for (GameEntity other : penetrated.getParentGroup().getGameEntities()) {
+                            this.contactListener.addNonCollidingPair(penetrator, other);
+                        }
+                        penetrator.getUsage(Projectile.class).setActive(false);
+                        handlePenetrationEffects(normal, direction, dT, ePoints, actualAdvance);
+                        checkOnePointImpact(penetratedBlock, obtain(point), collisionImpulse * massFraction, penetrated);
+                        mergeEntities(penetrated, penetrator, normal.cpy().mul(direction * actualAdvance), point);
                     }
                 }
-                if(penetrator.hasUsage(Stabber.class))  {
-                    penetrator.getUsage(Stabber.class).getTargetGameEntities().add(penetrated);
-                    addNonCollidingPair(penetrator,penetrated);
+                if (penetrator.hasUsage(Stabber.class)) {
+                    Stabber stabber = penetrator.getUsage(Stabber.class);
+                    stabber.getTargetGameEntities().add(penetrated);
+                    Vector2 position = stabber.getHandControl().getPosition();
+                    Vector2 target = stabber.getHandControl().getTarget();
+                    float dis = Math.min(target.dst(position), actualAdvance);
+                    handlePenetrationEffects(normal, direction, dT, ePoints, dis);
+                    Vector2 adv = normal.cpy().mul(-direction * dis);
+                    stabber.getHandControl().setTarget(position.cpy().add(adv));
+                    addNonCollidingPair(penetrator, penetrated);
                 }
                 return;
             }
             step++;
         }
+        final float advance = PhysicsConstants.PENETRATION_PRECISION * stepAdvance;
+        if (penetrator.hasUsage(Projectile.class)) {
+            handlePenetrationEffects(normal, direction, dT, ePoints, advance);
+        } else if (penetrator.hasUsage(Stabber.class)) {
+            Stabber stabber = penetrator.getUsage(Stabber.class);
+            Vector2 position = stabber.getHandControl().getPosition();
+            Vector2 target = stabber.getHandControl().getTarget();
+            float dis = Math.min(target.dst(position), advance);
+            handlePenetrationEffects(normal, direction, dT, ePoints, dis);
+            Vector2 adv = normal.cpy().mul(-direction * dis);
+            stabber.getHandControl().setTarget(position.cpy().add(adv));
+        }
 
-        handlePenetrationEffects(normal, direction, penetrated, dT, ePoints, PhysicsConstants.PENETRATION_PRECISION * stepAdvance,true);
-
-        if (penetrated.getParentGroup().isLiving()) {
+        if (penetrated.getParentGroup().isLiving() && penetrator.hasUsage(Projectile.class)) {
             for (GameEntity other : penetrated.getParentGroup().getGameEntities()) {
                 this.contactListener.addNonCollidingPair(penetrator, other);
             }
         } else {
+            if (penetrator.hasUsage(Stabber.class)) {
+                penetrator.getUsage(Stabber.class).getTargetGameEntities().add(penetrated);
+            }
             this.contactListener.addNonCollidingPair(penetrator, penetrated);
         }
-        penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
-        checkOnePointImpact(penetratedBlock, obtain(point), 5 * collisionImpulse * massFraction, penetrated);
+        if (penetrator.hasUsage(Projectile.class)) {
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(-direction * consumedEnergy * massFraction), point);
+            checkOnePointImpact(penetratedBlock, obtain(point), 5 * collisionImpulse * massFraction, penetrated);
+        }
     }
 
-    private void handlePenetrationEffects(Vector2 normal, int direction, GameEntity penetrated, float dT, Set<EPoint> ePoints, float advance,boolean goThrough) {
-
-        ePoints.stream().collect(Collectors.groupingBy(EPoint::getLayerBlock)).forEach((layerBlock, exPoints) -> {
+    private void handlePenetrationEffects(Vector2 normal, int direction, float dT, Set<EPoint> ePoints, float advance) {
+        if (advance < 0.1f) {
+            return;
+        }
+        ePoints.stream().filter(e -> e.value < advance || e.ePointType == EPointType.ENTERING).collect(Collectors.groupingBy(EPoint::getLayerBlock)).forEach((layerBlock, exPoints) -> {
             if (!layerBlock.getProperties().isJuicy()) {
                 return;
             }
             List<Vector2> bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.ENTERING).map(v -> v.localPoint).collect(Collectors.toList());
             if (!bleedingPoints.isEmpty()) {
-                float length = 2f * 32f * dT * advance * bleedingPoints.size();
+                float length = 16f * dT * advance * bleedingPoints.size();
                 if (length > 1) {
                     FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy().mul(direction * 60f * layerBlock.getProperties().getJuicinessUpperPressure()));
                     this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
                     layerBlock.addFreshCut(freshCut);
                 }
             }
-            if(goThrough) {
-                bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.LEAVING).map(v -> v.localPoint).collect(Collectors.toList());
-                if (!bleedingPoints.isEmpty()) {
-                    float length = 2f * 32f * advance * dT * bleedingPoints.size();
-                    if (length > 1) {
-                        FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), new Vector2());
-                        this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
-                        layerBlock.addFreshCut(freshCut);
-                    }
+            bleedingPoints = exPoints.stream().filter(v -> v.ePointType == EPointType.LEAVING).map(v -> v.localPoint).collect(Collectors.toList());
+            if (!bleedingPoints.isEmpty()) {
+                float length = 8f * advance * dT * bleedingPoints.size();
+                if (length > 1) {
+                    FreshCut freshCut = new PointsFreshCut(bleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), new Vector2());
+                    this.createJuiceSource(layerBlock.getGameEntity(), layerBlock, freshCut);
+                    layerBlock.addFreshCut(freshCut);
                 }
             }
         });
@@ -954,6 +1007,7 @@ public class WorldFacade implements ContactObserver {
         jointDef.collideConnected = false;
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
         addJointToCreate(jointDef, receiver, traveler);
+        scheduleGameEntityToDestroy(traveler, 60);
     }
 
     private float getPenetrationLength(GameEntity penetrated, int topographyLength, Data[] penetratedTopography, Data[] penetratorTopography) {
@@ -1047,20 +1101,20 @@ public class WorldFacade implements ContactObserver {
                 //inneer cut
                 float projection1 = GeometryUtils.projection(begin, center, eVector);
                 float projection2 = GeometryUtils.projection(end, center, eVector);
-                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
+                data.add(projection1, projection2, density, sharpness, entity, layerBlock);
 
             } else if (firstInside) {
                 //half cut
                 Flag last = list.get(list.size() - 1);
                 float projection1 = GeometryUtils.projection(begin, center, eVector);
                 float projection2 = GeometryUtils.projection(last.getPoint(), center, eVector);
-                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
+                data.add(projection1, projection2, density, sharpness, entity, layerBlock);
             } else if (secondInside) {
                 //half cut
                 Flag first = list.get(0);
                 float projection1 = GeometryUtils.projection(first.getPoint(), center, eVector);
                 float projection2 = GeometryUtils.projection(end, center, eVector);
-                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
+                data.add(projection1, projection2, density, sharpness, entity, layerBlock);
 
             } else {
                 //full cut
@@ -1068,7 +1122,7 @@ public class WorldFacade implements ContactObserver {
                 Flag last = list.get(list.size() - 1);
                 float projection1 = GeometryUtils.projection(first.getPoint(), center, eVector);
                 float projection2 = GeometryUtils.projection(last.getPoint(), center, eVector);
-                data.add(projection1, projection2, density,sharpness, entity, layerBlock);
+                data.add(projection1, projection2, density, sharpness, entity, layerBlock);
             }
         }
 
@@ -1199,10 +1253,10 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
-        this.performScreenCut(worldPoint1, worldPoint2, null);
+        this.performScreenCut(worldPoint1, worldPoint2, null, Float.MAX_VALUE);
     }
 
-    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2, GameEntity excepted) {
+    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2, GameEntity excepted, float hardness) {
         Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
         final float L = 10;
         Vector2 L1 = worldPoint1.cpy().sub(u.x * L, u.y * L);
@@ -1225,6 +1279,9 @@ public class WorldFacade implements ContactObserver {
             Collections.sort(list);
 
             LayerBlock block = blocks.get(i);
+            if (2 * block.getProperties().getTenacity() > hardness) {
+                continue;
+            }
             Body body = fixtures.get(i).getBody();
             GameEntity entity = (GameEntity) body.getUserData();
             if (!entities.contains(entity)) {
@@ -1465,12 +1522,14 @@ public class WorldFacade implements ContactObserver {
         LayerBlock layerBlock;
         Vector2 localPoint;
         EPointType ePointType;
+        float value;
 
-        public EPoint(GameEntity gameEntity, LayerBlock layerBlock, Vector2 localPoint, EPointType ePointType) {
+        public EPoint(GameEntity gameEntity, LayerBlock layerBlock, Vector2 localPoint, EPointType ePointType, float value) {
             this.gameEntity = gameEntity;
             this.layerBlock = layerBlock;
             this.localPoint = localPoint;
             this.ePointType = ePointType;
+            this.value = value;
         }
 
         public LayerBlock getLayerBlock() {

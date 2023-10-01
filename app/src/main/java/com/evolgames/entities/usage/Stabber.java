@@ -1,45 +1,27 @@
 package com.evolgames.entities.usage;
 
+import com.evolgames.entities.hand.MoveWithRevertHandControl;
 import com.evolgames.scenes.PlayerSpecialAction;
 
 public class Stabber extends MeleeUse{
-    private boolean active;
+    private MoveWithRevertHandControl handControl;
 
     @Override
     public void onStep(float deltaTime) {
 
     }
 
-    @Override
-    public float getUIWidth() {
-        return 0;
-    }
-
-    @Override
-    public void updateUIPosition(int row, int offset) {
-
-    }
-
-    @Override
-    public void showUI() {
-
-    }
-
-    @Override
-    public void hideUI() {
-
-    }
 
     @Override
     public PlayerSpecialAction getAction() {
         return PlayerSpecialAction.Stab;
     }
 
-    public boolean isActive() {
-        return active;
+    public void setHandControl(MoveWithRevertHandControl handControl) {
+        this.handControl = handControl;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public MoveWithRevertHandControl getHandControl() {
+        return handControl;
     }
 }

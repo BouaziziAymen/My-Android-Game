@@ -227,28 +227,6 @@ public class Trigger extends Use{
     }
 
     @Override
-    public float getUIWidth() {
-        return triggerButton.getWidth()+reloadButton.getWidth();
-    }
-
-    @Override
-    public void updateUIPosition(int row, int offset) {
-        reloadButton.setPosition(800 -offset- reloadButton.getWidth() - triggerButton.getWidth(), row * 32f);
-        triggerButton.setPosition(800-offset - triggerButton.getWidth(), 0);
-    }
-
-    @Override
-    public void showUI() {
-        triggerButton.setVisible(true);
-        reloadButton.setVisible(true);
-    }
-    @Override
-    public void hideUI() {
-        triggerButton.setVisible(false);
-        reloadButton.setVisible(false);
-    }
-
-    @Override
     public PlayerSpecialAction getAction() {
         return null;
     }
