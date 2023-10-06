@@ -14,12 +14,18 @@ public class MoveWithRevertHandControl extends HandControl {
     private final Vector2 start;
     private final HoldHandControl control;
     private final Vector2 localPoint;
+    private final Vector2 position;
+    private final Vector2 target;
 
     public MoveWithRevertHandControl(Hand hand, Vector2 target, Vector2 localPoint) {
         super(60);
         this.localPoint = localPoint;
         this.start = hand.getMouseJoint().getTarget().cpy();
         this.hand = hand;
+        this.position = new Vector2();
+        this.target = new Vector2();
+        this.position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
+        this.target.set(start);
         hand.getMouseJoint().setTarget(target);
         this.control = new HoldHandControl(hand.getGrabbedEntity());
     }
@@ -37,6 +43,8 @@ public class MoveWithRevertHandControl extends HandControl {
               runnable.run();
         }
         if (!isDead()) {
+            position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
+            target.set(hand.getMouseJoint().getTarget());
             control.run();
             Vector2 v = mouseJoint.getBodyB().getLinearVelocity();
             if((v.len()<0.01f&&count>10)){
@@ -48,21 +56,25 @@ public class MoveWithRevertHandControl extends HandControl {
         }
     }
     public void goBack(){
-        hand.getMouseJoint().setTarget(start);
+        if(hand.getMouseJoint()!=null) {
+            hand.getMouseJoint().setTarget(start);
+        }
     }
 
     public Vector2 getPosition() {
-        return hand.getGrabbedEntity().getBody().getWorldPoint(localPoint).cpy();
+      return position;
     }
     public GameEntity getGrabbedEntity(){
         return hand.getGrabbedEntity();
     }
 
     public Vector2 getTarget() {
-        return hand.getMouseJoint().getTarget();
+        return this.target;
     }
     public void setTarget(Vector2 target) {
-        hand.getMouseJoint().setTarget(target);
+        if(hand.getMouseJoint()!=null) {
+            hand.getMouseJoint().setTarget(target);
+        }
     }
 
 }

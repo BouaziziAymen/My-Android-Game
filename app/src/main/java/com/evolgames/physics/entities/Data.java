@@ -5,7 +5,15 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.PhysicsConstants;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Data {
 
@@ -16,8 +24,8 @@ public class Data {
     private final Vector2 base;
 
     public Data(int n,Vector2 base) {
-        this.data = new float[n][4];
-        this.base = base;
+        this.data = new float[n][3];
+        this.base = base.cpy();
         this.entities = new GameEntity[n];
         this.blocks = new LayerBlock[n];
     }
@@ -27,11 +35,15 @@ public class Data {
         return data;
     }
 
+    public int getLength() {
+        return length;
+    }
+
     public GameEntity[] getEntities() {
         return entities;
     }
 
-    public void add(float begin, float end, float weight,float sharpness, GameEntity entity, LayerBlock layerBlock) {
+    public void add(float begin, float end, float hardness, GameEntity entity, LayerBlock layerBlock) {
         if (begin <= end) {
             data[length][0] = begin;
             data[length][1] = end;
@@ -41,8 +53,7 @@ public class Data {
         }
         entities[length] = entity;
         blocks[length] = layerBlock;
-        data[length][2] = weight;
-        data[length][3] = sharpness;
+        data[length][2] = hardness;
         length++;
 
     }
@@ -51,26 +62,20 @@ public class Data {
         return length;
     }
 
-    public float getAverageSharpnessForAdvance(float advance) {
-        float sharpness = 0;
-        for (int i = 0; i < length; i++) {
-            float inf = data[i][0];
-            float sup = data[i][1];
-            if (advance >= inf) {
-                float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                sharpness += xAdvance * data[i][3];
-            }
-        }
-        return sharpness/advance;
-    }
-    public float getEnergyForAdvance(float advance, float dL) {
+    public Float getEnergyForAdvance(float advance, float dL, float sharpness, float hardness) {
         float energy = 0;
+
+        float s = (1.1f-sharpness);
         for (int i = 0; i < length; i++) {
             float inf = data[i][0];
             float sup = data[i][1];
+            if(hardness<data[i][2]){
+                return null;
+            }
+            float h = 1/(hardness - 0.99f*data[i][2]);
             if (advance >= inf) {
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                energy += xAdvance * data[i][2] * PhysicsConstants.PENETRATION_CONSTANT * dL;
+                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * s * s;
             }
         }
         return energy;
@@ -114,32 +119,79 @@ public class Data {
         return result;
     }
 
-    public float getMin(GameEntity entity) {
-        float result = Float.MAX_VALUE;
-        for (int i = 0; i < length; i++) {
-            if (entities[i] == entity) {
-                float inf = data[i][0];
-                if (result > inf) result = inf;
+
+    static class OverlapFlag{
+        GameEntity entity;
+        float value;
+
+        public OverlapFlag(GameEntity entity, float value) {
+            this.entity = entity;
+            this.value = value;
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public GameEntity getEntity() {
+            return entity;
+        }
+    }
+
+    public List<GameEntity> findReachedEntities(Data penetratorData, float advance) {
+        HashSet<GameEntity> gameEntities = new HashSet<>();
+        for(int j=0;j< penetratorData.length;j++) {
+            for (int i = 0; i < length; i++) {
+                float INF = data[i][0];
+                float sup = penetratorData.getData()[j][1] + advance;
+                if (sup > INF) {
+                 gameEntities.add(this.entities[i]);
+                }
             }
         }
-        return result;
+        return new ArrayList<>(gameEntities);
     }
 
-
-    public void findDelta() {
-        float delta = getMax() - getMin();
+    public List<GameEntity> findOverlappingEntities(Data penetratorData, float advance) {
+        List<OverlapFlag> overlapFlagList = new ArrayList<>();
+        for(int j=0;j< penetratorData.length;j++) {
+            for (int i = 0; i < length; i++) {
+                float INF = data[i][0];
+                float SUP = data[i][1];
+                float inf = penetratorData.getData()[j][0] + advance;
+                float sup = penetratorData.getData()[j][1] + advance;
+                float lowerBoundOfOverlap = Math.max(inf, INF);
+                float upperBoundOfOverlap = Math.min(sup, SUP);
+                if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
+                    // Overlap exists, calculate and return the length
+                    overlapFlagList.add(new OverlapFlag(this.entities[i], lowerBoundOfOverlap));
+                    overlapFlagList.add(new OverlapFlag(this.entities[i], upperBoundOfOverlap));
+                }
+            }
+        }
+       return overlapFlagList.stream().collect(Collectors.groupingBy(OverlapFlag::getEntity))
+                .entrySet().stream().filter((e)->{
+                    List<OverlapFlag> list = e.getValue();
+                    list.sort(Comparator.comparing(OverlapFlag::getValue));
+                    float overlap = list.get(list.size()-1).value - list.get(0).value;
+                    return overlap>=0.05f;
+                }).map(Map.Entry::getKey).distinct().collect(Collectors.toList());
     }
 
-
-    public boolean isOverlapped(float inf, float sup, float advance, int index) {
-        float INF = data[index][0];
-        float SUP = data[index][1];
-        float i = inf + advance;
-        float s = sup + advance;
-        if (i > INF && i < SUP) return true;
-        return s > INF && s < SUP;
+    public boolean doesOverlap(Data penetratorData, float advance) {
+        for(int j=0;j< penetratorData.length;j++) {
+            for (int i = 0; i < length; i++) {
+                float INF = data[i][0];
+                float SUP = data[i][1];
+                float inf = penetratorData.getData()[j][0] + advance;
+                float sup = penetratorData.getData()[j][1] + advance;
+                if ((inf > INF && inf < SUP) || (sup > INF && sup < SUP)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-
     public Vector2 getBase() {
         return base;
     }

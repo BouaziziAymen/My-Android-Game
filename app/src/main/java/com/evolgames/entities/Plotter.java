@@ -34,7 +34,7 @@ public class Plotter extends Entity {
     }
 
     public void drawPointOnEntity(Vector2 v, Color color, Entity e) {
-        Rectangle rect = new Rectangle(v.x, v.y, 4f, 4f, this.vbom);
+        Rectangle rect = new Rectangle(v.x, v.y, 1f, 1f, this.vbom);
         rect.setColor(color);
         rect.setZIndex(999999999);
         e.attachChild(rect);
@@ -67,7 +67,7 @@ public class Plotter extends Entity {
 
     }
 
-    public void drawLine2(Vector2 v1, Vector2 v2, Color color, int width) {
+    public void drawLine2(Vector2 v1, Vector2 v2, Color color, float width) {
         Line line = new Line(v1.x, v1.y, v2.x, v2.y, width, this.vbom);
         line.setColor(color);
         line.setAlpha(1f);

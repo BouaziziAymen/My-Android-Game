@@ -14,7 +14,6 @@ public class PropertiesFactory {
     }
 
     public LayerProperties createProperties(Material material) {
-
         LayerProperties properties = new LayerProperties();
         properties.setJuicy(material.isJuicy());
         properties.setFlammable(material.isFlammable());
@@ -22,10 +21,12 @@ public class PropertiesFactory {
         properties.setRestitution(material.getRestitution());
         properties.setFriction(material.getFriction());
         properties.setTenacity(material.getTenacity());
+        properties.setHardness(material.getHardness());
+        properties.setSharpness(0f);
         properties.setJuicinessDensity(material.getJuicinessDensity());
         properties.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
         properties.setJuicinessUpperPressure(material.getJuicinessUpperPressure());
-
+        properties.setMaterialNumber(material.getIndex());
 
         if (material.getJuiceColor() != null) {
             properties.setJuiceColor(new Color(material.getJuiceColor()));
@@ -40,11 +41,11 @@ public class PropertiesFactory {
 
     public LayerProperties createProperties(LayerProperties original) {
         LayerProperties properties = new LayerProperties();
-
         properties.setDensity(original.getDensity());
         properties.setRestitution(original.getRestitution());
         properties.setFriction(original.getFriction());
         properties.setTenacity(original.getTenacity());
+        properties.setHardness(original.getHardness());
         properties.setJuicinessDensity(original.getJuicinessDensity());
         properties.setJuicinessLowerPressure(original.getJuicinessLowerPressure());
         properties.setJuicinessUpperPressure(original.getJuicinessUpperPressure());
@@ -52,8 +53,10 @@ public class PropertiesFactory {
         properties.setOrder(original.getOrder());
         properties.setJuicy(original.isJuicy());
         properties.setFlammable(original.isFlammable());
-        if (original.getJuiceColor() != null)
+        properties.setMaterialNumber(original.getMaterialNumber());
+        if (original.getJuiceColor() != null) {
             properties.setJuiceColor(new Color(original.getJuiceColor()));
+        }
         properties.setIgnitionTemperature(original.getIgnitionTemperature());
         properties.setFlameTemperature(original.getFlameTemperature());
         properties.setChemicalEnergy(original.getChemicalEnergy());

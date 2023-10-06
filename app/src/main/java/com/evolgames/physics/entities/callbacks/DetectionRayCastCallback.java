@@ -18,8 +18,9 @@ public class DetectionRayCastCallback implements RayCastCallback {
         return intersectionPoint;
     }
 public void reset(){
+        this.entity = null;
         intersectionPoint = null;
-    layerBlock = null;
+        layerBlock = null;
         minFraction = Float.MAX_VALUE;
 }
     public void setEntity(GameEntity entity) {
@@ -36,7 +37,7 @@ public void reset(){
         if (candidate == entity) {
             if(fraction< minFraction) {
                 layerBlock = (LayerBlock) fixture.getUserData();
-                intersectionPoint = Vector2Pool.obtain(point);
+                intersectionPoint = point.cpy();
                 minFraction = fraction;
             }
         }

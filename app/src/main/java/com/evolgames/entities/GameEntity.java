@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 
 public class GameEntity extends EntityWithBody {
@@ -413,6 +414,7 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
+
     public  <T extends Use> T getUsage(Class<T> targetType) {
         for (Use obj : this.useList) {
             if (targetType.isInstance(obj)) {
@@ -421,12 +423,37 @@ public class GameEntity extends EntityWithBody {
         }
         return null;
     }
-    public  <T> boolean hasUsage(Class<T> targetType) {
+    public  <T> boolean hasUsage(Class<T> ... targetTypes) {
         for (Use obj : this.useList) {
-            if (targetType.isInstance(obj) && obj.isActive()) {
-                return true;
+            for(Class<T> targetType:targetTypes) {
+                if (targetType.isInstance(obj)) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+    public  boolean hasActiveUsage(Class<?> ...targetTypes) {
+        for (Use obj : this.useList) {
+            for(Class<?> targetType:targetTypes) {
+                if (targetType.isInstance(obj) && obj.isActive()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameEntity that = (GameEntity) o;
+        return Objects.equals(layerBlocks, that.layerBlocks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(layerBlocks);
     }
 }

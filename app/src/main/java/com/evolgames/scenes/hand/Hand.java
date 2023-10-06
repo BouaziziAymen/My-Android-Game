@@ -137,7 +137,7 @@ public class Hand {
 
         for (GameEntity gameEntity : targetEntity.getParentGroup().getGameEntities()) {
             gameScene.getWorldFacade().addNonCollidingPair(grabbedEntity, gameEntity);
-            if(this.grabbedEntity.hasUsage(Slasher.class)) {
+            if(this.grabbedEntity.hasActiveUsage(Slasher.class)) {
                 this.grabbedEntity.getUsage(Slasher.class).getTargetGameEntities().add(gameEntity);
             }
         }
@@ -269,22 +269,19 @@ public class Hand {
             return;
         }
         Vector2 p = this.mouseJoint.getTarget();
-        Vector2 u = target.cpy().sub(p).nor();
-        float angle = (float) Math.atan2(u.y,u.x);
-        if(Math.cos(angle)>-0.8f){
-            return;
-        }
+        float grabbedEntityAngle = grabbedEntity.getBody().getAngle();
+        Vector2 v = new Vector2(0,1);
+        GeometryUtils.rotateVectorRad(v,grabbedEntityAngle);
+
         this.initialPoint = this.mouseJoint.getTarget().cpy();
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
-
 
         grabbedEntity.getMesh().setZIndex(-1);
         gameScene.sortChildren();
 
-        Log.e("stab","---------MOVE TO STAB-----------");
-        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x+u.x* STAB_ADVANCE,p.y+u.y*3f),this.localPoint);
+        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x+v.x* STAB_ADVANCE,p.y+v.y*3f),this.localPoint);
         grabbedEntity.getUsage(Stabber.class).setActive(true);
-        grabbedEntity.getUsage(Stabber.class).setHandControl(handControl);
+        grabbedEntity.getUsage(Stabber.class).reset(localPoint,handControl);
         handControlStack.add(handControl);
     }
 

@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.properties.Explosive;

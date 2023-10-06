@@ -254,7 +254,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         // attachChild(gameEntity1.getMesh());
 
 
-        vertices = VerticesFactory.createPolygon(0, 0, 60, 60, 4);
+        vertices = VerticesFactory.createPolygon(0,0,40, 40,25);
         properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
@@ -282,7 +282,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
             // this.attachChild(uncoloredSprite);
 
-            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(5f, 200 / 32f), BodyDef.BodyType.DynamicBody);
+            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f/32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
@@ -417,8 +417,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         //projectiles test
-        if (false)
+        if (false) {
             projectileTest();
+        }
 
 
     }
@@ -461,27 +462,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     private void projectileTest() {
         if (step % 60 == 0) {
-            Filter projectileFilter = new Filter();
-            projectileFilter.groupIndex = -1;
+
             Vector2 u = new Vector2(0, -1);
             float angle = (float) ((1 - 2 * Math.random()) * Math.PI / 4);
 
             GeometryUtils.rotateVectorRad(u, angle);
             ArrayList<Vector2> vertices1 = new ArrayList<>();
             vertices1.add(obtain(0, -20));
-            vertices1.add(obtain(-6, -5));
+            vertices1.add(obtain(-3, -5));
             vertices1.add(obtain(0, 15));
-            vertices1.add(obtain(6, -5));
+            vertices1.add(obtain(3, -5));
 
             LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
-            properties1.setSharpness(1f);
+            properties1.setSharpness(0.3f);
             LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
             ArrayList<LayerBlock> blocks = new ArrayList<>();
             blocks.add(block1);
 
-            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(30)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 480 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
+            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(80f)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 100 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
             GameGroup proj = new GameGroup(gameEntity);
             gameEntity.getUseList().add(new Projectile());
             addGameGroup(proj);

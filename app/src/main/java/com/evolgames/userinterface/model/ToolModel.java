@@ -212,7 +212,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             if (blocks.size() == 0 || center == null){
                 return;
             }
-            BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0),true);
+            BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0),false);
             GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "weapon");
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
