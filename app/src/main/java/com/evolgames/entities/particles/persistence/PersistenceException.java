@@ -1,4 +1,4 @@
-package com.evolgames.entities.persistence;
+package com.evolgames.entities.particles.persistence;
 
 public class PersistenceException extends Exception{
     private PersistenceException parent;

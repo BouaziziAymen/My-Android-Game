@@ -267,7 +267,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
         SimpleSecondary<TitledQuantity<?>> hardnessElement = new SimpleSecondary<>(3, 4, titledHardnessQuantity);
         window.addSecondary(hardnessElement);
-        hardnessQuantity.getBehavior().setChangeAction(()-> layerProperty.setHardness(hardnessQuantity.getRatio()/10f));
+        hardnessQuantity.getBehavior().setChangeAction(()-> layerProperty.setHardness(hardnessQuantity.getRatio()*10));
 
 
 

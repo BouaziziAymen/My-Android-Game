@@ -7,15 +7,13 @@ import com.evolgames.physics.PhysicsConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Data {
+public class TopographyData {
 
     private int length = 0;
     private final float[][] data;
@@ -23,7 +21,7 @@ public class Data {
     private final LayerBlock[] blocks;
     private final Vector2 base;
 
-    public Data(int n,Vector2 base) {
+    public TopographyData(int n, Vector2 base) {
         this.data = new float[n][3];
         this.base = base.cpy();
         this.entities = new GameEntity[n];
@@ -62,20 +60,20 @@ public class Data {
         return length;
     }
 
-    public Float getEnergyForAdvance(float advance, float dL, float sharpness, float hardness) {
+    public Float getEnergyForAdvance(float advance, float dL, float sharpness, float penetratorHardness) {
         float energy = 0;
 
-        float s = (1.1f-sharpness);
         for (int i = 0; i < length; i++) {
             float inf = data[i][0];
             float sup = data[i][1];
-            if(hardness<data[i][2]){
-                return null;
-            }
-            float h = 1/(hardness - 0.99f*data[i][2]);
             if (advance >= inf) {
+                if(penetratorHardness<data[i][2]){
+                    return null;
+                }
+                float s = 1f-sharpness;
+                float h = 1/(penetratorHardness - 0.999f*data[i][2]);
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * s * s;
+                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,2);
             }
         }
         return energy;
@@ -138,12 +136,12 @@ public class Data {
         }
     }
 
-    public List<GameEntity> findReachedEntities(Data penetratorData, float advance) {
+    public List<GameEntity> findReachedEntities(TopographyData penetratorTopographyData, float advance) {
         HashSet<GameEntity> gameEntities = new HashSet<>();
-        for(int j=0;j< penetratorData.length;j++) {
+        for(int j = 0; j< penetratorTopographyData.length; j++) {
             for (int i = 0; i < length; i++) {
                 float INF = data[i][0];
-                float sup = penetratorData.getData()[j][1] + advance;
+                float sup = penetratorTopographyData.getData()[j][1] + advance;
                 if (sup > INF) {
                  gameEntities.add(this.entities[i]);
                 }
@@ -152,14 +150,14 @@ public class Data {
         return new ArrayList<>(gameEntities);
     }
 
-    public List<GameEntity> findOverlappingEntities(Data penetratorData, float advance) {
+    public List<GameEntity> findOverlappingEntities(TopographyData penetratorTopographyData, float advance) {
         List<OverlapFlag> overlapFlagList = new ArrayList<>();
-        for(int j=0;j< penetratorData.length;j++) {
+        for(int j = 0; j< penetratorTopographyData.length; j++) {
             for (int i = 0; i < length; i++) {
                 float INF = data[i][0];
                 float SUP = data[i][1];
-                float inf = penetratorData.getData()[j][0] + advance;
-                float sup = penetratorData.getData()[j][1] + advance;
+                float inf = penetratorTopographyData.getData()[j][0] + advance;
+                float sup = penetratorTopographyData.getData()[j][1] + advance;
                 float lowerBoundOfOverlap = Math.max(inf, INF);
                 float upperBoundOfOverlap = Math.min(sup, SUP);
                 if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
@@ -178,13 +176,13 @@ public class Data {
                 }).map(Map.Entry::getKey).distinct().collect(Collectors.toList());
     }
 
-    public boolean doesOverlap(Data penetratorData, float advance) {
-        for(int j=0;j< penetratorData.length;j++) {
+    public boolean doesOverlap(TopographyData penetratorTopographyData, float advance) {
+        for(int j = 0; j< penetratorTopographyData.length; j++) {
             for (int i = 0; i < length; i++) {
                 float INF = data[i][0];
                 float SUP = data[i][1];
-                float inf = penetratorData.getData()[j][0] + advance;
-                float sup = penetratorData.getData()[j][1] + advance;
+                float inf = penetratorTopographyData.getData()[j][0] + advance;
+                float sup = penetratorTopographyData.getData()[j][1] + advance;
                 if ((inf > INF && inf < SUP) || (sup > INF && sup < SUP)) {
                     return true;
                 }

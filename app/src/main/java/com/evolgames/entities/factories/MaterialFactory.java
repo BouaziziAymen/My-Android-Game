@@ -42,8 +42,8 @@ public class MaterialFactory {
         this.materials.add(new Material("Aluminium", 8, new Color(173 / 255f, 178 / 255f, 189 / 255f), 2.7f, 1, 0.32f, 1.9f,2.75f, false, 0, 0, 0));
         this.materials.add(new Material("Ceramic", 9, new Color(254 / 255f, 255 / 255f, 253 / 255f), 3.21f, 1, 0.3f, 0.2f,7f, false, 0, 0, 0));
         this.materials.add(new Material("Bronze", 10, new Color(205 / 255f, 127 / 255f, 50 / 255f), 8.15f, 1, 0.29f, 3f,3f, false, 0, 0, 0));
-        this.materials.add(new Material("Flesh", 11, new Color(255/255f, 204f/255f, 153f/255f), 1.01f, 1, 0f, 0.2f,2.25f, liquids.get(0), 0.3f, 0.6f*5f, 1f*5f, true, 200 + 273, 700, 300));
-        this.materials.add(new Material("Hard Flesh", 12, new Color(255/255f, 204f/255f, 153f/255f), 1.8f, 1, 0.05f, 0.4f,2.5f, liquids.get(0), 0.25f*5f, 0.3f*5f, 0.5f, true, 220 + 273, 650, 300));
+        this.materials.add(new Material("Flesh", 11, new Color(255/255f, 204f/255f, 153f/255f), 1.01f, 1, 0f, 0.2f,1.5f, liquids.get(0), 0.3f, 0.6f*5f, 1f*5f, true, 200 + 273, 700, 300));
+        this.materials.add(new Material("Hard Flesh", 12, new Color(255/255f, 204f/255f, 153f/255f), 1.8f, 1, 0.05f, 0.4f,1.75f, liquids.get(0), 0.25f*5f, 0.3f*5f, 0.5f, true, 220 + 273, 650, 300));
         this.materials.add(new Material("Asphalt", 13, new Color(0.5f, 0.6f, 0.5f), 1000f, 1f, 0f, 10f,2f, false, 0, 0, 0));
         this.materials.add(new Material("Clay", 14, new Color(132 / 255f, 92 / 255f, 64 / 255f), 1.6f, 1, 0.3f, 0.1f,2.25f, false, 0, 0, 0));
     }

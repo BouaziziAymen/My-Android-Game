@@ -413,7 +413,14 @@ public class GameEntity extends EntityWithBody {
 
         }
     }
-
+    public  <T extends Use> T getActiveUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj)&& obj.isActive()) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
 
     public  <T extends Use> T getUsage(Class<T> targetType) {
         for (Use obj : this.useList) {
@@ -423,7 +430,8 @@ public class GameEntity extends EntityWithBody {
         }
         return null;
     }
-    public  <T> boolean hasUsage(Class<T> ... targetTypes) {
+    @SafeVarargs
+    public final <T> boolean hasUsage(Class<T>... targetTypes) {
         for (Use obj : this.useList) {
             for(Class<T> targetType:targetTypes) {
                 if (targetType.isInstance(obj)) {

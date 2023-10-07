@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.ItemCategory;
-import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.gameengine.ResourceManager;

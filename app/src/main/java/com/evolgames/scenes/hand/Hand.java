@@ -2,7 +2,6 @@ package com.evolgames.scenes.hand;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
-import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -141,7 +140,6 @@ public class Hand {
                 this.grabbedEntity.getUsage(Slasher.class).getTargetGameEntities().add(gameEntity);
             }
         }
-
     }
 
     public void onUpdate() {
@@ -152,17 +150,20 @@ public class Hand {
         if(grabbedEntity!=null&&grabbedEntity.hasUsage(Slasher.class)) {
             targetEntities.addAll(grabbedEntity.getUsage(Slasher.class).getTargetGameEntities());
         }
-        if (grabbedEntity != null && !targetEntities.isEmpty() && localPoint != null) {
+        if (grabbedEntity != null  && !handControlStack.isEmpty() &&
+                handControlStack.peek() instanceof HoldHandControl&&localPoint != null) {
             Vector2 point = grabbedEntity.getBody().getWorldPoint(localPoint).cpy();
-            if (point.dst(initialPoint) < 0.01f && handControlStack.peek() instanceof HoldHandControl) {
+            if (initialPoint!=null&&point.dst(initialPoint) < 0.01f) {
                 grabbedEntity.getMesh().setZIndex(0);
                 gameScene.sortChildren();
                 if(grabbedEntity.hasUsage(Stabber.class)) {
+                    initialPoint = null;
                     Stabber stabber = grabbedEntity.getUsage(Stabber.class);
                     stabber.getTargetGameEntities().clear();
                     stabber.setActive(false);
                 }
                 if(grabbedEntity.hasUsage(Slasher.class)) {
+                    initialPoint = null;
                     Slasher slasher = grabbedEntity.getUsage(Slasher.class);
                     slasher.getTargetGameEntities().clear();
                     slasher.setActive(false);
@@ -251,7 +252,7 @@ public class Hand {
                         } else {
                             if (grabbedEntity != null) {
                                 Vector2 target = new Vector2(touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT, touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                                moveToStab(target);
+                                moveToStab();
                             }
                         }
                     }
@@ -264,8 +265,9 @@ public class Hand {
         }
     }
 
-    private void moveToStab(Vector2 target) {
-        if(grabbedEntity.getUsage(Stabber.class).isActive()){
+    private void moveToStab() {
+        GameScene.plotter2.detachChildren();
+        if(!(handControlStack.peek() instanceof HoldHandControl)||initialPoint!=null){
             return;
         }
         Vector2 p = this.mouseJoint.getTarget();

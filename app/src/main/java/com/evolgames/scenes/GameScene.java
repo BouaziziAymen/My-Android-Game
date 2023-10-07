@@ -10,7 +10,6 @@ import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
@@ -19,7 +18,6 @@ import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -33,8 +31,8 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.persistence.PersistenceCaretaker;
-import com.evolgames.entities.persistence.PersistenceException;
+import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
+import com.evolgames.entities.particles.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
@@ -121,7 +119,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private UsageButtonsController usageButtonsController;
     private PlayerAction action = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
-    private JointCreationCommand mouseJointCreationCommand;
     private ArrayList<Vector2> points;
 
 
@@ -254,7 +251,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         // attachChild(gameEntity1.getMesh());
 
 
-        vertices = VerticesFactory.createPolygon(0,0,40, 40,25);
+        vertices = VerticesFactory.createRectangle(60, 60);
         properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
@@ -446,7 +443,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     private void projectionTest(TouchEvent touchEvent) {
-        GameScene.plotter2.detachChildren();
         if (this.points == null) {
             this.points = GeometryUtils.generateRandomSpecialConvexPolygon(9, 400, 240, 90);
         }
@@ -474,7 +470,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             vertices1.add(obtain(3, -5));
 
             LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
-            properties1.setSharpness(0.3f);
+            properties1.setSharpness(0.5f);
             LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
             ArrayList<LayerBlock> blocks = new ArrayList<>();
