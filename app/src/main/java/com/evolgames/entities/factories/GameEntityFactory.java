@@ -184,12 +184,12 @@ public class GameEntityFactory {
 
 
     GameEntity createDollPart(float x, float y, float rot, ArrayList<LayerBlock> blocks, String name) {
-        BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(DOLL_CATEGORY,DOLL_MASK), x, y, rot),true);
+        BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(DOLL_CATEGORY,DOLL_MASK), x, y, rot),false);
         return this.createGameEntity(x, y, rot, bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
     }
 
     GameEntity createDollPart(float x, float y, Filter filter, ArrayList<LayerBlock> blocks, String name) {
-        BodyInit bodyInit =  new BulletInit(new TransformInit(new BodyInitImpl(filter), x, y, (float) 0),true);
+        BodyInit bodyInit =  new BulletInit(new TransformInit(new BodyInitImpl(filter), x, y, (float) 0),false);
         return this.createGameEntity(x, y, (float) 0, bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
     }
 

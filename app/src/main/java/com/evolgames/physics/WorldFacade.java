@@ -86,7 +86,6 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -130,8 +129,8 @@ public class WorldFacade implements ContactObserver {
 
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8);
-        physicsWorld.setPositionIterations(3);
+        physicsWorld.setVelocityIterations(8*3);
+        physicsWorld.setPositionIterations(3*3);
         physicsWorld.setContinuousPhysics(true);
 
         this.groundModel = new BodyModel(-1);
@@ -623,20 +622,20 @@ public class WorldFacade implements ContactObserver {
 
         boolean penetrationHappened = computePenetrationImpact(contact, entity1, entity2);
 
-        if(!penetrationHappened){
-            if(entity1.hasActiveUsage(Stabber.class)){
+        if (!penetrationHappened) {
+            if (entity1.hasActiveUsage(Stabber.class)) {
                 Penetrating usage = entity1.getActiveUsage(Stabber.class);
                 usage.onCancel();
             }
-            if(entity2.hasActiveUsage(Stabber.class)){
+            if (entity2.hasActiveUsage(Stabber.class)) {
                 Penetrating usage = entity2.getActiveUsage(Stabber.class);
                 usage.onCancel();
             }
-            if(entity1.hasActiveUsage(Projectile.class)){
+            if (entity1.hasActiveUsage(Projectile.class)) {
                 Penetrating usage = entity1.getActiveUsage(Projectile.class);
                 usage.onCancel();
             }
-            if(entity2.hasActiveUsage(Projectile.class)){
+            if (entity2.hasActiveUsage(Projectile.class)) {
                 Penetrating usage = entity2.getActiveUsage(Projectile.class);
                 usage.onCancel();
             }
@@ -731,16 +730,17 @@ public class WorldFacade implements ContactObserver {
         Vector2 tangent = obtain(-normal.y, normal.x);
 
         final float collisionEnergy = penetration.getAvailableEnergy(computeCollisionEnergy(V1, V2, normal, m1, m2));
-       System.out.println("-----------$ Begin penetration, energy:"+collisionEnergy);
+        System.out.println("-----------$ Begin penetration, energy:" + collisionEnergy);
         if (collisionEnergy < 100.0f) {
             return false;
         }
 
 
         final float range = 5f;
-        final float dTx = 0.01f * tangent.x;
-        final float dTy = 0.01f * tangent.y;
-        final float dN = 0.01f;
+        final float dL = 0.1f;
+        final float dTx = dL * tangent.x;
+        final float dTy = dL * tangent.y;
+        final float dN = dL;
         float pds0x = point.x + normal.x * range;
         float pds0y = point.y + normal.y * range;
         float pde0x = point.x - normal.x * range;
@@ -751,7 +751,6 @@ public class WorldFacade implements ContactObserver {
         final Vector2 p1 = obtain();
         final Vector2 p2 = obtain();
 
-        final float marge = 5f;
 
         List<LayerBlock> leadingBlocks = new ArrayList<>();
         List<TopographyData> penetratorData = new ArrayList<>();
@@ -765,7 +764,7 @@ public class WorldFacade implements ContactObserver {
 
             if (interPenetrator != null) {
                 p1.set(interPenetrator.x + normal.x * BACKOFF, interPenetrator.y + normal.y * BACKOFF);
-                p2.set(interPenetrator.x - normal.x * marge, interPenetrator.y - normal.y * marge);
+                p2.set(interPenetrator.x - normal.x * range, interPenetrator.y - normal.y * range);
                 TopographyData penTopographyData = findIntervalsExclusiveToOneEntity(penetrator, interPenetrator, normal, p1, p2);
                 if (sign == 1) {
                     penetratorData.add(penTopographyData);
@@ -774,8 +773,8 @@ public class WorldFacade implements ContactObserver {
                     penetratorData.add(0, penTopographyData);
                     leadingBlocks.add(0, detectionRayCastCallback.getLayerBlock());
                 }
-                p1.set(interPenetrator.x - normal.x * marge, interPenetrator.y - normal.y * marge);
-                p2.set(interPenetrator.x + normal.x * marge, interPenetrator.y + normal.y * marge);
+                p1.set(interPenetrator.x - normal.x * range, interPenetrator.y - normal.y * range);
+                p2.set(interPenetrator.x + normal.x * range, interPenetrator.y + normal.y * range);
                 TopographyData envTopographyData = findIntervalsExceptingOneEntity(penetrator, interPenetrator, normal, p1, p2);
                 if (sign == 1) {
                     environmentData.add(envTopographyData);
@@ -793,14 +792,14 @@ public class WorldFacade implements ContactObserver {
             }
         }
 
-        if(environmentData.isEmpty()){
+        if (environmentData.isEmpty()) {
             return false;
         }
-      float correctionValue = -correctEnvironmentData(environmentData,penetratorData);
-      // point.sub(normal.x*correctionValue,normal.y*correctionValue);
+        float correctionValue = -correctEnvironmentData(environmentData, penetratorData);
+        point.sub(normal.x * correctionValue, normal.y * correctionValue);
 
         boolean debug = false;
-        if(debug) {
+        if (debug) {
             //GameScene.plotter2.detachChildren();
             drawPenetrationData(point, normal, penetratorData, environmentData);
             GameScene.pause = false;
@@ -838,11 +837,11 @@ public class WorldFacade implements ContactObserver {
             if (collisionEnergy - penetrationEnergy < 0) {
                 float actualAdvance = step * dN;
                 penetration.onEnergyConsumed(this, contact, point, normal, actualAdvance, penetrator, penetrated, environmentData, penetratorData, collisionEnergy);
-                System.out.println("-----------$ On energy consumed, penetrationEnergy:"+penetrationEnergy+" advance:"+actualAdvance);
+                System.out.println("-----------$ On energy consumed, penetrationEnergy:" + penetrationEnergy + " advance:" + actualAdvance);
                 return true;
             }
         }
-        System.out.println("-----------$ On free, penetrationEnergy:"+advance);
+        System.out.println("-----------$ On free, penetrationEnergy:" + advance);
         penetration.onFree(this, contact, point, normal, advance, penetrator, penetrated, environmentData, penetratorData, collisionEnergy, penetrationEnergy);
         return true;
     }
@@ -852,31 +851,31 @@ public class WorldFacade implements ContactObserver {
             float ratio = j / (float) environmentData.size();
             Color c = new Color(ratio, 0f, 0f);
             TopographyData topographyData = environmentData.get(j);
-          drawData(topographyData,1, normal,c);
+            drawData(topographyData, 1, normal, c);
         }
 
         for (int j = 0; j < penetratorData.size(); j++) {
             float ratio = j / (float) penetratorData.size();
             Color c = new Color(0f, 0f, ratio);
             TopographyData topographyData = penetratorData.get(j);
-            drawData(topographyData,1, normal,c);
+            drawData(topographyData, 1, normal, c);
         }
-        GameScene.plotter2.drawPoint(point.cpy().mul(32f),Color.CYAN,4f);
-        GameScene.plotter2.drawVector(point.cpy().mul(32f),normal.cpy().mul(32f),Color.CYAN);
+        GameScene.plotter2.drawPoint(point.cpy().mul(32f), Color.CYAN, 4f);
+        GameScene.plotter2.drawVector(point.cpy().mul(32f), normal.cpy().mul(32f), Color.CYAN);
     }
 
     private float correctEnvironmentData(List<TopographyData> environmentData, List<TopographyData> penetratorData) {
         float envError = Float.MAX_VALUE;
-        for(TopographyData topographyData : environmentData){
+        for (TopographyData topographyData : environmentData) {
             float min = topographyData.getMin();
-            if(min<envError){
+            if (min < envError) {
                 envError = min;
             }
         }
-        for(TopographyData data: penetratorData){
-            for(int k=0;k<data.getLength();k++){
-                data.getData()[k][0]+=envError;
-                data.getData()[k][1]+=envError;
+        for (TopographyData data : penetratorData) {
+            for (int k = 0; k < data.getLength(); k++) {
+                data.getData()[k][0] += envError;
+                data.getData()[k][1] += envError;
             }
         }
         return envError;
@@ -1284,19 +1283,19 @@ public class WorldFacade implements ContactObserver {
 
     }
 
-    public void computePenetrationPoints(Vector2 normal,Vector2 P, float advance, List<TopographyData> envData, List<TopographyData> penData) {
+    public void computePenetrationPoints(Vector2 normal, Vector2 P, float advance, List<TopographyData> envData, List<TopographyData> penData) {
         List<PenetrationPoint> allPenPoints = new ArrayList<>();
         for (TopographyData topographyData : envData) {
             List<PenetrationPoint> dataPenPoints = new ArrayList<>();
             for (int i = 0; i < topographyData.getLength(); i++) {
                 float inf = topographyData.getData()[i][0];
                 float sup = topographyData.getData()[i][1];
-                if (advance > inf + 0.1f) {
+                if (advance > inf + 0.01f) {
                     Vector2 point = topographyData.getBase().cpy().add(inf * normal.x, inf * normal.y);
                     PenetrationPoint pe = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, inf, true);
                     dataPenPoints.add(pe);
                 }
-                if (advance > sup + 0.1f) {
+                if (advance > sup + 0.01f) {
                     Vector2 point = topographyData.getBase().cpy().add(sup * normal.x, sup * normal.y);
                     PenetrationPoint ps = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, sup, false);
                     dataPenPoints.add(ps);
@@ -1313,36 +1312,32 @@ public class WorldFacade implements ContactObserver {
                 }
             }
         }
-        System.out.println("-----------Penetration:"+allPenPoints.size()+"# "+advance+"§"+normal);
-        if(allPenPoints.size()>500){
-            GameScene.pause = true;
-            drawPenetrationData(P, normal, penData, envData);
-        }
+
         Map<GameEntity, List<PenetrationPoint>> groupedByEntity = allPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getEntity));
-        for (Map.Entry<GameEntity,List<PenetrationPoint>> entry : groupedByEntity.entrySet()) {
+        for (Map.Entry<GameEntity, List<PenetrationPoint>> entry : groupedByEntity.entrySet()) {
             Map<LayerBlock, List<PenetrationPoint>> res = entry.getValue().stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock));
-           GameEntity entity = entry.getKey();
-           for(Map.Entry<LayerBlock,List<PenetrationPoint>> entryByBlock:res.entrySet()) {
-               LayerBlock layerBlock = entryByBlock.getKey();
-               List<Vector2> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f)).collect(Collectors.toList());
-               if (!enterBleedingPoints.isEmpty()) {
-                   float length = MathUtils.diminishedIncrease(advance,0.25f)*enterBleedingPoints.size();
-                   if (length > 1) {
-                       FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy().mul(-600f));
-                       this.createJuiceSource(entity, layerBlock, freshCut);
-                       layerBlock.addFreshCut(freshCut);
-                   }
-               }
-               List<Vector2> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p->!p.isEntering()).map(p -> entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f)).collect(Collectors.toList());
-               if (!leavingBleedingPoints.isEmpty()) {
-                   float length =  MathUtils.diminishedIncrease(advance,0.125f) * leavingBleedingPoints.size();
-                   if (length > 1 && layerBlock.getProperties().isJuicy()) {
-                       FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy());
-                       this.createJuiceSource(entity, layerBlock, freshCut);
-                       layerBlock.addFreshCut(freshCut);
-                   }
-               }
-           }
+            GameEntity entity = entry.getKey();
+            for (Map.Entry<LayerBlock, List<PenetrationPoint>> entryByBlock : res.entrySet()) {
+                LayerBlock layerBlock = entryByBlock.getKey();
+                List<Vector2> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f)).collect(Collectors.toList());
+                if (!enterBleedingPoints.isEmpty()) {
+                    float length = MathUtils.diminishedIncrease(advance, 10f) * enterBleedingPoints.size();
+                    if (length > 1) {
+                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy().mul(-600f));
+                        this.createJuiceSource(entity, layerBlock, freshCut);
+                        layerBlock.addFreshCut(freshCut);
+                    }
+                }
+                List<Vector2> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f)).collect(Collectors.toList());
+                if (!leavingBleedingPoints.isEmpty()) {
+                    float length = MathUtils.diminishedIncrease(advance, 5f) * leavingBleedingPoints.size();
+                    if (length > 1 && layerBlock.getProperties().isJuicy()) {
+                        FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT), normal.cpy());
+                        this.createJuiceSource(entity, layerBlock, freshCut);
+                        layerBlock.addFreshCut(freshCut);
+                    }
+                }
+            }
         }
 
     }
@@ -1461,11 +1456,24 @@ public class WorldFacade implements ContactObserver {
     }
 
     public List<GameEntity> findOverlappingEntities(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
-        HashSet<GameEntity> entities = new HashSet<>();
-        for (int i = 0; i < penData.size(); i++) {
-            entities.addAll(envData.get(i).findOverlappingEntities(penData.get(i), actualAdvance));
+        float penetratorValue = 0;
+        for (TopographyData topographyData : penData) {
+            penetratorValue += topographyData.getDensityValue();
         }
-        return new ArrayList<>(entities);
+        System.out.println("--------- Penetrator density:"+penetratorValue);
+
+        HashSet<TopographyData.Overlap> overlaps = new HashSet<>();
+        for (int i = 0; i < penData.size(); i++) {
+            overlaps.addAll(envData.get(i).findOverlaps(penData.get(i), actualAdvance));
+        }
+        final float finalPenetratorValue = penetratorValue;
+        return overlaps.stream().collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity)).entrySet().stream().
+                filter(e -> {
+                    List<TopographyData.Overlap> ovl = e.getValue();
+                    float ovlValue = (float) ovl.stream().mapToDouble(TopographyData.Overlap::getValue).sum();
+                    System.out.println(e.getKey().getName()+"---------  density:"+ovlValue);
+                    return ovlValue > finalPenetratorValue / 3f;
+                }).map(Map.Entry::getKey).distinct().collect(Collectors.toList());
     }
 
     public List<GameEntity> findReachedEntities(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {

@@ -3,7 +3,7 @@ package com.evolgames.entities.hand;
 public class ParallelHandControl extends HandControl{
     private final HandControl[] controls;
     public ParallelHandControl(HandAction handAction,HandControl ... list) {
-        super(handAction);
+        super();
        this.controls = list;
     }
 

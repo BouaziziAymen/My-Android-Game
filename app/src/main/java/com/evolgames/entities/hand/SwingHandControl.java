@@ -10,13 +10,11 @@ import org.andengine.util.math.MathConstants;
 public class SwingHandControl extends HandControl {
     private final float speed;
     private final Hand hand;
-    private final float initialAngle;
 
     public SwingHandControl(Hand hand, int speed) {
         super((int) ((0.3f*600)/Math.abs(speed)));
         this.speed = speed;
         this.hand = hand;
-        this.initialAngle = this.hand.getGrabbedEntity().getBody().getAngle();
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.commands.BodyCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.BodyDestructionCommand;
 import com.evolgames.entities.commandtemplate.commands.Command;
+import com.evolgames.entities.commandtemplate.commands.CustomCommand;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
@@ -94,6 +95,9 @@ public class Invoker {
     public static void addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2){
         JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2);
         gameGroup.getCommands().add(command);
+    }
+    public static void addCustomCommand(GameEntity entity,Runnable runnable){
+        entity.getCommands().add(new CustomCommand(runnable));
     }
 
 }

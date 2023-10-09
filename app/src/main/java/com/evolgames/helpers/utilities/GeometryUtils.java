@@ -492,6 +492,9 @@ public class GeometryUtils {
         for (List<Vector2> vector2List : lists){
             list.addAll(vector2List);
         }
+        if(list.size()<3){
+            return null;
+        }
         Vector2[] vertices = GeometryUtils.hullFinder.findConvexHull(list.toArray(new Vector2[0]));
         if (vertices.length < 3){
             return null;
@@ -500,7 +503,31 @@ public class GeometryUtils {
         Rectangle rectangle = Caliper.minimumBox(polygon);
         return rectangle.getCenter();
     }
+    public static float calculateShortestDirectedDistance(float angle1, float angle2) {
+        // Normalize angles to be between 0 and 360 degrees
+        angle1 = normalizeAngle(angle1);
+        angle2 = normalizeAngle(angle2);
 
+        // Calculate the absolute difference
+        float absoluteDifference = Math.abs(angle1 - angle2);
+
+        // Calculate clockwise distance
+        float clockwiseDistance = (angle1 > angle2) ? 360f - absoluteDifference : absoluteDifference;
+
+        // Calculate counterclockwise distance
+        float counterclockwiseDistance = 360f - clockwiseDistance;
+
+        // Determine the shortest directed distance
+        return clockwiseDistance<counterclockwiseDistance?clockwiseDistance:-counterclockwiseDistance;
+    }
+
+    public static float normalizeAngle(float angle) {
+        angle = angle % 360f;
+        if (angle < 0) {
+            angle += 360.0;
+        }
+        return angle;
+    }
     public static Vector2 calculateCentroid(List<Vector2> vertices) {
         float x = 0;
         float y = 0;

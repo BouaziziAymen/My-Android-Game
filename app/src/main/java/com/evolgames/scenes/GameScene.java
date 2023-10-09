@@ -172,7 +172,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_sword.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_knife.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();

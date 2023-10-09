@@ -7,20 +7,14 @@ public abstract class HandControl {
     private  boolean dead = false;
     private final boolean hasLifespan;
     protected int lifespan;
-    private final HandAction handAction;
 
     public HandControl(){
         this.hasLifespan = false;
-        this.handAction = HandAction.NONE;
     }
-    public HandControl(HandAction handAction){
-        this.hasLifespan = false;
-        this.handAction = handAction;
-    }
+
     public HandControl(int lifespan) {
         this.hasLifespan = true;
         this.lifespan = lifespan;
-        this.handAction = HandAction.NONE;
     }
 
     public void run(){
@@ -41,10 +35,6 @@ public abstract class HandControl {
 
     public void setDead(boolean dead) {
         this.dead = dead;
-    }
-
-    public HandAction getHandAction() {
-        return handAction;
     }
 
     public void setRunnable(Runnable runnable) {

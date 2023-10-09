@@ -55,6 +55,16 @@ public class TopographyData {
         length++;
 
     }
+    public float getDensityValue(){
+        float value = 0;
+        for (int i = 0; i < length; i++) {
+            float inf = data[i][0];
+            float sup = data[i][1];
+            float density = blocks[i].getProperties().getDensity();
+            value+=density*(sup-inf);
+        }
+        return value;
+    }
 
     public int getSize() {
         return length;
@@ -71,7 +81,7 @@ public class TopographyData {
                     return null;
                 }
                 float s = 1f-sharpness;
-                float h = 1/(penetratorHardness - 0.999f*data[i][2]);
+                float h = (float) Math.pow(penetratorHardness - 0.999f*data[i][2],-2);
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
                 energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,2);
             }
@@ -149,31 +159,51 @@ public class TopographyData {
         }
         return new ArrayList<>(gameEntities);
     }
+    public static class Overlap{
+        GameEntity gameEntity;
+        float value;
 
-    public List<GameEntity> findOverlappingEntities(TopographyData penetratorTopographyData, float advance) {
-        List<OverlapFlag> overlapFlagList = new ArrayList<>();
+        public Overlap(GameEntity gameEntity, float value) {
+            this.gameEntity = gameEntity;
+            this.value = value;
+        }
+
+        public GameEntity getGameEntity() {
+            return gameEntity;
+        }
+
+        public void setGameEntity(GameEntity gameEntity) {
+            this.gameEntity = gameEntity;
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public void setValue(float value) {
+            this.value = value;
+        }
+    }
+
+    public List<Overlap> findOverlaps(TopographyData penetratorTopographyData, float advance) {
+
+        List<Overlap> overlaps = new ArrayList<>();
         for(int j = 0; j< penetratorTopographyData.length; j++) {
             for (int i = 0; i < length; i++) {
                 float INF = data[i][0];
                 float SUP = data[i][1];
+                float density = penetratorTopographyData.getBlocks()[j].getProperties().getDensity();
                 float inf = penetratorTopographyData.getData()[j][0] + advance;
                 float sup = penetratorTopographyData.getData()[j][1] + advance;
                 float lowerBoundOfOverlap = Math.max(inf, INF);
                 float upperBoundOfOverlap = Math.min(sup, SUP);
                 if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
-                    // Overlap exists, calculate and return the length
-                    overlapFlagList.add(new OverlapFlag(this.entities[i], lowerBoundOfOverlap));
-                    overlapFlagList.add(new OverlapFlag(this.entities[i], upperBoundOfOverlap));
+                    // Overlap exists
+                    overlaps.add(new Overlap(this.entities[i],density*(upperBoundOfOverlap- lowerBoundOfOverlap)));
                 }
             }
         }
-       return overlapFlagList.stream().collect(Collectors.groupingBy(OverlapFlag::getEntity))
-                .entrySet().stream().filter((e)->{
-                    List<OverlapFlag> list = e.getValue();
-                    list.sort(Comparator.comparing(OverlapFlag::getValue));
-                    float overlap = list.get(list.size()-1).value - list.get(0).value;
-                    return overlap>=0.05f;
-                }).map(Map.Entry::getKey).distinct().collect(Collectors.toList());
+      return overlaps;
     }
 
     public boolean doesOverlap(TopographyData penetratorTopographyData, float advance) {
