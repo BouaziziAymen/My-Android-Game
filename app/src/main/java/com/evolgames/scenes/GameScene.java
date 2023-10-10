@@ -279,7 +279,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
             // this.attachChild(uncoloredSprite);
 
-            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f/32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
+            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
             getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
@@ -528,9 +528,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
-
-        if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
-            processHandling(touchEvent);
+        if (!hudTouched) {
+            if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
+                processHandling(touchEvent);
+            }
         }
         if (action == PlayerAction.Slice) {
             processSlicing(touchEvent);

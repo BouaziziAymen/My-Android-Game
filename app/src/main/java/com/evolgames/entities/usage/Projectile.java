@@ -22,7 +22,6 @@ public class Projectile extends Use implements Penetrating {
     public void onStep(float deltaTime) {
     }
 
-
     @Override
     public PlayerSpecialAction getAction() {
         return null;
@@ -65,7 +64,5 @@ public class Projectile extends Use implements Penetrating {
     }
 
     @Override
-    public void onCancel() {
-
-    }
+    public void onCancel() {}
 }

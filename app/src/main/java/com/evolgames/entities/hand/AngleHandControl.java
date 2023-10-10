@@ -36,15 +36,10 @@ public class AngleHandControl extends HandControl {
             if (!(Math.abs(error) > 5f)) {
                 if (!thrown) {
                     setDead(true);
-                    body.setFixedRotation(false);
                     thrown = true;
-                    hand.getGrabbedEntity().getGameScene().getPhysicsWorld().destroyJoint(hand.getMouseJoint());
-                    Vector2 u = new Vector2(0,1);
-                    GeometryUtils.rotateVectorDeg(u,angle);
-                    hand.getGrabbedEntity().getBody().setLinearVelocity(50*u.x, 50*u.y);
-                    hand.getGrabbedEntity().getUseList().add(new Projectile());
-                    hand.onMouseJointDestroyed();
-                    hand.clearStack();
+                    if(this.runnable!=null) {
+                        this.runnable.run();
+                    }
                 }
             }
         }
