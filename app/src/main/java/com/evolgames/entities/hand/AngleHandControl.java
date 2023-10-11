@@ -1,11 +1,9 @@
 package com.evolgames.entities.hand;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.entities.usage.Projectile;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
-import com.evolgames.scenes.hand.Hand;
+import com.evolgames.scenes.Hand;
 
 public class AngleHandControl extends HandControl {
 

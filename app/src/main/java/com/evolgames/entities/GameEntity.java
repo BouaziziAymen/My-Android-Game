@@ -19,6 +19,7 @@ import com.evolgames.scenes.GameScene;
 
 import org.andengine.entity.primitive.Line;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.compressed.pvr.pixelbufferstrategy.GreedyPVRTexturePixelBufferStrategy;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayDeque;
@@ -48,6 +49,7 @@ public class GameEntity extends EntityWithBody {
     private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
     private boolean isFireSetup;
     private GameEntity parentGameEntity;
+    private float sortingValue;
 
 
     public GameScene getGameScene() {
@@ -463,5 +465,26 @@ public class GameEntity extends EntityWithBody {
     @Override
     public int hashCode() {
         return Objects.hash(layerBlocks);
+    }
+
+    public void setSortingValue(float sortingValue) {
+        this.sortingValue = sortingValue;
+    }
+
+    public float getSortingValue() {
+        return sortingValue;
+    }
+
+    public List<GameEntity> getConnectedEntities() {
+        List<GameEntity> list = new ArrayList<>();
+        gameScene.getPhysicsWorld().getJoints().forEachRemaining(e->{
+            if(e.getBodyA()==this.getBody()){
+                list.add((GameEntity) e.getBodyB().getUserData());
+            }
+            else if(e.getBodyB()==this.getBody()){
+                list.add((GameEntity) e.getBodyA().getUserData());
+            }
+        });
+        return list;
     }
 }

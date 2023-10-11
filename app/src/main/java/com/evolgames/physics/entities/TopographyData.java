@@ -15,19 +15,27 @@ import java.util.stream.Collectors;
 
 public class TopographyData {
 
-    private int length = 0;
     private final float[][] data;
     private final GameEntity[] entities;
     private final LayerBlock[] blocks;
     private final Vector2 base;
+    private int length = 0;
+    private boolean center;
 
     public TopographyData(int n, Vector2 base) {
-        this.data = new float[n][3];
+        this.data = new float[n][2];
         this.base = base.cpy();
         this.entities = new GameEntity[n];
         this.blocks = new LayerBlock[n];
     }
 
+    public boolean isCenter() {
+        return center;
+    }
+
+    public void setCenter(boolean center) {
+        this.center = center;
+    }
 
     public float[][] getData() {
         return data;
@@ -41,7 +49,7 @@ public class TopographyData {
         return entities;
     }
 
-    public void add(float begin, float end, float hardness, GameEntity entity, LayerBlock layerBlock) {
+    public void add(float begin, float end, GameEntity entity, LayerBlock layerBlock) {
         if (begin <= end) {
             data[length][0] = begin;
             data[length][1] = end;
@@ -51,7 +59,6 @@ public class TopographyData {
         }
         entities[length] = entity;
         blocks[length] = layerBlock;
-        data[length][2] = hardness;
         length++;
 
     }
@@ -76,14 +83,15 @@ public class TopographyData {
         for (int i = 0; i < length; i++) {
             float inf = data[i][0];
             float sup = data[i][1];
+            float hardness = blocks[i].getProperties().getHardness();
             if (advance >= inf) {
-                if(penetratorHardness<data[i][2]){
+                if(penetratorHardness<hardness){
                     return null;
                 }
                 float s = 1f-sharpness;
-                float h = (float) Math.pow(penetratorHardness - 0.999f*data[i][2],-2);
+                float h = (float) Math.pow(penetratorHardness - 0.999f*hardness,-2);
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,2);
+                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,3);
             }
         }
         return energy;
@@ -127,25 +135,6 @@ public class TopographyData {
         return result;
     }
 
-
-    static class OverlapFlag{
-        GameEntity entity;
-        float value;
-
-        public OverlapFlag(GameEntity entity, float value) {
-            this.entity = entity;
-            this.value = value;
-        }
-
-        public float getValue() {
-            return value;
-        }
-
-        public GameEntity getEntity() {
-            return entity;
-        }
-    }
-
     public List<GameEntity> findReachedEntities(TopographyData penetratorTopographyData, float advance) {
         HashSet<GameEntity> gameEntities = new HashSet<>();
         for(int j = 0; j< penetratorTopographyData.length; j++) {
@@ -158,31 +147,6 @@ public class TopographyData {
             }
         }
         return new ArrayList<>(gameEntities);
-    }
-    public static class Overlap{
-        GameEntity gameEntity;
-        float value;
-
-        public Overlap(GameEntity gameEntity, float value) {
-            this.gameEntity = gameEntity;
-            this.value = value;
-        }
-
-        public GameEntity getGameEntity() {
-            return gameEntity;
-        }
-
-        public void setGameEntity(GameEntity gameEntity) {
-            this.gameEntity = gameEntity;
-        }
-
-        public float getValue() {
-            return value;
-        }
-
-        public void setValue(float value) {
-            this.value = value;
-        }
     }
 
     public List<Overlap> findOverlaps(TopographyData penetratorTopographyData, float advance) {
@@ -220,11 +184,56 @@ public class TopographyData {
         }
         return false;
     }
+
     public Vector2 getBase() {
         return base;
     }
 
     public LayerBlock[] getBlocks() {
         return blocks;
+    }
+
+    static class OverlapFlag{
+        GameEntity entity;
+        float value;
+
+        public OverlapFlag(GameEntity entity, float value) {
+            this.entity = entity;
+            this.value = value;
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public GameEntity getEntity() {
+            return entity;
+        }
+    }
+
+    public static class Overlap{
+        GameEntity gameEntity;
+        float value;
+
+        public Overlap(GameEntity gameEntity, float value) {
+            this.gameEntity = gameEntity;
+            this.value = value;
+        }
+
+        public GameEntity getGameEntity() {
+            return gameEntity;
+        }
+
+        public void setGameEntity(GameEntity gameEntity) {
+            this.gameEntity = gameEntity;
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public void setValue(float value) {
+            this.value = value;
+        }
     }
 }

@@ -6,7 +6,7 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.scenes.PlayerSpecialAction;
-import com.evolgames.scenes.hand.Hand;
+import com.evolgames.scenes.Hand;
 
 import java.util.List;
 

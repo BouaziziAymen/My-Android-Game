@@ -19,7 +19,9 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class JointCreationCommand extends Command {
 
@@ -27,7 +29,6 @@ public class JointCreationCommand extends Command {
     private GameEntity entity1;
     private GameEntity entity2;
     private Joint joint;
-    private JointBlock jointBlock1;
     private JointBlock jointBlock2;
     private boolean createdJointBlocks;
 
@@ -35,10 +36,14 @@ public class JointCreationCommand extends Command {
         this.jointDef = jointDef;
         this.entity1 = entity1;
         this.entity2 = entity2;
+        if(jointDef.type!= JointDef.JointType.MouseJoint){
+            addJointBlocks();
+        }
     }
 
     @Override
     protected void run() {
+
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
         if(this.joint!=null&& this.joint instanceof MouseJoint){
             MouseJointDef mouseJointDef = (MouseJointDef) this.jointDef;
@@ -46,6 +51,14 @@ public class JointCreationCommand extends Command {
             mouseJointDef.target.set(point);
         }
         this.joint = physicsWorld.createJoint(jointDef);
+        if(jointDef.type== JointDef.JointType.WeldJoint){
+            List<GameEntity> list = entity1.getParentGroup().getCommands().
+                    stream().filter(e -> e instanceof JointCreationCommand).map(e -> (JointCreationCommand) e).
+            filter(e->e.entity1==entity1||e.entity2==entity1).map(e -> e.entity1==entity1?e.entity2:e.entity1).collect(Collectors.toList());
+            for(GameEntity gameEntity: list) {
+                Invoker.gameScene.getWorldFacade().addNonCollidingPair(entity2, gameEntity);
+            }
+        }
         if (this.joint instanceof MouseJoint) {
             Invoker.gameScene.setMouseJoint((MouseJoint) joint, entity2);
         }
@@ -57,7 +70,7 @@ public class JointCreationCommand extends Command {
 
     private void addJointBlocks() {
         this.createdJointBlocks = true;
-        jointBlock1 = new JointBlock();
+        JointBlock jointBlock1 = new JointBlock();
         jointBlock2 = new JointBlock();
         jointBlock1.setCommand(this);
         jointBlock2.setCommand(this);
@@ -70,7 +83,6 @@ public class JointCreationCommand extends Command {
             case MouseJoint:
                 MouseJointDef mouseJointDef = ((MouseJointDef) jointDef) ;
                 anchorB = jointDef.bodyB.getLocalPoint(mouseJointDef.target).cpy().mul(32);
-                System.out.println("AncherB:"+anchorB);
             case LineJoint:
             case PulleyJoint:
             case DistanceJoint:

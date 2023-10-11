@@ -44,7 +44,6 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.physics.CollisionConstants;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.hand.Hand;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
@@ -172,7 +171,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_knife.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_sword.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
@@ -252,7 +251,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         vertices = VerticesFactory.createRectangle(60, 60);
-        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11));
+        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
         block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
         blocks = new ArrayList<>();
         blocks.add(block1);

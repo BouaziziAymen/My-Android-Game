@@ -1,4 +1,4 @@
-package com.evolgames.scenes.hand;
+package com.evolgames.scenes;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
@@ -281,8 +281,7 @@ public class Hand {
         Body body = this.grabbedEntity.getBody();
         this.localPoint = body.getLocalPoint(mouseJoint.getTarget()).cpy();
         HandControl handControl2 = new AngleHandControl(this, angle);
-        float maxSpeed = 50f;
-        handControl2.setRunnable(() -> throwable.processThrow(gameScene, this, angle, touchDistance/5f*maxSpeed));
+        handControl2.setRunnable(() -> throwable.processThrow(gameScene, this, angle, touchDistance/5f));
         HandControl handControl1 = new MoveHandControl(this, handTarget);
         ParallelHandControl throwHandControl = new ParallelHandControl(HandAction.MOVE_TO_THROW, handControl1, handControl2);
         handControlStack.push(throwHandControl);
@@ -301,7 +300,7 @@ public class Hand {
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
         grabbedEntity.getMesh().setZIndex(-1);
         gameScene.sortChildren();
-        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * 3f), this.localPoint);
+        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * STAB_ADVANCE), this.localPoint);
         grabbedEntity.getUsage(Stabber.class).setActive(true);
         grabbedEntity.getUsage(Stabber.class).reset(localPoint, handControl);
         handControlStack.add(handControl);
