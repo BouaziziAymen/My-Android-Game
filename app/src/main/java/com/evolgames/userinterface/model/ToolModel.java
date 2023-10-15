@@ -17,6 +17,7 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.usage.Slasher;
+import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
@@ -253,6 +254,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.STABBER).forEach(e->{
             Stabber stabber = new Stabber();
             usageBodyModel.getGameEntity().getUseList().add(stabber);
+        }));
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.BLUNT).forEach(e->{
+            Smasher smasher = new Smasher();
+            usageBodyModel.getGameEntity().getUseList().add(smasher);
         }));
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.THROWING).forEach(e->{
             Throw throwable = new Throw();

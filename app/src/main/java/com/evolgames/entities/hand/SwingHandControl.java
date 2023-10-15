@@ -7,8 +7,8 @@ public class SwingHandControl extends HandControl {
     private final float speed;
     private final Hand hand;
 
-    public SwingHandControl(Hand hand, int speed) {
-        super((int) ((0.3f*600)/Math.abs(speed)));
+    public SwingHandControl(Hand hand, int speed, float ratio) {
+        super((int) (ratio/Math.abs(speed)));
         this.speed = speed;
         this.hand = hand;
     }

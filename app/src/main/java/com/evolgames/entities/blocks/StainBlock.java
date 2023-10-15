@@ -1,17 +1,20 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.StainProperties;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.helpers.utilities.Utils;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
 
+import java.util.ArrayList;
+
 public final class StainBlock extends AssociatedBlock<StainBlock, StainProperties> {
 
 
     private float[] data;
-
+    private int priority;
 
     public ITextureRegion getTextureRegion() {
         return getProperties().getTextureRegion();
@@ -67,5 +70,13 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
     @Override
     protected StainBlock getThis() {
         return this;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

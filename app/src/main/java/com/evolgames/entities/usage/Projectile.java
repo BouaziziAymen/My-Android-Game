@@ -54,7 +54,7 @@ public class Projectile extends Use implements Penetrating {
             Body overlappedEntityBody = overlappedEntity.getBody();
             worldFacade.freeze(overlappedEntity);
             worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            worldFacade.applyPointImpact(obtain(point), 1 / 60f * consumedEnergy * massFraction, overlappedEntity);
+            worldFacade.applyPointImpact(obtain(point), (float) (Math.sqrt(consumedEnergy) * massFraction), overlappedEntity);
             Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.01f * Math.sqrt(consumedEnergy) * massFraction)), point));
         }
     }

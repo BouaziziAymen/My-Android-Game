@@ -32,8 +32,8 @@ public class Ragdoll extends GameGroup {
     GameEntity lowerLegL;
     GameEntity rightHand;
     GameEntity leftHand;
-    GameEntity leftFoot;
-    GameEntity rightFoot;
+   public GameEntity leftFoot;
+    public GameEntity rightFoot;
     boolean alive = true;
     Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
@@ -79,6 +79,12 @@ public class Ragdoll extends GameGroup {
         rightFoot.setType(SpecialEntityType.RightFoot);
         this.head = head;
 
+        upperTorso.getMesh().setZIndex(1);
+        upperLegR.getMesh().setZIndex(0);
+        upperLegL.getMesh().setZIndex(0);
+        lowerLegR.getMesh().setZIndex(-1);
+        lowerLegL.getMesh().setZIndex(-1);
+        this.gameScene.sortChildren();
 
         balancers[0] = new Balancer(head, (float) (Math.PI / 2), 0);
         balancers[1] = new Balancer(upperTorso, (float) (Math.PI / 4), 0);

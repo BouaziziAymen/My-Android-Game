@@ -331,6 +331,7 @@ public class PersistenceCaretaker {
         element.appendChild(verticesElement);
 
         Vector2[] outline = pointsModel.getOutlinePoints();
+
         Element outlineElement = document.createElement(OUTLINE_TAG);
         for (Vector2 v : outline) {
             Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);

@@ -3,7 +3,7 @@ package com.evolgames.physics;
 import android.hardware.SensorManager;
 
 public class PhysicsConstants {
-    public static final float TENACITY_FACTOR =20f;
+    public static final float TENACITY_FACTOR =50f;
     public static final float HEAT_CONSTANT = 100f;
     public static final float MINIMUM_SPLINTER_AREA = 64f;
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 90f;

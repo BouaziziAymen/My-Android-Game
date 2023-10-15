@@ -370,6 +370,8 @@ public class GameEntityFactory {
         scene.addGameGroup(ragdoll);
         ragdoll.setBodyParts(head, upperTorso, upperArmRight, lowerArmR, upperArmLeft, lowerArmL, upperLegR, lowerLegR, upperLegL, lowerLegL, rightHand, leftHand, leftFoot, rightFoot);
 
+
+
         head.setName("Head");
         upperTorso.setName("upperTorso");
         upperArmRight.setName("upperArmRight");

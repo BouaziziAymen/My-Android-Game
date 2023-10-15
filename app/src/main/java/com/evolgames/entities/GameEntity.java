@@ -24,9 +24,11 @@ import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class GameEntity extends EntityWithBody {
@@ -325,14 +327,13 @@ public class GameEntity extends EntityWithBody {
         }
 
 
-        for (LayerBlock b : getBlocks()) {
-            ArrayList<? extends Block<?, ?>> associatedBlocks = b.getAssociatedBlocks();
-            for (Block<?, ?> decorationBlock : associatedBlocks) {
-                if (decorationBlock instanceof StainBlock) {
-                    StainBlock stain = (StainBlock) decorationBlock;
+        for (LayerBlock layerBlock : getBlocks()) {
+            ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
+            List<StainBlock> stainBlocks = associatedBlocks.stream().filter(e->e instanceof StainBlock).map(e->(StainBlock) e).collect(Collectors.toList());
+            stainBlocks.sort(Comparator.comparing(StainBlock::getPriority));
+            for (StainBlock stain : stainBlocks) {
                     Color color = stain.getProperties().getColor();
                     batch.draw(stain.getTextureRegion(), stain.getData(), color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
-                }
             }
         }
         batch.submit();

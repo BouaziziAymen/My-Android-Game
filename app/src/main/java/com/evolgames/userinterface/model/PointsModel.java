@@ -45,9 +45,11 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
 
     public void updateOutlinePoints() {
         Vector2[] pointsArray = points.toArray(new Vector2[0]);
-        if (pointsArray.length >= 2) {
+        if (pointsArray.length >= 3) {
             pointsArray = GeometryUtils.hullFinder.findConvexHull(pointsArray);
             setOutlinePoints(pointsArray);
+        } else {
+            setOutlinePoints(new Vector2[0]);
         }
     }
 

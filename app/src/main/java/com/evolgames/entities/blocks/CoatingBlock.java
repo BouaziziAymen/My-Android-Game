@@ -54,7 +54,9 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     public void centerCoreCoatingBlock() {
-        if (position == null) position = new Vector2();
+        if (position == null) {
+            position = new Vector2();
+        }
         position.set(GeometryUtils.calculateCentroid(getVertices()));
     }
 

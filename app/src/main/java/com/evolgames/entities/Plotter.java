@@ -32,6 +32,13 @@ public class Plotter extends Entity {
         attachChild(this.vectors);
         this.vectors.setZIndex(1000);
     }
+    public void drawLineOnEntity(Vector2 v1, Vector2 v2, Color color, float width, Entity e) {
+        Line line = new Line(v1.x, v1.y, v2.x, v2.y, width, this.vbom);
+        line.setColor(color);
+        line.setAlpha(1f);
+        line.setZIndex(99999);
+        e.attachChild(line);
+    }
 
     public void drawPointOnEntity(Vector2 v, Color color, Entity e) {
         Rectangle rect = new Rectangle(v.x, v.y, 1f, 1f, this.vbom);

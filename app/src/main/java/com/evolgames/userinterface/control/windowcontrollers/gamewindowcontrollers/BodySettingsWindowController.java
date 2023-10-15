@@ -9,6 +9,7 @@ import com.evolgames.entities.properties.usage.ManualProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
+import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
@@ -503,6 +504,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         if(e==BodyUsageCategory.STABBER){
             UsageModel<StabProperties> usage = new UsageModel<>("", e);
+            bodyModel.getUsageModels().add(usage);
+        }
+        if(e==BodyUsageCategory.BLUNT){
+            UsageModel<SmashProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
         }
 

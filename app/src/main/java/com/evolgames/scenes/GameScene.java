@@ -41,7 +41,9 @@ import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.MyColorUtils;
 import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.helpers.utilities.Vector2Utils;
 import com.evolgames.physics.CollisionConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -171,7 +173,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
         ToolModel toolModel = null;
         try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_sword.xml");
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_morning_star.xml");
             toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
         } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
             e.printStackTrace();
@@ -279,7 +281,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             // this.attachChild(uncoloredSprite);
 
             gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
-            getWorldFacade().applyLiquidStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0);
+            getWorldFacade().applyStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0, false);
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
             Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
@@ -402,6 +404,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             gameGroup.onStep(pSecondsElapsed);
         }
 
+        if (false) {
+            bluntDamageTest();
+        }
 
         if (false) {
             pulverizationTest();
@@ -418,6 +423,23 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         }
 
 
+    }
+
+    private void bluntDamageTest() {
+        if (step % 60 == 10) {
+            GameEntity head = ragdoll.leftFoot;
+            List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(10, head.getBlocks().get(0).getVertices().get(0), head.getBlocks().get(0), head);
+            for(Vector2 p: pts) {
+                GameScene.plotter2.drawPointOnEntity(p, Color.PINK, head.getMesh());
+                //0.4f+ (float) (Math.random()*0.3f), (float) (Math.random()*0.3f) , (float) (0.1f+Math.random()*0.2f)
+                Color color = new Color(0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
+                Color skin = new Color(head.getBlocks().get(0).getProperties().getDefaultColor());
+                skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
+                MyColorUtils.blendColors(color, color, skin);
+                this.worldFacade.applyStain(head, p.x, p.y, head.getBlocks().get(0), color, 14, true);
+            }
+            head.redrawStains();
+        }
     }
 
     private void pulverizationTest() {
@@ -747,25 +769,28 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     public void setSpecialAction(PlayerSpecialAction action) {
         this.specialAction = action;
-        final float maxHandForce;
+        final float forceFactor;
         switch (action) {
             case None:
-                maxHandForce = 20000;
+                forceFactor = 1000f;
                 break;
             case Slash:
-                maxHandForce = 20000;
+                forceFactor = 2000f;
                 break;
             case Stab:
-                maxHandForce = 35000;
-                break;
             case Throw:
-                maxHandForce = 50000;
+                forceFactor = 3000f;
+                break;
+            case Smash:
+                forceFactor = 4000f;
                 break;
             default:
-                maxHandForce = 0;
+                forceFactor = 0;
         }
         this.hands.forEach((key, h) -> {
-                    if (h.getMouseJoint() != null) h.getMouseJoint().setMaxForce(maxHandForce);
+                    if (h.getMouseJoint() != null) {
+                        h.setForceFactor(forceFactor);
+                    }
                 }
         );
     }
@@ -775,22 +800,22 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     }
 
     public void onUsagesUpdated() {
-        List<PlayerSpecialAction> usageSet = new ArrayList<>();
+        List<PlayerSpecialAction> usageList = new ArrayList<>();
         this.hands.forEach((key, h) -> {
             if (h.getGrabbedEntity() != null) {
                 h.getGrabbedEntity().getUseList().forEach(u -> {
                     if (this.action == PlayerAction.Hold) {
                         if (u.getAction() != null && u.getAction().iconId != -1) {
-                            usageSet.add(u.getAction());
+                            usageList.add(u.getAction());
                         }
                     }
                 });
             }
         });
-        if (!usageSet.contains(specialAction)) {
+        if (!usageList.contains(specialAction)) {
             this.setSpecialAction(PlayerSpecialAction.None);
         }
-        this.userInterface.updateParticularUsageSwitcher(usageSet.toArray(new PlayerSpecialAction[0]));
+        this.userInterface.updateParticularUsageSwitcher(usageList.toArray(new PlayerSpecialAction[0]));
     }
 }
 

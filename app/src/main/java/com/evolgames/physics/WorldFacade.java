@@ -1,6 +1,7 @@
 package com.evolgames.physics;
 
 
+import static com.evolgames.helpers.utilities.MyColorUtils.bloodColor;
 import static com.evolgames.physics.PhysicsConstants.BACKOFF;
 import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
@@ -22,6 +23,7 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.SpecialEntityType;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
+import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
@@ -55,16 +57,20 @@ import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Slasher;
+import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.helpers.utilities.MyColorUtils;
 import com.evolgames.helpers.utilities.PhysicsUtils;
 import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.helpers.utilities.Vector2Utils;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.physics.entities.Touch;
+import com.evolgames.physics.entities.callbacks.BlockIntersectionCallback;
 import com.evolgames.physics.entities.callbacks.BlockQueryCallBack;
 import com.evolgames.physics.entities.callbacks.CutRayCastCallback;
 import com.evolgames.physics.entities.callbacks.DetectionRayCastCallback;
@@ -96,6 +102,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import is.kul.learningandengine.graphicelements.Layer;
+
 public class WorldFacade implements ContactObserver {
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final HashSet<PulverizationParticleWrapperWithPolygonEmitter> powderParticleWrappers = new HashSet<>();
@@ -103,6 +111,7 @@ public class WorldFacade implements ContactObserver {
     private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback = new SimpleDetectionRayCastCallback();
     private final FluxRayCastCallback fluxRayCastCallback = new FluxRayCastCallback();
     private final FluxInnerRayCastCallback fluxInnerRayCastCallback = new FluxInnerRayCastCallback();
+    private final BlockIntersectionCallback blockIntersectionCallback = new BlockIntersectionCallback();
     private final ArrayList<TimedCommand> timedCommands = new ArrayList<>();
     private final GameEntityContactListener contactListener;
     private final GameEntityQueryCallBack queryCallBack = new GameEntityQueryCallBack();
@@ -234,7 +243,11 @@ public class WorldFacade implements ContactObserver {
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
 
-
+    public Vector2 detectFirstIntersectionPointWithLayerBlock(Vector2 first, Vector2 second, LayerBlock layerBlock){
+        this.blockIntersectionCallback.reset(layerBlock);
+        physicsWorld.rayCast(blockIntersectionCallback, first, second);
+        return blockIntersectionCallback.getIntersectionPoint();
+    }
     public Vector2 detectFirstIntersectionPointWithExceptions(Vector2 first, Vector2 second, List<GameEntity> excepted) {
         simpleDetectionRayCastCallback.reset();
         simpleDetectionRayCastCallback.resetExcepted();
@@ -382,65 +395,62 @@ public class WorldFacade implements ContactObserver {
 
     private void updateLiquidWrappers() {
         HashSet<GameEntity> affectedEntities = new HashSet<>();
-        for (LiquidParticleWrapper liquidSource : liquidParticleWrappers)
-            if (liquidSource.getParticleSystem().hasParent())
-                if (liquidSource.getParticleSystem().getParticles().length > 0) {
-                    for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
-                        if (p != null && !p.isExpired() && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
-                            Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
-                            float halfWidth = p.getEntity().getWidth() / 32f / 2f;
-                            float halfHeight = p.getEntity().getHeight() / 32f / 2f;
-                            //find concerned entities
+        for (LiquidParticleWrapper liquidSource : liquidParticleWrappers) {
+            if (liquidSource.getParticleSystem().hasParent() && liquidSource.getParticleSystem().getParticles().length > 0) {
+                for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
+                    if (p != null && !p.isExpired() && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
+                        Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
+                        float halfWidth = p.getEntity().getWidth() / 32f / 2f;
+                        float halfHeight = p.getEntity().getHeight() / 32f / 2f;
+                        float rx = position.x / 32f;
+                        float ry = position.y / 32f;
+                        HashSet<GameEntity> entities = findEntitiesInZone(rx, ry, halfWidth, halfHeight);
+                        Vector2 rPosition = new Vector2(rx, ry);
+                        boolean onBoundaries = false;
 
-                            float rx = position.x / 32f;
-                            float ry = position.y / 32f;
-                            HashSet<GameEntity> entities = findEntitiesInZone(rx, ry, halfWidth, halfHeight);
-                            Vector2 rPosition = new Vector2(rx, ry);
-                            boolean onBoundaries = false;
-
-                            for (GameEntity entity : entities)
-                                if (entity.getBody() != null)
-                                    for (LayerBlock block : entity.getBlocks()) {
-                                        if (block.testPoint(entity.getBody(), rx, ry)) {
-                                            onBoundaries = true;
-                                            break;
-                                        }
-                                    }
-
-                            boolean dead = false;
-                            if (onBoundaries) {
-                                int index = random.nextInt(14);
-                                for (GameEntity entity : entities) {
-                                    if (entity.getBody() != null) {
-                                        boolean affected = false;
-                                        Body body = entity.getBody();
-                                        Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
-                                        ArrayList<LayerBlock> blocks = entity.getBlocks();
-                                        for (int i = blocks.size() - 1; i >= 0; i--) {
-                                            boolean applied = applyLiquidStain(entity, localPoint.x, localPoint.y, blocks.get(i), liquidSource.getLiquidColor(), index);
-                                            if (applied) {
-                                                affected = true;
-                                                break;
-                                            }
-                                        }
-                                        recycle(localPoint);
-                                        if (affected) {
-                                            dead = true;
-                                            affectedEntities.add(entity);
-                                        }
-
+                        for (GameEntity entity : entities) {
+                            if (entity.getBody() != null) {
+                                for (LayerBlock block : entity.getBlocks()) {
+                                    if (block.testPoint(entity.getBody(), rx, ry)) {
+                                        onBoundaries = true;
+                                        break;
                                     }
                                 }
                             }
+                        }
 
-                            if (dead) {
-                                p.setExpired(true);
+                        boolean dead = false;
+                        if (onBoundaries) {
+                            for (GameEntity entity : entities) {
+                                if (entity.getBody() != null) {
+                                    boolean affected = false;
+                                    Body body = entity.getBody();
+                                    Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
+                                    ArrayList<LayerBlock> blocks = entity.getBlocks();
+                                    for (int i = blocks.size() - 1; i >= 0; i--) {
+                                        boolean applied = applyStain(entity, localPoint.x, localPoint.y, blocks.get(i), liquidSource.getLiquidColor(), random.nextInt(14), false);
+                                        if (applied) {
+                                            affected = true;
+                                            break;
+                                        }
+                                    }
+                                    recycle(localPoint);
+                                    if (affected) {
+                                        dead = true;
+                                        affectedEntities.add(entity);
+                                    }
+
+                                }
                             }
+                        }
 
-
+                        if (dead) {
+                            p.setExpired(true);
                         }
                     }
                 }
+            }
+        }
         for (GameEntity entity : affectedEntities) {
             entity.redrawStains();
         }
@@ -725,7 +735,7 @@ public class WorldFacade implements ContactObserver {
     private boolean computePenetrationImpact(Contact contact, GameEntity entity1, GameEntity entity2) {
 
         GameEntity penetrator = entity1.hasActiveUsage(Penetrating.class) ? entity1 : entity2;
-        Penetrating penetration = penetrator.hasActiveUsage(Stabber.class) ? penetrator.getUsage(Stabber.class) : penetrator.getUsage(Projectile.class);
+        Penetrating penetration = penetrator.hasActiveUsage(Stabber.class) ? penetrator.getUsage(Stabber.class) : penetrator.hasActiveUsage(Projectile.class)?penetrator.getActiveUsage(Projectile.class):penetrator.getActiveUsage(Smasher.class);
         GameEntity penetrated = penetrator == entity1 ? entity2 : entity1;
 
         Vector2[] points = contact.getWorldManifold().getPoints();
@@ -1222,23 +1232,48 @@ public class WorldFacade implements ContactObserver {
 
     }
 
-    public boolean applyLiquidStain(GameEntity gameEntity, float x, float y, LayerBlock concernedBlock, Color color, int index) {
+    public void applyBluntTrauma(float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock){
+      int numberOfPoints = (int) (impulse/(PhysicsConstants.TENACITY_FACTOR*layerBlock.getProperties().getTenacity()));
+
+        List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(numberOfPoints, new Vector2(x,y), layerBlock, gameEntity);
+        for(Vector2 p: pts) {
+            //GameScene.plotter2.drawPointOnEntity( p, Color.PINK, gameEntity.getMesh());
+            //0.4f+ (float) (Math.random()*0.3f), (float) (Math.random()*0.3f) , (float) (0.1f+Math.random()*0.2f)
+            Color color = new Color(0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
+            Color skin = new Color(layerBlock.getProperties().getDefaultColor());
+            skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
+            MyColorUtils.blendColors(color, color, skin);
+            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 14, false);
+        }
+        gameEntity.redrawStains();
+    }
+    private int getStainPriorityFromIndex(int index){
+        if(index==14){
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
+    public boolean applyStain(GameEntity gameEntity, float x, float y, LayerBlock concernedBlock, Color color, int index, boolean superpose) {
         Vector2 localPosition = new Vector2(x, y);
 
         float angle = random.nextInt(360);
 
-        ITextureRegion textureRegion = ResourceManager.getInstance().imageTextureRegion.getTextureRegion(index);
-
+        ITextureRegion textureRegion = ResourceManager.getInstance().stainTextureRegions.getTextureRegion(index);
         StainBlock stainBlock = BlockFactory.createStainBlock(localPosition, angle, concernedBlock.getVertices(), textureRegion, color);
 
-        if (stainBlock != null && stainBlock.isNotAborted() && !gameEntity.isNonValidStainPosition(concernedBlock, stainBlock)) {
+        if (stainBlock != null && stainBlock.isNotAborted() && (superpose||!gameEntity.isNonValidStainPosition(concernedBlock, stainBlock))) {
             stainBlock.setId(index);
+            stainBlock.setPriority(this.getStainPriorityFromIndex(index));
             gameEntity.addStain(concernedBlock, stainBlock);
             return true;
         } else {
             return false;
         }
     }
+
+
 
     private void applySlice(GameEntity gameEntity, ArrayList<Segment> entitySegments) {
         boolean cutPerformed = false;
@@ -1363,9 +1398,17 @@ public class WorldFacade implements ContactObserver {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
             return false;
         }
+        Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
+        if(block.getProperties().getMaterialNumber()==11) {
+            this.applyBluntTrauma(localPoint.x, localPoint.y, (float) Math.sqrt(energy), gameEntity, block);
+        }
+        if(gameEntity.hasActiveUsage(Smasher.class)){
+            gameEntity.getActiveUsage(Smasher.class).onCancel();
+        }
+
         List<ImpactData> impactData = new ArrayList<>();
         impactData.add(new ImpactData(gameEntity, block, worldPoint, energy));
-        applyImpacts(gameEntity, impactData);
+        this.applyImpacts(gameEntity, impactData);
         return !gameEntity.isAlive();
     }
 

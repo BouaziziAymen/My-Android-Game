@@ -46,7 +46,7 @@ public class ResourceManager {
     public VertexBufferObjectManager vbom;
     public BuildableBitmapTextureAtlas gameTextureAtlas;
     public BitmapTextureAtlas texturedMesh;
-    public TiledTextureRegion imageTextureRegion;
+    public TiledTextureRegion stainTextureRegions;
     public TextureRegion liquidParticle;
     public TextureRegion pokemon;
     public TiledTextureRegion button;
@@ -160,7 +160,7 @@ public class ResourceManager {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
         this.texturedMesh = new BitmapTextureAtlas(activity.getTextureManager(), 256, 128, TextureOptions.REPEATING_BILINEAR);
-        this.imageTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.texturedMesh, this.activity, "stainbw.png", 0, 0, 14, 1);
+        this.stainTextureRegions = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.texturedMesh, this.activity, "stainbw.png", 0, 0, 15, 1);
         this.texturedMesh.load();
 
         this.texture = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048);
@@ -174,7 +174,6 @@ public class ResourceManager {
         this.plasmaParticle3 = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/f3.png");
         this.plasmaParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/plasma.png");
         this.pixelParticle = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "particle/pixel.png");
-
         this.button = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);
 
 
