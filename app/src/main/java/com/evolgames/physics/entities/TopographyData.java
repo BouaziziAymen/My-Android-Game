@@ -7,11 +7,8 @@ import com.evolgames.physics.PhysicsConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TopographyData {
 
@@ -77,9 +74,8 @@ public class TopographyData {
         return length;
     }
 
-    public Float getEnergyForAdvance(float advance, float dL, float sharpness, float penetratorHardness) {
+    public Float getImpulseForAdvance(float advance, float dL, float sharpness, float penetratorHardness) {
         float energy = 0;
-
         for (int i = 0; i < length; i++) {
             float inf = data[i][0];
             float sup = data[i][1];
@@ -91,7 +87,7 @@ public class TopographyData {
                 float s = 1f-sharpness;
                 float h = (float) Math.pow(penetratorHardness - 0.999f*hardness,-2);
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                energy += xAdvance *h* PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,3);
+                energy += xAdvance * h * PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,4f);
             }
         }
         return energy;

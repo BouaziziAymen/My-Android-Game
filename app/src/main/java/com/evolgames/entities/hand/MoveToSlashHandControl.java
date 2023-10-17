@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.scenes.Hand;
 
-public class MoveWithRevertHandControl extends HandControl {
+public class MoveToSlashHandControl extends HandControl {
 
     private final Hand hand;
     private final Vector2 start;
@@ -13,10 +13,8 @@ public class MoveWithRevertHandControl extends HandControl {
     private final Vector2 localPoint;
     private final Vector2 position;
     private final Vector2 target;
-    private final float maxForce;
-    private final float y;
 
-    public MoveWithRevertHandControl(Hand hand, Vector2 target, Vector2 localPoint) {
+    public MoveToSlashHandControl(Hand hand, Vector2 target, Vector2 localPoint) {
         super(60);
         this.localPoint = localPoint;
         this.start = hand.getMouseJoint().getTarget().cpy();
@@ -25,12 +23,8 @@ public class MoveWithRevertHandControl extends HandControl {
         this.target = new Vector2();
         this.position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
         this.target.set(start);
-        this.maxForce = hand.getMouseJoint().getMaxForce();
-        hand.getMouseJoint().setMaxForce(0);
-        Vector2 velocity = target.cpy().sub(hand.getMouseJoint().getTarget()).nor().mul(20f);
-        hand.getGrabbedEntity().getBody().setLinearVelocity(velocity);
+        hand.getMouseJoint().setTarget(target);
         this.control = new HoldHandControl(hand.getGrabbedEntity());
-        this.y = hand.getGrabbedEntity().getBody().getPosition().y;
     }
 
 
@@ -43,32 +37,30 @@ public class MoveWithRevertHandControl extends HandControl {
         }
 
         if (runnable != null) {
-              runnable.run();
+            runnable.run();
         }
         if (!isDead()) {
             position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
             target.set(hand.getMouseJoint().getTarget());
-            if(position.dst(start)>5f){
+            control.run();
+            Vector2 v = mouseJoint.getBodyB().getLinearVelocity();
+            if((v.len()<0.01f&&count>10)){
+                setDead(true);
                 goBack();
             }
-            Vector2 pos = hand.getGrabbedEntity().getBody().getPosition();
-            float angle = hand.getGrabbedEntity().getBody().getAngle();
-            hand.getGrabbedEntity().getBody().setTransform(pos.x,y,angle);
-            control.run();
         } else {
             goBack();
         }
     }
     public void goBack(){
+        hand.getMouseJoint().setTarget(start);
         if(hand.getMouseJoint()!=null) {
-            setDead(true);
-            hand.getMouseJoint().setMaxForce(this.maxForce);
             hand.getMouseJoint().setTarget(start);
         }
     }
 
     public Vector2 getPosition() {
-      return position;
+        return position;
     }
     public GameEntity getGrabbedEntity(){
         return hand.getGrabbedEntity();
@@ -78,10 +70,12 @@ public class MoveWithRevertHandControl extends HandControl {
         return this.target;
     }
     public void setTarget(Vector2 target) {
+        hand.getMouseJoint().setTarget(target);
         if(hand.getMouseJoint()!=null) {
             hand.getMouseJoint().setTarget(target);
-            hand.getMouseJoint().setMaxForce(this.maxForce);
         }
     }
 
 }
+
+

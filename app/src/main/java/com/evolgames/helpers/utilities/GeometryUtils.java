@@ -211,12 +211,12 @@ public class GeometryUtils {
         return intersections;
     }
 
-    public static boolean isOnBorder(Vector2 point, ArrayList<Vector2> Vertices) {
+    public static boolean isOnBorder(Vector2 point, ArrayList<Vector2> Vertices,float epsilon) {
         for (int i = 0; i < Vertices.size(); i++) {
             int ni = (i == Vertices.size() - 1) ? 0 : i + 1;
             Vector2 v1 = Vertices.get(i);
             Vector2 v2 = Vertices.get(ni);
-            if (GeometryUtils.PointOnLineSegment(v1, v2, point, 2f)) return true;
+            if (GeometryUtils.PointOnLineSegment(v1, v2, point, epsilon)) return true;
         }
         return false;
     }

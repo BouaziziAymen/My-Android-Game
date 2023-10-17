@@ -266,7 +266,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
                 float x = g.position.x;
                 float y = g.position.y;
-                if (!Utils.PointInPolygon(new Vector2(x, y), block1.getVertices()) || GeometryUtils.isOnBorder(new Vector2(x, y), block1.getVertices()))
+                if (!Utils.PointInPolygon(new Vector2(x, y), block1.getVertices()) || GeometryUtils.isOnBorder(new Vector2(x, y), block1.getVertices(),2f))
                     continue;
 
                 ArrayList<Vector2> l = VerticesFactory.createRectangle(x, y, 16, 16);
@@ -812,6 +812,9 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 });
             }
         });
+        if(this.action==PlayerAction.Hold&&!usageList.isEmpty()) {
+            usageList.add(0, PlayerSpecialAction.None);
+        }
         if (!usageList.contains(specialAction)) {
             this.setSpecialAction(PlayerSpecialAction.None);
         }

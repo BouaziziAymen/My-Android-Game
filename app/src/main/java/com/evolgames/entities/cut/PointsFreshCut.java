@@ -5,14 +5,15 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.List;
 
 public class PointsFreshCut extends FreshCut{
-    private final List<Vector2> points;
+    private final List<CutPoint> points;
 
-    public PointsFreshCut(List<Vector2> pointsData, float length, int limit, Vector2 velocity) {
+
+    public PointsFreshCut(List<CutPoint> pointsData, float length, int limit, Vector2 velocity) {
         super(length,limit, velocity);
         this.points = pointsData;
     }
 
-    public List<Vector2> getPoints() {
+    public List<CutPoint> getPoints() {
         return points;
     }
 

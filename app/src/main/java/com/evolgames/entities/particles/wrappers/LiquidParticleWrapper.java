@@ -32,10 +32,10 @@ public abstract class LiquidParticleWrapper {
     private boolean alive = true;
     private final Vector2 splashVelocity;
 
-    public LiquidParticleWrapper(GameEntity gameEntity, Color liquidColor, float[] data, Vector2 splashVelocity, int lowerRate, int higherRate) {
+    public LiquidParticleWrapper(GameEntity gameEntity, Color liquidColor, float[] data, float[] weights, Vector2 splashVelocity, int lowerRate, int higherRate) {
         this.liquidColor = liquidColor;
         this.splashVelocity = splashVelocity;
-        this.emitter = createEmitter(data);
+        this.emitter = createEmitter(data,weights);
         this.parent = gameEntity;
 
         this.particleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, 10*higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
@@ -44,7 +44,7 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(velocityInitializer);
 
         this.particleSystem.addParticleInitializer(new ColorParticleInitializer<>(this.liquidColor.getRed(), this.liquidColor.getGreen(), this.liquidColor.getBlue()));
-        this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.4f));
+        this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.3f));
         this.addGravity();
         this.particleSystem.addParticleModifier(new SmoothRotationModifier());
         this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 3f, 0.5f, 0.4f));
@@ -59,7 +59,7 @@ public abstract class LiquidParticleWrapper {
     }
 
 
-    protected abstract DataEmitter createEmitter(float[] emitterData);
+    protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights);
 
     public Color getLiquidColor() {
         return liquidColor;

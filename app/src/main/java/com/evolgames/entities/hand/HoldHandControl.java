@@ -11,7 +11,7 @@ public class HoldHandControl extends HandControl {
     public HoldHandControl(GameEntity weapon) {
         super();
         this.weapon = weapon;
-
+       // this.weapon.getBody().setFixedRotation(true);
     }
 
 
@@ -25,13 +25,17 @@ public class HoldHandControl extends HandControl {
 
         Body body = weapon.getBody();
         if(!isDead()) {
-            assert body != null;
-            float rot = body.getAngle();
-            float error = angle - rot;
+           if(body!=null) {
+             //  body.setFixedRotation(true);
+               float rot = body.getAngle();
+               float error = angle - rot;
 
-            while (error < -Math.PI) error += 2 * Math.PI;
-            while (error > Math.PI) error -= 2 * Math.PI;
-            if (Math.abs(error) > 0.005f) body.setAngularVelocity(10 * error);
+               while (error < -Math.PI) error += 2 * Math.PI;
+               while (error > Math.PI) error -= 2 * Math.PI;
+               if (Math.abs(error) > 0.005f) {
+                   body.setAngularVelocity(10 * error);
+               }
+           }
         }
     }
 
@@ -44,5 +48,12 @@ public class HoldHandControl extends HandControl {
             angle = 90 * MathUtils.degreesToRadians;
         }
         return angle;
+    }
+
+    public boolean isEquilibrium() {
+        float angle = getAngle();
+        float rot = weapon.getBody().getAngle();
+        float error = angle - rot;
+        return (Math.abs(error) <= 0.05f);
     }
 }

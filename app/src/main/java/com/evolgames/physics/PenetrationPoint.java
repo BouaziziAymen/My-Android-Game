@@ -12,13 +12,15 @@ public class PenetrationPoint implements Comparable<PenetrationPoint> {
     private final Vector2 point;
     private final boolean entering;
     private final float value;
+    private final float weight;
 
-    public PenetrationPoint(GameEntity entity, LayerBlock block, Vector2 point,float value, boolean entering) {
+    public PenetrationPoint(GameEntity entity, LayerBlock block, Vector2 point,float value, float weight, boolean entering) {
         this.entity = entity;
         this.block = block;
         this.point = point;
         this.entering = entering;
         this.value = value;
+        this.weight = weight;
     }
 
     public GameEntity getEntity() {
@@ -35,6 +37,10 @@ public class PenetrationPoint implements Comparable<PenetrationPoint> {
 
     public boolean isEntering() {
         return entering;
+    }
+
+    public float getWeight() {
+        return weight;
     }
 
     @Override

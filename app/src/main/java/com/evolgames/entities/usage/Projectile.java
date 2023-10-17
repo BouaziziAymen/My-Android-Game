@@ -32,12 +32,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     @Override
-    public float getAvailableEnergy(float collisionImpulse) {
-        return collisionImpulse;
-    }
-
-    @Override
-    public void onEnergyConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedEnergy) {
+    public void onImpulseConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse) {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         List<GameEntity> overlappedEntities = worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
@@ -54,18 +49,18 @@ public class Projectile extends Use implements Penetrating {
             Body overlappedEntityBody = overlappedEntity.getBody();
             worldFacade.freeze(overlappedEntity);
             worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            worldFacade.applyPointImpact(obtain(point), (float) (Math.sqrt(consumedEnergy) * massFraction), overlappedEntity);
-            Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.01f * Math.sqrt(consumedEnergy) * massFraction)), point));
+            worldFacade.applyPointImpact(obtain(point), (float) (consumedImpulse * massFraction), overlappedEntity);
+            Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.01f * Math.sqrt(consumedImpulse) * massFraction)), point));
         }
     }
 
 
     @Override
-    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedEnergy, float collisionEnergy) {
+    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse, float collisionImpulse) {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         worldFacade.addGameEntityToDestroy(penetrator, false);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        worldFacade.applyPointImpact(obtain(point), (float) (Math.sqrt(consumedEnergy) * massFraction), penetrated);
+        worldFacade.applyPointImpact(obtain(point), (float) (consumedImpulse * massFraction), penetrated);
         setActive(false);
     }
 

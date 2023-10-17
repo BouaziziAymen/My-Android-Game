@@ -88,11 +88,8 @@ import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 public class UserInterface extends Container implements Touchable {
     //batches
@@ -193,7 +190,7 @@ public class UserInterface extends Container implements Touchable {
         this.jointsWindowController = jointWindowController;
         this.outlineController = outlineController;
 
-        particularUsageSwitcher = new Switcher(800f-72f,300,ResourceManager.getInstance().usages,32f,(index)->pGameScene.setSpecialAction(this.particularUsages[index]));
+        particularUsageSwitcher = new Switcher(800f-72f,300,ResourceManager.getInstance().particularUsages,32f,(index)->pGameScene.setSpecialAction(this.particularUsages[index]));
         particularUsageSwitcher.reset();
         addElement(particularUsageSwitcher);
 

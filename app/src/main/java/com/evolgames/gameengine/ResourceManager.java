@@ -134,7 +134,7 @@ public class ResourceManager {
     public TextureRegion bombShapeTextureRegion;
     public TextureRegion casingShapeTextureRegion;
     public TextureRegion switcher, switcherBackground;
-    public List<TextureRegion> usages;
+    public List<TextureRegion> particularUsages;
     public List<TextureRegion> generalUsages;
     public TiledTextureRegion  switcherLeft, switcherRight;
 
@@ -242,11 +242,11 @@ public class ResourceManager {
         this.armTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "arm.png");
         this.switcher = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcher.png");
         this.switcherBackground = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcherBackground.png");
-        this.usages = new ArrayList<>();
-        for(int i=1;i<=6;i++) {
-            this.usages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/usages/" + i + ".png"));
+        this.particularUsages = new ArrayList<>();
+        for(int i=0;i<=6;i++) {
+            this.particularUsages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/usages/" + i + ".png"));
         }
-        Collections.reverse(usages);
+        Collections.reverse(particularUsages);
 
         this.generalUsages = new ArrayList<>();
         for(int i=1;i<=6;i++) {

@@ -17,6 +17,7 @@ import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.entities.caliper.Rectangle;
 import com.evolgames.entities.cut.Cut;
+import com.evolgames.entities.cut.CutPoint;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
@@ -570,13 +571,13 @@ public class BlockUtils {
                 }
             } else if (fc instanceof PointsFreshCut) {
                 PointsFreshCut fpc = (PointsFreshCut) fc;
-                List<Vector2> newPoints1 = new ArrayList<>();
-                List<Vector2> newPoints2 = new ArrayList<>();
-                for (Vector2 v : fpc.getPoints()) {
+                List<CutPoint> newPoints1 = new ArrayList<>();
+                List<CutPoint> newPoints2 = new ArrayList<>();
+                for (CutPoint v : fpc.getPoints()) {
                     ArrayList<Vector2> triplet = new ArrayList<>();
                     triplet.add(cut.getP1());
                     triplet.add(cut.getP2());
-                    triplet.add(v);
+                    triplet.add(v.getPoint());
                     if (GeometryUtils.IsClockwise(triplet)) {
                         newPoints2.add(v);
                     } else {

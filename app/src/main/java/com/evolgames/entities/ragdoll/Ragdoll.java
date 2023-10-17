@@ -79,11 +79,11 @@ public class Ragdoll extends GameGroup {
         rightFoot.setType(SpecialEntityType.RightFoot);
         this.head = head;
 
-        upperTorso.getMesh().setZIndex(1);
-        upperLegR.getMesh().setZIndex(0);
-        upperLegL.getMesh().setZIndex(0);
-        lowerLegR.getMesh().setZIndex(-1);
-        lowerLegL.getMesh().setZIndex(-1);
+        upperTorso.getMesh().setZIndex(3);
+        upperLegR.getMesh().setZIndex(2);
+        upperLegL.getMesh().setZIndex(2);
+        lowerLegR.getMesh().setZIndex(1);
+        lowerLegL.getMesh().setZIndex(1);
         this.gameScene.sortChildren();
 
         balancers[0] = new Balancer(head, (float) (Math.PI / 2), 0);

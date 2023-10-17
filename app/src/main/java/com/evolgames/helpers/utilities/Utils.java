@@ -250,4 +250,17 @@ return points;
        }
        return pointsData;
     }
+
+    public static float[] mapWeightsToArray(List<Float> list) {
+        float accumulated = 0f;
+        float[] result = new float[list.size()];
+       for(int i=0;i<list.size();i++){
+           accumulated+=list.get(i);
+           result[i] = accumulated;
+       }
+       for(int i=0;i<result.length;i++){
+           result[i]/=accumulated;
+       }
+       return result;
+    }
 }

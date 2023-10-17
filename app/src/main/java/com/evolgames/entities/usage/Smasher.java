@@ -34,26 +34,21 @@ public class Smasher extends MeleeUse implements Penetrating{
     }
 
     @Override
-    public float getAvailableEnergy(float collisionEnergy) {
-        return collisionEnergy;
-    }
-
-    @Override
-    public void onEnergyConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedEnergy) {
+    public void onImpulseConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse) {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        penetrated.getBody().applyLinearImpulse(normal.cpy().mul(0.001f * consumedEnergy * massFraction), point);
-        worldFacade.applyPointImpact(obtain(point), (float) (Math.sqrt(consumedEnergy) * massFraction), penetrated);
+        penetrated.getBody().applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
+        worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
         worldFacade.freeze(penetrator);
         handControl.setDead(true);
         this.setActive(false);
     }
 
     @Override
-    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedEnergy, float collisionEnergy) {
+    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse, float collisionImpulse) {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         handControl.setDead(true);
-        worldFacade.applyPointImpact(obtain(point), (float) (Math.sqrt(consumedEnergy) * massFraction), penetrated);
+        worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
         setActive(false);
     }

@@ -10,17 +10,25 @@ import java.util.Arrays;
 public class ClusterEmitter extends DataEmitter {
 
     protected final float[] dataCopy;
+    protected final float[] weights;
 
-    public ClusterEmitter(float pCenterX, float pCenterY, float[] data) {
+
+    public ClusterEmitter(float pCenterX, float pCenterY, float[] data, float[] weights) {
         super(pCenterX, pCenterY, data);
         assert(data.length%2==0):"Data has to be multiple of two";
-        dataCopy = Arrays.copyOf(data,data.length);
+        this.dataCopy = Arrays.copyOf(data,data.length);
+        this.weights = weights;
     }
     @Override
     public void getPositionOffset(float[] pOffset) {
-        int index = Utils.RAND.nextInt(data.length/2);
-        pOffset[VERTEX_INDEX_X] = this.data[2*index];
-        pOffset[VERTEX_INDEX_Y] = this.data[2*index+1];
+        float random = Utils.RAND.nextFloat();
+        for(int index=0;index<weights.length;index++){
+            if(random<weights[index]) {
+                pOffset[VERTEX_INDEX_X] = this.data[2 * index];
+                pOffset[VERTEX_INDEX_Y] = this.data[2 * index + 1];
+                break;
+            }
+        }
     }
 
     @Override

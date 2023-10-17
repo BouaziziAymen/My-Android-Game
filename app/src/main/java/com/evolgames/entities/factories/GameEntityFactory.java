@@ -16,6 +16,7 @@ import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.cut.CutPoint;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
@@ -140,7 +141,7 @@ public class GameEntityFactory {
                     }
                     if(freshCut instanceof PointsFreshCut){
                         PointsFreshCut pointsFreshCut = (PointsFreshCut) freshCut;
-                        Utils.translatePoints(pointsFreshCut.getPoints(), translationToOrigin);
+                        Utils.translatePoints(pointsFreshCut.getPoints().stream().map(CutPoint::getPoint).collect(Collectors.toList()), translationToOrigin);
                     }
                 }
             }
@@ -230,7 +231,7 @@ public class GameEntityFactory {
 
 
         ArrayList<Vector2> points = VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 20);
-        LayerBlock block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)), 0);
+        LayerBlock block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
         GameEntity head = createDollPart(x, y, headFilter, blocks, "head");

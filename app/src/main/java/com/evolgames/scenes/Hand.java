@@ -15,6 +15,7 @@ import com.evolgames.entities.hand.HandAction;
 import com.evolgames.entities.hand.HandControl;
 import com.evolgames.entities.hand.HoldHandControl;
 import com.evolgames.entities.hand.MoveHandControl;
+import com.evolgames.entities.hand.MoveToSlashHandControl;
 import com.evolgames.entities.hand.MoveWithRevertHandControl;
 import com.evolgames.entities.hand.ParallelHandControl;
 import com.evolgames.entities.hand.SwingHandControl;
@@ -56,7 +57,7 @@ public class Hand {
     public void grab(GameEntity entity, TouchEvent touchEvent, Vector2 anchor) {
         this.follow = true;
         boolean grabbedOtherEntity = this.grabbedEntity!=entity;
-        releaseGrabbedEntity();
+        releaseGrabbedEntity(false);
         this.grabbedEntity = entity;
         if(grabbedOtherEntity) {
             this.gameScene.onUsagesUpdated();
@@ -121,7 +122,7 @@ public class Hand {
         }
     }
 
-    private void releaseGrabbedEntity() {
+    private void releaseGrabbedEntity(boolean updateUsages) {
         if(grabbedEntity==null){
             return;
         }
@@ -130,8 +131,12 @@ public class Hand {
         if (!handControlStack.isEmpty()) {
             handControlStack.peek().setDead(true);
         }
+      //  this.grabbedEntity.getBody().setFixedRotation(false);
         this.grabbedEntity = null;
         this.mouseJoint = null;
+        if(updateUsages){
+            gameScene.onUsagesUpdated();
+        }
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
@@ -154,7 +159,7 @@ public class Hand {
                 }
             }
             if (touchEvent.isActionUp() && grabbedEntity != null) {
-                releaseGrabbedEntity();
+                releaseGrabbedEntity(true);
             }
         }
         if (gameScene.getPlayerAction() == PlayerAction.Hold) {
@@ -208,7 +213,7 @@ public class Hand {
                         grab(touchData.first, touchEvent, touchData.second);
                         holdHand();
                     } else {
-                        if (grabbedEntity != null) {
+                        if (grabbedEntity != null&& touchData!=null&&touchData.first!=null) {
                             Vector2 target = new Vector2(touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT, touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
                             doSmash(target);
                         }
@@ -230,7 +235,7 @@ public class Hand {
 
         Vector2 U = target.cpy().sub(mouseJoint.getTarget()).nor();
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
-        SwingHandControl smashHandControl = new SwingHandControl(this, (int) (-Math.signum(U.x) * 30),(0.6f*600));
+        SwingHandControl smashHandControl = new SwingHandControl(this, (int) (-Math.signum(U.x) * 30),(0.4f*600));
         handControlStack.add(smashHandControl);
         smasher.reset(smashHandControl);
     }
@@ -240,7 +245,7 @@ public class Hand {
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
         Slasher slasher = grabbedEntity.getUsage(Slasher.class);
         slasher.setActive(true);
-        grabbedEntity.getMesh().setZIndex(1);
+        grabbedEntity.getMesh().setZIndex(20);
         gameScene.sortChildren();
 
         final float[] values = new float[]{Float.MAX_VALUE, -Float.MAX_VALUE, 0f, 0f, Float.MAX_VALUE, -Float.MAX_VALUE, 0f};
@@ -284,7 +289,7 @@ public class Hand {
             return;
         }
         HandControl handControl1 = new SwingHandControl(this, (int) (-Math.signum(U.x) * 20),(0.3f*600));
-        MoveWithRevertHandControl handControl2 = new MoveWithRevertHandControl(this, handTarget, this.localPoint);
+        MoveToSlashHandControl handControl2 = new MoveToSlashHandControl(this, handTarget, this.localPoint);
         List<Vector2> path = new ArrayList<>();
         handControl2.setRunnable(() -> slasher.doSlash(gameScene, this, targetEntity, path, target, sharpLength, sharpness, hardness));
 
@@ -324,7 +329,7 @@ public class Hand {
 
         this.initialPoint = this.mouseJoint.getTarget().cpy();
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
-        grabbedEntity.getMesh().setZIndex(-1);
+        grabbedEntity.getMesh().setZIndex(-20);
         gameScene.sortChildren();
         MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * STAB_ADVANCE), this.localPoint);
         grabbedEntity.getUsage(Stabber.class).setActive(true);
