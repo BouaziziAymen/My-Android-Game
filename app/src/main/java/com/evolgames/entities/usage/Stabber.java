@@ -3,7 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.hand.MoveWithRevertHandControl;
+import com.evolgames.entities.hand.MoveToStabHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PlayerSpecialAction;
@@ -14,7 +14,7 @@ public class Stabber extends MeleeUse implements Penetrating {
 
     public static final float STAB_EXTENT = 4f;
     private Vector2 handLocalPosition;
-    private MoveWithRevertHandControl handControl;
+    private MoveToStabHandControl handControl;
 
     @Override
     public void onStep(float deltaTime) {
@@ -28,7 +28,7 @@ public class Stabber extends MeleeUse implements Penetrating {
         return PlayerSpecialAction.Stab;
     }
 
-    public void reset(Vector2 handLocalPosition, MoveWithRevertHandControl handControl) {
+    public void reset(Vector2 handLocalPosition, MoveToStabHandControl handControl) {
         this.handLocalPosition = handLocalPosition;
         this.handControl = handControl;
     }

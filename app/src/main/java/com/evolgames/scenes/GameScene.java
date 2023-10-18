@@ -171,7 +171,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         OutlineController outlineController = new OutlineController();
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
-        ToolModel toolModel = loadToolModel("c1_knife.xml");
+        ToolModel toolModel = loadToolModel("c1_sword.xml");
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this, keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);

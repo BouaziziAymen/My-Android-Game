@@ -16,7 +16,7 @@ import com.evolgames.entities.hand.HandControl;
 import com.evolgames.entities.hand.HoldHandControl;
 import com.evolgames.entities.hand.MoveHandControl;
 import com.evolgames.entities.hand.MoveToSlashHandControl;
-import com.evolgames.entities.hand.MoveWithRevertHandControl;
+import com.evolgames.entities.hand.MoveToStabHandControl;
 import com.evolgames.entities.hand.ParallelHandControl;
 import com.evolgames.entities.hand.SwingHandControl;
 import com.evolgames.entities.usage.Penetrating;
@@ -320,8 +320,7 @@ public class Hand {
     }
 
     private void moveToStab() {
-        if (!(handControlStack.peek() instanceof HoldHandControl)||
-                !((HoldHandControl)handControlStack.peek()).isEquilibrium()||onAction) {
+        if (!(handControlStack.peek() instanceof HoldHandControl)||onAction) {
             return;
         }
         this.onAction = true;
@@ -332,7 +331,7 @@ public class Hand {
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
         grabbedEntity.getMesh().setZIndex(-20);
         gameScene.sortChildren();
-        MoveWithRevertHandControl handControl = new MoveWithRevertHandControl(this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * STAB_ADVANCE), this.localPoint);
+        MoveToStabHandControl handControl = new MoveToStabHandControl(this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * STAB_ADVANCE), this.localPoint);
         grabbedEntity.getUsage(Stabber.class).setActive(true);
         grabbedEntity.getUsage(Stabber.class).reset(localPoint, handControl);
         handControlStack.add(handControl);

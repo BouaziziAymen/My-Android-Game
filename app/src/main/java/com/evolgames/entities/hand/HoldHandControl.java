@@ -50,10 +50,4 @@ public class HoldHandControl extends HandControl {
         return angle;
     }
 
-    public boolean isEquilibrium() {
-        float angle = getAngle();
-        float rot = weapon.getBody().getAngle();
-        float error = angle - rot;
-        return (Math.abs(error) <= 0.1f);
-    }
 }

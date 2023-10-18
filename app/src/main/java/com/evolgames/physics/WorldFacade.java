@@ -1354,7 +1354,7 @@ public class WorldFacade implements ContactObserver {
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream()
                        .filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = (float) enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.4f)).sum();
+                    float length = (float) enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum();
                     int limit = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (limit > 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
@@ -1364,7 +1364,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float) leavingBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.4f)).sum();
+                    float length = (float) leavingBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum();
                     int value = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value > 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
