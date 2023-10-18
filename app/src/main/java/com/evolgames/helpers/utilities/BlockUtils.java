@@ -847,16 +847,7 @@ public class BlockUtils {
     }
 
     public static Color[] computeColors(ArrayList<LayerBlock> blocks) {
-        int colorNumber = 0;
-        for (LayerBlock layerBlock : blocks) {
-            colorNumber++;
-            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()) continue;
-                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
-                    colorNumber++;
-                }
-            }
-        }
+        int colorNumber = getColorNumber(blocks);
         Color[] data = new Color[colorNumber];
         colorNumber = 0;
         for (LayerBlock layerBlock : blocks) {
@@ -869,12 +860,25 @@ public class BlockUtils {
                     if (b instanceof CoatingBlock) {
                         ((CoatingProperties) b.getProperties()).setDefaultColor(new Color(Color.TRANSPARENT));
                     }
-
                     data[colorNumber++] = ((ColoredProperties) b.getProperties()).getDefaultColor();
                 }
             }
         }
         return data;
+    }
+
+    private static int getColorNumber(ArrayList<LayerBlock> blocks) {
+        int colorNumber = 0;
+        for (LayerBlock layerBlock : blocks) {
+            colorNumber++;
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
+                if (!b.isNotAborted()) continue;
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
+                    colorNumber++;
+                }
+            }
+        }
+        return colorNumber;
     }
 
     public static int[] computeVertexCount(ArrayList<LayerBlock> blocks) {
@@ -902,18 +906,7 @@ public class BlockUtils {
     }
 
     public static float[] computeData(ArrayList<LayerBlock> blocks) {
-        int vertexNumber = 0;
-        for (LayerBlock layerBlock : blocks) {
-            vertexNumber += layerBlock.getTriangles().size();
-            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()) {
-                    continue;
-                }
-                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
-                    vertexNumber += b.getTriangles().size();
-                }
-            }
-        }
+        int vertexNumber = getVertexNumber(blocks);
         float[] data = new float[vertexNumber * 3];
         vertexNumber = 0;
         for (LayerBlock layerBlock : blocks) {
@@ -940,6 +933,22 @@ public class BlockUtils {
             }
         }
         return data;
+    }
+
+    private static int getVertexNumber(ArrayList<LayerBlock> blocks) {
+        int vertexNumber = 0;
+        for (LayerBlock layerBlock : blocks) {
+            vertexNumber += layerBlock.getTriangles().size();
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
+                if (!b.isNotAborted()) {
+                    continue;
+                }
+                if (b instanceof CoatingBlock || b instanceof DecorationBlock) {
+                    vertexNumber += b.getTriangles().size();
+                }
+            }
+        }
+        return vertexNumber;
     }
 
     public static ArrayList<LayerBlock> createBlocks(BodyModel bodyModel) {
@@ -973,8 +982,7 @@ public class BlockUtils {
                 }
             }
         }
-
-
         return blocks;
     }
+
 }

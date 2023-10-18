@@ -117,7 +117,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
 
     private void fillGrid() {
         BlockUtils.computeCoatingBlocks(this);
-
         for (CoatingBlock coatingBlock : blockGrid.getCoatingBlocks()) {
             HashSet<CoatingBlock> neighbors = blockGrid.findNeighbors(coatingBlock);
             coatingBlock.setNeighbors(neighbors);
@@ -147,11 +146,10 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     @Override
-    protected void particularInitialization() {
+    protected void specificInitialization() {
         createGrid();
         createFixtureSet();
         createAssociated();
-
         if (this.fillGrid) {
             fillGrid();
         }

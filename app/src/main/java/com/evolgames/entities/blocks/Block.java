@@ -50,14 +50,14 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
                 arrangeVertices();
             }
         }
-        particularInitialization();
+        specificInitialization();
     }
 
     protected abstract void calculateArea();
 
     protected abstract boolean shouldCalculateArea();
 
-    protected void particularInitialization() {
+    protected void specificInitialization() {
     }
 
     protected abstract T createChildBlock();

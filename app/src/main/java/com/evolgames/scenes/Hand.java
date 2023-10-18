@@ -43,6 +43,7 @@ public class Hand {
     private boolean follow;
     private boolean isTouching = false;
     private Vector2 localPoint;
+    private boolean onAction = false;
 
     public Hand(GameScene gameScene) {
         this.gameScene = gameScene;
@@ -83,27 +84,30 @@ public class Hand {
         if (grabbedEntity != null && grabbedEntity.hasUsage(Slasher.class)) {
             targetEntities.addAll(grabbedEntity.getUsage(Slasher.class).getTargetGameEntities());
         }
-        if (grabbedEntity != null && !grabbedEntity.hasActiveUsage(Penetrating.class)) {
-            if (grabbedEntity.getBody().getLinearVelocity().len()<0.05f && !this.handControlStack.isEmpty() && handControlStack.peek() instanceof HoldHandControl) {
-                grabbedEntity.getMesh().setZIndex(0);
-                gameScene.sortChildren();
-                if (grabbedEntity.hasUsage(Stabber.class)) {
-                    Stabber stabber = grabbedEntity.getUsage(Stabber.class);
-                    stabber.getTargetGameEntities().clear();
-                    stabber.setActive(false);
-                    grabbedEntity.getBody().setFixedRotation(false);
-                }
-                if (grabbedEntity.hasUsage(Slasher.class)) {
-                    Slasher slasher = grabbedEntity.getUsage(Slasher.class);
-                    slasher.getTargetGameEntities().clear();
-                    slasher.setActive(false);
-                }
-                for (GameEntity targetEntity : targetEntities) {
-                    gameScene.getWorldFacade().removeNonCollidingPair(grabbedEntity, targetEntity);
+        if(onAction) {
+            if (grabbedEntity != null && !grabbedEntity.hasActiveUsage(Penetrating.class)) {
+                if (grabbedEntity.getBody().getLinearVelocity().len() < 0.1f && !this.handControlStack.isEmpty() && handControlStack.peek() instanceof HoldHandControl) {
+                    grabbedEntity.getMesh().setZIndex(0);
+                    gameScene.sortChildren();
+                    if (grabbedEntity.hasUsage(Stabber.class)) {
+                        Stabber stabber = grabbedEntity.getUsage(Stabber.class);
+                        stabber.getTargetGameEntities().clear();
+                        stabber.setActive(false);
+                        grabbedEntity.getBody().setFixedRotation(false);
+                        this.onAction = false;
+                    }
+                    if (grabbedEntity.hasUsage(Slasher.class)) {
+                        Slasher slasher = grabbedEntity.getUsage(Slasher.class);
+                        slasher.getTargetGameEntities().clear();
+                        slasher.setActive(false);
+                        this.onAction = false;
+                    }
+                    for (GameEntity targetEntity : targetEntities) {
+                        gameScene.getWorldFacade().removeNonCollidingPair(grabbedEntity, targetEntity);
+                    }
                 }
             }
         }
-
         if (!handControlStack.isEmpty()) {
             HandControl top = handControlStack.peek();
             if (top.isDead()) {
@@ -127,6 +131,7 @@ public class Hand {
       //  this.grabbedEntity.getBody().setFixedRotation(false);
         this.grabbedEntity = null;
         this.mouseJoint = null;
+        this.onAction = false;
         if(updateUsages){
             gameScene.onUsagesUpdated();
         }
@@ -234,11 +239,15 @@ public class Hand {
     }
 
     public void moveToSlash(Vector2 target, GameEntity targetEntity) {
+        if(this.onAction){
+            return;
+        }
         this.localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
         Slasher slasher = grabbedEntity.getUsage(Slasher.class);
         slasher.setActive(true);
         grabbedEntity.getMesh().setZIndex(20);
         gameScene.sortChildren();
+        this.onAction = true;
 
         final float[] values = new float[]{Float.MAX_VALUE, -Float.MAX_VALUE, 0f, 0f, Float.MAX_VALUE, -Float.MAX_VALUE, 0f};
         gameScene.getWorldFacade().performScanFlux(target, grabbedEntity, (block, entity, direction, source, point, angle) -> {
@@ -312,9 +321,10 @@ public class Hand {
 
     private void moveToStab() {
         if (!(handControlStack.peek() instanceof HoldHandControl)||
-                !((HoldHandControl)handControlStack.peek()).isEquilibrium()) {
+                !((HoldHandControl)handControlStack.peek()).isEquilibrium()||onAction) {
             return;
         }
+        this.onAction = true;
         Vector2 p = this.mouseJoint.getTarget();
         float grabbedEntityAngle = grabbedEntity.getBody().getAngle();
         Vector2 v = new Vector2(0, 1);

@@ -301,26 +301,26 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             add(obtain(-400, 20));
             add(obtain(400, 20));
             add(obtain(400, 0));
-        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0,0,false));
         blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(200, 15));
             add(obtain(200, 20));
             add(obtain(340, 20));
             add(obtain(340, 15));
-        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0,1, false));
 
         blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(100, 18));
             add(obtain(100, 20));
             add(obtain(50, 20));
             add(obtain(50, 18));
-        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0,2,false));
         blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(140, 18));
             add(obtain(140, 16));
             add(obtain(50, 16));
             add(obtain(50, 18));
-        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(3)), 0));
+        }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(3)), 0,3,false));
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 

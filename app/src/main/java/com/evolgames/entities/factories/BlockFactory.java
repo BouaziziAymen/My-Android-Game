@@ -31,9 +31,9 @@ public class BlockFactory {
     }
 
 
-    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order, boolean firstTime) {
+    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order, boolean fillGrid) {
         LayerBlock createdBlock = new LayerBlock();
-        createdBlock.initialization(vertices,properties,ID,firstTime);
+        createdBlock.initialization(vertices,properties,ID,fillGrid);
         createdBlock.setOrder(order);
         createdBlock.setLiquidQuantity((int) (createdBlock.getProperties().getJuicinessDensity()*createdBlock.getBlockArea()* PhysicsConstants.LIQUID_DENSITY_CONSTANT));
         return createdBlock;

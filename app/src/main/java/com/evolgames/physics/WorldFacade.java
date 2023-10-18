@@ -1321,7 +1321,7 @@ public class WorldFacade implements ContactObserver {
             for (int i = 0; i < topographyData.getLength(); i++) {
                 float inf = topographyData.getData()[i][0];
                 float sup = topographyData.getData()[i][1];
-                if (advance > inf + 0.01f) {
+                if (advance > inf ) {
                     Vector2 point = topographyData.getBase().cpy().add((inf+0.02f) * normal.x, (inf+0.02f) * normal.y);
                     PenetrationPoint pe = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, inf, advance-inf,true);
                     dataPenPoints.add(pe);
