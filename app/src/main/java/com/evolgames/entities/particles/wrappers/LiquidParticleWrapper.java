@@ -38,7 +38,7 @@ public abstract class LiquidParticleWrapper {
         this.emitter = createEmitter(data,weights);
         this.parent = gameEntity;
 
-        this.particleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, 10*higherRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
+        this.particleSystem = new BaseParticleSystem(emitter, lowerRate, higherRate, 10*lowerRate, ResourceManager.getInstance().liquidParticle, ResourceManager.getInstance().vbom);
 
         this.velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
         this.particleSystem.addParticleInitializer(velocityInitializer);

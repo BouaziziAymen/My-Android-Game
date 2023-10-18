@@ -35,7 +35,7 @@ public class Material {
 
     public Material(String name, int index, Color color, float density, float friction, float restitution, float tenacity, float hardness, Liquid Juice, float jd, float jlp, float jup, boolean flammable, double ignitionTemperature, double flameTemperature, double energy) {
         this.juice = Juice;
-        this.density = density * 4;
+        this.density = density;
         this.friction = friction;
         this.restitution = restitution;
         this.color = color;
@@ -43,10 +43,10 @@ public class Material {
         this.hardness = hardness;
         this.index = index;
         this.tenacity = tenacity;
-        juicy = true;
-        JuicinessLowerPressure = jlp;
-        JuicinessUpperPressure = jup;
-        JuicinessDensity = jd * PhysicsConstants.BLEEDING_CONSTANT;
+        this.juicy = true;
+        this.JuicinessLowerPressure = jlp;
+        this.JuicinessUpperPressure = jup;
+        this.JuicinessDensity = jd;
         this.juiceColor = Juice.getProperties().getDefaultColor();
         this.flammable = flammable;
         this.ignitionTemperature = ignitionTemperature;
@@ -54,7 +54,7 @@ public class Material {
         this.energy = energy;
     }
     public Material(String name, int index, Color color, float density, float friction, float restitution, float tenacity,float hardness,boolean flammable, double ignitionTemperature,double flameTemperature,double energy) {
-        this.density = density * 9;
+        this.density = density;
         this.friction = friction;
         this.restitution = restitution;
         this.color = color;
@@ -63,9 +63,9 @@ public class Material {
         this.tenacity = tenacity;
         this.hardness = hardness;
         this.juicy = false;
-        JuicinessLowerPressure = 0;
-        JuicinessUpperPressure = 0;
-        JuicinessDensity = 0;
+        this.JuicinessLowerPressure = 0;
+        this.JuicinessUpperPressure = 0;
+        this.JuicinessDensity = 0;
         this.juiceColor = null;
         this.flammable = flammable;
         this.ignitionTemperature = ignitionTemperature;

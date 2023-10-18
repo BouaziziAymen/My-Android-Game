@@ -33,7 +33,7 @@ public class HoldHandControl extends HandControl {
                while (error < -Math.PI) error += 2 * Math.PI;
                while (error > Math.PI) error -= 2 * Math.PI;
                if (Math.abs(error) > 0.005f) {
-                   body.setAngularVelocity(10 * error);
+                   body.setAngularVelocity(15 * error);
                }
            }
         }
@@ -54,6 +54,6 @@ public class HoldHandControl extends HandControl {
         float angle = getAngle();
         float rot = weapon.getBody().getAngle();
         float error = angle - rot;
-        return (Math.abs(error) <= 0.05f);
+        return (Math.abs(error) <= 0.1f);
     }
 }

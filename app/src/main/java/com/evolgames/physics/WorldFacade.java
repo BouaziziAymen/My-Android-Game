@@ -293,7 +293,7 @@ public class WorldFacade implements ContactObserver {
         particleWrapper.updateEmitter();
     }
 
-    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, int lowerRate, int higherRate) {
+    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, final int lowerRate, final int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
             SegmentFreshCut sfc = (SegmentFreshCut) freshCut;
             return new SegmentLiquidParticleWrapper(parentEntity, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y}, sfc.getSplashVelocity(), color, lowerRate, higherRate);
@@ -1354,17 +1354,17 @@ public class WorldFacade implements ContactObserver {
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream()
                        .filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = MathUtils.diminishedIncrease(advance, 0.4f) * enterBleedingPoints.size();
-                    int value = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
-                    if (value > 1 && layerBlock.getProperties().isJuicy()) {
-                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, value, normal.cpy().mul(-600f));
+                    float length = (float) enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.4f)).sum();
+                    int limit = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
+                    if (limit > 1 && layerBlock.getProperties().isJuicy()) {
+                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = MathUtils.diminishedIncrease(advance, 0.4f) * leavingBleedingPoints.size();
+                    float length = (float) leavingBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.4f)).sum();
                     int value = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value > 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());

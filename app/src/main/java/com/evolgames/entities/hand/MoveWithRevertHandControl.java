@@ -48,7 +48,7 @@ public class MoveWithRevertHandControl extends HandControl {
         if (!isDead()) {
             position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
             target.set(hand.getMouseJoint().getTarget());
-            if(position.dst(start)>5f){
+            if(getAdvance()>5f){
                 goBack();
             }
             Vector2 pos = hand.getGrabbedEntity().getBody().getPosition();
@@ -59,12 +59,16 @@ public class MoveWithRevertHandControl extends HandControl {
             goBack();
         }
     }
+
     public void goBack(){
         if(hand.getMouseJoint()!=null) {
             setDead(true);
             hand.getMouseJoint().setMaxForce(this.maxForce);
             hand.getMouseJoint().setTarget(start);
         }
+    }
+    public float getAdvance(){
+        return position.dst(start);
     }
 
     public Vector2 getPosition() {

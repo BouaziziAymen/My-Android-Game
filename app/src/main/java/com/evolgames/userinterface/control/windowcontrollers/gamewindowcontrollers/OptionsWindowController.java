@@ -1,8 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
-
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -29,14 +28,14 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import org.andengine.util.adt.color.Color;
 
 public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowController<OptionsWindow, SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> {
-    private UserInterface userInterface;
     private final ItemSaveWindowController itemSaveController;
+    private final IntegerValidator polygonNumberValidator = new IntegerValidator(3, 30);
+    private final NumericValidator polygonRadiusValidator = new NumericValidator(false, true, 0, 32 * 5, 3, 1);
+    private UserInterface userInterface;
     private ColorSlot pipeColorSlot;
     private TextField<OptionsWindowController> polygonRadiusTextField;
     private CreationZoneController creationZoneController;
     private TextField<OptionsWindowController> polygonPointNumberTextField;
-    private final IntegerValidator polygonNumberValidator = new IntegerValidator(3, 30);
-    private final NumericValidator polygonRadiusValidator = new NumericValidator(false, true, 0, 32 * 5, 3, 1);
 
     public OptionsWindowController(KeyboardController keyboardController, ItemSaveWindowController itemSaveWindowController) {
         this.keyboardController = keyboardController;
@@ -45,6 +44,23 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
     public void setCreationZoneController(CreationZoneController creationZoneController) {
         this.creationZoneController = creationZoneController;
+    }
+
+    public void test_createTool(int primaryId, String file) {
+        ButtonWithText<OptionsWindowController> weaponButton = new ButtonWithText<>(
+                file, 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.OneClick, true);
+        weaponButton.setBehavior(new ButtonBehavior<OptionsWindowController>(this, weaponButton) {
+            @Override
+            public void informControllerButtonClicked() {
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+                ((GameScene) OptionsWindowController.this.userInterface.getScene()).loadToolModel(file).createTool();
+            }
+        });
+        SimplePrimary<ButtonWithText<OptionsWindowController>> weaponElement = new SimplePrimary<>(primaryId, weaponButton);
+        window.addPrimary(weaponElement);
     }
 
     public void selectSettingsType(SettingsType settingsType) {
@@ -66,7 +82,7 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
                     @Override
                     public void informControllerButtonReleased() {
-                       itemSaveController.openWindow();
+                        itemSaveController.openWindow();
                     }
                 });
 
@@ -76,7 +92,9 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
                 window.addPrimary(createMoveLimitsOption(0));
                 break;
             case NONE:
-
+                this.test_createTool(1, "c1_knife.xml");
+                this.test_createTool(2, "c1_sword.xml");
+                this.test_createTool(3, "c1_morning_star.xml");
                 break;
             case REMOVE_POINT_SETTINGS:
                 window.addPrimary(createReferenceOption(0));
@@ -109,7 +127,6 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
 
                 break;
             case MOVE_POINT_SETTINGS:
-
                 window.addPrimary(createReferenceOption(0));
                 ButtonWithText<OptionsWindowController> createReferenceButton = new ButtonWithText<>
                         ("Reference", 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.OneClick, true);
@@ -126,7 +143,6 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
                 });
                 SimplePrimary<ButtonWithText<OptionsWindowController>> referenceElement = new SimplePrimary<>(1, createReferenceButton);
                 window.addPrimary(referenceElement);
-
                 break;
             case ROTATE_SETTINGS:
                 window.addPrimary(createMagnetBoard(0));
@@ -134,11 +150,9 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
             case MIRROR_SETTINGS:
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createDirectionBoard(1));
-
                 break;
             case SHIFT_SETTINGS:
                 window.addPrimary(createDirectionBoard(0));
-
                 break;
             case DISTANCE_JOINT_SETTINGS:
             case REVOLUTE_JOINT_SETTINGS:
@@ -259,8 +273,8 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
     public void init() {
         super.init();
         setBodyOnly();
-       updateLayout();
-
+        updateLayout();
+        selectSettingsType(SettingsType.NONE);
     }
 
     private void resetLayout() {

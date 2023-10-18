@@ -171,13 +171,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         OutlineController outlineController = new OutlineController();
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
-        ToolModel toolModel = null;
-        try {
-            toolModel = PersistenceCaretaker.getInstance().loadToolModel("c1_morning_star.xml");
-            toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
-        } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
-            e.printStackTrace();
-        }
+        ToolModel toolModel = loadToolModel("c1_knife.xml");
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this, keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
@@ -190,7 +184,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         ItemSaveWindowController itemSaveWindowController = new ItemSaveWindowController(keyboardController);
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
-
         userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, bombOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
         this.usageButtonsController = new UsageButtonsController();
         this.usageButtonsController.init();
@@ -363,6 +356,17 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         sortChildren();
 
 
+    }
+
+    public ToolModel loadToolModel(String file) {
+        ToolModel toolModel = null;
+        try {
+            toolModel = PersistenceCaretaker.getInstance().loadToolModel(file);
+            toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
+        } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
+            e.printStackTrace();
+        }
+        return toolModel;
     }
 
     @Override
