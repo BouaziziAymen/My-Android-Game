@@ -11,7 +11,6 @@ public class HoldHandControl extends HandControl {
     public HoldHandControl(GameEntity weapon) {
         super();
         this.weapon = weapon;
-       // this.weapon.getBody().setFixedRotation(true);
     }
 
 
@@ -26,7 +25,6 @@ public class HoldHandControl extends HandControl {
         Body body = weapon.getBody();
         if(!isDead()) {
            if(body!=null) {
-             //  body.setFixedRotation(true);
                float rot = body.getAngle();
                float error = angle - rot;
 
@@ -44,7 +42,7 @@ public class HoldHandControl extends HandControl {
         float angle = 0;
         if(action ==PlayerSpecialAction.Slash|| action ==PlayerSpecialAction.None){
             angle = 0 * MathUtils.degreesToRadians;
-        } else if(action ==PlayerSpecialAction.Stab){
+        } else if(action ==PlayerSpecialAction.Stab||action==PlayerSpecialAction.Throw){
             angle = 90 * MathUtils.degreesToRadians;
         }
         return angle;

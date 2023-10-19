@@ -14,7 +14,12 @@ public class Vector2Utils {
     public static List<Vector2> generateRandomPointsInsidePolygon(int n, Vector2  localImpactPoint, LayerBlock layerBlock, GameEntity gameEntity) {
    GameScene.plotter2.detachChildren();
         Vector2 u1 = new Vector2(1,0);
-        Vector2 localCenter = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint).getPosition();
+        CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
+        if(nearest==null){
+            return new ArrayList<>();
+        }
+        Vector2 localCenter = nearest.getPosition();
+
         int steps =50;
         final float dA = (float) (2*Math.PI/steps);
         Vector2 center = gameEntity.getBody().getWorldPoint(localCenter.cpy().mul(1/32f)).cpy();

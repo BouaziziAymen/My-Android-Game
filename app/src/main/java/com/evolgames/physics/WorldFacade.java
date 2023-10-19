@@ -733,7 +733,7 @@ public class WorldFacade implements ContactObserver {
 
         final float collisionImpulse = (float) Math.sqrt(computeCollisionEnergy(V1, V2, normal, m1, m2));
         System.out.println("-----------$ Begin penetration, energy:" + collisionImpulse+"/ bullet:"+penetrator.getBody().isBullet());
-        if (collisionImpulse < 10.0f||penetrator.getBody().getLinearVelocity().dot(normal)<10f) {
+        if (penetrator.getBody().getLinearVelocity().dot(normal)<20f) {
             return false;
         }
         final float range = 5f;
@@ -841,6 +841,9 @@ public class WorldFacade implements ContactObserver {
             }
             if (goThrough) {
                 break;
+            }
+            if(step%100==0){
+                System.out.println("-----------Step:"+step);
             }
             if (depleted||collisionImpulse - penetrationImpulse < 0) {
                 float actualAdvance = step * dN;
@@ -1377,11 +1380,14 @@ public class WorldFacade implements ContactObserver {
 
     }
 
-    public boolean applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
+    public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
-            return false;
+            return;
         }
-        return applyOnePointImpactToEntity(BlockUtils.getNearestBlock(gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f), gameEntity.getBlocks()), energy, gameEntity, worldPoint);
+        LayerBlock nearest = BlockUtils.getNearestBlock(gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f), gameEntity.getBlocks());
+        if(nearest!=null) {
+            applyOnePointImpactToEntity(nearest, energy, gameEntity, worldPoint);
+        }
     }
 
     private boolean applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 worldPoint) {
@@ -1430,7 +1436,9 @@ public class WorldFacade implements ContactObserver {
     public void applyImpactHeat(float heat, List<ImpactData> impactData) {
         impactData.forEach(impact -> {
             CoatingBlock coatingCenter = impact.getImpactedBlock().getBlockGrid().getNearestCoatingBlockSimple(impact.getLocalImpactPoint());
-            coatingCenter.applyDeltaTemperature(10 * heat);
+            if(coatingCenter!=null) {
+                coatingCenter.applyDeltaTemperature(10 * heat);
+            }
         });
     }
 

@@ -128,7 +128,6 @@ public class Hand {
         if (!handControlStack.isEmpty()) {
             handControlStack.peek().setDead(true);
         }
-      //  this.grabbedEntity.getBody().setFixedRotation(false);
         this.grabbedEntity = null;
         this.mouseJoint = null;
         this.onAction = false;

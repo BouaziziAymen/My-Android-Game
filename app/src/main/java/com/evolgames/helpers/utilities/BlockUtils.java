@@ -598,7 +598,7 @@ public class BlockUtils {
 
     }
     public static LayerBlock getNearestBlock(Vector2 localPoint, List<LayerBlock> blocks) {
-        float minDistance = Float.MAX_VALUE;
+        float minDistance = Float.POSITIVE_INFINITY;
         LayerBlock result = null;
         for (LayerBlock layerBlock : blocks) {
             CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localPoint);
