@@ -7,6 +7,7 @@ import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.gameengine.GameSound;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -189,11 +190,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         updateCasingSelectionFields();
         this.projectileProperties = model.getProperties();
         setBody(projectileModel.getBodyId());
-        setProjectileName(this.model.getModelName());
-        setFireSound(this.projectileProperties.getFireSound());
-        setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
+       setFireSound(this.projectileProperties.getFireSound());
+       setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
-        setProjectileName(projectileModel.getModelName());
+       setProjectileName(projectileModel.getModelName());
         if (projectileModel.getMissileModel() != null) {
             setMissileName(ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix() + "_" + projectileModel.getMissileModel().getModelName() + ".xml");
         }
@@ -209,7 +209,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     }
 
     private void setMuzzleVelocity(float muzzleVelocity) {
-        this.velocityQuantity.updateRatio(muzzleVelocity);
+       float ratio =  PhysicsConstants.getProjectileVelocityRatio(muzzleVelocity);
+        this.velocityQuantity.updateRatio(ratio);
     }
 
     private void setBody(int bodyId) {

@@ -12,6 +12,8 @@ import java.util.List;
 
 public class Slasher extends MeleeUse {
 
+    public static final float SLASH_CONSTANT = 0.25f;
+
     @Override
     public void onStep(float deltaTime) {
     }
@@ -23,7 +25,7 @@ public class Slasher extends MeleeUse {
         if (path.size() >= 3 && Utils.PointInPolygon(target, path)) {
             Vector2 u = new Vector2(1, 0);
             GeometryUtils.rotateVectorDeg(u, (float) (Math.random() * 360));
-            float cutHalfLength = 0.5f * sharpness * sharpLength;
+            float cutHalfLength = SLASH_CONSTANT * sharpness * sharpLength;
             Vector2 point1 = target.cpy().add(cutHalfLength * u.x, cutHalfLength * u.y);
             Vector2 point2 = target.cpy().add(-cutHalfLength * u.x, -cutHalfLength * u.y);
             if (cutHalfLength > 0.05f) {

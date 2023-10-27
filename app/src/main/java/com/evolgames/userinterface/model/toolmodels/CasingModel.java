@@ -3,12 +3,14 @@ package com.evolgames.userinterface.model.toolmodels;
 import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
 
 public class CasingModel extends ProperModel<CasingProperties> {
 
     private CasingShape casingShape;
     private final int bodyId;
     private final int casingId;
+    private CasingField casingField;
 
     public CasingModel(int bodyId, int casingId, String ammoName) {
         super(ammoName);
@@ -44,5 +46,11 @@ public class CasingModel extends ProperModel<CasingProperties> {
         return this.properties;
     }
 
+    public CasingField getCasingField() {
+        return casingField;
+    }
 
+    public void setCasingField(CasingField casingField) {
+        this.casingField = casingField;
+    }
 }

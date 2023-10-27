@@ -173,7 +173,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public int getNewDecorationId(int primaryKey, int secondaryKey) {
-        return getLayerModelById(primaryKey, secondaryKey).getNewDecorationId();
+        return getLayerModelById(primaryKey, secondaryKey).getDecorationCounter().getAndIncrement();
     }
 
     private final ArrayList<MosaicMesh> meshes = new ArrayList<>();

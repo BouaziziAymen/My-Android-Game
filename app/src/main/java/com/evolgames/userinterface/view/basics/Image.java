@@ -75,11 +75,6 @@ drawImage();
     }
 
     @Override
-    public boolean isLimited() {
-        return isLimited;
-    }
-
-    @Override
     public void setLimitY0(float limitY0) {
         if(limitY0>getHeight())limitY0=getHeight();
         if(limitY0<0)limitY0=0;

@@ -556,20 +556,20 @@ public class PersistenceCaretaker {
 
         for (BodyModel body : toolModel.getBodies()) {
             if (body.getCasingModels().size() > 0) {
-                toolModel.getAmmoCounter().set(body.getCasingModels().stream().mapToInt(CasingModel::getCasingId).max().getAsInt() + 1);
+                toolModel.getAmmoCounter().set(body.getCasingModels().stream().mapToInt(CasingModel::getCasingId).max().orElse(-1) + 1);
             }
             if (body.getBombModels().size() > 0) {
-                toolModel.getBombCounter().set(body.getBombModels().stream().mapToInt(BombModel::getBombId).max().getAsInt() + 1);
+                toolModel.getBombCounter().set(body.getBombModels().stream().mapToInt(BombModel::getBombId).max().orElse(-1) + 1);
             }
             if (body.getProjectiles().size() > 0) {
-                toolModel.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().getAsInt() + 1);
+                toolModel.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().orElse(-1) + 1);
             }
             if (body.getLayers().size() > 0) {
-                body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().getAsInt() + 1);
+                body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().orElse(-1) + 1);
             }
             for (LayerModel layerModel : body.getLayers()) {
                 if (layerModel.getDecorations().size() > 0) {
-                    layerModel.getDecorationCounter().set(layerModel.getDecorations().stream().mapToInt(DecorationModel::getDecorationId).max().getAsInt() + 1);
+                    layerModel.getDecorationCounter().set(layerModel.getDecorations().stream().mapToInt(DecorationModel::getDecorationId).max().orElse(-1) + 1);
                 }
             }
         }

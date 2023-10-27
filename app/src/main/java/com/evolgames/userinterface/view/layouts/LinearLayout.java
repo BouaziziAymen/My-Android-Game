@@ -82,8 +82,6 @@ private void refreshOppositeDimension(){
             if (e.getLowerBottomY()+e.getHeight() > maxy) maxy = e.getLowerBottomY()+e.getHeight();
         }
         setHeight(maxy-miny);
-    } else {
-
     }
 }
 

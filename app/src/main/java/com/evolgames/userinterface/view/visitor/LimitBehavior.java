@@ -25,7 +25,6 @@ public class LimitBehavior extends VisitBehavior {
                 limited.setLimited(true);
                 limited.setLimitY0(0);
                 limited.setLimitY1(-y + sup);
-                e.setVisible(sup - y > 0);
             }
         } else if (y < inf) {
             if (e instanceof Limited) {
@@ -33,14 +32,12 @@ public class LimitBehavior extends VisitBehavior {
                 limited.setLimited(true);
                 limited.setLimitY0(inf - y);
                 limited.setLimitY1(e.getHeight());
-                e.setVisible(inf - y < e.getHeight());
             }
 
         } else {
             if (e instanceof Limited) {
                 Limited limited = (Limited) e;
                 limited.setLimited(false);
-                e.setVisible(true);
             }
 
         }

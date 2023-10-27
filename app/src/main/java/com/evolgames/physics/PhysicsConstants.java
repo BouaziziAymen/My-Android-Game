@@ -5,8 +5,8 @@ import android.hardware.SensorManager;
 public class PhysicsConstants {
     public static final float TENACITY_FACTOR =50f;
     public static final float HEAT_CONSTANT = 100f;
-    public static final float MINIMUM_SPLINTER_AREA = 64f;
-    public static final float MINIMUM_STABLE_SPLINTER_AREA = 90f;
+    public static final float MINIMUM_SPLINTER_AREA = 25f;
+    public static final float MINIMUM_STABLE_SPLINTER_AREA = 36;
     public static final float PENETRATION_CONSTANT = 200000f;
     public static final float PULVERIZATION_CONSTANT = 3.41f;
     public static final int FLUX_PRECISION = 100;
@@ -24,6 +24,9 @@ public class PhysicsConstants {
     public static float ambient_temperature = 60;
     public static float getProjectileVelocity(float ratio){
         return MIN_PROJECTILE_VELOCITY + ratio * (MAX_PROJECTILE_VELOCITY-MIN_PROJECTILE_VELOCITY);
+    }
+    public static float getProjectileVelocityRatio(float velocity){
+        return  (velocity-MIN_PROJECTILE_VELOCITY) / (MAX_PROJECTILE_VELOCITY-MIN_PROJECTILE_VELOCITY);
     }
     public static float getEffectiveFireRate(float ratio){
         return MIN_FIRE_RATE + ratio * (MAX_FIRE_RATE-MIN_FIRE_RATE);

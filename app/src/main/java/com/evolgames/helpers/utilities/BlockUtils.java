@@ -132,7 +132,7 @@ public class BlockUtils {
 
 
     private static Vector2 findTheOne(ArrayList<Vector2> Vertices, Vector2 A, Vector2 B, Vector2 centroid) {
-        if (GeometryUtils.PointOnLineSegment(A, B, centroid, 0.01f)) return centroid;
+        if (GeometryUtils.isPointOnLineSegment(A, B, centroid, 0.01f)) return centroid;
         for (Vector2 v : Vertices) {
             if (v.dst(A) < 0.001f || v.dst(B) < 0.001f) continue;
             Vector2 p = GeometryUtils.lineIntersectPoint(v, centroid, A, B);
@@ -275,7 +275,7 @@ public class BlockUtils {
                 Vector2 p = polygon.get(i);
                 Vector2 pp = polygon.get(pi);
                 Vector2 pn = polygon.get(ni);
-                if (GeometryUtils.PointOnLineSegment(pn, pp, p, 0.1f)) {
+                if (GeometryUtils.isPointOnLineSegment(pn, pp, p, 0.1f)) {
                     repeat = true;
                     iterator.remove();
                     break;
@@ -300,7 +300,7 @@ public class BlockUtils {
                 Vector2 pn = polygon.get(ni);
 
 
-                if (GeometryUtils.PointOnLineSegment(pn, pp, p, ceil)) {
+                if (GeometryUtils.isPointOnLineSegment(pn, pp, p, ceil)) {
                     repeat = true;
                     iterator.remove();
                     break;
@@ -601,11 +601,8 @@ public class BlockUtils {
         float minDistance = Float.POSITIVE_INFINITY;
         LayerBlock result = null;
         for (LayerBlock layerBlock : blocks) {
-            CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localPoint);
-            if(nearest==null){
-                continue;
-            }
-            float distance = nearest.distance(localPoint);
+            Vector2 point = GeometryUtils.calculateProjection(localPoint, layerBlock.getVertices());
+            float distance = point.dst(localPoint);
             if (distance < minDistance) {
                 result = layerBlock;
                 minDistance = distance;

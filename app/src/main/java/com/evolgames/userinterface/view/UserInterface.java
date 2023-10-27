@@ -851,11 +851,11 @@ public class UserInterface extends Container implements Touchable {
 
         }
         toolModel.updateMesh();
-
+        layersWindowController.init();
         outlineController.init();
         itemWindowController.init();
         jointsWindowController.init();
-        layersWindowController.init();
+
 
     }
 

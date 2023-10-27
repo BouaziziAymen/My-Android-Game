@@ -6,6 +6,7 @@ import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
 public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
@@ -16,6 +17,7 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     private CasingModel ammoModel;
     private GameEntity muzzleEntity;
     private ExplosiveParticleWrapper fireSource;
+    private ProjectileField projectileField;
 
     public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
         super("Proj" + projectileId);
@@ -76,5 +78,13 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
     public ExplosiveParticleWrapper getFireSource() {
         return fireSource;
+    }
+
+    public ProjectileField getProjectileField() {
+        return projectileField;
+    }
+
+    public void setProjectileField(ProjectileField projectileField) {
+        this.projectileField = projectileField;
     }
 }

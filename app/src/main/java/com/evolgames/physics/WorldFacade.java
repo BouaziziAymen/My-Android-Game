@@ -136,8 +136,8 @@ public class WorldFacade implements ContactObserver {
 
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8*3);
-        physicsWorld.setPositionIterations(3*3);
+        physicsWorld.setVelocityIterations(8);
+        physicsWorld.setPositionIterations(3);
         physicsWorld.setContinuousPhysics(true);
 
         this.groundModel = new BodyModel(-1);
@@ -1390,9 +1390,9 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    private boolean applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 worldPoint) {
+    private void applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 worldPoint) {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
-            return false;
+            return;
         }
         Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
         if(block.getProperties().getMaterialNumber()==11||block.getProperties().getMaterialNumber()==12) {
@@ -1405,7 +1405,6 @@ public class WorldFacade implements ContactObserver {
         List<ImpactData> impactData = new ArrayList<>();
         impactData.add(new ImpactData(gameEntity, block, worldPoint, energy));
         this.applyImpacts(gameEntity, impactData);
-        return !gameEntity.isAlive();
     }
 
     public void pulverizeBlock(LayerBlock layerBlock, GameEntity gameEntity) {

@@ -1,13 +1,6 @@
 package com.evolgames.userinterface.view.inputs.bounds;
 
-import com.badlogic.gdx.math.Vector2;
-import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.view.basics.Element;
-
-import org.andengine.util.adt.color.Color;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RectangularBounds extends Bounds {
     private float width;
@@ -48,4 +41,11 @@ public class RectangularBounds extends Bounds {
         return pX > s1x && pX < s2x && pY > s1y && pY < s2y;
     }
 
+    public void setShiftX(float shiftX) {
+        this.shiftX = shiftX;
+    }
+
+    public void setShiftY(float shiftY) {
+        this.shiftY = shiftY;
+    }
 }

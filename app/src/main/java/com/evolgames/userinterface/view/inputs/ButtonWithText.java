@@ -14,7 +14,7 @@ public class ButtonWithText<C extends Controller> extends Button<C> {
 
     private void centerText() {
         mText.setLowerBottomX(getWidth() / 2 - mText.getWidth() / 2);
-        mText.setLowerBottomY(getHeight()   - mText.getHeight());
+        mText.setLowerBottomY(getHeight()/2);
     }
 
     public ButtonWithText(float pX, float pY, String pTextString, int pFontId, TiledTextureRegion tiledTextureRegion, ButtonType buttonType, boolean createBounds) {

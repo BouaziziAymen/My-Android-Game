@@ -27,7 +27,10 @@ public class LineShape {
         creationScene = scene;
         this.end = Vector2Pool.obtain(begin);
         this.begin = Vector2Pool.obtain(begin);
-
+        this.lineStrip = new LineStrip(0, 0, 5, 100, ResourceManager.getInstance().vbom);
+        creationScene.attachChild(lineStrip);
+        lineStrip.setZIndex(2);
+        creationScene.sortChildren();
     }
 
     protected boolean isIndicatorsVisible() {
@@ -73,21 +76,20 @@ public class LineShape {
         mRed = r;
         mGreen = g;
         mBlue = b;
-        if (lineStrip != null)
+        if (lineStrip != null) {
             lineStrip.setColor(mRed, mGreen, mBlue);
+        }
     }
 
     public void drawLine() {
-        if (lineStrip != null){
-            lineStrip.detachSelf();
+        while(lineStrip.getIndex()!=0){
+            lineStrip.shift();
+            lineStrip.setIndex(lineStrip.getIndex()-1);
         }
-        this.lineStrip = new LineStrip(0, 0, 5, 100, ResourceManager.getInstance().vbom);
-        creationScene.attachChild(lineStrip);
-        lineStrip.setZIndex(2);
-        creationScene.sortChildren();
         lineStrip.add(begin.x, begin.y);
         lineStrip.add(end.x, end.y);
         lineStrip.setColor(mRed, mGreen, mBlue);
+        System.out.println("#######Projectile Shape visible line:"+visible);
         lineStrip.setVisible(visible);
     }
 
@@ -98,13 +100,13 @@ public class LineShape {
     }
 
     public void detach() {
-        if (lineStrip != null){
+        if (lineStrip != null) {
             lineStrip.detachSelf();
         }
     }
 
     public void updateEnd(float x, float y) {
-        end.set(x,y);
+        end.set(x, y);
         this.onExtremityUpdated();
     }
 
@@ -118,8 +120,9 @@ public class LineShape {
     }
 
     public void setVisible(boolean b) {
-        if(lineStrip != null)
-        lineStrip.setVisible(b);
+        if (lineStrip != null) {
+            lineStrip.setVisible(b);
+        }
         this.visible = b;
     }
 

@@ -49,6 +49,7 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
 
     @Override
     public void select() {
+        System.out.println("#######Projectile Shape select");
         super.select();
         originPoint.select();
         originPoint.setDepth(2);
@@ -57,6 +58,7 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
 
     @Override
     public void release() {
+        System.out.println("#######Projectile Shape release");
         super.release();
         originPoint.release();
         originPoint.setDepth(1);
@@ -83,12 +85,14 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
 
     @Override
     public void setVisible(boolean b) {
+        System.out.println("#######Projectile Shape set visible:"+b);
         super.setVisible(b);
         this.originPoint.setVisible(b);
     }
 
     @Override
     public void onControllerMoved(float dx, float dy) {
+        System.out.println("#######Projectile Shape move:"+dx+","+dy);
         super.onControllerMoved(dx, dy);
         this.model.getProperties().getProjectileEnd().set(end.x,end.y);
     }

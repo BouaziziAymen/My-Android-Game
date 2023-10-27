@@ -4,6 +4,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 
 public class BombModel extends ProperModel<BombProperties> {
 
@@ -11,6 +12,8 @@ public class BombModel extends ProperModel<BombProperties> {
     private final int bodyId;
     private final int bombId;
     private GameEntity gameEntity;
+    private BombField bombField;
+
     public BombModel(int bodyId, int bombId) {
         super("Bomb"+bombId);
         this.bodyId = bodyId;
@@ -46,5 +49,13 @@ public class BombModel extends ProperModel<BombProperties> {
 
     public void setGameEntity(GameEntity gameEntity) {
         this.gameEntity = gameEntity;
+    }
+
+    public BombField getBombField() {
+        return bombField;
+    }
+
+    public void setBombField(BombField bombField) {
+        this.bombField = bombField;
     }
 }

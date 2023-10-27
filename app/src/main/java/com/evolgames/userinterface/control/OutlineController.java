@@ -2,7 +2,6 @@ package com.evolgames.userinterface.control;
 
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointSettingsWindowController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
@@ -19,6 +18,9 @@ import com.evolgames.userinterface.view.shapes.PointsShape;
 public class OutlineController extends Controller {
     private UserInterface userInterface;
     private ProperModel<?> lastSelectedItem;
+    private BodyModel selectedBodyModel;
+    private LayerModel selectedLayerModel;
+    private DecorationModel selectedDecorationModel;
 
     @Override
     public void init() {
@@ -29,38 +31,42 @@ public class OutlineController extends Controller {
         for (BodyModel bodyModel : userInterface.getToolModel().getBodies()) {
             for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
                 projectileModel.getProjectileShape().release();
+                projectileModel.getProjectileField().hideFields();
             }
-            for (CasingModel ammoModel : bodyModel.getCasingModels()) {
-                ammoModel.getCasingShape().release();
+            for (CasingModel casingModel : bodyModel.getCasingModels()) {
+                casingModel.getCasingShape().release();
+                casingModel.getCasingField().hideFields();
             }
             for (BombModel bombModel : bodyModel.getBombModels()) {
                 bombModel.getBombShape().release();
+                bombModel.getBombField().hideFields();
             }
         }
     }
 
     private void resetAll() {
         for (BodyModel bodyModel : userInterface.getToolModel().getBodies()) {
+            if(bodyModel.getField()!=null){
+                bodyModel.getField().hideFields();
+            }
             for (LayerModel layerModel : bodyModel.getLayers()) {
                 PointsShape layerShape = layerModel.getPointsShape();
                 layerShape.setLineLoopColor(Colors.white);
                 layerShape.setVisible(false);
+                if(layerModel.getField()!=null) {
+                    layerModel.getField().hideFields();
+                }
                 for (DecorationModel decorationModel : layerModel.getDecorations()) {
                     PointsShape decorationShape = decorationModel.getPointsShape();
                     decorationShape.setLineLoopColor(Colors.white);
                     decorationShape.setVisible(false);
+                    if(decorationModel.getField()!=null) {
+                        decorationModel.getField().hideFields();
+                    }
                 }
             }
-            for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
-                projectileModel.getProjectileShape().setVisible(false);
-            }
-            for (CasingModel casingModel : bodyModel.getCasingModels()) {
-                casingModel.getCasingShape().setVisible(false);
-            }
-            for (BombModel bombModel : bodyModel.getBombModels()) {
-                bombModel.getBombShape().setVisible(false);
-            }
         }
+        resetAllItems();
     }
 
 
@@ -73,20 +79,26 @@ public class OutlineController extends Controller {
         if (selectedItemModel instanceof ProjectileModel) {
             ProjectileModel projectileModel = (ProjectileModel) selectedItemModel;
             projectileModel.getProjectileShape().select();
+            projectileModel.getProjectileField().showFields();
         }
-        if (selectedItemModel instanceof CasingModel) {
+       else if (selectedItemModel instanceof CasingModel) {
             CasingModel casingModel = (CasingModel) selectedItemModel;
             casingModel.getCasingShape().select();
+            casingModel.getCasingField().showFields();
         }
 
-        if (selectedItemModel instanceof BombModel) {
+        else if (selectedItemModel instanceof BombModel) {
             BombModel bombModel = (BombModel) selectedItemModel;
             bombModel.getBombShape().select();
+            bombModel.getBombField().showFields();
         }
     }
 
     public void onSelectionUpdated(BodyModel selectedBodyModel, LayerModel selectedLayerModel, DecorationModel selectedDecorationModel) {
         this.resetAll();
+        this.selectedBodyModel = selectedBodyModel;
+        this.selectedLayerModel = selectedLayerModel;
+        this.selectedDecorationModel = selectedDecorationModel;
         if (selectedDecorationModel != null) {
             selectBodyModel(selectedBodyModel, Colors.white);
             selectedDecorationModel.getPointsShape().setPointsVisible(true);
@@ -103,6 +115,15 @@ public class OutlineController extends Controller {
             this.selectBodyModel(selectedBodyModel, Colors.white);
         } else {
             this.deselectBodyModels();
+        }
+        if(selectedBodyModel!=null){
+            selectedBodyModel.getField().showFields();
+        }
+        if(selectedLayerModel!=null){
+            selectedLayerModel.getField().showFields();
+        }
+        if(selectedDecorationModel!=null){
+            selectedDecorationModel.getField().showFields();
         }
 
     }
@@ -131,8 +152,7 @@ public class OutlineController extends Controller {
         resetAll();
         switch (selectedScreen) {
             case DRAW_SCREEN:
-                LayerWindowController layerController = userInterface.getLayersWindowController();
-                this.onSelectionUpdated(layerController.getSelectedBodyModel(), layerController.getSelectedLayerModel(), layerController.getSelectedDecorationModel());
+                this.onSelectionUpdated(selectedBodyModel, selectedLayerModel, selectedDecorationModel);
                 break;
             case JOINTS_SCREEN:
                 JointSettingsWindowController jointSettingsWindowController = userInterface.getJointSettingsWindowController();

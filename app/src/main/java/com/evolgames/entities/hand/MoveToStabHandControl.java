@@ -39,8 +39,7 @@ public class MoveToStabHandControl extends HandControl {
         if (!isDead()) {
             position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
             if(position.dst(start)>Hand.STAB_ADVANCE){
-              goBack();
-              setDead(true);
+              setTarget(position);
             }
             float angle = hand.getGrabbedEntity().getBody().getAngle();
             hand.getGrabbedEntity().getBody().setTransform(hand.getGrabbedEntity().getBody().getPosition().x, initialY,angle);

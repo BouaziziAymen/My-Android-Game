@@ -20,8 +20,7 @@ public class ShadeVisitBehavior extends VisitBehavior {
 
     @Override
     protected void visitElement(Element e) {
-        Log.e("visit",""+(e==excepted));
-        if(!(e instanceof Container)&&e!=excepted){
+        if(e!=excepted){
             switch (shadeAction){
                 case Show:
                     e.setShaded(false);

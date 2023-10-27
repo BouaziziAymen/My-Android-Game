@@ -40,9 +40,9 @@ public class HoldHandControl extends HandControl {
     private float getAngle() {
         PlayerSpecialAction action = weapon.getGameScene().getSpecialAction();
         float angle = 0;
-        if(action ==PlayerSpecialAction.Slash|| action ==PlayerSpecialAction.None){
+        if(action ==PlayerSpecialAction.Slash||action==PlayerSpecialAction.Throw|| action ==PlayerSpecialAction.None){
             angle = 0 * MathUtils.degreesToRadians;
-        } else if(action ==PlayerSpecialAction.Stab||action==PlayerSpecialAction.Throw){
+        } else if(action ==PlayerSpecialAction.Stab){
             angle = 90 * MathUtils.degreesToRadians;
         }
         return angle;

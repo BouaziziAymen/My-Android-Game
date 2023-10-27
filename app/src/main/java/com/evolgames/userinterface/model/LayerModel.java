@@ -6,6 +6,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
     private final ArrayList<DecorationModel> decorations;
     private final int bodyId;
     private final int layerId;
+    private LayerField field;
 
     public LayerModel(int bodyId, int layerId, String layerName, LayerProperties properties, BodyModel bodyModel) {
         super(layerName);
@@ -35,7 +37,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         this.layerId = layerId;
         this.decorations = new ArrayList<>();
         this.properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
-        ((LayerProperties) this.properties).setLayerName("Layer" + layerId);
+        this.properties.setLayerName("Layer" + layerId);
         this.bodyModel = bodyModel;
     }
 
@@ -127,9 +129,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         return null;
     }
 
-    public int getNewDecorationId() {
-        return decorationCounter.get();
-    }
+
 
     public ArrayList<PointsShape> getPointsShapes() {
         ArrayList<PointsShape> result = new ArrayList<>();
@@ -153,15 +153,19 @@ public class LayerModel extends PointsModel<LayerProperties> {
     public AtomicInteger getDecorationCounter() {
         return decorationCounter;
     }
-
-    public void setDecorationCounter(int value) {
-        decorationCounter.set(value);
-    }
-
+    
     @Override
     public void updateOutlinePoints() {
         super.updateOutlinePoints();
         bodyModel.onChildLayerOutlineUpdated(layerId);
+    }
+
+    public void setField(LayerField field) {
+        this.field = field;
+    }
+
+    public LayerField getField() {
+        return field;
     }
 
 }

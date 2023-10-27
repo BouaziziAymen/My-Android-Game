@@ -111,7 +111,9 @@ public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>> e
 
     public void onStep() {
         super.onStep();
-        if (!selected) return;
+        if (!selected) {
+            return;
+        }
         count++;
         if (count == 30) {
             showPrompt = !showPrompt;
@@ -122,10 +124,12 @@ public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>> e
 
 
     private void setText() {
-        if (showPrompt)
+        if (showPrompt) {
             textField.getText().updateText(textString + "-");
-        else
+        }
+        else {
             textField.getText().updateText(textString);
+        }
     }
 
     public String getTextString() {

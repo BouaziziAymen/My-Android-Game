@@ -1,11 +1,7 @@
 package com.evolgames.userinterface.view.layouts;
 
-import com.evolgames.userinterface.sections.OneLevelSection;
 import com.evolgames.userinterface.sections.ZeroLevelSection;
 import com.evolgames.userinterface.view.basics.Element;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
-
-import java.util.ArrayList;
 
 public class ZeroLevelSectionLayout<Primary extends Element> extends SectionLayout<ZeroLevelSection<Primary>, Primary>  {
     public ZeroLevelSectionLayout(float pX, float pY, Direction direction) {

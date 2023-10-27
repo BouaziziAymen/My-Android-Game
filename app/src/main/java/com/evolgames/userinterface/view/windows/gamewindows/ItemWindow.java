@@ -5,10 +5,9 @@ import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.OneLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractOneLevelSectionedAdvancedWindow;
-import com.evolgames.userinterface.view.windows.windowfields.itemwindow.AmmoField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
-import com.evolgames.userinterface.view.windows.windowfields.itemwindow.HandField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
@@ -36,11 +35,11 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         return projectileField;
     }
 
-    public AmmoField addAmmoField(String name, int primaryKey, int secondaryKey){
-        AmmoField ammoField = new AmmoField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(ammoField,primaryKey,secondaryKey);
-        ammoField.setText(name);
-        return ammoField;
+    public CasingField addAmmoField(String name, int primaryKey, int secondaryKey){
+        CasingField casingField = new CasingField(primaryKey, secondaryKey, itemWindowController);
+        addSecondary(casingField,primaryKey,secondaryKey);
+        casingField.setText(name);
+        return casingField;
     }
     public BombField addBombField(String name, int primaryKey, int secondaryKey){
         BombField bombField = new BombField(primaryKey, secondaryKey, itemWindowController);

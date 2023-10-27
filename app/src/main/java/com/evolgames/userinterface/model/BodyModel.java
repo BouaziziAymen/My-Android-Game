@@ -9,6 +9,7 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private GameEntity gameEntity;
     private final List<UsageModel<?>> usageModels;
     private List<BombModel> bombModels;
+    private BodyField field;
 
     @SuppressWarnings("unchecked")
     public <T extends Properties> T getUsageModelProperties(BodyUsageCategory bodyUsageCategory){
@@ -156,5 +158,13 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
     public BombModel getBombModelById(int bombId) {
         return bombModels.stream().filter(bombModel -> bombModel.getBombId() == bombId).findFirst().orElse(null);
+    }
+
+    public void setField(BodyField bodyField) {
+        this.field = bodyField;
+    }
+
+    public BodyField getField() {
+        return field;
     }
 }

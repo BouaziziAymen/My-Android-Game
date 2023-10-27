@@ -27,8 +27,12 @@ public class FieldWithError extends LinearLayout implements ErrorDisplay {
 
     @Override
     public float getHeight() {
-        if(showError)return errorText.getHeight() + errorProducer.getHeight()+5;
-        else return errorProducer.getHeight();
+        if(showError){
+            return errorText.getHeight() + errorProducer.getHeight()+5;
+        }
+        else {
+            return errorProducer.getHeight();
+        }
     }
 
     @Override

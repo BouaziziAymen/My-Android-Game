@@ -93,19 +93,10 @@ public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Contr
         window.disableFoldButton();
     }
 
-    private void disableCloseButton() {
-        window.disableCloseButton();
-    }
-
     private void enableFoldButton() {
         window.enableFoldButton();
 
     }
-
-    private void enableCloseButton() {
-        window.enableCloseButton();
-    }
-
 
     protected void onTextFieldTapped(TextField<?> pTextField) {
         if (selectedTextField != null) {

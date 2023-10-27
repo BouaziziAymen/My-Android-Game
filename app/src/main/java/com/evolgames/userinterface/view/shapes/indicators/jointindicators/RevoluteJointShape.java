@@ -9,7 +9,6 @@ import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RevoluteJointShape extends JointShape {
@@ -173,7 +172,7 @@ public class RevoluteJointShape extends JointShape {
 
     private void hide(AngleIndicator indicator) {
         indicator.setVisible(false);
-        userInterface.getCreationZoneController().onPointImageReleased(indicator.getLimit());
+        userInterface.getCreationZoneController().onPointImageReleased();
     }
 
     @Override

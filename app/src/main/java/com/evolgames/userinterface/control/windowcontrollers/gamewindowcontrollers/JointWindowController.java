@@ -43,7 +43,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
 
     public void onJointAdded(JointModel jointModel) {
         JointField jointField = window.addPrimary(jointModel.getJointId(), false);
-        jointField.getBodyControl().updateState(Button.State.PRESSED);
+        jointField.getJointControl().updateState(Button.State.PRESSED);
         onPrimaryButtonClicked(jointField);
         super.onPrimaryAdded(jointField);
     }
@@ -57,7 +57,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
             JointField otherJointField = window.getLayout().getPrimaryByIndex(i);
             if (otherJointField != null)
                 if (otherJointField != jointField) {
-                    otherJointField.getBodyControl().updateState(Button.State.NORMAL);
+                    otherJointField.getJointControl().updateState(Button.State.NORMAL);
                     onPrimaryButtonReleased(otherJointField);
                 }
         }
@@ -65,6 +65,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
         this.selectedJointModel = jointModel;
         jointSettingsWindowController.updateBodySelectionFields();
         jointSettingsWindowController.updateJointModel(jointModel);
+        jointField.showFields();
         outlineController.onJointBodySelectionUpdated(jointModel.getBodyModel1(),jointModel.getBodyModel2());
     }
 
@@ -73,6 +74,7 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
     public void onPrimaryButtonReleased(JointField jointField) {
         super.onPrimaryButtonReleased(jointField);
         userInterface.getToolModel().deselectJoint(jointField.getPrimaryKey());
+        jointField.hideFields();
         outlineController.onJointBodySelectionUpdated(null,null);
     }
 

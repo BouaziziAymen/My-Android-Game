@@ -14,8 +14,9 @@ public class Keyboard extends Container {
     private static final float BUTTON_SIDE = 26f;
     private final KeyboardController mController;
     private KeyboardType currentType;
-    private Container numericButtons, alphaNumericButtons;
-    private ArrayList<KeyboardButton> buttons = new ArrayList<>();
+    private final Container numericButtons;
+    private final Container alphaNumericButtons;
+    private final ArrayList<KeyboardButton> buttons = new ArrayList<>();
 
     public Keyboard(float pX, float pY, KeyboardController controller) {
         super(pX, pY);
@@ -144,8 +145,9 @@ public class Keyboard extends Container {
                 buttons.add(button);
             }
             container.addElement(lineLayout);
-            if (lineLayout.getWidth() > width) width = lineLayout.getWidth();
-            Log.e("keyboard", "lineheight:" + lineLayout.getHeight());
+            if (lineLayout.getWidth() > width){
+                width = lineLayout.getWidth();
+            }
             height += lineLayout.getHeight();
             y -= (BUTTON_SIDE - 1);
         }

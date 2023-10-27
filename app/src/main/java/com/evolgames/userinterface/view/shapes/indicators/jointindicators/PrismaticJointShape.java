@@ -191,7 +191,7 @@ public class PrismaticJointShape extends JointShape {
         }
         lowerLimitPoint.setVisible(false);
         upperLimitPoint.setVisible(false);
-        userInterface.getCreationZoneController().onPointImageReleased(lowerLimitPoint);
-        userInterface.getCreationZoneController().onPointImageReleased(upperLimitPoint);
+        userInterface.getCreationZoneController().onPointImageReleased();
+        userInterface.getCreationZoneController().onPointImageReleased();
     }
 }

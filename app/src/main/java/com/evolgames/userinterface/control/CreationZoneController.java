@@ -12,6 +12,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
+import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
@@ -41,8 +42,8 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.Revolu
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
 import com.evolgames.userinterface.view.shapes.points.ModelPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField1;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -241,7 +242,7 @@ public class CreationZoneController extends Controller {
                 }
             }
             if (point != null) {
-                onPointImageReleased(selectedPointImage);
+                onPointImageReleased();
                 selectPointImage(point);
             }
         }
@@ -278,7 +279,7 @@ public class CreationZoneController extends Controller {
 
     }
 
-    public void onPointImageReleased(PointImage pointImage) {
+    public void onPointImageReleased() {
         if (selectedPointImage != null) {
             selectedPointImage.undoDoubleSelect();
             selectedPointImage.release();
@@ -377,7 +378,7 @@ public class CreationZoneController extends Controller {
                 indicatorArrow = new CasingShape(new Vector2(x, y), gameScene);
                 CasingModel ammoModel = userInterface.getToolModel().createNewAmmo((CasingShape) indicatorArrow, userInterface.getItemWindowController().getSelectedBodyId());
                 if (ammoModel != null) {
-                    itemWindowController.onAmmoCreated(ammoModel);
+                    itemWindowController.onCasingCreated(ammoModel);
                     ((CasingShape) indicatorArrow).bindModel(ammoModel);
                 }
                 return;
@@ -414,10 +415,12 @@ public class CreationZoneController extends Controller {
             PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedPointsModel();
             PointsModel<?> shapePointsModel;
             if (selectedLayerPointsModel instanceof LayerModel) {
-                LayerField1 layer = layerWindowController.onAddLayerButtonCLicked(layerWindowController.getSelectedBodyField());
+                LayerModel layerModel = (LayerModel)selectedLayerPointsModel;
+                LayerField layer = layerWindowController.onAddLayerButtonCLicked(userInterface.getToolModel().getBodyModelById(layerModel.getBodyId()).getField());
                 shapePointsModel = layerWindowController.getLayerModel(layer.getPrimaryKey(), layer.getSecondaryKey());
             } else {
-                DecorationField1 decoration = layerWindowController.onLayerAddDecorationClicked(layerWindowController.getSelectedLayerField());
+                DecorationModel decorationModel = (DecorationModel) selectedLayerPointsModel;
+                DecorationField decoration = layerWindowController.onLayerAddDecorationClicked(userInterface.getToolModel().getLayerModelById(decorationModel.getLayerModel().getBodyId(),decorationModel.getLayerModel().getLayerId()).getField());
                 shapePointsModel = layerWindowController.getDecorationModel(decoration.getPrimaryKey(), decoration.getSecondaryKey(), decoration.getTertiaryKey());
             }
 

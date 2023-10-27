@@ -2,6 +2,7 @@ package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.properties.DecorationProperties;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
 
 import org.andengine.util.adt.color.Color;
 
@@ -13,6 +14,7 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
     private static final float MINIMAL_DISTANCE_BETWEEN_VERTICES = 4f;
     private final LayerModel layerModel;
     private final int decorationId;
+    private DecorationField field;
 
     public DecorationModel(LayerModel layerModel, int decorationId) {
         super("Decoration" + decorationId);
@@ -59,5 +61,17 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
         for (Vector2 p : getPoints())
             if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) return false;
         return true;
+    }
+
+    public void setField(DecorationField field) {
+        this.field = field;
+    }
+
+    public DecorationField getField() {
+        return field;
+    }
+
+    public LayerModel getLayerModel() {
+        return layerModel;
     }
 }

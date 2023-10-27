@@ -22,9 +22,10 @@ private final float arrowHeadWidth;
         this(begin,scene,0);
     }
 
+
     @Override
-    public void updateEnd(float x, float y){
-        super.updateEnd(x, y);
+    protected void onExtremityUpdated() {
+        super.onExtremityUpdated();
         drawArrow();
     }
 

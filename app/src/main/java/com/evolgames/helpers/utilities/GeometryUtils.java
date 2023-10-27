@@ -216,7 +216,7 @@ public class GeometryUtils {
             int ni = (i == Vertices.size() - 1) ? 0 : i + 1;
             Vector2 v1 = Vertices.get(i);
             Vector2 v2 = Vertices.get(ni);
-            if (GeometryUtils.PointOnLineSegment(v1, v2, point, epsilon)) return true;
+            if (GeometryUtils.isPointOnLineSegment(v1, v2, point, epsilon)) return true;
         }
         return false;
     }
@@ -276,7 +276,7 @@ public class GeometryUtils {
         return new Vector2(x, y); //this is D
     }
 
-    public static boolean PointOnLineSegment(Vector2 pt1, Vector2 pt2, Vector2 pt, float epsilon) {
+    public static boolean isPointOnLineSegment(Vector2 pt1, Vector2 pt2, Vector2 pt, float epsilon) {
         if (pt.x - Math.max(pt1.x, pt2.x) > epsilon ||
                 Math.min(pt1.x, pt2.x) - pt.x > epsilon ||
                 pt.y - Math.max(pt1.y, pt2.y) > epsilon ||
@@ -323,7 +323,7 @@ public class GeometryUtils {
             Vector2 V1 = Vector2Pool.obtain(v1.x + u.x, v1.y + u.y);
             Vector2 V2 = Vector2Pool.obtain(v2.x - u.x, v2.y - u.y);
             Vector2 intersection = lineIntersectPoint(head, next, V1, V2);
-            if (intersection != null && PointOnLineSegment(v1, v2, intersection, 0.01f)) {
+            if (intersection != null && isPointOnLineSegment(v1, v2, intersection, 0.01f)) {
                 CutFlag flag = new CutFlag(intersection, i, ni);
                 flag.setValue(head.dst(intersection));
                 candidates.add(flag);
@@ -871,13 +871,13 @@ public class GeometryUtils {
             return point.cpy();
         }
         Vector2 result = null;
-        float minDis = Float.MAX_VALUE;
+        float minDis = Float.POSITIVE_INFINITY;
         for(int i=0;i<vertices.size();i++){
             int ni = i==vertices.size()-1?0:i+1;
             Vector2 p1 = vertices.get(i).cpy();
             Vector2 p2 = vertices.get(ni).cpy();
             Vector2 proj = GeometryUtils.calculateProjection(p1,p2,point);
-            Vector2 p = PointOnLineSegment(p1,p2,proj,1f)?proj:proj.dst(p1)<proj.dst(p2)?p1:p2;
+            Vector2 p = isPointOnLineSegment(p1,p2,proj,1f)?proj:proj.dst(p1)<proj.dst(p2)?p1:p2;
             float dis = p.dst(point);
             if(dis<minDis){
                 minDis = dis;
@@ -912,21 +912,6 @@ public class GeometryUtils {
 
         // Create and return the projection point
         return new Vector2(projectionX, projectionY);
-    }
-
-    public static boolean isPointInPolygon(float x, float y, List<Vector2> points) {
-
-        int i, j, nvert = points.size();
-        boolean c = false;
-
-        for (i = 0, j = nvert - 1; i < nvert; j = i++) {
-            if (points.get(i).y >= y != points.get(j).y >= y &&
-                    x <= (points.get(j).x - points.get(i).x) * (y - points.get(i).y) / (points.get(j).y - points.get(i).y) + points.get(i).x
-            )
-                c = !c;
-        }
-
-        return c;
     }
 
 

@@ -2,7 +2,6 @@ package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.GameScene;
 import com.evolgames.userinterface.view.inputs.controllers.Movable;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
@@ -28,6 +27,7 @@ public abstract class VectorIndicator extends ArrowShape implements Movable {
 
     @Override
     public void updateEnd(float x, float y) {
+        System.out.println("#######Projectile Shape update end:"+x+","+y);
         super.updateEnd(x, y);
         updateLimit(end.x, end.y);
     }

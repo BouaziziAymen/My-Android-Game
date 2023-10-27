@@ -137,6 +137,9 @@ public class Hand {
     }
 
     public void onSceneTouchEvent(TouchEvent touchEvent) {
+        if(onAction){
+            return;
+        }
         if (touchEvent.isActionDown()) {
             this.isTouching = true;
         }

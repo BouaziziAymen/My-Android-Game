@@ -6,14 +6,16 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.view.inputs.Button;
 
 public class ProjectileField extends ItemField {
+    private final Button<ItemWindowController> itemRemoveButton;
+    private final Button<ItemWindowController> projectileOptionsButton;
+
     public ProjectileField(int primaryKey, int secondaryKey, ItemWindowController controller) {
         super(primaryKey, secondaryKey, controller);
-        Button<ItemWindowController> itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
+        itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
         itemRemoveButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
             @Override
             public void informControllerButtonClicked() {
-                controller.onProjectileRemoveButtonClicked(ProjectileField.this);
             }
 
             @Override
@@ -24,10 +26,10 @@ public class ProjectileField extends ItemField {
         this.setHeight(itemRemoveButton.getHeight());
 
 
-        Button<ItemWindowController> targetOptionsButton = new Button<>(ResourceManager.getInstance().smallOptionsTextureRegion, Button.ButtonType.OneClick, true);
-        addToLayout(targetOptionsButton);
+        projectileOptionsButton = new Button<>(ResourceManager.getInstance().smallOptionsTextureRegion, Button.ButtonType.OneClick, true);
+        addToLayout(projectileOptionsButton);
         addToLayout(itemRemoveButton);
-        targetOptionsButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, targetOptionsButton) {
+        projectileOptionsButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, projectileOptionsButton) {
             @Override
             public void informControllerButtonClicked() {
             }
@@ -40,4 +42,17 @@ public class ProjectileField extends ItemField {
 
     }
 
+    @Override
+    public void showFields() {
+        super.showFields();
+        this.itemRemoveButton.setVisible(true);
+        this.projectileOptionsButton.setVisible(true);
+    }
+
+    @Override
+    public void hideFields() {
+        super.hideFields();
+        this.itemRemoveButton.setVisible(false);
+        this.projectileOptionsButton.setVisible(false);
+    }
 }

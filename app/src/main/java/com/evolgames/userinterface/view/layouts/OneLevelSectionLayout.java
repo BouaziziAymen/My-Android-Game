@@ -1,16 +1,11 @@
 package com.evolgames.userinterface.view.layouts;
 
-import android.util.Log;
-
 import com.evolgames.userinterface.sections.OneLevelSection;
 
 import com.evolgames.userinterface.sections.ZeroLevelSection;
 import com.evolgames.userinterface.view.basics.Element;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField1;
-import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField1;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class OneLevelSectionLayout<Primary extends Element, Secondary extends Element> extends SectionLayout<OneLevelSection<Primary, Secondary>, Primary> {
     public OneLevelSectionLayout(float pX, float pY, Direction direction) {
@@ -62,7 +57,9 @@ public class OneLevelSectionLayout<Primary extends Element, Secondary extends El
                 continue;
             }
             else addToLayout(section.getPrimary());
-            if (!section.isActive()) continue;
+            if (!section.isActive()) {
+                continue;
+            }
             ArrayList<ZeroLevelSection<Secondary>> secondaryFields = section.getChildren();
             for (int j = 0; j < secondaryFields.size(); j++) {
                 ZeroLevelSection<Secondary> secondarySection = secondaryFields.get(j);
