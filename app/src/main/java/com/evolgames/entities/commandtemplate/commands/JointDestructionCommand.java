@@ -15,16 +15,20 @@ public class JointDestructionCommand extends Command {
         this.joint = joint;
     }
 
-
     @Override
     protected void run() {
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
-        System.out.println("-----------------Before Destroy-------------------");
-        physicsWorld.destroyJoint(joint);
-        System.out.println("-----------------After Destroy-------------------");
-        if(this.joint instanceof MouseJoint) {
-            Invoker.gameScene.onDestroyMouseJoint((MouseJoint) joint);
-        }
+        System.out.println("-----------------Before Destroy-------------------"+joint);
+        physicsWorld.getJoints().forEachRemaining(j-> {
+            if (j == joint) {
+                physicsWorld.destroyJoint(joint);
+                System.out.println("-----------------After Destroy-------------------");
+                if(this.joint instanceof MouseJoint) {
+                    Invoker.gameScene.onDestroyMouseJoint((MouseJoint) joint);
+                }
+            }
+        });
+
     }
 
     @Override

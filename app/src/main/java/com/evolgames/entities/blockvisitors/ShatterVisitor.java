@@ -16,13 +16,13 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     private final Vector2 localImpactPoint;
     private final WorldFacade worldFacade;
     private final GameEntity gameEntity;
-    private float availableEnergy;
+    private float availableImpulse;
     private boolean isError = false;
 
 
-    public ShatterVisitor(float energy, Vector2 localPoint, WorldFacade worldFacade, GameEntity gameEntity) {
+    public ShatterVisitor(float impulse, Vector2 localPoint, WorldFacade worldFacade, GameEntity gameEntity) {
         super();
-        this.availableEnergy = energy;
+        this.availableImpulse = impulse;
         this.localImpactPoint = localPoint;
         this.worldFacade = worldFacade;
         this.gameEntity = gameEntity;
@@ -30,44 +30,38 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     }
 
     private void processBlock(LayerBlock layerBlock) {
-        if (layerBlock.getBlockArea() < PhysicsConstants.MINIMUM_SPLINTER_AREA) {
-            float pulverizationEnergy = calculatePulverizationEnergy(layerBlock);
-
-            if (availableEnergy > pulverizationEnergy) {
+        float pulverizationImpulse = calculatePulverizationImpulse(layerBlock);
+        if (availableImpulse > pulverizationImpulse) {
                 layerBlock.setAborted(true);
                 layerBlock.getBlockGrid().getCoatingBlocks().forEach(coatingBlock -> coatingBlock.setPulverized(true));
                 worldFacade.pulverizeBlock(layerBlock,gameEntity);
                 shatterPerformed = true;
-                availableEnergy -= pulverizationEnergy;
-            } else {
-                availableEnergy = 0;
-            }
-
+                availableImpulse -= pulverizationImpulse;
         } else {
             ShatterData data = BlockUtils.applyCut(layerBlock, localImpactPoint);
             if (data == null) {
                 isError = true;
                 return;
             }
-            if (availableEnergy - data.getDestructionEnergy() >= 0) {
+            if (availableImpulse - data.getDestructionEnergy() >= 0) {
 
                 if (!data.isNonValid()) {
                     shatterPerformed = true;
                     layerBlock.performCut(data.getDestructionCut());
                 }
-                availableEnergy -= data.getDestructionEnergy();
+                availableImpulse -= data.getDestructionEnergy();
             }
         }
     }
 
-    public float calculatePulverizationEnergy(LayerBlock layerBlock) {
+    public float calculatePulverizationImpulse(LayerBlock layerBlock) {
         float totalRatio = 0;
         for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
-            float ratio = (float) (1 - coatingBlock.getProperties().getBurnRatio() / 1.1f);
+            float ratio = (float) (1.1f - coatingBlock.getProperties().getBurnRatio());
             totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
         }
         totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
-        return 100f *PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea();
+        return (float) (1200f * Math.sqrt(PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity() * PhysicsConstants.PULVERIZATION_CONSTANT * totalRatio * layerBlock.getBlockArea()));
     }
 
     @Override
@@ -107,7 +101,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     }
 
     public boolean isExhausted() {
-        return availableEnergy <= 0;
+        return availableImpulse <= 0;
     }
 
     public boolean isError() {

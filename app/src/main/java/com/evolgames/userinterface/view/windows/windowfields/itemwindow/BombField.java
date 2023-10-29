@@ -8,15 +8,13 @@ import com.evolgames.userinterface.view.inputs.Button;
 public class BombField extends ItemField {
     private final Button<ItemWindowController> itemRemoveButton;
     private final Button<ItemWindowController> bombOptionsButton;
-
-    public BombField(int primaryKey, int secondaryKey, ItemWindowController controller) {
-        super(primaryKey, secondaryKey, controller);
+    public BombField(int primaryKey,int modelId, ItemWindowController controller) {
+        super(primaryKey, modelId, controller);
         itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
         itemRemoveButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
             @Override
             public void informControllerButtonClicked() {
-                controller.onBombRemoveButtonClicked(BombField.this);
             }
 
             @Override
@@ -56,4 +54,5 @@ public class BombField extends ItemField {
         this.itemRemoveButton.setVisible(false);
         this.bombOptionsButton.setVisible(false);
     }
+
 }

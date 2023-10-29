@@ -43,14 +43,12 @@ public class JointCreationCommand extends Command {
 
     @Override
     protected void run() {
-
         PhysicsWorld physicsWorld = Invoker.gameScene.getPhysicsWorld();
         if(this.joint!=null&& this.joint instanceof MouseJoint){
             MouseJointDef mouseJointDef = (MouseJointDef) this.jointDef;
             Vector2 point = mouseJointDef.bodyB.getWorldPoint(jointBlock2.getVertices().get(0).cpy().mul(1/32f)).cpy();
             mouseJointDef.target.set(point);
         }
-        this.joint = physicsWorld.createJoint(jointDef);
         if(jointDef.type== JointDef.JointType.WeldJoint){
             List<GameEntity> list = entity1.getParentGroup().getCommands().
                     stream().filter(e -> e instanceof JointCreationCommand).map(e -> (JointCreationCommand) e).
@@ -59,6 +57,7 @@ public class JointCreationCommand extends Command {
                 Invoker.gameScene.getWorldFacade().addNonCollidingPair(entity2, gameEntity);
             }
         }
+        this.joint = physicsWorld.createJoint(jointDef);
         if (this.joint instanceof MouseJoint) {
             Invoker.gameScene.setMouseJoint((MouseJoint) joint, entity2);
         }

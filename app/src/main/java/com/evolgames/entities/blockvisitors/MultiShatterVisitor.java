@@ -26,7 +26,7 @@ public class MultiShatterVisitor extends BreakVisitor<LayerBlock> {
         splintersBlocks.add(layerBlock);
         for (int i = 0; i < this.impacts.size(); i++) {
             Vector2 point = this.impacts.get(i).getLocalImpactPoint();
-            float energy = this.impacts.get(i).getImpactEnergy();
+            float energy = this.impacts.get(i).getImpactImpulse();
             LayerBlock nearest = BlockUtils.getNearestBlock(point, splintersBlocks);
             splintersBlocks.remove(nearest);
             ShatterVisitor shatterVisitor = new ShatterVisitor(energy, point, worldFacade, gameEntity);

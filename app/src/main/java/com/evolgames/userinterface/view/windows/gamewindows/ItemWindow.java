@@ -28,22 +28,22 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         bodyField.setText(name);
         return bodyField;
     }
-    public ProjectileField addProjectileField(String name, int primaryKey, int secondaryKey){
-        ProjectileField projectileField = new ProjectileField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(projectileField,primaryKey,secondaryKey);
+    public ProjectileField addProjectileField(String name, int primaryKey, int modelId){
+        ProjectileField projectileField = new ProjectileField(primaryKey, modelId, itemWindowController);
+        addSecondary(projectileField,primaryKey,projectileField.getSecondaryKey());
         projectileField.setText(name);
         return projectileField;
     }
 
-    public CasingField addAmmoField(String name, int primaryKey, int secondaryKey){
-        CasingField casingField = new CasingField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(casingField,primaryKey,secondaryKey);
+    public CasingField addAmmoField(String name, int primaryKey, int modelId){
+        CasingField casingField = new CasingField(primaryKey, modelId, itemWindowController);
+        addSecondary(casingField,primaryKey,casingField.getSecondaryKey());
         casingField.setText(name);
         return casingField;
     }
-    public BombField addBombField(String name, int primaryKey, int secondaryKey){
-        BombField bombField = new BombField(primaryKey, secondaryKey, itemWindowController);
-        addSecondary(bombField,primaryKey,secondaryKey);
+    public BombField addBombField(String name, int primaryKey, int modelId){
+        BombField bombField = new BombField(primaryKey, modelId, itemWindowController);
+        addSecondary(bombField,primaryKey,bombField.getSecondaryKey());
         bombField.setText(name);
         return bombField;
     }

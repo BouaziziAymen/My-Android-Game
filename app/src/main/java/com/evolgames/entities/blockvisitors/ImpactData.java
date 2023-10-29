@@ -8,26 +8,26 @@ public class ImpactData {
     private  GameEntity gameEntity;
     private  Vector2 localImpactPoint;
     private  Vector2 worldPoint;
-    private float impactEnergy;
+    private float impactImpulse;
     private  LayerBlock impactedBlock;
 
     public ImpactData() {
     }
 
-    public ImpactData(GameEntity gameEntity, LayerBlock impactedBlock, Vector2 worldPoint, float impactEnergy) {
+    public ImpactData(GameEntity gameEntity, LayerBlock impactedBlock, Vector2 worldPoint, float impactImpulse) {
         this.localImpactPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy();
         this.worldPoint = worldPoint;
         this.impactedBlock = impactedBlock;
         this.gameEntity = gameEntity;
-        this.impactEnergy = impactEnergy;
+        this.impactImpulse = impactImpulse;
     }
 
     public Vector2 getLocalImpactPoint() {
         return localImpactPoint;
     }
 
-    public float getImpactEnergy() {
-        return impactEnergy;
+    public float getImpactImpulse() {
+        return impactImpulse;
     }
 
     public LayerBlock getImpactedBlock() {
@@ -42,8 +42,8 @@ public class ImpactData {
         return gameEntity;
     }
 
-    public void setImpactEnergy(float impactEnergy) {
-        this.impactEnergy = impactEnergy;
+    public void setImpactImpulse(float impactImpulse) {
+        this.impactImpulse = impactImpulse;
     }
 
     public void setGameEntity(GameEntity gameEntity) {

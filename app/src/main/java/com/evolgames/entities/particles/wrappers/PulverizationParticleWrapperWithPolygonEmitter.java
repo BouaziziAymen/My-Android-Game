@@ -6,6 +6,7 @@ import com.evolgames.entities.particles.emitters.PowderEmitter;
 import com.evolgames.entities.particles.initializers.AirFieldVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionStop;
+import com.evolgames.entities.particles.modifiers.ScaleParticleModifier;
 import com.evolgames.entities.particles.systems.PulverizationParticleSystem;
 import com.evolgames.physics.WorldFacade;
 
@@ -13,6 +14,7 @@ import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
+import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;
 
 public class PulverizationParticleWrapperWithPolygonEmitter {
@@ -39,6 +41,7 @@ public class PulverizationParticleWrapperWithPolygonEmitter {
         AirFieldVelocityInitializer velocityInitializer = new AirFieldVelocityInitializer(worldFacade, bodyVelocity);
         this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
+        this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(2f));
         this.particleSystem.addParticleModifier(new GroundCollisionStop(20));
         this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(8f, 10f, 1f, 0));
         this.addGravity();

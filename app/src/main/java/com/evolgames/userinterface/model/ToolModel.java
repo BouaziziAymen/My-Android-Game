@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -95,7 +94,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public ProjectileModel createNewProjectile(ProjectileShape projectileShape, int bodyId) {
         int projectileId = projectileCounter.getAndIncrement();
         ProjectileModel projectileModel = new ProjectileModel(bodyId, projectileId, projectileShape);
-        getBodyModelById(bodyId).getProjectiles().add(projectileModel);
+        getBodyModelById(bodyId).getProjectileModels().add(projectileModel);
         return projectileModel;
     }
 
@@ -106,7 +105,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return jointModel;
     }
 
-    public JointModel removeJoint(int jointId) {
+    public void removeJoint(int jointId) {
         JointModel jointModel = null;
         for (JointModel j : joints) {
             if (j.getJointId() == jointId) {
@@ -114,9 +113,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                 break;
             }
         }
-        if (jointModel != null)
+        if (jointModel != null) {
             joints.remove(jointModel);
-        return jointModel;
+        }
     }
 
     public LayerModel createNewLayer(int bodyId) {
@@ -163,6 +162,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public void removeLayer(int bodyId, int layerId) {
         Objects.requireNonNull(getBodyById(bodyId)).removeLayer(layerId);
     }
+    public void removeAmmo(int bodyId, int ammoId) {
+        BodyModel body = getBodyModelById(bodyId);
+        body.getCasingModels().remove(body.getAmmoModelById(ammoId));
+    }
 
     public DecorationModel removeDecoration(int bodyId, int layerId, int decorationId) {
         return Objects.requireNonNull(getBodyById(bodyId)).removeDecoration(layerId, decorationId);
@@ -170,10 +173,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
     public DecorationModel getDecorationModelById(int primaryKey, int secondaryKey, int tertiaryKey) {
         return getLayerModelById(primaryKey, secondaryKey).getDecorationById(tertiaryKey);
-    }
-
-    public int getNewDecorationId(int primaryKey, int secondaryKey) {
-        return getLayerModelById(primaryKey, secondaryKey).getDecorationCounter().getAndIncrement();
     }
 
     private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
@@ -219,7 +218,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
             bodyModel.getBombModels().forEach(bombModel -> bombModel.setGameEntity(gameEntity));
-            bodyModel.getProjectiles().forEach(p->{
+            bodyModel.getProjectileModels().forEach(p->{
                 ProjectileProperties properties = p.getProperties();
                 if(properties.getFireRatio()>=0.1f||properties.getSmokeRatio()>=0.1f||properties.getSparkRatio()>=0.1f){
                    Vector2 end = properties.getProjectileEnd();
@@ -234,7 +233,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             });
         }
         // Handle usage
-        List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
+        List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectileModels).flatMap(Collection::stream).collect(Collectors.toList());
         projectileModels.forEach(projectileModel -> projectileModel.setMuzzleEntity(bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny().orElseThrow(() -> new RuntimeException("Body not found!")).getGameEntity()));
 
         bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
@@ -333,13 +332,19 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public CasingModel getAmmoById(int primaryKey, int secondaryKey) {
         return getBodyModelById(primaryKey).getCasingModels().stream().filter(e -> e.getCasingId() == secondaryKey).findAny().orElse(null);
     }
-    public ProjectileModel getProjectileById(int primaryKey, int secondaryKey) {
-        Optional<ProjectileModel> res = getBodyModelById(primaryKey).getProjectiles().stream().filter(e -> e.getProjectileId() == secondaryKey).findFirst();
-        return res.orElse(null);
+    public ProjectileModel getProjectileById(int primaryKey, int modelId) {
+        return getBodyModelById(primaryKey).getProjectileModels().stream().filter(e -> e.getProjectileId() == modelId).findFirst().orElse(null);
     }
 
-    public void removeProjectile(int primaryKey, int secondaryKey) {
-        getBodyModelById(primaryKey).getProjectiles().removeIf(e -> e.getProjectileId() == secondaryKey);
+    public BombModel getBombById(int primaryKey, int modelId) {
+        return getBodyModelById(primaryKey).getBombModels().stream().filter(e -> e.getBombId() == modelId).findAny().orElse(null);
+    }
+
+    public void removeProjectile(int primaryKey, int modelId) {
+        getBodyModelById(primaryKey).getProjectileModels().removeIf(e -> e.getProjectileId() == modelId);
+    }
+    public void removeBomb(int primaryKey, int secondaryKey) {
+        getBodyModelById(primaryKey).getBombModels().removeIf(e -> e.getBombId() == secondaryKey);
     }
 
 
@@ -372,14 +377,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return bombCounter;
     }
 
-    public int getSelectedBodyId() {
-        for(BodyModel bodyModel:bodies){
-            if(bodyModel.isSelected()){
-                return bodyModel.getBodyId();
-            }
-        }
-        return -1;
-    }
 
     public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
         int ammoId = ammoCounter.getAndIncrement();
@@ -388,10 +385,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return ammoModel;
     }
 
-    public void removeAmmo(int bodyId, int ammoId) {
-        BodyModel body = getBodyModelById(bodyId);
-        body.getCasingModels().remove(body.getAmmoModelById(ammoId));
-    }
+
 
     public BombModel createNewBomb(BombShape bombShape, int bodyId) {
        int bombId = bombCounter.getAndIncrement();
@@ -401,8 +395,5 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         return  bombModel;
     }
 
-    public BombModel getBombById(int primaryKey, int secondaryKey) {
-        return getBodyModelById(primaryKey).getBombModels().stream().filter(e -> e.getBombId() == secondaryKey).findAny().orElse(null);
-    }
 }
 

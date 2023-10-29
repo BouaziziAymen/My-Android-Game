@@ -7,6 +7,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -243,7 +244,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
 
 
-        TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Tenacity:", 10, "t", 5, 76);
+        TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Ten:", 20, "t", 5, 50);
         tenacityQuantity = titledTenacityQuantity.getAttachment();
         titledTenacityQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledTenacityQuantity.getAttachment()) {
             @Override
@@ -253,7 +254,10 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         });
         SimpleSecondary<TitledQuantity<?>> tenacityElement = new SimpleSecondary<>(3, 3, titledTenacityQuantity);
         window.addSecondary(tenacityElement);
-        tenacityQuantity.getBehavior().setChangeAction(()-> layerProperty.setTenacity(tenacityQuantity.getRatio()));
+        tenacityQuantity.getBehavior().setChangeAction(()-> {
+            float ratio = tenacityQuantity.getRatio();
+            layerProperty.setTenacity(PhysicsConstants.getTenacityFromRatio(ratio));
+        });
 
 
 
@@ -608,7 +612,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     }
 
     private void setTenacity(float tenacity) {
-        tenacityQuantity.updateRatio(tenacity / 10f);
+        tenacityQuantity.updateRatio(PhysicsConstants.getTenacityRatio(tenacity));
     }
 
     private void setSharpness(float sharpness) {

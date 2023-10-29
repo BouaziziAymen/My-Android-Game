@@ -14,6 +14,8 @@ import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.behaviors.actions.Action;
+import com.evolgames.userinterface.control.behaviors.actions.ConfirmableAction;
 import com.evolgames.userinterface.control.buttonboardcontrollers.DrawButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.ImageButtonBoardController;
 import com.evolgames.userinterface.control.buttonboardcontrollers.JointButtonBoardController;
@@ -23,6 +25,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ConfirmWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
@@ -66,6 +69,7 @@ import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.visitor.ContentTraverser;
 import com.evolgames.userinterface.view.visitor.IsUpdatedVisitBehavior;
+import com.evolgames.userinterface.view.visitor.ShadeVisitBehavior;
 import com.evolgames.userinterface.view.visitor.StepVisitBehavior;
 import com.evolgames.userinterface.view.visitor.TouchVisitBehavior;
 import com.evolgames.userinterface.view.visitor.VisitBehavior;
@@ -73,6 +77,7 @@ import com.evolgames.userinterface.view.windows.gamewindows.AmmoOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.BodySettingsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.BombOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ColorSelectorWindow;
+import com.evolgames.userinterface.view.windows.gamewindows.ConfirmWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.DecorationSettingsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemSaveWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
@@ -165,7 +170,7 @@ public class UserInterface extends Container implements Touchable {
         }
     };
     private final Switcher particularUsageSwitcher;
-    private final Switcher generalUsageSwitcher;
+    private final ConfirmWindowController confirmWindowController;
     private ImageShape imageShape;
     private ToolModel toolModel;
     private float zoomFactor = 1f;
@@ -195,7 +200,7 @@ public class UserInterface extends Container implements Touchable {
         addElement(particularUsageSwitcher);
 
 
-        generalUsageSwitcher = new Switcher(800f-72f,300f+64f,ResourceManager.getInstance().generalUsages,32f,(index)->pGameScene.setAction(PlayerAction.values()[index]));
+        Switcher generalUsageSwitcher = new Switcher(800f - 72f, 300f + 64f, ResourceManager.getInstance().generalUsages, 32f, (index) -> pGameScene.setAction(PlayerAction.values()[index]));
         generalUsageSwitcher.reset(0,1,2,3,4,5);
         addElement(generalUsageSwitcher);
 
@@ -727,12 +732,20 @@ public class UserInterface extends Container implements Touchable {
         panel = new ControlPanel(pGameScene);
 
 
+        confirmWindowController = new ConfirmWindowController(this);
+        ConfirmWindow confirmWindow = new ConfirmWindow(400,240,1,confirmWindowController);
+        addElement(confirmWindow);
+
         //panel.allocateController( 800 - 64f / 2,64/2f,ControlElement.Type.AnalogController,null);
 
         //panel.showControlElement(0);
 
         setUpdated(true);
 
+    }
+
+    public void doWithConfirm(String prompt, Action action) {
+        confirmWindowController.bindAction(new ConfirmableAction(prompt,action));
     }
 
 
@@ -775,7 +788,7 @@ public class UserInterface extends Container implements Touchable {
                     addElement(decorationModel.getPointsShape());
                 }
             }
-            for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
+            for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
                 ProjectileShape projectileShape = new ProjectileShape(projectileModel.getProperties().getProjectileOrigin(), scene);
                 projectileShape.bindModel(projectileModel);
             }
@@ -1070,11 +1083,26 @@ public class UserInterface extends Container implements Touchable {
     }
 
 
+
+
     public void updateParticularUsageSwitcher(PlayerSpecialAction[] usages){
         Arrays.sort(usages, Comparator.comparingInt(PlayerSpecialAction::ordinal));
         this.particularUsages = Arrays.copyOf(usages,usages.length);
         Arrays.sort(usages, Comparator.comparingInt(PlayerSpecialAction::ordinal).reversed());
        this.particularUsageSwitcher.reset(Arrays.stream(usages).mapToInt(e->e.iconId).toArray());
+    }
+    public void shade(Element excepted){
+        ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
+        shadeVisitBehavior.setExcepted(excepted);
+        shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Hide);
+        contentTraverser.setBehavior(shadeVisitBehavior);
+        contentTraverser.traverse(this, false);
+    }
+    public void undoShade(){
+        ShadeVisitBehavior shadeVisitBehavior = new ShadeVisitBehavior();
+        shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Show);
+        contentTraverser.setBehavior(shadeVisitBehavior);
+        contentTraverser.traverse(this, false);
     }
 
 }

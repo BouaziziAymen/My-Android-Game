@@ -134,15 +134,17 @@ public class ColorSelectorWindowController extends LinearLayoutAdvancedWindowCon
 
 
     public void onAccept() {
-
-        if(acceptAction!=null)acceptAction.performAction();
-
+        if(acceptAction!=null){
+            acceptAction.performAction();
+        }
+        closeWindow();
     }
 
     public void onRefuse() {
-        Log.e("onrefuse",selectedColor+"/"+copy);
         selectedColor.set(copy);
-        if(userInterface.getToolModel()!=null)userInterface.getToolModel().updateMesh();
-
+        if(userInterface.getToolModel()!=null){
+            userInterface.getToolModel().updateMesh();
+        }
+        closeWindow();
     }
 }

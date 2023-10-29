@@ -6,6 +6,7 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
+import com.evolgames.userinterface.view.Strings;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.PointsShape;
@@ -275,30 +276,32 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
 
 
     public void onLayerRemoveButtonReleased(LayerField layerField) {
-        window.getLayout().removeSecondary(layerField.getPrimaryKey(), layerField.getSecondaryKey());
         LayerModel layerModel = userInterface.getToolModel().getLayerModelById(layerField.getPrimaryKey(), layerField.getSecondaryKey());
-        detachLayerModelShape(layerModel);
-
-        userInterface.getToolModel().removeLayer(layerField.getPrimaryKey(), layerField.getSecondaryKey());
-        resetUpDownArrows(layerField.getPrimaryKey());
-        updateLayout();
-        userInterface.getToolModel().updateMesh();
+        userInterface.doWithConfirm(String.format(Strings.LAYER_DELETE_CONFIRM,layerModel.getModelName(), layerModel.getBodyModel().getModelName()),()->{
+            window.getLayout().removeSecondary(layerField.getPrimaryKey(), layerField.getSecondaryKey());
+            detachLayerModelShape(layerModel);
+            userInterface.getToolModel().removeLayer(layerField.getPrimaryKey(), layerField.getSecondaryKey());
+            resetUpDownArrows(layerField.getPrimaryKey());
+            updateLayout();
+            userInterface.getToolModel().updateMesh();
+        });
     }
 
 
     public void onBodyRemoveButtonReleased(BodyField bodyField) {
         BodyModel bodyModel = userInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
-        for (LayerModel layerModel : bodyModel.getLayers()) {
-            detachLayerModelShape(layerModel);
-        }
-
-        window.getLayout().removePrimary(bodyField.getPrimaryKey());
-        userInterface.getToolModel().removeBody(bodyField.getPrimaryKey());
-        updateLayout();
-        userInterface.getJointSettingsWindowController().updateBodySelectionFields();
-        userInterface.getProjectileOptionsController().updateMissileSelectionFields();
-        userInterface.getItemWindowController().refresh();
-        userInterface.getToolModel().updateMesh();
+        userInterface.doWithConfirm(String.format(Strings.BODY_DELETE_CONFIRM,bodyModel.getModelName()),()-> {
+            for (LayerModel layerModel : bodyModel.getLayers()) {
+                detachLayerModelShape(layerModel);
+            }
+            window.getLayout().removePrimary(bodyField.getPrimaryKey());
+            userInterface.getToolModel().removeBody(bodyField.getPrimaryKey());
+            updateLayout();
+            userInterface.getJointSettingsWindowController().updateBodySelectionFields();
+            userInterface.getProjectileOptionsController().updateMissileSelectionFields();
+            userInterface.getItemWindowController().refresh();
+            userInterface.getToolModel().updateMesh();
+        });
     }
 
     public void onLayerSettingsButtonReleased(LayerField layerField) {
@@ -333,14 +336,14 @@ public class LayerWindowController extends TwoLevelSectionedAdvancedWindowContro
     }
 
     public void onDecorationRemoveButtonReleased(DecorationField decorationField) {
-
-        window.getLayout().removeTertiary(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
         DecorationModel decorationModel = userInterface.getToolModel().removeDecoration(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
-        PointsShape pointsShape = decorationModel.getPointsShape();
-        userInterface.removeElement(pointsShape);
-        pointsShape.dispose();
-
-        updateLayout();
+        userInterface.doWithConfirm(String.format(Strings.DECORATION_DELETE_CONFIRM,decorationModel.getModelName(),decorationModel.getLayerModel().getModelName()),()-> {
+            window.getLayout().removeTertiary(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(), decorationField.getTertiaryKey());
+            PointsShape pointsShape = decorationModel.getPointsShape();
+            userInterface.removeElement(pointsShape);
+            pointsShape.dispose();
+            updateLayout();
+        });
     }
 
 

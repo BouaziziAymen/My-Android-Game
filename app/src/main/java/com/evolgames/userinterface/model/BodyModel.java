@@ -144,7 +144,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return usageModels;
     }
 
-    public ArrayList<ProjectileModel> getProjectiles() {
+    public ArrayList<ProjectileModel> getProjectileModels() {
         return projectiles;
     }
 

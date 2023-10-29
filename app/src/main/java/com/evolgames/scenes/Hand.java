@@ -41,7 +41,6 @@ public class Hand {
     private GameEntity grabbedEntity;
     private MouseJoint mouseJoint;
     private boolean follow;
-    private boolean isTouching = false;
     private Vector2 localPoint;
     private boolean onAction = false;
 
@@ -140,12 +139,7 @@ public class Hand {
         if(onAction){
             return;
         }
-        if (touchEvent.isActionDown()) {
-            this.isTouching = true;
-        }
-        if (touchEvent.isActionUp()) {
-            this.isTouching = false;
-        }
+
         if (gameScene.getPlayerAction() == PlayerAction.Drag) {
             if (mouseJoint != null) {
                 if (touchEvent.isActionMove() && follow) {
@@ -227,6 +221,10 @@ public class Hand {
                 this.follow = false;
             }
         }
+    }
+
+    public boolean isFollow() {
+        return follow;
     }
 
     private void doSmash(Vector2 target) {
@@ -359,16 +357,13 @@ public class Hand {
         this.mouseJoint = null;
         this.grabbedEntity = null;
         this.gameScene.onUsagesUpdated();
+        this.onAction = false;
     }
 
     public GameEntity getGrabbedEntity() {
         return this.grabbedEntity;
     }
 
-
-    public boolean isTouching() {
-        return isTouching;
-    }
 
     public int getMousePointerId() {
         return mousePointerId;

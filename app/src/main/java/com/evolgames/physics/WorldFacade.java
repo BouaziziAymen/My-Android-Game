@@ -213,15 +213,17 @@ public class WorldFacade implements ContactObserver {
                     filter(associated -> associated instanceof JointBlock).
                     map(associated -> (JointBlock) associated).
                     forEachOrdered(jointBlock ->{
-                        System.out.println("$$$$$$Entered joints recreation");
                         if(jointBlock.getJointType()== JointDef.JointType.MouseJoint) {
                             gameScene.getHands().forEach((k, h) -> {
-                                if (h.isTouching()) {
-                                    jointBlock.recreate(splinter);
+                                if (h.getGrabbedEntity()!=null) {
+                                    if(h.isFollow()) {
+                                        jointBlock.recreate(splinter);
+                                    } else {
+                                        h.onMouseJointDestroyed();
+                                    }
                                 }
                             });
                         } else {
-                            System.out.println("$$$$$$Recreate joint "+jointBlock.getJointType());
                             jointBlock.recreate(splinter);
                         }
                     });
@@ -1390,20 +1392,20 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    private void applyOnePointImpactToEntity(LayerBlock block, float energy, GameEntity gameEntity, Vector2 worldPoint) {
+    private void applyOnePointImpactToEntity(LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
             return;
         }
         Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
         if(block.getProperties().getMaterialNumber()==11||block.getProperties().getMaterialNumber()==12) {
-            this.applyBluntTrauma(localPoint.x, localPoint.y, (float) Math.sqrt(energy), gameEntity, block);
+            this.applyBluntTrauma(localPoint.x, localPoint.y, (float) Math.sqrt(impulse), gameEntity, block);
         }
         if(gameEntity.hasActiveUsage(Smasher.class)){
             gameEntity.getActiveUsage(Smasher.class).onCancel();
         }
 
         List<ImpactData> impactData = new ArrayList<>();
-        impactData.add(new ImpactData(gameEntity, block, worldPoint, energy));
+        impactData.add(new ImpactData(gameEntity, block, worldPoint, impulse));
         this.applyImpacts(gameEntity, impactData);
     }
 

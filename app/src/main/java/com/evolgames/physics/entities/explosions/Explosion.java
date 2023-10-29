@@ -2,11 +2,8 @@ package com.evolgames.physics.entities.explosions;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blockvisitors.ImpactData;
 import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
 import com.evolgames.scenes.GameScene;
-
-import java.util.ArrayList;
 
 public class Explosion {
     private final GameScene gameScene;
@@ -48,8 +45,8 @@ public class Explosion {
                    Vector2 p = i.getWorldPoint();
                    vector.set(p.x-center.x,p.y-center.y);
                    float d = Math.max(1f,vector.len());
-                   i.setImpactEnergy(100f * force/(d));
-                   vector.mul(i.getImpactEnergy()/320f);
+                   i.setImpactImpulse(100f * force/(d));
+                   vector.mul(i.getImpactImpulse()/320f);
                    gameEntity.getBody().applyLinearImpulse(vector.x,vector.y,p.x,p.y);
                });
                 gameScene.getWorldFacade().applyImpacts(gameEntity,impacts);

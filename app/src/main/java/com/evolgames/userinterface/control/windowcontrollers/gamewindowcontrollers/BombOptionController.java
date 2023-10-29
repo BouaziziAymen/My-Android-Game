@@ -102,8 +102,10 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
     @Override
     void onModelUpdated(ProperModel<BombProperties> model) {
         super.onModelUpdated(model);
+        if(model==null){
+            return;
+        }
         this.bombProperties = model.getProperties();
-
         this.setFireRatio(bombProperties.getFireRatio());
         this.setSmokeRatio(bombProperties.getSmokeRatio());
         this.setSparkRatio(bombProperties.getSparkRatio());

@@ -10,14 +10,13 @@ public class CasingField extends ItemField {
     private final Button<ItemWindowController> ammoOptionsButton;
     private final Button<ItemWindowController> itemRemoveButton;
 
-    public CasingField(int primaryKey, int secondaryKey, ItemWindowController controller) {
-        super(primaryKey, secondaryKey, controller);
+    public CasingField(int primaryKey, int modelId, ItemWindowController controller) {
+        super(primaryKey, modelId, controller);
         itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
         itemRemoveButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
             @Override
             public void informControllerButtonClicked() {
-                controller.onAmmoRemoveButtonClicked(CasingField.this);
             }
 
             @Override

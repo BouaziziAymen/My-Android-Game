@@ -32,7 +32,7 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
                 shatterPerformed = true;
                 iterator.remove();
             } else {
-                float energy = (float) impacts.stream().filter(e -> e.getImpactedBlock() == layerBlock).mapToDouble(ImpactData::getImpactEnergy).sum();
+                float energy = (float) impacts.stream().filter(e -> e.getImpactedBlock() == layerBlock).mapToDouble(ImpactData::getImpactImpulse).sum();
                 LayerProperties properties = layerBlock.getProperties();
                 float ratio = (float) Math.min(0.3f,0.002f * energy/(Math.pow(properties.getTenacity(),12)));
                 float newTenacity = properties.getTenacity() * (1f-ratio);

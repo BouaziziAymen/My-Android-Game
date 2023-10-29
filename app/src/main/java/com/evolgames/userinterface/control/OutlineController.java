@@ -29,7 +29,7 @@ public class OutlineController extends Controller {
 
     private void resetAllItems() {
         for (BodyModel bodyModel : userInterface.getToolModel().getBodies()) {
-            for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
+            for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
                 projectileModel.getProjectileShape().release();
                 projectileModel.getProjectileField().hideFields();
             }
@@ -162,7 +162,7 @@ public class OutlineController extends Controller {
                 ItemWindowController itemWindowController = userInterface.getItemWindowController();
                 this.onSelectionUpdated(itemWindowController.getSelectedBodyModel(), null, null);
                 for (BodyModel bodyModel : userInterface.getToolModel().getBodies()) {
-                    for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
+                    for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
                         projectileModel.getProjectileShape().setVisible(true);
                     }
                     for (CasingModel casingModel : bodyModel.getCasingModels()) {

@@ -3,6 +3,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.ZeroLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.view.Strings;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -87,12 +88,15 @@ public class JointWindowController extends ZeroLevelSectionedAdvancedWindowContr
     }
 
     public void onRemoveButtonReleased(JointField jointField) {
-        window.getLayout().removePrimary(jointField.getPrimaryKey());
-        updateLayout();
-        JointModel jointModel = userInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
-        JointShape jointShape = jointModel.getJointShape();
-        jointShape.detach();
-        updateLayout();
+        JointModel jointModel = userInterface.getToolModel().getJointById(jointField.getPrimaryKey());
+        userInterface.doWithConfirm(String.format(Strings.JOINT_DELETE_CONFIRM,jointModel.getJointName()),()-> {
+            userInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
+            window.getLayout().removePrimary(jointField.getPrimaryKey());
+            updateLayout();
+            JointShape jointShape = jointModel.getJointShape();
+            jointShape.detach();
+            updateLayout();
+        });
     }
 
     public void setUserInterface(UserInterface userInterface) {

@@ -4,9 +4,9 @@ package com.evolgames.userinterface.view.inputs;
 import android.graphics.Color;
 
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.ColorSelectorBehavior;
+import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 
 import org.andengine.entity.primitive.DrawMode;
@@ -14,11 +14,8 @@ import org.andengine.entity.primitive.Mesh;
 
 
 public class ColorSelector extends ClickableImage<ColorSelectorWindowController, ColorSelectorBehavior> {
-    public Button getRemoveColorButton() {
-        return removeColorButton;
-    }
-
-    private final Button<LinearLayoutAdvancedWindowController> removeColorButton;
+    private final Button<ColorSelectorWindowController> removeColorButton;
+    private final Mesh mesh;
     private float value;
     private float saturation;
     private float hue;
@@ -26,24 +23,6 @@ public class ColorSelector extends ClickableImage<ColorSelectorWindowController,
     private float green;
     private float blue;
     private float alpha;
-    private Mesh mesh;
-
-    public void setRed(float red) {
-        this.red = red;
-    }
-
-    public void setGreen(float green) {
-        this.green = green;
-    }
-
-    public void setBlue(float blue) {
-        this.blue = blue;
-    }
-
-    public void setAlpha(float alpha) {
-        this.alpha = alpha;
-    }
-
     public ColorSelector(float pX, float pY, ColorSelectorWindowController controller) {
         super(pX, pY, ResourceManager.getInstance().colorSelectorTextureRegion, false);
 
@@ -67,14 +46,9 @@ public class ColorSelector extends ClickableImage<ColorSelectorWindowController,
         setBehavior(new ColorSelectorBehavior(controller, this));
 
 
-
-
-
-
-
-        Button<LinearLayoutAdvancedWindowController> addColorButton = new Button<>(ResourceManager.getInstance().add1,Button.ButtonType.OneClick,true);
-addColorButton.setPosition(17-addColorButton.getWidth()/2,33-addColorButton.getHeight()/2);
-        addColorButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController>(controller,addColorButton) {
+        Button<LinearLayoutAdvancedWindowController<?>> addColorButton = new Button<>(ResourceManager.getInstance().add1, Button.ButtonType.OneClick, true);
+        addColorButton.setPosition(17 - addColorButton.getWidth() / 2, 33 - addColorButton.getHeight() / 2);
+        addColorButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController<?>>(controller, addColorButton) {
             @Override
             public void informControllerButtonClicked() {
                 controller.addColorToPanel();
@@ -88,19 +62,12 @@ addColorButton.setPosition(17-addColorButton.getWidth()/2,33-addColorButton.getH
         addElement(addColorButton);
 
 
-
-
-
-
-
-
-
-        removeColorButton = new Button<>(ResourceManager.getInstance().minus1,Button.ButtonType.OneClick,true);
-        removeColorButton.setPosition(33-removeColorButton.getWidth()/2,17-removeColorButton.getHeight()/2);
-        removeColorButton.setBehavior(new ButtonBehavior<LinearLayoutAdvancedWindowController>(controller,removeColorButton) {
+        removeColorButton = new Button<>(ResourceManager.getInstance().minus1, Button.ButtonType.OneClick, true);
+        removeColorButton.setPosition(33 - removeColorButton.getWidth() / 2, 17 - removeColorButton.getHeight() / 2);
+        removeColorButton.setBehavior(new ButtonBehavior<ColorSelectorWindowController>(controller, removeColorButton) {
             @Override
             public void informControllerButtonClicked() {
-            controller.removeColorFromPanel();
+                controller.removeColorFromPanel();
             }
 
             @Override
@@ -113,9 +80,17 @@ addColorButton.setPosition(17-addColorButton.getWidth()/2,33-addColorButton.getH
 
     }
 
+    public Button<ColorSelectorWindowController> getRemoveColorButton() {
+        return removeColorButton;
+    }
+
     @Override
     public float getRed() {
         return red;
+    }
+
+    public void setRed(float red) {
+        this.red = red;
     }
 
     @Override
@@ -123,21 +98,29 @@ addColorButton.setPosition(17-addColorButton.getWidth()/2,33-addColorButton.getH
         return green;
     }
 
+    public void setGreen(float green) {
+        this.green = green;
+    }
+
     @Override
     public float getBlue() {
         return blue;
+    }
+
+    public void setBlue(float blue) {
+        this.blue = blue;
     }
 
     public float getAlpha() {
         return alpha;
     }
 
-    public Mesh getMesh() {
-        return mesh;
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
     }
 
-    public void setValue(float value) {
-        this.value = value;
+    public Mesh getMesh() {
+        return mesh;
     }
 
     public void setSaturation(float saturation) {
@@ -154,16 +137,17 @@ addColorButton.setPosition(17-addColorButton.getWidth()/2,33-addColorButton.getH
         red = Color.red(color) / (float) 255;
         green = Color.green(color) / (float) 255;
         blue = Color.blue(color) / (float) 255;
-updateMeshColor();
+        updateMeshColor();
     }
-    public void updateMeshColor(){
+
+    public void updateMeshColor() {
         mesh.setColor(red, green, blue);
         mesh.setAlpha(alpha);
     }
 
     public void updateColorRGB() {
         float[] hsv = new float[3];
-        Color.RGBToHSV((int)Math.floor(red*255),(int)Math.floor(green*255),(int)Math.floor(blue*255),hsv);
+        Color.RGBToHSV((int) Math.floor(red * 255), (int) Math.floor(green * 255), (int) Math.floor(blue * 255), hsv);
         hue = hsv[0];
         saturation = hsv[1];
         value = hsv[2];
@@ -171,8 +155,11 @@ updateMeshColor();
 
     }
 
-
     public float getValue() {
         return value;
+    }
+
+    public void setValue(float value) {
+        this.value = value;
     }
 }

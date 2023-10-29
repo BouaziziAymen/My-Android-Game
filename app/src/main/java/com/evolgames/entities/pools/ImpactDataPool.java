@@ -29,7 +29,7 @@ public class ImpactDataPool {
 
     public static ImpactData obtain(GameEntity gameEntity, LayerBlock impactedBlock, Vector2 worldPoint, float impactEnergy) {
         ImpactData impactData = ImpactDataPool.obtain(gameEntity, impactedBlock, worldPoint);
-        impactData.setImpactEnergy(impactEnergy);
+        impactData.setImpactImpulse(impactEnergy);
         return impactData;
     }
 

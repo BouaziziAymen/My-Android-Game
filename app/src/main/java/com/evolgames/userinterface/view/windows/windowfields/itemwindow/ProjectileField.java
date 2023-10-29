@@ -9,8 +9,8 @@ public class ProjectileField extends ItemField {
     private final Button<ItemWindowController> itemRemoveButton;
     private final Button<ItemWindowController> projectileOptionsButton;
 
-    public ProjectileField(int primaryKey, int secondaryKey, ItemWindowController controller) {
-        super(primaryKey, secondaryKey, controller);
+    public ProjectileField(int primaryKey, int modelId, ItemWindowController controller) {
+        super(primaryKey, modelId, controller);
         itemRemoveButton = new Button<>(ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
         itemRemoveButton.setBehavior(new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {

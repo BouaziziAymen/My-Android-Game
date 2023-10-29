@@ -74,8 +74,9 @@ public class OneLevelSectionLayout<Primary extends Element, Secondary extends El
         for(OneLevelSection s:sectionsList){
            if(s.getSectionKey()==primaryKey){removedSection = s;break;}
         }
-        if(removedSection!=null)
-        sectionsList.remove(removedSection);
+        if(removedSection!=null) {
+            sectionsList.remove(removedSection);
+        }
     }
 
     public ArrayList<Primary> getPrimaries() {
@@ -87,6 +88,7 @@ public class OneLevelSectionLayout<Primary extends Element, Secondary extends El
     }
 
     public void removeSecondary(int primaryKey, int secondaryKey) {
+        System.out.println("------------------Remove Secondary:"+primaryKey+":"+secondaryKey);
         getSectionByKey(primaryKey).removeSection(secondaryKey);
     }
 

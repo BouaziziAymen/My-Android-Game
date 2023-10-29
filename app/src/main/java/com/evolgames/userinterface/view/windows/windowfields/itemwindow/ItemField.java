@@ -1,17 +1,16 @@
 package com.evolgames.userinterface.view.windows.windowfields.itemwindow;
 
-import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.sections.basic.SecondaryButtonField;
-import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
 public class ItemField extends SecondaryButtonField {
+    private final int modelId;
     private boolean visibleFields;
 
-    public ItemField(int primaryKey, int secondaryKey, ItemWindowController controller) {
-        super(primaryKey, secondaryKey, controller);
+    public ItemField(int primaryKey, int modelId, ItemWindowController controller) {
+        super(primaryKey, controller.getItemCounter().getAndIncrement(), controller);
+        this.modelId = modelId;
         setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
     }
     public void showFields() {
@@ -34,4 +33,7 @@ public class ItemField extends SecondaryButtonField {
         }
     }
 
+    public int getModelId() {
+        return modelId;
+    }
 }

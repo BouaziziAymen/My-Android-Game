@@ -11,15 +11,18 @@ public class JointModel {
     private boolean selected;
     private BodyModel bodyModel1;
     private BodyModel bodyModel2;
+    private final String jointName;
 
     public JointModel(int jointId, JointDef jointDef, JointShape jointShape) {
         this.jointShape = jointShape;
         this.jointId = jointId;
         this.jointDef = jointDef;
+        this.jointName = "Joint"+jointId;
     }
     public JointModel(int jointId, JointDef jointDef) {
         this.jointId = jointId;
         this.jointDef = jointDef;
+        this.jointName = "Joint"+jointId;
     }
 
     public BodyModel getBodyModel1() {
@@ -80,5 +83,9 @@ public class JointModel {
         if(jointShape!=null) {
             jointShape.release();
         }
+    }
+
+    public String getJointName() {
+        return jointName;
     }
 }

@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.behaviors.actions;
 
+@FunctionalInterface
 public interface  Action {
-    public  void performAction();
+    void performAction();
 }

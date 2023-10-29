@@ -432,7 +432,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createProjectilesField(int primaryId,int secondaryId, RangedProperties rangedProperties) {
         SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(primaryId,secondaryId, "Projectiles", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addSecondary(projectileField);
-        List<ProjectileModel> projectiles = userInterface.getToolModel().getBodies().stream().map(BodyModel::getProjectiles).flatMap(Collection::stream).collect(Collectors.toList());
+        List<ProjectileModel> projectiles = userInterface.getToolModel().getBodies().stream().map(BodyModel::getProjectileModels).flatMap(Collection::stream).collect(Collectors.toList());
         for(ProjectileModel projectileModel:projectiles){
             createProjectileButton(primaryId,secondaryId,projectileModel, rangedProperties);
         }

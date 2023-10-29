@@ -412,7 +412,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             bluntDamageTest();
         }
 
-        if (false) {
+        if (true) {
             pulverizationTest();
         }
 
@@ -448,10 +448,13 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     private void pulverizationTest() {
         if (step == 180) {
-            getWorldFacade().pulverizeBlock(ragdoll.upperTorso.getBlocks().get(0), ragdoll.upperTorso);
+                    ragdoll.getGameEntities().forEach(e -> {
+                        e.getBlocks().forEach(b -> worldFacade.pulverizeBlock(b, e));
+                        worldFacade.addGameEntityToDestroy(e, false);
+                    });
+                }
+            }
 
-        }
-    }
 
     private void coatingTest() {
         if (step % 5 == 0) {
@@ -521,9 +524,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup.getGameEntityByIndex(0));
             }
         if (false)
-            if (touchEvent.isActionDown()) {
-                getWorldFacade().createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f);
-            }
+            explosionTest(touchEvent);
         float[] cameraSceneCoordinatesFromSceneCoordinates = mainCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
 
 
@@ -564,6 +565,12 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         recycle(touch);
         return false;
+    }
+
+    private void explosionTest(TouchEvent touchEvent) {
+        if (touchEvent.isActionDown()) {
+            getWorldFacade().createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f);
+        }
     }
 
     private void processSlicing(TouchEvent touchEvent) {

@@ -3,7 +3,7 @@ package com.evolgames.physics;
 import android.hardware.SensorManager;
 
 public class PhysicsConstants {
-    public static final float TENACITY_FACTOR =50f;
+    public static final float TENACITY_FACTOR =20f;
     public static final float HEAT_CONSTANT = 100f;
     public static final float MINIMUM_SPLINTER_AREA = 25f;
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 36;
@@ -13,7 +13,7 @@ public class PhysicsConstants {
     public static final float BACKOFF = 0.05f;
     public static final float BLEEDING_CONSTANT = 5f;
     public static final float LIQUID_DENSITY_CONSTANT = 100;
-    public static final float STAINING_PROBABILITY = 0.1f;
+    public static final float STAINING_PROBABILITY = 0.05f;
     public static final float MIN_PROJECTILE_VELOCITY = 10f;
     public static final float MAX_PROJECTILE_VELOCITY = 1000f;
     public static final float MIN_FIRE_RATE = 1f;
@@ -30,5 +30,12 @@ public class PhysicsConstants {
     }
     public static float getEffectiveFireRate(float ratio){
         return MIN_FIRE_RATE + ratio * (MAX_FIRE_RATE-MIN_FIRE_RATE);
+    }
+
+    public static float getTenacityFromRatio(float ratio) {
+        return 0.001f+ratio*(8f-0.001f);
+    }
+    public static float getTenacityRatio(float tenacity) {
+        return (tenacity-0.001f)/(8f-0.001f);
     }
 }

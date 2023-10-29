@@ -234,7 +234,7 @@ public class PersistenceCaretaker {
         });
         bodyElement.appendChild(layersElement);
         Element projectilesElement = document.createElement(PROJECTILES_TAG);
-        for (ProjectileModel projectileModel : bodyModel.getProjectiles()) {
+        for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
             projectilesElement.appendChild(createProjectileElement(document, projectileModel));
         }
         bodyElement.appendChild(projectilesElement);
@@ -485,7 +485,7 @@ public class PersistenceCaretaker {
         }
         List<ProjectileModel> allProjectiles = new ArrayList<>();
         for (BodyModel model : bodyModels) {
-            ArrayList<ProjectileModel> projectiles = model.getProjectiles();
+            ArrayList<ProjectileModel> projectiles = model.getProjectileModels();
             allProjectiles.addAll(projectiles);
         }
         List<BombModel> allBombs = bodyModels.stream().map(BodyModel::getBombModels).flatMap(Collection::stream).collect(Collectors.toList());
@@ -561,8 +561,8 @@ public class PersistenceCaretaker {
             if (body.getBombModels().size() > 0) {
                 toolModel.getBombCounter().set(body.getBombModels().stream().mapToInt(BombModel::getBombId).max().orElse(-1) + 1);
             }
-            if (body.getProjectiles().size() > 0) {
-                toolModel.getProjectileCounter().set(body.getProjectiles().stream().mapToInt(ProjectileModel::getProjectileId).max().orElse(-1) + 1);
+            if (body.getProjectileModels().size() > 0) {
+                toolModel.getProjectileCounter().set(body.getProjectileModels().stream().mapToInt(ProjectileModel::getProjectileId).max().orElse(-1) + 1);
             }
             if (body.getLayers().size() > 0) {
                 body.getLayerCounter().set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().orElse(-1) + 1);
@@ -622,7 +622,7 @@ public class PersistenceCaretaker {
 
         Element projectilesElement = (Element) element.getElementsByTagName(PROJECTILES_TAG).item(0);
         if (projectilesElement != null) {
-            List<ProjectileModel> projectiles = bodyModel.getProjectiles();
+            List<ProjectileModel> projectiles = bodyModel.getProjectileModels();
             for (int i = 0; i < projectilesElement.getChildNodes().getLength(); i++) {
                 Element projectileElement = (Element) projectilesElement.getChildNodes().item(i);
                 ProjectileModel projectileModel;
