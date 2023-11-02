@@ -93,8 +93,9 @@ public class OptionsWindowController extends TwoLevelSectionedAdvancedWindowCont
                 break;
             case NONE:
                 this.test_createTool(1, "c1_knife.xml");
-                this.test_createTool(2, "c1_sword.xml");
+                this.test_createTool(2, "c2_grenade.xml");
                 this.test_createTool(3, "c1_morning_star.xml");
+                this.test_createTool(4, "c2_revolver_latest.xml");
                 break;
             case REMOVE_POINT_SETTINGS:
                 window.addPrimary(createReferenceOption(0));

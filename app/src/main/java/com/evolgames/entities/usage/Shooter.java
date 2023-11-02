@@ -1,8 +1,11 @@
 package com.evolgames.entities.usage;
 
-import static com.evolgames.physics.PhysicsConstants.*;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
+import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -13,60 +16,48 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.properties.usage.AutomaticProperties;
-import com.evolgames.entities.properties.usage.ManualProperties;
+import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
+import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
-import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.physics.CollisionConstants;
+import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.PlayerSpecialAction;
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
-import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.userinterface.view.inputs.Button;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Trigger extends Use{
-    private Button<UsageButtonsController> reloadButton;
-    private Button<UsageButtonsController> triggerButton;
+public class Shooter extends Use {
     private final List<ProjectileModel> projectileModels;
     private final UsageModel<?> usageModel;
     private final float cyclicTime;
+    private final int maxRounds;
+    private final float reloadTime;
     private boolean loaded = false;
     private boolean readyToFire = false;
     private boolean loading = false;
-    private final int maxRounds;
     private int rounds;
     private float loadingTimer;
-    private final float reloadTime;
     private float readyTimer;
     private boolean continueFire;
+    private Vector2 target;
 
-    public Trigger(UsageModel<?> rangedUsageModel) {
+    public Shooter(UsageModel<?> rangedUsageModel) {
         this.usageModel = rangedUsageModel;
         RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
         this.projectileModels = rangedProperties.getProjectileModelList();
         switch (usageModel.getType()) {
-            case RANGED_MANUAL:
-                ManualProperties manualProperties = (ManualProperties) rangedProperties;
-                this.reloadTime = manualProperties.getReloadTime();
-                this.maxRounds = manualProperties.getNumberOfRounds();
+            case SHOOTER:
+                ShooterProperties shooterProperties = (ShooterProperties) rangedProperties;
+                this.reloadTime = shooterProperties.getReloadTime();
+                this.maxRounds = shooterProperties.getNumberOfRounds();
                 this.cyclicTime = 0;
                 break;
-            case RANGED_SEMI_AUTOMATIC:
-                SemiAutomaticProperties semiAutomaticProperties = (SemiAutomaticProperties) rangedProperties;
-                this.cyclicTime = 1 / getEffectiveFireRate(semiAutomaticProperties.getFireRate());
-                this.maxRounds = semiAutomaticProperties.getNumberOfRounds();
-                this.reloadTime = semiAutomaticProperties.getReloadTime();
-                break;
-            case RANGED_AUTOMATIC:
-                AutomaticProperties automaticProperties = (AutomaticProperties) rangedProperties;
+            case SHOOTER_CONTINUOUS:
+                ContinuousShooterProperties automaticProperties = (ContinuousShooterProperties) rangedProperties;
                 this.cyclicTime = 1 / getEffectiveFireRate(automaticProperties.getFireRate());
                 this.maxRounds = automaticProperties.getNumberOfRounds();
                 this.reloadTime = automaticProperties.getReloadTime();
@@ -76,21 +67,18 @@ public class Trigger extends Use{
         }
     }
 
-    private void onTriggerPulled() {
-        if (!this.loaded) {
-            return;
-        }
+    public void onTriggerPulled() {
         for (ProjectileModel projectileModel : projectileModels) {
             fire(projectileModel);
         }
     }
 
-    private void startReload() {
+    public void startReload() {
         this.loadingTimer = 0;
         this.loading = true;
     }
 
-    private void onTriggerReleased() {
+    public void onTriggerReleased() {
         this.continueFire = false;
     }
 
@@ -107,9 +95,7 @@ public class Trigger extends Use{
                 this.loaded = true;
                 this.rounds = this.maxRounds;
                 this.loading = false;
-                this.reloadButton.setEnabled(true);
-                this.reloadButton.updateState(Button.State.NORMAL);
-               //Reload finished
+                //Reload finished
             }
             return;
         }
@@ -141,16 +127,14 @@ public class Trigger extends Use{
         this.createBullet(projectileModel);
         this.decrementRounds();
         this.readyToFire = false;
-        if (this.usageModel.getType() == BodyUsageCategory.RANGED_AUTOMATIC || this.usageModel.getType() == BodyUsageCategory.RANGED_SEMI_AUTOMATIC) {
+
             if (projectileModel.getAmmoModel() != null && projectileModel.getMissileModel().getBodies().size() >= 2) {
                 createBulletCasing(projectileModel);
             }
-            if (this.usageModel.getType() == BodyUsageCategory.RANGED_AUTOMATIC) {
+            if (this.usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS) {
                 this.continueFire = true;
             }
-        } else {
-            this.loaded = false;
-        }
+
         if (projectileModel.getFireSource() != null) {
             projectileModel.getFireSource().setSpawnEnabled(true);
         }
@@ -167,7 +151,7 @@ public class Trigger extends Use{
         float angularVelocity = clockwise ? 1 : -1 * projectileModel.getAmmoModel().getAmmoProperties().getRotationSpeed() * 10;
         float ejectionVelocity = projectileModel.getAmmoModel().getAmmoProperties().getLinearSpeed() * 10;
         Vector2 ejectionVelocityVector = directionProjected.mul(ejectionVelocity);
-        BodyInit bodyInit = new TransformInit(new AngularVelocityInit(new LinearVelocityInit(new BodyInitImpl(CollisionConstants.CASING_CATEGORY, CollisionConstants.CASING_MASK), ejectionVelocityVector), angularVelocity), beginProjected.x, beginProjected.y, muzzleEntity.getBody().getAngle());
+        BodyInit bodyInit = new TransformInit(new AngularVelocityInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), ejectionVelocityVector), angularVelocity), beginProjected.x, beginProjected.y, muzzleEntity.getBody().getAngle());
         GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, beginProjected, muzzleEntity.getBody().getAngle(), bodyInit, false, "shell");
     }
 
@@ -176,59 +160,45 @@ public class Trigger extends Use{
         ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(projectileModel.getMissileModel().getBodies().get(0));
         Vector2 begin = projectileModel.getProperties().getProjectileOrigin();
         Vector2 end = projectileModel.getProperties().getProjectileEnd();
-        Vector2 beginProjected = muzzleEntity.getBody().getWorldPoint(begin.cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f)).cpy();
+
         Vector2 endProjected = muzzleEntity.getBody().getWorldPoint(end.cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f)).cpy();
-        Vector2 direction = end.cpy().sub(begin).nor();
-        Vector2 directionProjected = muzzleEntity.getBody().getWorldVector(direction).cpy();
+        Vector2 beginProjected = muzzleEntity.getBody().getWorldPoint(begin.cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f)).cpy();
+        Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
         float muzzleVelocity = getProjectileVelocity(projectileModel.getProperties().getMuzzleVelocity());
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(CollisionConstants.PROJECTILE_CATEGORY, CollisionConstants.PROJECTILE_MASK), muzzleVelocityVector), endProjected.x, endProjected.y, muzzleEntity.getBody().getAngle()), true);
-        GameEntity bullet = GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, muzzleEntity.getBody().getAngle(), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true, "bullet");
-        bullet.getUseList().add(new Projectile());
+        Filter filter = new Filter();
+        filter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
+        filter.maskBits = OBJECTS_MIDDLE_CATEGORY;
+        filter.groupIndex = muzzleEntity.getGroupIndex();
+        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter), muzzleVelocityVector), endProjected.x, endProjected.y, muzzleEntity.getBody().getAngle()), true);
+        GameEntity bullet = GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, GeometryUtils.calculateAngleRad(directionProjected.x,directionProjected.y), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true, "bullet");
+        Projectile projectile = new Projectile(bullet);
+        projectile.setActive(true);
+
+        bullet.getUseList().add(projectile);
+        //GameScene.plotter2.detachChildren();
+        //GameScene.plotter2.drawLine2(endProjected.cpy().mul(32f),endProjected.cpy().mul(32f).add(directionProjected.x*1200,directionProjected.y*1200), Color.RED,3f);
         ResourceManager.getInstance().gunshotSounds.get(projectileModel.getProperties().getFireSound()).getSoundList().get(0).play();
-    }
-
-    private void onReloadPushed() {
-        startReload();
-        reloadButton.setEnabled(false);
-    }
-
-    @Override
-    public void createControls(UsageButtonsController usageButtonsController, UserInterface userInterface) {
-       super.createControls(usageButtonsController,userInterface);
-        triggerButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
-        triggerButton.setBehavior(new ButtonBehavior<UsageButtonsController>(usageButtonsController, triggerButton) {
-            @Override
-            public void informControllerButtonClicked() {
-                onTriggerPulled();
-            }
-
-            @Override
-            public void informControllerButtonReleased() {
-                onTriggerReleased();
-            }
-        });
-        triggerButton.setPosition(800 - triggerButton.getWidth(), 0);
-
-        reloadButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
-        reloadButton.setBehavior(new ButtonBehavior<UsageButtonsController>(usageButtonsController, reloadButton) {
-            @Override
-            public void informControllerButtonClicked() {
-                onReloadPushed();
-            }
-
-            @Override
-            public void informControllerButtonReleased() {
-            }
-        });
-        reloadButton.setPosition(800 - reloadButton.getWidth() - triggerButton.getWidth(), 0);
-        userInterface.addElement(reloadButton);
-        userInterface.addElement(triggerButton);
     }
 
     @Override
     public PlayerSpecialAction getAction() {
-        return null;
+        return PlayerSpecialAction.Shoot;
     }
 
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public Vector2 getTarget() {
+        return this.target;
+    }
+
+    public void setTarget(Vector2 target) {
+        this.target = target;
+    }
+
+    public boolean isLoading() {
+        return loading;
+    }
 }

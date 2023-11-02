@@ -1,8 +1,8 @@
 package com.evolgames.userinterface.model;
 
 public enum BodyUsageCategory {
-  RANGED_MANUAL("Ranged manual","Ranged Options", 1), RANGED_SEMI_AUTOMATIC("Ranged sem. automatic","Ranged Options", 1),
-    RANGED_AUTOMATIC("Ranged automatic","Ranged Options", 1),
+    SHOOTER("Shooter","Ranged Options", 1),
+    SHOOTER_CONTINUOUS("Shooter continuous","Ranged Options", 1),
     TIME_BOMB("Time Bomb","Bomb Options", 2),
     FUZE_BOMB("Fuze Bomb","Bomb Options", 2),
     IMPACT_BOMB("Impact Bomb","Bomb Options", 2),

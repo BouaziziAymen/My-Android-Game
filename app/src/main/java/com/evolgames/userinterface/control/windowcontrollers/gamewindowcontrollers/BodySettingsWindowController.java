@@ -1,13 +1,12 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.BodyProperties;
-import com.evolgames.entities.properties.usage.AutomaticProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
+import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
-import com.evolgames.entities.properties.usage.ManualProperties;
+import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
-import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
@@ -99,22 +98,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void updateUsageCategoryFields(BodyUsageCategory usageCategory) {
         switch (usageCategory){
-            case RANGED_MANUAL:
-                UsageModel<ManualProperties> manualUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                ManualProperties manualProps =  manualUsageModel.getProperties();
+            case SHOOTER:
+                UsageModel<ShooterProperties> manualUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                ShooterProperties manualProps =  manualUsageModel.getProperties();
                 setReloadTime(manualProps.getReloadTime());
                 setNumberOfRounds(manualProps.getNumberOfRounds());
                 break;
-            case RANGED_SEMI_AUTOMATIC:
-                UsageModel<SemiAutomaticProperties> semiAutomaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                SemiAutomaticProperties semAutoProps = semiAutomaticUsageModel.getProperties();
-                setFireRate(semAutoProps.getFireRate());
-                setNumberOfRounds(semAutoProps.getNumberOfRounds());
-                setReloadTime(semAutoProps.getReloadTime());
-                break;
-            case RANGED_AUTOMATIC:
-                UsageModel<AutomaticProperties> automaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
-                AutomaticProperties autoProps = automaticUsageModel.getProperties();
+            case SHOOTER_CONTINUOUS:
+                UsageModel<ContinuousShooterProperties> automaticUsageModel =  this.bodyModel.getUsageModel(usageCategory);
+                ContinuousShooterProperties autoProps = automaticUsageModel.getProperties();
                 setFireRate(autoProps.getFireRate());
                 setNumberOfRounds(autoProps.getNumberOfRounds());
                 setReloadTime(autoProps.getReloadTime());
@@ -256,23 +248,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                     SectionField<BodySettingsWindowController> bodyUsageField = new SectionField<>(primaryId, bodyUsageCategory.getOptionsTitle(), ResourceManager.getInstance().mainButtonTextureRegion, this);
                     window.addPrimary(bodyUsageField);
                     switch (bodyUsageCategory) {
-                        case RANGED_MANUAL:
-                            ManualProperties manualProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_MANUAL);
+                        case SHOOTER:
+                            ShooterProperties shooterProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER);
 
-                            createReloadTimeField(primaryId, 1,manualProperties);
-                            createNumberOfRoundsTextField(primaryId,2,manualProperties);
-                            createProjectilesField(primaryId, 3,manualProperties);
+                            createReloadTimeField(primaryId, 1, shooterProperties);
+                            createNumberOfRoundsTextField(primaryId,2, shooterProperties);
+                            createProjectilesField(primaryId, 3, shooterProperties);
                             break;
-                        case RANGED_SEMI_AUTOMATIC:
-                            SemiAutomaticProperties semiAutomaticProperties =bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_SEMI_AUTOMATIC);
-                            createReloadTimeField(primaryId, 0,semiAutomaticProperties);
-                            createFireRateField(primaryId, 1,()->
-                                    fireRateQuantityField.getBehavior().setChangeAction(() -> semiAutomaticProperties.setFireRate(fireRateQuantityField.getRatio())));
-                            createNumberOfRoundsTextField(primaryId,2,semiAutomaticProperties);
-                            createProjectilesField(primaryId,3, semiAutomaticProperties);
-                            break;
-                        case RANGED_AUTOMATIC:
-                            AutomaticProperties automaticProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.RANGED_AUTOMATIC);
+                        case SHOOTER_CONTINUOUS:
+                            ContinuousShooterProperties automaticProperties = bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER_CONTINUOUS);
                             createReloadTimeField(primaryId, 1,automaticProperties);
                             createFireRateField(primaryId, 1,()->
                                     fireRateQuantityField.getBehavior().setChangeAction(() -> automaticProperties.setFireRate(fireRateQuantityField.getRatio())));
@@ -486,7 +470,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     }
 
     public void onUsageAdded(BodyUsageCategory e) {
-        if(e==BodyUsageCategory.RANGED_AUTOMATIC||e==BodyUsageCategory.RANGED_MANUAL||e==BodyUsageCategory.RANGED_SEMI_AUTOMATIC) {
+        if(e==BodyUsageCategory.SHOOTER_CONTINUOUS ||e==BodyUsageCategory.SHOOTER) {
             UsageModel<RangedProperties> usage = new UsageModel<>("", e);
             RangedProperties properties = usage.getProperties();
             properties.setProjectileIds(new ArrayList<>());

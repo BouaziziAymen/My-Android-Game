@@ -243,7 +243,7 @@ public class ResourceManager {
         this.switcher = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcher.png");
         this.switcherBackground = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcherBackground.png");
         this.particularUsages = new ArrayList<>();
-        for(int i=0;i<=6;i++) {
+        for(int i=0;i<=7;i++) {
             this.particularUsages.add(BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/usages/" + i + ".png"));
         }
         Collections.reverse(particularUsages);

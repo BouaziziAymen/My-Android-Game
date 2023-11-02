@@ -884,7 +884,6 @@ public class GeometryUtils {
                 result = p;
             }
         }
-
         return result;
     }
 

@@ -55,6 +55,7 @@ import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.shapes.CreationZone;
+import com.evolgames.userinterface.view.shapes.Grid;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
@@ -186,7 +187,7 @@ public class UserInterface extends Container implements Touchable {
         sceneBatcher.setZIndex(1);
 
 
-        //new Grid(pGameScene);
+        new Grid(pGameScene);
         this.scene = pGameScene;
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;

@@ -10,8 +10,6 @@ public abstract class Use {
 
     public abstract void onStep(float deltaTime);
 
-    public void createControls(UsageButtonsController usageButtonsController, UserInterface userInterface) {
-    }
     public abstract PlayerSpecialAction getAction();
     public boolean isActive() {
         return active;

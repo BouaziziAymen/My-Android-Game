@@ -1,11 +1,10 @@
 package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.entities.properties.usage.AutomaticProperties;
+import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
-import com.evolgames.entities.properties.usage.ManualProperties;
-import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
+import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
@@ -21,14 +20,11 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
     public UsageModel(String name, BodyUsageCategory type) {
         super(name);
         switch (type){
-            case RANGED_MANUAL:
-               this.properties = (T) new ManualProperties();
+            case SHOOTER:
+               this.properties = (T) new ShooterProperties();
                 break;
-            case RANGED_SEMI_AUTOMATIC:
-                this.properties = (T) new SemiAutomaticProperties();
-                break;
-            case RANGED_AUTOMATIC:
-                this.properties = (T) new AutomaticProperties();
+            case SHOOTER_CONTINUOUS:
+                this.properties = (T) new ContinuousShooterProperties();
                 break;
             case TIME_BOMB:
                 this.properties = (T) new TimeBombUsageProperties();

@@ -10,7 +10,10 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
+import com.evolgames.scenes.GameScene;
 import com.evolgames.scenes.PlayerSpecialAction;
+
+import org.andengine.util.adt.color.Color;
 
 import java.util.List;
 import java.util.Map;
@@ -18,12 +21,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
-    public Projectile() {
+    private final GameEntity projectile;
+
+    public Projectile(GameEntity projectile) {
+        this.projectile = projectile;
         this.active = false;
     }
 
     @Override
     public void onStep(float deltaTime) {
+      //  GameScene.plotter2.drawPoint(this.projectile.getBody().getPosition().cpy().mul(32), Color.CYAN,1f);
     }
 
     @Override
@@ -36,7 +43,7 @@ public class Projectile extends Use implements Penetrating {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         List<GameEntity> overlappedEntities = worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        setActive(false);
+
         Map<GameGroup, List<GameEntity>> groups = overlappedEntities.stream().collect(Collectors.groupingBy(GameEntity::getParentGroup));
         List<GameEntity> list = groups.values().stream().map(e -> e.stream().findFirst().get()).collect(Collectors.toList());
 
@@ -44,13 +51,14 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.freeze(penetrator);
             penetrator.getMesh().setZIndex(-1);
             penetrator.getGameScene().sortChildren();
+            setActive(false);
         }
         for (GameEntity overlappedEntity : list) {
             Body overlappedEntityBody = overlappedEntity.getBody();
             worldFacade.freeze(overlappedEntity);
             worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);
-            Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.01f * Math.sqrt(consumedImpulse) * massFraction)), point));
+            worldFacade.applyPointImpact(obtain(point), 20f * consumedImpulse * massFraction, overlappedEntity);
+            Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.0000001f * Math.sqrt(consumedImpulse) * massFraction)), point));
         }
     }
 
@@ -60,7 +68,7 @@ public class Projectile extends Use implements Penetrating {
         float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         worldFacade.addGameEntityToDestroy(penetrator, false);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        worldFacade.applyPointImpact(obtain(point), (float) (consumedImpulse * massFraction), penetrated);
+        worldFacade.applyPointImpact(obtain(point), (float) (20f *consumedImpulse * massFraction), penetrated);
         setActive(false);
     }
 

@@ -20,7 +20,7 @@ public class Throw extends Use{
             Vector2 u = new Vector2(0, 1);
             GeometryUtils.rotateVectorDeg(u, angle);
             body.setLinearVelocity(speed * u.x, speed* u.y);
-            Projectile projectile = new Projectile();
+            Projectile projectile = new Projectile(hand.getGrabbedEntity());
             hand.getGrabbedEntity().getUseList().add(projectile);
             projectile.setActive(true);
             hand.onMouseJointDestroyed();

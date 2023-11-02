@@ -5,17 +5,17 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.Hand;
 
-public class AngleHandControl extends HandControl {
+public class ThrowHandControl extends HandControl {
 
     private final Hand hand;
     private final float angle;
     private boolean thrown = false;
-    private final AngleTrigger angleTrigger;
+    private final AngleChanger angleChanger;
 
-    public AngleHandControl(Hand hand, float angle) {
+    public ThrowHandControl(Hand hand, float angle) {
         super();
         this.angle = angle;
-        this.angleTrigger = new AngleTrigger(hand.getGrabbedEntity(), angle);
+        this.angleChanger = new AngleChanger(hand.getGrabbedEntity(), angle);
         this.hand = hand;
     }
 
@@ -30,7 +30,7 @@ public class AngleHandControl extends HandControl {
             assert body != null;
             float rot = body.getAngle();
             float error = GeometryUtils.calculateShortestDirectedDistance(rot * MathUtils.radiansToDegrees, angle);
-            this.angleTrigger.run();
+            this.angleChanger.run();
             if (!(Math.abs(error) > 5f)) {
                 if (!thrown) {
                     setDead(true);

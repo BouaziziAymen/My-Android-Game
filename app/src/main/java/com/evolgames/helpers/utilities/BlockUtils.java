@@ -602,10 +602,12 @@ public class BlockUtils {
         LayerBlock result = null;
         for (LayerBlock layerBlock : blocks) {
             Vector2 point = GeometryUtils.calculateProjection(localPoint, layerBlock.getVertices());
-            float distance = point.dst(localPoint);
-            if (distance < minDistance) {
-                result = layerBlock;
-                minDistance = distance;
+            if(point!=null) {
+                float distance = point.dst(localPoint);
+                if (distance < minDistance) {
+                    result = layerBlock;
+                    minDistance = distance;
+                }
             }
         }
         return result;

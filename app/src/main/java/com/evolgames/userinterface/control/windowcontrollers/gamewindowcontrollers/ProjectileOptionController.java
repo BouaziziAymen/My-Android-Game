@@ -209,8 +209,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     }
 
     private void setMuzzleVelocity(float muzzleVelocity) {
-       float ratio =  PhysicsConstants.getProjectileVelocityRatio(muzzleVelocity);
-        this.velocityQuantity.updateRatio(ratio);
+        this.velocityQuantity.updateRatio(muzzleVelocity);
     }
 
     private void setBody(int bodyId) {

@@ -1,8 +1,8 @@
 package com.evolgames.userinterface.model;
 
-import static com.evolgames.physics.CollisionConstants.GUN_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.GUN_MASK;
-
+import static com.evolgames.physics.CollisionConstants.OBJECTS_BACK_CATEGORY;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_FRONT_CATEGORY;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
@@ -21,7 +21,7 @@ import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
-import com.evolgames.entities.usage.Trigger;
+import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
@@ -212,7 +212,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             if (blocks.size() == 0 || center == null){
                 return;
             }
-            BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(GUN_CATEGORY,GUN_MASK),center.x / 32F, center.y / 32F, 0),false);
+            BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl((short) (OBJECTS_MIDDLE_CATEGORY|OBJECTS_BACK_CATEGORY|OBJECTS_FRONT_CATEGORY)),center.x / 32F, center.y / 32F, 0),false);
             GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(center.x / 32F, center.y / 32F, 0, bodyInit,blocks, BodyDef.BodyType.DynamicBody, "weapon");
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
@@ -236,9 +236,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         List<ProjectileModel> projectileModels = bodies.stream().map(BodyModel::getProjectileModels).flatMap(Collection::stream).collect(Collectors.toList());
         projectileModels.forEach(projectileModel -> projectileModel.setMuzzleEntity(bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny().orElseThrow(() -> new RuntimeException("Body not found!")).getGameEntity()));
 
-        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.RANGED_MANUAL||e.getType()==BodyUsageCategory.RANGED_SEMI_AUTOMATIC||e.getType()==BodyUsageCategory.RANGED_AUTOMATIC).forEach(e->{
-            Trigger trigger = new Trigger(e);
-            usageBodyModel.getGameEntity().getUseList().add(trigger);
+        bodies.forEach(usageBodyModel -> usageBodyModel.getUsageModels().stream().filter(e->e.getType()==BodyUsageCategory.SHOOTER ||e.getType()==BodyUsageCategory.SHOOTER_CONTINUOUS).forEach(e->{
+            Shooter shooter = new Shooter(e);
+            usageBodyModel.getGameEntity().getUseList().add(shooter);
         }));
 
 

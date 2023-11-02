@@ -835,9 +835,9 @@ public class WorldFacade implements ContactObserver {
                 }
             }
 
-            boolean goThrough = true;
-            for (int k = 0; k < 100; k++) {
-                if (!this.doNotOverlap(penetratorData, environmentData, advance + k * dN)) {
+                boolean goThrough = true;
+                for (int k = 0; k < 100; k++) {
+                    if (!this.doNotOverlap(penetratorData, environmentData, advance + k * dN)) {
                     goThrough = false;
                 }
             }
@@ -1361,7 +1361,7 @@ public class WorldFacade implements ContactObserver {
                 if (!enterBleedingPoints.isEmpty()) {
                     float length = (float) enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum();
                     int limit = (int) (length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
-                    if (limit > 1 && layerBlock.getProperties().isJuicy()) {
+                    if (limit >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
@@ -1529,7 +1529,7 @@ public class WorldFacade implements ContactObserver {
                     float ovlValue = (float) ovl.stream().mapToDouble(TopographyData.Overlap::getValue).sum();
                     System.out.println(e.getKey().getName()+"---------  density:"+ovlValue);
                     e.getKey().setSortingValue(ovlValue);
-                    return ovlValue > finalPenetratorValue / 3f;
+                    return ovlValue > finalPenetratorValue / 5f;
                 }).map(Map.Entry::getKey).sorted(Comparator.comparing(GameEntity::getSortingValue).reversed()).distinct().collect(Collectors.toList());
     }
 

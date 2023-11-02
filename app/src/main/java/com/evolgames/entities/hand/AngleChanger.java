@@ -5,11 +5,11 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
 
-public class AngleTrigger {
+public class AngleChanger {
     float target;
     GameEntity gameEntity;
     float step;
-    AngleTrigger(GameEntity entity, float targetAngle){
+    AngleChanger(GameEntity entity, float targetAngle){
         this.gameEntity = entity;
         this.target = targetAngle;
         float rot = gameEntity.getBody().getAngle();

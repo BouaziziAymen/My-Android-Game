@@ -31,15 +31,21 @@ public class OutlineController extends Controller {
         for (BodyModel bodyModel : userInterface.getToolModel().getBodies()) {
             for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
                 projectileModel.getProjectileShape().release();
-                projectileModel.getProjectileField().hideFields();
+                if(projectileModel.getProjectileField()!=null) {
+                    projectileModel.getProjectileField().hideFields();
+                }
             }
             for (CasingModel casingModel : bodyModel.getCasingModels()) {
                 casingModel.getCasingShape().release();
-                casingModel.getCasingField().hideFields();
+                if(casingModel.getCasingField()!=null) {
+                    casingModel.getCasingField().hideFields();
+                }
             }
             for (BombModel bombModel : bodyModel.getBombModels()) {
                 bombModel.getBombShape().release();
-                bombModel.getBombField().hideFields();
+                if(bombModel.getBombField()!=null) {
+                    bombModel.getBombField().hideFields();
+                }
             }
         }
     }

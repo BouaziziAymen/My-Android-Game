@@ -15,13 +15,12 @@ import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.entities.properties.usage.AutomaticProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
+import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
-import com.evolgames.entities.properties.usage.ManualProperties;
+import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
-import com.evolgames.entities.properties.usage.SemiAutomaticProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
@@ -256,7 +255,7 @@ public class PersistenceCaretaker {
             Element usageElement = document.createElement(USAGE_TAG);
             Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
             Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
-            if (usageModel.getType() == BodyUsageCategory.RANGED_AUTOMATIC || usageModel.getType() == BodyUsageCategory.RANGED_MANUAL || usageModel.getType() == BodyUsageCategory.RANGED_SEMI_AUTOMATIC) {
+            if (usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS || usageModel.getType() == BodyUsageCategory.SHOOTER) {
                 RangedProperties rangedProperties = bodyModel.getUsageModelProperties(usageModel.getType());
                 propertiesElement.setAttribute(USAGE_PROPERTIES_PROJECTILES_TAG, convertIntListToString(rangedProperties.getProjectileModelList().stream().map(ProjectileModel::getProjectileId).collect(Collectors.toList())));
             }
@@ -492,7 +491,7 @@ public class PersistenceCaretaker {
 
         for (BodyModel bodyModel : bodyModels) {
             for (UsageModel<?> e : bodyModel.getUsageModels()) {
-                if (e.getType().toString().startsWith("Ranged")) {
+                if (e.getType().toString().startsWith("Shooter")) {
                     RangedProperties rangedProperties = (RangedProperties) e.getProperties();
                     rangedProperties.getProjectileModelList().addAll(allProjectiles.stream().filter(p -> rangedProperties.getProjectileIds().contains(p.getProjectileId())).collect(Collectors.toList()));
                 } else if(e.getType().toString().contains("Bomb")){
@@ -511,7 +510,7 @@ public class PersistenceCaretaker {
         if (jointsElement != null) {
             for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
                 Element jointElement = (Element) jointsElement.getChildNodes().item(i);
-                JointModel jointModel = null;
+                JointModel jointModel;
                 try {
                     jointModel = readJointModel(Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
                 } catch (PersistenceException e) {
@@ -674,21 +673,15 @@ public class PersistenceCaretaker {
         List<Integer> usageProjectileIds;
         List<Integer> usageBombIds;
         switch (bodyUsageCategory) {
-            case RANGED_MANUAL:
+            case SHOOTER:
                 usageProjectileIds = convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                ManualProperties rangedManualProperties = loadProperties(propertiesElement, ManualProperties.class);
-                rangedManualProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(rangedManualProperties);
+                ShooterProperties rangedShooterProperties = loadProperties(propertiesElement, ShooterProperties.class);
+                rangedShooterProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(rangedShooterProperties);
                 break;
-            case RANGED_SEMI_AUTOMATIC:
+            case SHOOTER_CONTINUOUS:
                 usageProjectileIds = convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                SemiAutomaticProperties rangedSemiAutomaticProperties = loadProperties(propertiesElement, SemiAutomaticProperties.class);
-                rangedSemiAutomaticProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(rangedSemiAutomaticProperties);
-                break;
-            case RANGED_AUTOMATIC:
-                usageProjectileIds = convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                AutomaticProperties rangedAutomaticProperties = loadProperties(propertiesElement, AutomaticProperties.class);
+                ContinuousShooterProperties rangedAutomaticProperties = loadProperties(propertiesElement, ContinuousShooterProperties.class);
                 rangedAutomaticProperties.setProjectileIds(usageProjectileIds);
                 usageModel.setProperties(rangedAutomaticProperties);
                 break;

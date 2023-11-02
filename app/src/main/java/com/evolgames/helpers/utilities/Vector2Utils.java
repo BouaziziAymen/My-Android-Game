@@ -12,7 +12,7 @@ import java.util.Random;
 public class Vector2Utils {
     private static final Random random = new Random();
     public static List<Vector2> generateRandomPointsInsidePolygon(int n, Vector2  localImpactPoint, LayerBlock layerBlock, GameEntity gameEntity) {
-   GameScene.plotter2.detachChildren();
+  // GameScene.plotter2.detachChildren();
         Vector2 u1 = new Vector2(1,0);
         CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
         if(nearest==null){

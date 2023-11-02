@@ -1,8 +1,12 @@
 package com.evolgames.entities.hand;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.usage.Shooter;
+import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.scenes.Hand;
 import com.evolgames.scenes.PlayerSpecialAction;
 
 public class HoldHandControl extends HandControl {
@@ -44,7 +48,14 @@ public class HoldHandControl extends HandControl {
             angle = 0 * MathUtils.degreesToRadians;
         } else if(action ==PlayerSpecialAction.Stab){
             angle = 90 * MathUtils.degreesToRadians;
-        }
+        } else if(action ==PlayerSpecialAction.Shoot){
+    Shooter shooter =  weapon.getUsage(Shooter.class);
+    Vector2 target = shooter.getTarget();
+    if(target!=null) {
+        Vector2 U = target.cpy().sub(weapon.getBody().getPosition()).nor();
+        angle = GeometryUtils.calculateAngle(U.x, U.y)* MathUtils.degreesToRadians;
+    }
+    }
         return angle;
     }
 

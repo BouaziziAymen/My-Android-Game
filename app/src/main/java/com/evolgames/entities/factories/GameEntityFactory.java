@@ -1,7 +1,8 @@
 package com.evolgames.entities.factories;
 
 import static com.evolgames.physics.CollisionConstants.DOLL_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.DOLL_MASK;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_BACK_CATEGORY;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_FRONT_CATEGORY;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 
 import com.badlogic.gdx.math.Vector2;
@@ -149,7 +150,7 @@ public class GameEntityFactory {
 
             assert translationToOrigin != null;
             GeometryUtils.rotateVectorRad(translationToOrigin, rot);
-            BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new AngularVelocityInit(new BodyInitImpl(filter.categoryBits,filter.maskBits), angularVelocity), linearVelocity), x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot);
+            BodyInit bodyInit = new TransformInit(new LinearVelocityInit(new AngularVelocityInit(new BodyInitImpl(filter.categoryBits), angularVelocity), linearVelocity), x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot);
             GameEntity e = GameEntityFactory.getInstance().createGameEntity(x + translationToOrigin.x / 32f, y + translationToOrigin.y / 32f, rot, bodyInit, group, BodyDef.BodyType.DynamicBody, name + splinterId);
             e.redrawStains();
             scene.sortChildren();
@@ -161,7 +162,7 @@ public class GameEntityFactory {
 
     public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType, String name, short category, short mask) {
         GameGroup gameGroup = new GameGroup();
-        BodyInit bodyInit = new TransformInit(new BodyInitImpl(category,mask), position.x, position.y, 0);
+        BodyInit bodyInit = new TransformInit(new BodyInitImpl(category), position.x, position.y, 0);
         GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name);
         gameGroup.addGameEntity(entity);
         scene.addGameGroup(gameGroup);
@@ -176,7 +177,7 @@ public class GameEntityFactory {
 
     public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType) {
         GameGroup gameGroup = new GameGroup();
-        BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY, (short) -1), position.x, position.y, 0);
+        BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), position.x, position.y, 0);
         GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, "");
         gameGroup.addGameEntity(entity);
         scene.addGameGroup(gameGroup);
@@ -185,7 +186,7 @@ public class GameEntityFactory {
 
 
     GameEntity createDollPart(float x, float y, float rot, ArrayList<LayerBlock> blocks, String name) {
-        BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl(DOLL_CATEGORY,DOLL_MASK), x, y, rot),false);
+        BodyInit bodyInit = new BulletInit(new TransformInit(new BodyInitImpl((short) (OBJECTS_MIDDLE_CATEGORY|OBJECTS_FRONT_CATEGORY|OBJECTS_BACK_CATEGORY)), x, y, rot),false);
         return this.createGameEntity(x, y, rot, bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
     }
 
@@ -195,7 +196,7 @@ public class GameEntityFactory {
     }
 
     public Ragdoll createRagdoll(float x, float y) {
-        Filter headFilter = new Filter();
+
 
         Color pullColor = new Color(0.7f, 0.7f, 0.7f);
         Color pantColor = new Color(0.06f, 0.2f, 0.6f);
@@ -234,7 +235,7 @@ public class GameEntityFactory {
         LayerBlock block = BlockFactory.createLayerBlock(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)), 0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
-        GameEntity head = createDollPart(x, y, headFilter, blocks, "head");
+        GameEntity head = createDollPart(x, y,0, blocks, "head");
 
         blocks = new ArrayList<>();
         points = VerticesFactory.createDistorted(SHOULDER_WIDTH, SHOULDER_WIDTH, TORSO_HEIGHT, 0, 0);

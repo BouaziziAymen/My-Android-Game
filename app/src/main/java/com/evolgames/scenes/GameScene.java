@@ -1,7 +1,6 @@
 package com.evolgames.scenes;
 
-import static com.evolgames.physics.CollisionConstants.PROJECTILE_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.PROJECTILE_MASK;
+import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
@@ -44,7 +43,6 @@ import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MyColorUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.helpers.utilities.Vector2Utils;
-import com.evolgames.physics.CollisionConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -171,7 +169,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
         OutlineController outlineController = new OutlineController();
         LayerWindowController layerWindowController = new LayerWindowController(outlineController);
-        ToolModel toolModel = loadToolModel("c1_sword.xml");
+        ToolModel toolModel = loadToolModel("");
 
         JointSettingsWindowController jointSettingsWindowController = new JointSettingsWindowController(this, keyboardController, outlineController, toolModel);
         JointWindowController jointWindowController = new JointWindowController(jointSettingsWindowController, outlineController);
@@ -324,7 +322,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", CollisionConstants.DOLL_CATEGORY, (short) -1);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY, (short) -1);
         this.worldFacade.setGround(groundGroup);
 
         if (true) {
@@ -412,7 +410,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             bluntDamageTest();
         }
 
-        if (true) {
+        if (false) {
             pulverizationTest();
         }
 
@@ -504,10 +502,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             ArrayList<LayerBlock> blocks = new ArrayList<>();
             blocks.add(block1);
 
-            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(PROJECTILE_CATEGORY, PROJECTILE_MASK), u.mul(80f)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(80f)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
             GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 100 / 32f, (float) (angle + Math.PI), bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
             GameGroup proj = new GameGroup(gameEntity);
-            gameEntity.getUseList().add(new Projectile());
+            gameEntity.getUseList().add(new Projectile(gameEntity));
             addGameGroup(proj);
         }
     }
@@ -790,6 +788,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                 break;
             case Stab:
             case Throw:
+            case Grenade:
+            case Shoot:
                 forceFactor = 3000f;
                 break;
             case Smash:

@@ -1,7 +1,7 @@
 package com.evolgames.scenes;
 
 public enum PlayerSpecialAction {
-   None(6), Slash(5),Stab(3),Throw(1), Smash(4);
+   None(7),Grenade(0), Slash(6),Stab(4),Throw(2), Smash(5), Shoot(3);
    public final int iconId;
 
    PlayerSpecialAction(int iconId) {

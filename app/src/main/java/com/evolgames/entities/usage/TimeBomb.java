@@ -4,14 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PlayerSpecialAction;
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 
 import java.util.List;
@@ -22,7 +19,6 @@ public class TimeBomb extends Use{
     private final WorldFacade worldFacade;
     private float countDown;
     private boolean alive = true;
-    private Button<UsageButtonsController> triggerButton;
     private boolean count;
 
     public TimeBomb(UsageModel usageModel, WorldFacade worldFacade){
@@ -52,33 +48,14 @@ public class TimeBomb extends Use{
         }
     }
 
-    @Override
-    public void createControls(UsageButtonsController usageButtonsController, UserInterface userInterface) {
-        super.createControls(usageButtonsController, userInterface);
-        triggerButton = new Button<>(ResourceManager.getInstance().arcadeRedTextureRegion, Button.ButtonType.OneClick, true);
-        triggerButton.setBehavior(new ButtonBehavior<UsageButtonsController>(usageButtonsController, triggerButton) {
-            @Override
-            public void informControllerButtonClicked() {
-            }
-
-            @Override
-            public void informControllerButtonReleased() {
-                TimeBomb.this.onTriggerReleased();
-            }
-        });
-        triggerButton.setPosition(800 - triggerButton.getWidth(), 0);
-        userInterface.addElement(triggerButton);
-        triggerButton.setScale(2,2);
-    }
-
-    private void onTriggerReleased() {
+    public void onTriggerReleased() {
         count = true;
     }
 
 
     @Override
     public PlayerSpecialAction getAction() {
-        return null;
+        return PlayerSpecialAction.Grenade;
     }
 
 

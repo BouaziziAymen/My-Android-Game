@@ -81,11 +81,9 @@ public class TopographyData {
             float sup = data[i][1];
             float hardness = blocks[i].getProperties().getHardness();
             if (advance >= inf) {
-                if(penetratorHardness<hardness){
-                    return null;
-                }
-                float s = 1f-sharpness;
-                float h = (float) Math.pow(penetratorHardness - 0.999f*hardness,-2);
+                float hardnessDelta = Math.max(penetratorHardness-hardness,0.01f);
+                float s = 1.1f-sharpness;
+                float h = (float) Math.pow(hardnessDelta,-2);
                 float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
                 energy += xAdvance * h * PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,4f);
             }
@@ -99,18 +97,6 @@ public class TopographyData {
             result += Arrays.toString(data[i]);
         return result;
     }
-
-    public float getMax(GameEntity entity) {
-        float result = -Float.MAX_VALUE;
-        for (int i = 0; i < length; i++) {
-            if (entities[i] == entity) {
-                float sup = data[i][1];
-                if (result < sup) result = sup;
-            }
-        }
-        return result;
-    }
-
 
     public float getMax() {
         float result = -Float.MAX_VALUE;
@@ -187,24 +173,6 @@ public class TopographyData {
 
     public LayerBlock[] getBlocks() {
         return blocks;
-    }
-
-    static class OverlapFlag{
-        GameEntity entity;
-        float value;
-
-        public OverlapFlag(GameEntity entity, float value) {
-            this.entity = entity;
-            this.value = value;
-        }
-
-        public float getValue() {
-            return value;
-        }
-
-        public GameEntity getEntity() {
-            return entity;
-        }
     }
 
     public static class Overlap{

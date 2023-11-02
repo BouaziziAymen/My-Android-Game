@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class EntityWithBody {
     protected Body body;
     private final ArrayList<Command> commands;
+    private short groupIndex;
 
     public EntityWithBody() {
         this.commands = new ArrayList<>();
@@ -32,4 +33,11 @@ public class EntityWithBody {
         body.getFixtureList().forEach(f -> f.setFilterData(filter));
     }
 
+    public void setGroupIndex(short groupIndex) {
+        this.groupIndex = groupIndex;
+    }
+
+    public short getGroupIndex() {
+        return groupIndex;
+    }
 }
