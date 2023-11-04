@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
     private JointDef.JointType jointType;
+    private JointCreationCommand command;
+    private Position position;
 
     public void recreate(GameEntity splinter){
         this.command.substitute(splinter,position);
@@ -24,8 +26,6 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties>{
         A, B
     }
 
-    private JointCreationCommand command;
-    private Position position;
 
     public void initialization(JointDef.JointType jointType, ArrayList<Vector2> vertices, Properties properties, int id, Position position) {
         super.initialization(vertices, properties, id);

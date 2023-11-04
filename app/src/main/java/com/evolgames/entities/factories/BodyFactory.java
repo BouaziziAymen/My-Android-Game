@@ -15,6 +15,7 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class BodyFactory {
     private static final BodyFactory INSTANCE = new BodyFactory();
@@ -38,7 +39,7 @@ fixtureDef.filter.maskBits = 0x0;
     return PhysicsFactory.createBoxBody(physicsWorld,x,y,w,h,0,type,fixtureDef);
     }
 
-    public Body createBody(ArrayList<LayerBlock> blocks, BodyDef.BodyType type) {
+    public Body createBody(List<LayerBlock> blocks, BodyDef.BodyType type) {
 
         Body body = physicsWorld.createBody(new BodyDef());
         body.setType(type);
@@ -52,8 +53,6 @@ fixtureDef.filter.maskBits = 0x0;
 
 
     public void createFixtures(LayerBlock block, Body body){
-
-        HashSet<Fixture> fixtures = new HashSet<>();
             float density = block.getProperties().getDensity();
             float elasticity = block.getProperties().getRestitution();
             float friction = block.getProperties().getFriction();
@@ -71,10 +70,6 @@ fixtureDef.filter.maskBits = 0x0;
                 fixtureDef.shape = fixtureShape;
                 Fixture fixture = body.createFixture(fixtureDef);
                 fixture.setUserData(block);
-                fixtures.add(fixture);
         }
-        block.setBody(body);
-        block.setFixtures(fixtures);
-
     }
 }

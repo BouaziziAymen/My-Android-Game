@@ -932,8 +932,8 @@ public class UserInterface extends Container implements Touchable {
         }
     }
 
-    public void dispose() {
-
+    public void onPause() {
+      this.clearElements();
     }
 
     public float getZoomFactor() {

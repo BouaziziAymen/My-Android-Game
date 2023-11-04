@@ -46,7 +46,7 @@ public abstract class PolygonEmitter  extends BaseParticleEmitter {
         associatedCoatingBlocks = new CoatingBlock[size];
         int counter = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
-            ArrayList<Vector2> vertices = coatingBlock.getTriangles();
+            List<Vector2> vertices = coatingBlock.getTriangles();
             for (int i = 0; i < vertices.size(); i += 3) {
                 associatedCoatingBlocks[counter++] = coatingBlock;
             }
@@ -58,7 +58,7 @@ public abstract class PolygonEmitter  extends BaseParticleEmitter {
         float coveredArea = 0;
         int counter = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
-            ArrayList<Vector2> vertices = coatingBlock.getTriangles();
+            List<Vector2> vertices = coatingBlock.getTriangles();
             for (int i = 0; i < vertices.size(); i += 3) {
                 if (coatingBlockPredicate.evaluate(coatingBlock)) {
                     Vector2 p1 = vertices.get(i);
@@ -83,7 +83,7 @@ public abstract class PolygonEmitter  extends BaseParticleEmitter {
     protected void computeTrianglesData() {
         int counter = 0;
         for (CoatingBlock coatingBlock : coatingBlocks) {
-            ArrayList<Vector2> vertices = coatingBlock.getTriangles();
+            List<Vector2> vertices = coatingBlock.getTriangles();
             for (int i = 0; i < vertices.size(); i++) {
                 Vector2 vector2 = vertices.get(i);
                 int baseIndex = counter * 2;

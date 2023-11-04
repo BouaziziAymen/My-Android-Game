@@ -48,6 +48,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameEntityFactory {
@@ -66,7 +67,7 @@ public class GameEntityFactory {
     }
 
 
-    public GameEntity createGameEntity(float x, float y, float rot, BodyInit bodyInit, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
+    public GameEntity createGameEntity(float x, float y, float rot, BodyInit bodyInit, List<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
         Collections.sort(blocks);
 
         for (LayerBlock b : blocks) {
@@ -175,7 +176,7 @@ public class GameEntityFactory {
         return entity;
     }
 
-    public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType) {
+    public GameGroup createGameGroupTest(List<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType) {
         GameGroup gameGroup = new GameGroup();
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), position.x, position.y, 0);
         GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, "");
@@ -399,8 +400,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperTorso.getBody();
-        revoluteJointDef.bodyB = upperArmRight.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain((SHOULDER_WIDTH / 2 - UPPERARM_CIR1 / 2) / 32f, (TORSO_HEIGHT / 2 - 16 / 2f) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, ARM_LENGTH / 2 / 32f));
         revoluteJointDef.collideConnected = false;
@@ -411,8 +410,6 @@ public class GameEntityFactory {
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmRight);
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperTorso.getBody();
-        revoluteJointDef.bodyB = upperArmLeft.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain((-SHOULDER_WIDTH / 2 + UPPERARM_CIR1 / 2) / 32f, (TORSO_HEIGHT / 2 - 16 / 2f) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, ARM_LENGTH / 2 / 32f));
         revoluteJointDef.collideConnected = false;
@@ -422,8 +419,6 @@ public class GameEntityFactory {
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmLeft);
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperArmRight.getBody();
-        revoluteJointDef.bodyB = lowerArmR.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, -ARM_LENGTH / 2 / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, ARM_LENGTH / 2 / 32));
         revoluteJointDef.enableLimit = true;
@@ -434,8 +429,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperArmLeft.getBody();
-        revoluteJointDef.bodyB = lowerArmL.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, -ARM_LENGTH / 2 / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, ARM_LENGTH / 2 / 32));
         revoluteJointDef.collideConnected = false;
@@ -448,8 +441,6 @@ public class GameEntityFactory {
         float sleeve = UPPERARM_CIR1 / 2 - ARM_LENGTH / 2 - LOWERARM_CIR2;
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = lowerArmR.getBody();
-        revoluteJointDef.bodyB = rightHand.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, sleeve / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, HAND_SIDE / 2 / 32));
         revoluteJointDef.collideConnected = false;
@@ -460,8 +451,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = lowerArmL.getBody();
-        revoluteJointDef.bodyB = leftHand.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, sleeve / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, HAND_SIDE / 2 / 32));
         revoluteJointDef.collideConnected = false;
@@ -472,8 +461,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperTorso.getBody();
-        revoluteJointDef.bodyB = upperLegR.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(RIGHT / 32f, -(TORSO_HEIGHT / 2 - UPPERLEG_CIR1 / 2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, (UPPERLEG_L1 + UPPERLEG_L1 + UPPERLEG_CIR1) / 2 / 32f));
         revoluteJointDef.enableLimit = true;
@@ -484,8 +471,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperTorso.getBody();
-        revoluteJointDef.bodyB = upperLegL.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(-RIGHT / 32f, -(TORSO_HEIGHT / 2 - UPPERLEG_CIR1 / 2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, (UPPERLEG_L1 + UPPERLEG_L1 + UPPERLEG_CIR1) / 2 / 32f));
         revoluteJointDef.enableLimit = true;
@@ -496,8 +481,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperLegR.getBody();
-        revoluteJointDef.bodyB = lowerLegR.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-hLegLength + UPPERLEG_CIR2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, (lowerLegHalfLength - LOWERLEG_CIR1) / 32f));
         revoluteJointDef.enableLimit = true;
@@ -508,8 +491,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = upperLegL.getBody();
-        revoluteJointDef.bodyB = lowerLegL.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-hLegLength + UPPERLEG_CIR2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, (lowerLegHalfLength - LOWERLEG_CIR1) / 32f));
         revoluteJointDef.enableLimit = true;
@@ -520,8 +501,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = lowerLegR.getBody();
-        revoluteJointDef.bodyB = rightFoot.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-lowerLegHalfLength - UPPERLEG_CIR2 / 2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain((-FOOT_LENGTH + 2 * LOWERLEG_CIR2) / 2 / 32f, 0));
         revoluteJointDef.collideConnected = false;
@@ -532,8 +511,6 @@ public class GameEntityFactory {
 
 
         revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.bodyA = lowerLegL.getBody();
-        revoluteJointDef.bodyB = leftFoot.getBody();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-lowerLegHalfLength - UPPERLEG_CIR2 / 2) / 32f));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain((-FOOT_LENGTH + 2 * LOWERLEG_CIR2) / 2 / 32f, 0));
         revoluteJointDef.collideConnected = false;
@@ -542,10 +519,7 @@ public class GameEntityFactory {
         revoluteJointDef.upperAngle = (float) Math.PI / 4;
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerLegL, leftFoot);
 
-
-
         return ragdoll;
-
     }
 
 /*    public void createTest() {

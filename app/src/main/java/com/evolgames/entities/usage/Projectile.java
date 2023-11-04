@@ -46,12 +46,11 @@ public class Projectile extends Use implements Penetrating {
 
         Map<GameGroup, List<GameEntity>> groups = overlappedEntities.stream().collect(Collectors.groupingBy(GameEntity::getParentGroup));
         List<GameEntity> list = groups.values().stream().map(e -> e.stream().findFirst().get()).collect(Collectors.toList());
-
+        setActive(false);
         if (!list.isEmpty()) {
             worldFacade.freeze(penetrator);
             penetrator.getMesh().setZIndex(-1);
             penetrator.getGameScene().sortChildren();
-            setActive(false);
         }
         for (GameEntity overlappedEntity : list) {
             Body overlappedEntityBody = overlappedEntity.getBody();

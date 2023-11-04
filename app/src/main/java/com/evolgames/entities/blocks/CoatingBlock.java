@@ -14,6 +14,7 @@ import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingProperties> {
@@ -21,12 +22,12 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     public Vector2 position;
     public float value;
     private boolean isOnFire;
-    private MosaicMesh mesh;
+    private transient MosaicMesh mesh;
     private int layerId;
     private boolean isBorder;
     private boolean hasFlame;
-    private HashSet<CoatingBlock> neighbors;
-    private float Area;
+    private transient HashSet<CoatingBlock> neighbors;
+    private float area;
     private float[] trianglesData;
     private float step;
     private boolean pulverized;
@@ -79,7 +80,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
     @Override
     protected void calculateArea() {
-        Area = GeometryUtils.getArea(getVertices());
+        area = GeometryUtils.getArea(getVertices());
     }
 
     @Override
@@ -99,12 +100,12 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     @Override
     public void computeTriangles() {
         super.computeTriangles();
-        ArrayList<Vector2> triangles = getTriangles();
+        List<Vector2> triangles = getTriangles();
         for (int i = 0; i < triangles.size(); i += 3) {
-            Vector2 centeroid = GeometryUtils.calculateCentroid(triangles, i, 3);
+            Vector2 centroid = GeometryUtils.calculateCentroid(triangles, i, 3);
             for (int j = 0; j < 3; j++) {
                 Vector2 v = triangles.get(i + j);
-                Vector2 u = Vector2Pool.obtain(v).sub(centeroid).nor().mul(0.05f);
+                Vector2 u = Vector2Pool.obtain(v).sub(centroid).nor().mul(0.05f);
                 v.add(u);
                 Vector2Pool.recycle(u);
             }
@@ -132,7 +133,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     public float getArea() {
-        return Area;
+        return area;
     }
 
     public Vector2 getPosition() {

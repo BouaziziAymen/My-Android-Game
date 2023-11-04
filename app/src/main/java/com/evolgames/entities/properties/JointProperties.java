@@ -4,7 +4,10 @@ import com.badlogic.gdx.physics.box2d.JointDef;
 
 public class JointProperties extends Properties{
 
-    private final JointDef jointDef;
+    private JointDef jointDef;
+
+    @SuppressWarnings("unused")
+    public JointProperties(){}
 
     public JointProperties(JointDef jointDef) {
         this.jointDef = jointDef;

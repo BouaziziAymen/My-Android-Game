@@ -147,7 +147,7 @@ public class Hand {
         }
 
         if (gameScene.getPlayerAction() == PlayerAction.Drag) {
-            if (mouseJoint != null) {
+            if (mouseJoint != null&&touchEvent.isActionMove()) {
                 if (touchEvent.isActionMove() && follow) {
                     moveHand(touchEvent);
                 }

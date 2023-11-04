@@ -5,11 +5,12 @@ import com.evolgames.entities.blocks.Block;
 import com.evolgames.helpers.utilities.BlockUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ClipVisitor implements Visitor<Block<?,?>>{
 
-    private ArrayList<Vector2> clipPath;
-    private ArrayList<Vector2> result;
+    private List<Vector2> clipPath;
+    private List<Vector2> result;
 
     public void setClipPath(ArrayList<Vector2> clipPath){
         this.clipPath = clipPath;
@@ -19,7 +20,7 @@ public class ClipVisitor implements Visitor<Block<?,?>>{
     public void visitTheElement(Block<?,?> block) {
        result = BlockUtils.applyClip(block.getVertices(),clipPath);
     }
-    public ArrayList<Vector2> getResult(){
+    public List<Vector2> getResult(){
         return result;
     }
 }

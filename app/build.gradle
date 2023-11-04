@@ -40,7 +40,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
-    implementation 'com.esotericsoftware:kryo:5.0.0'
+    implementation 'com.esotericsoftware:kryo:5.5.0'
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'org.jetbrains:annotations:15.0'

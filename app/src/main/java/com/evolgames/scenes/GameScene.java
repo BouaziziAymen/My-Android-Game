@@ -35,6 +35,7 @@ import com.evolgames.entities.particles.persistence.PersistenceException;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
+import com.evolgames.entities.serialization.SerializationManager;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
@@ -81,6 +82,7 @@ import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.util.adt.color.Color;
 import org.xml.sax.SAXException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +98,7 @@ import javax.xml.parsers.ParserConfigurationException;
 public class GameScene extends AbstractScene implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener,
         IOnSceneTouchListener {
-    private static final ArrayList<GameGroup> gameGroups = new ArrayList<>();
+    private final ArrayList<GameGroup> gameGroups = new ArrayList<>();
     public static int step;
     public static boolean pause = false;
     public static Plotter plotter;
@@ -214,7 +216,6 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         triangles.add(new Vector2(400, 50));
         triangles.add(new Vector2(450, 100));
 
-
         ArrayList<Vector2> ver = new ArrayList<>();
         ver.add(new Vector2(-100, -3));
         ver.add(new Vector2(-100, 3));
@@ -229,50 +230,18 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
 
         sortChildren();
-        //  createAnalog();
 
 
-        LayerBlock block1;
 
-        ArrayList<Vector2> vertices = VerticesFactory.createPolygon(0, 0, 64, 64, 4);
-        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
-        block1 = BlockFactory.createLayerBlock(vertices, properties, 0, 0);
-        ArrayList<LayerBlock> blocks = new ArrayList<>();
-        blocks.add(block1);
-        // gameEntity1 = GameEntityFactory.getInstance().createGameEntity(11f, 4f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity1");
-        // attachChild(gameEntity1.getMesh());
+        List<Vector2> vertices = VerticesFactory.createRectangle(60, 60);
+        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
+        LayerBlock block = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
+        List<LayerBlock> blocks = new ArrayList<>();
+        blocks.add(block);
 
-
-        vertices = VerticesFactory.createRectangle(60, 60);
-        properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
-        block1 = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
-        blocks = new ArrayList<>();
-        blocks.add(block1);
-
-
-        float a = (float) (Math.sqrt(2) * 16);
-        if (false)
-            for (CoatingBlock g : block1.getBlockGrid().getCoatingBlocks()) {
-
-
-                float x = g.position.x;
-                float y = g.position.y;
-                if (!Utils.PointInPolygon(new Vector2(x, y), block1.getVertices()) || GeometryUtils.isOnBorder(new Vector2(x, y), block1.getVertices(),2f))
-                    continue;
-
-                ArrayList<Vector2> l = VerticesFactory.createRectangle(x, y, 16, 16);
-                DecorationBlock blockB = BlockFactory.createDecorationBlock(l, new DecorationProperties(Color.PINK), 0, block1.getVertices(), new Vector2(x, y));
-                block1.addAssociatedBlock(blockB);
-                break;
-
-            }
-
-        if (true) {
-            // UncoloredSprite uncoloredSprite = new UncoloredSprite(400, 240, ResourceManager.getInstance().pokemon, ResourceManager.getInstance().vbom);
-            // this.attachChild(uncoloredSprite);
 
             gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
-            getWorldFacade().applyStain(gameGroup.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0, false);
+            getWorldFacade().applyStain(gameGroup.getGameEntityByIndex(0), 0, 0, block, Color.RED, 0, false);
             gameGroup.getGameEntityByIndex(0).redrawStains();
             gameGroup.getGameEntityByIndex(0).setName("test");
             Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
@@ -284,13 +253,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
                     Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                     layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
                 }
-        }
 
-        List<Vector2> countries = new ArrayList<Vector2>() {
-            {
-
-            }
-        };
 
         ArrayList<LayerBlock> blocks2 = new ArrayList<>();
 
@@ -369,9 +332,13 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public void onPause() {
-        Log.e("lifecycle", "pause");
+        try {
+            SerializationManager.getInstance().serialize(this);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         if (userInterface != null) {
-            userInterface.dispose();
+            userInterface.onPause();
         }
     }
 

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.helpers.utilities.BlockUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Cut implements Comparable<Cut> {
     private Vector2 p1;
@@ -87,7 +88,7 @@ public class Cut implements Comparable<Cut> {
         return this.length;
     }
 
-   public boolean isValid(ArrayList<Vector2> vertices){
+   public boolean isValid(List<Vector2> vertices){
        int a = vertices.indexOf(getP1());
        int b = vertices.indexOf(getP2());
        if(BlockUtils.areNeighbors(a,b,vertices.size()))return false;

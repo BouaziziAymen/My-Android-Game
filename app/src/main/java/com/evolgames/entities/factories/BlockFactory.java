@@ -8,6 +8,7 @@ import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.StainProperties;
+import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.physics.PhysicsConstants;
@@ -16,6 +17,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static com.evolgames.helpers.utilities.GeometryUtils.transformation;
 
@@ -26,12 +28,12 @@ public class BlockFactory {
     }
 
 
-    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order) {
+    public static LayerBlock createLayerBlock(List<Vector2> vertices, LayerProperties properties, int ID, int order) {
         return BlockFactory.createLayerBlock(vertices, properties, ID, order, true);
     }
 
 
-    public static LayerBlock createLayerBlock(ArrayList<Vector2> vertices, LayerProperties properties, int ID, int order, boolean fillGrid) {
+    public static LayerBlock createLayerBlock(List<Vector2> vertices, LayerProperties properties, int ID, int order, boolean fillGrid) {
         LayerBlock createdBlock = new LayerBlock();
         createdBlock.initialization(vertices,properties,ID,fillGrid);
         createdBlock.setOrder(order);
@@ -50,7 +52,8 @@ public class BlockFactory {
         return decorationBlock;
     }
 
-    public static StainBlock createStainBlock(Vector2 localPosition, float angle, ArrayList<Vector2> clipPath, ITextureRegion textureRegion, Color color) {
+    public static StainBlock createStainBlock(Vector2 localPosition, float angle, List<Vector2> clipPath, int textureRegionIndex, Color color) {
+        ITextureRegion textureRegion = ResourceManager.getInstance().stainTextureRegions.getTextureRegion(textureRegionIndex);
         float halfWidth = textureRegion.getWidth() / 2f;
         float halfHeight = textureRegion.getHeight() / 2f;
 
@@ -73,13 +76,13 @@ public class BlockFactory {
 
         if (!GeometryUtils.IsClockwise(imageBounds)) Collections.reverse(imageBounds);
 
-        ArrayList<Vector2> clippedImageBounds = BlockUtils.applyClip(imageBounds, clipPath);
+        List<Vector2> clippedImageBounds = BlockUtils.applyClip(imageBounds, clipPath);
         if(clippedImageBounds==null){
             return null;
         }
 
         StainBlock stainBlock = new StainBlock();
-        StainProperties properties = new StainProperties(textureRegion, localPosition, angle,color);
+        StainProperties properties = new StainProperties(textureRegion,textureRegionIndex, localPosition, angle,color);
         stainBlock.initialization(clippedImageBounds, properties, 0);
 
         return stainBlock;

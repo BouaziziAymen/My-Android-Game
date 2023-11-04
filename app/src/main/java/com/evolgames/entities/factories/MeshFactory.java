@@ -31,7 +31,7 @@ public class MeshFactory {
 
 
 
-public MosaicMesh createMosaicMesh(float x, float y, float rot, ArrayList<LayerBlock> blocks){
+public MosaicMesh createMosaicMesh(float x, float y, float rot, List<LayerBlock> blocks){
     float[] data = BlockUtils.computeData(blocks);
     Color[] colors = BlockUtils.computeColors(blocks);
     int[] counts = BlockUtils.computeVertexCount(blocks);
@@ -102,7 +102,7 @@ ITextureRegion textureRegion = stainBlock.getTextureRegion();
         this.gameScene = gameScene;
     }
 
-    public ArrayList<Vector2> triangulate(ArrayList<Vector2> vertices) {
-        return (ArrayList<Vector2>) triangulator.computeTriangles(vertices);
+    public List<Vector2> triangulate(List<Vector2> vertices) {
+        return triangulator.computeTriangles(vertices);
     }
 }

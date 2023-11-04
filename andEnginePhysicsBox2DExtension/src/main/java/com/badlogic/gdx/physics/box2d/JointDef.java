@@ -37,10 +37,10 @@ public class JointDef {
 	public JointType type = JointType.Unknown;
 
 	/** The first attached body. **/
-	public Body bodyA = null;
+	public transient Body bodyA = null;
 
 	/** The second attached body **/
-	public Body bodyB = null;
+	public transient Body bodyB = null;
 
 	/** Set this flag to true if the attached bodies should collide. **/
 	public boolean collideConnected = false;

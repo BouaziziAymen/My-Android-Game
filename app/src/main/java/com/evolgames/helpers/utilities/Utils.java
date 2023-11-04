@@ -115,15 +115,10 @@ public class Utils {
             v.sub(center);
         }
     }
-    public static void translatePoints(ArrayList<Vector2> points, float dx, float dy) {
+    public static void translatePoints(List<Vector2> points, float dx, float dy) {
         for (Vector2 v : points) v.sub(dx,dy);
     }
 
-    public static ArrayList<Vector2> translatedPoints(ArrayList<Vector2> points, Vector2 center) {
-        ArrayList<Vector2> layerPoints = new ArrayList<>();
-        for (Vector2 v : points) layerPoints.add(v.cpy().sub(center));
-        return layerPoints;
-    }
     public static ArrayList<Vector2> translatedPoints(Vector2[] points, Vector2 center) {
         ArrayList<Vector2> layerPoints = new ArrayList<>();
         for (Vector2 v : points) layerPoints.add(v.cpy().sub(center));
@@ -201,45 +196,6 @@ return points;
     public static <T> T[] concatWithStream(T[] array1, T[] array2) {
         return Stream.concat(Arrays.stream(array1), Arrays.stream(array2))
                 .toArray(size -> (T[]) Array.newInstance(array1.getClass().getComponentType(), size));
-    }
-
-    public static HashSet<ArrayList<Vector2>> findOverlap(GameEntity penetrator, GameEntity penetrated) {
-        HashSet<ArrayList<Vector2>> result = new HashSet<>();
-        ArrayList<ArrayList<Vector2>> penetratorInterpolatedLists = new ArrayList<>();
-        for (int i = 0; i < penetrator.getBlocks().size(); i++) {
-            ArrayList<Vector2> penetratorBlockVertices = new ArrayList<>();
-            ArrayList<Vector2> vertices = penetrator.getBlocks().get(i).getBodyVertices();
-            for (Vector2 v : vertices) {
-                penetratorBlockVertices.add(penetrator.getBody().getWorldPoint(v).cpy().mul(32f));
-            }
-            penetratorInterpolatedLists.add(penetratorBlockVertices);
-        }
-
-        ArrayList<ArrayList<Vector2>> penetratedInterpolatedLists = new ArrayList<>();
-        for (int i = 0; i < penetrated.getBlocks().size(); i++) {
-            ArrayList<Vector2> penetratedInterpolatedVertices = new ArrayList<>();
-            ArrayList<Vector2> vertices = penetrated.getBlocks().get(i).getBodyVertices();
-            for (Vector2 v : vertices) {
-                penetratedInterpolatedVertices.add(penetrated.getBody().getWorldPoint(v).cpy().mul(32f));
-            }
-            penetratedInterpolatedLists.add(penetratedInterpolatedVertices);
-        }
-
-        for (int i = 0; i < penetrated.getBlocks().size(); i++) {
-            ArrayList<Vector2> list1 = penetratedInterpolatedLists.get(i);
-
-            for (int j = 0; j < penetrator.getBlocks().size(); j++) {
-                ArrayList<Vector2> list2 = penetratorInterpolatedLists.get(i);
-                ArrayList<Vector2> clipped = BlockUtils.applyClip(list1, list2);
-                if (clipped != null) {
-                    result.add(clipped);
-                }
-
-            }
-        }
-
-
-        return result;
     }
 
     public static float[] mapPointsToArray(List<Vector2> points) {

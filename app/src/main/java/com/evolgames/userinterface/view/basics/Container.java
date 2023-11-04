@@ -31,7 +31,10 @@ public class Container extends Element {
         element.setParent(this);
         contents.add(0,element);
     }
-
+    public void clearElements(){
+        contents.clear();
+        setUpdated(true);
+    }
     public void setVisible(boolean visible) {
         super.setVisible(visible);
         for(Element e:contents) {

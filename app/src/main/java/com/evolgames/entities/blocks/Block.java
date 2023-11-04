@@ -14,15 +14,16 @@ import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public abstract class Block<T extends Block<T, P>, P extends Properties> extends Composite<T> {
     protected boolean verticesChanged = false;
     private int id;
     private Properties properties;
-    private ArrayList<Vector2> vertices;
-    private ArrayList<Vector2> triangles;
+    private List<Vector2> vertices;
+    private List<Vector2> triangles;
     private boolean aborted;
-    private LayerBlock parent;
+    private transient LayerBlock parent;
 
     public void performCut(Cut cut) {
         setAborted(true);
@@ -32,7 +33,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         return (P) properties;
     }
 
-    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id) {//Template Pattern
+    public void initialization(List<Vector2> vertices, Properties properties, int id) {//Template Pattern
         this.id = id;
         this.vertices = vertices;
         this.properties = properties;
@@ -101,11 +102,11 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         }
     }
 
-    final public ArrayList<Vector2> getVertices() {
+    final public List<Vector2> getVertices() {
         return vertices;
     }
 
-    public final void setVertices(ArrayList<Vector2> vertices) {
+    public final void setVertices(List<Vector2> vertices) {
         this.vertices = vertices;
     }
 
@@ -119,7 +120,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
 
     public abstract void translate(Vector2 t);
 
-    public ArrayList<Vector2> getTriangles() {
+    public List<Vector2> getTriangles() {
         if (triangles == null) {
             computeTriangles();
         }

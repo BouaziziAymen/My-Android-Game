@@ -1,8 +1,9 @@
 package com.evolgames.entities.blocks;
+
 import android.util.Pair;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
@@ -22,20 +23,16 @@ import java.util.List;
 
 public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Comparable<LayerBlock> {
     private final ArrayList<FreshCut> freshCuts = new ArrayList<>();
-    private ArrayList<Vector2> bodyVertices;
     private ArrayList<AssociatedBlock<?, ?>> associatedBlocks;
     private Polarity polarity = Polarity.NEUTRAL;
-    private BlockGrid blockGrid;
-    private HashSet<Fixture> fixtures;
+    transient private BlockGrid blockGrid;
+    transient private GameEntity gameEntity;
     private boolean dead;
     private float blockArea;
-    private Body body;
-    private GameEntity gameEntity;
     private boolean fillGrid;
     private int liquidQuantity;
 
-
-    public void initialization(ArrayList<Vector2> vertices, Properties properties, int id, boolean fillGrid) {
+    public void initialization(List<Vector2> vertices, Properties properties, int id, boolean fillGrid) {
         this.fillGrid = fillGrid;
         super.initialization(vertices, properties, id);
     }
@@ -48,22 +45,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         this.gameEntity = entity;
     }
 
-    public Body getBody() {
-        return body;
-    }
-
-    public void setBody(Body body) {
-        this.body = body;
-    }
-
-    public ArrayList<Vector2> getBodyVertices() {
-        if (bodyVertices == null) BlockUtils.setBodyVertices(this);
-        return bodyVertices;
-    }
-
-    public void setBodyVertices(ArrayList<Vector2> vertices) {
-        this.bodyVertices = vertices;
-    }
 
     public int getOrder() {
         return getProperties().getOrder();
@@ -101,10 +82,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         computeTriangles();
     }
 
-    private void createFixtureSet() {
-        if (fixtures == null)
-            fixtures = new HashSet<>();
-    }
 
     private void createAssociated() {
         if (associatedBlocks == null)
@@ -148,7 +125,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     @Override
     protected void specificInitialization() {
         createGrid();
-        createFixtureSet();
         createAssociated();
         if (this.fillGrid) {
             fillGrid();
@@ -156,6 +132,9 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     }
 
     public void refillGrid() {
+        if(this.blockGrid==null){
+            createGrid();
+        }
         for (Block<?, ?> decorationBlock : associatedBlocks) {
             if (decorationBlock instanceof CoatingBlock) {
                 CoatingBlock coatingBlock = (CoatingBlock) decorationBlock;
@@ -218,10 +197,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         return children;
     }
 
-    @SuppressWarnings("unused")
-    public void addFixture(Fixture fixture) {
-        fixtures.add(fixture);
-    }
 
     public boolean testPoint(Body body, float x, float y) {
         Vector2 p = Vector2Pool.obtain(x, y);
@@ -229,14 +204,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         boolean result = Utils.PointInPolygon(p, getVertices());
         Vector2Pool.recycle(p);
         return result;
-    }
-
-    public HashSet<Fixture> getFixtures() {
-        return fixtures;
-    }
-
-    public void setFixtures(HashSet<Fixture> fixtures) {
-        this.fixtures = fixtures;
     }
 
     @Override
@@ -257,10 +224,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
 
     public ArrayList<FreshCut> getFreshCuts() {
         return freshCuts;
-    }
-
-    public void decrementLiquidQuantity(float delta) {
-        liquidQuantity-=delta;
     }
 
     public int getLiquidQuantity() {

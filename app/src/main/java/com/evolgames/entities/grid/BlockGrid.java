@@ -8,16 +8,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class BlockGrid {
-    private ArrayList<CoatingBlock> coatingBlocks;
-    private HashSet<CoatingBlock> borderGrains;
 
+    private final ArrayList<CoatingBlock> coatingBlocks;
+    private final HashSet<CoatingBlock> borderGrains;
 
     public BlockGrid(){
         coatingBlocks = new ArrayList<>();
         borderGrains = new HashSet<>();
     }
-  
-
    
     public CoatingBlock getCoatingBlock(int nx, int ny) {
         for (CoatingBlock g : coatingBlocks)
@@ -77,15 +75,6 @@ public class BlockGrid {
 
         return result;
     }
-
-
-
-
-
-
-
-
-
 
     public HashSet<CoatingBlock> getBorderGrains() {
         return borderGrains;

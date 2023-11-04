@@ -19,7 +19,6 @@ import com.evolgames.scenes.GameScene;
 
 import org.andengine.entity.primitive.Line;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.texture.compressed.pvr.pixelbufferstrategy.GreedyPVRTexturePixelBufferStrategy;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayDeque;
@@ -34,31 +33,27 @@ import java.util.stream.Collectors;
 public class GameEntity extends EntityWithBody {
 
     private final GameScene gameScene;
-    public boolean changed = true;
-    private float area;
-    private SpecialEntityType type = SpecialEntityType.Default;
-    private GameGroup parentGroup;
-    private boolean alive = true;
-    private TexturedMeshBatch batch;
-    private String name;
-    private final ArrayList<LayerBlock> layerBlocks;
+    private final List<LayerBlock> layerBlocks;
     private final List<Use> useList;
-    private MosaicMesh mesh;
-    private int stainDataLimit;
+    public boolean changed = true;
+    private String name;
+    private GameGroup parentGroup;
+    private GameEntity parentGameEntity;
     private Vector2 center;
-    private boolean isBatcherSetup = false;
-    private int hangedPointerId;
     private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
     private boolean isFireSetup;
-    private GameEntity parentGameEntity;
+    private TexturedMeshBatch batch;
+    private int stainDataLimit;
+    private boolean isBatcherSetup = false;
+    private SpecialEntityType type = SpecialEntityType.Default;
+    private int hangedPointerId;
     private float sortingValue;
+    private float area;
+    private boolean alive = true;
+    private MosaicMesh mesh;
 
 
-    public GameScene getGameScene() {
-        return gameScene;
-    }
-
-    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, ArrayList<LayerBlock> layerBlocks) {
+    public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, List<LayerBlock> layerBlocks) {
         super();
         this.mesh = mesh;
         this.gameScene = scene;
@@ -87,8 +82,8 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
-    public float getArea() {
-        return area;
+    public GameScene getGameScene() {
+        return gameScene;
     }
 
     private void computeArea() {
@@ -96,14 +91,6 @@ public class GameEntity extends EntityWithBody {
         for (LayerBlock layerBlock : layerBlocks) {
             area += layerBlock.getBlockArea();
         }
-    }
-
-    public SpecialEntityType getType() {
-        return type;
-    }
-
-    public void setType(SpecialEntityType type) {
-        this.type = type;
     }
 
     public GameGroup getParentGroup() {
@@ -147,18 +134,6 @@ public class GameEntity extends EntityWithBody {
 
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public ArrayList<LayerBlock> getBlocks() {
-        return layerBlocks;
-    }
-
 
     private void updateGrains() {
         for (LayerBlock block : this.getBlocks()) {
@@ -183,25 +158,25 @@ public class GameEntity extends EntityWithBody {
 
 
     public Vector2 computeTouch(TouchEvent touch, boolean withHold) {
-        Vector2 t = this.body.getLocalPoint(new Vector2(touch.getX()/32f, touch.getY()/32f)).cpy().mul(32f);
+        Vector2 t = this.body.getLocalPoint(new Vector2(touch.getX() / 32f, touch.getY() / 32f)).cpy().mul(32f);
         Vector2 result = null;
         float minDis = Float.MAX_VALUE;
         for (Block<?, ?> block : layerBlocks) {
-          LayerProperties layerProperties = (LayerProperties) block.getProperties();
-          if(layerProperties.getSharpness()>0.0f&&withHold){
-              continue;
-          }
+            LayerProperties layerProperties = (LayerProperties) block.getProperties();
+            if (layerProperties.getSharpness() > 0.0f && withHold) {
+                continue;
+            }
             Vector2 point = GeometryUtils.calculateProjection(t, block.getVertices());
-            if(point!=null) {
+            if (point != null) {
                 float dis = t.dst(point);
-                if(dis<minDis){
+                if (dis < minDis) {
                     minDis = dis;
                     result = point;
                 }
             }
         }
-        if(result!=null) {
-            return body.getWorldPoint(result.cpy().mul(1/32f)).cpy().mul(32f);
+        if (result != null) {
+            return body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f);
         }
         return null;
     }
@@ -260,7 +235,7 @@ public class GameEntity extends EntityWithBody {
 
             }
         }
-    return false;
+        return false;
     }
 
     public void addStain(LayerBlock block, StainBlock stainBlock) {
@@ -329,11 +304,11 @@ public class GameEntity extends EntityWithBody {
 
         for (LayerBlock layerBlock : getBlocks()) {
             ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
-            List<StainBlock> stainBlocks = associatedBlocks.stream().filter(e->e instanceof StainBlock).map(e->(StainBlock) e).collect(Collectors.toList());
+            List<StainBlock> stainBlocks = associatedBlocks.stream().filter(e -> e instanceof StainBlock).map(e -> (StainBlock) e).collect(Collectors.toList());
             stainBlocks.sort(Comparator.comparing(StainBlock::getPriority));
             for (StainBlock stain : stainBlocks) {
-                    Color color = stain.getProperties().getColor();
-                    batch.draw(stain.getTextureRegion(), stain.getData(), color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+                Color color = stain.getProperties().getColor();
+                batch.draw(stain.getTextureRegion(), stain.getData(), color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             }
         }
         batch.submit();
@@ -372,71 +347,35 @@ public class GameEntity extends EntityWithBody {
         dispose();
     }
 
-    public int getHangedPointerId() {
-        return hangedPointerId;
-    }
-
-    public void setHangedPointerId(int hangedPointerId) {
-        this.hangedPointerId = hangedPointerId;
-    }
-
-
-    public List<Use> getUseList() {
-        return useList;
-    }
-
-    public void setParentGameEntity(GameEntity parentGameEntity) {
-        this.parentGameEntity = parentGameEntity;
-    }
-
-    public GameEntity getParentGameEntity() {
-        return parentGameEntity;
-    }
 
     public void createJuiceSources() {
         for (LayerBlock block : this.getBlocks()) {
             LayerProperties properties = block.getProperties();
-                ArrayList<FreshCut> freshCuts = block.getFreshCuts();
-                for (FreshCut freshCut : freshCuts) {
-                    if (freshCut.getLength() < 1f) {
-                        continue;
-                    }
-                    if(freshCut.getLimit()>0&&properties.isJuicy()) {
-                        gameScene.getWorldFacade().createJuiceSource(this, block, freshCut);
-                    }
-                    if (freshCut instanceof SegmentFreshCut) {
-                        SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
-                        if (segmentFreshCut.isInner()) {
-                            Line line = new Line(segmentFreshCut.first.x, segmentFreshCut.first.y, segmentFreshCut.second.x, segmentFreshCut.second.y, 2, ResourceManager.getInstance().vbom);
-                            line.setColor(Color.BLACK);
-                            mesh.attachChild(line);
-                        }
+            ArrayList<FreshCut> freshCuts = block.getFreshCuts();
+            for (FreshCut freshCut : freshCuts) {
+                if (freshCut.getLength() < 1f) {
+                    continue;
+                }
+                if (freshCut.getLimit() > 0 && properties.isJuicy()) {
+                    gameScene.getWorldFacade().createJuiceSource(this, block, freshCut);
+                }
+                if (freshCut instanceof SegmentFreshCut) {
+                    SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
+                    if (segmentFreshCut.isInner()) {
+                        Line line = new Line(segmentFreshCut.first.x, segmentFreshCut.first.y, segmentFreshCut.second.x, segmentFreshCut.second.y, 2, ResourceManager.getInstance().vbom);
+                        line.setColor(Color.BLACK);
+                        mesh.attachChild(line);
                     }
                 }
+            }
 
         }
     }
-    public  <T extends Use> T getActiveUsage(Class<T> targetType) {
-        for (Use obj : this.useList) {
-            if (targetType.isInstance(obj)&& obj.isActive()) {
-                return (T) obj;
-            }
-        }
-        return null;
-    }
 
-    public  <T extends Use> T getUsage(Class<T> targetType) {
-        for (Use obj : this.useList) {
-            if (targetType.isInstance(obj)) {
-                return (T) obj;
-            }
-        }
-        return null;
-    }
     @SafeVarargs
     public final <T> boolean hasUsage(Class<T>... targetTypes) {
         for (Use obj : this.useList) {
-            for(Class<T> targetType:targetTypes) {
+            for (Class<T> targetType : targetTypes) {
                 if (targetType.isInstance(obj)) {
                     return true;
                 }
@@ -444,9 +383,10 @@ public class GameEntity extends EntityWithBody {
         }
         return false;
     }
-    public  boolean hasActiveUsage(Class<?> ...targetTypes) {
+
+    public boolean hasActiveUsage(Class<?>... targetTypes) {
         for (Use obj : this.useList) {
-            for(Class<?> targetType:targetTypes) {
+            for (Class<?> targetType : targetTypes) {
                 if (targetType.isInstance(obj) && obj.isActive()) {
                     return true;
                 }
@@ -468,24 +408,87 @@ public class GameEntity extends EntityWithBody {
         return Objects.hash(layerBlocks);
     }
 
-    public void setSortingValue(float sortingValue) {
-        this.sortingValue = sortingValue;
-    }
-
     public float getSortingValue() {
         return sortingValue;
     }
 
+    public void setSortingValue(float sortingValue) {
+        this.sortingValue = sortingValue;
+    }
+
     public List<GameEntity> getConnectedEntities() {
         List<GameEntity> list = new ArrayList<>();
-        gameScene.getPhysicsWorld().getJoints().forEachRemaining(e->{
-            if(e.getBodyA()==this.getBody()){
+        gameScene.getPhysicsWorld().getJoints().forEachRemaining(e -> {
+            if (e.getBodyA() == this.getBody()) {
                 list.add((GameEntity) e.getBodyB().getUserData());
-            }
-            else if(e.getBodyB()==this.getBody()){
+            } else if (e.getBodyB() == this.getBody()) {
                 list.add((GameEntity) e.getBodyA().getUserData());
             }
         });
         return list;
     }
+
+    public SpecialEntityType getType() {
+        return type;
+    }
+
+    public void setType(SpecialEntityType type) {
+        this.type = type;
+    }
+
+    public <T extends Use> T getActiveUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj) && obj.isActive()) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
+
+    public <T extends Use> T getUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj)) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
+
+    public int getHangedPointerId() {
+        return hangedPointerId;
+    }
+
+    public void setHangedPointerId(int hangedPointerId) {
+        this.hangedPointerId = hangedPointerId;
+    }
+
+
+    public List<Use> getUseList() {
+        return useList;
+    }
+
+    public GameEntity getParentGameEntity() {
+        return parentGameEntity;
+    }
+
+    public void setParentGameEntity(GameEntity parentGameEntity) {
+        this.parentGameEntity = parentGameEntity;
+    }
+
+    public float getArea() {
+        return area;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<LayerBlock> getBlocks() {
+        return layerBlocks;
+    }
+
 }
