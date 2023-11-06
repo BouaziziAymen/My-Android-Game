@@ -152,7 +152,7 @@ public class Shooter extends Use {
         float ejectionVelocity = projectileModel.getAmmoModel().getAmmoProperties().getLinearSpeed() * 10;
         Vector2 ejectionVelocityVector = directionProjected.mul(ejectionVelocity);
         BodyInit bodyInit = new TransformInit(new AngularVelocityInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), ejectionVelocityVector), angularVelocity), beginProjected.x, beginProjected.y, muzzleEntity.getBody().getAngle());
-        GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, beginProjected, muzzleEntity.getBody().getAngle(), bodyInit, false, "shell");
+        GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, beginProjected, muzzleEntity.getBody().getAngle(), bodyInit, "shell");
     }
 
     private void createBullet(ProjectileModel projectileModel) {
@@ -171,7 +171,7 @@ public class Shooter extends Use {
         filter.maskBits = OBJECTS_MIDDLE_CATEGORY;
         filter.groupIndex = muzzleEntity.getGroupIndex();
         BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(filter), muzzleVelocityVector), endProjected.x, endProjected.y, muzzleEntity.getBody().getAngle()), true);
-        GameEntity bullet = GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, GeometryUtils.calculateAngleRad(directionProjected.x,directionProjected.y), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), true, "bullet");
+        GameEntity bullet = GameEntityFactory.getInstance().createIndependentGameEntity(muzzleEntity.getParentGroup(), blocks, endProjected, GeometryUtils.calculateAngleRad(directionProjected.x,directionProjected.y), new RecoilInit(bodyInit, muzzleEntity.getBody(), projectileModel.getProperties().getRecoil(), muzzleVelocityVector, beginProjected), "bullet");
         Projectile projectile = new Projectile(bullet);
         projectile.setActive(true);
 

@@ -6,7 +6,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.adt.color.Color;
 
 public class StainProperties extends ColoredProperties {
-    private transient  ITextureRegion textureRegion;
+
     private  Color color;
     private  Vector2 localCenter;
     private  int textureRegionIndex;
@@ -15,8 +15,7 @@ public class StainProperties extends ColoredProperties {
     @SuppressWarnings("unused")
     public StainProperties(){}
 
-    public StainProperties(ITextureRegion textureRegion, int textureRegionIndex, Vector2 localCenter, float rotation, Color color) {
-        this.textureRegion = textureRegion;
+    public StainProperties(int textureRegionIndex, Vector2 localCenter, float rotation, Color color) {
         this.textureRegionIndex = textureRegionIndex;
         this.localCenter = new Vector2(localCenter);
         this.rotation = rotation;
@@ -25,15 +24,11 @@ public class StainProperties extends ColoredProperties {
 
     @Override
     public ColoredProperties copy() {
-        return new StainProperties(textureRegion, textureRegionIndex, new Vector2(localCenter), rotation, color);
+        return new StainProperties(textureRegionIndex, new Vector2(localCenter), rotation, color);
     }
 
     public void setLocalCenter(float x, float y) {
         this.localCenter.set(x,y);
-    }
-
-    public ITextureRegion getTextureRegion() {
-        return textureRegion;
     }
 
     public Color getColor() {
@@ -50,5 +45,13 @@ public class StainProperties extends ColoredProperties {
 
     public void setRotation(float rotation) {
         this.rotation = rotation;
+    }
+
+    public void setTextureRegionIndex(int textureRegionIndex) {
+        this.textureRegionIndex = textureRegionIndex;
+    }
+
+    public int getTextureRegionIndex() {
+        return textureRegionIndex;
     }
 }

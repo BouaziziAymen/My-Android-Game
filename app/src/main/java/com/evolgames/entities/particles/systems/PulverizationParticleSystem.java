@@ -24,6 +24,5 @@ public class PulverizationParticleSystem extends FlowingParticleSystem {
         Color parentColor = coatingBlock.getParent().getProperties().getDefaultColor();
         MyColorUtils.blendColors(parentColor,parentColor,coatingBlock.getProperties().getDefaultColor());
         particle.getEntity().setColor(parentColor);
-       // GameScene.plotter2.drawPoint(new Vector2(particle.getEntity().getX(),particle.getEntity().getY()),Color.YELLOW,1);
     }
 }

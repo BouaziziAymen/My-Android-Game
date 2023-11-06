@@ -6,15 +6,14 @@ import com.evolgames.entities.blocks.CoatingBlock;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 public class BlockGrid {
 
-    private final ArrayList<CoatingBlock> coatingBlocks;
-    private final HashSet<CoatingBlock> borderGrains;
+    private final List<CoatingBlock> coatingBlocks;
 
     public BlockGrid(){
         coatingBlocks = new ArrayList<>();
-        borderGrains = new HashSet<>();
     }
    
     public CoatingBlock getCoatingBlock(int nx, int ny) {
@@ -22,10 +21,6 @@ public class BlockGrid {
                 if (g.getNx() == nx && g.getNy() == ny) return g;
         return null;
     }
-
-
-
-
 
     public void addCoatingBlock(CoatingBlock g) {
         coatingBlocks.add(g);
@@ -35,7 +30,7 @@ public class BlockGrid {
         return coatingBlocks.iterator();
     }
 
-    public ArrayList<CoatingBlock> getCoatingBlocks() {
+    public List<CoatingBlock> getCoatingBlocks() {
         return coatingBlocks;
     }
 
@@ -71,16 +66,6 @@ public class BlockGrid {
                     result = g;
                 }
             }
-
-
         return result;
-    }
-
-    public HashSet<CoatingBlock> getBorderGrains() {
-        return borderGrains;
-    }
-
-    public void addBorderGrain(CoatingBlock coatingBlock) {
-        borderGrains.add(coatingBlock);
     }
 }

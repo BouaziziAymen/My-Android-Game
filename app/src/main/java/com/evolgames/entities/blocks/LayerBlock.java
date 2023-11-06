@@ -97,10 +97,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         for (CoatingBlock coatingBlock : blockGrid.getCoatingBlocks()) {
             HashSet<CoatingBlock> neighbors = blockGrid.findNeighbors(coatingBlock);
             coatingBlock.setNeighbors(neighbors);
-            if (neighbors.size() < 8) {
-                coatingBlock.setBorder(true);
-                getBlockGrid().addBorderGrain(coatingBlock);
-            }
         }
     }
 
@@ -138,6 +134,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
         for (Block<?, ?> decorationBlock : associatedBlocks) {
             if (decorationBlock instanceof CoatingBlock) {
                 CoatingBlock coatingBlock = (CoatingBlock) decorationBlock;
+                coatingBlock.setParent(this);
                 getBlockGrid().addCoatingBlock(coatingBlock);
             }
         }
@@ -214,7 +211,10 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties> implements Co
     public <T extends AssociatedBlock<?, ?>> void addAssociatedBlock(T block) {
         if (associatedBlocks != null) {
             associatedBlocks.add(block);
-            block.setParent(this);
+            if(block instanceof CoatingBlock) {
+                CoatingBlock coatingBlock = (CoatingBlock) block;
+                coatingBlock.setParent(this);
+            }
         }
     }
 

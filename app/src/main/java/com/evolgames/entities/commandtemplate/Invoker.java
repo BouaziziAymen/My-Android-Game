@@ -92,8 +92,8 @@ public class Invoker {
         }
     }
 
-    public static void addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2){
-        JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2);
+    public static void addJointCreationCommand(JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2,boolean createJointBlocks){
+        JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2,createJointBlocks);
         gameGroup.getCommands().add(command);
     }
     public static void addCustomCommand(GameEntity entity,Runnable runnable){

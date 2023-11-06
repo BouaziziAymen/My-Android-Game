@@ -584,7 +584,6 @@ public class BlockUtils {
     }
     public static Pair<LayerBlock, LayerBlock> cutLayerBlock(LayerBlock block, Cut cut) {
 
-
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> result = splitVerticesSimple(cut, block.getVertices());
         float density = block.getProperties().getJuicinessDensity();
         SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), false,density);
@@ -592,12 +591,14 @@ public class BlockUtils {
 
 
         LayerBlock block1 = BlockFactory.createLayerBlock(result.first, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-       if(pair1.getLength()>6f)
-        block1.addFreshCut(pair1);
+       if(pair1.getLength()>3f) {
+           block1.addFreshCut(pair1);
+       }
         block1.setPolarity(Polarity.YIN);
         LayerBlock block2 = BlockFactory.createLayerBlock(result.second, block.getProperties().copy(), block.getId(), block.getOrder(), false);
-       if(pair2.getLength()>6f)
-        block2.addFreshCut(pair2);
+       if(pair2.getLength()>3f) {
+           block2.addFreshCut(pair2);
+       }
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
         block1.setLiquidQuantity((int) (liquidQuantity * block1.getBlockArea() / block.getBlockArea()));

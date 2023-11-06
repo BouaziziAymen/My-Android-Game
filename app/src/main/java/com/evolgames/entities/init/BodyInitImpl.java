@@ -4,13 +4,14 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.evolgames.entities.EntityWithBody;
-import com.evolgames.entities.GameEntity;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import com.evolgames.entities.serialization.InitInfo;
 
 public class BodyInitImpl implements BodyInit{
-    private final Filter filter;
+
+    private Filter filter;
     private static short groupNumber;
+    @SuppressWarnings("unused")
+    public BodyInitImpl(){}
 
     public BodyInitImpl(short category){
         this.filter  = new Filter();
@@ -30,5 +31,18 @@ public class BodyInitImpl implements BodyInit{
         for (Fixture f : body.getFixtureList()) {
             f.setFilterData(this.filter);
         }
+    }
+    public Filter getFilter(){
+        return filter;
+    }
+
+    public void setFilter(Filter filter) {
+        this.filter = filter;
+    }
+
+    @Override
+    public InitInfo getInitInfo(InitInfo initInfo) {
+        initInfo.setFilter(filter);
+        return initInfo;
     }
 }

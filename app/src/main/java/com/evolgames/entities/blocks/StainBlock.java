@@ -3,6 +3,7 @@ package com.evolgames.entities.blocks;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.StainProperties;
+import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.Utils;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -14,7 +15,7 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
     private int priority;
 
     public ITextureRegion getTextureRegion() {
-        return getProperties().getTextureRegion();
+        return ResourceManager.getInstance().stainTextureRegions.getTextureRegion(getProperties().getTextureRegionIndex());
     }
 
     public float getLocalCenterX() {

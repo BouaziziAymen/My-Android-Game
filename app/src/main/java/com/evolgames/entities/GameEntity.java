@@ -1,6 +1,7 @@
 package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -8,6 +9,7 @@ import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
+import com.evolgames.entities.serialization.InitInfo;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
@@ -27,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -38,7 +41,6 @@ public class GameEntity extends EntityWithBody {
     public boolean changed = true;
     private String name;
     private GameGroup parentGroup;
-    private GameEntity parentGameEntity;
     private Vector2 center;
     private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
     private boolean isFireSetup;
@@ -51,6 +53,9 @@ public class GameEntity extends EntityWithBody {
     private float area;
     private boolean alive = true;
     private MosaicMesh mesh;
+    private BodyDef.BodyType bodyType;
+    private InitInfo initInfo;
+    private String uniqueID = UUID.randomUUID().toString();
 
 
     public GameEntity(MosaicMesh mesh, GameScene scene, String entityName, List<LayerBlock> layerBlocks) {
@@ -467,14 +472,6 @@ public class GameEntity extends EntityWithBody {
         return useList;
     }
 
-    public GameEntity getParentGameEntity() {
-        return parentGameEntity;
-    }
-
-    public void setParentGameEntity(GameEntity parentGameEntity) {
-        this.parentGameEntity = parentGameEntity;
-    }
-
     public float getArea() {
         return area;
     }
@@ -490,5 +487,41 @@ public class GameEntity extends EntityWithBody {
     public List<LayerBlock> getBlocks() {
         return layerBlocks;
     }
+
+    public BodyDef.BodyType getBodyType() {
+        return bodyType;
+    }
+
+    public void setBodyType(BodyDef.BodyType bodyType) {
+        this.bodyType = bodyType;
+    }
+
+    public void setInitInfo(InitInfo initInfo) {
+        this.initInfo = initInfo;
+    }
+
+    public InitInfo getCreationInitInfo() {
+        if(getBody()==null) {
+            return this.initInfo;
+        }
+        InitInfo initInfo = new InitInfo();
+        initInfo.setLinearVelocity(this.body.getLinearVelocity());
+        initInfo.setBullet(this.body.isBullet());
+        initInfo.setAngularVelocity(this.body.getAngularVelocity());
+        initInfo.setX(this.body.getPosition().x);
+        initInfo.setY(this.body.getPosition().y);
+        initInfo.setAngle(this.body.getAngle());
+        initInfo.setFilter(this.initInfo.getFilter());
+        return initInfo;
+    }
+
+    public String getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueID = uniqueId;
+    }
+
 
 }

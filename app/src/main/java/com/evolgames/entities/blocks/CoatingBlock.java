@@ -24,13 +24,12 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     private boolean isOnFire;
     private transient MosaicMesh mesh;
     private int layerId;
-    private boolean isBorder;
     private boolean hasFlame;
     private transient HashSet<CoatingBlock> neighbors;
     private float area;
-    private float[] trianglesData;
     private float step;
     private boolean pulverized;
+    transient private LayerBlock parent;
 
     @Override
     protected CoatingBlock getThis() {
@@ -121,15 +120,6 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
     public void setMesh(MosaicMesh mesh) {
         this.mesh = mesh;
-    }
-
-
-    public boolean isBorder() {
-        return isBorder;
-    }
-
-    public void setBorder(boolean b) {
-        isBorder = b;
     }
 
     public float getArea() {
@@ -234,16 +224,6 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
         getProperties().setColumn(ny);
     }
 
-
-    @Override
-    public float[] getTrianglesData() {
-        if (trianglesData == null) {
-            this.trianglesData = super.getTrianglesData();
-        }
-        return trianglesData;
-    }
-
-
     public double getFlameTemperature() {
         return getProperties().getFlameTemperature();
     }
@@ -262,5 +242,13 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
     public void setPulverized(boolean pulverized) {
         this.pulverized = pulverized;
+    }
+
+    public void setParent(LayerBlock parent) {
+        this.parent = parent;
+    }
+
+    public LayerBlock getParent() {
+        return parent;
     }
 }

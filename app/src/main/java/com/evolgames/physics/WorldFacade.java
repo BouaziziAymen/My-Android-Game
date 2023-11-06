@@ -205,7 +205,6 @@ public class WorldFacade implements ContactObserver {
                     setOfPairs.add(new Pair<>(splinter, pair.first));
                 }
             }
-            splinter.setParentGameEntity(parentEntity);
             List<LayerBlock> layerBlocks = splinter.getBlocks();
             //Recreate Joints
             layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream()).
@@ -1233,8 +1232,6 @@ public class WorldFacade implements ContactObserver {
 
         List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
         for (Vector2 p : pts) {
-            //GameScene.plotter2.drawPointOnEntity( p, Color.PINK, gameEntity.getMesh());
-            //0.4f+ (float) (Math.random()*0.3f), (float) (Math.random()*0.3f) , (float) (0.1f+Math.random()*0.2f)
             Color color = new Color(0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
             Color skin = new Color(layerBlock.getProperties().getDefaultColor());
             skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
@@ -1477,13 +1474,17 @@ public class WorldFacade implements ContactObserver {
     }
 
 
-    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
+    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2,boolean createJointBlocks) {
         if (entity1.getName().equals("Ground")) {
-            Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2);
+            Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2,createJointBlocks);
         } else {
-            Invoker.addJointCreationCommand(jointDef, entity1.getParentGroup(), entity1, entity2);
+            Invoker.addJointCreationCommand(jointDef, entity1.getParentGroup(), entity1, entity2,createJointBlocks);
         }
     }
+    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
+      this.addJointToCreate(jointDef,entity1,entity2,true);
+    }
+
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {
         sum.set(0, 0);

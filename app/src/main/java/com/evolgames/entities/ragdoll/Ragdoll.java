@@ -40,7 +40,7 @@ public class Ragdoll extends GameGroup {
     private boolean rightLegReadyToStand;
 
     public Ragdoll(GameScene gameScene, GameEntity... entities) {
-        super(true,entities);
+        super(entities);
         this.gameScene = gameScene;
         this.brain = new Grafcet
                 (new int[][]{{0, 0}, {0, 0}, {20000}},

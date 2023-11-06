@@ -2,13 +2,10 @@ package com.evolgames.entities.mesh.mosaic;
 
 import org.andengine.entity.primitive.Mesh;
 import org.andengine.entity.primitive.vbo.HighPerformanceMeshVertexBufferObject;
-import org.andengine.opengl.util.BufferUtils;
 import org.andengine.opengl.vbo.DrawType;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.opengl.vbo.attribute.VertexBufferObjectAttributes;
 import org.andengine.util.adt.color.Color;
-import org.andengine.util.adt.data.constants.DataConstants;
-import java.nio.ByteOrder;
 
 public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBufferObject {
 
@@ -18,8 +15,6 @@ public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBuffe
     MosaicMeshVertexBufferObject(VertexBufferObjectManager pVertexBufferObjectManager, float[] pBufferData, int pVertexCount, DrawType pDrawType, boolean pAutoDispose, VertexBufferObjectAttributes pVertexBufferObjectAttributes) {
         super(pVertexBufferObjectManager, pBufferData, pVertexCount, pDrawType, pAutoDispose, pVertexBufferObjectAttributes);
     }
-
-
 
      void updateColors(MosaicMesh mosaicMesh) {
         float[] bufferData = mBufferData;
@@ -32,7 +27,7 @@ public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBuffe
                 continue;
             }
             color.set(mosaicMesh.getColors()[i]);
-            color.setAlphaChecking(color.getAlpha() * mosaicMesh.getAlpha());
+            color.setAlpha(color.getAlpha() * mosaicMesh.getAlpha());
             packedColor = color.getABGRPackedFloat();
 
             for (int j = 0; j < layersVertexCount[i]; j++) {
@@ -40,16 +35,8 @@ public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBuffe
             }
             offset += layersVertexCount[i];
         }
-
-
         setDirtyOnHardware();
     }
 
-    void updateData(float[] newData) {
-        this.mBufferData = newData;
-        this.mByteBuffer = BufferUtils.allocateDirectByteBuffer(this.mBufferData.length * DataConstants.BYTES_PER_FLOAT);
-        this.mByteBuffer.order(ByteOrder.nativeOrder());
-        this.mFloatBuffer = this.mByteBuffer.asFloatBuffer();
-    }
 
 }

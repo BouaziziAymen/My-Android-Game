@@ -1,8 +1,10 @@
 package com.evolgames.entities.init;
 
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.serialization.InitInfo;
 
 public class AngularVelocityInit extends BodyInitDecorator {
+
     final float angularVelocity;
 
     public AngularVelocityInit(BodyInit bodyInit, float angularVelocity) {
@@ -14,5 +16,10 @@ public class AngularVelocityInit extends BodyInitDecorator {
     public void initialize(Body body) {
         super.initialize(body);
         body.setAngularVelocity(angularVelocity);
+    }
+    @Override
+    public InitInfo getInitInfo(InitInfo initInfo) {
+        initInfo.setAngularVelocity(angularVelocity);
+        return this.getBodyInit().getInitInfo(initInfo);
     }
 }

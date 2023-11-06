@@ -20,6 +20,7 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -29,16 +30,18 @@ public class JointCreationCommand extends Command {
     private GameEntity entity1;
     private GameEntity entity2;
     private Joint joint;
+    private JointBlock jointBlock1;
     private JointBlock jointBlock2;
     private boolean createdJointBlocks;
 
-    public JointCreationCommand(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
+    public JointCreationCommand(JointDef jointDef, GameEntity entity1, GameEntity entity2, boolean createJointBlocks) {
         this.jointDef = jointDef;
         this.entity1 = entity1;
         this.entity2 = entity2;
         if(jointDef.type!= JointDef.JointType.MouseJoint){
             addJointBlocks();
         }
+        this.createdJointBlocks = !createJointBlocks;
     }
 
     @Override
@@ -69,10 +72,8 @@ public class JointCreationCommand extends Command {
 
     private void addJointBlocks() {
         this.createdJointBlocks = true;
-        JointBlock jointBlock1 = new JointBlock();
+        jointBlock1 = new JointBlock();
         jointBlock2 = new JointBlock();
-        jointBlock1.setCommand(this);
-        jointBlock2.setCommand(this);
         Vector2 anchorA = null;
         Vector2 anchorB = null;
 
@@ -100,13 +101,13 @@ public class JointCreationCommand extends Command {
                 anchorB = ((WeldJointDef) jointDef).localAnchorB.cpy().mul(32f);
                 break;
         }
-
+        String jointUniqueId = UUID.randomUUID().toString();
         if (anchorA != null) {
-            jointBlock1.initialization(jointDef.type,new ArrayList<>(Collections.singletonList(anchorA)), new JointProperties(jointDef), 0, JointBlock.Position.A);
+            jointBlock1.initialization(this,jointUniqueId,jointDef.type,new ArrayList<>(Collections.singletonList(anchorA)), new JointProperties(jointDef), 0, JointBlock.Position.A);
             BlockUtils.getNearestBlock(anchorA,entity1.getBlocks()).addAssociatedBlock(jointBlock1);
         }
         if (anchorB != null) {
-            jointBlock2.initialization(jointDef.type,new ArrayList<>(Collections.singletonList(anchorB)), new JointProperties(jointDef), 0, JointBlock.Position.B);
+            jointBlock2.initialization(this,jointUniqueId,jointDef.type,new ArrayList<>(Collections.singletonList(anchorB)), new JointProperties(jointDef), 0, JointBlock.Position.B);
             BlockUtils.getNearestBlock(anchorB,entity2.getBlocks()).addAssociatedBlock(jointBlock2);
         }
     }
@@ -194,5 +195,13 @@ public class JointCreationCommand extends Command {
 
     public Joint getJoint() {
         return joint;
+    }
+
+    public GameEntity getEntity1() {
+        return entity1;
+    }
+
+    public GameEntity getEntity2() {
+        return entity2;
     }
 }

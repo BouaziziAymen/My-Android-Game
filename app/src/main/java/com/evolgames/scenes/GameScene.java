@@ -10,11 +10,10 @@ import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.Plotter;
-import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
@@ -32,7 +31,6 @@ import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.entities.particles.persistence.PersistenceException;
-import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.Ragdoll;
 import com.evolgames.entities.serialization.SerializationManager;
@@ -42,7 +40,6 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MyColorUtils;
-import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.helpers.utilities.Vector2Utils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -107,7 +104,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     public Ragdoll ragdoll;
-    HashMap<Integer, Hand> hands = new HashMap<>();
+    private final HashMap<Integer, Hand> hands = new HashMap<>();
     float x, y;
     private Vector2 point1, point2;
     private Line line;
@@ -115,9 +112,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
     private HUD hud;
     private boolean scroll = false;
     private float mPinchZoomStartedCameraZoomFactor;
-    private GameGroup gameGroup;
-    private Mesh theMesh;
-    private UsageButtonsController usageButtonsController;
+    private GameGroup gameGroup1;
     private PlayerAction action = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private ArrayList<Vector2> points;
@@ -185,8 +180,8 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         DecorationSettingsWindowController decorationSettingsWindowController = new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController(keyboardController, itemSaveWindowController);
         userInterface = new UserInterface(activity, this, layerWindowController, jointWindowController, layerSettingsWindowController, bodySettingsWindowController, jointSettingsWindowController, itemWindowController, projectileOptionController, ammoOptionController, bombOptionController, itemSaveWindowController, decorationSettingsWindowController, optionsWindowController, outlineController, keyboardController);
-        this.usageButtonsController = new UsageButtonsController();
-        this.usageButtonsController.init();
+        UsageButtonsController usageButtonsController = new UsageButtonsController();
+        usageButtonsController.init();
         optionsWindowController.setUserInterface(userInterface);
         itemSaveWindowController.setUserInterface(userInterface);
         jointWindowController.setUserInterface(userInterface);
@@ -200,83 +195,51 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         this.attachChild(plotter);
         this.attachChild(plotter2);
 
-        //plotter2.drawLine2(new Vector2(0,240),new Vector2(400,240),Color.RED,3);
-        ArrayList<Vector2> testPoints = new ArrayList<>();
-        testPoints.add(new Vector2(350, 100));
-        testPoints.add(new Vector2(400, 150));
-        testPoints.add(new Vector2(450, 100));
-        testPoints.add(new Vector2(400, 50));
-
-
-        ArrayList<Vector2> triangles = new ArrayList<>();
-        triangles.add(new Vector2(350, 100));
-        triangles.add(new Vector2(400, 150));
-        triangles.add(new Vector2(450, 100));
-        triangles.add(new Vector2(350, 100));
-        triangles.add(new Vector2(400, 50));
-        triangles.add(new Vector2(450, 100));
-
-        ArrayList<Vector2> ver = new ArrayList<>();
-        ver.add(new Vector2(-100, -3));
-        ver.add(new Vector2(-100, 3));
-        ver.add(new Vector2(100, 3));
-        ver.add(new Vector2(100, -3));
-
-        //float[] data = MeshFactory.getInstance().createDataForTexturedMesh(400,240,0,region, ver, new Vector2(64, 64));
-        //TexturedMeshBatch batch = new TexturedMeshBatch(ResourceManager.getInstance().texturedMesh, 10000, ResourceManager.getInstance().vbom);
-        // batch.draw(region, data);
-        // batch.redrawStains();
-        //batch.setDepth(999);
-
 
         sortChildren();
 
 
-
-        List<Vector2> vertices = VerticesFactory.createRectangle(60, 60);
-        LayerProperties properties = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
-        LayerBlock block = BlockFactory.createLayerBlock(vertices, properties, 7, 0);
-        List<LayerBlock> blocks = new ArrayList<>();
-        blocks.add(block);
+        createTestUnit();
 
 
-            gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
-            getWorldFacade().applyStain(gameGroup.getGameEntityByIndex(0), 0, 0, block, Color.RED, 0, false);
-            gameGroup.getGameEntityByIndex(0).redrawStains();
-            gameGroup.getGameEntityByIndex(0).setName("test");
-            Vector2 v1 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(0);
-            // Vector2 v2 = gameGroup.getGameEntityByIndex(0).getBlocks().get(0).getVertices().get(1);
-            //  PointExplosiveParticleWrapper pointExplosive = this.worldFacade.createPointFireSource(null, new Vector2(400,240), 3000f,1f, 0.1f, 0.1f, 10f, 2000f);
-            //pointExplosive.detachFromParent();
-            if (false)
-                for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
-                    Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-                    layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
-                }
+        createGround();
 
+        if (false) {
+            ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
+        }
 
-        ArrayList<LayerBlock> blocks2 = new ArrayList<>();
+        testMesh();
+    }
 
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
-            add(obtain(-400, 0));
-            add(obtain(-400, 20));
+    private void testMesh() {
+        ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, 0, 2, 2, 64);
+        float[] data = MeshFactory.getInstance().computeData(list);
+        Mesh theMesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
+        attachChild(theMesh);
+    }
+
+    private void createGround() {
+        ArrayList<LayerBlock> blocks = new ArrayList<>();
+        blocks.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
+            add(obtain(-900, 0));
+            add(obtain(-900, 20));
             add(obtain(400, 20));
             add(obtain(400, 0));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)), 0,0,false));
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
+        blocks.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(200, 15));
             add(obtain(200, 20));
             add(obtain(340, 20));
             add(obtain(340, 15));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0,1, false));
 
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
+        blocks.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(100, 18));
             add(obtain(100, 20));
             add(obtain(50, 20));
             add(obtain(50, 18));
         }}, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)), 0,2,false));
-        blocks2.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
+        blocks.add(BlockFactory.createLayerBlock(new ArrayList<Vector2>() {{
             add(obtain(140, 18));
             add(obtain(140, 16));
             add(obtain(50, 16));
@@ -285,38 +248,53 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
         BodyFactory.getInstance().create(worldFacade.getPhysicsWorld());
 
 
-        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks2, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY, (short) -1);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY);
         this.worldFacade.setGround(groundGroup);
+    }
 
-        if (true) {
-            ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
-        }
-//GameEntityFactory.getInstance().createTest();
-
-
-        ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, 0, 2, 2, 64);
-        float[] data = MeshFactory.getInstance().computeData(list);
-        theMesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
-        attachChild(theMesh);
-
-//Color(175 / 256f, 17 / 256f, 28 / 256f)) blood
-        //     liquidSource = getWorldFacade().createSegmentLiquidSource(gameEntity1,new Vector2(400,240),new Vector2(450,240), new Color(0 / 255f, 255 / 255f, 255 / 255f),30,50);
-
-        //      getWorldFacade().createSegmentLiquidSource(300,240,Utils.getColor());
-        //    getWorldFacade().createSegmentLiquidSource(500,240,Utils.getColor());
-
-        List<Vector2> verti1 = new ArrayList<>();
-        verti1.add(new Vector2(0, 0));
-        verti1.add(new Vector2(50, 0));
-        verti1.add(new Vector2(50, 50));
-        verti1.add(new Vector2(0, 50));
-        List<Vector2> verti2 = new ArrayList<>();
-        verti2.add(new Vector2(-50, 25));
-        verti2.add(new Vector2(50, 20));
-        verti2.add(new Vector2(25, -25));
-        sortChildren();
+    private void createTestUnit() {
+        List<Vector2> vertices1 = VerticesFactory.createRectangle(60, 60);
+        LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
+        LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1, 0);
+        List<LayerBlock> blocks = new ArrayList<>();
+        blocks.add(block1);
 
 
+        gameGroup1 = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
+        getWorldFacade().applyStain(gameGroup1.getGameEntityByIndex(0), 0, 0, block1, Color.RED, 0, false);
+        GameEntity gameEntity = gameGroup1.getGameEntityByIndex(0);
+        gameEntity.setCenter(new Vector2());
+        gameEntity.redrawStains();
+        gameEntity.setName("test");
+
+        List<Vector2> vertices2 = VerticesFactory.createRectangle(20, 100);
+        LayerProperties properties2 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
+        LayerBlock block2 = BlockFactory.createLayerBlock(vertices2, properties2, 1, 0);
+        List<LayerBlock> blocks2 = new ArrayList<>();
+        blocks2.add(block2);
+        BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY),100f / 32f,200 / 32f, 0);
+        GameEntity gameEntity2 = GameEntityFactory.getInstance().createGameEntity(100f / 32f, 200 / 32f,0f,bodyInit,blocks2, BodyDef.BodyType.DynamicBody,"test 2");
+        gameEntity2.setCenter(new Vector2());
+        gameGroup1.addGameEntity(gameEntity2);
+        RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
+        revoluteJointDef.localAnchorA.set(0,0);
+        revoluteJointDef.localAnchorB.set(0,0);
+        revoluteJointDef.collideConnected = false;
+        getWorldFacade().addJointToCreate(revoluteJointDef,gameEntity,gameEntity2);
+
+
+        List<Vector2> vertices3 = VerticesFactory.createRectangle(90, 60);
+        LayerProperties properties3 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(4));
+        LayerBlock block3 = BlockFactory.createLayerBlock(vertices3, properties3, 1, 0);
+        List<LayerBlock> blocks3 = new ArrayList<>();
+        blocks3.add(block3);
+        GameEntityFactory.getInstance().createGameGroupTest(blocks3, new Vector2(300f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody);
+
+        if (false)
+            for (LayerBlock layerBlock : gameGroup1.getGameEntityByIndex(0).getBlocks()) {
+                Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
+                layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
+            }
     }
 
     public ToolModel loadToolModel(String file) {
@@ -344,11 +322,10 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
 
     @Override
     public void onResume() {
-        Log.e("lifecycle", "resume");
         if (userInterface != null) {
             userInterface.resume();
         }
-        // GameEntityFactory.getInstance().createRagdoll();
+
     }
 
     @Override
@@ -486,7 +463,7 @@ public class GameScene extends AbstractScene implements IAccelerationListener,
             projectionTest(touchEvent);
         if (false)
             if (touchEvent.isActionDown()) {
-                getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup.getGameEntityByIndex(0));
+                getWorldFacade().performFlux(new Vector2(x, y), null, gameGroup1.getGameEntityByIndex(0));
             }
         if (false)
             explosionTest(touchEvent);

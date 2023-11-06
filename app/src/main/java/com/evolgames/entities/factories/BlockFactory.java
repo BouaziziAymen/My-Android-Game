@@ -46,11 +46,6 @@ public class BlockFactory {
         decorationBlock.initialization(vertices, properties, ID);
         return decorationBlock;
     }
-    public static DecorationBlock createDecorationBlock(ArrayList<Vector2> vertices, DecorationProperties properties, int ID, ArrayList<Vector2> borders, Vector2 center) {
-       DecorationBlock decorationBlock = createDecorationBlock(vertices,properties,ID);
-        decorationBlock.applyClip(borders);
-        return decorationBlock;
-    }
 
     public static StainBlock createStainBlock(Vector2 localPosition, float angle, List<Vector2> clipPath, int textureRegionIndex, Color color) {
         ITextureRegion textureRegion = ResourceManager.getInstance().stainTextureRegions.getTextureRegion(textureRegionIndex);
@@ -82,7 +77,7 @@ public class BlockFactory {
         }
 
         StainBlock stainBlock = new StainBlock();
-        StainProperties properties = new StainProperties(textureRegion,textureRegionIndex, localPosition, angle,color);
+        StainProperties properties = new StainProperties(textureRegionIndex, localPosition, angle,color);
         stainBlock.initialization(clippedImageBounds, properties, 0);
 
         return stainBlock;

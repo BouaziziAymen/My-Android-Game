@@ -17,13 +17,11 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Block<T extends Block<T, P>, P extends Properties> extends Composite<T> {
-    protected boolean verticesChanged = false;
     private int id;
     private Properties properties;
     private List<Vector2> vertices;
     private List<Vector2> triangles;
     private boolean aborted;
-    private transient LayerBlock parent;
 
     public void performCut(Cut cut) {
         setAborted(true);
@@ -89,7 +87,6 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
 
     public void computeTriangles() {
         triangles = MeshFactory.getInstance().triangulate(vertices);
-        verticesChanged = false;
     }
 
     protected void rectifyVertices() {
@@ -110,14 +107,6 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         this.vertices = vertices;
     }
 
-    public LayerBlock getParent() {
-        return parent;
-    }
-
-    public void setParent(LayerBlock parent) {
-        this.parent = parent;
-    }
-
     public abstract void translate(Vector2 t);
 
     public List<Vector2> getTriangles() {
@@ -127,18 +116,10 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         return triangles;
     }
 
-    public float[] getTrianglesData() {
-        int size = triangles.size();
-        float[] data = new float[size * 2];
-        for (int i = 0; i < size; i++) {
-            data[2 * i] = triangles.get(i).x;
-            data[2 * i + 1] = triangles.get(i).y;
-        }
-        return data;
-    }
-
     public void recycleSelf() {
-        if (true) return;
+        if (true) {
+            return;
+        }
         for (Vector2 v : getTriangles()) {
             if (!getVertices().contains(v)) Vector2Pool.recycle(v);
         }

@@ -3,15 +3,24 @@ package com.evolgames.entities.serialization;
 import android.content.Context;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.entities.blocks.StainBlock;
+import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -25,9 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Locale;
-
-import is.kul.learningandengine.graphicelements.Layer;
+import java.util.List;
 
 public class SerializationManager {
     private static final SerializationManager INSTANCE = new SerializationManager();
@@ -49,6 +56,20 @@ public class SerializationManager {
         kryo.register(Vector2.class);
         kryo.register(float[].class);
         kryo.register(GameEntitySerializer.class);
+        kryo.register(JointDef.JointType.class);
+        kryo.register(JointBlock.Position.class);
+        kryo.register(RevoluteJointDef.class);
+        kryo.register(WeldJointDef.class);
+        kryo.register(PrismaticJointDef.class);
+        kryo.register(MouseJointDef.class);
+        kryo.register(DistanceJointDef.class);
+        kryo.register(BodyInitImpl.class);
+        kryo.register(Filter.class);
+        kryo.register(BodyDef.BodyType.class);
+        kryo.register(InitInfo.class);
+        kryo.register(GameGroupSerializer.class);
+        kryo.register(GameGroupsSerializer.class);
+        kryo.register(JointInfo.class);
     }
 
     public static SerializationManager getInstance() {
@@ -56,17 +77,19 @@ public class SerializationManager {
     }
 
     public void serialize(GameScene gameScene) throws FileNotFoundException {
-       GameEntity gameEntity = gameScene.getGameGroups().get(0).getGameEntityByIndex(0);
         FileOutputStream fileOutputStream = gameScene.getActivity().openFileOutput("autoSave.mut", Context.MODE_PRIVATE);
         Output output = new Output(fileOutputStream);
-        GameEntitySerializer gameEntitySerializer = new GameEntitySerializer(gameEntity);
-        kryo.writeObject(output,gameEntitySerializer);
+        GameGroupsSerializer gameGroupsSerializer = new GameGroupsSerializer(gameScene.getGameGroups());
+        kryo.writeObject(output, gameGroupsSerializer);
         output.close();
-
+    }
+    public void deserialize(GameScene gameScene) throws FileNotFoundException {
         FileInputStream fileInputStream = gameScene.getActivity().openFileInput("autoSave.mut");
         Input input = new Input(fileInputStream);
-        GameEntitySerializer readGameEntitySerializer = kryo.readObject(input, GameEntitySerializer.class);
-        readGameEntitySerializer.afterLoad();
+        GameGroupsSerializer gameGroupsSerializer = kryo.readObject(input, GameGroupsSerializer.class);
+        List<GameGroup> gameGroups = gameGroupsSerializer.create();
+        gameGroupsSerializer.afterCreate(gameScene,gameGroups);
+        gameScene.getGameGroups().addAll(gameGroups);
         input.close();
     }
 }

@@ -1,6 +1,5 @@
 package com.evolgames.entities.factories;
 
-import static com.evolgames.physics.CollisionConstants.DOLL_CATEGORY;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_BACK_CATEGORY;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_FRONT_CATEGORY;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
@@ -25,6 +24,7 @@ import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
+import com.evolgames.entities.serialization.InitInfo;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
@@ -80,12 +80,12 @@ public class GameEntityFactory {
         entity.setMesh(mesh);
         entity.setVisible(false);
         this.scene.attachChild(entity.getMesh());
+        InitInfo initInfo = bodyInit.getInitInfo(new InitInfo());
+        entity.setInitInfo(initInfo);
+        entity.setBodyType(bodyType);
         Invoker.addBodyCreationCommand(entity, bodyType, bodyInit);
-
         return entity;
     }
-
-
 
 
      @SuppressWarnings("unused")
@@ -112,7 +112,7 @@ public class GameEntityFactory {
     }
 
     @SuppressWarnings("unused")
-    public GameEntity createGameEntityDirect(float x, float y, float rot, ArrayList<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
+    public GameEntity createGameEntityDirect(float x, float y, float rot, List<LayerBlock> blocks, BodyDef.BodyType bodyType, String name) {
         MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x, y, rot, blocks);
         GameEntity entity = new GameEntity(mesh, scene, name, blocks);
         Body body = BodyFactory.getInstance().createBody(blocks, bodyType);
@@ -161,7 +161,7 @@ public class GameEntityFactory {
     }
 
 
-    public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType, String name, short category, short mask) {
+    public GameGroup createGameGroupTest(ArrayList<LayerBlock> groupBlocks, Vector2 position, BodyDef.BodyType bodyType, String name, short category) {
         GameGroup gameGroup = new GameGroup();
         BodyInit bodyInit = new TransformInit(new BodyInitImpl(category), position.x, position.y, 0);
         GameEntity entity = createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name);
@@ -170,7 +170,7 @@ public class GameEntityFactory {
         return gameGroup;
     }
 
-    public GameEntity createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, boolean isProjectile, String name) {
+    public GameEntity createIndependentGameEntity(GameGroup parentGroup, ArrayList<LayerBlock> parentBlocks, Vector2 position, float angle, BodyInit bodyInit, String name) {
         GameEntity entity = createGameEntity(position.x, position.y, angle, bodyInit, parentBlocks, BodyDef.BodyType.DynamicBody, name);
         parentGroup.addGameEntity(entity);
         return entity;

@@ -3,10 +3,15 @@ package com.evolgames.entities.init;
 import com.badlogic.gdx.physics.box2d.Body;
 
 public abstract class BodyInitDecorator implements BodyInit{
+
     private final BodyInit bodyInit;
 
     public BodyInitDecorator(BodyInit bodyInit) {
         this.bodyInit = bodyInit;
+    }
+
+    public BodyInit getBodyInit() {
+        return bodyInit;
     }
 
     @Override
