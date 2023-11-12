@@ -5,32 +5,33 @@ import java.util.List;
 
 public class Subject {
 
-    protected List<Observer> getObservers() {
-        return observers;
-    }
+  private final List<Observer> observers = new ArrayList<>();
+  private int state;
 
-    private List<Observer> observers = new ArrayList<>();
-    private int state;
+  protected List<Observer> getObservers() {
+    return observers;
+  }
 
-    public int getState() {
-        return state;
-    }
+  public int getState() {
+    return state;
+  }
 
-    public void setState(int state) {
-        this.state = state;
-        notifyAllObservers();
-    }
+  public void setState(int state) {
+    this.state = state;
+    notifyAllObservers();
+  }
 
-    public void attach(Observer observer){
-        observers.add(observer);
-    }
-    public void detach(Observer observer){
-        observers.remove(observer);
-    }
+  public void attach(Observer observer) {
+    observers.add(observer);
+  }
 
-    protected void notifyAllObservers(){
-        for (Observer observer : observers) {
-            observer.update(this);
-        }
+  public void detach(Observer observer) {
+    observers.remove(observer);
+  }
+
+  protected void notifyAllObservers() {
+    for (Observer observer : observers) {
+      observer.update(this);
     }
+  }
 }

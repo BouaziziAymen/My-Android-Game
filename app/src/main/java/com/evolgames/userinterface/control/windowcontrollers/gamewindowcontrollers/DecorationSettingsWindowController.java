@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import android.util.Log;
-
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.gameengine.ResourceManager;
@@ -19,104 +18,118 @@ import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.windows.windowfields.ColorSlot;
 import com.evolgames.userinterface.view.windows.windowfields.TitledField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
-
 import org.andengine.util.adt.color.Color;
 
-public class DecorationSettingsWindowController extends SettingsWindowController<DecorationProperties> {
-    private TextField<DecorationSettingsWindowController> decorationNameTextField;
-    private final TextFieldValidator decorationNameValidator = new AlphaNumericValidator(16,5);;
+public class DecorationSettingsWindowController
+    extends SettingsWindowController<DecorationProperties> {
+  private final TextFieldValidator decorationNameValidator = new AlphaNumericValidator(16, 5);
+  private TextField<DecorationSettingsWindowController> decorationNameTextField;
     private ColorSlot colorSlotForDecoration;
-    private ColorSelectorWindowController colorSelectorController;
+  private ColorSelectorWindowController colorSelectorController;
 
-    public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
-        this.colorSelectorController = colorSelectorController;
-    }
-    @Override
-    public void init() {
-        TitledTextField<DecorationSettingsWindowController> decorationNameField = new TitledTextField<>("Decoration Name:", 12);
-        decorationNameTextField = decorationNameField.getAttachment();
+  public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
+    this.colorSelectorController = colorSelectorController;
+  }
 
-        decorationNameTextField.setBehavior(new TextFieldBehavior<DecorationSettingsWindowController>(this, decorationNameTextField, Keyboard.KeyboardType.AlphaNumeric, decorationNameValidator) {
-            @Override
-            protected void informControllerTextFieldTapped() {
-                DecorationSettingsWindowController.super.onTextFieldTapped(decorationNameTextField);
-            }
+  @Override
+  public void init() {
+    TitledTextField<DecorationSettingsWindowController> decorationNameField =
+        new TitledTextField<>("Decoration Name:", 12);
+    decorationNameTextField = decorationNameField.getAttachment();
 
-            @Override
-            protected void informControllerTextFieldReleased() {
-                DecorationSettingsWindowController.super.onTextFieldReleased(decorationNameTextField);
-            }
+    decorationNameTextField.setBehavior(
+        new TextFieldBehavior<DecorationSettingsWindowController>(
+            this,
+            decorationNameTextField,
+            Keyboard.KeyboardType.AlphaNumeric,
+            decorationNameValidator) {
+          @Override
+          protected void informControllerTextFieldTapped() {
+            DecorationSettingsWindowController.super.onTextFieldTapped(decorationNameTextField);
+          }
+
+          @Override
+          protected void informControllerTextFieldReleased() {
+            DecorationSettingsWindowController.super.onTextFieldReleased(decorationNameTextField);
+          }
         });
-        decorationNameTextField.getBehavior().setReleaseAction(new Action() {
-            @Override
-            public void performAction() {
+    decorationNameTextField
+        .getBehavior()
+        .setReleaseAction(
+            new Action() {
+              @Override
+              public void performAction() {
                 model.setModelName(decorationNameTextField.getTextString());
+              }
+            });
+
+    SimplePrimary<TitledTextField<?>> secondaryElement1 =
+        new SimplePrimary<>(0, decorationNameField);
+    window.addPrimary(secondaryElement1);
+    // create the color selection field
+
+    colorSlotForDecoration = new ColorSlot();
+    Button<DecorationSettingsWindowController> colorSelectionButton =
+        new Button<>(
+            ResourceManager.getInstance().smallButtonTextureRegion,
+            Button.ButtonType.OneClick,
+            true);
+    LinearLayout linearLayout = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
+    linearLayout.addToLayout(colorSelectionButton);
+    linearLayout.addToLayout(colorSlotForDecoration);
+    TitledField<LinearLayout> colorSelectionField =
+        new TitledField<>("Select Color:", linearLayout);
+    colorSelectionButton.setBehavior(
+        new ButtonBehavior<DecorationSettingsWindowController>(this, colorSelectionButton) {
+          @Override
+          public void informControllerButtonClicked() {}
+
+          @Override
+          public void informControllerButtonReleased() {
+            if (colorSelectorController != null) {
+              colorSelectorController.bindToColor(
+                  ((ColoredProperties) model.getProperties()).getDefaultColor());
+              colorSelectorController.setAcceptAction(
+                  new Action() {
+                    @Override
+                    public void performAction() {
+                      setDecorationColorSlot();
+                    }
+                  });
+              Log.e("testing", "open Window");
+              colorSelectorController.openWindow();
             }
+          }
         });
+    SimplePrimary<TitledField> secondaryElement2 = new SimplePrimary<>(2, colorSelectionField);
+    window.addPrimary(secondaryElement2);
+    updateLayout();
+  }
 
+  private void setDecorationColorSlot() {
+    Color color = ((ColoredProperties) model.getProperties()).getDefaultColor();
+    colorSlotForDecoration.setColor(color.getRed(), color.getGreen(), color.getBlue());
+  }
 
-        SimplePrimary<TitledTextField<?>> secondaryElement1 = new SimplePrimary<>(0, decorationNameField);
-        window.addPrimary(secondaryElement1);
-//create the color selection field
+  @Override
+  void onModelUpdated(ProperModel<DecorationProperties> model) {
+    super.onModelUpdated(model);
+    setDecorationColorSlot();
+    setDecorationName(model.getModelName());
+  }
 
-        colorSlotForDecoration = new ColorSlot();
-        Button<DecorationSettingsWindowController> colorSelectionButton = new Button<>(ResourceManager.getInstance().smallButtonTextureRegion, Button.ButtonType.OneClick, true);
-        LinearLayout linearLayout = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
-        linearLayout.addToLayout(colorSelectionButton);
-        linearLayout.addToLayout(colorSlotForDecoration);
-        TitledField<LinearLayout> colorSelectionField = new TitledField<>("Select Color:", linearLayout);
-        colorSelectionButton.setBehavior(new ButtonBehavior<DecorationSettingsWindowController>(this, colorSelectionButton) {
-            @Override
-            public void informControllerButtonClicked() {
+  private void setDecorationName(String layerName) {
+    decorationNameTextField.getBehavior().setTextValidated(layerName);
+  }
 
-            }
+  @Override
+  public void onCancelSettings() {
+    super.onCancelSettings();
+  }
 
-            @Override
-            public void informControllerButtonReleased() {
-                if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((ColoredProperties)model.getProperties()).getDefaultColor());
-                    colorSelectorController.setAcceptAction(new Action() {
-                        @Override
-                        public void performAction() {
-                            setDecorationColorSlot();
-                        }
-                    });
-                    Log.e("testing","open Window");
-                    colorSelectorController.openWindow();
-                }
-            }
-        });
-        SimplePrimary<TitledField> secondaryElement2 = new SimplePrimary<>(2, colorSelectionField);
-        window.addPrimary(secondaryElement2);
-       updateLayout();
-    }
-
-    private void setDecorationColorSlot() {
-            Color color = ((ColoredProperties)model.getProperties()).getDefaultColor();
-            colorSlotForDecoration.setColor(color.getRed(), color.getGreen(), color.getBlue());
-    }
-
-@Override
-    void onModelUpdated(ProperModel<DecorationProperties> model) {
-        super.onModelUpdated(model);
-        setDecorationColorSlot();
-        setDecorationName(model.getModelName());
-    }
-    private void setDecorationName(String layerName) {
-        decorationNameTextField.getBehavior().setTextValidated(layerName);
-    }
-
-    @Override
-    public void onCancelSettings() {
-        super.onCancelSettings();
-    }
-
-    @Override
-    public void onSubmitSettings() {
-        super.onSubmitSettings();
-        userInterface.getToolModel().updateMesh();
-    }
+  @Override
+  public void onSubmitSettings() {
+    super.onSubmitSettings();
+    editorUserInterface.getToolModel().updateMesh();
+  }
 }
-
-
-

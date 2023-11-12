@@ -3,14 +3,15 @@ package com.evolgames.entities.properties;
 import org.andengine.util.adt.color.Color;
 
 public abstract class ColoredProperties extends Properties {
-    private Color defaultColor;
-    public abstract ColoredProperties copy();
+  private Color defaultColor;
 
-    public Color getDefaultColor() {
-        return defaultColor;
-    }
+  public abstract ColoredProperties copy();
 
-    public void setDefaultColor(Color defaultColor) {
-        this.defaultColor = defaultColor;
-    }
+  public Color getDefaultColor() {
+    return defaultColor;
+  }
+
+  public void setDefaultColor(Color defaultColor) {
+    this.defaultColor = defaultColor;
+  }
 }

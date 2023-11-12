@@ -7,5 +7,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface ImpactInterface {
-    void processImpacts(GameEntity gameEntity, List<ImpactData> impacts);
+  void processImpacts(GameEntity gameEntity, List<ImpactData> impacts);
 }

@@ -8,7 +8,6 @@ import com.evolgames.entities.particles.pools.FireSpritePool;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MyColorUtils;
-
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;
@@ -20,74 +19,95 @@ import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-
 public class FireParticleWrapperWithPolygonEmitter implements Fire {
-    private static final float RATE_MIN = 30 * 3;
-    private static final float RATE_MAX = 50 * 3;
-    private static final int PARTICLES_MAX = 75 * 3;
+  private static final float RATE_MIN = 30 * 3;
+  private static final float RATE_MAX = 50 * 3;
+  private static final int PARTICLES_MAX = 75 * 3;
+  private final GameEntity gameEntity;
+  public BatchedSpriteParticleSystem particleSystem;
+  public FireEmitter emitter;
+  private ColorParticleModifier<UncoloredSprite> colorModifier;
 
-    public BatchedSpriteParticleSystem particleSystem;
-    public FireEmitter emitter;
-    private ColorParticleModifier<UncoloredSprite> colorModifier;
-    private final GameEntity gameEntity;
+  public FireParticleWrapperWithPolygonEmitter(GameEntity entity) {
+    this.gameEntity = entity;
+    IEntityFactory<UncoloredSprite> ief = FireSpritePool::obtain;
+    this.emitter = new FireEmitter(entity);
 
-    public FireParticleWrapperWithPolygonEmitter(GameEntity entity) {
-      this.gameEntity = entity;
-        IEntityFactory<UncoloredSprite> ief = FireSpritePool::obtain;
-        this.emitter = new FireEmitter(entity);
+    float area = 0;
+    for (LayerBlock b : entity.getBlocks()) {
+      area += b.getBlockArea();
+    }
+    float ratio = area / (32f * 32f);
 
-        float area = 0;
-        for (LayerBlock b : entity.getBlocks()){
-                area += b.getBlockArea();
-        }
-        float ratio = area / (32f * 32f);
+    this.particleSystem =
+        new FireParticleSystem(
+            ief,
+            this.emitter,
+            FireParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
+            FireParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
+            (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1),
+            ResourceManager.getInstance().plasmaParticle);
 
-        this.particleSystem = new FireParticleSystem(ief,
-                this.emitter,
-                FireParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
-                FireParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
-                (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1), ResourceManager.getInstance().plasmaParticle
-        );
+    particleSystem.setZIndex(entity.getMesh().getZIndex() + 1);
 
-        particleSystem.setZIndex(entity.getMesh().getZIndex() + 1);
+    VelocityParticleInitializer<UncoloredSprite> velocityInitializer =
+        new VelocityParticleInitializer<>(0, 0, 120, 140);
+    this.particleSystem.addParticleInitializer(velocityInitializer);
+    this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0f));
+    this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
+    setFlameColor();
+  }
 
-        VelocityParticleInitializer<UncoloredSprite> velocityInitializer = new VelocityParticleInitializer<>(0, 0, 120, 140);
-        this.particleSystem.addParticleInitializer(velocityInitializer);
-        this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0f));
-        this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
-        setFlameColor();
+  public void update() {
+    this.emitter.onStep();
+    this.setFlameColor();
+  }
+
+  public ParticleSystem<?> getParticleSystem() {
+    return particleSystem;
+  }
+
+  private void setFlameColor() {
+    float totalTemp =
+        (float)
+            gameEntity.getBlocks().stream()
+                .flatMapToDouble(
+                    b ->
+                        b.getBlockGrid().getCoatingBlocks().stream()
+                            .mapToDouble(CoatingBlock::getTemperature))
+                .sum();
+    int count =
+        (int)
+            gameEntity.getBlocks().stream()
+                .flatMap(b -> b.getBlockGrid().getCoatingBlocks().stream())
+                .count();
+    float temperature = totalTemp / count;
+    Color initialColor = MyColorUtils.getColor(temperature);
+    Color previous = MyColorUtils.getColor(MyColorUtils.getPreviousTemperature(temperature));
+    if (this.colorModifier != null) {
+      this.particleSystem.removeParticleModifier(this.colorModifier);
     }
 
-    public void update() {
-        this.emitter.onStep();
-        this.setFlameColor();
-    }
+    this.colorModifier =
+        new ColorParticleModifier<>(
+            0f,
+            0.3f,
+            initialColor.getRed(),
+            previous.getRed(),
+            initialColor.getGreen(),
+            previous.getGreen(),
+            initialColor.getBlue(),
+            previous.getBlue());
+    this.particleSystem.addParticleModifier(this.colorModifier);
+  }
 
-    public ParticleSystem<?> getParticleSystem() {
-        return particleSystem;
-    }
+  @Override
+  public ParticleSystem<UncoloredSprite> getFireParticleSystem() {
+    return particleSystem;
+  }
 
-    private void setFlameColor() {
-        float totalTemp = (float) gameEntity.getBlocks().stream().flatMapToDouble(b-> b.getBlockGrid().getCoatingBlocks().stream().mapToDouble(CoatingBlock::getTemperature)).sum();
-        int count = (int) gameEntity.getBlocks().stream().flatMap(b-> b.getBlockGrid().getCoatingBlocks().stream()).count();
-            float temperature = totalTemp/count;
-        Color initialColor = MyColorUtils.getColor(temperature);
-        Color previous = MyColorUtils.getColor(MyColorUtils.getPreviousTemperature(temperature));
-        if (this.colorModifier != null) {
-            this.particleSystem.removeParticleModifier(this.colorModifier);
-        }
-
-        this.colorModifier = new ColorParticleModifier<>(0f, 0.3f, initialColor.getRed(), previous.getRed(), initialColor.getGreen(), previous.getGreen(), initialColor.getBlue(), previous.getBlue());
-        this.particleSystem.addParticleModifier(this.colorModifier);
-    }
-
-    @Override
-    public ParticleSystem<UncoloredSprite> getFireParticleSystem() {
-        return particleSystem;
-    }
-
-    @Override
-    public double getParticleTemperature(Particle<?> particle) {
-        return ((CoatingBlock)particle.getEntity().getUserData()).getTemperature();
-    }
+  @Override
+  public double getParticleTemperature(Particle<?> particle) {
+    return ((CoatingBlock) particle.getEntity().getUserData()).getTemperature();
+  }
 }

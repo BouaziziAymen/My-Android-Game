@@ -1,4 +1,3 @@
 package com.evolgames.helpers.utilities;
 
-public class GameEntityUtils {
-}
+public class GameEntityUtils {}

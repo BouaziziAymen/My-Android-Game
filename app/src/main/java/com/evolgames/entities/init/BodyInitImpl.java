@@ -6,43 +6,45 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.evolgames.entities.EntityWithBody;
 import com.evolgames.entities.serialization.InitInfo;
 
-public class BodyInitImpl implements BodyInit{
+public class BodyInitImpl implements BodyInit {
 
-    private Filter filter;
-    private static short groupNumber;
-    @SuppressWarnings("unused")
-    public BodyInitImpl(){}
+  private static short groupNumber;
+  private Filter filter;
 
-    public BodyInitImpl(short category){
-        this.filter  = new Filter();
-        this.filter.categoryBits = category;
-        this.filter.maskBits = category;
-        this.filter.groupIndex = (short) -++groupNumber;
-    }
+  @SuppressWarnings("unused")
+  public BodyInitImpl() {}
 
-    public BodyInitImpl(Filter filter) {
-        this.filter = filter;
-    }
+  public BodyInitImpl(short category) {
+    this.filter = new Filter();
+    this.filter.categoryBits = category;
+    this.filter.maskBits = category;
+    this.filter.groupIndex = (short) - ++groupNumber;
+  }
 
-    @Override
-    public void initialize(Body body) {
-        EntityWithBody entity = (EntityWithBody) body.getUserData();
-        entity.setGroupIndex(this.filter.groupIndex);
-        for (Fixture f : body.getFixtureList()) {
-            f.setFilterData(this.filter);
-        }
-    }
-    public Filter getFilter(){
-        return filter;
-    }
+  public BodyInitImpl(Filter filter) {
+    this.filter = filter;
+  }
 
-    public void setFilter(Filter filter) {
-        this.filter = filter;
+  @Override
+  public void initialize(Body body) {
+    EntityWithBody entity = (EntityWithBody) body.getUserData();
+    entity.setGroupIndex(this.filter.groupIndex);
+    for (Fixture f : body.getFixtureList()) {
+      f.setFilterData(this.filter);
     }
+  }
 
-    @Override
-    public InitInfo getInitInfo(InitInfo initInfo) {
-        initInfo.setFilter(filter);
-        return initInfo;
-    }
+  public Filter getFilter() {
+    return filter;
+  }
+
+  public void setFilter(Filter filter) {
+    this.filter = filter;
+  }
+
+  @Override
+  public InitInfo getInitInfo(InitInfo initInfo) {
+    initInfo.setFilter(filter);
+    return initInfo;
+  }
 }

@@ -6,73 +6,73 @@ import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.util.math.MathUtils;
 
 /**
- * (c) 2010 Nicolas Gramlich 
- * (c) 2011 Zynga Inc.
- * 
+ * (c) 2010 Nicolas Gramlich (c) 2011 Zynga Inc.
+ *
  * @author Nicolas Gramlich
  * @since 21:21:10 - 14.03.2010
  */
 public class ExpireParticleInitializer<T extends IEntity> implements IParticleInitializer<T> {
-	// ===========================================================
-	// PhysicsConstants
-	// ===========================================================
+  // ===========================================================
+  // PhysicsConstants
+  // ===========================================================
 
-	// ===========================================================
-	// Fields
-	// ===========================================================
+  // ===========================================================
+  // Fields
+  // ===========================================================
 
-	private float mMinLifeTime;
-	private float mMaxLifeTime;
+  private float mMinLifeTime;
+  private float mMaxLifeTime;
 
-	// ===========================================================
-	// Constructors
-	// ===========================================================
+  // ===========================================================
+  // Constructors
+  // ===========================================================
 
-	public ExpireParticleInitializer(float pLifeTime) {
-		this(pLifeTime, pLifeTime);
-	}
+  public ExpireParticleInitializer(float pLifeTime) {
+    this(pLifeTime, pLifeTime);
+  }
 
-	public ExpireParticleInitializer(float pMinLifeTime, float pMaxLifeTime) {
-        mMinLifeTime = pMinLifeTime;
-        mMaxLifeTime = pMaxLifeTime;
-	}
+  public ExpireParticleInitializer(float pMinLifeTime, float pMaxLifeTime) {
+    mMinLifeTime = pMinLifeTime;
+    mMaxLifeTime = pMaxLifeTime;
+  }
 
-	// ===========================================================
-	// Getter & Setter
-	// ===========================================================
+  // ===========================================================
+  // Getter & Setter
+  // ===========================================================
 
-	public float getMinLifeTime() {
-		return mMinLifeTime;
-	}
+  public float getMinLifeTime() {
+    return mMinLifeTime;
+  }
 
-	public float getMaxLifeTime() {
-		return mMaxLifeTime;
-	}
+  public float getMaxLifeTime() {
+    return mMaxLifeTime;
+  }
 
-	public void setLifeTime(float pLifeTime) {
-        mMinLifeTime = pLifeTime;
-        mMaxLifeTime = pLifeTime;
-	}
+  public void setLifeTime(float pLifeTime) {
+    mMinLifeTime = pLifeTime;
+    mMaxLifeTime = pLifeTime;
+  }
 
-	public void setLifeTime(float pMinLifeTime, float pMaxLifeTime) {
-        mMinLifeTime = pMinLifeTime;
-        mMaxLifeTime = pMaxLifeTime;
-	}
+  public void setLifeTime(float pMinLifeTime, float pMaxLifeTime) {
+    mMinLifeTime = pMinLifeTime;
+    mMaxLifeTime = pMaxLifeTime;
+  }
 
-	// ===========================================================
-	// Methods for/from SuperClass/Interfaces
-	// ===========================================================
+  // ===========================================================
+  // Methods for/from SuperClass/Interfaces
+  // ===========================================================
 
-	@Override
-	public void onInitializeParticle(Particle<T> pParticle) {
-		pParticle.setExpireTime(MathUtils.RANDOM.nextFloat() * (mMaxLifeTime - mMinLifeTime) + mMinLifeTime);
-	}
+  @Override
+  public void onInitializeParticle(Particle<T> pParticle) {
+    pParticle.setExpireTime(
+        MathUtils.RANDOM.nextFloat() * (mMaxLifeTime - mMinLifeTime) + mMinLifeTime);
+  }
 
-	// ===========================================================
-	// Methods
-	// ===========================================================
+  // ===========================================================
+  // Methods
+  // ===========================================================
 
-	// ===========================================================
-	// Inner and Anonymous Classes
-	// ===========================================================
+  // ===========================================================
+  // Inner and Anonymous Classes
+  // ===========================================================
 }

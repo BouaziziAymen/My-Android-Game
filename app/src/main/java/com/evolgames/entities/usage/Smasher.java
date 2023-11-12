@@ -8,54 +8,79 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.hand.SwingHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
-import com.evolgames.scenes.PlayerSpecialAction;
-
+import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.List;
 
-public class Smasher extends MeleeUse implements Penetrating{
+public class Smasher extends MeleeUse implements Penetrating {
 
-    private SwingHandControl handControl;
+  private SwingHandControl handControl;
 
-    @Override
-    public void onStep(float deltaTime) {
-        if(this.handControl!=null && this.handControl.isDead()){
-            setActive(false);
-        }
+  @Override
+  public void onStep(float deltaTime) {
+    if (this.handControl != null && this.handControl.isDead()) {
+      setActive(false);
     }
+  }
 
-    public void reset(SwingHandControl handControl) {
-        this.handControl = handControl;
-    }
+  public void reset(SwingHandControl handControl) {
+    this.handControl = handControl;
+  }
 
+  @Override
+  public PlayerSpecialAction getAction() {
+    return PlayerSpecialAction.Smash;
+  }
 
-    @Override
-    public PlayerSpecialAction getAction() {
-        return PlayerSpecialAction.Smash;
-    }
+  @Override
+  public void onImpulseConsumed(
+      WorldFacade worldFacade,
+      Contact contact,
+      Vector2 point,
+      Vector2 normal,
+      float actualAdvance,
+      GameEntity penetrator,
+      GameEntity penetrated,
+      List<TopographyData> envData,
+      List<TopographyData> penData,
+      float consumedImpulse) {
+    float massFraction =
+        penetrator.getBody().getMass()
+            / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
+    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+    penetrated
+        .getBody()
+        .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
+    worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
+    worldFacade.freeze(penetrator);
+    handControl.setDead(true);
+    this.setActive(false);
+  }
 
-    @Override
-    public void onImpulseConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse) {
-        float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        penetrated.getBody().applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
-        worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
-        worldFacade.freeze(penetrator);
-        handControl.setDead(true);
-        this.setActive(false);
-    }
+  @Override
+  public void onFree(
+      WorldFacade worldFacade,
+      Contact contact,
+      Vector2 point,
+      Vector2 normal,
+      float actualAdvance,
+      GameEntity penetrator,
+      GameEntity penetrated,
+      List<TopographyData> envData,
+      List<TopographyData> penData,
+      float consumedImpulse,
+      float collisionImpulse) {
+    float massFraction =
+        penetrator.getBody().getMass()
+            / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
+    handControl.setDead(true);
+    worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
+    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+    setActive(false);
+  }
 
-    @Override
-    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse, float collisionImpulse) {
-        float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        handControl.setDead(true);
-        worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        setActive(false);
-    }
-
-    @Override
-    public void onCancel() {
-        setActive(false);
-        handControl.setDead(true);
-    }
+  @Override
+  public void onCancel() {
+    setActive(false);
+    handControl.setDead(true);
+  }
 }

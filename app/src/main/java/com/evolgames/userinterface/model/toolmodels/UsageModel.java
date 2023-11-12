@@ -14,45 +14,44 @@ import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 
 public class UsageModel<T extends Properties> extends ProperModel<T> {
-    final BodyUsageCategory type;
+  final BodyUsageCategory type;
 
-    @SuppressWarnings("unchecked")
-    public UsageModel(String name, BodyUsageCategory type) {
-        super(name);
-        switch (type){
-            case SHOOTER:
-               this.properties = (T) new ShooterProperties();
-                break;
-            case SHOOTER_CONTINUOUS:
-                this.properties = (T) new ContinuousShooterProperties();
-                break;
-            case TIME_BOMB:
-                this.properties = (T) new TimeBombUsageProperties();
-                break;
-            case FUZE_BOMB:
-                this.properties = (T) new FuzeBombUsageProperties();
-                break;
-            case IMPACT_BOMB:
-                this.properties = (T) new ImpactBombUsageProperties();
-                break;
-            case SLASHER:
-                this.properties = (T) new SlashProperties();
-                break;
-            case BLUNT:
-                this.properties = (T) new SmashProperties();
-                break;
-            case STABBER:
-                this.properties = (T) new StabProperties();
-                break;
-            case THROWING:
-                this.properties = (T) new ThrowProperties();
-                break;
-        }
-        this.type = type;
+  @SuppressWarnings("unchecked")
+  public UsageModel(String name, BodyUsageCategory type) {
+    super(name);
+    switch (type) {
+      case SHOOTER:
+        this.properties = (T) new ShooterProperties();
+        break;
+      case SHOOTER_CONTINUOUS:
+        this.properties = (T) new ContinuousShooterProperties();
+        break;
+      case TIME_BOMB:
+        this.properties = (T) new TimeBombUsageProperties();
+        break;
+      case FUZE_BOMB:
+        this.properties = (T) new FuzeBombUsageProperties();
+        break;
+      case IMPACT_BOMB:
+        this.properties = (T) new ImpactBombUsageProperties();
+        break;
+      case SLASHER:
+        this.properties = (T) new SlashProperties();
+        break;
+      case BLUNT:
+        this.properties = (T) new SmashProperties();
+        break;
+      case STABBER:
+        this.properties = (T) new StabProperties();
+        break;
+      case THROWING:
+        this.properties = (T) new ThrowProperties();
+        break;
     }
+    this.type = type;
+  }
 
-    public BodyUsageCategory getType() {
-        return type;
-    }
-
+  public BodyUsageCategory getType() {
+    return type;
+  }
 }

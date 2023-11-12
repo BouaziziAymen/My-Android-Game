@@ -1,137 +1,133 @@
 package com.evolgames.userinterface.view.shapes;
 
 import android.graphics.Bitmap;
-
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MyColorUtils;
 import com.evolgames.userinterface.view.basics.Container;
-
+import java.util.ArrayList;
 import org.andengine.entity.primitive.LineLoop;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.util.adt.transformation.Transformation;
-import java.util.ArrayList;
-
 
 public class ImageShape extends Container {
-    private final Sprite sketchSprite;
-    private final CircleShape pipeCircle;
-    private Scene creationScene;
-    private LineLoop lineLoop;
+  private final Sprite sketchSprite;
+  private final CircleShape pipeCircle;
+  private final Scene creationScene;
+  private LineLoop lineLoop;
 
-    private ArrayList<Vector2> points;
-    private Bitmap bitmap;
-    public void setPipeCircleVisibility(boolean visible){
-        pipeCircle.setVisible(visible);
+  private ArrayList<Vector2> points;
+  private final Bitmap bitmap;
+
+  public ImageShape(Scene scene) {
+    creationScene = scene;
+    sketchSprite =
+        new Sprite(
+            400,
+            240,
+            ResourceManager.getInstance().sketchTextureRegion,
+            ResourceManager.getInstance().vbom);
+    creationScene.attachChild(sketchSprite);
+    sketchSprite.setZIndex(-1);
+    creationScene.sortChildren();
+    setDepth(-10);
+    updateSelf();
+    bitmap = ResourceManager.getInstance().sketchBitmap;
+    pipeCircle = new CircleShape(sketchSprite);
+  }
+
+  public void setPipeCircleVisibility(boolean visible) {
+    pipeCircle.setVisible(visible);
+  }
+
+  public void setPipeCircleRadius(int radius) {
+    pipeCircle.setRadius(radius);
+  }
+
+  private void updateBounds() {
+    float x = sketchSprite.getX();
+    float y = sketchSprite.getY();
+    float halfWidth = sketchSprite.getWidth() / 2;
+    float halfHeight = sketchSprite.getHeight() / 2;
+    float[] data = new float[12];
+    data[0] = halfWidth + 8;
+    data[1] = halfHeight + 8;
+    data[2] = halfWidth;
+    data[3] = halfHeight;
+    data[4] = halfWidth;
+    data[5] = -halfHeight;
+    data[6] = -halfWidth;
+    data[7] = -halfHeight;
+    data[8] = -halfWidth;
+    data[9] = halfHeight;
+    data[10] = halfWidth;
+    data[11] = halfHeight;
+
+    Transformation transform = GeometryUtils.transformation;
+    transform.setToIdentity();
+    transform.preTranslate(x, y);
+    transform.preRotate(-sketchSprite.getRotation());
+    transform.transform(data);
+    points = new ArrayList<>();
+    for (int i = 0; i < 12; i += 2) {
+      points.add(new Vector2(data[i], data[i + 1]));
     }
-    public void setPipeCircleRadius(int radius){
-        pipeCircle.setRadius(radius);
+  }
+
+  public void setLineLoopColor(float r, float g, float b) {
+    if (lineLoop != null) lineLoop.setColor(r, g, b);
+  }
+
+  public void updateSelf() {
+    sketchSprite.resetScaleCenter();
+    sketchSprite.resetRotationCenter();
+    updateBounds();
+    if (lineLoop != null) lineLoop.detachSelf();
+    this.lineLoop = new LineLoop(0, 0, 5, 100, ResourceManager.getInstance().vbom);
+    lineLoop.setZIndex(2);
+    lineLoop.setColor(0, 1, 0);
+    creationScene.attachChild(lineLoop);
+    creationScene.sortChildren();
+    if (points != null)
+      for (Vector2 point : points) {
+        lineLoop.add(point.x, point.y);
+      }
+    setUpdated(true);
+  }
+
+  public void dispose() {
+    if (lineLoop != null) {
+      lineLoop.dispose();
+      lineLoop.detachSelf();
     }
-    public ImageShape(Scene scene) {
-        creationScene = scene;
-         sketchSprite = new Sprite(400, 240 ,ResourceManager.getInstance().sketchTextureRegion,ResourceManager.getInstance().vbom);
-        creationScene.attachChild(sketchSprite);
-        sketchSprite.setZIndex(-1);
-        creationScene.sortChildren();
-        setDepth(-10);
-        updateSelf();
-        bitmap = ResourceManager.getInstance().sketchBitmap;
-         pipeCircle = new CircleShape(sketchSprite);
+  }
 
+  public void resume() {
+    // updateSelf();
+  }
+
+  public Sprite getSprite() {
+    return sketchSprite;
+  }
+
+  public org.andengine.util.adt.color.Color getColorAt(float touchX, float touchY, int radius) {
+    setPipeCircleRadius(radius);
+    float[] pos = sketchSprite.convertSceneCoordinatesToLocalCoordinates(touchX, touchY);
+
+    if (pos[0] < sketchSprite.getWidth()
+        && pos[0] > 0
+        && pos[1] < sketchSprite.getHeight()
+        && pos[1] > 0) {
+      pipeCircle.onUpdated(pos[0], pos[1]);
+      int height = bitmap.getHeight();
+      int width = bitmap.getWidth();
+      int x = (int) Math.floor(pos[0] / (2 * sketchSprite.getWidth() / 2) * width);
+      int y = height - (int) Math.floor(pos[1] / (2 * sketchSprite.getHeight() / 2) * height);
+
+      return MyColorUtils.getAverageRGBCircle(bitmap, x, y, 5);
     }
-    private void updateBounds(){
-        float x = sketchSprite.getX();
-        float y = sketchSprite.getY();
-        float halfWidth = sketchSprite.getWidth()/2;
-        float halfHeight = sketchSprite.getHeight()/2;
-        float[] data = new float[12];
-        data[0] = halfWidth+8;
-        data[1] = halfHeight+8;
-        data[2] = halfWidth;
-        data[3] = halfHeight;
-        data[4] = halfWidth;
-        data[5] = -halfHeight;
-        data[6] = -halfWidth;
-        data[7] = -halfHeight;
-        data[8] = -halfWidth;
-        data[9] = halfHeight;
-        data[10] = halfWidth;
-        data[11] = halfHeight;
-
-        Transformation transform = GeometryUtils.transformation;
-        transform.setToIdentity();
-        transform.preTranslate(x,y);
-        transform.preRotate(-sketchSprite.getRotation());
-        transform.transform(data);
-        points = new ArrayList<>();
-        for(int i=0;i<12;i+=2){
-            points.add(new Vector2(data[i],data[i+1]));
-        }
-    }
-
-
-    public void setLineLoopColor(float r, float g, float b) {
-        if (lineLoop != null) lineLoop.setColor(r, g, b);
-    }
-
-
-
-
-
-
-
-
-    public void updateSelf() {
-        sketchSprite.resetScaleCenter();
-        sketchSprite.resetRotationCenter();
-        updateBounds();
-        if (lineLoop != null) lineLoop.detachSelf();
-        this.lineLoop = new LineLoop(0, 0, 5, 100, ResourceManager.getInstance().vbom);
-        lineLoop.setZIndex(2);
-        lineLoop.setColor(0,1,0);
-        creationScene.attachChild(lineLoop);
-        creationScene.sortChildren();
-        if (points != null)
-            for (Vector2 point : points) {
-                lineLoop.add(point.x, point.y);
-            }
-        setUpdated(true);
-    }
-
-    public void dispose() {
-        if (lineLoop != null) {
-            lineLoop.dispose();
-            lineLoop.detachSelf();
-        }
-    }
-
-    public void resume() {
-        //updateSelf();
-    }
-
-
-
-    public Sprite getSprite() {
-        return sketchSprite;
-    }
-
-
-    public org.andengine.util.adt.color.Color getColorAt(float touchX,float touchY, int radius){
-        setPipeCircleRadius(radius);
-        float[] pos = sketchSprite.convertSceneCoordinatesToLocalCoordinates(touchX, touchY);
-
-        if(pos[0]<sketchSprite.getWidth()&&pos[0]>0&&pos[1]<sketchSprite.getHeight()&&pos[1]>0) {
-            pipeCircle.onUpdated(pos[0],pos[1]);
-            int height = bitmap.getHeight();
-            int width = bitmap.getWidth();
-            int x = (int)Math.floor (pos[0] / (2 * sketchSprite.getWidth()/2) * width);
-            int y = height - (int) Math.floor(pos[1] / (2 * sketchSprite.getHeight()/2) * height);
-
-            return MyColorUtils.getAverageRGBCircle(bitmap,x,y,5);
-
-        }
-        return null;
-    }
+    return null;
+  }
 }

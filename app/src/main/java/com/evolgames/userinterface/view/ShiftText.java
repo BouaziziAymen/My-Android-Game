@@ -7,60 +7,60 @@ import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowContr
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.inputs.Button;
-import com.evolgames.userinterface.view.inputs.Touchable;
 import com.evolgames.userinterface.view.inputs.TypeABoard;
 
-public class ShiftText<C extends AdvancedWindowController<?>> extends Container implements Temporal {
+public class ShiftText<C extends AdvancedWindowController<?>> extends Container
+    implements Temporal {
 
-    private final Text movingText;
-    private final TypeABoard board;
-    private final ShiftTextBehavior<C> shiftTextBehavior;
-    private String text = "";
+  private final Text movingText;
+  private final TypeABoard board;
+  private final ShiftTextBehavior<C> shiftTextBehavior;
+  private String text = "";
 
-    public ShiftText(float pX, float pY, int length, C controller) {
-        super(pX, pY);
-        board = new TypeABoard(0, 0, length, true);
-        board.setBounds(null);
-        Button<C> infoButton = new Button<>(ResourceManager.getInstance().infoBlueButton, Button.ButtonType.Selector, true);
-        infoButton.setPosition(5, 4);
-        infoButton.setBehavior(new ButtonBehavior<C>(controller, infoButton) {
-            @Override
-            public void informControllerButtonClicked() {
-            }
+  public ShiftText(float pX, float pY, int length, C controller) {
+    super(pX, pY);
+    board = new TypeABoard(0, 0, length, true);
+    board.setBounds(null);
+    Button<C> infoButton =
+        new Button<>(
+            ResourceManager.getInstance().infoBlueButton, Button.ButtonType.Selector, true);
+    infoButton.setPosition(5, 4);
+    infoButton.setBehavior(
+        new ButtonBehavior<C>(controller, infoButton) {
+          @Override
+          public void informControllerButtonClicked() {}
 
-            @Override
-            public void informControllerButtonReleased() {
-
-            }
+          @Override
+          public void informControllerButtonReleased() {}
         });
-        addElement(infoButton);
-        addElement(board);
+    addElement(infoButton);
+    addElement(board);
 
-        movingText = new Text(text, 2);
-        addElement(movingText);
-        movingText.setPosition(30, 14);
-        shiftTextBehavior = new ShiftTextBehavior<>(this, controller);
-    }
+    movingText = new Text(text, 2);
+    addElement(movingText);
+    movingText.setPosition(30, 14);
+    shiftTextBehavior = new ShiftTextBehavior<>(this, controller);
+  }
 
-    public String getText() {
-        return text;
-    }
+  public String getText() {
+    return text;
+  }
 
-    public void setText(String text) {
-        this.text = text;
-        this.shiftTextBehavior.setShiftedText(text);
-    }
+  public void setText(String text) {
+    this.text = text;
+    this.shiftTextBehavior.setShiftedText(text);
+  }
 
-    @Override
-    public void onStep() {
-        shiftTextBehavior.onStep();
-    }
+  @Override
+  public void onStep() {
+    shiftTextBehavior.onStep();
+  }
 
-    public void update(String textString) {
-        movingText.updateText(textString);
-    }
+  public void update(String textString) {
+    movingText.updateText(textString);
+  }
 
-    public float getUsefulWidth() {
-        return board.getUsefulWidth();
-    }
+  public float getUsefulWidth() {
+    return board.getUsefulWidth();
+  }
 }

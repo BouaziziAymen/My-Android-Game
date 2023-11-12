@@ -5,17 +5,23 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.ClusterEmitter;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.helpers.utilities.GeometryUtils;
-
 import org.andengine.util.adt.color.Color;
 
-public class ClusterLiquidParticleWrapper extends  DataLiquidParticleWrapper{
-    public ClusterLiquidParticleWrapper(GameEntity gameEntity, Color color, float[] data, float[] weights, Vector2 splashVelocity, int lowerRate, int higherRate) {
-        super(gameEntity, data,weights,splashVelocity,color, lowerRate, higherRate);
-    }
+public class ClusterLiquidParticleWrapper extends DataLiquidParticleWrapper {
+  public ClusterLiquidParticleWrapper(
+      GameEntity gameEntity,
+      Color color,
+      float[] data,
+      float[] weights,
+      Vector2 splashVelocity,
+      int lowerRate,
+      int higherRate) {
+    super(gameEntity, data, weights, splashVelocity, color, lowerRate, higherRate);
+  }
 
-    @Override
-    protected DataEmitter createEmitter(float[] emitterData, float[] weights) {
-        Vector2 center = GeometryUtils.calculateCentroid(emitterData);
-        return new ClusterEmitter(center.x,center.y,emitterData,weights);
-    }
+  @Override
+  protected DataEmitter createEmitter(float[] emitterData, float[] weights) {
+    Vector2 center = GeometryUtils.calculateCentroid(emitterData);
+    return new ClusterEmitter(center.x, center.y, emitterData, weights);
+  }
 }

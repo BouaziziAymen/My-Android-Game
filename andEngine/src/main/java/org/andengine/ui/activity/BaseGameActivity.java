@@ -143,35 +143,29 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 			}
 		};
 
-		final OnCreateSceneCallback onCreateSceneCallback = new OnCreateSceneCallback() {
-			@Override
-			public void onCreateSceneFinished(final Scene pScene) {
-				BaseGameActivity.this.mEngine.setScene(pScene);
+		final OnCreateSceneCallback onCreateSceneCallback = pScene -> {
+			BaseGameActivity.this.mEngine.setScene(pScene);
 
-				try {
-					if (BuildConfig.DEBUG) {
-						Debug.d(BaseGameActivity.this.getClass().getSimpleName() + ".onPopulateScene" + " @(Thread: '" + Thread.currentThread().getName() + "')");
-					}
-
-					BaseGameActivity.this.onPopulateScene(pScene, onPopulateSceneCallback);
-				} catch(final Throwable pThrowable) {
-					Debug.e(BaseGameActivity.this.getClass().getSimpleName() + ".onPopulateScene failed." + " @(Thread: '" + Thread.currentThread().getName() + "')", pThrowable);
+			try {
+				if (BuildConfig.DEBUG) {
+					Debug.d(BaseGameActivity.this.getClass().getSimpleName() + ".onPopulateScene" + " @(Thread: '" + Thread.currentThread().getName() + "')");
 				}
+
+				BaseGameActivity.this.onPopulateScene(pScene, onPopulateSceneCallback);
+			} catch(final Throwable pThrowable) {
+				Debug.e(BaseGameActivity.this.getClass().getSimpleName() + ".onPopulateScene failed." + " @(Thread: '" + Thread.currentThread().getName() + "')", pThrowable);
 			}
 		};
 
-		final OnCreateResourcesCallback onCreateResourcesCallback = new OnCreateResourcesCallback() {
-			@Override
-			public void onCreateResourcesFinished() {
-				try {
-					if (BuildConfig.DEBUG) {
-						Debug.d(BaseGameActivity.this.getClass().getSimpleName() + ".onCreateScene" + " @(Thread: '" + Thread.currentThread().getName() + "')");
-					}
-
-					BaseGameActivity.this.onCreateScene(onCreateSceneCallback);
-				} catch(final Throwable pThrowable) {
-					Debug.e(BaseGameActivity.this.getClass().getSimpleName() + ".onCreateScene failed." + " @(Thread: '" + Thread.currentThread().getName() + "')", pThrowable);
+		final OnCreateResourcesCallback onCreateResourcesCallback = () -> {
+			try {
+				if (BuildConfig.DEBUG) {
+					Debug.d(BaseGameActivity.this.getClass().getSimpleName() + ".onCreateScene" + " @(Thread: '" + Thread.currentThread().getName() + "')");
 				}
+
+				BaseGameActivity.this.onCreateScene(onCreateSceneCallback);
+			} catch(final Throwable pThrowable) {
+				Debug.e(BaseGameActivity.this.getClass().getSimpleName() + ".onCreateScene failed." + " @(Thread: '" + Thread.currentThread().getName() + "')", pThrowable);
 			}
 		};
 

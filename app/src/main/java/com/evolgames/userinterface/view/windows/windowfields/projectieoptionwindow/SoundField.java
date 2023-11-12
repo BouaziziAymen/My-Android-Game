@@ -10,27 +10,39 @@ import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
 public class SoundField extends SimpleTertiary<ButtonWithText<ProjectileOptionController>> {
 
-    public SoundField(String soundName,int bodyFieldKey, int layerFieldKey, int decorationFieldKey, ProjectileOptionController controller) {
-        super(bodyFieldKey,layerFieldKey,decorationFieldKey,new ButtonWithText<>(soundName, 2, ResourceManager.getInstance().largeLampTextureRegion, Button.ButtonType.Selector,true));
-        setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
+  public SoundField(
+      String soundName,
+      int bodyFieldKey,
+      int layerFieldKey,
+      int decorationFieldKey,
+      ProjectileOptionController controller) {
+    super(
+        bodyFieldKey,
+        layerFieldKey,
+        decorationFieldKey,
+        new ButtonWithText<>(
+            soundName,
+            2,
+            ResourceManager.getInstance().largeLampTextureRegion,
+            Button.ButtonType.Selector,
+            true));
+    setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
 
+    main.setBehavior(
+        new ButtonBehavior<ProjectileOptionController>(controller, main) {
+          @Override
+          public void informControllerButtonClicked() {
+            controller.onTertiaryButtonClicked(SoundField.this);
+          }
 
-        main.setBehavior(new ButtonBehavior<ProjectileOptionController>(controller, main) {
-            @Override
-            public void informControllerButtonClicked() {
-                controller.onTertiaryButtonClicked(SoundField.this);
-            }
-            @Override
-            public void informControllerButtonReleased() {
-                controller.onTertiaryButtonReleased(SoundField.this);
-            }
+          @Override
+          public void informControllerButtonReleased() {
+            controller.onTertiaryButtonReleased(SoundField.this);
+          }
         });
+  }
 
-    }
-
-
-    public ButtonWithText getSoundFieldControl() {
-        return main;
-    }
-
+  public ButtonWithText getSoundFieldControl() {
+    return main;
+  }
 }

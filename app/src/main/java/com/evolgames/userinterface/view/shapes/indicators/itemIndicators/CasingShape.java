@@ -2,9 +2,9 @@ package com.evolgames.userinterface.view.shapes.indicators.itemIndicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.scenes.GameScene;
+import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
-import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.indicators.MovablesContainer;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
@@ -13,96 +13,99 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CasingShape extends AngleIndicator implements MovablesContainer {
-    private final UserInterface userInterface;
-    private final ControllerPointImage originPoint;
-    private CasingModel model;
+  private final EditorUserInterface editorUserInterface;
+  private final ControllerPointImage originPoint;
+  private CasingModel model;
 
-    public CasingShape(Vector2 begin, GameScene scene) {
-        super(begin, scene, 24, 1);
+  public CasingShape(Vector2 begin, EditorScene scene) {
+    super(begin, scene, 24, 1);
 
-        this.userInterface = scene.getUserInterface();
-        this.originPoint = new ControllerPointImage(ResourceManager.getInstance().casingShapeTextureRegion, begin.cpy()) {
-            @Override
-            protected void performControl(float dx, float dy) {
-                float x = CasingShape.this.begin.x;
-                float y = CasingShape.this.begin.y;
-                model.getProperties().getAmmoOrigin().set(x,y);
-                CasingShape.this.updateBegin(x + dx, y + dy);
-                CasingShape.this.drawSelf();
-            }
+    this.editorUserInterface = scene.getUserInterface();
+    this.originPoint =
+        new ControllerPointImage(
+            ResourceManager.getInstance().casingShapeTextureRegion, begin.cpy()) {
+          @Override
+          protected void performControl(float dx, float dy) {
+            float x = CasingShape.this.begin.x;
+            float y = CasingShape.this.begin.y;
+            model.getProperties().getAmmoOrigin().set(x, y);
+            CasingShape.this.updateBegin(x + dx, y + dy);
+            CasingShape.this.drawSelf();
+          }
         };
 
-        this.direction = new Vector2();
-        this.userInterface.addElement(originPoint);
-        userInterface.setUpdated(true);
-    }
+    this.direction = new Vector2();
+    this.editorUserInterface.addElement(originPoint);
+    editorUserInterface.setUpdated(true);
+  }
 
-    public Vector2 getBegin(){
-        return this.begin;
-    }
-    public Vector2 getDirection(){
-        return this.direction;
-    }
+  public Vector2 getBegin() {
+    return this.begin;
+  }
 
-    @Override
-    public void select() {
-        super.select();
-        originPoint.select();
-        originPoint.setDepth(2);
-        setVisible(true);
-    }
+  public Vector2 getDirection() {
+    return this.direction;
+  }
 
-    @Override
-    public void release() {
-        super.release();
-        originPoint.release();
-        originPoint.setDepth(1);
-        super.setVisible(false);
-    }
+  @Override
+  public void select() {
+    super.select();
+    originPoint.select();
+    originPoint.setDepth(2);
+    setVisible(true);
+  }
 
-    @Override
-    public void setVisible(boolean b) {
-        super.setVisible(b);
-        this.originPoint.setVisible(b);
-    }
-    @Override
-    public List<PointImage> getMovables(boolean moveLimits) {
-        ArrayList<PointImage> movables = new ArrayList<>();
-            movables.add(getLimit());
-            movables.add(originPoint);
-        return movables;
-    }
+  @Override
+  public void release() {
+    super.release();
+    originPoint.release();
+    originPoint.setDepth(1);
+    super.setVisible(false);
+  }
 
-    @Override
-    public void detach() {
-        super.detach();
-        userInterface.removeElement(originPoint);
-    }
+  @Override
+  public void setVisible(boolean b) {
+    super.setVisible(b);
+    this.originPoint.setVisible(b);
+  }
 
-    @Override
-    public void onTurnAroundCommand(float dA) {
-        turnAround(dA);
-        onTurnAround();
-    }
+  @Override
+  public List<PointImage> getMovables(boolean moveLimits) {
+    ArrayList<PointImage> movables = new ArrayList<>();
+    movables.add(getLimit());
+    movables.add(originPoint);
+    return movables;
+  }
 
-    private void onTurnAround(){
-        model.getProperties().getAmmoDirection().set(direction);
-    }
+  @Override
+  public void detach() {
+    super.detach();
+    editorUserInterface.removeElement(originPoint);
+  }
 
-    @Override
-    public void onControllerMoved(float dx, float dy) {
-        super.onControllerMoved(dx, dy);
-    }
+  @Override
+  public void onTurnAroundCommand(float dA) {
+    turnAround(dA);
+    onTurnAround();
+  }
 
-    public CasingModel getModel() {
-        return model;
-    }
+  private void onTurnAround() {
+    model.getProperties().getAmmoDirection().set(direction);
+  }
 
-    public void bindModel(CasingModel model) {
-        this.model = model;
-        updateDirection(model.getProperties().getAmmoDirection());
-        model.setCasingShape(this);
-        onTurnAround();
-    }
+  @Override
+  public void onControllerMoved(float dx, float dy) {
+    super.onControllerMoved(dx, dy);
+  }
 
+  public CasingModel getModel() {
+    return model;
+  }
+
+  public void bindModel(CasingModel model) {
+    this.model = model;
+    updateDirection(model.getProperties().getAmmoDirection());
+    model.setCasingShape(this);
+    onTurnAround();
+  }
 }

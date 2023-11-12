@@ -4,65 +4,62 @@ import com.evolgames.entities.blocks.LayerBlock;
 import org.andengine.util.adt.pool.GenericPool;
 
 public class BlockPool {
-    // ===========================================================
-    // PhysicsConstants
-    // ===========================================================
+  // ===========================================================
+  // PhysicsConstants
+  // ===========================================================
 
-    // ===========================================================
-    // Fields
-    // ===========================================================
-public static int recyledTimes;
-    private static final GenericPool<LayerBlock> POOL = new GenericPool<LayerBlock>() {
+  private static final GenericPool<LayerBlock> POOL =
+      new GenericPool<LayerBlock>() {
         @Override
         protected LayerBlock onAllocatePoolItem() {
-            return new LayerBlock();
+          return new LayerBlock();
         }
-    };
+      };
+  // ===========================================================
+  // Fields
+  // ===========================================================
+  public static int recyledTimes;
 
-    // ===========================================================
-    // Constructors
-    // ===========================================================
+  // ===========================================================
+  // Constructors
+  // ===========================================================
 
-    // ===========================================================
-    // Getter & Setter
-    // ===========================================================
+  // ===========================================================
+  // Getter & Setter
+  // ===========================================================
 
-    // ===========================================================
-    // Methods for/from SuperClass/Interfaces
-    // ===========================================================
+  // ===========================================================
+  // Methods for/from SuperClass/Interfaces
+  // ===========================================================
 
-    public static LayerBlock obtain() {
-        return POOL.obtainPoolItem();
+  public static LayerBlock obtain() {
+    return POOL.obtainPoolItem();
+  }
+
+  public static void recycle(final LayerBlock recycledBlock) {
+    recyledTimes++;
+    recycledBlock.getChildren().clear();
+    if (recycledBlock.isDead()) {
+      recycledBlock.recycleSelf();
+      recycledBlock.setDead(false);
     }
-
-
-
-    public static void recycle(final LayerBlock recycledBlock) {
-        recyledTimes++;
-        recycledBlock.getChildren().clear();
-        recycledBlock.setGameEntity(null);
-        if(recycledBlock.isDead()){
-            recycledBlock.recycleSelf();
-            recycledBlock.setDead(false);
-        }
-        if(recycledBlock.getFreshCuts()!=null) {
-            recycledBlock.getFreshCuts().clear();
-        }
-        if(recycledBlock.getAssociatedBlocks()!=null) {
-            recycledBlock.getAssociatedBlocks().clear();
-        }
-        if(recycledBlock.getFreshCuts()!=null) {
-            recycledBlock.getFreshCuts().clear();
-        }
-        POOL.recyclePoolItem(recycledBlock);
+    if (recycledBlock.getFreshCuts() != null) {
+      recycledBlock.getFreshCuts().clear();
     }
+    if (recycledBlock.getAssociatedBlocks() != null) {
+      recycledBlock.getAssociatedBlocks().clear();
+    }
+    if (recycledBlock.getFreshCuts() != null) {
+      recycledBlock.getFreshCuts().clear();
+    }
+    POOL.recyclePoolItem(recycledBlock);
+  }
 
-    // ===========================================================
-    // Methods
-    // ===========================================================
+  // ===========================================================
+  // Methods
+  // ===========================================================
 
-    // ===========================================================
-    // Inner and Anonymous Classes
-    // ===========================================================
+  // ===========================================================
+  // Inner and Anonymous Classes
+  // ===========================================================
 }
-

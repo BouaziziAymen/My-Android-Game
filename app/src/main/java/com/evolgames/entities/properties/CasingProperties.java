@@ -4,62 +4,61 @@ import com.badlogic.gdx.math.Vector2;
 
 public class CasingProperties extends Properties {
 
-    private Vector2 ammoOrigin;
-    private Vector2 ammoDirection;
-    private float rotationSpeed;
-    private boolean rotationOrientation;
-    private float linearSpeed;
+  private Vector2 ammoOrigin;
+  private Vector2 ammoDirection;
+  private float rotationSpeed;
+  private boolean rotationOrientation;
+  private float linearSpeed;
 
-    public CasingProperties() {
-    }
+  public CasingProperties() {}
 
-    public CasingProperties(Vector2 begin, Vector2 direction) {
-        this.ammoOrigin = begin.cpy();
-        this.ammoDirection = direction.cpy();
-    }
+  public CasingProperties(Vector2 begin, Vector2 direction) {
+    this.ammoOrigin = begin.cpy();
+    this.ammoDirection = direction.cpy();
+  }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
+  @Override
+  public Properties copy() {
+    return null;
+  }
 
-    public Vector2 getAmmoOrigin() {
-        return ammoOrigin;
-    }
+  public Vector2 getAmmoOrigin() {
+    return ammoOrigin;
+  }
 
-    public Vector2 getAmmoDirection() {
-        return ammoDirection;
-    }
+  public void setAmmoOrigin(Vector2 ammoOrigin) {
+    this.ammoOrigin = ammoOrigin;
+  }
 
-    public float getRotationSpeed() {
-        return rotationSpeed;
-    }
+  public Vector2 getAmmoDirection() {
+    return ammoDirection;
+  }
 
-    public void setRotationSpeed(float rotationSpeed) {
-        this.rotationSpeed = rotationSpeed;
-    }
+  public void setAmmoDirection(Vector2 ammoDirection) {
+    this.ammoDirection = ammoDirection;
+  }
 
-    public boolean isRotationOrientation() {
-        return rotationOrientation;
-    }
+  public float getRotationSpeed() {
+    return rotationSpeed;
+  }
 
-    public void setRotationOrientation(boolean rotationOrientation) {
-        this.rotationOrientation = rotationOrientation;
-    }
+  public void setRotationSpeed(float rotationSpeed) {
+    this.rotationSpeed = rotationSpeed;
+  }
 
-    public float getLinearSpeed() {
-        return linearSpeed;
-    }
+  public boolean isRotationOrientation() {
+    return rotationOrientation;
+  }
 
-    public void setLinearSpeed(float linearSpeed) {
-        this.linearSpeed = linearSpeed;
-    }
+  public void setRotationOrientation(boolean rotationOrientation) {
+    this.rotationOrientation = rotationOrientation;
+  }
 
-    public void setAmmoOrigin(Vector2 ammoOrigin) {
-        this.ammoOrigin = ammoOrigin;
-    }
+  public float getLinearSpeed() {
+    return linearSpeed;
+  }
 
-    public void setAmmoDirection(Vector2 ammoDirection) {
-        this.ammoDirection = ammoDirection;
-    }
+  public void setLinearSpeed(float linearSpeed) {
+    this.linearSpeed = linearSpeed;
+  }
 }

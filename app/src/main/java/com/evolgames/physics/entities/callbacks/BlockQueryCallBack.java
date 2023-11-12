@@ -1,27 +1,38 @@
 package com.evolgames.physics.entities.callbacks;
 
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.evolgames.entities.blocks.LayerBlock;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class BlockQueryCallBack implements QueryCallback {
-    private HashSet<LayerBlock> blocks = new HashSet<>();
+  private final List<LayerBlock> blocks = new ArrayList<>();
+  private final List<Body> bodies = new ArrayList<>();
 
-    public void reset(){
-        blocks.clear();
-    }
-    @Override
-    public boolean reportFixture(Fixture fixture)
-    {
+  public void reset() {
+    blocks.clear();
+    bodies.clear();
+  }
 
-        LayerBlock block = (LayerBlock) fixture.getUserData();
-        if(block!=null)
-        blocks.add(block);
-        return true;
-    }
+  @Override
+  public boolean reportFixture(Fixture fixture) {
 
-    public HashSet<LayerBlock> getBlocks() {
-        return blocks;
+    LayerBlock block = (LayerBlock) fixture.getUserData();
+    if (block != null) {
+      blocks.add(block);
+      bodies.add(fixture.getBody());
     }
+    return true;
+  }
+
+  public List<LayerBlock> getBlocks() {
+    return blocks;
+  }
+  public List<Body> getBodies() {
+    return bodies;
+  }
 }

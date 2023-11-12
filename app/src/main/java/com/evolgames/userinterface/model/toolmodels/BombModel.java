@@ -8,54 +8,55 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombFiel
 
 public class BombModel extends ProperModel<BombProperties> {
 
-    private BombShape bombShape;
-    private final int bodyId;
-    private final int bombId;
-    private GameEntity gameEntity;
-    private BombField bombField;
+  private final int bodyId;
+  private final int bombId;
+  private BombShape bombShape;
+  private GameEntity gameEntity;
+  private BombField bombField;
 
-    public BombModel(int bodyId, int bombId) {
-        super("Bomb"+bombId);
-        this.bodyId = bodyId;
-        this.bombId = bombId;
-    }
-    public BombModel(int bodyId, int bombId, BombShape bombShape) {
-        super("Bomb"+bombId);
-        this.bodyId = bodyId;
-        this.bombId = bombId;
-        this.bombShape = bombShape;
-        this.properties = new BombProperties();
-    }
+  public BombModel(int bodyId, int bombId) {
+    super("Bomb" + bombId);
+    this.bodyId = bodyId;
+    this.bombId = bombId;
+  }
 
-    public BombShape getBombShape() {
-        return bombShape;
-    }
+  public BombModel(int bodyId, int bombId, BombShape bombShape) {
+    super("Bomb" + bombId);
+    this.bodyId = bodyId;
+    this.bombId = bombId;
+    this.bombShape = bombShape;
+    this.properties = new BombProperties();
+  }
 
-    public int getBodyId() {
-        return bodyId;
-    }
+  public BombShape getBombShape() {
+    return bombShape;
+  }
 
-    public int getBombId() {
-        return bombId;
-    }
+  public void setBombShape(BombShape bombShape) {
+    this.bombShape = bombShape;
+  }
 
-    public void setBombShape(BombShape bombShape) {
-        this.bombShape = bombShape;
-    }
+  public int getBodyId() {
+    return bodyId;
+  }
 
-    public GameEntity getGameEntity() {
-        return gameEntity;
-    }
+  public int getBombId() {
+    return bombId;
+  }
 
-    public void setGameEntity(GameEntity gameEntity) {
-        this.gameEntity = gameEntity;
-    }
+  public GameEntity getGameEntity() {
+    return gameEntity;
+  }
 
-    public BombField getBombField() {
-        return bombField;
-    }
+  public void setGameEntity(GameEntity gameEntity) {
+    this.gameEntity = gameEntity;
+  }
 
-    public void setBombField(BombField bombField) {
-        this.bombField = bombField;
-    }
+  public BombField getBombField() {
+    return bombField;
+  }
+
+  public void setBombField(BombField bombField) {
+    this.bombField = bombField;
+  }
 }

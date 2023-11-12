@@ -10,19 +10,25 @@ import org.andengine.opengl.vbo.IVertexBufferObject;
  * @since 12:35:06 - 29.03.2012
  */
 public interface IMeshBatchVertexBufferObject extends IVertexBufferObject {
-    // ===========================================================
-    // PhysicsConstants
-    // ===========================================================
+  // ===========================================================
+  // PhysicsConstants
+  // ===========================================================
 
-    // ===========================================================
-    // Methods
-    // ===========================================================
+  // ===========================================================
+  // Methods
+  // ===========================================================
 
+  void setBufferDataOffset(final int pBufferDataOffset);
 
-    public void setBufferDataOffset(final int pBufferDataOffset);
+  void addWithPackedColor(
+      ITextureRegion pTextureRegion,
+      float x1,
+      float y1,
+      float x2,
+      float y2,
+      float x3,
+      float y3,
+      float color);
 
-
-    void addWithPackedColor(ITextureRegion pTextureRegion, float x1, float y1, float x2, float y2, float x3, float y3, float color);
-
-    void addWithPackedColor(float[] meshData, float packedColor);
+  void addWithPackedColor(float[] meshData, float packedColor);
 }

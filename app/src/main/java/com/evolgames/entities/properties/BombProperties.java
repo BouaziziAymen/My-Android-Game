@@ -3,81 +3,83 @@ package com.evolgames.entities.properties;
 import com.badlogic.gdx.math.Vector2;
 
 public class BombProperties extends Properties {
-    private Vector2 bombPosition;
-    private float fireRatio = 0.5f;
-    private float smokeRatio = 0.2f;
-    private float sparkRatio = 0.1f;
-    private float force = 0.2f;
-    private float speed = 0.2f;
-    private float heat = 0.2f;
-    private float particles = 0.5f;
-    public BombProperties(){}
-    @Override
-    public Properties copy() {
-        return null;
-    }
+  private Vector2 bombPosition;
+  private float fireRatio = 0.5f;
+  private float smokeRatio = 0.2f;
+  private float sparkRatio = 0.1f;
+  private float force = 0.2f;
+  private float speed = 0.2f;
+  private float heat = 0.2f;
+  private float particles = 0.5f;
 
-    public Vector2 getBombPosition() {
-        return bombPosition;
-    }
+  public BombProperties() {}
 
-    public void setBombPosition(Vector2 bombPosition) {
-        this.bombPosition = bombPosition;
-    }
+  @Override
+  public Properties copy() {
+    return null;
+  }
 
-    public float getFireRatio() {
-        return fireRatio;
-    }
+  public Vector2 getBombPosition() {
+    return bombPosition;
+  }
 
-    public void setFireRatio(float fireRatio) {
-        this.fireRatio = fireRatio;
-    }
+  public void setBombPosition(Vector2 bombPosition) {
+    this.bombPosition = bombPosition;
+  }
 
-    public float getSmokeRatio() {
-        return smokeRatio;
-    }
+  public float getFireRatio() {
+    return fireRatio;
+  }
 
-    public void setSmokeRatio(float smokeRatio) {
-        this.smokeRatio = smokeRatio;
-    }
+  public void setFireRatio(float fireRatio) {
+    this.fireRatio = fireRatio;
+  }
 
-    public float getSparkRatio() {
-        return sparkRatio;
-    }
+  public float getSmokeRatio() {
+    return smokeRatio;
+  }
 
-    public void setSparkRatio(float sparkRatio) {
-        this.sparkRatio = sparkRatio;
-    }
+  public void setSmokeRatio(float smokeRatio) {
+    this.smokeRatio = smokeRatio;
+  }
 
-    public float getForce() {
-        return force;
-    }
+  public float getSparkRatio() {
+    return sparkRatio;
+  }
 
-    public void setForce(float force) {
-        this.force = force;
-    }
+  public void setSparkRatio(float sparkRatio) {
+    this.sparkRatio = sparkRatio;
+  }
 
-    public float getSpeed() {
-        return speed;
-    }
+  public float getForce() {
+    return force;
+  }
 
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
+  public void setForce(float force) {
+    this.force = force;
+  }
 
-    public float getHeat() {
-        return heat;
-    }
+  public float getSpeed() {
+    return speed;
+  }
 
-    public void setHeat(float heat) {
-        this.heat = heat;
-    }
+  public void setSpeed(float speed) {
+    this.speed = speed;
+  }
 
-    public float getParticles() {
-        return particles;
-    }
+  public float getHeat() {
+    return heat;
+  }
 
-    public void setParticles(float particles) {
-        this.particles = particles;
-    }
+  public void setHeat(float heat) {
+    this.heat = heat;
+  }
+
+  public float getParticles() {
+    return particles;
+  }
+
+  public void setParticles(float particles) {
+    this.particles = particles;
+  }
 }

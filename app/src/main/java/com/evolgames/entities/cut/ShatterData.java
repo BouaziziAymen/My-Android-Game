@@ -1,38 +1,30 @@
 package com.evolgames.entities.cut;
 
 
-import com.evolgames.entities.blocks.CoatingBlock;
-
 public class ShatterData {
 
-    private Cut destructionCut;
-    private float destructionEnergy;
+  private Cut destructionCut;
+  private float destructionEnergy;
+  private boolean isNonValid;
 
-    public boolean isNonValid() {
-        return isNonValid;
-    }
+  public ShatterData() {
+    isNonValid = true;
+  }
 
-    private boolean isNonValid;
+  public ShatterData(Cut destructionCut, float destructionEnergy) {
+    this.destructionCut = destructionCut;
+    this.destructionEnergy = destructionEnergy;
+  }
 
-    public ShatterData() {
-        isNonValid = true;
-    }
+  public boolean isNonValid() {
+    return isNonValid;
+  }
 
-    public ShatterData(Cut destructionCut, float destructionEnergy) {
-        this.destructionCut = destructionCut;
-        this.destructionEnergy = destructionEnergy;
-    }
+  public Cut getDestructionCut() {
+    return destructionCut;
+  }
 
-
-    public Cut getDestructionCut() {
-        return destructionCut;
-    }
-
-
-    public float getDestructionEnergy() {
-        return destructionEnergy;
-    }
-
-
-
+  public float getDestructionEnergy() {
+    return destructionEnergy;
+  }
 }

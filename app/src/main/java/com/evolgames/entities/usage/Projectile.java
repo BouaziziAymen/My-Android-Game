@@ -10,68 +10,100 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
-import com.evolgames.scenes.GameScene;
-import com.evolgames.scenes.PlayerSpecialAction;
-
-import org.andengine.util.adt.color.Color;
-
+import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
-    private final GameEntity projectile;
+  private final GameEntity projectile;
 
-    public Projectile(GameEntity projectile) {
-        this.projectile = projectile;
-        this.active = false;
+  public Projectile(GameEntity projectile) {
+    this.projectile = projectile;
+    this.active = false;
+  }
+
+  @Override
+  public void onStep(float deltaTime) {
+  }
+
+  @Override
+  public PlayerSpecialAction getAction() {
+    return null;
+  }
+
+  @Override
+  public void onImpulseConsumed(
+      WorldFacade worldFacade,
+      Contact contact,
+      Vector2 point,
+      Vector2 normal,
+      float actualAdvance,
+      GameEntity penetrator,
+      GameEntity penetrated,
+      List<TopographyData> envData,
+      List<TopographyData> penData,
+      float consumedImpulse) {
+    float massFraction =
+        penetrator.getBody().getMass()
+            / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
+    List<GameEntity> overlappedEntities =
+        worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
+    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+
+    Map<GameGroup, List<GameEntity>> groups =
+        overlappedEntities.stream().collect(Collectors.groupingBy(GameEntity::getParentGroup));
+    List<GameEntity> list =
+        groups.values().stream()
+            .map(e -> e.stream().findFirst().get())
+            .collect(Collectors.toList());
+    setActive(false);
+    if (!list.isEmpty()) {
+      worldFacade.freeze(penetrator);
+      penetrator.getMesh().setZIndex(-1);
+      penetrator.getScene().sortChildren();
     }
-
-    @Override
-    public void onStep(float deltaTime) {
-      //  GameScene.plotter2.drawPoint(this.projectile.getBody().getPosition().cpy().mul(32), Color.CYAN,1f);
+    for (GameEntity overlappedEntity : list) {
+      Body overlappedEntityBody = overlappedEntity.getBody();
+      worldFacade.freeze(overlappedEntity);
+      worldFacade.mergeEntities(
+          overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
+      worldFacade.applyPointImpact(
+          obtain(point), 20f * consumedImpulse * massFraction, overlappedEntity);
+      Invoker.addCustomCommand(
+          overlappedEntity,
+          () ->
+              overlappedEntityBody.applyLinearImpulse(
+                  normal
+                      .cpy()
+                      .mul((float) (0.0000001f * Math.sqrt(consumedImpulse) * massFraction)),
+                  point));
     }
+  }
 
-    @Override
-    public PlayerSpecialAction getAction() {
-        return null;
-    }
+  @Override
+  public void onFree(
+      WorldFacade worldFacade,
+      Contact contact,
+      Vector2 point,
+      Vector2 normal,
+      float actualAdvance,
+      GameEntity penetrator,
+      GameEntity penetrated,
+      List<TopographyData> envData,
+      List<TopographyData> penData,
+      float consumedImpulse,
+      float collisionImpulse) {
+    float massFraction =
+        penetrator.getBody().getMass()
+            / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
+    worldFacade.destroyGameEntity(penetrator, false);
+    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+    worldFacade.applyPointImpact(
+        obtain(point), (float) (20f * consumedImpulse * massFraction), penetrated);
+    setActive(false);
+  }
 
-    @Override
-    public void onImpulseConsumed(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse) {
-        float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        List<GameEntity> overlappedEntities = worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-
-        Map<GameGroup, List<GameEntity>> groups = overlappedEntities.stream().collect(Collectors.groupingBy(GameEntity::getParentGroup));
-        List<GameEntity> list = groups.values().stream().map(e -> e.stream().findFirst().get()).collect(Collectors.toList());
-        setActive(false);
-        if (!list.isEmpty()) {
-            worldFacade.freeze(penetrator);
-            penetrator.getMesh().setZIndex(-1);
-            penetrator.getGameScene().sortChildren();
-        }
-        for (GameEntity overlappedEntity : list) {
-            Body overlappedEntityBody = overlappedEntity.getBody();
-            worldFacade.freeze(overlappedEntity);
-            worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            worldFacade.applyPointImpact(obtain(point), 20f * consumedImpulse * massFraction, overlappedEntity);
-            Invoker.addCustomCommand(overlappedEntity, () -> overlappedEntityBody.applyLinearImpulse(normal.cpy().mul((float) (0.0000001f * Math.sqrt(consumedImpulse) * massFraction)), point));
-        }
-    }
-
-
-    @Override
-    public void onFree(WorldFacade worldFacade, Contact contact, Vector2 point, Vector2 normal, float actualAdvance, GameEntity penetrator, GameEntity penetrated, List<TopographyData> envData, List<TopographyData> penData, float consumedImpulse, float collisionImpulse) {
-        float massFraction = penetrator.getBody().getMass() / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        worldFacade.addGameEntityToDestroy(penetrator, false);
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        worldFacade.applyPointImpact(obtain(point), (float) (20f *consumedImpulse * massFraction), penetrated);
-        setActive(false);
-    }
-
-    @Override
-    public void onCancel() {
-    }
+  @Override
+  public void onCancel() {}
 }

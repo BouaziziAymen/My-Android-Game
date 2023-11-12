@@ -3,24 +3,24 @@ package com.evolgames.entities.init;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.serialization.InitInfo;
 
-public class BulletInit extends BodyInitDecorator{
+public class BulletInit extends BodyInitDecorator {
 
-    final private boolean isBullet;
+  private final boolean isBullet;
 
-    public BulletInit(BodyInit bodyInit,boolean isBullet) {
-        super(bodyInit);
-        this.isBullet = isBullet;
-    }
+  public BulletInit(BodyInit bodyInit, boolean isBullet) {
+    super(bodyInit);
+    this.isBullet = isBullet;
+  }
 
-    @Override
-    public void initialize(Body body) {
-        super.initialize(body);
-        body.setBullet(isBullet);
-    }
+  @Override
+  public void initialize(Body body) {
+    super.initialize(body);
+    body.setBullet(isBullet);
+  }
 
-    @Override
-    public InitInfo getInitInfo(InitInfo initInfo) {
-        initInfo.setBullet(isBullet);
-        return this.getBodyInit().getInitInfo(initInfo);
-    }
+  @Override
+  public InitInfo getInitInfo(InitInfo initInfo) {
+    initInfo.setBullet(isBullet);
+    return this.getBodyInit().getInitInfo(initInfo);
+  }
 }

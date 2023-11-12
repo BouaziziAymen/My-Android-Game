@@ -10,81 +10,83 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.Projecti
 
 public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
-    private ProjectileShape projectileShape;
-    private final int projectileId;
-    private final int bodyId;
-    private ToolModel missileModel;
-    private CasingModel ammoModel;
-    private GameEntity muzzleEntity;
-    private ExplosiveParticleWrapper fireSource;
-    private ProjectileField projectileField;
+  private final int projectileId;
+  private final int bodyId;
+  private ProjectileShape projectileShape;
+  private ToolModel missileModel;
+  private CasingModel ammoModel;
+  private GameEntity muzzleEntity;
+  private ExplosiveParticleWrapper fireSource;
+  private ProjectileField projectileField;
 
-    public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
-        super("Proj" + projectileId);
-        this.properties = new ProjectileProperties(projectileShape.getBegin(),projectileShape.getDirection());
-        this.projectileShape = projectileShape;
-        this.bodyId = bodyId;
-        this.projectileId = projectileId;
-    }
-    public ProjectileModel(int bodyId, int projectileId,String projectileName) {
-        super(projectileName);
-        this.bodyId = bodyId;
-        this.projectileId = projectileId;
-    }
+  public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
+    super("Proj" + projectileId);
+    this.properties =
+        new ProjectileProperties(projectileShape.getBegin(), projectileShape.getDirection());
+    this.projectileShape = projectileShape;
+    this.bodyId = bodyId;
+    this.projectileId = projectileId;
+  }
 
-    public int getProjectileId() {
-        return projectileId;
-    }
+  public ProjectileModel(int bodyId, int projectileId, String projectileName) {
+    super(projectileName);
+    this.bodyId = bodyId;
+    this.projectileId = projectileId;
+  }
 
-    public int getBodyId() {
-        return bodyId;
-    }
+  public int getProjectileId() {
+    return projectileId;
+  }
 
-    public ProjectileShape getProjectileShape() {
-        return projectileShape;
-    }
+  public int getBodyId() {
+    return bodyId;
+  }
 
-    public void setProjectileShape(ProjectileShape projectileShape) {
-        this.projectileShape = projectileShape;
-    }
+  public ProjectileShape getProjectileShape() {
+    return projectileShape;
+  }
 
-    public ToolModel getMissileModel() {
-        return missileModel;
-    }
+  public void setProjectileShape(ProjectileShape projectileShape) {
+    this.projectileShape = projectileShape;
+  }
 
-    public void setMissileModel(ToolModel missileModel) {
-        this.missileModel = missileModel;
-    }
+  public ToolModel getMissileModel() {
+    return missileModel;
+  }
 
-    public CasingModel getAmmoModel() {
-        return ammoModel;
-    }
+  public void setMissileModel(ToolModel missileModel) {
+    this.missileModel = missileModel;
+  }
 
-    public void setAmmoModel(CasingModel ammoModel) {
-        this.ammoModel = ammoModel;
-    }
+  public CasingModel getAmmoModel() {
+    return ammoModel;
+  }
 
-    public GameEntity getMuzzleEntity() {
-        return muzzleEntity;
-    }
+  public void setAmmoModel(CasingModel ammoModel) {
+    this.ammoModel = ammoModel;
+  }
 
-    public void setMuzzleEntity(GameEntity muzzleEntity) {
-        this.muzzleEntity = muzzleEntity;
-    }
+  public GameEntity getMuzzleEntity() {
+    return muzzleEntity;
+  }
 
-    public void setFireSource(ExplosiveParticleWrapper fireSource) {
-        this.fireSource = fireSource;
-    }
+  public void setMuzzleEntity(GameEntity muzzleEntity) {
+    this.muzzleEntity = muzzleEntity;
+  }
 
-    public ExplosiveParticleWrapper getFireSource() {
-        return fireSource;
-    }
+  public ExplosiveParticleWrapper getFireSource() {
+    return fireSource;
+  }
 
-    public ProjectileField getProjectileField() {
-        return projectileField;
-    }
+  public void setFireSource(ExplosiveParticleWrapper fireSource) {
+    this.fireSource = fireSource;
+  }
 
-    public void setProjectileField(ProjectileField projectileField) {
-        this.projectileField = projectileField;
-    }
+  public ProjectileField getProjectileField() {
+    return projectileField;
+  }
+
+  public void setProjectileField(ProjectileField projectileField) {
+    this.projectileField = projectileField;
+  }
 }

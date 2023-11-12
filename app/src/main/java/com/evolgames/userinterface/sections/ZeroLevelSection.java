@@ -2,17 +2,14 @@ package com.evolgames.userinterface.sections;
 
 import com.evolgames.userinterface.view.basics.Element;
 
-public class ZeroLevelSection <Primary extends Element> extends Section<Primary>  {
+public class ZeroLevelSection<Primary extends Element> extends Section<Primary> {
 
-    public ZeroLevelSection(int sectionKey,Primary primary) {
+  public ZeroLevelSection(int sectionKey, Primary primary) {
 
-        super(sectionKey,primary, false);
-    }
+    super(sectionKey, primary, false);
+  }
 
-    public ZeroLevelSection(Element e){
-        super(e);
-    }
-
-
-
+  public ZeroLevelSection(Element e) {
+    super(e);
+  }
 }

@@ -8,41 +8,43 @@ import com.evolgames.userinterface.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.sections.basic.SimpleTertiary;
-import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.windows.gamewindows.SettingsWindow;
 
-public class SettingsWindowController<P extends Properties> extends ThreeLevelSectionedAdvancedWindowController<SettingsWindow, SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>, SimpleQuaternary<?>> {
-    protected UserInterface userInterface;
-    protected ProperModel model;
-    protected P tempProperty;
+public class SettingsWindowController<P extends Properties>
+    extends ThreeLevelSectionedAdvancedWindowController<
+        SettingsWindow,
+        SimplePrimary<?>,
+        SimpleSecondary<?>,
+        SimpleTertiary<?>,
+        SimpleQuaternary<?>> {
+  protected EditorUserInterface editorUserInterface;
+  protected ProperModel model;
+  protected P tempProperty;
 
-    public void setUserInterface(UserInterface userInterface) {
-        this.userInterface = userInterface;
+  public void setUserInterface(EditorUserInterface editorUserInterface) {
+    this.editorUserInterface = editorUserInterface;
+  }
+
+  public void onCancelSettings() {
+    if (tempProperty != null) {
+      model.setProperties(tempProperty);
     }
+    closeWindow();
+  }
 
-    public void onCancelSettings() {
-        if (tempProperty != null){
-            model.setProperties(tempProperty);
-        }
-        closeWindow();
+  void onModelUpdated(ProperModel<P> model) {
+    this.model = model;
+    if (model != null && model.getProperties() != null) {
+      tempProperty = (P) model.getProperties().copy();
     }
+  }
 
-    void onModelUpdated(ProperModel<P> model) {
-        this.model = model;
-        if (model!=null && model.getProperties() != null) {
-            tempProperty = (P) model.getProperties().copy();
-        }
+  public void onSubmitSettings() {
+    if (getSelectedTextField() != null) {
+      TextFieldBehavior<?> textFieldBehavior = getSelectedTextField().getBehavior();
+      textFieldBehavior.release();
     }
-
-    public void onSubmitSettings() {
-        if (getSelectedTextField() != null) {
-            TextFieldBehavior<?> textFieldBehavior = getSelectedTextField().getBehavior();
-            textFieldBehavior.release();
-        }
-        closeWindow();
-    }
-
+    closeWindow();
+  }
 }
-
-
-

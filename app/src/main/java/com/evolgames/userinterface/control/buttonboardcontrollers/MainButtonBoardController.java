@@ -1,140 +1,138 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
-
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.layouts.ButtonBoard;
 
 public class MainButtonBoardController extends ButtonBoardController {
-    private final UserInterface userInterface;
+  private final EditorUserInterface editorUserInterface;
 
-    public MainButtonBoardController(ButtonBoard buttonBoard, UserInterface userInterface) {
-        super(buttonBoard);
-        this.userInterface = userInterface;
-    }
+  public MainButtonBoardController(
+      ButtonBoard buttonBoard, EditorUserInterface editorUserInterface) {
+    super(buttonBoard);
+    this.editorUserInterface = editorUserInterface;
+  }
 
+  public void onDrawOptionClicked(Button<MainButtonBoardController> button) {
+    onButtonClicked(button);
 
-    public void onDrawOptionClicked(Button<MainButtonBoardController> button) {
-        onButtonClicked(button);
+    editorUserInterface.getDrawButtonBoardController().openBoard();
+    editorUserInterface.getImageButtonBoardController().closeBoard();
+    editorUserInterface.getJointButtonBoardController().closeBoard();
+    editorUserInterface.getItemButtonBoardController().closeBoard();
 
-        userInterface.getDrawButtonBoardController().openBoard();
-        userInterface.getImageButtonBoardController().closeBoard();
-        userInterface.getJointButtonBoardController().closeBoard();
-        userInterface.getItemButtonBoardController().closeBoard();
+    editorUserInterface.getLayersWindowController().openWindow();
+    editorUserInterface.getJointsWindowController().closeWindow();
+    editorUserInterface.getItemWindowController().closeWindow();
+    editorUserInterface.getItemSaveWindowController().closeWindow();
+    editorUserInterface.getJointSettingsWindowController().closeWindow();
 
-        userInterface.getLayersWindowController().openWindow();
-        userInterface.getJointsWindowController().closeWindow();
-        userInterface.getItemWindowController().closeWindow();
-        userInterface.getItemSaveWindowController().closeWindow();
-        userInterface.getJointSettingsWindowController().closeWindow();
+    editorUserInterface.changeSelectedScreen(Screen.DRAW_SCREEN);
+  }
 
-        userInterface.changeSelectedScreen(Screen.DRAW_SCREEN);
-    }
+  public void onDrawOptionReleased(Button<MainButtonBoardController> button) {
+    onButtonReleased(button);
 
-    public void onDrawOptionReleased(Button<MainButtonBoardController> button) {
-        onButtonReleased(button);
+    editorUserInterface.getDrawButtonBoardController().closeBoard();
+    editorUserInterface.getLayersWindowController().closeWindow();
 
-        userInterface.getDrawButtonBoardController().closeBoard();
-        userInterface.getLayersWindowController().closeWindow();
+    editorUserInterface.changeSelectedScreen(Screen.NONE);
+  }
 
-        userInterface.changeSelectedScreen(Screen.NONE);
-    }
+  public void onImageOptionClicked(Button<MainButtonBoardController> button) {
+    onButtonClicked(button);
 
-    public void onImageOptionClicked(Button<MainButtonBoardController> button) {
-        onButtonClicked(button);
+    editorUserInterface.getDrawButtonBoardController().closeBoard();
+    editorUserInterface.getImageButtonBoardController().openBoard();
+    editorUserInterface.getJointButtonBoardController().closeBoard();
+    editorUserInterface.getItemButtonBoardController().closeBoard();
 
-        userInterface.getDrawButtonBoardController().closeBoard();
-        userInterface.getImageButtonBoardController().openBoard();
-        userInterface.getJointButtonBoardController().closeBoard();
-        userInterface.getItemButtonBoardController().closeBoard();
+    editorUserInterface.getLayersWindowController().closeWindow();
+    editorUserInterface.getJointsWindowController().closeWindow();
+    editorUserInterface.getItemWindowController().closeWindow();
+    editorUserInterface.getItemSaveWindowController().closeWindow();
+    editorUserInterface.getJointSettingsWindowController().closeWindow();
 
-        userInterface.getLayersWindowController().closeWindow();
-        userInterface.getJointsWindowController().closeWindow();
-        userInterface.getItemWindowController().closeWindow();
-        userInterface.getItemSaveWindowController().closeWindow();
-        userInterface.getJointSettingsWindowController().closeWindow();
+    editorUserInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
+    editorUserInterface.changeSelectedScreen(Screen.IMAGE_SCREEN);
+  }
 
-        userInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
-        userInterface.changeSelectedScreen(Screen.IMAGE_SCREEN);
-    }
+  public void onImageOptionReleased(Button<MainButtonBoardController> button) {
+    onButtonReleased(button);
 
-    public void onImageOptionReleased(Button<MainButtonBoardController> button) {
-        onButtonReleased(button);
+    editorUserInterface.getImageButtonBoardController().closeBoard();
+    editorUserInterface.changeSelectedScreen(Screen.NONE);
+  }
 
-        userInterface.getImageButtonBoardController().closeBoard();
-        userInterface.changeSelectedScreen(Screen.NONE);
-    }
+  public void onJointOptionClicked(Button<MainButtonBoardController> button) {
+    onButtonClicked(button);
 
+    editorUserInterface.getDrawButtonBoardController().closeBoard();
+    editorUserInterface.getImageButtonBoardController().closeBoard();
+    editorUserInterface.getJointButtonBoardController().openBoard();
+    editorUserInterface.getItemButtonBoardController().closeBoard();
 
-    public void onJointOptionClicked(Button<MainButtonBoardController> button) {
-        onButtonClicked(button);
+    editorUserInterface.getLayersWindowController().closeWindow();
+    editorUserInterface.getJointsWindowController().openWindow();
+    editorUserInterface.getItemWindowController().closeWindow();
+    editorUserInterface.getItemSaveWindowController().closeWindow();
+    editorUserInterface.getJointSettingsWindowController().closeWindow();
 
-        userInterface.getDrawButtonBoardController().closeBoard();
-        userInterface.getImageButtonBoardController().closeBoard();
-        userInterface.getJointButtonBoardController().openBoard();
-        userInterface.getItemButtonBoardController().closeBoard();
+    editorUserInterface.changeSelectedScreen(Screen.JOINTS_SCREEN);
+  }
 
-        userInterface.getLayersWindowController().closeWindow();
-        userInterface.getJointsWindowController().openWindow();
-        userInterface.getItemWindowController().closeWindow();
-        userInterface.getItemSaveWindowController().closeWindow();
-        userInterface.getJointSettingsWindowController().closeWindow();
+  public void onJointOptionReleased(Button<MainButtonBoardController> button) {
+    onButtonReleased(button);
 
-        userInterface.changeSelectedScreen(Screen.JOINTS_SCREEN);
-    }
+    editorUserInterface.getJointButtonBoardController().closeBoard();
 
-    public void onJointOptionReleased(Button<MainButtonBoardController> button) {
-        onButtonReleased(button);
+    editorUserInterface.getJointsWindowController().closeWindow();
+    editorUserInterface.changeSelectedScreen(Screen.NONE);
+  }
 
-        userInterface.getJointButtonBoardController().closeBoard();
+  public void onToolOptionClicked(Button<MainButtonBoardController> button) {
+    onButtonClicked(button);
+    editorUserInterface.getDrawButtonBoardController().closeBoard();
+    editorUserInterface.getImageButtonBoardController().closeBoard();
+    editorUserInterface.getJointButtonBoardController().closeBoard();
+    editorUserInterface.getItemButtonBoardController().openBoard();
 
-        userInterface.getJointsWindowController().closeWindow();
-        userInterface.changeSelectedScreen(Screen.NONE);
-    }
+    editorUserInterface.getLayersWindowController().closeWindow();
+    editorUserInterface.getJointsWindowController().closeWindow();
+    editorUserInterface.getItemWindowController().openWindow();
+    editorUserInterface.getItemSaveWindowController().closeWindow();
+    editorUserInterface.getJointSettingsWindowController().closeWindow();
+    editorUserInterface.changeSelectedScreen(Screen.ITEMS_SCREEN);
+  }
 
-    public void onToolOptionClicked(Button<MainButtonBoardController> button) {
-        onButtonClicked(button);
-        userInterface.getDrawButtonBoardController().closeBoard();
-        userInterface.getImageButtonBoardController().closeBoard();
-        userInterface.getJointButtonBoardController().closeBoard();
-        userInterface.getItemButtonBoardController().openBoard();
+  public void onToolOptionReleased(Button<MainButtonBoardController> button) {
+    onButtonReleased(button);
+    editorUserInterface.getItemButtonBoardController().closeBoard();
+    editorUserInterface.changeSelectedScreen(Screen.NONE);
+  }
 
-        userInterface.getLayersWindowController().closeWindow();
-        userInterface.getJointsWindowController().closeWindow();
-        userInterface.getItemWindowController().openWindow();
-        userInterface.getItemSaveWindowController().closeWindow();
-        userInterface.getJointSettingsWindowController().closeWindow();
-        userInterface.changeSelectedScreen(Screen.ITEMS_SCREEN);
-    }
+  public void onSaveOptionClicked(Button<MainButtonBoardController> button) {
+    onButtonClicked(button);
+    editorUserInterface.updateOptionsWindow(SettingsType.TOOL_SAVE_SETTINGS);
+    editorUserInterface.getDrawButtonBoardController().closeBoard();
+    editorUserInterface.getImageButtonBoardController().closeBoard();
+    editorUserInterface.getJointButtonBoardController().closeBoard();
+    editorUserInterface.getItemButtonBoardController().closeBoard();
 
-    public void onToolOptionReleased(Button<MainButtonBoardController> button) {
-        onButtonReleased(button);
-        userInterface.getItemButtonBoardController().closeBoard();
-        userInterface.changeSelectedScreen(Screen.NONE);
-    }
+    editorUserInterface.getLayersWindowController().closeWindow();
+    editorUserInterface.getJointsWindowController().closeWindow();
+    editorUserInterface.getItemWindowController().closeWindow();
+    editorUserInterface.getItemSaveWindowController().openWindow();
+    editorUserInterface.getJointSettingsWindowController().closeWindow();
 
-    public void onSaveOptionClicked(Button<MainButtonBoardController> button) {
-        onButtonClicked(button);
-        userInterface.updateOptionsWindow(SettingsType.TOOL_SAVE_SETTINGS);
-        userInterface.getDrawButtonBoardController().closeBoard();
-        userInterface.getImageButtonBoardController().closeBoard();
-        userInterface.getJointButtonBoardController().closeBoard();
-        userInterface.getItemButtonBoardController().closeBoard();
+    editorUserInterface.changeSelectedScreen(Screen.SAVE_SCREEN);
+  }
 
-        userInterface.getLayersWindowController().closeWindow();
-        userInterface.getJointsWindowController().closeWindow();
-        userInterface.getItemWindowController().closeWindow();
-        userInterface.getItemSaveWindowController().openWindow();
-        userInterface.getJointSettingsWindowController().closeWindow();
-
-        userInterface.changeSelectedScreen(Screen.SAVE_SCREEN);
-    }
-
-    public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
-        onButtonReleased(button);
-        userInterface.changeSelectedScreen(Screen.NONE);
-        // userInterface.setItemButtonBoardVisible(false);
-    }
+  public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
+    onButtonReleased(button);
+    editorUserInterface.changeSelectedScreen(Screen.NONE);
+    // userInterface.setItemButtonBoardVisible(false);
+  }
 }

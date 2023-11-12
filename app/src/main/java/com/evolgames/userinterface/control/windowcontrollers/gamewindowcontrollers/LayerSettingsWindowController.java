@@ -1,14 +1,12 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import android.util.Log;
-
-import com.evolgames.entities.properties.ColoredProperties;
-import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.PhysicsConstants;
-import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
@@ -20,7 +18,7 @@ import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.sections.basic.SimpleTertiary;
-import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
@@ -36,702 +34,848 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
 import com.evolgames.userinterface.view.windows.windowfields.TitledField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
-
 import org.andengine.util.adt.color.Color;
 
 public class LayerSettingsWindowController extends SettingsWindowController<LayerProperties> {
 
+  private final NumericValidator densityValidator =
+      new NumericValidator(false, true, 0.01f, 999f, 3, 2);
+  private final NumericValidator ignitionTemperatureValidator =
+      new NumericValidator(false, false, 0, 10000, 4, 1);
+  private final NumericValidator flameTemperatureValidator =
+      new NumericValidator(false, false, 0, 10000, 4, 1);
+  private final NumericValidator energyValidator =
+      new NumericValidator(false, false, 0, 100000, 5, 1);
+  private final AlphaNumericValidator layerNameValidator = new AlphaNumericValidator(8, 5);
+  private LayerWindowController layerWindowController;
+  private TextField<LayerSettingsWindowController> flameTemperatureTextField;
+  private ColorSlot colorSlotForLayer;
+  private ColorSlot colorSlotForJuice;
+  private ColorSelectorWindowController colorSelectorController;
+  private LayerProperties layerProperty;
+  private TextField<LayerSettingsWindowController> layerNameTextField;
+  private TextField<LayerSettingsWindowController> densityTextField;
+  private Quantity<LayerSettingsWindowController> bouncinessQuantity;
+  private Quantity<LayerSettingsWindowController> frictionQuantity;
+  private Quantity<LayerSettingsWindowController> tenacityQuantity;
+  private SimpleSecondary<TitledButton<LayerSettingsWindowController>> jucyField;
+  private TextField<LayerSettingsWindowController> ignitionTextField;
+  private TextField<LayerSettingsWindowController> energyTextField;
+  private SimpleSecondary<TitledButton<LayerSettingsWindowController>> flammableField;
+  private Quantity<LayerSettingsWindowController> sharpnessQuantity;
+  private Quantity<LayerSettingsWindowController> hardnessQuantity;
 
-    private final NumericValidator densityValidator = new NumericValidator(false, true, 0.01f, 999f, 3, 2);
-    private final NumericValidator ignitionTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
-    private final NumericValidator flameTemperatureValidator = new NumericValidator(false, false, 0, 10000, 4, 1);
-    private final NumericValidator energyValidator = new NumericValidator(false, false, 0, 100000, 5, 1);
-    private final AlphaNumericValidator layerNameValidator = new AlphaNumericValidator(8, 5);
-    private final LayerWindowController layerWindowController;
-    private TextField<LayerSettingsWindowController> flameTemperatureTextField;
-    private ColorSlot colorSlotForLayer;
-    private ColorSlot colorSlotForJuice;
-    private ColorSelectorWindowController colorSelectorController;
-    private LayerProperties layerProperty;
-    private TextField<LayerSettingsWindowController> layerNameTextField;
-    private TextField<LayerSettingsWindowController> densityTextField;
-    private Quantity<LayerSettingsWindowController> bouncinessQuantity;
-    private Quantity<LayerSettingsWindowController> frictionQuantity;
-    private Quantity<LayerSettingsWindowController> tenacityQuantity;
-    private SimpleSecondary<TitledButton<LayerSettingsWindowController>> jucyField;
-    private TextField<LayerSettingsWindowController> ignitionTextField;
-    private TextField<LayerSettingsWindowController> energyTextField;
-    private SimpleSecondary<TitledButton<LayerSettingsWindowController>> flammableField;
-    private Quantity<LayerSettingsWindowController> sharpnessQuantity;
-    private Quantity<LayerSettingsWindowController> hardnessQuantity;
+  public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
+    this.colorSelectorController = colorSelectorController;
+  }
 
+  public void setLayerWindowController(LayerWindowController layerWindowController) {
+    this.layerWindowController = layerWindowController;
+  }
 
-    public LayerSettingsWindowController(LayerWindowController layerWindowController, KeyboardController keyboardController) {
-        this.keyboardController = keyboardController;
-        this.layerWindowController = layerWindowController;
-    }
+  private void setLayerColorSlot() {
+    Color color = ((ColoredProperties) model.getProperties()).getDefaultColor();
+    colorSlotForLayer.setColor(color.getRed(), color.getGreen(), color.getBlue());
+  }
 
-    public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
-        this.colorSelectorController = colorSelectorController;
-    }
+  private void setJuiceColorSlot() {
+    Color color = ((LayerProperties) model.getProperties()).getJuiceColor();
+    if (color != null)
+      colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
+  }
 
+  @Override
+  void onModelUpdated(ProperModel<LayerProperties> model) {
+    super.onModelUpdated(model);
 
-    private void setLayerColorSlot() {
-        Color color = ((ColoredProperties) model.getProperties()).getDefaultColor();
-        colorSlotForLayer.setColor(color.getRed(), color.getGreen(), color.getBlue());
-    }
+    this.layerProperty = model.getProperties();
+    setMaterialNumber(layerProperty.getMaterialNumber());
+    setLayerColorSlot();
+    setJuiceColorSlot();
+    setLayerName(model.getModelName());
+    setDensity(layerProperty.getDensity());
+    setIgnitionTemperature(layerProperty.getIgnitionTemperature());
+    setFlameTemperature(layerProperty.getFlameTemperature());
+    setChemicalEnergy(layerProperty.getChemicalEnergy());
+    setBounciness(layerProperty.getRestitution());
+    setFriction(layerProperty.getFriction());
+    setTenacity(layerProperty.getTenacity());
+    setSharpness(layerProperty.getSharpness());
+    setHardness(layerProperty.getHardness());
+    setJuicy(layerProperty.isJuicy());
+    setFlammable(layerProperty.isFlammable());
+  }
 
-    private void setJuiceColorSlot() {
-        Color color = ((LayerProperties) model.getProperties()).getJuiceColor();
-        if (color != null)
-            colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
-    }
+  @Override
+  public void init() {
+    window.setVisible(false);
+    SectionField<LayerSettingsWindowController> sectionField =
+        new SectionField<>(
+            1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addPrimary(sectionField);
+    TitledTextField<LayerSettingsWindowController> layerNameField =
+        new TitledTextField<>("Layer Name:", 10);
+    layerNameTextField = layerNameField.getAttachment();
 
+    layerNameTextField.setBehavior(
+        new TextFieldBehavior<LayerSettingsWindowController>(
+            this, layerNameTextField, Keyboard.KeyboardType.AlphaNumeric, layerNameValidator) {
+          @Override
+          protected void informControllerTextFieldTapped() {
+            LayerSettingsWindowController.super.onTextFieldTapped(layerNameTextField);
+          }
 
-    @Override
-    void onModelUpdated(ProperModel<LayerProperties> model) {
-        super.onModelUpdated(model);
-
-        this.layerProperty = model.getProperties();
-        setMaterialNumber(layerProperty.getMaterialNumber());
-        setLayerColorSlot();
-        setJuiceColorSlot();
-        setLayerName(model.getModelName());
-        setDensity(layerProperty.getDensity());
-        setIgnitionTemperature(layerProperty.getIgnitionTemperature());
-        setFlameTemperature(layerProperty.getFlameTemperature());
-        setChemicalEnergy(layerProperty.getChemicalEnergy());
-        setBounciness(layerProperty.getRestitution());
-        setFriction(layerProperty.getFriction());
-        setTenacity(layerProperty.getTenacity());
-        setSharpness(layerProperty.getSharpness());
-        setHardness(layerProperty.getHardness());
-        setJuicy(layerProperty.isJuicy());
-        setFlammable(layerProperty.isFlammable());
-
-    }
-
-    @Override
-    public void init() {
-        window.setVisible(false);
-        SectionField<LayerSettingsWindowController> sectionField = new SectionField<>(1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addPrimary(sectionField);
-        TitledTextField<LayerSettingsWindowController> layerNameField = new TitledTextField<>("Layer Name:", 10);
-        layerNameTextField = layerNameField.getAttachment();
-
-        layerNameTextField.setBehavior(new TextFieldBehavior<LayerSettingsWindowController>(this, layerNameTextField, Keyboard.KeyboardType.AlphaNumeric, layerNameValidator) {
-            @Override
-            protected void informControllerTextFieldTapped() {
-                LayerSettingsWindowController.super.onTextFieldTapped(layerNameTextField);
-            }
-
-            @Override
-            protected void informControllerTextFieldReleased() {
-                LayerSettingsWindowController.super.onTextFieldReleased(layerNameTextField);
-            }
+          @Override
+          protected void informControllerTextFieldReleased() {
+            LayerSettingsWindowController.super.onTextFieldReleased(layerNameTextField);
+          }
         });
-        layerNameTextField.getBehavior().setReleaseAction(() -> model.setModelName(layerNameTextField.getTextString()));
+    layerNameTextField
+        .getBehavior()
+        .setReleaseAction(() -> model.setModelName(layerNameTextField.getTextString()));
 
-        FieldWithError fieldWithError = new FieldWithError(layerNameField);
-        SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(1, 0, fieldWithError);
-        window.addSecondary(secondaryElement1);
-        //create the color selection field
+    FieldWithError fieldWithError = new FieldWithError(layerNameField);
+    SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(1, 0, fieldWithError);
+    window.addSecondary(secondaryElement1);
+    // create the color selection field
 
-        colorSlotForLayer = new ColorSlot();
-        Button<LayerSettingsWindowController> colorSelectionButton = new Button<>(ResourceManager.getInstance().smallButtonTextureRegion, Button.ButtonType.OneClick, true);
-        LinearLayout linearLayout = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
-        linearLayout.addToLayout(colorSelectionButton);
-        linearLayout.addToLayout(colorSlotForLayer);
-        TitledField<LinearLayout> colorSelectionField = new TitledField<>("Select Color:", linearLayout);
-        colorSelectionButton.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, colorSelectionButton) {
+    colorSlotForLayer = new ColorSlot();
+    Button<LayerSettingsWindowController> colorSelectionButton =
+        new Button<>(
+            ResourceManager.getInstance().smallButtonTextureRegion,
+            Button.ButtonType.OneClick,
+            true);
+    LinearLayout linearLayout = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
+    linearLayout.addToLayout(colorSelectionButton);
+    linearLayout.addToLayout(colorSlotForLayer);
+    TitledField<LinearLayout> colorSelectionField =
+        new TitledField<>("Select Color:", linearLayout);
+    colorSelectionButton.setBehavior(
+        new ButtonBehavior<LayerSettingsWindowController>(this, colorSelectionButton) {
+          @Override
+          public void informControllerButtonClicked() {}
+
+          @Override
+          public void informControllerButtonReleased() {
+            if (colorSelectorController != null) {
+              colorSelectorController.bindToColor(
+                  ((ColoredProperties) model.getProperties()).getDefaultColor());
+              colorSelectorController.setAcceptAction(() -> setLayerColorSlot());
+              colorSelectorController.openWindow();
+            }
+          }
+        });
+    SimpleSecondary<TitledField<?>> secondaryElement2 =
+        new SimpleSecondary<>(1, 1, colorSelectionField);
+    window.addSecondary(secondaryElement2);
+
+    SectionField<LayerSettingsWindowController> materialsSection =
+        new SectionField<>(
+            2, "Material", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addPrimary(materialsSection);
+
+    for (int i = 0; i < MaterialFactory.getInstance().materials.size(); i++) {
+
+      ButtonWithText<LayerSettingsWindowController> materialButton =
+          new ButtonWithText<>(
+              this.getMaterialNameByIndex(i),
+              2,
+              ResourceManager.getInstance().simpleButtonTextureRegion,
+              Button.ButtonType.Selector,
+              true);
+
+      SimpleSecondary<ButtonWithText<?>> materialField =
+          new SimpleSecondary<>(2, i, materialButton);
+      window.addSecondary(materialField);
+      materialButton.setBehavior(
+          new ButtonBehavior<LayerSettingsWindowController>(this, materialButton) {
             @Override
             public void informControllerButtonClicked() {
-
+              onMaterialButtonClicked(materialField);
             }
 
             @Override
-            public void informControllerButtonReleased() {
-                if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((ColoredProperties) model.getProperties()).getDefaultColor());
-                    colorSelectorController.setAcceptAction(() -> setLayerColorSlot());
-                    colorSelectorController.openWindow();
-                }
-            }
-        });
-        SimpleSecondary<TitledField<?>> secondaryElement2 = new SimpleSecondary<>(1, 1, colorSelectionField);
-        window.addSecondary(secondaryElement2);
+            public void informControllerButtonReleased() {}
+          });
+    }
 
+    SectionField<LayerSettingsWindowController> propertiesSection =
+        new SectionField<>(
+            3, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addPrimary(propertiesSection);
 
-        SectionField<LayerSettingsWindowController> materialsSection = new SectionField<>(2, "Material", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addPrimary(materialsSection);
+    TitledTextField<LayerSettingsWindowController> densityField =
+        new TitledTextField<>("Density:", 5, 5, 76);
+    densityTextField = densityField.getAttachment();
 
-        for (int i = 0; i < MaterialFactory.getInstance().materials.size(); i++) {
+    densityField
+        .getAttachment()
+        .setBehavior(
+            new TextFieldBehavior<LayerSettingsWindowController>(
+                this,
+                densityField.getAttachment(),
+                Keyboard.KeyboardType.Numeric,
+                densityValidator,
+                true) {
+              @Override
+              protected void informControllerTextFieldTapped() {
+                LayerSettingsWindowController.super.onTextFieldTapped(densityTextField);
+              }
 
-            ButtonWithText<LayerSettingsWindowController> materialButton = new ButtonWithText<>
-                    (this.getMaterialNameByIndex(i), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
-
-
-            SimpleSecondary<ButtonWithText<?>> materialField = new SimpleSecondary<>(2, i, materialButton);
-            window.addSecondary(materialField);
-            materialButton.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, materialButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    onMaterialButtonClicked(materialField);
-                }
-
-                @Override
-                public void informControllerButtonReleased() {
-
-                }
+              @Override
+              protected void informControllerTextFieldReleased() {
+                LayerSettingsWindowController.super.onTextFieldReleased(densityTextField);
+              }
             });
 
-        }
+    FieldWithError titleDensityFieldWithError = new FieldWithError(densityField);
+    SimpleSecondary<FieldWithError> densityElement =
+        new SimpleSecondary<>(3, 0, titleDensityFieldWithError);
+    window.addSecondary(densityElement);
+    densityTextField
+        .getBehavior()
+        .setReleaseAction(
+            () -> {
+              float density = Float.parseFloat(densityTextField.getTextString());
+              layerProperty.setDensity(density);
+            });
 
+    TitledQuantity<LayerSettingsWindowController> titledBouncinessQuantity =
+        new TitledQuantity<>("Bounciness:", 10, "b", 5, 76);
+    bouncinessQuantity = titledBouncinessQuantity.getAttachment();
+    titledBouncinessQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, titledBouncinessQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleSecondary<TitledQuantity<LayerSettingsWindowController>> bouncinessElement =
+        new SimpleSecondary<>(3, 1, titledBouncinessQuantity);
+    window.addSecondary(bouncinessElement);
+    bouncinessQuantity
+        .getBehavior()
+        .setChangeAction(() -> layerProperty.setRestitution(bouncinessQuantity.getRatio()));
 
-        SectionField<LayerSettingsWindowController> propertiesSection = new SectionField<>(3, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addPrimary(propertiesSection);
+    TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity =
+        new TitledQuantity<>("Friction:", 10, "r", 5, 76);
+    frictionQuantity = titledFrictionQuantity.getAttachment();
+    titledFrictionQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, titledFrictionQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleSecondary<TitledQuantity<?>> frictionElement =
+        new SimpleSecondary<>(3, 2, titledFrictionQuantity);
+    window.addSecondary(frictionElement);
+    frictionQuantity
+        .getBehavior()
+        .setChangeAction(() -> layerProperty.setFriction(frictionQuantity.getRatio()));
 
-        TitledTextField<LayerSettingsWindowController> densityField = new TitledTextField<>("Density:", 5, 5, 76);
-        densityTextField = densityField.getAttachment();
+    TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity =
+        new TitledQuantity<>("Ten:", 20, "t", 5, 50);
+    tenacityQuantity = titledTenacityQuantity.getAttachment();
+    titledTenacityQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, titledTenacityQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleSecondary<TitledQuantity<?>> tenacityElement =
+        new SimpleSecondary<>(3, 3, titledTenacityQuantity);
+    window.addSecondary(tenacityElement);
+    tenacityQuantity
+        .getBehavior()
+        .setChangeAction(
+            () -> {
+              float ratio = tenacityQuantity.getRatio();
+              layerProperty.setTenacity(PhysicsConstants.getTenacityFromRatio(ratio));
+            });
 
-        densityField.getAttachment().setBehavior(new TextFieldBehavior<LayerSettingsWindowController>(this, densityField.getAttachment(), Keyboard.KeyboardType.Numeric, densityValidator, true) {
-            @Override
-            protected void informControllerTextFieldTapped() {
-                LayerSettingsWindowController.super.onTextFieldTapped(densityTextField);
-            }
+    TitledQuantity<LayerSettingsWindowController> titledHardnessQuantity =
+        new TitledQuantity<>("Hrd:", 20, "t", 5, 50);
+    hardnessQuantity = titledHardnessQuantity.getAttachment();
+    titledHardnessQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, titledHardnessQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleSecondary<TitledQuantity<?>> hardnessElement =
+        new SimpleSecondary<>(3, 4, titledHardnessQuantity);
+    window.addSecondary(hardnessElement);
+    hardnessQuantity
+        .getBehavior()
+        .setChangeAction(() -> layerProperty.setHardness(hardnessQuantity.getRatio() * 10));
 
-            @Override
-            protected void informControllerTextFieldReleased() {
-                LayerSettingsWindowController.super.onTextFieldReleased(densityTextField);
-            }
+    int secId = 5;
 
+    secId++;
+    TitledQuantity<LayerSettingsWindowController> titledSharpnessQuantity =
+        new TitledQuantity<>("Sharpness:", 10, "t", 5, 76);
+    sharpnessQuantity = titledSharpnessQuantity.getAttachment();
+    titledSharpnessQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, titledSharpnessQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleSecondary<TitledQuantity<?>> sharpnessElement =
+        new SimpleSecondary<>(3, 4, titledSharpnessQuantity);
+    window.addSecondary(sharpnessElement);
+    sharpnessQuantity
+        .getBehavior()
+        .setChangeAction(() -> layerProperty.setSharpness(sharpnessQuantity.getRatio()));
 
-        });
+    secId++;
+    TitledButton<LayerSettingsWindowController> juicyButton =
+        new TitledButton<>(
+            "Juicy",
+            ResourceManager.getInstance().onoffTextureRegion,
+            Button.ButtonType.Selector,
+            5f);
 
-        FieldWithError titleDensityFieldWithError = new FieldWithError(densityField);
-        SimpleSecondary<FieldWithError> densityElement = new SimpleSecondary<>(3, 0, titleDensityFieldWithError);
-        window.addSecondary(densityElement);
-        densityTextField.getBehavior().setReleaseAction(() -> {
-            float density = Float.parseFloat(densityTextField.getTextString());
-            layerProperty.setDensity(density);
-        });
-
-
-        TitledQuantity<LayerSettingsWindowController> titledBouncinessQuantity = new TitledQuantity<>("Bounciness:", 10, "b", 5, 76);
-        bouncinessQuantity = titledBouncinessQuantity.getAttachment();
-        titledBouncinessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledBouncinessQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleSecondary<TitledQuantity<LayerSettingsWindowController>> bouncinessElement = new SimpleSecondary<>(3, 1, titledBouncinessQuantity);
-        window.addSecondary(bouncinessElement);
-        bouncinessQuantity.getBehavior().setChangeAction(()-> layerProperty.setRestitution(bouncinessQuantity.getRatio()));
-
-
-        TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity = new TitledQuantity<>("Friction:", 10, "r", 5, 76);
-        frictionQuantity = titledFrictionQuantity.getAttachment();
-        titledFrictionQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledFrictionQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleSecondary<TitledQuantity<?>> frictionElement = new SimpleSecondary<>(3, 2, titledFrictionQuantity);
-        window.addSecondary(frictionElement);
-        frictionQuantity.getBehavior().setChangeAction(()-> layerProperty.setFriction(frictionQuantity.getRatio()));
-
-
-
-        TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity = new TitledQuantity<>("Ten:", 20, "t", 5, 50);
-        tenacityQuantity = titledTenacityQuantity.getAttachment();
-        titledTenacityQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledTenacityQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleSecondary<TitledQuantity<?>> tenacityElement = new SimpleSecondary<>(3, 3, titledTenacityQuantity);
-        window.addSecondary(tenacityElement);
-        tenacityQuantity.getBehavior().setChangeAction(()-> {
-            float ratio = tenacityQuantity.getRatio();
-            layerProperty.setTenacity(PhysicsConstants.getTenacityFromRatio(ratio));
-        });
-
-
-
-        TitledQuantity<LayerSettingsWindowController> titledHardnessQuantity = new TitledQuantity<>("Hrd:", 20, "t", 5, 50);
-        hardnessQuantity = titledHardnessQuantity.getAttachment();
-        titledHardnessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledHardnessQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleSecondary<TitledQuantity<?>> hardnessElement = new SimpleSecondary<>(3, 4, titledHardnessQuantity);
-        window.addSecondary(hardnessElement);
-        hardnessQuantity.getBehavior().setChangeAction(()-> layerProperty.setHardness(hardnessQuantity.getRatio()*10));
-
-
-
-        int secId = 5;
-
-
-        secId++;
-        TitledQuantity<LayerSettingsWindowController> titledSharpnessQuantity = new TitledQuantity<>("Sharpness:", 10, "t", 5, 76);
-        sharpnessQuantity = titledSharpnessQuantity.getAttachment();
-        titledSharpnessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, titledSharpnessQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleSecondary<TitledQuantity<?>> sharpnessElement = new SimpleSecondary<>(3, 4, titledSharpnessQuantity);
-        window.addSecondary(sharpnessElement);
-        sharpnessQuantity.getBehavior().setChangeAction(()-> layerProperty.setSharpness(sharpnessQuantity.getRatio()));
-
-
-
-        secId++;
-        TitledButton<LayerSettingsWindowController> juicyButton = new TitledButton<>
-                ("Juicy", ResourceManager.getInstance().onoffTextureRegion, Button.ButtonType.Selector, 5f);
-
-
-        jucyField = new SimpleSecondary<>(3, secId, juicyButton);
-        window.addSecondary(jucyField);
-        juicyButton.getAttachment().setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, juicyButton.getAttachment()) {
-            @Override
-            public void informControllerButtonClicked() {
+    jucyField = new SimpleSecondary<>(3, secId, juicyButton);
+    window.addSecondary(jucyField);
+    juicyButton
+        .getAttachment()
+        .setBehavior(
+            new ButtonBehavior<LayerSettingsWindowController>(this, juicyButton.getAttachment()) {
+              @Override
+              public void informControllerButtonClicked() {
 
                 onSecondaryButtonClicked(jucyField);
-            }
+              }
 
-            @Override
-            public void informControllerButtonReleased() {
+              @Override
+              public void informControllerButtonReleased() {
                 onSecondaryButtonReleased(jucyField);
+              }
+            });
+    juicyButton.getAttachment().getBehavior().setPushAction(() -> layerProperty.setJuicy(true));
+    juicyButton.getAttachment().getBehavior().setReleaseAction(() -> layerProperty.setJuicy(false));
 
+    Sub2SectionField<LayerSettingsWindowController> juiceSettingsSection =
+        new Sub2SectionField<>(
+            3, secId, 0, "Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addTertiary(juiceSettingsSection);
+
+    colorSlotForJuice = new ColorSlot();
+    Button<LayerSettingsWindowController> juiceColorSelectionButton =
+        new Button<>(
+            ResourceManager.getInstance().smallButtonTextureRegion,
+            Button.ButtonType.OneClick,
+            true);
+    LinearLayout linearLayout2 = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
+    linearLayout2.addToLayout(juiceColorSelectionButton);
+    linearLayout2.addToLayout(colorSlotForJuice);
+    TitledField<LinearLayout> colorSelectionField2 =
+        new TitledField<>("Select Juice Color:", linearLayout2);
+    juiceColorSelectionButton.setBehavior(
+        new ButtonBehavior<LayerSettingsWindowController>(this, juiceColorSelectionButton) {
+          @Override
+          public void informControllerButtonClicked() {}
+
+          @Override
+          public void informControllerButtonReleased() {
+            if (colorSelectorController != null) {
+              colorSelectorController.bindToColor(
+                  ((LayerProperties) model.getProperties()).getJuiceColor());
+              colorSelectorController.setAcceptAction(() -> setJuiceColorSlot());
+              colorSelectorController.openWindow();
             }
+          }
         });
-        juicyButton.getAttachment().getBehavior().setPushAction(() -> layerProperty.setJuicy(true));
-        juicyButton.getAttachment().getBehavior().setReleaseAction(() -> layerProperty.setJuicy(false));
+    SimpleQuaternary<TitledField<?>> juiceColorElement =
+        new SimpleQuaternary<>(3, secId, 0, 0, colorSelectionField2);
+    window.addQuaternary(juiceColorElement);
 
-        Sub2SectionField<LayerSettingsWindowController> juiceSettingsSection = new Sub2SectionField<>(3, secId, 0, "Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addTertiary(juiceSettingsSection);
+    Sub2SectionField<LayerSettingsWindowController> juiceTypeSection =
+        new Sub2SectionField<>(
+            3, secId, 1, "Liquid", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addTertiary(juiceTypeSection);
 
+    for (int i = 0; i < MaterialFactory.getInstance().liquids.size(); i++) {
 
-        colorSlotForJuice = new ColorSlot();
-        Button<LayerSettingsWindowController> juiceColorSelectionButton = new Button<>(ResourceManager.getInstance().smallButtonTextureRegion, Button.ButtonType.OneClick, true);
-        LinearLayout linearLayout2 = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
-        linearLayout2.addToLayout(juiceColorSelectionButton);
-        linearLayout2.addToLayout(colorSlotForJuice);
-        TitledField<LinearLayout> colorSelectionField2 = new TitledField<>("Select Juice Color:", linearLayout2);
-        juiceColorSelectionButton.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, juiceColorSelectionButton) {
+      ButtonWithText<LayerSettingsWindowController> juiceButton =
+          new ButtonWithText<>(
+              this.getLiquidNameByIndex(i),
+              2,
+              ResourceManager.getInstance().simpleButtonTextureRegion,
+              Button.ButtonType.Selector,
+              true);
+
+      SimpleQuaternary<ButtonWithText<?>> juiceField =
+          new SimpleQuaternary<>(3, secId, 1, i, juiceButton);
+      window.addQuaternary(juiceField);
+      juiceButton.setBehavior(
+          new ButtonBehavior<LayerSettingsWindowController>(this, juiceButton) {
             @Override
             public void informControllerButtonClicked() {
-
+              onJuiceButtonClicked(juiceField);
             }
 
             @Override
-            public void informControllerButtonReleased() {
-                if (colorSelectorController != null) {
-                    colorSelectorController.bindToColor(((LayerProperties) model.getProperties()).getJuiceColor());
-                    colorSelectorController.setAcceptAction(() -> setJuiceColorSlot());
-                    colorSelectorController.openWindow();
-                }
-            }
-        });
-        SimpleQuaternary<TitledField<?>> juiceColorElement = new SimpleQuaternary<>(3, secId, 0, 0, colorSelectionField2);
-        window.addQuaternary(juiceColorElement);
+            public void informControllerButtonReleased() {}
+          });
+    }
 
+    Sub2SectionField<LayerSettingsWindowController> juicePropertiesSection =
+        new Sub2SectionField<>(
+            3, secId, 2, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addTertiary(juicePropertiesSection);
 
-        Sub2SectionField<LayerSettingsWindowController> juiceTypeSection = new Sub2SectionField<>(3, secId, 1, "Liquid", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addTertiary(juiceTypeSection);
+    TitledQuantity<LayerSettingsWindowController> juicinessQuantity =
+        new TitledQuantity<>("Juiciness:", 10, "r", 5);
+    juicinessQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, juicinessQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleQuaternary<TitledQuantity<?>> juicinessElement =
+        new SimpleQuaternary<>(3, secId, 2, 0, juicinessQuantity);
+    window.addQuaternary(juicinessElement);
+    juicinessQuantity
+        .getAttachment()
+        .getBehavior()
+        .setChangeAction(
+            () -> layerProperty.setJuicinessDensity(juicinessQuantity.getAttachment().getRatio()));
 
-        for (int i = 0; i < MaterialFactory.getInstance().liquids.size(); i++) {
+    TitledQuantity<LayerSettingsWindowController> lowerRateQuantity =
+        new TitledQuantity<>("Lower Rate:", 10, "g", 5, 75);
+    lowerRateQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, lowerRateQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    FieldWithError lowerRateFieldWithError = new FieldWithError(lowerRateQuantity);
+    SimpleQuaternary<FieldWithError> lowerRateElement =
+        new SimpleQuaternary<>(3, secId, 2, 1, lowerRateFieldWithError);
+    window.addQuaternary(lowerRateElement);
+    lowerRateQuantity
+        .getAttachment()
+        .getBehavior()
+        .setChangeAction(
+            () ->
+                layerProperty.setJuicinessLowerPressure(
+                    lowerRateQuantity.getAttachment().getRatio()));
 
-            ButtonWithText<LayerSettingsWindowController> juiceButton = new ButtonWithText<>
-                    (this.getLiquidNameByIndex(i), 2, ResourceManager.getInstance().simpleButtonTextureRegion, Button.ButtonType.Selector, true);
+    lowerRateQuantity
+        .getAttachment()
+        .getBehavior()
+        .setCondition(
+            new Condition() {
+              @Override
+              public boolean isCondition(float value) {
+                return value <= layerProperty.getJuicinessUpperPressure();
+              }
 
-
-            SimpleQuaternary<ButtonWithText<?>> juiceField = new SimpleQuaternary<>(3, secId, 1, i, juiceButton);
-            window.addQuaternary(juiceField);
-            juiceButton.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, juiceButton) {
-                @Override
-                public void informControllerButtonClicked() {
-                    onJuiceButtonClicked(juiceField);
-                }
-
-                @Override
-                public void informControllerButtonReleased() {
-
-                }
+              @Override
+              public String getError() {
+                return "lower rate under upper rate !";
+              }
             });
 
+    TitledQuantity<LayerSettingsWindowController> upperRateQuantity =
+        new TitledQuantity<>("Upper Rate:", 10, "r", 5, 75);
+    upperRateQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, upperRateQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    FieldWithError upperRateFieldWithError = new FieldWithError(upperRateQuantity);
+    SimpleQuaternary<FieldWithError> upperRateElement =
+        new SimpleQuaternary<>(3, secId, 2, 2, upperRateFieldWithError);
+    window.addQuaternary(upperRateElement);
 
-        }
-
-        Sub2SectionField<LayerSettingsWindowController> juicePropertiesSection = new Sub2SectionField<>(3, secId, 2, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addTertiary(juicePropertiesSection);
-
-
-        TitledQuantity<LayerSettingsWindowController> juicinessQuantity = new TitledQuantity<>("Juiciness:", 10, "r", 5);
-        juicinessQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, juicinessQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleQuaternary<TitledQuantity<?>> juicinessElement = new SimpleQuaternary<>(3, secId, 2, 0, juicinessQuantity);
-        window.addQuaternary(juicinessElement);
-        juicinessQuantity.getAttachment().getBehavior().setChangeAction(() -> layerProperty.setJuicinessDensity(juicinessQuantity.getAttachment().getRatio()));
-
-
-        TitledQuantity<LayerSettingsWindowController> lowerRateQuantity = new TitledQuantity<>("Lower Rate:", 10, "g", 5, 75);
-        lowerRateQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, lowerRateQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        FieldWithError lowerRateFieldWithError = new FieldWithError(lowerRateQuantity);
-        SimpleQuaternary<FieldWithError> lowerRateElement = new SimpleQuaternary<>(3, secId, 2, 1, lowerRateFieldWithError);
-        window.addQuaternary(lowerRateElement);
-        lowerRateQuantity.getAttachment().getBehavior().setChangeAction(() -> layerProperty.setJuicinessLowerPressure(lowerRateQuantity.getAttachment().getRatio()));
-
-        lowerRateQuantity.getAttachment().getBehavior().setCondition(new Condition() {
-            @Override
-            public boolean isCondition(float value) {
-                return value <= layerProperty.getJuicinessUpperPressure();
-            }
-
-            @Override
-            public String getError() {
-                return "lower rate under upper rate !";
-            }
-        });
-
-
-        TitledQuantity<LayerSettingsWindowController> upperRateQuantity = new TitledQuantity<>("Upper Rate:", 10, "r", 5, 75);
-        upperRateQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, upperRateQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        FieldWithError upperRateFieldWithError = new FieldWithError(upperRateQuantity);
-        SimpleQuaternary<FieldWithError> upperRateElement = new SimpleQuaternary<>(3, secId, 2, 2, upperRateFieldWithError);
-        window.addQuaternary(upperRateElement);
-
-        upperRateQuantity.getAttachment().getBehavior().setChangeAction(() -> layerProperty.setJuicinessUpperPressure(upperRateQuantity.getAttachment().getRatio()));
-        upperRateQuantity.getAttachment().getBehavior().setCondition(new Condition() {
-            @Override
-            public boolean isCondition(float value) {
+    upperRateQuantity
+        .getAttachment()
+        .getBehavior()
+        .setChangeAction(
+            () ->
+                layerProperty.setJuicinessUpperPressure(
+                    upperRateQuantity.getAttachment().getRatio()));
+    upperRateQuantity
+        .getAttachment()
+        .getBehavior()
+        .setCondition(
+            new Condition() {
+              @Override
+              public boolean isCondition(float value) {
                 return value >= layerProperty.getJuicinessLowerPressure();
-            }
+              }
 
-            @Override
-            public String getError() {
+              @Override
+              public String getError() {
                 return "upper rate above lower rate";
-            }
-        });
+              }
+            });
 
+    TitledButton<LayerSettingsWindowController> juiceCombButton =
+        new TitledButton<>(
+            "Combustible:",
+            ResourceManager.getInstance().onoffTextureRegion,
+            Button.ButtonType.Selector,
+            5f);
 
-        TitledButton<LayerSettingsWindowController> juiceCombButton = new TitledButton<>
-                ("Combustible:", ResourceManager.getInstance().onoffTextureRegion, Button.ButtonType.Selector, 5f);
+    SimpleTertiary<TitledButton<LayerSettingsWindowController>> juiceCombElement =
+        new SimpleTertiary<>(3, secId, 3, juiceCombButton);
+    window.addTertiary(juiceCombElement);
 
-
-        SimpleTertiary<TitledButton<LayerSettingsWindowController>> juiceCombElement = new SimpleTertiary<>(3, secId, 3, juiceCombButton);
-        window.addTertiary(juiceCombElement);
-
-
-        juiceCombButton.getAttachment().setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, juiceCombButton.getAttachment()) {
-            @Override
-            public void informControllerButtonClicked() {
+    juiceCombButton
+        .getAttachment()
+        .setBehavior(
+            new ButtonBehavior<LayerSettingsWindowController>(
+                this, juiceCombButton.getAttachment()) {
+              @Override
+              public void informControllerButtonClicked() {
                 onTertiaryButtonClicked(juiceCombElement);
-            }
+              }
 
-            @Override
-            public void informControllerButtonReleased() {
+              @Override
+              public void informControllerButtonReleased() {
                 onTertiaryButtonReleased(juiceCombElement);
+              }
+            });
 
-            }
-        });
+    TitledQuantity<LayerSettingsWindowController> juiceCombEnergyQuantity =
+        new TitledQuantity<>("Energy:", 10, "g", 5);
+    juiceCombEnergyQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<LayerSettingsWindowController>(
+                this, juiceCombEnergyQuantity.getAttachment()) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+    SimpleQuaternary<TitledQuantity<LayerSettingsWindowController>> juicinessCombEnergyElement =
+        new SimpleQuaternary<>(3, secId, 3, 0, juiceCombEnergyQuantity);
+    window.addQuaternary(juicinessCombEnergyElement);
 
+    TitledButton<LayerSettingsWindowController> flammableButton =
+        new TitledButton<>(
+            "Flammable:",
+            ResourceManager.getInstance().onoffTextureRegion,
+            Button.ButtonType.Selector,
+            5f);
 
-        TitledQuantity<LayerSettingsWindowController> juiceCombEnergyQuantity = new TitledQuantity<>("Energy:", 10, "g", 5);
-        juiceCombEnergyQuantity.getAttachment().setBehavior(new QuantityBehavior<LayerSettingsWindowController>(this, juiceCombEnergyQuantity.getAttachment()) {
-            @Override
-            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-
-            }
-        });
-        SimpleQuaternary<TitledQuantity<LayerSettingsWindowController>> juicinessCombEnergyElement = new SimpleQuaternary<>(3, secId, 3, 0, juiceCombEnergyQuantity);
-        window.addQuaternary(juicinessCombEnergyElement);
-
-
-        TitledButton<LayerSettingsWindowController> flammableButton = new TitledButton<>
-                ("Flammable:", ResourceManager.getInstance().onoffTextureRegion, Button.ButtonType.Selector, 5f);
-
-        secId++;
-        flammableField = new SimpleSecondary<>(3, secId, flammableButton);
-        window.addSecondary(flammableField);
-        flammableButton.getAttachment().setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, flammableButton.getAttachment()) {
-            @Override
-            public void informControllerButtonClicked() {
+    secId++;
+    flammableField = new SimpleSecondary<>(3, secId, flammableButton);
+    window.addSecondary(flammableField);
+    flammableButton
+        .getAttachment()
+        .setBehavior(
+            new ButtonBehavior<LayerSettingsWindowController>(
+                this, flammableButton.getAttachment()) {
+              @Override
+              public void informControllerButtonClicked() {
 
                 onSecondaryButtonClicked(flammableField);
-            }
+              }
 
-            @Override
-            public void informControllerButtonReleased() {
+              @Override
+              public void informControllerButtonReleased() {
                 onSecondaryButtonReleased(flammableField);
+              }
+            });
+    flammableButton
+        .getAttachment()
+        .getBehavior()
+        .setPushAction(() -> layerProperty.setFlammable(true));
+    flammableButton
+        .getAttachment()
+        .getBehavior()
+        .setReleaseAction(() -> layerProperty.setFlammable(false));
 
-            }
-        });
-        flammableButton.getAttachment().getBehavior().setPushAction(() -> layerProperty.setFlammable(true));
-        flammableButton.getAttachment().getBehavior().setReleaseAction(() -> layerProperty.setFlammable(false));
-
-
-        TitledTextField<LayerSettingsWindowController> ignitionTemperatureField = new TitledTextField<>("Ignition Temperature:", 5, 5, 140);
-        ignitionTextField = ignitionTemperatureField.getAttachment();
-        ignitionTemperatureField.getAttachment().setBehavior(new TextFieldBehavior<LayerSettingsWindowController>(this, ignitionTemperatureField.getAttachment(), Keyboard.KeyboardType.Numeric, ignitionTemperatureValidator, true) {
-            @Override
-            protected void informControllerTextFieldTapped() {
+    TitledTextField<LayerSettingsWindowController> ignitionTemperatureField =
+        new TitledTextField<>("Ignition Temperature:", 5, 5, 140);
+    ignitionTextField = ignitionTemperatureField.getAttachment();
+    ignitionTemperatureField
+        .getAttachment()
+        .setBehavior(
+            new TextFieldBehavior<LayerSettingsWindowController>(
+                this,
+                ignitionTemperatureField.getAttachment(),
+                Keyboard.KeyboardType.Numeric,
+                ignitionTemperatureValidator,
+                true) {
+              @Override
+              protected void informControllerTextFieldTapped() {
                 LayerSettingsWindowController.super.onTextFieldTapped(ignitionTextField);
-            }
-            @Override
-            protected void informControllerTextFieldReleased() {
+              }
+
+              @Override
+              protected void informControllerTextFieldReleased() {
                 LayerSettingsWindowController.super.onTextFieldReleased(ignitionTextField);
-            }
-        });
-        FieldWithError ignitionFieldWithError = new FieldWithError(ignitionTemperatureField);
-        SimpleTertiary<FieldWithError> ignitionElement = new SimpleTertiary<>(3, secId, 0, ignitionFieldWithError);
-        window.addTertiary(ignitionElement);
-        ignitionTextField.getBehavior().setReleaseAction(() -> {
-            float ignitionTemperature = Float.parseFloat(ignitionTextField.getTextString());
-            layerProperty.setIgnitionTemperature(ignitionTemperature);
-        });
+              }
+            });
+    FieldWithError ignitionFieldWithError = new FieldWithError(ignitionTemperatureField);
+    SimpleTertiary<FieldWithError> ignitionElement =
+        new SimpleTertiary<>(3, secId, 0, ignitionFieldWithError);
+    window.addTertiary(ignitionElement);
+    ignitionTextField
+        .getBehavior()
+        .setReleaseAction(
+            () -> {
+              float ignitionTemperature = Float.parseFloat(ignitionTextField.getTextString());
+              layerProperty.setIgnitionTemperature(ignitionTemperature);
+            });
 
+    TitledTextField<LayerSettingsWindowController> energyField =
+        new TitledTextField<>("Energy:", 6, 5, 50);
+    energyTextField = energyField.getAttachment();
 
-        TitledTextField<LayerSettingsWindowController> energyField = new TitledTextField<>("Energy:", 6, 5, 50);
-        energyTextField = energyField.getAttachment();
-
-        energyField.getAttachment().setBehavior(new TextFieldBehavior<LayerSettingsWindowController>(this, energyField.getAttachment(), Keyboard.KeyboardType.Numeric, energyValidator, true) {
-            @Override
-            protected void informControllerTextFieldTapped() {
+    energyField
+        .getAttachment()
+        .setBehavior(
+            new TextFieldBehavior<LayerSettingsWindowController>(
+                this,
+                energyField.getAttachment(),
+                Keyboard.KeyboardType.Numeric,
+                energyValidator,
+                true) {
+              @Override
+              protected void informControllerTextFieldTapped() {
                 LayerSettingsWindowController.super.onTextFieldTapped(energyTextField);
-            }
+              }
 
-            @Override
-            protected void informControllerTextFieldReleased() {
+              @Override
+              protected void informControllerTextFieldReleased() {
                 LayerSettingsWindowController.super.onTextFieldReleased(energyTextField);
-            }
+              }
+            });
 
+    FieldWithError energyFieldWithError = new FieldWithError(energyField);
+    SimpleTertiary<FieldWithError> energyElement =
+        new SimpleTertiary<>(3, secId, 1, energyFieldWithError);
+    window.addTertiary(energyElement);
 
-        });
+    energyTextField
+        .getBehavior()
+        .setReleaseAction(
+            () -> {
+              float energy = Float.parseFloat(energyTextField.getTextString());
+              layerProperty.setChemicalEnergy(energy);
+            });
 
-        FieldWithError energyFieldWithError = new FieldWithError(energyField);
-        SimpleTertiary<FieldWithError> energyElement = new SimpleTertiary<>(3, secId, 1, energyFieldWithError);
-        window.addTertiary(energyElement);
+    TitledTextField<LayerSettingsWindowController> flameTemperatureField =
+        new TitledTextField<>("Flame Temperature:", 5, 5, 128);
+    flameTemperatureTextField = flameTemperatureField.getAttachment();
 
-        energyTextField.getBehavior().setReleaseAction(() -> {
-            float energy = Float.parseFloat(energyTextField.getTextString());
-            layerProperty.setChemicalEnergy(energy);
-        });
-
-
-        TitledTextField<LayerSettingsWindowController> flameTemperatureField = new TitledTextField<>("Flame Temperature:", 5, 5, 128);
-        flameTemperatureTextField = flameTemperatureField.getAttachment();
-
-        flameTemperatureField.getAttachment().setBehavior(new TextFieldBehavior<LayerSettingsWindowController>(this, flameTemperatureField.getAttachment(), Keyboard.KeyboardType.Numeric, flameTemperatureValidator, true) {
-            @Override
-            protected void informControllerTextFieldTapped() {
+    flameTemperatureField
+        .getAttachment()
+        .setBehavior(
+            new TextFieldBehavior<LayerSettingsWindowController>(
+                this,
+                flameTemperatureField.getAttachment(),
+                Keyboard.KeyboardType.Numeric,
+                flameTemperatureValidator,
+                true) {
+              @Override
+              protected void informControllerTextFieldTapped() {
                 LayerSettingsWindowController.super.onTextFieldTapped(flameTemperatureTextField);
-            }
+              }
 
-            @Override
-            protected void informControllerTextFieldReleased() {
+              @Override
+              protected void informControllerTextFieldReleased() {
                 LayerSettingsWindowController.super.onTextFieldReleased(flameTemperatureTextField);
-            }
+              }
+            });
 
+    FieldWithError flameTemperatureFieldWithError = new FieldWithError(flameTemperatureField);
+    SimpleTertiary<FieldWithError> flameTemperatureElement =
+        new SimpleTertiary<>(3, secId, 2, flameTemperatureFieldWithError);
+    window.addTertiary(flameTemperatureElement);
+    flameTemperatureTextField
+        .getBehavior()
+        .setReleaseAction(
+            () -> {
+              float flameTemperature = Float.parseFloat(flameTemperatureTextField.getTextString());
+              layerProperty.setFlameTemperature(flameTemperature);
+            });
 
-        });
+    SectionField<LayerSettingsWindowController> categorySection =
+        new SectionField<>(
+            4, "Category", ResourceManager.getInstance().mainButtonTextureRegion, this);
+    window.addPrimary(categorySection);
 
-        FieldWithError flameTemperatureFieldWithError = new FieldWithError(flameTemperatureField);
-        SimpleTertiary<FieldWithError> flameTemperatureElement = new SimpleTertiary<>(3, secId, 2, flameTemperatureFieldWithError);
-        window.addTertiary(flameTemperatureElement);
-        flameTemperatureTextField.getBehavior().setReleaseAction(() -> {
-            float flameTemperature = Float.parseFloat(flameTemperatureTextField.getTextString());
-            layerProperty.setFlameTemperature(flameTemperature);
-        });
+    window.createScroller();
+    updateLayout();
+  }
 
+  private String getMaterialNameByIndex(int i) {
+    return MaterialFactory.getInstance().getMaterialByIndex(i).getName();
+  }
 
-        SectionField<LayerSettingsWindowController> categorySection = new SectionField<>(4, "Category", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addPrimary(categorySection);
+  private String getLiquidNameByIndex(int i) {
+    return MaterialFactory.getInstance().getLiquidByIndex(i).getProperties().getJuiceName();
+  }
 
-        window.createScroller();
-        updateLayout();
-    }
+  private void setLayerName(String layerName) {
+    layerNameTextField.getBehavior().setTextValidated(layerName);
+  }
 
-    private String getMaterialNameByIndex(int i) {
-        return MaterialFactory.getInstance().getMaterialByIndex(i).getName();
-    }
+  private void setBounciness(float bounciness) {
+    bouncinessQuantity.updateRatio(bounciness);
+  }
 
-    private String getLiquidNameByIndex(int i) {
-        return MaterialFactory.getInstance().getLiquidByIndex(i).getProperties().getJuiceName();
-    }
+  private void setDensity(float density) {
+    densityTextField.getBehavior().setTextValidated("" + density);
+  }
 
-    private void setLayerName(String layerName) {
-        layerNameTextField.getBehavior().setTextValidated(layerName);
-    }
+  private void setIgnitionTemperature(double ignitionTemperature) {
+    ignitionTextField.getBehavior().setTextValidated("" + (long) ignitionTemperature);
+  }
 
-    private void setBounciness(float bounciness) {
-        bouncinessQuantity.updateRatio(bounciness);
-    }
+  private void setFlameTemperature(double flameTemperature) {
+    flameTemperatureTextField.getBehavior().setTextValidated("" + (long) flameTemperature);
+  }
 
-    private void setDensity(float density) {
-        densityTextField.getBehavior().setTextValidated("" + density);
-    }
+  private void setChemicalEnergy(double chemicalEnergy) {
+    energyTextField.getBehavior().setTextValidated("" + (long) chemicalEnergy);
+  }
 
-    private void setIgnitionTemperature(double ignitionTemperature) {
-        ignitionTextField.getBehavior().setTextValidated("" + (long) ignitionTemperature);
-    }
+  private void setFriction(float friction) {
+    frictionQuantity.updateRatio(friction);
+  }
 
-    private void setFlameTemperature(double flameTemperature) {
-        flameTemperatureTextField.getBehavior().setTextValidated("" + (long) flameTemperature);
-    }
+  private void setTenacity(float tenacity) {
+    tenacityQuantity.updateRatio(PhysicsConstants.getTenacityRatio(tenacity));
+  }
 
-    private void setChemicalEnergy(double chemicalEnergy) {
-        energyTextField.getBehavior().setTextValidated("" + (long) chemicalEnergy);
-    }
+  private void setSharpness(float sharpness) {
+    sharpnessQuantity.updateRatio(sharpness);
+  }
 
+  private void setHardness(float hardness) {
+    hardnessQuantity.updateRatio(hardness / 10f);
+  }
 
-    private void setFriction(float friction) {
-        frictionQuantity.updateRatio(friction);
-    }
-
-    private void setTenacity(float tenacity) {
-        tenacityQuantity.updateRatio(PhysicsConstants.getTenacityRatio(tenacity));
-    }
-
-    private void setSharpness(float sharpness) {
-        sharpnessQuantity.updateRatio(sharpness);
-    }
-    private void setHardness(float hardness) {
-        hardnessQuantity.updateRatio(hardness/10f);
-    }
-
-    private void setMaterialNumber(int index){
-        for (int i = 0; i < window.getLayout().getSecondariesSize(2); i++) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(2, i);
-            Element main = element.getMain();
-            if (element.getSecondaryKey() == index) {
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.PRESSED);
-                }
-            } else {
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
+  private void setMaterialNumber(int index) {
+    for (int i = 0; i < window.getLayout().getSecondariesSize(2); i++) {
+      SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(2, i);
+      Element main = element.getMain();
+      if (element.getSecondaryKey() == index) {
+        if (main instanceof ButtonWithText) {
+          ((ButtonWithText<?>) main).updateState(Button.State.PRESSED);
         }
-    }
-    private void setJuicy(boolean juicy) {
-        if (juicy) {
-            jucyField.getMain().getAttachment().updateState(Button.State.PRESSED);
-            onSecondaryButtonClicked(jucyField);
-        } else {
-            jucyField.getMain().getAttachment().updateState(Button.State.NORMAL);
-            onSecondaryButtonReleased(jucyField);
+      } else {
+        if (main instanceof ButtonWithText) {
+          ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
         }
+      }
     }
+  }
 
-    private void setFlammable(boolean flammable) {
-        if (flammable) {
-            flammableField.getMain().getAttachment().updateState(Button.State.PRESSED);
-            onSecondaryButtonClicked(flammableField);
-        } else {
-            flammableField.getMain().getAttachment().updateState(Button.State.NORMAL);
-            onSecondaryButtonReleased(flammableField);
+  private void setJuicy(boolean juicy) {
+    if (juicy) {
+      jucyField.getMain().getAttachment().updateState(Button.State.PRESSED);
+      onSecondaryButtonClicked(jucyField);
+    } else {
+      jucyField.getMain().getAttachment().updateState(Button.State.NORMAL);
+      onSecondaryButtonReleased(jucyField);
+    }
+  }
+
+  private void setFlammable(boolean flammable) {
+    if (flammable) {
+      flammableField.getMain().getAttachment().updateState(Button.State.PRESSED);
+      onSecondaryButtonClicked(flammableField);
+    } else {
+      flammableField.getMain().getAttachment().updateState(Button.State.NORMAL);
+      onSecondaryButtonReleased(flammableField);
+    }
+  }
+
+  void onJuiceButtonClicked(SimpleQuaternary<?> juiceButton) {
+    Log.e("interface", juiceButton.getQuaternaryKey() + "/");
+  }
+
+  void onMaterialButtonClicked(SimpleSecondary<?> materialButton) {
+    int primaryKey = materialButton.getPrimaryKey();
+    int secondaryKey = materialButton.getSecondaryKey();
+
+    for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
+      SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
+      if (element.getSecondaryKey() != secondaryKey) {
+        Element main = element.getMain();
+        if (main instanceof ButtonWithText) {
+          ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
         }
+      }
     }
 
-    void onJuiceButtonClicked(SimpleQuaternary<?> juiceButton) {
-        Log.e("interface", juiceButton.getQuaternaryKey() + "/");
+    Material material = MaterialFactory.getInstance().getMaterialByIndex(secondaryKey);
+    layerProperty.setMaterialNumber(material.getIndex());
+    layerProperty.setDensity(material.getDensity());
+    layerProperty.setRestitution(material.getRestitution());
+    layerProperty.setFriction(material.getFriction());
+    layerProperty.setTenacity(material.getTenacity());
+    layerProperty.setHardness(material.getHardness());
+    layerProperty.setJuicinessDensity(material.getJuicinessDensity());
+    layerProperty.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
+    layerProperty.setJuicinessUpperPressure(material.getJuicinessUpperPressure());
+    layerProperty.getDefaultColor().set(material.getColor());
+    layerProperty.setJuicy(material.isJuicy());
+    layerProperty.setFlammable(material.isFlammable());
+    layerProperty.setIgnitionTemperature(material.getIgnitionTemperature());
+    layerProperty.setFlameTemperature(material.getFlameTemperature());
+    layerProperty.setChemicalEnergy(material.getEnergy());
+    if (material.getJuiceColor() != null)
+      layerProperty.setJuiceColor(new Color(material.getJuiceColor()));
 
-    }
+    setDensity(layerProperty.getDensity());
+    setBounciness(layerProperty.getRestitution());
+    setFriction(layerProperty.getFriction());
+    setTenacity(layerProperty.getTenacity());
+    setHardness(layerProperty.getHardness());
+    setJuicy(layerProperty.isJuicy());
+    setFlammable(layerProperty.isFlammable());
+    setIgnitionTemperature(layerProperty.getIgnitionTemperature());
+    setFlameTemperature(layerProperty.getFlameTemperature());
+    setChemicalEnergy(layerProperty.getChemicalEnergy());
+    setLayerColorSlot();
+    setJuiceColorSlot();
 
-    void onMaterialButtonClicked(SimpleSecondary<?> materialButton) {
-        int primaryKey = materialButton.getPrimaryKey();
-        int secondaryKey = materialButton.getSecondaryKey();
+    editorUserInterface.getToolModel().updateMesh();
+  }
 
+  @Override
+  public void onCancelSettings() {
+    super.onCancelSettings();
+    layerWindowController.onResume();
+  }
 
-        for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
-            SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
-            if (element.getSecondaryKey() != secondaryKey) {
-                Element main = element.getMain();
-                if (main instanceof ButtonWithText) {
-                    ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                }
-            }
-        }
+  @Override
+  public void onSubmitSettings() {
+    super.onSubmitSettings();
+    editorUserInterface.getToolModel().updateMesh();
+    layerWindowController.onResume();
+    LayerModel LayerModel = (com.evolgames.userinterface.model.LayerModel) model;
+    layerWindowController.changeLayerName(
+        model.getModelName(), LayerModel.getBodyId(), LayerModel.getLayerId());
+  }
 
-
-        Material material = MaterialFactory.getInstance().getMaterialByIndex(secondaryKey);
-        layerProperty.setMaterialNumber(material.getIndex());
-        layerProperty.setDensity(material.getDensity());
-        layerProperty.setRestitution(material.getRestitution());
-        layerProperty.setFriction(material.getFriction());
-        layerProperty.setTenacity(material.getTenacity());
-        layerProperty.setHardness(material.getHardness());
-        layerProperty.setJuicinessDensity(material.getJuicinessDensity());
-        layerProperty.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
-        layerProperty.setJuicinessUpperPressure(material.getJuicinessUpperPressure());
-        layerProperty.getDefaultColor().set(material.getColor());
-        layerProperty.setJuicy(material.isJuicy());
-        layerProperty.setFlammable(material.isFlammable());
-        layerProperty.setIgnitionTemperature(material.getIgnitionTemperature());
-        layerProperty.setFlameTemperature(material.getFlameTemperature());
-        layerProperty.setChemicalEnergy(material.getEnergy());
-        if (material.getJuiceColor() != null)
-            layerProperty.setJuiceColor(new Color(material.getJuiceColor()));
-
-        setDensity(layerProperty.getDensity());
-        setBounciness(layerProperty.getRestitution());
-        setFriction(layerProperty.getFriction());
-        setTenacity(layerProperty.getTenacity());
-        setHardness(layerProperty.getHardness());
-        setJuicy(layerProperty.isJuicy());
-        setFlammable(layerProperty.isFlammable());
-        setIgnitionTemperature(layerProperty.getIgnitionTemperature());
-        setFlameTemperature(layerProperty.getFlameTemperature());
-        setChemicalEnergy(layerProperty.getChemicalEnergy());
-        setLayerColorSlot();
-        setJuiceColorSlot();
-
-        userInterface.getToolModel().updateMesh();
-
-    }
-
-
-    @Override
-    public void onCancelSettings() {
-        super.onCancelSettings();
-        layerWindowController.onResume();
-    }
-
-    @Override
-    public void onSubmitSettings() {
-        super.onSubmitSettings();
-        userInterface.getToolModel().updateMesh();
-        layerWindowController.onResume();
-        LayerModel LayerModel = (com.evolgames.userinterface.model.LayerModel) model;
-        layerWindowController.changeLayerName(model.getModelName(), LayerModel.getBodyId(), LayerModel.getLayerId());
-    }
-
-
-    public void setUserInterface(UserInterface userInterface) {
-        this.userInterface = userInterface;
-    }
+  public void setUserInterface(EditorUserInterface editorUserInterface) {
+    this.editorUserInterface = editorUserInterface;
+  }
 }

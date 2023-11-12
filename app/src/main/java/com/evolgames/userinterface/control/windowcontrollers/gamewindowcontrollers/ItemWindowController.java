@@ -5,339 +5,430 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Strings;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
-import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ItemWindowController extends OneLevelGameWindowController<ItemWindow, BodyField, ItemField> {
-    private final ProjectileOptionController projectileOptionController;
-    private final OutlineController outlineController;
-    private UserInterface userInterface;
-    private BodyModel selectedBodyModel;
-    private final CasingOptionController ammoOptionController;
-    private final BombOptionController bombOptionController;
+public class ItemWindowController
+    extends OneLevelGameWindowController<ItemWindow, BodyField, ItemField> {
+  private final AtomicInteger itemCounter = new AtomicInteger();
+  private ProjectileOptionController projectileOptionController;
+  private OutlineController outlineController;
+  private EditorUserInterface editorUserInterface;
+  private BodyModel selectedBodyModel;
+  private CasingOptionController ammoOptionController;
+  private BombOptionController bombOptionController;
 
-    public ItemWindowController(ProjectileOptionController projectileOptionController, CasingOptionController ammoOptionController, BombOptionController bombOptionController, OutlineController outlineController) {
-        this.projectileOptionController = projectileOptionController;
-        this.outlineController = outlineController;
-        this.ammoOptionController = ammoOptionController;
-        this.bombOptionController = bombOptionController;
-        this.projectileOptionController.setItemWindowController(this);
-        this.ammoOptionController.setItemWindowController(this);
-        this.bombOptionController.setItemWindowController(this);
+  public void setProjectileOptionController(ProjectileOptionController projectileOptionController) {
+    this.projectileOptionController = projectileOptionController;
+  }
+
+  public void setOutlineController(OutlineController outlineController) {
+    this.outlineController = outlineController;
+  }
+
+  public void setAmmoOptionController(CasingOptionController ammoOptionController) {
+    this.ammoOptionController = ammoOptionController;
+  }
+
+  public void setBombOptionController(BombOptionController bombOptionController) {
+    this.bombOptionController = bombOptionController;
+  }
+
+  public void setUserInterface(EditorUserInterface editorUserInterface) {
+    this.editorUserInterface = editorUserInterface;
+  }
+
+  public List<PointImage> getSelectedModelMovables(boolean moveLimits) {
+    if (selectedSecondaryField instanceof ProjectileField) {
+      ProjectileModel model =
+          editorUserInterface
+              .getToolModel()
+              .getProjectileById(
+                  selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+      return model.getProjectileShape().getMovables(moveLimits);
     }
-
-    public void setUserInterface(UserInterface userInterface) {
-        this.userInterface = userInterface;
+    if (selectedSecondaryField instanceof CasingField) {
+      CasingModel model =
+          editorUserInterface
+              .getToolModel()
+              .getAmmoById(
+                  selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+      return model.getCasingShape().getMovables(moveLimits);
     }
-
-
-    public List<PointImage> getSelectedModelMovables(boolean moveLimits){
-        if (selectedSecondaryField instanceof ProjectileField) {
-            ProjectileModel model = userInterface.getToolModel().getProjectileById(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
-           return model.getProjectileShape().getMovables(moveLimits);
-        }
-        if (selectedSecondaryField instanceof CasingField) {
-            CasingModel model = userInterface.getToolModel().getAmmoById(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
-            return model.getCasingShape().getMovables(moveLimits);
-        }
-        if (selectedSecondaryField instanceof BombField) {
-            BombModel model = userInterface.getToolModel().getBombById(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
-            return model.getBombShape().getMovables(moveLimits);
-        }
-        return null;
+    if (selectedSecondaryField instanceof BombField) {
+      BombModel model =
+          editorUserInterface
+              .getToolModel()
+              .getBombById(
+                  selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+      return model.getBombShape().getMovables(moveLimits);
     }
-    @Override
-    public void onSecondaryButtonClicked(ItemField itemField) {
-        super.onSecondaryButtonClicked(itemField);
-        selectedSecondaryField = itemField;
-        if (itemField instanceof ProjectileField) {
-            ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
-            projectileOptionController.onModelUpdated(model);
-           outlineController.onItemSelectionUpdated(model);
-        }
-        else if (itemField instanceof CasingField) {
-            CasingModel model = userInterface.getToolModel().getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
-            outlineController.onItemSelectionUpdated(model);
-        }
+    return null;
+  }
 
-        else if (itemField instanceof BombField) {
-            BombModel model = userInterface.getToolModel().getBombById(itemField.getPrimaryKey(), itemField.getModelId());
-            outlineController.onItemSelectionUpdated(model);
-        }
-
+  @Override
+  public void onSecondaryButtonClicked(ItemField itemField) {
+    super.onSecondaryButtonClicked(itemField);
+    selectedSecondaryField = itemField;
+    if (itemField instanceof ProjectileField) {
+      ProjectileModel model =
+          editorUserInterface
+              .getToolModel()
+              .getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
+      projectileOptionController.onModelUpdated(model);
+      outlineController.onItemSelectionUpdated(model);
+    } else if (itemField instanceof CasingField) {
+      CasingModel model =
+          editorUserInterface
+              .getToolModel()
+              .getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    } else if (itemField instanceof BombField) {
+      BombModel model =
+          editorUserInterface
+              .getToolModel()
+              .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
     }
+  }
 
-    @Override
-    public void onSecondaryButtonReleased(ItemField itemField) {
-        super.onSecondaryButtonReleased(itemField);
-        if (itemField instanceof ProjectileField) {
-            ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
+  @Override
+  public void onSecondaryButtonReleased(ItemField itemField) {
+    super.onSecondaryButtonReleased(itemField);
+    if (itemField instanceof ProjectileField) {
+      ProjectileModel model =
+          editorUserInterface
+              .getToolModel()
+              .getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
+    }
+    if (itemField instanceof CasingField) {
+      CasingModel model =
+          editorUserInterface
+              .getToolModel()
+              .getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
+      // projectileOptionController.onModelUpdated(model);
+    }
+    outlineController.onItemSelectionUpdated(null);
+    if (selectedSecondaryField == itemField) {
+      selectedSecondaryField = null;
+    }
+  }
 
-        }
-        if (itemField instanceof CasingField) {
-            CasingModel model = userInterface.getToolModel().getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
-            // projectileOptionController.onModelUpdated(model);
-        }
-        outlineController.onItemSelectionUpdated(null);
-        if (selectedSecondaryField == itemField){
+  @Override
+  public void onSecondaryAdded(ItemField itemField) {
+    super.onSecondaryAdded(itemField);
+    if (itemField instanceof ProjectileField) {
+      ProjectileModel model =
+          editorUserInterface
+              .getToolModel()
+              .getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    }
+    if (itemField instanceof CasingField) {
+      CasingModel model =
+          editorUserInterface
+              .getToolModel()
+              .getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    }
+    if (itemField instanceof BombField) {
+      BombModel model =
+          editorUserInterface
+              .getToolModel()
+              .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    }
+    selectedSecondaryField = itemField;
+  }
+
+  @Override
+  public void onPrimaryButtonClicked(BodyField bodyField) {
+    super.onPrimaryButtonClicked(bodyField);
+    this.selectedBodyModel =
+        editorUserInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
+    outlineController.onSelectionUpdated(selectedBodyModel, null, null);
+  }
+
+  @Override
+  public void onPrimaryButtonReleased(BodyField bodyField) {
+    super.onPrimaryButtonReleased(bodyField);
+    selectedBodyModel = null;
+    outlineController.onSelectionUpdated(null, null, null);
+  }
+
+  @Override
+  public void onPrimaryAdded(BodyField bodyField) {
+    super.onPrimaryAdded(bodyField);
+  }
+
+  private void resetLayout() {
+    for (BodyField bodyField : window.getLayout().getPrimaries()) {
+      if (bodyField != null) window.getLayout().removePrimary(bodyField.getPrimaryKey());
+    }
+  }
+
+  public void refresh() {
+    resetLayout();
+    ArrayList<BodyModel> bodies = editorUserInterface.getToolModel().getBodies();
+    for (int i = 0; i < bodies.size(); i++) {
+      BodyModel bodyModel = bodies.get(i);
+      BodyField bodyField =
+          window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
+      if (i == 0) {
+        selectedPrimaryField = bodyField;
+      }
+      for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
+        onProjectileCreated(projectileModel);
+      }
+      for (CasingModel casingModel : bodyModel.getCasingModels()) {
+        onCasingCreated(casingModel);
+      }
+      for (BombModel bombModel : bodyModel.getBombModels()) {
+        onBombCreated(bombModel);
+      }
+    }
+    BodyModel selectedBody = getSelectedBody();
+    if (selectedBody != null) {
+      BodyField firstBodyButton =
+          window.getLayout().getSectionByKey(selectedBody.getBodyId()).getPrimary();
+      onPrimaryButtonClicked(firstBodyButton);
+      firstBodyButton.getControl().updateState(Button.State.PRESSED);
+    }
+    updateLayout();
+  }
+
+  @Override
+  public void init() {
+    if (editorUserInterface.getToolModel() == null) {
+      return;
+    }
+    refresh();
+  }
+
+  private BodyModel getSelectedBody() {
+    if (selectedPrimaryField == null) {
+      return null;
+    }
+    return editorUserInterface
+        .getToolModel()
+        .getBodyModelById(selectedPrimaryField.getPrimaryKey());
+  }
+
+  public void onBodyCreated(BodyModel bodyModel) {
+    window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), true);
+    updateLayout();
+  }
+
+  public void onProjectileCreated(ProjectileModel projectileModel) {
+    ProjectileField targetField =
+        window.addProjectileField(
+            projectileModel.getModelName(),
+            projectileModel.getBodyId(),
+            projectileModel.getProjectileId());
+    projectileModel.setProjectileField(targetField);
+    updateLayout();
+    projectileOptionController.onModelUpdated(projectileModel);
+    onSecondaryButtonClicked(targetField);
+    targetField.getControl().updateState(Button.State.PRESSED);
+    projectileOptionController.updateMissileSelectionFields();
+  }
+
+  public int getSelectedBodyId() {
+    if (selectedPrimaryField != null) {
+      return selectedPrimaryField.getPrimaryKey();
+    } else {
+      return -1;
+    }
+  }
+
+  private void detachProjectileModelShape(ProjectileModel projectileModel) {
+    ProjectileShape projectileShape = projectileModel.getProjectileShape();
+    projectileShape.detach();
+  }
+
+  private void detachAmmoModelShape(CasingModel ammoModel) {
+    CasingShape ammoShape = ammoModel.getCasingShape();
+    ammoShape.detach();
+  }
+
+  private void detachBombModelShape(BombModel bombModel) {
+    BombShape bombShape = bombModel.getBombShape();
+    bombShape.detach();
+  }
+
+  public void onAmmoRemoveButtonReleased(CasingField casingField) {
+    CasingModel ammoModel =
+        editorUserInterface
+            .getToolModel()
+            .getAmmoById(casingField.getPrimaryKey(), casingField.getModelId());
+    editorUserInterface.doWithConfirm(
+        String.format(Strings.ITEM_DELETE_CONFIRM, ammoModel.getModelName()),
+        () -> {
+          if (casingField == selectedSecondaryField) {
             selectedSecondaryField = null;
-        }
-    }
-
-    @Override
-    public void onSecondaryAdded(ItemField itemField) {
-        super.onSecondaryAdded(itemField);
-        if(itemField instanceof ProjectileField) {
-            ProjectileModel model = userInterface.getToolModel().getProjectileById(itemField.getPrimaryKey(), itemField.getModelId());
-            outlineController.onItemSelectionUpdated(model);
-        }
-        if(itemField instanceof CasingField) {
-            CasingModel model = userInterface.getToolModel().getAmmoById(itemField.getPrimaryKey(), itemField.getModelId());
-            outlineController.onItemSelectionUpdated(model);
-        }
-        if(itemField instanceof BombField) {
-            BombModel model = userInterface.getToolModel().getBombById(itemField.getPrimaryKey(), itemField.getModelId());
-            outlineController.onItemSelectionUpdated(model);
-        }
-        selectedSecondaryField = itemField;
-    }
-
-    @Override
-    public void onPrimaryButtonClicked(BodyField bodyField) {
-        super.onPrimaryButtonClicked(bodyField);
-        this.selectedBodyModel = userInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
-        outlineController.onSelectionUpdated(selectedBodyModel,null,null);
-    }
-
-    @Override
-    public void onPrimaryButtonReleased(BodyField bodyField) {
-        super.onPrimaryButtonReleased(bodyField);
-        selectedBodyModel = null;
-        outlineController.onSelectionUpdated(null,null,null);
-    }
-
-    @Override
-    public void onPrimaryAdded(BodyField bodyField) {
-        super.onPrimaryAdded(bodyField);
-    }
-
-    private void resetLayout() {
-        for (BodyField bodyField : window.getLayout().getPrimaries()) {
-            if (bodyField != null)
-                window.getLayout().removePrimary(bodyField.getPrimaryKey());
-        }
-    }
-
-    public void refresh() {
-        resetLayout();
-        ArrayList<BodyModel> bodies = userInterface.getToolModel().getBodies();
-        for (int i = 0; i < bodies.size(); i++) {
-            BodyModel bodyModel = bodies.get(i);
-            BodyField bodyField = window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), i == 0);
-            if(i==0){
-                selectedPrimaryField = bodyField;
-            }
-            for(ProjectileModel projectileModel:bodyModel.getProjectileModels()){
-                onProjectileCreated(projectileModel);
-            }
-            for(CasingModel casingModel:bodyModel.getCasingModels()){
-                onCasingCreated(casingModel);
-            }
-            for(BombModel bombModel:bodyModel.getBombModels()){
-                onBombCreated(bombModel);
-            }
-        }
-        BodyModel selectedBody = getSelectedBody();
-        if (selectedBody != null) {
-            BodyField firstBodyButton = window.getLayout().getSectionByKey(selectedBody.getBodyId()).getPrimary();
-            onPrimaryButtonClicked(firstBodyButton);
-            firstBodyButton.getControl().updateState(Button.State.PRESSED);
-        }
-        updateLayout();
-    }
-
-    @Override
-    public void init() {
-        if (userInterface.getToolModel() == null){
-            return;
-        }
-        refresh();
-    }
-
-    private BodyModel getSelectedBody() {
-        if (selectedPrimaryField == null) {
-            return null;
-        }
-        return userInterface.getToolModel().getBodyModelById(selectedPrimaryField.getPrimaryKey());
-    }
-
-    public void onBodyCreated(BodyModel bodyModel) {
-        window.addBodyField(bodyModel.getModelName(), bodyModel.getBodyId(), true);
-        updateLayout();
-    }
-
-    public void onProjectileCreated(ProjectileModel projectileModel) {
-        ProjectileField targetField = window.addProjectileField(projectileModel.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
-        projectileModel.setProjectileField(targetField);
-        updateLayout();
-        projectileOptionController.onModelUpdated(projectileModel);
-        onSecondaryButtonClicked(targetField);
-        targetField.getControl().updateState(Button.State.PRESSED);
-        projectileOptionController.updateMissileSelectionFields();
-    }
-
-    public int getSelectedBodyId() {
-        if (selectedPrimaryField != null) {
-            return selectedPrimaryField.getPrimaryKey();
-        }
-        else {
-            return -1;
-        }
-    }
-
-    private void detachProjectileModelShape(ProjectileModel projectileModel) {
-        ProjectileShape projectileShape = projectileModel.getProjectileShape();
-        projectileShape.detach();
-    }
-
-    private void detachAmmoModelShape(CasingModel ammoModel) {
-        CasingShape ammoShape = ammoModel.getCasingShape();
-        ammoShape.detach();
-    }
-
-    private void detachBombModelShape(BombModel bombModel) {
-        BombShape bombShape = bombModel.getBombShape();
-        bombShape.detach();
-    }
-    public void onAmmoRemoveButtonReleased(CasingField casingField) {
-        CasingModel ammoModel = userInterface.getToolModel().getAmmoById(casingField.getPrimaryKey(), casingField.getModelId());
-        userInterface.doWithConfirm(String.format(Strings.ITEM_DELETE_CONFIRM,ammoModel.getModelName()),()-> {
-            if (casingField == selectedSecondaryField) {
-                selectedSecondaryField = null;
-            }
-            window.getLayout().removeSecondary(casingField.getPrimaryKey(), casingField.getSecondaryKey());
-            detachAmmoModelShape(ammoModel);
-            ammoOptionController.onModelUpdated(null);
-            userInterface.getToolModel().removeAmmo(ammoModel.getBodyId(), ammoModel.getCasingId());
-            updateLayout();
+          }
+          window
+              .getLayout()
+              .removeSecondary(casingField.getPrimaryKey(), casingField.getSecondaryKey());
+          detachAmmoModelShape(ammoModel);
+          ammoOptionController.onModelUpdated(null);
+          editorUserInterface
+              .getToolModel()
+              .removeAmmo(ammoModel.getBodyId(), ammoModel.getCasingId());
+          updateLayout();
         });
-    }
+  }
 
-    public void onProjectileRemoveButtonReleased(ProjectileField targetField) {
-        ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getModelId());
-        userInterface.doWithConfirm(String.format(Strings.ITEM_DELETE_CONFIRM,projectileModel.getModelName()),()-> {
-        if (targetField == selectedSecondaryField){
+  public void onProjectileRemoveButtonReleased(ProjectileField targetField) {
+    ProjectileModel projectileModel =
+        editorUserInterface
+            .getToolModel()
+            .getProjectileById(targetField.getPrimaryKey(), targetField.getModelId());
+    editorUserInterface.doWithConfirm(
+        String.format(Strings.ITEM_DELETE_CONFIRM, projectileModel.getModelName()),
+        () -> {
+          if (targetField == selectedSecondaryField) {
             selectedSecondaryField = null;
-        }
-        window.getLayout().removeSecondary(targetField.getPrimaryKey(), targetField.getSecondaryKey());
-        detachProjectileModelShape(projectileModel);
-        projectileOptionController.onModelUpdated(null);
-        userInterface.getToolModel().removeProjectile(projectileModel.getBodyId(),projectileModel.getProjectileId());
-        updateLayout();});
-    }
-
-    public void onBombRemoveButtonReleased(BombField bombField) {
-        BombModel bombModel = userInterface.getToolModel().getBombById(bombField.getPrimaryKey(), bombField.getModelId());
-        userInterface.doWithConfirm(String.format(Strings.ITEM_DELETE_CONFIRM,bombModel.getModelName()),()-> {
-            if (bombField == selectedSecondaryField){
-                selectedSecondaryField = null;
-            }
-            window.getLayout().removeSecondary(bombField.getPrimaryKey(), bombField.getSecondaryKey());
-            detachBombModelShape(bombModel);
-            bombOptionController.onModelUpdated(null);
-            userInterface.getToolModel().removeBomb(bombModel.getBodyId(), bombModel.getBombId());
-            updateLayout();
+          }
+          window
+              .getLayout()
+              .removeSecondary(targetField.getPrimaryKey(), targetField.getSecondaryKey());
+          detachProjectileModelShape(projectileModel);
+          projectileOptionController.onModelUpdated(null);
+          editorUserInterface
+              .getToolModel()
+              .removeProjectile(projectileModel.getBodyId(), projectileModel.getProjectileId());
+          updateLayout();
         });
-    }
+  }
 
-    public void onProjectileAborted(ProjectileModel projectileModel) {
-        if (selectedSecondaryField != null && projectileModel.getProjectileId() == selectedSecondaryField.getSecondaryKey()) {
-            window.getLayout().removeSecondary(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
-            detachProjectileModelShape(projectileModel);
-            projectileOptionController.onModelUpdated(null);
-            userInterface.getToolModel().removeProjectile(projectileModel.getBodyId(), projectileModel.getProjectileId());
-            updateLayout();
+  public void onBombRemoveButtonReleased(BombField bombField) {
+    BombModel bombModel =
+        editorUserInterface
+            .getToolModel()
+            .getBombById(bombField.getPrimaryKey(), bombField.getModelId());
+    editorUserInterface.doWithConfirm(
+        String.format(Strings.ITEM_DELETE_CONFIRM, bombModel.getModelName()),
+        () -> {
+          if (bombField == selectedSecondaryField) {
             selectedSecondaryField = null;
-        }
-    }
+          }
+          window
+              .getLayout()
+              .removeSecondary(bombField.getPrimaryKey(), bombField.getSecondaryKey());
+          detachBombModelShape(bombModel);
+          bombOptionController.onModelUpdated(null);
+          editorUserInterface
+              .getToolModel()
+              .removeBomb(bombModel.getBodyId(), bombModel.getBombId());
+          updateLayout();
+        });
+  }
 
-    public void onAmmoAborted(CasingModel ammoModel) {
-        if (selectedSecondaryField != null && ammoModel.getCasingId() == selectedSecondaryField.getSecondaryKey()) {
-            window.getLayout().removeSecondary(selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
-            detachAmmoModelShape(ammoModel);
-            projectileOptionController.onModelUpdated(null);
-            userInterface.getToolModel().removeAmmo(ammoModel.getBodyId(), ammoModel.getCasingId());
-            updateLayout();
-            selectedSecondaryField = null;
-        }
+  public void onProjectileAborted(ProjectileModel projectileModel) {
+    if (selectedSecondaryField != null
+        && projectileModel.getProjectileId() == selectedSecondaryField.getSecondaryKey()) {
+      window
+          .getLayout()
+          .removeSecondary(
+              selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+      detachProjectileModelShape(projectileModel);
+      projectileOptionController.onModelUpdated(null);
+      editorUserInterface
+          .getToolModel()
+          .removeProjectile(projectileModel.getBodyId(), projectileModel.getProjectileId());
+      updateLayout();
+      selectedSecondaryField = null;
     }
+  }
 
-    public void onProjectileSettingsButtonReleased(ProjectileField targetField) {
-        ProjectileModel projectileModel = userInterface.getToolModel().getProjectileById(targetField.getPrimaryKey(), targetField.getModelId());
-        projectileOptionController.openWindow();
-        projectileOptionController.onModelUpdated(projectileModel);
-        unfold();
+  public void onAmmoAborted(CasingModel ammoModel) {
+    if (selectedSecondaryField != null
+        && ammoModel.getCasingId() == selectedSecondaryField.getSecondaryKey()) {
+      window
+          .getLayout()
+          .removeSecondary(
+              selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+      detachAmmoModelShape(ammoModel);
+      projectileOptionController.onModelUpdated(null);
+      editorUserInterface.getToolModel().removeAmmo(ammoModel.getBodyId(), ammoModel.getCasingId());
+      updateLayout();
+      selectedSecondaryField = null;
     }
+  }
 
-    public void changeItemName(String title, int primaryKey, int secondaryKey) {
-        window.getLayout().getSecondary(primaryKey, secondaryKey).getControl().setTitle(title);
-    }
+  public void onProjectileSettingsButtonReleased(ProjectileField targetField) {
+    ProjectileModel projectileModel =
+        editorUserInterface
+            .getToolModel()
+            .getProjectileById(targetField.getPrimaryKey(), targetField.getModelId());
+    projectileOptionController.openWindow();
+    projectileOptionController.onModelUpdated(projectileModel);
+    unfold();
+  }
 
-    public BodyModel getSelectedBodyModel() {
-        return selectedBodyModel;
-    }
+  public void changeItemName(String title, int primaryKey, int secondaryKey) {
+    window.getLayout().getSecondary(primaryKey, secondaryKey).getControl().setTitle(title);
+  }
 
-    public void onCasingCreated(CasingModel casingModel) {
-        CasingField casingField = window.addAmmoField(casingModel.getModelName(), casingModel.getBodyId(), casingModel.getCasingId());
-        casingModel.setCasingField(casingField);
-        updateLayout();
-        //projectileOptionController.onModelUpdated(projectileModel);
-        onSecondaryButtonClicked(casingField);
-        casingField.getControl().updateState(Button.State.PRESSED);
-        projectileOptionController.updateCasingSelectionFields();
-    }
+  public BodyModel getSelectedBodyModel() {
+    return selectedBodyModel;
+  }
 
+  public void onCasingCreated(CasingModel casingModel) {
+    CasingField casingField =
+        window.addAmmoField(
+            casingModel.getModelName(), casingModel.getBodyId(), casingModel.getCasingId());
+    casingModel.setCasingField(casingField);
+    updateLayout();
+    // projectileOptionController.onModelUpdated(projectileModel);
+    onSecondaryButtonClicked(casingField);
+    casingField.getControl().updateState(Button.State.PRESSED);
+    projectileOptionController.updateCasingSelectionFields();
+  }
 
-    public void onAmmoOptionButtonReleased(CasingField casingField) {
-        this.ammoOptionController.onModelUpdated(selectedBodyModel.getAmmoModelById(casingField.getSecondaryKey()));
-        this.ammoOptionController.openWindow();
-        unfold();
-    }
+  public void onAmmoOptionButtonReleased(CasingField casingField) {
+    this.ammoOptionController.onModelUpdated(
+        selectedBodyModel.getAmmoModelById(casingField.getSecondaryKey()));
+    this.ammoOptionController.openWindow();
+    unfold();
+  }
 
-    public boolean hasSelectedItem() {
-        return selectedSecondaryField!=null;
-    }
+  public boolean hasSelectedItem() {
+    return selectedSecondaryField != null;
+  }
 
-    public void onBombCreated(BombModel bombModel) {
-        BombField bombField = window.addBombField(bombModel.getModelName(), bombModel.getBodyId(), bombModel.getBombId());
-        bombModel.setBombField(bombField);
-        updateLayout();
-        onSecondaryButtonClicked(bombField);
-        bombField.getControl().updateState(Button.State.PRESSED);
-    }
+  public void onBombCreated(BombModel bombModel) {
+    BombField bombField =
+        window.addBombField(bombModel.getModelName(), bombModel.getBodyId(), bombModel.getBombId());
+    bombModel.setBombField(bombField);
+    updateLayout();
+    onSecondaryButtonClicked(bombField);
+    bombField.getControl().updateState(Button.State.PRESSED);
+  }
 
-    public void onBombOptionsButtonReleased(BombField bombField) {
-        this.bombOptionController.onModelUpdated(selectedBodyModel.getBombModelById(bombField.getSecondaryKey()));
-        this.bombOptionController.openWindow();
-        unfold();
-    }
-private final  AtomicInteger itemCounter = new AtomicInteger();
-    public AtomicInteger getItemCounter() {
-        return itemCounter;
-    }
+  public void onBombOptionsButtonReleased(BombField bombField) {
+    this.bombOptionController.onModelUpdated(
+        selectedBodyModel.getBombModelById(bombField.getSecondaryKey()));
+    this.bombOptionController.openWindow();
+    unfold();
+  }
+
+  public AtomicInteger getItemCounter() {
+    return itemCounter;
+  }
 }

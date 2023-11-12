@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.PhysicsConstants;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,192 +11,193 @@ import java.util.List;
 
 public class TopographyData {
 
-    private final float[][] data;
-    private final GameEntity[] entities;
-    private final LayerBlock[] blocks;
-    private final Vector2 base;
-    private int length = 0;
-    private boolean center;
+  private final float[][] data;
+  private final GameEntity[] entities;
+  private final LayerBlock[] blocks;
+  private final Vector2 base;
+  private int length = 0;
+  private boolean center;
 
-    public TopographyData(int n, Vector2 base) {
-        this.data = new float[n][2];
-        this.base = base.cpy();
-        this.entities = new GameEntity[n];
-        this.blocks = new LayerBlock[n];
+  public TopographyData(int n, Vector2 base) {
+    this.data = new float[n][2];
+    this.base = base.cpy();
+    this.entities = new GameEntity[n];
+    this.blocks = new LayerBlock[n];
+  }
+
+  public boolean isCenter() {
+    return center;
+  }
+
+  public void setCenter(boolean center) {
+    this.center = center;
+  }
+
+  public float[][] getData() {
+    return data;
+  }
+
+  public int getLength() {
+    return length;
+  }
+
+  public GameEntity[] getEntities() {
+    return entities;
+  }
+
+  public void add(float begin, float end, GameEntity entity, LayerBlock layerBlock) {
+    if (begin <= end) {
+      data[length][0] = begin;
+      data[length][1] = end;
+    } else {
+      data[length][1] = begin;
+      data[length][0] = end;
     }
+    entities[length] = entity;
+    blocks[length] = layerBlock;
+    length++;
+  }
 
-    public boolean isCenter() {
-        return center;
+  public float getDensityValue() {
+    float value = 0;
+    for (int i = 0; i < length; i++) {
+      float inf = data[i][0];
+      float sup = data[i][1];
+      float density = blocks[i].getProperties().getDensity();
+      value += density * (sup - inf);
     }
+    return value;
+  }
 
-    public void setCenter(boolean center) {
-        this.center = center;
+  public int getSize() {
+    return length;
+  }
+
+  public Float getImpulseForAdvance(
+      float advance, float dL, float sharpness, float penetratorHardness) {
+    float energy = 0;
+    for (int i = 0; i < length; i++) {
+      float inf = data[i][0];
+      float sup = data[i][1];
+      float hardness = blocks[i].getProperties().getHardness();
+      if (advance >= inf) {
+        float hardnessDelta = Math.max(penetratorHardness - hardness, 0.01f);
+        float s = 1.1f - sharpness;
+        float h = (float) Math.pow(hardnessDelta, -2);
+        float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
+        energy += xAdvance * h * PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s, 4f);
+      }
     }
+    return energy;
+  }
 
-    public float[][] getData() {
-        return data;
+  public String toString() {
+    String result = length + ":";
+    for (int i = 0; i < length; i++) result += Arrays.toString(data[i]);
+    return result;
+  }
+
+  public float getMax() {
+    float result = -Float.MAX_VALUE;
+    for (int i = 0; i < length; i++) {
+      float sup = data[i][1];
+      if (result < sup) result = sup;
     }
+    return result;
+  }
 
-    public int getLength() {
-        return length;
+  public float getMin() {
+    float result = Float.MAX_VALUE;
+    for (int i = 0; i < length; i++) {
+      float inf = data[i][0];
+      if (result > inf) result = inf;
     }
+    return result;
+  }
 
-    public GameEntity[] getEntities() {
-        return entities;
-    }
-
-    public void add(float begin, float end, GameEntity entity, LayerBlock layerBlock) {
-        if (begin <= end) {
-            data[length][0] = begin;
-            data[length][1] = end;
-        } else {
-            data[length][1] = begin;
-            data[length][0] = end;
+  public List<GameEntity> findReachedEntities(
+      TopographyData penetratorTopographyData, float advance) {
+    HashSet<GameEntity> gameEntities = new HashSet<>();
+    for (int j = 0; j < penetratorTopographyData.length; j++) {
+      for (int i = 0; i < length; i++) {
+        float INF = data[i][0];
+        float sup = penetratorTopographyData.getData()[j][1] + advance;
+        if (sup > INF) {
+          gameEntities.add(this.entities[i]);
         }
-        entities[length] = entity;
-        blocks[length] = layerBlock;
-        length++;
-
+      }
     }
-    public float getDensityValue(){
-        float value = 0;
-        for (int i = 0; i < length; i++) {
-            float inf = data[i][0];
-            float sup = data[i][1];
-            float density = blocks[i].getProperties().getDensity();
-            value+=density*(sup-inf);
+    return new ArrayList<>(gameEntities);
+  }
+
+  public List<Overlap> findOverlaps(TopographyData penetratorTopographyData, float advance) {
+
+    List<Overlap> overlaps = new ArrayList<>();
+    for (int j = 0; j < penetratorTopographyData.length; j++) {
+      for (int i = 0; i < length; i++) {
+        float INF = data[i][0];
+        float SUP = data[i][1];
+        float density = penetratorTopographyData.getBlocks()[j].getProperties().getDensity();
+        float inf = penetratorTopographyData.getData()[j][0] + advance;
+        float sup = penetratorTopographyData.getData()[j][1] + advance;
+        float lowerBoundOfOverlap = Math.max(inf, INF);
+        float upperBoundOfOverlap = Math.min(sup, SUP);
+        if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
+          // Overlap exists
+          overlaps.add(
+              new Overlap(this.entities[i], density * (upperBoundOfOverlap - lowerBoundOfOverlap)));
         }
-        return value;
+      }
     }
+    return overlaps;
+  }
 
-    public int getSize() {
-        return length;
-    }
-
-    public Float getImpulseForAdvance(float advance, float dL, float sharpness, float penetratorHardness) {
-        float energy = 0;
-        for (int i = 0; i < length; i++) {
-            float inf = data[i][0];
-            float sup = data[i][1];
-            float hardness = blocks[i].getProperties().getHardness();
-            if (advance >= inf) {
-                float hardnessDelta = Math.max(penetratorHardness-hardness,0.01f);
-                float s = 1.1f-sharpness;
-                float h = (float) Math.pow(hardnessDelta,-2);
-                float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-                energy += xAdvance * h * PhysicsConstants.PENETRATION_CONSTANT * dL * Math.pow(s,4f);
-            }
+  public boolean doesOverlap(TopographyData penetratorTopographyData, float advance) {
+    for (int j = 0; j < penetratorTopographyData.length; j++) {
+      for (int i = 0; i < length; i++) {
+        float INF = data[i][0];
+        float SUP = data[i][1];
+        float inf = penetratorTopographyData.getData()[j][0] + advance;
+        float sup = penetratorTopographyData.getData()[j][1] + advance;
+        if ((inf > INF && inf < SUP) || (sup > INF && sup < SUP)) {
+          return true;
         }
-        return energy;
+      }
+    }
+    return false;
+  }
+
+  public Vector2 getBase() {
+    return base;
+  }
+
+  public LayerBlock[] getBlocks() {
+    return blocks;
+  }
+
+  public static class Overlap {
+    GameEntity gameEntity;
+    float value;
+
+    public Overlap(GameEntity gameEntity, float value) {
+      this.gameEntity = gameEntity;
+      this.value = value;
     }
 
-    public String toString() {
-        String result = length + ":";
-        for (int i = 0; i < length; i++)
-            result += Arrays.toString(data[i]);
-        return result;
+    public GameEntity getGameEntity() {
+      return gameEntity;
     }
 
-    public float getMax() {
-        float result = -Float.MAX_VALUE;
-        for (int i = 0; i < length; i++) {
-            float sup = data[i][1];
-            if (result < sup) result = sup;
-        }
-        return result;
+    public void setGameEntity(GameEntity gameEntity) {
+      this.gameEntity = gameEntity;
     }
 
-
-    public float getMin() {
-        float result = Float.MAX_VALUE;
-        for (int i = 0; i < length; i++) {
-            float inf = data[i][0];
-            if (result > inf) result = inf;
-        }
-        return result;
+    public float getValue() {
+      return value;
     }
 
-    public List<GameEntity> findReachedEntities(TopographyData penetratorTopographyData, float advance) {
-        HashSet<GameEntity> gameEntities = new HashSet<>();
-        for(int j = 0; j< penetratorTopographyData.length; j++) {
-            for (int i = 0; i < length; i++) {
-                float INF = data[i][0];
-                float sup = penetratorTopographyData.getData()[j][1] + advance;
-                if (sup > INF) {
-                 gameEntities.add(this.entities[i]);
-                }
-            }
-        }
-        return new ArrayList<>(gameEntities);
+    public void setValue(float value) {
+      this.value = value;
     }
-
-    public List<Overlap> findOverlaps(TopographyData penetratorTopographyData, float advance) {
-
-        List<Overlap> overlaps = new ArrayList<>();
-        for(int j = 0; j< penetratorTopographyData.length; j++) {
-            for (int i = 0; i < length; i++) {
-                float INF = data[i][0];
-                float SUP = data[i][1];
-                float density = penetratorTopographyData.getBlocks()[j].getProperties().getDensity();
-                float inf = penetratorTopographyData.getData()[j][0] + advance;
-                float sup = penetratorTopographyData.getData()[j][1] + advance;
-                float lowerBoundOfOverlap = Math.max(inf, INF);
-                float upperBoundOfOverlap = Math.min(sup, SUP);
-                if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
-                    // Overlap exists
-                    overlaps.add(new Overlap(this.entities[i],density*(upperBoundOfOverlap- lowerBoundOfOverlap)));
-                }
-            }
-        }
-      return overlaps;
-    }
-
-    public boolean doesOverlap(TopographyData penetratorTopographyData, float advance) {
-        for(int j = 0; j< penetratorTopographyData.length; j++) {
-            for (int i = 0; i < length; i++) {
-                float INF = data[i][0];
-                float SUP = data[i][1];
-                float inf = penetratorTopographyData.getData()[j][0] + advance;
-                float sup = penetratorTopographyData.getData()[j][1] + advance;
-                if ((inf > INF && inf < SUP) || (sup > INF && sup < SUP)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public Vector2 getBase() {
-        return base;
-    }
-
-    public LayerBlock[] getBlocks() {
-        return blocks;
-    }
-
-    public static class Overlap{
-        GameEntity gameEntity;
-        float value;
-
-        public Overlap(GameEntity gameEntity, float value) {
-            this.gameEntity = gameEntity;
-            this.value = value;
-        }
-
-        public GameEntity getGameEntity() {
-            return gameEntity;
-        }
-
-        public void setGameEntity(GameEntity gameEntity) {
-            this.gameEntity = gameEntity;
-        }
-
-        public float getValue() {
-            return value;
-        }
-
-        public void setValue(float value) {
-            this.value = value;
-        }
-    }
+  }
 }

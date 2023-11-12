@@ -1,21 +1,20 @@
 package com.evolgames.entities.usage;
 
-import com.evolgames.scenes.PlayerSpecialAction;
-import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
-import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.scenes.entities.PlayerSpecialAction;
 
 public abstract class Use {
 
-    protected boolean active;
+  protected boolean active;
 
-    public abstract void onStep(float deltaTime);
+  public abstract void onStep(float deltaTime);
 
-    public abstract PlayerSpecialAction getAction();
-    public boolean isActive() {
-        return active;
-    }
+  public abstract PlayerSpecialAction getAction();
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 }
