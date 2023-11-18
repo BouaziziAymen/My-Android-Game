@@ -123,13 +123,13 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         new ButtonBehavior<ProjectileOptionController>(this, shellButton) {
           @Override
           public void informControllerButtonClicked() {
-            projectileModel.setAmmoModel(ammoModel);
+            projectileModel.setCasingModel(ammoModel);
           }
 
           @Override
           public void informControllerButtonReleased() {}
         });
-    if (projectileModel.getAmmoModel() == ammoModel) {
+    if (projectileModel.getCasingModel() == ammoModel) {
       shellButton.updateState(Button.State.PRESSED);
     }
   }
@@ -155,7 +155,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
               try {
                 missileModel = ToolUtils.getProjectileModel(fileName);
                 missileTable.put(fileName, missileModel);
-                projectileModel.setMissileModel(missileModel);
+                projectileModel.setMissileFile(fileName);
               } catch (PersistenceException
                   | SAXException
                   | ParserConfigurationException
@@ -164,7 +164,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
               }
             } else {
               missileModel = missileTable.get(fileName);
-              projectileModel.setMissileModel(missileModel);
+              projectileModel.setMissileFile(fileName);
             }
 
             onProjectileBodyButtonClicked(missileField);
@@ -209,12 +209,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
     setRecoil(this.projectileProperties.getRecoil());
     setProjectileName(projectileModel.getModelName());
-    if (projectileModel.getMissileModel() != null) {
-      setMissileName(
-          ItemCategoryFactory.getInstance().getItemCategoryByIndex(0).getPrefix()
-              + "_"
-              + projectileModel.getMissileModel().getModelName()
-              + ".xml");
+    if (projectileModel.getMissileFile() != null) {
+      setMissileName(projectileModel.getMissileFile());
     }
     setIntensity(this.projectileProperties.getParticles());
     setFireRatio(this.projectileProperties.getFireRatio());

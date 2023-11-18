@@ -7,18 +7,20 @@ import com.evolgames.scenes.entities.Hand;
 
 public class MoveToStabHandControl extends HandControl {
 
-  private final Hand hand;
-  private final Vector2 start;
-  private final Vector2 localPoint;
-  private final Vector2 position;
-  private final float maxForce;
-  private final float initialY;
+  private Vector2 start;
+  private Vector2 localPoint;
+  private Vector2 position;
+  private float maxForce;
+  private float initialY;
+
+  @SuppressWarnings("unused")
+  public MoveToStabHandControl() {
+  }
 
   public MoveToStabHandControl(Hand hand, Vector2 target, Vector2 localPoint) {
-    super(60);
+    super(hand,60);
     this.localPoint = localPoint;
     this.start = hand.getMouseJoint().getTarget().cpy();
-    this.hand = hand;
     this.position = new Vector2();
     this.position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
     this.maxForce = hand.getMouseJoint().getMaxForce();
@@ -31,8 +33,8 @@ public class MoveToStabHandControl extends HandControl {
   @Override
   public void run() {
     super.run();
-    MouseJoint mouseJoint = hand.getMouseJoint();
-    if (mouseJoint == null || !hand.getGrabbedEntity().isAlive()) {
+    MouseJoint mouseJoint = this.hand.getMouseJoint();
+    if (mouseJoint == null || !this.hand.getGrabbedEntity().isAlive()) {
       return;
     }
     if (!isDead()) {
@@ -40,30 +42,30 @@ public class MoveToStabHandControl extends HandControl {
       if (position.dst(start) > Hand.STAB_ADVANCE) {
         setTarget(position);
       }
-      float angle = hand.getGrabbedEntity().getBody().getAngle();
-      hand.getGrabbedEntity()
+      float angle = this.hand.getGrabbedEntity().getBody().getAngle();
+      this.hand.getGrabbedEntity()
           .getBody()
-          .setTransform(hand.getGrabbedEntity().getBody().getPosition().x, initialY, angle);
+          .setTransform(this.hand.getGrabbedEntity().getBody().getPosition().x, initialY, angle);
     } else {
       goBack();
     }
   }
 
   public void goBack() {
-    if (hand.getMouseJoint() != null) {
-      hand.getGrabbedEntity().getBody().setLinearVelocity(0, 0);
+    if (this.hand.getMouseJoint() != null) {
+      this.hand.getGrabbedEntity().getBody().setLinearVelocity(0, 0);
       this.setTarget(this.start);
     }
   }
 
   public GameEntity getGrabbedEntity() {
-    return hand.getGrabbedEntity();
+    return this.hand.getGrabbedEntity();
   }
 
   public void setTarget(Vector2 target) {
-    if (hand.getMouseJoint() != null) {
-      hand.getMouseJoint().setTarget(target);
-      hand.getMouseJoint().setMaxForce(this.maxForce);
+    if (this.hand.getMouseJoint() != null) {
+      this.hand.getMouseJoint().setTarget(target);
+      this.hand.getMouseJoint().setMaxForce(this.maxForce);
     }
   }
 }

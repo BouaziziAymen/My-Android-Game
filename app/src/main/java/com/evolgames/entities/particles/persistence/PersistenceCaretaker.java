@@ -29,7 +29,7 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.helpers.utilities.XmlUtils;
-import com.evolgames.scenes.EditorScene;
+import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.DecorationModel;
@@ -106,7 +106,7 @@ public class PersistenceCaretaker {
   private static final String BOMB_TAG = "bomb";
   private DocumentBuilder docBuilder;
   private GameActivity gameActivity;
-  private EditorScene editorScene;
+  private AbstractScene<?> scene;
 
   private PersistenceCaretaker() {}
 
@@ -133,9 +133,9 @@ public class PersistenceCaretaker {
     return numbers;
   }
 
-  public void create(EditorScene editorScene) throws ParserConfigurationException {
+  public void create(AbstractScene<?> editorScene) throws ParserConfigurationException {
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-    this.editorScene = editorScene;
+    this.scene = editorScene;
     this.gameActivity = ResourceManager.getInstance().activity;
     this.docBuilder = docFactory.newDocumentBuilder();
   }
@@ -352,9 +352,9 @@ public class PersistenceCaretaker {
     projectileElement.appendChild(propertiesElement);
     projectileElement.setAttribute(
         PROJECTILE_FILE_TAG,
-        PROJECTILE_CAT_PREFIX + projectileModel.getMissileModel().getModelName() + ".xml");
+        PROJECTILE_CAT_PREFIX + projectileModel.getMissileFile());
     projectileElement.setAttribute(
-        AMMO_ID_TAG, String.valueOf(projectileModel.getAmmoModel().getCasingId()));
+        AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
     return projectileElement;
   }
 
@@ -547,7 +547,7 @@ public class PersistenceCaretaker {
   public ToolModel loadToolModel(String toolFileName)
       throws IOException, ParserConfigurationException, SAXException, PersistenceException {
     if (toolFileName.isEmpty()) {
-      return new ToolModel(editorScene, 0);
+      return new ToolModel(scene, 0);
     }
     FileInputStream fis = gameActivity.openFileInput(toolFileName);
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -602,7 +602,7 @@ public class PersistenceCaretaker {
       }
     }
 
-    ToolModel toolModel = new ToolModel(editorScene, 0);
+    ToolModel toolModel = new ToolModel(scene, 0);
     toolModel.setModelName(toolFileName.substring(3, toolFileName.length() - 4));
     toolModel.getBodies().addAll(bodyModels);
 
@@ -769,7 +769,7 @@ public class PersistenceCaretaker {
           projectiles.add(projectileModel);
           if (!projectileElement.getAttribute(AMMO_ID_TAG).isEmpty()) {
             int ammoId = Integer.parseInt(projectileElement.getAttribute(AMMO_ID_TAG));
-            projectileModel.setAmmoModel(
+            projectileModel.setCasingModel(
                 ammoModels.stream()
                     .filter(am -> am.getCasingId() == ammoId)
                     .findFirst()
@@ -909,14 +909,7 @@ public class PersistenceCaretaker {
         loadProperties(propertiesElement, ProjectileProperties.class);
     projectileModel.setProperties(projectileProperties);
     String fileName = projectileElement.getAttribute(PROJECTILE_FILE_TAG);
-    ToolModel missile;
-    try {
-      missile = ToolUtils.getProjectileModel(fileName);
-      projectileModel.setMissileModel(missile);
-    } catch (IOException | ParserConfigurationException | SAXException e) {
-      e.printStackTrace();
-      throw new PersistenceException("Error loading projectile model's missile");
-    }
+    projectileModel.setMissileFile(fileName);
     return projectileModel;
   }
 

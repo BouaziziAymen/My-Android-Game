@@ -3,12 +3,15 @@ package com.evolgames.entities.serialization;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.commandtemplate.EntityDestructionCommand;
 import com.evolgames.entities.commandtemplate.TimedCommand;
+import com.evolgames.entities.contact.Pair;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WorldFacadeSerializer {
+
+    private List<Pair<String>> nonCollidingPairs;
     List<TimedCommand> timedCommandList;
 
     @SuppressWarnings("unused")
@@ -17,6 +20,7 @@ public class WorldFacadeSerializer {
 
     public WorldFacadeSerializer(WorldFacade worldFacade) {
         this.timedCommandList = worldFacade.getTimedCommands();
+        this.nonCollidingPairs = worldFacade.getNonCollidingPairs().stream().map(p->new Pair<>(p.first.getUniqueID(),p.second.getUniqueID())).collect(Collectors.toList());
     }
 
     public void afterCreate(PhysicsScene<?> physicsScene){
@@ -28,5 +32,9 @@ public class WorldFacadeSerializer {
             }
         }
         physicsScene.getWorldFacade().getTimedCommands().addAll(this.timedCommandList);
+    }
+
+    public List<Pair<String>> getNonCollidingPairs() {
+        return nonCollidingPairs;
     }
 }

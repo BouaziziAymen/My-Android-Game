@@ -7,40 +7,44 @@ import com.evolgames.scenes.entities.Hand;
 
 public class ThrowHandControl extends HandControl {
 
-  private final Hand hand;
-  private final float angle;
-  private final AngleChanger angleChanger;
+  private AngleChangerHandControl angleChangerHandControl;
+  private float angle;
   private boolean thrown = false;
 
+  @SuppressWarnings("unused")
+  public ThrowHandControl() {
+  }
   public ThrowHandControl(Hand hand, float angle) {
-    super();
+    super(hand);
     this.angle = angle;
-    this.angleChanger = new AngleChanger(hand.getGrabbedEntity(), angle);
-    this.hand = hand;
+    this.angleChangerHandControl = new AngleChangerHandControl(hand, angle);
   }
 
   @Override
   public void run() {
     super.run();
-    if (hand.getMouseJoint() == null) {
+    if (this.hand.getMouseJoint() == null) {
       return;
     }
-    Body body = hand.getMouseJoint().getBodyB();
+    Body body = this.hand.getMouseJoint().getBodyB();
     if (!isDead()) {
       assert body != null;
       float rot = body.getAngle();
       float error =
           GeometryUtils.calculateShortestDirectedDistance(rot * MathUtils.radiansToDegrees, angle);
-      this.angleChanger.run();
+      this.angleChangerHandControl.run();
       if (!(Math.abs(error) > 5f)) {
-        if (!thrown) {
+        if (!this.thrown) {
           setDead(true);
-          thrown = true;
-          if (this.runnable != null) {
-            this.runnable.run();
-          }
+          this.thrown = true;
+          this.hand.doThrow();
         }
       }
     }
+  }
+  @Override
+  public void setHand(Hand hand) {
+    super.setHand(hand);
+    this.angleChangerHandControl.setHand(hand);
   }
 }

@@ -34,7 +34,7 @@ public class GameEntity extends EntityWithBody {
 
   private PhysicsScene<?> scene;
   private final List<LayerBlock> layerBlocks;
-  private final List<Use> useList;
+  private List<Use> useList;
   public boolean changed = true;
   private String name;
   private GameGroup parentGroup;
@@ -528,5 +528,9 @@ public class GameEntity extends EntityWithBody {
 
   public void setScene(PhysicsScene<?> scene) {
     this.scene = scene;
+  }
+
+  public void setUseList(List<Use> useList) {
+    this.useList = useList;
   }
 }

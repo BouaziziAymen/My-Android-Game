@@ -1,6 +1,5 @@
 package com.evolgames.entities.contact;
 
-import android.util.Pair;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -12,7 +11,7 @@ import java.util.HashSet;
 
 public class GameEntityContactListener implements ContactListener {
   private final ContactObserver observer;
-  private final HashSet<Pair<GameEntity, GameEntity>> nonCollidingEntities;
+  private final HashSet<Pair<GameEntity>> nonCollidingEntities;
 
   public GameEntityContactListener(ContactObserver observer) {
     this.observer = observer;
@@ -60,7 +59,7 @@ public class GameEntityContactListener implements ContactListener {
     observer.processImpactAfterSolve(contact, impulse);
   }
 
-  public HashSet<Pair<GameEntity, GameEntity>> getNonCollidingEntities() {
+  public HashSet<Pair<GameEntity>> getNonCollidingEntities() {
     return nonCollidingEntities;
   }
 
@@ -73,7 +72,7 @@ public class GameEntityContactListener implements ContactListener {
   }
 
   public boolean shouldNotCollide(GameEntity entity1, GameEntity entity2) {
-    for (Pair<GameEntity, GameEntity> pair : nonCollidingEntities) {
+    for (Pair<GameEntity> pair : nonCollidingEntities) {
       if ((pair.first == entity1 && pair.second == entity2)
           || (pair.second == entity1 && pair.first == entity2)) {
         return true;

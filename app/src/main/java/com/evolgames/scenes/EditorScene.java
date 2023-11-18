@@ -1,15 +1,11 @@
 package com.evolgames.scenes;
 
 import com.evolgames.entities.Plotter;
-import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
-import com.evolgames.entities.particles.persistence.PersistenceException;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
-import com.evolgames.userinterface.control.buttonboardcontrollers.UsageButtonsController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
@@ -25,28 +21,23 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
-import java.io.IOException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.Entity;
-import org.andengine.entity.scene.IOnSceneTouchListener;
-import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.EntityBackground;
-import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
-import org.xml.sax.SAXException;
 
 public class EditorScene extends AbstractScene<EditorUserInterface>
     implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
-        PinchZoomDetector.IPinchZoomDetectorListener,
-        IOnSceneTouchListener {
+        PinchZoomDetector.IPinchZoomDetectorListener {
 
   public static int step;
   public static Plotter plotter;
@@ -58,14 +49,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
   public EditorScene(Camera camera) {
     super(camera, SceneType.EDITOR);
-
-    setOnSceneTouchListener(this);
-
-    try {
-      PersistenceCaretaker.getInstance().create(this);
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
-    }
 
     this.mScrollDetector = new SurfaceScrollDetector(this);
 
@@ -79,43 +62,30 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void populate() {
 
+
+  }
+
+  private void init() {
+    this.groundModel = new BodyModel(-1);
+    this.groundModel.setModelName("Ground");
     Entity background = new Entity();
     this.setBackground(new EntityBackground(0, 0, 0, background));
 
     plotter = new Plotter();
     plotter.setZIndex(200);
 
-    UsageButtonsController usageButtonsController = new UsageButtonsController();
-    usageButtonsController.init();
     this.attachChild(plotter);
 
     sortChildren();
-
-    this.groundModel = new BodyModel(-1);
-    this.groundModel.setModelName("Ground");
-
-    changeScene(SceneType.EDITOR);
   }
 
   @Override
   public void detach() {
     this.userInterface.detachSelf();
   }
-
-  public void changeScene(SceneType sceneType) {
-    switch (sceneType) {
-      case MENU:
-        break;
-      case PLAY:
-        break;
-      case EDITOR:
-        initEditorScene("");
-        break;
-    }
-  }
-
-  private void initEditorScene(String fileName) {
-    ToolModel toolModel = loadToolModel(fileName);
+@Override
+  public void createUserInterface() {
+    ToolModel toolModel = loadToolModel("");
     KeyboardController keyboardController = new KeyboardController();
     OutlineController outlineController = new OutlineController();
     LayerWindowController layerWindowController = new LayerWindowController();
@@ -197,27 +167,17 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     creationZoneController.setUserInterface(userInterface);
     itemWindowController.setUserInterface(userInterface);
     userInterface.bindToolModel(toolModel);
-  }
 
-  public ToolModel loadToolModel(String file) {
-    ToolModel toolModel = null;
-    try {
-      toolModel = PersistenceCaretaker.getInstance().loadToolModel(file);
-      toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
-    } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
-      e.printStackTrace();
-    }
-    return toolModel;
+    init();
   }
 
   @Override
   public void onPause() {
-    System.out.println("On Pause :"+this.getClass().getName());
   }
 
   @Override
   public void onResume() {
-    System.out.println("On Resume :"+this.getClass().getName());
+    createUserInterface();
   }
 
   @Override
@@ -227,19 +187,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   }
 
   @Override
-  public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-    float[] cameraSceneCoordinatesFromSceneCoordinates =
-        mCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
-
-    TouchEvent hudTouch =
-        TouchEvent.obtain(
-            cameraSceneCoordinatesFromSceneCoordinates[0],
-            cameraSceneCoordinatesFromSceneCoordinates[1],
-            touchEvent.getAction(),
-            touchEvent.getPointerID(),
-            touchEvent.getMotionEvent());
-
-    boolean hudTouched = userInterface.onTouchHud(hudTouch, scroll);
+  protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
+    boolean hudTouched = userInterface.onTouchHud(hudTouchEvent, scroll);
     if (!hudTouched) {
       userInterface.onTouchScene(touchEvent, scroll);
     }
@@ -256,7 +205,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         mScrollDetector.onTouchEvent(touchEvent);
       }
     }
-    return false;
   }
 
   @Override
@@ -335,4 +283,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   public EditorUserInterface getUserInterface() {
     return userInterface;
   }
+
+
 }

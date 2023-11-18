@@ -1,7 +1,9 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
@@ -18,7 +20,7 @@ public class BodyDestructionCommand extends Command {
     entity.getBody().getJointList().stream()
         .filter(je -> je.joint instanceof MouseJoint)
         .forEach(
-            je -> {
+            je ->{
               Invoker.scene.onDestroyMouseJoint((MouseJoint) je.joint);
             });
     physicsWorld.destroyBody(entity.getBody());

@@ -18,7 +18,7 @@ public class TimeBomb extends Use {
   private boolean alive = true;
   private boolean count;
 
-  public TimeBomb(UsageModel usageModel, WorldFacade worldFacade) {
+  public TimeBomb(UsageModel<?> usageModel, WorldFacade worldFacade) {
     TimeBombUsageProperties properties = (TimeBombUsageProperties) usageModel.getProperties();
     this.countDown = properties.getDelay();
     this.bombs = properties.getBombModelList();

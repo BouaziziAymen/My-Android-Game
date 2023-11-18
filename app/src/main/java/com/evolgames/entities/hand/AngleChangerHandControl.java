@@ -4,24 +4,30 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.scenes.entities.Hand;
 
-public class AngleChanger {
-  float target;
-  GameEntity gameEntity;
-  float step;
+public class AngleChangerHandControl extends HandControl {
 
-  AngleChanger(GameEntity entity, float targetAngle) {
-    this.gameEntity = entity;
+  private float target;
+  private float step;
+
+  @SuppressWarnings("unused")
+  public AngleChangerHandControl() {
+  }
+
+  AngleChangerHandControl(Hand hand, float targetAngle) {
+    super(hand);
     this.target = targetAngle;
-    float rot = gameEntity.getBody().getAngle();
+    float rot = this.hand.getGrabbedEntity().getBody().getAngle();
     float dis =
         GeometryUtils.calculateShortestDirectedDistance(
             rot * MathUtils.radiansToDegrees, targetAngle);
     this.step = dis * MathUtils.degreesToRadians / 15f;
-    this.gameEntity.getBody().setFixedRotation(true);
+    this.hand.getGrabbedEntity().getBody().setFixedRotation(true);
   }
 
-  void run() {
+  public void run() {
+    GameEntity gameEntity = this.hand.getGrabbedEntity();
     Vector2 position = gameEntity.getBody().getPosition();
     float rot = gameEntity.getBody().getAngle();
     float dis =

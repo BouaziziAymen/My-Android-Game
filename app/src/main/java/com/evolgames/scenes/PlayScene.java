@@ -48,8 +48,6 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Mesh;
-import org.andengine.entity.scene.IOnSceneTouchListener;
-import org.andengine.entity.scene.Scene;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
@@ -57,26 +55,25 @@ import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.util.adt.color.Color;
 
-public class GameScene extends PhysicsScene<PlayUserInterface>
+public class PlayScene extends PhysicsScene<PlayUserInterface>
     implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
-        PinchZoomDetector.IPinchZoomDetectorListener,
-        IOnSceneTouchListener {
+        PinchZoomDetector.IPinchZoomDetectorListener{
 
   public static boolean pause = false;
   private RagDoll ragdoll;
   private GameGroup gameGroup1;
-  private PlayerAction action = PlayerAction.Drag;
+  private PlayerAction playerAction = PlayerAction.Drag;
   private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
+  private PlayerSpecialAction savedSpecialAction;
   private Vector2 point1, point2;
   private Line line;
   private ArrayList<Vector2> points;
   private int step = 0;
   private boolean scroll;
 
-  public GameScene(Camera pCamera) {
+  public PlayScene(Camera pCamera) {
     super(pCamera, SceneType.PLAY);
-    setOnSceneTouchListener(this);
   }
 
   @Override
@@ -87,7 +84,6 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     }
     this.worldFacade.onStep();
     Invoker.onStep();
-
 
     for (GameGroup gameGroup : getGameGroups()) {
       gameGroup.onStep(pSecondsElapsed);
@@ -111,57 +107,80 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
       projectileTest();
     }
   }
+  private void processHandling(TouchEvent touchEvent) {
+    int pointerID = touchEvent.getPointerID();
+
+    if (!hands.containsKey(pointerID)) {
+      hands.put(pointerID, new Hand(this));
+    }
+    Hand hand = hands.get(pointerID);
+    assert hand != null;
+    if (touchEvent.getPointerID() == hand.getMousePointerId()) {
+      boolean release = hand.onSceneTouchEvent(touchEvent);
+      if(release){
+        hands.remove(touchEvent.getPointerID());
+      }
+    }
+  }
 
   @Override
-  public boolean onSceneTouchEvent(TouchEvent touchEvent) {
-    super.onSceneTouchEvent(touchEvent);
-    float[] cameraSceneCoordinatesFromSceneCoordinates =
-        mCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
-
-    TouchEvent hudTouch =
-        TouchEvent.obtain(
-            cameraSceneCoordinatesFromSceneCoordinates[0],
-            cameraSceneCoordinatesFromSceneCoordinates[1],
-            touchEvent.getAction(),
-            touchEvent.getPointerID(),
-            touchEvent.getMotionEvent());
-
-    boolean hudTouched = this.userInterface.onTouchHud(hudTouch, scroll);
+  protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
+    boolean hudTouched = this.userInterface.onTouchHud(hudTouchEvent, scroll);
     if (!hudTouched) {
       //   userInterface.onTouchScene(touchEvent, scroll);
     }
+    if (false) {
+      projectionTest(touchEvent);
+    }
+    if (false) {
+      if (touchEvent.isActionDown()) {
+        this.worldFacade.performFlux(new Vector2(touchEvent.getX(), touchEvent.getY()), null, gameGroup1.getGameEntityByIndex(0));
+      }
+    }
+    if (false) {
+      explosionTest(touchEvent);
+    }
 
     if (!hudTouched) {
-      if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
+      if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold) {
         processHandling(touchEvent);
       }
     }
-    if (action == PlayerAction.Slice) {
+    if (playerAction == PlayerAction.Slice) {
       processSlicing(touchEvent);
     }
     Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
     if (!hudTouched) {
-      if (action == PlayerAction.Drag || action == PlayerAction.Hold) {
+      if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold) {
         processHandling(touchEvent);
       }
     }
-    if (action == PlayerAction.Slice) {
+    if (playerAction == PlayerAction.Slice) {
       processSlicing(touchEvent);
     }
-
-    return true;
   }
+
+
 
   @Override
   public void populate() {
-    createRagDoll();
+    // createRagDoll();
     createTestUnit();
     createGround();
     testMesh();
+    createTool(loadToolModel("c1_knife.xml"));
+    createTool(loadToolModel("c1_knife.xml"));
   }
 
   @Override
-  public void detach() {}
+  public void detach() {
+    destroyEntities();
+    if (this.userInterface != null) {
+      this.userInterface.detachSelf();
+    }
+    this.hands.clear();
+    this.worldFacade.getTimedCommands().clear();
+  }
 
   private void createRagDoll() {
     this.ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
@@ -175,11 +194,10 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     }
-    this.hands.clear();
-    if (this.userInterface != null) {
-      this.userInterface.detachSelf();
-    }
-    // destroy all groups
+    this.detach();
+  }
+
+  private void destroyEntities() {
     for (Iterator<GameGroup> iterator = this.getGameGroups().iterator(); iterator.hasNext(); ) {
       GameGroup gameGroup = iterator.next();
       iterator.remove();
@@ -187,17 +205,21 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
         this.worldFacade.destroyGameEntity(gameEntity, false);
       }
     }
-    this.worldFacade.getTimedCommands().clear();
   }
 
   @Override
   public void onResume() {
-    this.userInterface = new PlayUserInterface(this);
+    createUserInterface();
     try {
       SerializationManager.getInstance().deserialize(this);
     } catch (FileNotFoundException e) {
 
     }
+  }
+
+  @Override
+  public void createUserInterface() {
+    this.userInterface = new PlayUserInterface(this);
   }
 
   private void bluntDamageTest() {
@@ -309,8 +331,8 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
                   blocks,
                   BodyDef.BodyType.DynamicBody,
                   "Projectile");
-      GameGroup proj = new GameGroup(GroupType.OTHER,gameEntity);
-      gameEntity.getUseList().add(new Projectile(gameEntity));
+      GameGroup proj = new GameGroup(GroupType.OTHER, gameEntity);
+      gameEntity.getUseList().add(new Projectile());
       addGameGroup(proj);
     }
   }
@@ -321,24 +343,6 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     if (touchEvent.isActionDown()) {
       this.worldFacade.createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f);
     }
-  }
-
-  @Override
-  public boolean onSceneTouchEvent(Scene pScene, final TouchEvent touchEvent) {
-    float x = touchEvent.getX() / 32f;
-    float y = touchEvent.getY() / 32f;
-    if (false) {
-      projectionTest(touchEvent);
-    }
-    if (false) {
-      if (touchEvent.isActionDown()) {
-        this.worldFacade.performFlux(new Vector2(x, y), null, gameGroup1.getGameEntityByIndex(0));
-      }
-    }
-    if (false) {
-      explosionTest(touchEvent);
-    }
-    return true;
   }
 
   @Override
@@ -452,7 +456,8 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
                 new Vector2(400 / 32f, 0),
                 BodyDef.BodyType.StaticBody,
                 "Ground",
-                OBJECTS_MIDDLE_CATEGORY,GroupType.GROUND);
+                OBJECTS_MIDDLE_CATEGORY,
+                GroupType.GROUND);
     this.worldFacade.setGroundGroup(groundGroup);
   }
 
@@ -468,15 +473,18 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     gameGroup1 =
         GameEntityFactory.getInstance()
             .createGameGroupTest(
-                blocks, new Vector2(100f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody,GroupType.OTHER);
+                blocks,
+                new Vector2(100f / 32f, 200 / 32f),
+                BodyDef.BodyType.DynamicBody,
+                GroupType.OTHER);
     this.worldFacade.applyStain(
         gameGroup1.getGameEntityByIndex(0), 0, 10, block1, Color.RED, 0, false);
     this.worldFacade.applyStain(
         gameGroup1.getGameEntityByIndex(0), 0, 15, block1, Color.RED, 0, false);
-    GameEntity gameEntity = gameGroup1.getGameEntityByIndex(0);
-    gameEntity.setCenter(new Vector2());
-    gameEntity.redrawStains();
-    gameEntity.setName("test");
+    GameEntity gameEntity1 = gameGroup1.getGameEntityByIndex(0);
+    gameEntity1.setCenter(new Vector2());
+    gameEntity1.redrawStains();
+    gameEntity1.setName("test");
 
     List<Vector2> vertices2 = VerticesFactory.createRectangle(20, 200);
     LayerProperties properties2 =
@@ -503,7 +511,8 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     revoluteJointDef.localAnchorA.set(0, 0);
     revoluteJointDef.localAnchorB.set(0, 2f);
     revoluteJointDef.collideConnected = false;
-    this.worldFacade.addJointToCreate(revoluteJointDef, gameEntity, gameEntity2);
+    this.worldFacade.addJointToCreate(revoluteJointDef, gameEntity1, gameEntity2);
+   // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
 
     List<Vector2> vertices3 = VerticesFactory.createRectangle(90, 60);
     LayerProperties properties3 =
@@ -514,7 +523,10 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     blocks3.add(block3);
     GameEntityFactory.getInstance()
         .createGameGroupTest(
-            blocks3, new Vector2(300f / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody,GroupType.OTHER);
+            blocks3,
+            new Vector2(300f / 32f, 200 / 32f),
+            BodyDef.BodyType.DynamicBody,
+            GroupType.OTHER);
 
     if (false) {
       for (LayerBlock layerBlock : gameGroup1.getGameEntityByIndex(0).getBlocks()) {
@@ -550,25 +562,12 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     }
   }
 
-  private void processHandling(TouchEvent touchEvent) {
-    int pointerID = touchEvent.getPointerID();
-
-    if (!hands.containsKey(pointerID)) {
-      hands.put(pointerID, new Hand(this));
-    }
-    Hand hand = hands.get(pointerID);
-    assert hand != null;
-    if (touchEvent.getPointerID() == hand.getMousePointerId()) {
-      hand.onSceneTouchEvent(touchEvent);
-    }
-  }
-
-  public void setAction(PlayerAction action) {
-    this.action = action;
-    if (action != PlayerAction.Hold) {
+  public void setPlayerAction(PlayerAction playerAction) {
+    this.playerAction = playerAction;
+    if (playerAction != PlayerAction.Hold) {
       this.specialAction = PlayerSpecialAction.None;
     }
-    if (action == PlayerAction.Drag) {
+    if (playerAction == PlayerAction.Drag) {
       this.hands.forEach(
           (key, h) -> {
             if (h.getMouseJoint() != null) {
@@ -613,7 +612,7 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
   }
 
   public PlayerAction getPlayerAction() {
-    return action;
+    return playerAction;
   }
 
   public void onUsagesUpdated() {
@@ -625,7 +624,7 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
                 .getUseList()
                 .forEach(
                     u -> {
-                      if (this.action == PlayerAction.Hold) {
+                      if (this.playerAction == PlayerAction.Hold) {
                         if (u.getAction() != null && u.getAction().iconId != -1) {
                           usageList.add(u.getAction());
                         }
@@ -633,13 +632,21 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
                     });
           }
         });
-    if (this.action == PlayerAction.Hold && !usageList.isEmpty()) {
+    if (this.playerAction == PlayerAction.Hold && !usageList.isEmpty()) {
       usageList.add(0, PlayerSpecialAction.None);
     }
     if (!usageList.contains(specialAction)) {
       this.setSpecialAction(PlayerSpecialAction.None);
     }
     this.userInterface.updateParticularUsageSwitcher(usageList.toArray(new PlayerSpecialAction[0]));
+    if(savedSpecialAction!=null){
+      this.userInterface.updatePlayerSpecialActionOnSwitcher(this.savedSpecialAction);
+      this.savedSpecialAction = null;
+    }
+  }
+
+  public void setSavedSpecialAction(PlayerSpecialAction savedSpecialAction) {
+    this.savedSpecialAction = savedSpecialAction;
   }
 
   public GameActivity getActivity() {
@@ -672,4 +679,7 @@ public class GameScene extends PhysicsScene<PlayUserInterface>
     }
     return null;
   }
+
+
+
 }

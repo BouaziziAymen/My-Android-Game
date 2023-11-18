@@ -235,6 +235,12 @@ public class Switcher extends Container implements Temporal {
       right.updateState(Button.State.NORMAL);
     }
   }
+  public void search(){
+      if(state!=SwitcherState.FORWARD){
+        moveForward();
+      }
+    onStep();
+  }
 
   enum SwitcherState {
     FORWARD,

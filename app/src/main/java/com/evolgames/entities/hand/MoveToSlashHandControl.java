@@ -7,41 +7,39 @@ import com.evolgames.scenes.entities.Hand;
 
 public class MoveToSlashHandControl extends HandControl {
 
-  private final Hand hand;
-  private final Vector2 start;
-  private final HoldHandControl control;
-  private final Vector2 localPoint;
-  private final Vector2 position;
-  private final Vector2 target;
+  private HoldHandControl holdHandControl;
+  private Vector2 localPoint;
+  private Vector2 start;
+  private Vector2 position;
+  private Vector2 target;
 
+  @SuppressWarnings("unused")
+  public MoveToSlashHandControl() {
+  }
   public MoveToSlashHandControl(Hand hand, Vector2 target, Vector2 localPoint) {
-    super(60);
+    super(hand,60);
     this.localPoint = localPoint;
-    this.start = hand.getMouseJoint().getTarget().cpy();
-    this.hand = hand;
+    this.start = this.hand.getMouseJoint().getTarget().cpy();
     this.position = new Vector2();
     this.target = new Vector2();
     this.position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
     this.target.set(start);
-    hand.getMouseJoint().setTarget(target);
-    this.control = new HoldHandControl(hand.getGrabbedEntity());
+    this.hand.getMouseJoint().setTarget(target);
+    this.holdHandControl = new HoldHandControl(this.hand);
   }
 
   @Override
   public void run() {
     super.run();
-    MouseJoint mouseJoint = hand.getMouseJoint();
-    if (mouseJoint == null || !hand.getGrabbedEntity().isAlive()) {
+    MouseJoint mouseJoint = this.hand.getMouseJoint();
+    if (mouseJoint == null || !this.hand.getGrabbedEntity().isAlive()) {
       return;
     }
-
-    if (runnable != null) {
-      runnable.run();
-    }
+    this.hand.doSash();
     if (!isDead()) {
       position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
-      target.set(hand.getMouseJoint().getTarget());
-      control.run();
+      target.set(this.hand.getMouseJoint().getTarget());
+      holdHandControl.run();
       Vector2 v = mouseJoint.getBodyB().getLinearVelocity();
       if ((v.len() < 0.01f && count > 10)) {
         setDead(true);
@@ -53,9 +51,9 @@ public class MoveToSlashHandControl extends HandControl {
   }
 
   public void goBack() {
-    hand.getMouseJoint().setTarget(start);
-    if (hand.getMouseJoint() != null) {
-      hand.getMouseJoint().setTarget(start);
+    this.hand.getMouseJoint().setTarget(start);
+    if (this.hand.getMouseJoint() != null) {
+      this.hand.getMouseJoint().setTarget(start);
     }
   }
 
@@ -64,7 +62,7 @@ public class MoveToSlashHandControl extends HandControl {
   }
 
   public GameEntity getGrabbedEntity() {
-    return hand.getGrabbedEntity();
+    return this.hand.getGrabbedEntity();
   }
 
   public Vector2 getTarget() {
@@ -72,9 +70,15 @@ public class MoveToSlashHandControl extends HandControl {
   }
 
   public void setTarget(Vector2 target) {
-    hand.getMouseJoint().setTarget(target);
-    if (hand.getMouseJoint() != null) {
-      hand.getMouseJoint().setTarget(target);
+    this.hand.getMouseJoint().setTarget(target);
+    if (this.hand.getMouseJoint() != null) {
+      this.hand.getMouseJoint().setTarget(target);
     }
+  }
+
+  @Override
+  public void setHand(Hand hand) {
+    super.setHand(this.hand);
+    this.holdHandControl.setHand(this.hand);
   }
 }

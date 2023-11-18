@@ -9,6 +9,7 @@ import com.evolgames.physics.entities.TopographyData;
 import java.util.List;
 
 public interface Penetrating {
+
   void onImpulseConsumed(
       WorldFacade worldFacade,
       Contact contact,

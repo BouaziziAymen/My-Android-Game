@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MeleeUse extends Use {
-  private final List<GameEntity> targetGameEntities = new ArrayList<>();
+  transient private final List<GameEntity> targetGameEntities = new ArrayList<>();
 
   public List<GameEntity> getTargetGameEntities() {
     return targetGameEntities;

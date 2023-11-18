@@ -72,7 +72,7 @@ public class JointCreationCommand extends Command {
     if (this.joint instanceof MouseJoint) {
       Invoker.scene.setMouseJoint((MouseJoint) joint, entity2);
     }
-    if (jointBlock1==null) {
+    if (jointBlock1==null&&jointBlock2==null) {
       addJointBlocks();
     }
     setAborted(true);
@@ -143,23 +143,13 @@ public class JointCreationCommand extends Command {
     return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
   }
 
-  public void substitute(GameEntity splinter, JointBlock jointBlock, JointBlock.Position position) {
+  public void substitute(GameEntity splinter, JointBlock.Position position) {
     switch (position) {
       case A:
         entity1 = splinter;
-        jointBlock1 = jointBlock;
-        jointBlock1.setUniqueId1(splinter.getUniqueID());
-        jointBlock2.setUniqueId1(splinter.getUniqueID());
-        jointBlock1.setUniqueId2(entity2.getUniqueID());
-        jointBlock2.setUniqueId2(entity2.getUniqueID());
         break;
       case B:
         entity2 = splinter;
-        jointBlock2 = jointBlock;
-        jointBlock1.setUniqueId1(entity1.getUniqueID());
-        jointBlock2.setUniqueId1(entity1.getUniqueID());
-        jointBlock1.setUniqueId2(splinter.getUniqueID());
-        jointBlock2.setUniqueId2(splinter.getUniqueID());
         break;
     }
   }
@@ -207,8 +197,6 @@ public class JointCreationCommand extends Command {
       case FrictionJoint:
         break;
     }
-    jointBlock1.updateJointInfo();
-    jointBlock2.updateJointInfo();
   }
 
   public JointDef getJointDef() {
@@ -243,15 +231,5 @@ public class JointCreationCommand extends Command {
   public GameEntity getEntity2() {
     return entity2;
   }
-
-  public void removeBlocks(){
-    if (jointBlock1 != null) {
-      entity1.getBlocks().forEach(b->b.getAssociatedBlocks().remove(jointBlock1));
-    }
-    if (jointBlock2 != null) {
-      entity2.getBlocks().forEach(b->b.getAssociatedBlocks().remove(jointBlock2));
-    }
-  }
-
 
 }

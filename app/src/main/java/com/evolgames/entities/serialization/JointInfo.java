@@ -2,11 +2,16 @@ package com.evolgames.entities.serialization;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.entities.blocks.JointBlock;
+import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 
 public class JointInfo {
+  transient private JointBlock jointBlock;
   private JointDef.JointType jointType;
   private Vector2 anchorA;
   private Vector2 anchorB;
@@ -31,82 +36,19 @@ public class JointInfo {
   private float lowerTranslation;
   private float upperTranslation;
   private float maxMotorForce;
+  private String entity1;
+  private String entity2;
 
-  public void setJointType(JointDef.JointType jointType) {
-    this.jointType = jointType;
+  public void setJointBlock(JointBlock jointBlock) {
+    this.jointBlock = jointBlock;
   }
 
-  public void setAnchorA(Vector2 anchorA) {
-    this.anchorA = anchorA;
+  public String getEntity1() {
+    return entity1;
   }
 
-  public void setAnchorB(Vector2 anchorB) {
-    this.anchorB = anchorB;
-  }
-
-  public void setCollideConnected(boolean collideConnected) {
-    this.collideConnected = collideConnected;
-  }
-
-  public void setLength(float length) {
-    this.length = length;
-  }
-
-  public void setFrequencyHz(float frequencyHz) {
-    this.frequencyHz = frequencyHz;
-  }
-
-  public void setDampingRatio(float dampingRatio) {
-    this.dampingRatio = dampingRatio;
-  }
-
-  public void setTarget(Vector2 target) {
-    this.target = target;
-  }
-
-  public void setMaxForce(float maxForce) {
-    this.maxForce = maxForce;
-  }
-
-  public void setReferenceAngle(float referenceAngle) {
-    this.referenceAngle = referenceAngle;
-  }
-
-  public void setEnableLimit(boolean enableLimit) {
-    this.enableLimit = enableLimit;
-  }
-
-  public void setLowerAngle(float lowerAngle) {
-    this.lowerAngle = lowerAngle;
-  }
-
-  public void setUpperAngle(float upperAngle) {
-    this.upperAngle = upperAngle;
-  }
-
-  public void setEnableMotor(boolean enableMotor) {
-    this.enableMotor = enableMotor;
-  }
-
-  public void setMotorSpeed(float motorSpeed) {
-    this.motorSpeed = motorSpeed;
-  }
-
-  public void setMaxMotorTorque(float maxMotorTorque) {
-    this.maxMotorTorque = maxMotorTorque;
-  }
-
-
-  public void setLowerTranslation(float lowerTranslation) {
-    this.lowerTranslation = lowerTranslation;
-  }
-
-  public void setUpperTranslation(float upperTranslation) {
-    this.upperTranslation = upperTranslation;
-  }
-
-  public void setMaxMotorForce(float maxMotorForce) {
-    this.maxMotorForce = maxMotorForce;
+  public String getEntity2() {
+    return entity2;
   }
 
   public JointDef getJointDef() {
@@ -156,11 +98,77 @@ public class JointInfo {
       case LineJoint:
         break;
       case WeldJoint:
-        break;
+        WeldJointDef weldJointDef = new WeldJointDef();
+        weldJointDef.referenceAngle = referenceAngle;
+        weldJointDef.collideConnected = collideConnected;
+        weldJointDef.localAnchorA.set(this.anchorA);
+        weldJointDef.localAnchorB.set(this.anchorB);
+        return weldJointDef;
       case FrictionJoint:
         break;
     }
     return null;
+  }
+
+  public void prepareJointInfo() {
+    this.entity1 = this.jointBlock.getCommand().getEntity1().getUniqueID();
+    this.entity2 = this.jointBlock.getCommand().getEntity2().getUniqueID();
+    this.jointType = this.jointBlock.getJointType();
+    switch (this.jointBlock.getJointType()) {
+      case Unknown:
+        break;
+      case RevoluteJoint:
+        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) this.jointBlock.getCommand().getJointDef();
+        this.anchorA = revoluteJointDef.localAnchorA;
+        this.anchorB = revoluteJointDef.localAnchorB;
+        this.enableLimit = revoluteJointDef.enableLimit;
+        this.lowerAngle = revoluteJointDef.lowerAngle;
+        this.upperAngle = revoluteJointDef.upperAngle;
+        this.referenceAngle = revoluteJointDef.referenceAngle;
+        this.collideConnected = revoluteJointDef.collideConnected;
+        this.enableMotor = revoluteJointDef.enableMotor;
+        this.motorSpeed = revoluteJointDef.motorSpeed;
+        this.maxMotorTorque = revoluteJointDef.maxMotorTorque;
+        break;
+      case PrismaticJoint:
+        PrismaticJointDef prismaticJointDef = (PrismaticJointDef) this.jointBlock.getCommand().getJointDef();
+        this.anchorA = prismaticJointDef.localAnchorA;
+          this.anchorB= prismaticJointDef.localAnchorB;
+        this.enableLimit = prismaticJointDef.enableLimit;
+        this.lowerTranslation = prismaticJointDef.lowerTranslation;
+        this.upperTranslation = prismaticJointDef.upperTranslation;
+        this.referenceAngle = prismaticJointDef.referenceAngle;
+        this.collideConnected = prismaticJointDef.collideConnected;
+        this.enableMotor = prismaticJointDef.enableMotor;
+        this.motorSpeed = prismaticJointDef.motorSpeed;
+        this.maxMotorForce = prismaticJointDef.maxMotorForce;
+        break;
+      case DistanceJoint:
+        break;
+      case PulleyJoint:
+        break;
+      case MouseJoint:
+        MouseJointDef mouseJointDef = (MouseJointDef) this.jointBlock.getCommand().getJointDef();
+        this.collideConnected=mouseJointDef.collideConnected;
+        this.target = this.jointBlock.getCommand().getJoint()!=null?((MouseJoint)this.jointBlock.getCommand().getJoint()).getTarget():mouseJointDef.target;
+        this.dampingRatio = mouseJointDef.dampingRatio;
+        this.frequencyHz = mouseJointDef.frequencyHz;
+        this.maxForce = mouseJointDef.maxForce;
+        break;
+      case GearJoint:
+        break;
+      case LineJoint:
+        break;
+      case WeldJoint:
+        WeldJointDef weldJointDef = (WeldJointDef) this.jointBlock.getCommand().getJointDef();
+        this.collideConnected=weldJointDef.collideConnected;
+        this.referenceAngle = weldJointDef.referenceAngle;
+        this.anchorA = weldJointDef.localAnchorA;
+        this.anchorB= weldJointDef.localAnchorB;
+        break;
+      case FrictionJoint:
+        break;
+    }
   }
 
 }

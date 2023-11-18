@@ -235,4 +235,14 @@ public class GameActivity extends BaseGameActivity {
       }
     }
   }
+
+  public void returnToHomeScreen() {
+    // Create an intent to go back to the home screen
+    Intent intent = new Intent(Intent.ACTION_MAIN);
+    intent.addCategory(Intent.CATEGORY_HOME);
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+    // Start the intent
+    startActivity(intent);
+  }
 }

@@ -16,25 +16,34 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.persistence.PersistenceException;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
+import com.evolgames.entities.usage.infos.ProjectileInfo;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.BodyUsageCategory;
+import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 public class Shooter extends Use {
-  private final List<ProjectileModel> projectileModels;
-  private final UsageModel<?> usageModel;
+
+  private final List<ProjectileInfo> projectileInfoList;
   private final float cyclicTime;
   private final int maxRounds;
   private final float reloadTime;
+  private final BodyUsageCategory type;
   private boolean loaded = false;
   private boolean readyToFire = false;
   private boolean loading = false;
@@ -43,12 +52,17 @@ public class Shooter extends Use {
   private float readyTimer;
   private boolean continueFire;
   private Vector2 target;
+  transient private List<ToolModel> missileModels;
 
   public Shooter(UsageModel<?> rangedUsageModel) {
-    this.usageModel = rangedUsageModel;
+    this.type = rangedUsageModel.getType();
     RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
-    this.projectileModels = rangedProperties.getProjectileModelList();
-    switch (usageModel.getType()) {
+    this.projectileInfoList =
+        rangedProperties.getProjectileModelList().stream()
+            .map(ProjectileModel::toProjectileInfo)
+            .collect(Collectors.toList());
+   fillMissileModels();
+    switch (rangedUsageModel.getType()) {
       case SHOOTER:
         ShooterProperties shooterProperties = (ShooterProperties) rangedProperties;
         this.reloadTime = shooterProperties.getReloadTime();
@@ -63,13 +77,25 @@ public class Shooter extends Use {
         this.reloadTime = automaticProperties.getReloadTime();
         break;
       default:
-        throw new IllegalStateException("Unexpected value: " + usageModel.getType());
+        throw new IllegalStateException("Unexpected value: " + rangedUsageModel.getType());
+    }
+  }
+
+  private void fillMissileModels() {
+    this.missileModels = new ArrayList<>();
+    for (ProjectileInfo projectileInfo : this.projectileInfoList) {
+      try {
+        ToolModel toolModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile());
+        missileModels.add(toolModel);
+      } catch (PersistenceException | ParserConfigurationException | SAXException | IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
   public void onTriggerPulled() {
-    for (ProjectileModel projectileModel : projectileModels) {
-      fire(projectileModel);
+    for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
+      fire(i);
     }
   }
 
@@ -84,9 +110,9 @@ public class Shooter extends Use {
 
   @Override
   public void onStep(float deltaTime) {
-    for (ProjectileModel projectileModel : this.projectileModels) {
-      if (projectileModel.getFireSource() != null) {
-        projectileModel.getFireSource().setSpawnEnabled(false);
+    for (ProjectileInfo projectileInfo : this.projectileInfoList) {
+      if (projectileInfo.getFireSource() != null) {
+        projectileInfo.getFireSource().setSpawnEnabled(false);
       }
     }
     if (this.loading) {
@@ -109,9 +135,8 @@ public class Shooter extends Use {
     }
 
     if (this.loaded && this.readyToFire && this.continueFire) {
-      for (ProjectileModel projectileModel : this.projectileModels) {
-
-        fire(projectileModel);
+      for (int i = 0; i < this.projectileInfoList.size(); i++) {
+        fire(i);
       }
     }
   }
@@ -123,43 +148,41 @@ public class Shooter extends Use {
     }
   }
 
-  private void fire(ProjectileModel projectileModel) {
-    this.createBullet(projectileModel);
+  private void fire(int index) {
+    ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
+    ToolModel missileModel = this.missileModels.get(index);
+    this.createBullet(projectileInfo,missileModel);
     this.decrementRounds();
     this.readyToFire = false;
 
-    if (projectileModel.getAmmoModel() != null
-        && projectileModel.getMissileModel().getBodies().size() >= 2) {
-      createBulletCasing(projectileModel);
+    if (projectileInfo.getCasingInfo() != null) {
+      createBulletCasing(projectileInfo,missileModel);
     }
-    if (this.usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS) {
+    if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
       this.continueFire = true;
     }
 
-    if (projectileModel.getFireSource() != null) {
-      projectileModel.getFireSource().setSpawnEnabled(true);
+    if (projectileInfo.getFireSource() != null) {
+      projectileInfo.getFireSource().setSpawnEnabled(true);
     }
   }
 
-  private void createBulletCasing(ProjectileModel projectileModel) {
-    GameEntity muzzleEntity = projectileModel.getMuzzleEntity();
+  private void createBulletCasing(ProjectileInfo projectileInfo, ToolModel missileModel) {
+    GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
     ArrayList<LayerBlock> blocks =
-        BlockUtils.createBlocks(projectileModel.getMissileModel().getBodies().get(1));
-    Vector2 begin = projectileModel.getAmmoModel().getProperties().getAmmoOrigin();
-    Vector2 direction = projectileModel.getAmmoModel().getProperties().getAmmoDirection();
+        BlockUtils.createBlocks(missileModel.getBodies().get(1));
+    Vector2 begin = projectileInfo.getCasingInfo().getAmmoOrigin();
+    Vector2 direction = projectileInfo.getCasingInfo().getAmmoDirection();
     Vector2 beginProjected =
         muzzleEntity
             .getBody()
             .getWorldPoint(begin.cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f))
             .cpy();
     Vector2 directionProjected = muzzleEntity.getBody().getWorldVector(direction).cpy();
-    boolean clockwise = projectileModel.getAmmoModel().getAmmoProperties().isRotationOrientation();
+    boolean clockwise = projectileInfo.getCasingInfo().isRotationOrientation();
     float angularVelocity =
-        clockwise
-            ? 1
-            : -1 * projectileModel.getAmmoModel().getAmmoProperties().getRotationSpeed() * 10;
-    float ejectionVelocity =
-        projectileModel.getAmmoModel().getAmmoProperties().getLinearSpeed() * 10;
+        clockwise ? 1 : -1 * projectileInfo.getCasingInfo().getRotationSpeed() * 10;
+    float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 10;
     Vector2 ejectionVelocityVector = directionProjected.mul(ejectionVelocity);
     BodyInit bodyInit =
         new TransformInit(
@@ -180,12 +203,12 @@ public class Shooter extends Use {
             "shell");
   }
 
-  private void createBullet(ProjectileModel projectileModel) {
-    GameEntity muzzleEntity = projectileModel.getMuzzleEntity();
+  private void createBullet(ProjectileInfo projectileInfo, ToolModel missileModel) {
+    GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
     ArrayList<LayerBlock> blocks =
-        BlockUtils.createBlocks(projectileModel.getMissileModel().getBodies().get(0));
-    Vector2 begin = projectileModel.getProperties().getProjectileOrigin();
-    Vector2 end = projectileModel.getProperties().getProjectileEnd();
+        BlockUtils.createBlocks(missileModel.getBodies().get(0));
+    Vector2 begin = projectileInfo.getProjectileOrigin();
+    Vector2 end = projectileInfo.getProjectileEnd();
 
     Vector2 endProjected =
         muzzleEntity
@@ -198,8 +221,7 @@ public class Shooter extends Use {
             .getWorldPoint(begin.cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f))
             .cpy();
     Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
-    float muzzleVelocity =
-        getProjectileVelocity(projectileModel.getProperties().getMuzzleVelocity());
+    float muzzleVelocity = getProjectileVelocity(projectileInfo.getMuzzleVelocity());
     Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
     Filter filter = new Filter();
     filter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
@@ -223,17 +245,17 @@ public class Shooter extends Use {
                 new RecoilInit(
                     bodyInit,
                     muzzleEntity.getBody(),
-                    projectileModel.getProperties().getRecoil(),
+                    projectileInfo.getRecoil(),
                     muzzleVelocityVector,
                     beginProjected),
                 "bullet");
-    Projectile projectile = new Projectile(bullet);
+    Projectile projectile = new Projectile();
     projectile.setActive(true);
 
     bullet.getUseList().add(projectile);
     ResourceManager.getInstance()
         .gunshotSounds
-        .get(projectileModel.getProperties().getFireSound())
+        .get(projectileInfo.getFireSound())
         .getSoundList()
         .get(0)
         .play();

@@ -1,20 +1,26 @@
 package com.evolgames.entities.hand;
 
+import com.evolgames.scenes.entities.Hand;
+
 public abstract class HandControl {
 
-  private final boolean hasLifespan;
+  private boolean hasLifespan;
   protected int count;
-  protected Runnable runnable;
   protected int lifespan;
   private boolean dead = false;
+  transient protected  Hand hand;
 
-  public HandControl() {
+  public HandControl() {}
+
+  public HandControl(Hand hand) {
     this.hasLifespan = false;
+    this.hand = hand;
   }
 
-  public HandControl(int lifespan) {
+  public HandControl(Hand hand,int lifespan) {
     this.hasLifespan = true;
     this.lifespan = lifespan;
+    this.hand = hand;
   }
 
   public void run() {
@@ -37,7 +43,7 @@ public abstract class HandControl {
     this.dead = dead;
   }
 
-  public void setRunnable(Runnable runnable) {
-    this.runnable = runnable;
+  public void setHand(Hand hand) {
+    this.hand = hand;
   }
 }

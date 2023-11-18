@@ -5,8 +5,6 @@ import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
-
-import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -17,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
+import com.evolgames.entities.GroupType;
 import com.evolgames.entities.SpecialEntityType;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -32,6 +31,7 @@ import com.evolgames.entities.commandtemplate.TimedCommand;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.contact.ContactObserver;
 import com.evolgames.entities.contact.GameEntityContactListener;
+import com.evolgames.entities.contact.Pair;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.CutPoint;
 import com.evolgames.entities.cut.CutType;
@@ -147,7 +147,7 @@ public class WorldFacade implements ContactObserver {
     for (Iterator<TimedCommand> iterator = timedCommands.iterator(); iterator.hasNext(); ) {
       TimedCommand timedCommand = iterator.next();
       timedCommand.update();
-      if(timedCommand.isTimedOut()){
+      if (timedCommand.isTimedOut()) {
         iterator.remove();
       }
     }
@@ -194,7 +194,7 @@ public class WorldFacade implements ContactObserver {
                 body.getAngularVelocity(),
                 parentEntity.getName(),
                 parentEntity);
-    HashSet<Pair<GameEntity, GameEntity>> setOfPairs = new HashSet<>();
+    HashSet<Pair<GameEntity>> setOfPairs = new HashSet<>();
     scene
         .getHands()
         .forEach(
@@ -215,7 +215,7 @@ public class WorldFacade implements ContactObserver {
             });
     splinters.forEach(
         splinter -> {
-          for (Pair<GameEntity, GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
+          for (Pair<GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
             if (pair.first == parentEntity) {
               setOfPairs.add(new Pair<>(splinter, pair.second));
             } else if (pair.second == parentEntity) {
@@ -230,23 +230,22 @@ public class WorldFacade implements ContactObserver {
               .map(associated -> (JointBlock) associated)
               .forEachOrdered(
                   jointBlock -> {
-                    if (jointBlock.isNotAborted()) {
-                      if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
-                        scene
-                            .getHands()
-                            .forEach(
-                                (k, h) -> {
-                                  if (h.getGrabbedEntity() != null) {
-                                    if (h.isFollow()) {
-                                      jointBlock.recreate(splinter);
-                                    } else {
-                                      h.onMouseJointDestroyed();
-                                    }
+                    if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
+                      scene
+                          .getHands()
+                          .forEach(
+                              (k, h) -> {
+                                if (h.getGrabbedEntity()
+                                    == ((GameEntity) jointBlock.getCommand().getEntity2())) {
+                                  if (h.isFollow()||h.isHolding()) {
+                                    jointBlock.recreate(splinter);
+                                  } else {
+                                    h.onMouseJointDestroyed();
                                   }
-                                });
-                      } else {
-                        jointBlock.recreate(splinter);
-                      }
+                                }
+                              });
+                    } else {
+                      jointBlock.recreate(splinter);
                     }
                   });
 
@@ -659,13 +658,13 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.QueryAABB(blockQueryCallBack, lower.x, lower.y, upper.x, upper.y);
         List<LayerBlock> list = blockQueryCallBack.getBlocks();
         List<Body> bodyList = blockQueryCallBack.getBodies();
-        if (list.size() == 0){
+        if (list.size() == 0) {
           continue;
         }
 
         for (LayerBlock block : list) {
 
-          Body body =bodyList.get(list.indexOf(block));
+          Body body = bodyList.get(list.indexOf(block));
 
           if (body == null) {
             continue;
@@ -1064,8 +1063,7 @@ public class WorldFacade implements ContactObserver {
     EditorScene.plotter.drawVector(point.cpy().mul(32f), normal.cpy().mul(32f), Color.CYAN);
   }
 
-  private float correctEnvironmentData(
-      List<TopographyData> environmentData) {
+  private float correctEnvironmentData(List<TopographyData> environmentData) {
     float envError = Float.MAX_VALUE;
     for (TopographyData topographyData : environmentData) {
       float min = topographyData.getMin();
@@ -1202,7 +1200,7 @@ public class WorldFacade implements ContactObserver {
   }
 
   public void destroyGameEntity(GameEntity entity, boolean recycle) {
-    if (entity==null||!entity.isAlive()) {
+    if (entity == null || !entity.isAlive()) {
       return;
     }
     Invoker.addBodyDestructionCommand(entity);
@@ -1776,8 +1774,7 @@ public class WorldFacade implements ContactObserver {
   }
 
   public void scheduleGameEntityToDestroy(GameEntity entity, int time) {
-    TimedCommand command =
-        new EntityDestructionCommand(time,entity,this);
+    TimedCommand command = new EntityDestructionCommand(time, entity, this);
     timedCommands.add(command);
   }
 
@@ -1790,18 +1787,23 @@ public class WorldFacade implements ContactObserver {
   }
 
   public JointCreationCommand addJointToCreate(
-      JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock jointBlock1, JointBlock jointBlock2) {
-    if (entity1.getName().equals("Ground")) {
-     return Invoker.addJointCreationCommand(
-          jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock1,jointBlock2);
+      JointDef jointDef,
+      GameEntity entity1,
+      GameEntity entity2,
+      JointBlock jointBlock1,
+      JointBlock jointBlock2) {
+    if (GroupType.GROUND.equals(entity1.getParentGroup().getGroupType())) {
+      return Invoker.addJointCreationCommand(
+          jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock1, jointBlock2);
     } else {
       return Invoker.addJointCreationCommand(
-          jointDef, entity1.getParentGroup(), entity1, entity2, jointBlock1,jointBlock2);
+          jointDef, entity1.getParentGroup(), entity1, entity2, jointBlock1, jointBlock2);
     }
   }
 
-  public JointCreationCommand addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
-    return this.addJointToCreate(jointDef, entity1, entity2, null,null);
+  public JointCreationCommand addJointToCreate(
+      JointDef jointDef, GameEntity entity1, GameEntity entity2) {
+    return this.addJointToCreate(jointDef, entity1, entity2, null, null);
   }
 
   public Vector2 getAirVelocity(Vector2 worldPoint) {
@@ -1877,5 +1879,9 @@ public class WorldFacade implements ContactObserver {
 
   public ArrayList<TimedCommand> getTimedCommands() {
     return timedCommands;
+  }
+
+  public HashSet<Pair<GameEntity>> getNonCollidingPairs(){
+    return this.contactListener.getNonCollidingEntities();
   }
 }

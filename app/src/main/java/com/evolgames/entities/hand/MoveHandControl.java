@@ -5,11 +5,13 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.scenes.entities.Hand;
 
 public class MoveHandControl extends HandControl {
-  private final Hand hand;
 
+
+  @SuppressWarnings("unused")
+  public MoveHandControl() {
+  }
   public MoveHandControl(Hand hand, Vector2 target) {
-    super();
-    this.hand = hand;
+    super(hand);
     hand.getMouseJoint().setTarget(target);
   }
 
@@ -24,7 +26,6 @@ public class MoveHandControl extends HandControl {
       Vector2 v = mouseJoint.getBodyB().getLinearVelocity();
       if ((v.len() < 0.01f && count > 10)) {
         setDead(true);
-        runnable.run();
       }
     }
   }

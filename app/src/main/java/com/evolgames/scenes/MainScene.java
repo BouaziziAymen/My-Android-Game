@@ -1,17 +1,13 @@
 package com.evolgames.scenes;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.UserInterface;
-
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.scene.Scene;
+import org.andengine.input.touch.TouchEvent;
 
 public class MainScene extends AbstractScene<UserInterface<?>> {
 
-  int step = 0;
   protected AbstractScene<?> scene;
 
   public MainScene(Camera pCamera) {
@@ -19,31 +15,22 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
   }
 
   @Override
-  protected void onManagedUpdate(float pSecondsElapsed) {
-    super.onManagedUpdate(pSecondsElapsed);
-    step++;
-    if (step > 599 && scene != null && scene.getSceneName() != SceneType.PLAY) {
-      changeScene(SceneType.PLAY,true);
-    }
-  }
-
-  @Override
-  public void populate() {
-    changeScene(SceneType.EDITOR,true);
-  }
-
-
+  public void populate() {}
 
   public void changeScene(SceneType sceneType, boolean populate) {
+    if (sceneType == SceneType.MAIN) {
+      throw new UnsupportedOperationException("Cannot load main scene here");
+    }
     this.clearChildScene();
     if (this.scene != null) {
       this.scene.detach();
     }
     switch (sceneType) {
       case MENU:
+        this.scene = new MenuScene(this.mCamera);
         break;
       case PLAY:
-        this.scene = new GameScene(this.mCamera);
+        this.scene = new PlayScene(this.mCamera);
         break;
       case EDITOR:
         this.scene = new EditorScene(this.mCamera);
@@ -59,28 +46,47 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
   @Override
   public void onPause() {
-    saveStringToPreferences("SCENE",scene.getSceneName().name());
-    if(this.scene!=null){
+    saveStringToPreferences("SCENE", scene.getSceneName().name());
+    if (this.scene != null) {
       this.scene.onPause();
     }
   }
 
   @Override
   public void onResume() {
- //String sceneName="";
- String sceneName=loadStringFromPreferences("SCENE");
-    if(!sceneName.isEmpty()){
-      changeScene(SceneType.PLAY,false);
-      this.scene.onResume();
+  //String sceneName="MENU";
+   String sceneName = loadStringFromPreferences("SCENE");
+    if (!sceneName.isEmpty()) {
+      changeScene(SceneType.valueOf(sceneName), false);
+    } else {
+      changeScene(SceneType.MENU, true);
     }
+    this.scene.onResume();
   }
 
   @Override
+  public void createUserInterface() {}
+
+  @Override
+  protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {}
+
+  @Override
   public void detach() {
-    if(this.scene!=null){
+    if (this.scene != null) {
       this.scene.detach();
     }
   }
 
   public void onBackgroundImageLoaded() {}
+
+  @Override
+  public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+    return false;
+  }
+
+  public void goToScene(SceneType sceneType) {
+    changeScene(sceneType, true);
+    this.saveStringToPreferences("SCENE", "");
+    this.scene.createUserInterface();
+  }
 }

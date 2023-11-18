@@ -888,10 +888,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     return false;
   }
 
-  public void onPause() {
-    this.clearElements();
-  }
-
   public Scene getScene() {
     return scene;
   }

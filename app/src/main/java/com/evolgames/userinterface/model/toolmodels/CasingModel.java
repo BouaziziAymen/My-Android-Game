@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.properties.CasingProperties;
+import com.evolgames.entities.usage.infos.CasingInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
@@ -52,5 +53,14 @@ public class CasingModel extends ProperModel<CasingProperties> {
 
   public void setCasingField(CasingField casingField) {
     this.casingField = casingField;
+  }
+
+  public CasingInfo toCasingInfo() {
+    CasingInfo casingInfo = new CasingInfo();
+    casingInfo.setAmmoOrigin(this.properties.getAmmoOrigin());
+    casingInfo.setLinearSpeed(this.properties.getLinearSpeed());
+    casingInfo.setRotationOrientation(this.properties.isRotationOrientation());
+    casingInfo.setAmmoDirection(this.properties.getAmmoDirection());
+    return casingInfo;
   }
 }

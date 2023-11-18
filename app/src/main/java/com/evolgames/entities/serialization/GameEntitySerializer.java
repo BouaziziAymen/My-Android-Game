@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.init.AngularVelocityInit;
@@ -13,6 +14,9 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.usage.Use;
+import com.evolgames.scenes.entities.Hand;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +27,7 @@ public class GameEntitySerializer {
 
   private InitInfo initInfo;
   private List<LayerBlock> layerBlocks;
+  private List<Use> useList;
   private BodyDef.BodyType bodyType;
   private SpecialEntityType specialEntityType;
   private String name;
@@ -40,6 +45,9 @@ public class GameEntitySerializer {
     this.uniqueId = gameEntity.getUniqueID();
     this.center = gameEntity.getCenter();
     this.specialEntityType = gameEntity.getType();
+    this.useList = gameEntity.getUseList();
+    this.layerBlocks.forEach(b-> b.getAssociatedBlocks().stream().filter(e->e instanceof JointBlock).map(e->(JointBlock)e).forEach(
+            jointBlock -> jointBlock.getJointInfo().prepareJointInfo()));
   }
 
   public void afterLoad() {
@@ -90,6 +98,7 @@ public class GameEntitySerializer {
     gameEntity.setUniqueId(this.uniqueId);
     gameEntity.setType(this.specialEntityType);
     entities.put(gameEntity.getUniqueID(), gameEntity);
+    gameEntity.setUseList(useList);
   }
 
   @SuppressWarnings("unused")

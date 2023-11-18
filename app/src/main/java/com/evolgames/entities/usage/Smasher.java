@@ -5,26 +5,26 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.hand.SwingHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
+import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.List;
 
 public class Smasher extends MeleeUse implements Penetrating {
 
-  private SwingHandControl handControl;
+  private transient Hand hand;
+  private int handId;
 
   @Override
   public void onStep(float deltaTime) {
-    if (this.handControl != null && this.handControl.isDead()) {
-      setActive(false);
+    if (this.hand != null) {
+      if (this.hand.getHandControl() != null && this.hand.getHandControl().isDead()) {
+        setActive(false);
+      }
     }
   }
 
-  public void reset(SwingHandControl handControl) {
-    this.handControl = handControl;
-  }
 
   @Override
   public PlayerSpecialAction getAction() {
@@ -52,7 +52,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
     worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
     worldFacade.freeze(penetrator);
-    handControl.setDead(true);
+    hand.getHandControl().setDead(true);
     this.setActive(false);
   }
 
@@ -72,7 +72,7 @@ public class Smasher extends MeleeUse implements Penetrating {
     float massFraction =
         penetrator.getBody().getMass()
             / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-    handControl.setDead(true);
+    hand.getHandControl().setDead(true);
     worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
     worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
     setActive(false);
@@ -81,6 +81,15 @@ public class Smasher extends MeleeUse implements Penetrating {
   @Override
   public void onCancel() {
     setActive(false);
-    handControl.setDead(true);
+    hand.getHandControl().setDead(true);
+  }
+
+    public int getHandId() {
+        return handId;
+    }
+
+  public void setHand(Hand hand) {
+    this.hand = hand;
+    this.handId = hand.getMousePointerId();
   }
 }

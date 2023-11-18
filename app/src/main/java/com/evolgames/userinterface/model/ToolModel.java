@@ -9,7 +9,7 @@ import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.scenes.EditorScene;
+import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -24,7 +24,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
-  private final EditorScene scene;
+  
+  private final AbstractScene<?> scene;
   private final AtomicInteger bodyCounter = new AtomicInteger();
   private final AtomicInteger jointCounter = new AtomicInteger();
   private final AtomicInteger projectileCounter = new AtomicInteger();
@@ -35,7 +36,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
   private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
   private ItemCategory toolCategory;
 
-  public ToolModel(EditorScene gameScene, int toolId) {
+  public ToolModel(AbstractScene<?> gameScene, int toolId) {
     super("Tool" + toolId);
     scene = gameScene;
     bodies = new ArrayList<>();
@@ -249,4 +250,5 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     bombShape.bindModel(bombModel);
     return bombModel;
   }
+
 }

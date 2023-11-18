@@ -1,15 +1,15 @@
 package com.evolgames.entities.hand;
 
 public class ParallelHandControl extends HandControl {
-  private final HandControl[] controls;
 
-  public ParallelHandControl(HandAction handAction, HandControl... list) {
+  private HandControl[] controls;
+
+  @SuppressWarnings("unused")
+  public ParallelHandControl() {
+  }
+  public ParallelHandControl(HandControl... list) {
     super();
     this.controls = list;
-  }
-
-  public HandControl getControl(int index) {
-    return controls[index];
   }
 
   @Override

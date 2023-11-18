@@ -1,10 +1,9 @@
 package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.entities.usage.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
@@ -13,10 +12,9 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
   private final int projectileId;
   private final int bodyId;
   private ProjectileShape projectileShape;
-  private ToolModel missileModel;
-  private CasingModel ammoModel;
+  private String missileFile;
+  private CasingModel casingModel;
   private GameEntity muzzleEntity;
-  private ExplosiveParticleWrapper fireSource;
   private ProjectileField projectileField;
 
   public ProjectileModel(int bodyId, int projectileId, ProjectileShape projectileShape) {
@@ -50,36 +48,24 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     this.projectileShape = projectileShape;
   }
 
-  public ToolModel getMissileModel() {
-    return missileModel;
+  public String getMissileFile() {
+    return missileFile;
   }
 
-  public void setMissileModel(ToolModel missileModel) {
-    this.missileModel = missileModel;
+  public void setMissileFile(String missileFile) {
+    this.missileFile = missileFile;
   }
 
-  public CasingModel getAmmoModel() {
-    return ammoModel;
+  public CasingModel getCasingModel() {
+    return casingModel;
   }
 
-  public void setAmmoModel(CasingModel ammoModel) {
-    this.ammoModel = ammoModel;
-  }
-
-  public GameEntity getMuzzleEntity() {
-    return muzzleEntity;
+  public void setCasingModel(CasingModel casingModel) {
+    this.casingModel = casingModel;
   }
 
   public void setMuzzleEntity(GameEntity muzzleEntity) {
     this.muzzleEntity = muzzleEntity;
-  }
-
-  public ExplosiveParticleWrapper getFireSource() {
-    return fireSource;
-  }
-
-  public void setFireSource(ExplosiveParticleWrapper fireSource) {
-    this.fireSource = fireSource;
   }
 
   public ProjectileField getProjectileField() {
@@ -88,5 +74,25 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
   public void setProjectileField(ProjectileField projectileField) {
     this.projectileField = projectileField;
+  }
+
+  public ProjectileInfo toProjectileInfo() {
+    ProjectileInfo pi = new ProjectileInfo();
+    pi.setProjectileEnd(this.properties.getProjectileEnd());
+    pi.setProjectileOrigin(this.properties.getProjectileOrigin());
+    pi.setMuzzleVelocity(this.properties.getMuzzleVelocity());
+    pi.setFireSound(this.properties.getFireSound());
+    pi.setRecoil(this.properties.getRecoil());
+    pi.setMuzzleEntity(this.muzzleEntity);
+    pi.setFireRatio(this.properties.getFireRatio());
+    pi.setSmokeRatio(this.properties.getSmokeRatio());
+    pi.setSparkRatio(this.properties.getSparkRatio());
+    pi.setCasingInfo(this.casingModel.toCasingInfo());
+    pi.setMissileFile(this.missileFile);
+
+/*    Vector2 dir = pi.getProjectileEnd().cpy().sub(pi.getProjectileOrigin()).nor();
+    Vector2 nor = new Vector2(-dir.y, dir.x);
+    pi.setAxisExtent(ToolUtils.getAxisExtent(pi.getMissileModel(), nor) / 2f);*/
+    return pi;
   }
 }

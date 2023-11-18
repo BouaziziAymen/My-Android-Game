@@ -16,10 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
-  private final GameEntity projectile;
 
-  public Projectile(GameEntity projectile) {
-    this.projectile = projectile;
+  public Projectile() {
     this.active = false;
   }
 

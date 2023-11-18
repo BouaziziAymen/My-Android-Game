@@ -99,7 +99,7 @@ public class BlockUtils {
 
     HashSet<Vector2> used =
         new HashSet<>(); // for when the cut is approximated to one single point and both chunks
-                         // contain all
+    // contain all
 
     for (int i = begin1; i < list.size(); i++) {
       Vector2 point = list.get(i);
@@ -496,7 +496,6 @@ public class BlockUtils {
             }
           }
           if (!divided) {
-
             if (block1.getVertices().contains(sfc.first)
                 && block1.getVertices().contains(sfc.second)) {
               block1.addFreshCut(sfc);
@@ -515,11 +514,20 @@ public class BlockUtils {
           Vector2 inter =
               GeometryUtils.lineIntersectPoint(sfc.first, sfc.second, cut.getP1(), cut.getP2());
           if (inter == null) {
-            if (GeometryUtils.isPointInPolygon(sfc.first, block1.getVertices())
-                && GeometryUtils.isPointInPolygon(sfc.second, block1.getVertices())) {
+            if (GeometryUtils.isPointInPolygon(
+                sfc.first.cpy().add(sfc.second).mul(0.5f), block1.getVertices())) {
               block1.addFreshCut(sfc);
-            } else {
+            } else if (GeometryUtils.isPointInPolygon(
+                sfc.first.cpy().add(sfc.second).mul(0.5f), block2.getVertices())) {
               block2.addFreshCut(sfc);
+            } else {
+              throw new IllegalMonitorStateException(
+                  "Diving inner cut didn't work:"
+                      + sfc
+                      + "/"
+                      + Arrays.toString(block1.getVertices().toArray())
+                      + "/"
+                      + Arrays.toString(block2.getVertices().toArray()));
             }
           } else {
             Vector2 u = sfc.first.cpy().sub(sfc.second).nor();
@@ -529,10 +537,19 @@ public class BlockUtils {
               SegmentFreshCut child1 =
                   new SegmentFreshCut(
                       sfc.first.cpy().sub(u), inter.cpy(), (int) (ratio * sfc.getLimit()), true);
-              if (GeometryUtils.isPointInPolygon(child1.first, block1.getVertices())) {
+              Vector2 midPoint = child1.first.cpy().add(child1.second).mul(0.5f);
+              if (GeometryUtils.isPointInPolygon(midPoint, block1.getVertices())) {
                 block1.addFreshCut(child1);
-              } else {
+              } else if (GeometryUtils.isPointInPolygon(midPoint, block2.getVertices())) {
                 block2.addFreshCut(child1);
+              } else {
+                throw new IllegalMonitorStateException(
+                    "Diving inner cut didn't work (child 1)"
+                        + child1
+                        + "/"
+                        + Arrays.toString(block1.getVertices().toArray())
+                        + "/"
+                        + Arrays.toString(block2.getVertices().toArray()));
               }
             }
             float dst2 = inter.dst(sfc.second);
@@ -541,10 +558,19 @@ public class BlockUtils {
               SegmentFreshCut child2 =
                   new SegmentFreshCut(
                       inter, sfc.second.cpy().add(u), (int) (ratio * sfc.getLimit()), true);
-              if (GeometryUtils.isPointInPolygon(child2.second, block1.getVertices())) {
+              Vector2 midPoint = child2.first.cpy().add(child2.second).mul(0.5f);
+              if (GeometryUtils.isPointInPolygon(midPoint, block1.getVertices())) {
                 block1.addFreshCut(child2);
-              } else {
+              } else if (GeometryUtils.isPointInPolygon(midPoint, block2.getVertices())) {
                 block2.addFreshCut(child2);
+              } else {
+                throw new IllegalMonitorStateException(
+                    "Diving inner cut didn't work (child 2)"
+                        + child2
+                        + "/"
+                        + Arrays.toString(block1.getVertices().toArray())
+                        + "/"
+                        + Arrays.toString(block2.getVertices().toArray()));
               }
             }
           }
@@ -592,11 +618,11 @@ public class BlockUtils {
     LayerBlock result = null;
     for (LayerBlock layerBlock : blocks) {
       Vector2 point = GeometryUtils.calculateProjection(localPoint, layerBlock.getVertices());
-        float distance = point.dst(localPoint);
-        if (distance < minDistance) {
-          result = layerBlock;
-          minDistance = distance;
-        }
+      float distance = point.dst(localPoint);
+      if (distance < minDistance) {
+        result = layerBlock;
+        minDistance = distance;
+      }
     }
     return result;
   }

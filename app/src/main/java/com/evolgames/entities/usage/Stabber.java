@@ -8,29 +8,28 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.hand.MoveToStabHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
+import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.List;
 
 public class Stabber extends MeleeUse implements Penetrating {
 
   private Vector2 handLocalPosition;
-  private MoveToStabHandControl handControl;
+  transient private Hand hand;
+  private int handId;
 
   @Override
   public void onStep(float deltaTime) {
-    if (this.handControl != null && this.handControl.isDead()) {
-      setActive(false);
+    if (this.hand != null) {
+      if (this.hand.getHandControl() != null && this.hand.getHandControl().isDead()) {
+        setActive(false);
+      }
     }
   }
 
   @Override
   public PlayerSpecialAction getAction() {
     return PlayerSpecialAction.Stab;
-  }
-
-  public void reset(Vector2 handLocalPosition, MoveToStabHandControl handControl) {
-    this.handLocalPosition = handLocalPosition;
-    this.handControl = handControl;
   }
 
   @Override
@@ -67,7 +66,7 @@ public class Stabber extends MeleeUse implements Penetrating {
         .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
     worldFacade.freeze(penetrator);
     Vector2 handWorldPoint = penetrator.getBody().getWorldPoint(this.handLocalPosition).cpy();
-    handControl.setTarget(handWorldPoint.add(normal.cpy().mul(actualAdvance)));
+    ((MoveToStabHandControl)hand.getHandControl()).setTarget(handWorldPoint.add(normal.cpy().mul(actualAdvance)));
     penetrator.getBody().setFixedRotation(true);
     this.setActive(false);
     contact.setEnabled(false);
@@ -85,7 +84,7 @@ public class Stabber extends MeleeUse implements Penetrating {
       List<TopographyData> envData,
       List<TopographyData> penData,
       float consumedImpulse,
-      float collisionImpulsee) {
+      float collisionImpulse) {
     List<GameEntity> stabbedEntities =
         worldFacade.findReachedEntities(penData, envData, actualAdvance);
     for (GameEntity stabbedEntity : stabbedEntities) {
@@ -103,6 +102,27 @@ public class Stabber extends MeleeUse implements Penetrating {
   @Override
   public void onCancel() {
     setActive(false);
-    handControl.goBack();
+    ((MoveToStabHandControl)hand.getHandControl()).goBack();
+  }
+
+  public int getHandId() {
+    return handId;
+  }
+
+  public Vector2 getHandLocalPosition() {
+    return handLocalPosition;
+  }
+
+  public void setHandLocalPosition(Vector2 handLocalPosition) {
+    this.handLocalPosition = handLocalPosition;
+  }
+
+  public Hand getHand() {
+    return hand;
+  }
+
+  public void setHand(Hand hand) {
+    this.hand = hand;
+    this.handId = hand.getMousePointerId();
   }
 }

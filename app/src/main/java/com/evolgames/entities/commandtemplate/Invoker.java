@@ -94,7 +94,6 @@ public class Invoker {
         JointCreationCommand jointCreationCommand = (JointCreationCommand) command;
         if (jointCreationCommand.getJoint() == joint) {
           iterator.remove();
-          jointCreationCommand.removeBlocks();
         }
       }
     }
