@@ -54,7 +54,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
   @Override
   public void onResume() {
-  //String sceneName="MENU";
+ //String sceneName="EDITOR";
    String sceneName = loadStringFromPreferences("SCENE");
     if (!sceneName.isEmpty()) {
       changeScene(SceneType.valueOf(sceneName), false);

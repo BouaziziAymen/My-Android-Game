@@ -19,8 +19,8 @@ import org.andengine.entity.particle.modifier.RotationParticleModifier;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.util.adt.color.Color;
 
-public class PointExplosiveParticleWrapper extends ExplosiveParticleWrapper {
-  public PointExplosiveParticleWrapper(
+public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
+  public DataExplosiveParticleWrapper(
       GameEntity gameEntity,
       float[] data,
       float velocity,

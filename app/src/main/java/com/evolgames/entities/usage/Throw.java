@@ -2,7 +2,9 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 
@@ -12,19 +14,18 @@ public class Throw extends Use {
   private float throwSpeed;
 
   @Override
-  public void onStep(float deltaTime) {}
+  public void onStep(float deltaTime, WorldFacade worldFacade) {}
 
   public void processThrow(Hand hand) {
     Body body = hand.getGrabbedEntity().getBody();
     body.setFixedRotation(false);
-    hand.getGameScene().getPhysicsWorld().destroyJoint(hand.getMouseJoint());
+    Invoker.addJointDestructionCommand(hand.getGrabbedEntity().getParentGroup(),hand.getMouseJoint());
     Vector2 u = new Vector2(0, 1);
     GeometryUtils.rotateVectorDeg(u, angle);
     body.setLinearVelocity( throwSpeed* u.x, throwSpeed * u.y);
     Projectile projectile = new Projectile();
     hand.getGrabbedEntity().getUseList().add(projectile);
     projectile.setActive(true);
-    hand.onMouseJointDestroyed();
     hand.clearStack();
   }
 

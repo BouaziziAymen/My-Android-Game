@@ -22,7 +22,9 @@ public class TimedCommand {
     if (!timedOut) {
       if (counter++ > timeLimit) {
         timedOut = true;
-        action.performAction();
+        if (action != null) {
+          action.performAction();
+        }
       }
     }
   }

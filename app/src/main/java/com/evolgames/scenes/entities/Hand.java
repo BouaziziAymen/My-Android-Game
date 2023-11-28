@@ -24,6 +24,7 @@ import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.PlayScene;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Hand {
 
   public static final int PRECISION = 50;
   public static final float STAB_ADVANCE = 3f;
-  private static final float HAND_EXTENT = 2f;
+  public static final float HAND_EXTENT = 2f;
   Stack<HandControl> handControlStack = new Stack<>();
   private transient PlayScene playScene;
   private transient GameEntity grabbedEntity;
@@ -44,7 +45,9 @@ public class Hand {
   private boolean follow;
   private boolean holding;
   private boolean onAction;
-  private HandControl handControl;
+
+  private MouseJointDef mouseJointDef;
+  private boolean dragging;
 
   public Hand() {}
 
@@ -69,7 +72,7 @@ public class Hand {
       this.playScene.onUsagesUpdated();
     }
 
-    final MouseJointDef mouseJointDef = new MouseJointDef();
+    mouseJointDef = new MouseJointDef();
     entity.setHangedPointerId(touchEvent.getPointerID());
     mouseJointDef.dampingRatio = 0.5f;
     mouseJointDef.frequencyHz = 10f;
@@ -108,7 +111,7 @@ public class Hand {
         if (grabbedEntity.getBody().getLinearVelocity().len() < 0.1f
             && !this.handControlStack.isEmpty()
             && handControlStack.peek() instanceof HoldHandControl) {
-          grabbedEntity.getMesh().setZIndex(0);
+          grabbedEntity.setZIndex(0);
           playScene.sortChildren();
           if (grabbedEntity.hasUsage(Stabber.class)) {
             Stabber stabber = grabbedEntity.getUsage(Stabber.class);
@@ -116,12 +119,14 @@ public class Hand {
             stabber.setActive(false);
             grabbedEntity.getBody().setFixedRotation(false);
             this.onAction = false;
+            this.playScene.unlockSaving();
           }
           if (grabbedEntity.hasUsage(Slasher.class)) {
             Slasher slasher = grabbedEntity.getUsage(Slasher.class);
             slasher.getTargetGameEntities().clear();
             slasher.setActive(false);
             this.onAction = false;
+            this.playScene.unlockSaving();
           }
           for (GameEntity targetEntity : targetEntities) {
             playScene.getWorldFacade().removeNonCollidingPair(grabbedEntity, targetEntity);
@@ -154,31 +159,36 @@ public class Hand {
     this.grabbedEntity = null;
     this.mouseJoint = null;
     this.onAction = false;
+    this.playScene.unlockSaving();
     if (updateUsages) {
       playScene.onUsagesUpdated();
     }
   }
 
   public boolean onSceneTouchEvent(TouchEvent touchEvent) {
-    if (onAction) {
-      return false;
-    }
-
     if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
       if (mouseJoint != null && touchEvent.isActionMove()) {
         if (touchEvent.isActionMove() && follow) {
           moveHand(touchEvent);
         }
       }
-      if (touchEvent.isActionDown() && mouseJoint == null) {
+      if (touchEvent.isActionDown()) {
         Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
         if (touchData != null) {
           grab(touchData.first, touchEvent, touchData.second);
+          this.dragging = true;
         }
       }
-      if (touchEvent.isActionUp() && grabbedEntity != null) {
-        releaseGrabbedEntity(true);
-        return true;
+      if (touchEvent.isActionUp()) {
+        if (grabbedEntity != null) {
+          releaseGrabbedEntity(true);
+          this.dragging = false;
+          return true;
+        } else {
+          if (this.dragging) {
+            throw new RuntimeException("Issue release entity");
+          }
+        }
       }
     }
     if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
@@ -249,26 +259,26 @@ public class Hand {
         } else if (this.playScene.getSpecialAction() == PlayerSpecialAction.Shoot) {
           if (touchData != null && grabbedEntity == touchData.first) {
             Shooter shooter = grabbedEntity.getUsage(Shooter.class);
-            shooter.setTarget(null);
+
             if (!shooter.isLoaded()) {
               shooter.startReload();
+              setHoldingAngle(0);
+            } else {
+              doShoot();
             }
           } else {
             if (grabbedEntity != null) {
               if (touchData != null) {
-                doShoot();
+               // doShoot();
               }
             }
           }
         } else if (this.playScene.getSpecialAction() == PlayerSpecialAction.Grenade) {
-          if (touchData != null && grabbedEntity == touchData.first) {
-            grab(touchData.first, touchEvent, touchData.second);
-            this.follow = false;
-          } else {
-            if (grabbedEntity != null) {
-              TimeBomb timeBomb = grabbedEntity.getUsage(TimeBomb.class);
-              timeBomb.onTriggerReleased();
-            }
+          if (grabbedEntity != null) {
+            TimeBomb timeBomb = grabbedEntity.getUsage(TimeBomb.class);
+            timeBomb.onTriggerReleased();
+            releaseGrabbedEntity(true);
+
           }
         }
       } else if (touchEvent.isActionUp() && grabbedEntity != null) {
@@ -284,7 +294,9 @@ public class Hand {
                     touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
             Vector2 dir = target.cpy().sub(grabbedEntity.getBody().getPosition());
             if (dir.len() > 1f && dir.len() < 5f && !shooter.isLoading()) {
-              shooter.setTarget(target);
+              Vector2 U = target.cpy().sub(grabbedEntity.getBody().getPosition()).nor();
+              float angle = GeometryUtils.calculateAngle(U.x, U.y);
+              setHoldingAngle(angle);
             }
           }
         }
@@ -292,7 +304,32 @@ public class Hand {
     }
     return false;
   }
-
+  public void setHoldingAngle(float angleDeg){
+    this.getHandControlStack().stream().filter(e->e instanceof HoldHandControl).forEach(
+            e->((HoldHandControl)e).setAngle(angleDeg* MathUtils.degreesToRadians));
+  }
+ /* private float getAngle() {
+    GameEntity weapon = hand.getGrabbedEntity();
+    PlayerSpecialAction action = hand.getGameScene().getSpecialAction();
+    float angle = 0;
+    if (action == PlayerSpecialAction.Slash
+            || action == PlayerSpecialAction.Throw
+            || action == PlayerSpecialAction.None) {
+      angle = 0 * MathUtils.degreesToRadians;
+    } else if (action == PlayerSpecialAction.Stab) {
+      angle = 90 * MathUtils.degreesToRadians;
+    } else if (action == PlayerSpecialAction.Shoot) {
+      if (weapon != null) {
+        Shooter shooter = weapon.getUsage(Shooter.class);
+        Vector2 target = shooter.getTarget();
+        if (target != null) {
+          Vector2 U = target.cpy().sub(weapon.getBody().getPosition()).nor();
+          angle = GeometryUtils.calculateAngle(U.x, U.y) * MathUtils.degreesToRadians;
+        }
+      }
+    }
+    return angle;
+  }*/
   private void doShoot() {
     Shooter shooter = this.grabbedEntity.getUsage(Shooter.class);
     if (shooter.isLoaded()) {
@@ -308,9 +345,10 @@ public class Hand {
     Smasher smasher = grabbedEntity.getUsage(Smasher.class);
     smasher.setActive(true);
     Vector2 U = target.cpy().sub(mouseJoint.getTarget()).nor();
-    this.handControl = new SwingHandControl(this, (int) (-Math.signum(U.x) * 30), (0.4f * 600));
+    SwingHandControl handControl =
+        new SwingHandControl(this, (int) (-Math.signum(U.x) * 30), (0.4f * 600));
     smasher.setHand(this);
-    handControlStack.add(this.handControl);
+    handControlStack.add(handControl);
   }
 
   public void moveToSlash(Vector2 target, GameEntity targetEntity) {
@@ -320,7 +358,7 @@ public class Hand {
     Vector2 localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
     Slasher slasher = grabbedEntity.getUsage(Slasher.class);
     slasher.setActive(true);
-    grabbedEntity.getMesh().setZIndex(20);
+    grabbedEntity.setZIndex(20);
     this.playScene.sortChildren();
     this.onAction = true;
 
@@ -416,22 +454,23 @@ public class Hand {
     if (!(handControlStack.peek() instanceof HoldHandControl) || onAction) {
       return;
     }
+    this.playScene.lockSaving();
     this.onAction = true;
     Vector2 p = this.mouseJoint.getTarget();
     float grabbedEntityAngle = grabbedEntity.getBody().getAngle();
     Vector2 v = new Vector2(0, 1);
     GeometryUtils.rotateVectorRad(v, grabbedEntityAngle);
     Vector2 localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
-    grabbedEntity.getMesh().setZIndex(-20);
+    grabbedEntity.setZIndex(-20);
     this.playScene.sortChildren();
-    this.handControl =
+    MoveToStabHandControl handControl =
         new MoveToStabHandControl(
             this, new Vector2(p.x + v.x * STAB_ADVANCE, p.y + v.y * STAB_ADVANCE), localPoint);
     Stabber stabber = grabbedEntity.getUsage(Stabber.class);
     stabber.setActive(true);
     stabber.setHand(this);
     stabber.setHandLocalPosition(localPoint);
-    handControlStack.add(this.handControl);
+    handControlStack.add(handControl);
   }
 
   private void moveHand(TouchEvent touchEvent) {
@@ -439,25 +478,33 @@ public class Hand {
         Vector2Pool.obtain(
             touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
             (touchEvent.getY()) / PIXEL_TO_METER_RATIO_DEFAULT);
-    this.mouseJoint.setTarget(vec);
+    updateTarget(vec);
     Vector2Pool.recycle(vec);
+  }
+
+  public void updateTarget(Vector2 vec) {
+    this.mouseJoint.setTarget(vec);
+    this.mouseJointDef.target.set(vec);
   }
 
   public MouseJoint getMouseJoint() {
     return mouseJoint;
   }
 
-  public void setMouseJoint(MouseJoint joint, GameEntity gameEntity) {
+  public void setMouseJoint(MouseJoint joint, MouseJointDef jointDef, GameEntity gameEntity) {
     this.mouseJoint = joint;
+    this.mouseJointDef = jointDef;
     this.grabbedEntity = gameEntity;
     this.playScene.onUsagesUpdated();
   }
 
   public void onMouseJointDestroyed() {
     this.mouseJoint = null;
+    this.mouseJointDef = null;
     this.grabbedEntity = null;
     this.playScene.onUsagesUpdated();
     this.onAction = false;
+    this.playScene.unlockSaving();
   }
 
   public GameEntity getGrabbedEntity() {
@@ -480,9 +527,7 @@ public class Hand {
     return playScene;
   }
 
-  public HandControl getHandControl() {
-    return handControl;
+  public boolean isDragging() {
+    return dragging;
   }
-
-
 }

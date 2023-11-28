@@ -235,7 +235,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     int primaryKey = simpleTertiary.getPrimaryKey();
     int secondaryKey = simpleTertiary.getSecondaryKey();
     if (simpleTertiary.getPrimaryKey() == 2 && simpleTertiary.getSecondaryKey() == 1) {
-      ResourceManager.getInstance()
+     ResourceManager.getInstance()
           .gunshotSounds
           .get(simpleTertiary.getTertiaryKey())
           .getSoundList()

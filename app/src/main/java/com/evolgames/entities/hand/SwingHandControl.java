@@ -1,6 +1,7 @@
 package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.entities.Hand;
 
 public class SwingHandControl extends HandControl {
@@ -18,7 +19,7 @@ public class SwingHandControl extends HandControl {
   @Override
   public void run() {
     super.run();
-    if (this.hand.getMouseJoint() == null) {
+    if (this.hand==null||this.hand.getMouseJoint() == null) {
       return;
     }
     Body body = this.hand.getMouseJoint().getBodyB();

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class Slasher extends MeleeUse {
   }
 
   @Override
-  public void onStep(float deltaTime) {}
+  public void onStep(float deltaTime, WorldFacade worldFacade) {}
 
   public void doSlash(Hand hand) {
     Vector2 p =

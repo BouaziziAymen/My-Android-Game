@@ -126,11 +126,10 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
   public void onSubmitSettings() {
     super.onSubmitSettings();
     ItemCategory toolCategory = ((ToolModel) model).getToolCategory();
-    if (toolCategory == null) return;
-    try {
-      PersistenceCaretaker.getInstance().saveToolModel(((ToolModel) model));
-    } catch (FileNotFoundException | TransformerException e) {
-      e.printStackTrace();
+    if (toolCategory == null){
+      return;
     }
+    this.editorUserInterface.saveToolModel();
+
   }
 }

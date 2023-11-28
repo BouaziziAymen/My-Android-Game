@@ -5,8 +5,11 @@ import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.scenes.entities.SceneType;
+import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -76,6 +79,8 @@ import com.evolgames.userinterface.view.windows.gamewindows.LayerSettingsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.LayersWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.OptionsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ProjectileOptionWindow;
+import java.io.FileNotFoundException;
+import javax.xml.transform.TransformerException;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
@@ -125,6 +130,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     ResourceManager.getInstance().hudBatcher.setZIndex(1);
     ResourceManager.getInstance().sceneBatcher.setZIndex(1);
+
+    createBackToMenuButton();
 
     this.grid = new Grid(editorScene);
 
@@ -700,9 +707,27 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
           }
         });
 
-    Button<ToolButtonBoardController> button43 =
+    Button<ToolButtonBoardController> button44 =
         new Button<>(
             ResourceManager.getInstance().movePointTextureRegion, Button.ButtonType.Selector, true);
+    button44.setBehavior(
+        new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button44) {
+          @Override
+          public void informControllerButtonClicked() {
+            getController().onMovePointButtonClicked(button44);
+          }
+
+          @Override
+          public void informControllerButtonReleased() {
+            getController().onMovePointButtonReleased(button44);
+          }
+        });
+
+    Button<ToolButtonBoardController> button43 =
+        new Button<>(
+            ResourceManager.getInstance().fireSourceTextureRegion,
+            Button.ButtonType.Selector,
+            true);
     button43.setBehavior(
         new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button43) {
           @Override
@@ -712,13 +737,14 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
           @Override
           public void informControllerButtonReleased() {
-            getController().onMovePointButtonReleased(button42);
+            getController().onMovePointButtonReleased(button43);
           }
         });
     toolButtonBoard.addToButtonBoard(button40);
     toolButtonBoard.addToButtonBoard(button41);
     toolButtonBoard.addToButtonBoard(button42);
     toolButtonBoard.addToButtonBoard(button43);
+    toolButtonBoard.addToButtonBoard(button44);
     toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
 
     panel = new ControlPanel(editorScene);
@@ -732,6 +758,32 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     // panel.showControlElement(0);
 
     setUpdated(true);
+  }
+
+  private void createBackToMenuButton() {
+    Button<Controller> backToMenu =
+        new Button<>(
+            ResourceManager.getInstance().simpleButtonTextureRegion,
+            Button.ButtonType.OneClick,
+            true);
+    backToMenu.setBehavior(
+        new ButtonBehavior<Controller>(
+            new Controller() {
+              @Override
+              public void init() {}
+            },
+            backToMenu) {
+          @Override
+          public void informControllerButtonClicked() {}
+
+          @Override
+          public void informControllerButtonReleased() {
+            scene.onPause();
+            scene.goToScene(SceneType.MENU);
+          }
+        });
+    backToMenu.setPosition(0, 480 - backToMenu.getHeight());
+    addElement(backToMenu);
   }
 
   public void doWithConfirm(String prompt, Action action) {
@@ -997,5 +1049,21 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
   public ControlElement getMoveElementControlElement() {
     return moveElementController;
+  }
+
+  public void saveToolModel() {
+    try {
+      PersistenceCaretaker.getInstance().saveToolModel(this.toolModel);
+    } catch (FileNotFoundException | TransformerException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void saveToolModel(String file) {
+    try {
+      PersistenceCaretaker.getInstance().saveToolModel(this.toolModel, file);
+    } catch (FileNotFoundException | TransformerException e) {
+      e.printStackTrace();
+    }
   }
 }

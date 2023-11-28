@@ -17,9 +17,9 @@ public class Smasher extends MeleeUse implements Penetrating {
   private int handId;
 
   @Override
-  public void onStep(float deltaTime) {
+  public void onStep(float deltaTime, WorldFacade worldFacade) {
     if (this.hand != null) {
-      if (this.hand.getHandControl() != null && this.hand.getHandControl().isDead()) {
+      if (!this.hand.getHandControlStack().isEmpty() && this.hand.getHandControlStack().peek().isDead()) {
         setActive(false);
       }
     }
@@ -52,7 +52,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
     worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
     worldFacade.freeze(penetrator);
-    hand.getHandControl().setDead(true);
+    hand.getHandControlStack().peek().setDead(true);
     this.setActive(false);
   }
 
@@ -67,13 +67,12 @@ public class Smasher extends MeleeUse implements Penetrating {
       GameEntity penetrated,
       List<TopographyData> envData,
       List<TopographyData> penData,
-      float consumedImpulse,
       float collisionImpulse) {
     float massFraction =
         penetrator.getBody().getMass()
             / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-    hand.getHandControl().setDead(true);
-    worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
+    hand.getHandControlStack().peek().setDead(true);
+    worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
     worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
     setActive(false);
   }
@@ -81,7 +80,7 @@ public class Smasher extends MeleeUse implements Penetrating {
   @Override
   public void onCancel() {
     setActive(false);
-    hand.getHandControl().setDead(true);
+    hand.getHandControlStack().peek().setDead(true);
   }
 
     public int getHandId() {

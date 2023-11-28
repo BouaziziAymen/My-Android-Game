@@ -203,7 +203,7 @@ public class MaterialFactory {
             liquids.get(0),
             0.5f,
             0.3f * 5f,
-            0.5f,
+            0.5f * 5f,
             true,
             220 + 273,
             650,

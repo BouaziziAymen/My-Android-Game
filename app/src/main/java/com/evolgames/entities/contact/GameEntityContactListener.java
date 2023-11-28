@@ -19,6 +19,9 @@ public class GameEntityContactListener implements ContactListener {
   }
 
   public void addNonCollidingPair(GameEntity entity1, GameEntity entity2) {
+    if(shouldNotCollide(entity1,entity2)){
+      return;
+    }
     nonCollidingEntities.add(new Pair<>(entity1, entity2));
   }
 

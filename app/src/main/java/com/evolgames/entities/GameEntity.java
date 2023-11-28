@@ -146,7 +146,7 @@ public class GameEntity extends EntityWithBody {
       updateGrains();
     }
     for (Use use : useList) {
-      use.onStep(timeStep);
+      use.onStep(timeStep,scene.getWorldFacade());
     }
 
     if (isFireSetup) {
@@ -352,7 +352,7 @@ public class GameEntity extends EntityWithBody {
       LayerProperties properties = block.getProperties();
       ArrayList<FreshCut> freshCuts = block.getFreshCuts();
       for (FreshCut freshCut : freshCuts) {
-        if (freshCut.getLength() < 1f) {
+        if (freshCut.getLength() < 5f) {
           continue;
         }
         if (freshCut.getLimit() > 0 && properties.isJuicy()) {
@@ -532,5 +532,9 @@ public class GameEntity extends EntityWithBody {
 
   public void setUseList(List<Use> useList) {
     this.useList = useList;
+  }
+
+  public void setZIndex(int i) {
+    mesh.setZIndex(i);
   }
 }

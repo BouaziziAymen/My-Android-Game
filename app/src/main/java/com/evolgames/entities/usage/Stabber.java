@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.support.annotation.Nullable;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
@@ -15,13 +16,14 @@ import java.util.List;
 public class Stabber extends MeleeUse implements Penetrating {
 
   private Vector2 handLocalPosition;
-  transient private Hand hand;
+  private transient Hand hand;
   private int handId;
 
   @Override
-  public void onStep(float deltaTime) {
+  public void onStep(float deltaTime, WorldFacade worldFacade) {
     if (this.hand != null) {
-      if (this.hand.getHandControl() != null && this.hand.getHandControl().isDead()) {
+      if (!this.hand.getHandControlStack().isEmpty()
+          && this.hand.getHandControlStack().peek().isDead()) {
         setActive(false);
       }
     }
@@ -44,29 +46,32 @@ public class Stabber extends MeleeUse implements Penetrating {
       List<TopographyData> envData,
       List<TopographyData> penData,
       float consumedImpulse) {
-    float massFraction =
-        penetrator.getBody().getMass()
-            / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
+    MoveToStabHandControl moveToStabHandControl =   ((MoveToStabHandControl) hand.getHandControlStack().peek());
+
+    float possibleAdvance = Math.min(Hand.STAB_ADVANCE-moveToStabHandControl.getCurrentAdvance(), actualAdvance);
+
     List<GameEntity> stabbedEntities =
-        worldFacade.findReachedEntities(penData, envData, actualAdvance);
-    worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrator);
-    if (actualAdvance > 0.01f) {
+        worldFacade.findReachedEntities(penData, envData, possibleAdvance);
+    worldFacade.applyPointImpact(
+        obtain(point),
+            0.1f*consumedImpulse
+            * penetrator.getBody().getMass()
+            / (penetrated.getMassOfGroup() + penetrator.getBody().getMass()),
+        penetrator);
+    if (possibleAdvance > 0.01f) {
       for (GameEntity stabbedEntity : stabbedEntities) {
-        worldFacade.freeze(stabbedEntity);
-        worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, stabbedEntity);
+        float massFraction = getMassFraction(penetrator, stabbedEntity);
+        worldFacade.applyPointImpact(obtain(point), 0.1f*consumedImpulse * massFraction, stabbedEntity);
         for (GameEntity gameEntity : stabbedEntity.getParentGroup().getGameEntities()) {
-          worldFacade.addNonCollidingPair(penetrator, gameEntity);
-          this.getTargetGameEntities().add(gameEntity);
+            this.targetGameEntities.add(gameEntity);
+            worldFacade.addNonCollidingPair(penetrator, gameEntity);
         }
       }
     }
-    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-    penetrated
-        .getBody()
-        .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
+    worldFacade.computePenetrationPoints(normal, possibleAdvance, envData);
     worldFacade.freeze(penetrator);
     Vector2 handWorldPoint = penetrator.getBody().getWorldPoint(this.handLocalPosition).cpy();
-    ((MoveToStabHandControl)hand.getHandControl()).setTarget(handWorldPoint.add(normal.cpy().mul(actualAdvance)));
+    moveToStabHandControl.setTarget(handWorldPoint.add(normal.cpy().mul(possibleAdvance)));
     penetrator.getBody().setFixedRotation(true);
     this.setActive(false);
     contact.setEnabled(false);
@@ -83,34 +88,43 @@ public class Stabber extends MeleeUse implements Penetrating {
       GameEntity penetrated,
       List<TopographyData> envData,
       List<TopographyData> penData,
-      float consumedImpulse,
       float collisionImpulse) {
+
+    MoveToStabHandControl moveToStabHandControl =   ((MoveToStabHandControl) hand.getHandControlStack().peek());
+
+    float possibleAdvance = Math.min(Hand.STAB_ADVANCE-moveToStabHandControl.getCurrentAdvance(), actualAdvance);
+
     List<GameEntity> stabbedEntities =
-        worldFacade.findReachedEntities(penData, envData, actualAdvance);
+        worldFacade.findReachedEntities(penData, envData, possibleAdvance);
     for (GameEntity stabbedEntity : stabbedEntities) {
+      float massFraction = getMassFraction(penetrator, stabbedEntity);
       worldFacade.freeze(stabbedEntity);
+      worldFacade.applyPointImpact(obtain(point), 0.1f*collisionImpulse * massFraction, stabbedEntity);
       worldFacade.addNonCollidingPair(penetrator, stabbedEntity);
-      this.getTargetGameEntities().add(stabbedEntity);
+      for (GameEntity gameEntity : stabbedEntity.getParentGroup().getGameEntities()) {
+        this.targetGameEntities.add(gameEntity);
+        worldFacade.addNonCollidingPair(penetrator, gameEntity);
+      }
     }
-    worldFacade.freeze(penetrator);
-    worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+    worldFacade.computePenetrationPoints(normal, possibleAdvance, envData);
     setActive(false);
     penetrator.getBody().setFixedRotation(true);
     contact.setEnabled(false);
   }
 
+  private float getMassFraction(GameEntity penetrator, GameEntity stabbedEntity) {
+    return penetrator.getBody().getMass()
+            / (penetrator.getBody().getMass() + stabbedEntity.getBody().getMass());
+  }
+
   @Override
   public void onCancel() {
     setActive(false);
-    ((MoveToStabHandControl)hand.getHandControl()).goBack();
+    ((MoveToStabHandControl) hand.getHandControlStack().peek()).goBack();
   }
 
   public int getHandId() {
     return handId;
-  }
-
-  public Vector2 getHandLocalPosition() {
-    return handLocalPosition;
   }
 
   public void setHandLocalPosition(Vector2 handLocalPosition) {
@@ -121,8 +135,8 @@ public class Stabber extends MeleeUse implements Penetrating {
     return hand;
   }
 
-  public void setHand(Hand hand) {
+  public void setHand(@Nullable Hand hand) {
     this.hand = hand;
-    this.handId = hand.getMousePointerId();
+    this.handId = hand != null ? hand.getMousePointerId() : -1;
   }
 }

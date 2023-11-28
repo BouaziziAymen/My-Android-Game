@@ -13,7 +13,6 @@ public class Vector2Utils {
 
   public static List<Vector2> generateRandomPointsInsidePolygon(
       int n, Vector2 localImpactPoint, LayerBlock layerBlock, GameEntity gameEntity) {
-    // GameScene.plotter2.detachChildren();
     Vector2 u1 = new Vector2(1, 0);
     CoatingBlock nearest = layerBlock.getBlockGrid().getNearestCoatingBlockSimple(localImpactPoint);
     if (nearest == null) {
@@ -24,7 +23,6 @@ public class Vector2Utils {
     int steps = 50;
     final float dA = (float) (2 * Math.PI / steps);
     Vector2 center = gameEntity.getBody().getWorldPoint(localCenter.cpy().mul(1 / 32f)).cpy();
-    //  GameScene.plotter2.drawPointOnEntity(nearest, Color.GREEN,gameEntity.getMesh());
     List<Vector2> list = new ArrayList<>();
     for (int i = 0; i < steps; i++) {
       GeometryUtils.rotateVectorRad(u1, dA);
@@ -56,6 +54,9 @@ public class Vector2Utils {
           chosen = p;
           break;
         }
+      }
+      if(chosen == null){
+       continue;
       }
       result.add(pickRandomPoint(localCenter, chosen));
     }

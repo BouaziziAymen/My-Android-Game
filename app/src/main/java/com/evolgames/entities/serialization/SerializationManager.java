@@ -12,10 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class SerializationManager {
-  private static final SerializationManager INSTANCE = new SerializationManager();
-  private final Kryo kryo = new Kryo();
 
-  private SerializationManager() {
+  private final Kryo kryo;
+
+  SerializationManager() {
+    this.kryo = new Kryo();
     kryo.register(com.evolgames.entities.blocks.LayerBlock.class);
     kryo.register(com.evolgames.entities.blocks.CoatingBlock.class);
     kryo.register(com.evolgames.entities.blocks.StainBlock.class);
@@ -69,23 +70,32 @@ public class SerializationManager {
     kryo.register(com.evolgames.entities.usage.Projectile.class);
     kryo.register(com.evolgames.scenes.entities.PlayerAction.class);
     kryo.register(com.evolgames.scenes.entities.PlayerSpecialAction.class);
+    kryo.register(com.evolgames.entities.cut.PointsFreshCut.class);
+    kryo.register(com.evolgames.entities.cut.CutPoint.class);
+    kryo.register(com.evolgames.entities.usage.Slasher.class);
+    kryo.register(com.evolgames.entities.hand.HandControl[].class);
+    kryo.register(com.evolgames.entities.usage.Smasher.class);
+    kryo.register(com.evolgames.entities.usage.Shooter.class);
+    kryo.register(com.evolgames.entities.usage.infos.ProjectileInfo.class);
+    kryo.register(com.evolgames.entities.usage.infos.CasingInfo.class);
+    kryo.register(com.evolgames.userinterface.model.BodyUsageCategory.class);
+    kryo.register(com.evolgames.entities.usage.TimeBomb.class);
+    kryo.register(com.evolgames.entities.usage.infos.BombInfo.class);
+    kryo.setReferences(false);
   }
 
-  public static SerializationManager getInstance() {
-    return INSTANCE;
-  }
+  public void serialize(PlayScene playScene, String fileName) throws FileNotFoundException, RuntimeException {
 
-  public void serialize(PlayScene playScene) throws FileNotFoundException {
     FileOutputStream fileOutputStream =
-        playScene.getActivity().openFileOutput("autoSave.mut", Context.MODE_PRIVATE);
+        playScene.getActivity().openFileOutput(fileName, Context.MODE_PRIVATE);
     Output output = new Output(fileOutputStream);
     SceneSerializer sceneSerializer = new SceneSerializer(playScene);
     kryo.writeObject(output, sceneSerializer);
     output.close();
   }
 
-  public void deserialize(PhysicsScene<?> scene) throws FileNotFoundException {
-    FileInputStream fileInputStream = ResourceManager.getInstance().activity.openFileInput("autoSave.mut");
+  public void deserialize(PhysicsScene<?> scene, String fileName) throws FileNotFoundException, RuntimeException {
+    FileInputStream fileInputStream = ResourceManager.getInstance().activity.openFileInput(fileName);
     Input input = new Input(fileInputStream);
     SceneSerializer sceneSerializer = kryo.readObject(input, SceneSerializer.class);
     sceneSerializer.create(scene);

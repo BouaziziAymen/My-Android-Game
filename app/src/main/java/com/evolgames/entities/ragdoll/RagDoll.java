@@ -55,7 +55,7 @@ public class RagDoll extends GameGroup {
   }
 
   private void onUpdate(float pSecondsElapsed) {
-    if (head.getBody() == null || !head.isAlive()) {
+    if (head==null||head.getBody() == null || !head.isAlive()) {
       return;
     }
 
@@ -84,38 +84,6 @@ public class RagDoll extends GameGroup {
     onUpdate(timeStep);
   }
 
-  public String toString() {
-    String result;
-    result =
-        "uarml"
-            + upperArmL
-            + "|uarmr"
-            + upperArmR
-            + "|larml"
-            + lowerArmL
-            + "|larmr"
-            + lowerArmR
-            + "|head"
-            + head
-            + "|utorso"
-            + upperTorso
-            + "|ltorso"
-            + lowerTorso
-            + "|ulegl"
-            + upperLegL
-            + "|ulegr"
-            + upperLegR
-            + "|llegl"
-            + lowerLegL
-            + "llegr"
-            + lowerLegR
-            + "|fl"
-            + leftFoot
-            + "|fr"
-            + rightFoot;
-    return "{" + result + "}";
-  }
-
   private void detectGround() {
 
     if (leftFoot == null) {
@@ -125,11 +93,9 @@ public class RagDoll extends GameGroup {
       rightLegReadyToStand = false;
     }
 
-    EditorScene.plotter.detachChildren();
     if (leftFoot != null && leftFoot.getBody() != null) {
       Body leftFootBody = leftFoot.getBody();
       Vector2 tip1 = leftFootBody.getWorldPoint(new Vector2(0, 0).mul(1 / 32f)).cpy();
-      EditorScene.plotter.drawPoint(tip1, Color.PINK, 1, 0);
       Vector2 projection1 =
           scene
               .getWorldFacade()
@@ -137,14 +103,11 @@ public class RagDoll extends GameGroup {
                   tip1, tip1.cpy().add(0, -10f), getGameEntities());
       if (projection1 != null) {
         leftLegReadyToStand = tip1.dst(projection1) < 1f;
-
-        EditorScene.plotter.drawPoint(projection1.mul(32f), Color.YELLOW, 1, 0);
       }
     }
     if (rightFoot != null && rightFoot.getBody() != null) {
       Body rightFootBody = rightFoot.getBody();
       Vector2 tip2 = rightFootBody.getWorldPoint(new Vector2(0, 0).mul(1 / 32f)).cpy();
-      EditorScene.plotter.drawPoint(tip2, Color.CYAN, 1, 0);
       Vector2 projection2 =
           scene
               .getWorldFacade()
@@ -152,7 +115,6 @@ public class RagDoll extends GameGroup {
                   tip2, tip2.cpy().add(0, -10f), getGameEntities());
       if (projection2 != null) {
         rightLegReadyToStand = tip2.dst(projection2) < 1f;
-        EditorScene.plotter.drawPoint(projection2.mul(32f), Color.YELLOW, 1, 0);
       }
     }
   }
@@ -167,6 +129,9 @@ public class RagDoll extends GameGroup {
   public void findBodyParts() {
     HashSet<GameEntity> entities = new HashSet<>();
     ArrayDeque<GameEntity> deque = new ArrayDeque<>();
+    if(this.head == null){
+      return;
+    }
     deque.push(head);
     while (!deque.isEmpty()) {
       GameEntity current = deque.pop();

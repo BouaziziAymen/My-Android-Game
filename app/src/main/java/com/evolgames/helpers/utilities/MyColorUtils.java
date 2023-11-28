@@ -23,13 +23,6 @@ public class MyColorUtils {
         }
       };
   private static final ColorAction setTextureColorAction;
-  private static final ColorAction testTextureColorAction =
-      new ColorAction() {
-        @Override
-        public void performAction(Color color, float burnRatio) {
-          result = true;
-        }
-      };
   private static final ColorAction setRadianceColorAction =
       new ColorAction() {
         @Override
@@ -37,17 +30,14 @@ public class MyColorUtils {
           result = true;
           float alpha;
           color.set(MyColorUtils.getColor(temperature));
-          if (temperature > 1000f) alpha = 1f;
-          else if (temperature > 300f) alpha = (temperature - 300f) / 700f;
-          else alpha = 0;
-          color.setAlpha(alpha * 0.5f);
-        }
-      };
-  private static final ColorAction testRadianceAction =
-      new ColorAction() {
-        @Override
-        public void performAction(Color color, float temperature) {
-          result = true;
+          if (temperature > 1000f) {
+            alpha = 1f;
+          } else if (temperature > 300f) {
+            alpha = (temperature - 300f) / 700f;
+          } else {
+            alpha = 0;
+          }
+          color.setAlpha(alpha * 0.25f);
         }
       };
   private static final ColorTest testTemperatureAction =
@@ -70,7 +60,7 @@ public class MyColorUtils {
         };
     gradient = new ArrayList<>();
     gradient.add(new Color(0.5f, 0, 0));
-    gradient.add(new Color(1, 0, 0));
+    gradient.add(new Color(1f, 0, 0));
     gradient.add(new Color(1, 100 / 255f, 0));
     gradient.add(new Color(1, 1, 1));
     gradient.add(new Color(0.5f, 0.5f, 1f));
@@ -180,14 +170,6 @@ public class MyColorUtils {
     setTextureColorAction.result = false;
     testBurnRatioAction.testFactor(color, burnRatio, setTextureColorAction);
     return setTextureColorAction.result;
-  }
-
-  public static boolean hasCoatingColor(float temperature, float burnRatio) {
-    testRadianceAction.result = false;
-    testTextureColorAction.result = false;
-    testTemperatureAction.testFactor(null, temperature, testRadianceAction);
-    testBurnRatioAction.testFactor(null, burnRatio, testTextureColorAction);
-    return testTextureColorAction.result && testRadianceAction.result;
   }
 
   public static Color getAverageRGBCircle(Bitmap img, int x, int y, int radius) {

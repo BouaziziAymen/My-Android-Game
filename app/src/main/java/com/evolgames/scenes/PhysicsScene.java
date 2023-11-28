@@ -6,8 +6,10 @@ import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
@@ -108,37 +110,6 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
       gameEntities.add(gameEntity);
       bodyModel.setGameEntity(gameEntity);
       gameEntity.setCenter(center);
-      bodyModel.getBombModels().forEach(bombModel -> bombModel.setGameEntity(gameEntity));
-      /*     bodyModel
-      .getProjectileModels().stream().map(ProjectileModel::toProjectileInfo)
-      .forEach(
-          p -> {
-            if (p.getFireRatio() >= 0.1f
-                || p.getSmokeRatio() >= 0.1f
-                || p.getSparkRatio() >= 0.1f) {
-              Vector2 end = p.getProjectileEnd();
-              Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
-              Vector2 nor = new Vector2(-dir.y, dir.x);
-              Vector2 e = end.cpy().sub(gameEntity.getCenter());
-              float extent = p.getAxisExtent();
-              ExplosiveParticleWrapper fireSource =
-                  this
-                      .getWorldFacade()
-                      .createFireSource(
-                          gameEntity,
-                          e.cpy().sub(extent * nor.x, extent * nor.y),
-                          e.cpy().add(extent * nor.x, extent * nor.y),
-                          PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
-                              / 10f,
-                          p.getFireRatio(),
-                          p.getSmokeRatio(),
-                          p.getSparkRatio(),
-                          0.1f,
-                          2000);
-              fireSource.setSpawnEnabled(false);
-              p.setFireSource(fireSource);
-            }
-          });*/
     }
     // Handle usage
     List<ProjectileModel> projectileModels =
@@ -164,7 +135,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                             || e.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS)
                 .forEach(
                     e -> {
-                      Shooter shooter = new Shooter(e);
+                      Shooter shooter = new Shooter(e,this);
                       usageBodyModel.getGameEntity().getUseList().add(shooter);
                     }));
 
@@ -174,8 +145,9 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                 .filter(e -> e.getType() == BodyUsageCategory.TIME_BOMB)
                 .forEach(
                     e -> {
-                      TimeBomb timeBomb = new TimeBomb(e, this.getWorldFacade());
+                      TimeBomb timeBomb = new TimeBomb(e);
                       usageBodyModel.getGameEntity().getUseList().add(timeBomb);
+                      timeBomb.setGameEntity(usageBodyModel.getGameEntity());
                     }));
     bodies.forEach(
         usageBodyModel ->
@@ -293,10 +265,10 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     return hands;
   }
 
-  public void setMouseJoint(MouseJoint joint, GameEntity gameEntity) {
+  public void setMouseJoint(MouseJoint joint, GameEntity gameEntity, MouseJointDef jointDef) {
     if (hands.get(gameEntity.getHangedPointerId()) != null) {
       Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId()))
-          .setMouseJoint(joint, gameEntity);
+          .setMouseJoint(joint,jointDef, gameEntity);
     }
   }
 

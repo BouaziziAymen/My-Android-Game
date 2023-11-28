@@ -3,6 +3,7 @@ package com.evolgames.scenes;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.util.Log;
 import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
+import com.evolgames.entities.Plotter;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
@@ -25,8 +27,9 @@ import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
-import com.evolgames.entities.serialization.SerializationManager;
+import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Projectile;
+import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
@@ -38,11 +41,11 @@ import com.evolgames.scenes.entities.PlayerAction;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.DrawMode;
@@ -58,7 +61,7 @@ import org.andengine.util.adt.color.Color;
 public class PlayScene extends PhysicsScene<PlayUserInterface>
     implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
-        PinchZoomDetector.IPinchZoomDetectorListener{
+        PinchZoomDetector.IPinchZoomDetectorListener {
 
   public static boolean pause = false;
   private RagDoll ragdoll;
@@ -71,9 +74,14 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private ArrayList<Vector2> points;
   private int step = 0;
   private boolean scroll;
+  private SavingBox savingBox;
+  public static Plotter plotter;
 
   public PlayScene(Camera pCamera) {
     super(pCamera, SceneType.PLAY);
+    this.savingBox = new SavingBox(this);
+    this.plotter = new Plotter();
+    this.attachChild(plotter);
   }
 
   @Override
@@ -82,10 +90,13 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     if (!pause) {
       super.onManagedUpdate(pSecondsElapsed);
     }
+    if (this.savingBox != null) {
+      this.savingBox.onStep();
+    }
     this.worldFacade.onStep();
     Invoker.onStep();
-
-    for (GameGroup gameGroup : getGameGroups()) {
+    List<GameGroup> clone = new ArrayList<>(getGameGroups());
+    for (GameGroup gameGroup : clone) {
       gameGroup.onStep(pSecondsElapsed);
     }
     for (Hand hand : hands.values()) {
@@ -107,6 +118,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       projectileTest();
     }
   }
+
   private void processHandling(TouchEvent touchEvent) {
     int pointerID = touchEvent.getPointerID();
 
@@ -117,7 +129,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     assert hand != null;
     if (touchEvent.getPointerID() == hand.getMousePointerId()) {
       boolean release = hand.onSceneTouchEvent(touchEvent);
-      if(release){
+      if (release) {
         hands.remove(touchEvent.getPointerID());
       }
     }
@@ -134,18 +146,16 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
     if (false) {
       if (touchEvent.isActionDown()) {
-        this.worldFacade.performFlux(new Vector2(touchEvent.getX(), touchEvent.getY()), null, gameGroup1.getGameEntityByIndex(0));
+        this.worldFacade.performFlux(
+            new Vector2(touchEvent.getX(), touchEvent.getY()),
+            null,
+            gameGroup1.getGameEntityByIndex(0));
       }
     }
     if (false) {
       explosionTest(touchEvent);
     }
 
-    if (!hudTouched) {
-      if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold) {
-        processHandling(touchEvent);
-      }
-    }
     if (playerAction == PlayerAction.Slice) {
       processSlicing(touchEvent);
     }
@@ -160,16 +170,16 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
   }
 
-
-
   @Override
   public void populate() {
-    // createRagDoll();
+    createRagDoll();
     createTestUnit();
     createGround();
     testMesh();
-    createTool(loadToolModel("c1_knife.xml"));
-    createTool(loadToolModel("c1_knife.xml"));
+   // createTool(loadToolModel("c1_knife.xml"));
+  //  createTool(loadToolModel("c1_sword.xml"));
+  //  createTool(loadToolModel("c1_morning_star.xml"));
+  //  createTool(loadToolModel("c2_revolver_latest.xml"));
   }
 
   @Override
@@ -183,18 +193,22 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   }
 
   private void createRagDoll() {
-    this.ragdoll = GameEntityFactory.getInstance().createRagdoll(400 / 32f, 240 / 32f);
+    this.ragdoll = GameEntityFactory.getInstance().createRagdoll(600 / 32f, 240 / 32f);
   }
 
   @Override
   public void onPause() {
-    // save scene
-    try {
-      SerializationManager.getInstance().serialize(this);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    }
+    this.savingBox.onScenePause();
+    this.savingBox.saveSelf();
     this.detach();
+  }
+
+  @Override
+  public void onResume() {
+    createUserInterface();
+    this.savingBox = new SavingBox(this);
+    this.savingBox.loadSelf();
+    this.savingBox.onSceneResume();
   }
 
   private void destroyEntities() {
@@ -202,18 +216,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       GameGroup gameGroup = iterator.next();
       iterator.remove();
       for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-        this.worldFacade.destroyGameEntity(gameEntity, false);
+        this.worldFacade.destroyGameEntity(gameEntity, true, false);
       }
-    }
-  }
-
-  @Override
-  public void onResume() {
-    createUserInterface();
-    try {
-      SerializationManager.getInstance().deserialize(this);
-    } catch (FileNotFoundException e) {
-
     }
   }
 
@@ -251,7 +255,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
           .forEach(
               e -> {
                 e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
-                this.worldFacade.destroyGameEntity(e, false);
+                this.worldFacade.destroyGameEntity(e, true, false);
               });
     }
   }
@@ -512,26 +516,28 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     revoluteJointDef.localAnchorB.set(0, 2f);
     revoluteJointDef.collideConnected = false;
     this.worldFacade.addJointToCreate(revoluteJointDef, gameEntity1, gameEntity2);
-   // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
+    // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
 
-    List<Vector2> vertices3 = VerticesFactory.createRectangle(90, 60);
+    List<Vector2> vertices3 = VerticesFactory.createRectangle(40, 20);
     LayerProperties properties3 =
         PropertiesFactory.getInstance()
-            .createProperties(MaterialFactory.getInstance().getMaterialByIndex(4));
+            .createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
     LayerBlock block3 = BlockFactory.createLayerBlock(vertices3, properties3, 1, 0);
     List<LayerBlock> blocks3 = new ArrayList<>();
     blocks3.add(block3);
-    GameEntityFactory.getInstance()
-        .createGameGroupTest(
-            blocks3,
-            new Vector2(300f / 32f, 200 / 32f),
-            BodyDef.BodyType.DynamicBody,
-            GroupType.OTHER);
-
-    if (false) {
-      for (LayerBlock layerBlock : gameGroup1.getGameEntityByIndex(0).getBlocks()) {
+    GameGroup gameGroup =
+        GameEntityFactory.getInstance()
+            .createGameGroupTest(
+                blocks3,
+                new Vector2(300f / 32f, 200 / 32f),
+                BodyDef.BodyType.DynamicBody,
+                GroupType.OTHER);
+    gameGroup.getGameEntityByIndex(0).setName("small rectangle");
+    gameGroup.getGameEntityByIndex(0).getUseList().add(new Stabber());
+    if (true) {
+      for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
         Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(10000));
+        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(4000));
       }
     }
   }
@@ -562,6 +568,54 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
   }
 
+  public PlayerSpecialAction getSpecialAction() {
+    return specialAction;
+  }
+
+  public void setSpecialAction(PlayerSpecialAction action) {
+    this.specialAction = action;
+    float angleDeg = 0;
+    float forceFactor;
+    switch (action) {
+      case None:
+        forceFactor = 1000f;
+        break;
+      case Slash:
+        angleDeg = 0;
+        forceFactor = 2000f;
+        break;
+      case Stab:
+        forceFactor = 3000f;
+        angleDeg = 90;
+        break;
+      case Throw:
+      case Grenade:
+      case Shoot:
+        angleDeg = 0;
+        forceFactor = 3000f;
+        break;
+      case Smash:
+        angleDeg = 0;
+        forceFactor = 4000f;
+        break;
+      default:
+        forceFactor = 0;
+        angleDeg = 0;
+    }
+    Log.e("setAngle","size:"+hands.size());
+    for (Map.Entry<Integer, Hand> entry : this.hands.entrySet()) {
+      Hand h = entry.getValue();
+      if (h.getMouseJoint() != null) {
+        h.setForceFactor(forceFactor);
+        h.setHoldingAngle(angleDeg);
+      }
+    }
+  }
+
+  public PlayerAction getPlayerAction() {
+    return playerAction;
+  }
+
   public void setPlayerAction(PlayerAction playerAction) {
     this.playerAction = playerAction;
     if (playerAction != PlayerAction.Hold) {
@@ -575,44 +629,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             }
           });
     }
-  }
-
-  public PlayerSpecialAction getSpecialAction() {
-    return specialAction;
-  }
-
-  public void setSpecialAction(PlayerSpecialAction action) {
-    this.specialAction = action;
-    final float forceFactor;
-    switch (action) {
-      case None:
-        forceFactor = 1000f;
-        break;
-      case Slash:
-        forceFactor = 2000f;
-        break;
-      case Stab:
-      case Throw:
-      case Grenade:
-      case Shoot:
-        forceFactor = 3000f;
-        break;
-      case Smash:
-        forceFactor = 4000f;
-        break;
-      default:
-        forceFactor = 0;
-    }
-    this.hands.forEach(
-        (key, h) -> {
-          if (h.getMouseJoint() != null) {
-            h.setForceFactor(forceFactor);
-          }
-        });
-  }
-
-  public PlayerAction getPlayerAction() {
-    return playerAction;
   }
 
   public void onUsagesUpdated() {
@@ -639,7 +655,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       this.setSpecialAction(PlayerSpecialAction.None);
     }
     this.userInterface.updateParticularUsageSwitcher(usageList.toArray(new PlayerSpecialAction[0]));
-    if(savedSpecialAction!=null){
+    if (savedSpecialAction != null) {
       this.userInterface.updatePlayerSpecialActionOnSwitcher(this.savedSpecialAction);
       this.savedSpecialAction = null;
     }
@@ -680,6 +696,23 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     return null;
   }
 
+  public void lockSaving() {
+    this.savingBox.setLockedSave(true);
+  }
 
+  public void unlockSaving() {
+    this.savingBox.setLockedSave(false);
+  }
 
+  public void goToScene(SceneType sceneType){
+    ((MainScene)this.mParentScene).goToScene(sceneType);
+  }
+
+  public void createLastItem() {
+    createTool(loadToolModel(EditorScene.SAVE_MUT));
+  }
+
+  public void createItem(String name) {
+    createTool(loadToolModel(name));
+  }
 }

@@ -140,6 +140,8 @@ public class ResourceManager {
   public TiledTextureRegion switcherLeft, switcherRight;
   private FontLoader fontLoader;
   private BuildableBitmapTextureAtlas texture;
+  public TiledTextureRegion fireSourceTextureRegion;
+
   public void loadBatchers() {
     hudBatcher =
     new SpriteBatch(
@@ -462,6 +464,7 @@ public class ResourceManager {
         BitmapTextureAtlasTextureRegionFactory.createFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
 
+
     this.scaleButtonTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "boards/scale.png", 1, 3);
@@ -556,6 +559,11 @@ public class ResourceManager {
     this.bombTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "boards/bomb.png", 1, 3);
+    this.fireSourceTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
+
+
     this.checkBoxTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);

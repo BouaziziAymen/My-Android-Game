@@ -32,7 +32,6 @@ public interface Penetrating {
       GameEntity penetrated,
       List<TopographyData> envData,
       List<TopographyData> penData,
-      float consumedImpulse,
       float collisionImpulse);
 
   void onCancel();

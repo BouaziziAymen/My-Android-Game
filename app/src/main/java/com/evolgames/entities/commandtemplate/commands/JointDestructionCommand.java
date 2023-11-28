@@ -23,24 +23,13 @@ public class JointDestructionCommand extends Command {
             j -> {
               if (j == joint) {
                 physicsWorld.destroyJoint(joint);
-                if (this.joint instanceof MouseJoint) {
-                  GameEntity entity = (GameEntity) this.joint.getBodyB().getUserData();
-                  entity
-                      .getBlocks()
-                      .forEach(
-                          b ->
-                              b.getAssociatedBlocks()
-                                  .removeIf(
-                                      e -> {
-                                        if (e instanceof JointBlock) {
-                                          JointBlock jointBlock = (JointBlock) e;
-                                          if (jointBlock.getCommand() != null) {
-                                            return joint == jointBlock.getCommand().getJoint();
-                                          }
-                                        }
-                                        return false;
-                                      }));
+                System.out.println("-------------Destroying joint-----------:"+joint.getType());
 
+                JointBlock jointBlock = (JointBlock) joint.getUserData();
+                System.out.println("--------------------------------------:"+jointBlock.getEntity().getName());
+                jointBlock.setAborted(true);
+                jointBlock.getBrother().setAborted(true);
+                if (this.joint instanceof MouseJoint) {
                   Invoker.scene.onDestroyMouseJoint((MouseJoint) joint);
                 }
               }

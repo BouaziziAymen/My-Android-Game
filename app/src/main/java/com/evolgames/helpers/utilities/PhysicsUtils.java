@@ -20,8 +20,8 @@ public class PhysicsUtils {
     double deltaT = g1.getTemperature() - g2.getTemperature();
     float minStep = Math.min(g1.getStep(), g2.getStep());
     double Q = Conductivity * crossSection * deltaT * minStep / 32f;
-    double deltaT1 = -Q / (density1 * heatResistance1);
-    double deltaT2 = Q / (density2 * heatResistance2);
+    double deltaT1 = -Q / (density1 * heatResistance1) * Math.random();
+    double deltaT2 = Q / (density2 * heatResistance2)* Math.random();
     if (g1.getTemperature() + deltaT1 > 0) {
       g1.applyDeltaTemperature(deltaT1);
     } else {

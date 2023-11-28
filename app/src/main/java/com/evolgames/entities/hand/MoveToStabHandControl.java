@@ -3,7 +3,11 @@ package com.evolgames.entities.hand;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.serialization.SerializationManager;
+import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.entities.Hand;
+
+import java.io.FileNotFoundException;
 
 public class MoveToStabHandControl extends HandControl {
 
@@ -40,7 +44,7 @@ public class MoveToStabHandControl extends HandControl {
     if (!isDead()) {
       position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
       if (position.dst(start) > Hand.STAB_ADVANCE) {
-        setTarget(position);
+        this.setTarget(position);
       }
       float angle = this.hand.getGrabbedEntity().getBody().getAngle();
       this.hand.getGrabbedEntity()
@@ -64,8 +68,11 @@ public class MoveToStabHandControl extends HandControl {
 
   public void setTarget(Vector2 target) {
     if (this.hand.getMouseJoint() != null) {
-      this.hand.getMouseJoint().setTarget(target);
+      this.hand.updateTarget(target);
       this.hand.getMouseJoint().setMaxForce(this.maxForce);
     }
+  }
+  public float getCurrentAdvance(){
+    return hand.getMouseJoint().getTarget().dst(start);
   }
 }

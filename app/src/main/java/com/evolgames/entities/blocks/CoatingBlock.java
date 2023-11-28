@@ -32,14 +32,6 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     return this;
   }
 
-  public int getLayerId() {
-    return layerId;
-  }
-
-  public void setLayerId(int layerId) {
-    this.layerId = layerId;
-  }
-
   private void updateColor() {
     mesh.onColorsUpdated();
   }
@@ -145,19 +137,20 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
       double chemicalEnergy = getProperties().getChemicalEnergy();
       double initialChemicalEnergy = getProperties().getInitialChemicalEnergy();
 
-      if (temperature > ignitionTemperature && chemicalEnergy >= initialChemicalEnergy / 100f) {
-        setOnFire(true);
-      } else if (temperature < ignitionTemperature) {
-        setOnFire(false);
-      }
+      setOnFire(temperature > ignitionTemperature
+              && chemicalEnergy >= getProperties().getNonBurnableChemicalEnergy());
 
       if (isOnFire()) {
         double deltaE = getFlameTemperature() / 1000;
-        if (chemicalEnergy - deltaE >= 0) chemicalEnergy -= deltaE;
+        if (chemicalEnergy - deltaE >= 0) {
+          chemicalEnergy -= deltaE;
+        }
         else {
           chemicalEnergy = 0;
         }
-        if (chemicalEnergy < initialChemicalEnergy / 100f) setOnFire(false);
+        if (chemicalEnergy < getProperties().getNonBurnableChemicalEnergy()) {
+          setOnFire(false);
+        }
         getProperties().setBurnRatio(1 - chemicalEnergy / initialChemicalEnergy);
       }
       getProperties().setChemicalEnergy(chemicalEnergy);

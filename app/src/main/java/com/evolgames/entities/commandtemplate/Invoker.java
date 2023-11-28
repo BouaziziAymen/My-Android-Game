@@ -15,8 +15,6 @@ import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.userinterface.view.UserInterface;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -47,7 +45,7 @@ public class Invoker {
                 while (groupCommandsIterator.hasNext()) {
                   Command command = groupCommandsIterator.next();
                   command.execute();
-                  if (command instanceof JointDestructionCommand) {
+                  if (command.isAborted()) {
                     groupCommandsIterator.remove();
                   }
                 }
@@ -69,7 +67,7 @@ public class Invoker {
     entity.getCommands().add(command);
   }
 
-  public static void addBodyDestructionCommand(GameEntity entity) {
+  public static void addBodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
     if (!entity.isAlive()) {
       return;
     }
@@ -79,7 +77,7 @@ public class Invoker {
       }
     }
 
-    Command command = new BodyDestructionCommand(entity);
+    Command command = new BodyDestructionCommand(entity,finalDestruction);
     entity.getCommands().add(command);
     entity.setAlive(false);
   }
@@ -87,35 +85,19 @@ public class Invoker {
   public static void addJointDestructionCommand(GameGroup gameGroup, Joint joint) {
     ArrayList<Command> commandContainer = gameGroup.getCommands();
     commandContainer.add(new JointDestructionCommand(joint));
-    Iterator<Command> iterator = commandContainer.iterator();
-    while (iterator.hasNext()) {
-      Command command = iterator.next();
-      if (command instanceof JointCreationCommand) {
-        JointCreationCommand jointCreationCommand = (JointCreationCommand) command;
-        if (jointCreationCommand.getJoint() == joint) {
-          iterator.remove();
-        }
-      }
-    }
   }
 
-  public static JointCreationCommand addJointCreationCommand(
-          JointDef jointDef,
-          GameGroup gameGroup,
-          GameEntity entity1,
-          GameEntity entity2,
-          JointBlock jointBlock1, JointBlock jointBlock2) {
-    JointCreationCommand command =
-        new JointCreationCommand(jointDef, entity1, entity2, jointBlock1,jointBlock2);
+  public static void addJointCreationCommand(
+          JointDef jointDef, GameGroup gameGroup, GameEntity entity1, GameEntity entity2, JointBlock main) {
+    JointCreationCommand command = new JointCreationCommand(jointDef, entity1, entity2, main);
     gameGroup.getCommands().add(command);
-    return command;
   }
 
   public static void addCustomCommand(GameEntity entity, Runnable runnable) {
     entity.getCommands().add(new CustomCommand(runnable));
   }
 
-    public static <T extends UserInterface<?>> void setScene(PhysicsScene<?> scene) {
-     Invoker.scene = scene;
-    }
+  public static void setScene(PhysicsScene<?> scene) {
+    Invoker.scene = scene;
+  }
 }

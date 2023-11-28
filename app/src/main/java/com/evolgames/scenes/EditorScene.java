@@ -39,6 +39,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         ScrollDetector.IScrollDetectorListener,
         PinchZoomDetector.IPinchZoomDetectorListener {
 
+  public static final String EDITOR_FILE = "editor_file";
+  public static final String SAVE_MUT = "editor_auto_save.mut";
   public static int step;
   public static Plotter plotter;
   private final SurfaceScrollDetector mScrollDetector;
@@ -68,12 +70,12 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   private void init() {
     this.groundModel = new BodyModel(-1);
     this.groundModel.setModelName("Ground");
+
     Entity background = new Entity();
     this.setBackground(new EntityBackground(0, 0, 0, background));
 
-    plotter = new Plotter();
+    plotter  = new Plotter();
     plotter.setZIndex(200);
-
     this.attachChild(plotter);
 
     sortChildren();
@@ -83,9 +85,10 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   public void detach() {
     this.userInterface.detachSelf();
   }
-@Override
+  @Override
   public void createUserInterface() {
-    ToolModel toolModel = loadToolModel("");
+    String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
+    ToolModel toolModel = loadToolModel(editorFile);
     KeyboardController keyboardController = new KeyboardController();
     OutlineController outlineController = new OutlineController();
     LayerWindowController layerWindowController = new LayerWindowController();
@@ -173,6 +176,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
   @Override
   public void onPause() {
+    this.saveStringToPreferences(EDITOR_FILE, SAVE_MUT);
+    this.getUserInterface().saveToolModel("editor_auto_save.mut");
   }
 
   @Override
@@ -284,5 +289,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     return userInterface;
   }
 
+  public void goToScene(SceneType sceneType){
+    ((MainScene)this.mParentScene).goToScene(sceneType);
+  }
 
 }

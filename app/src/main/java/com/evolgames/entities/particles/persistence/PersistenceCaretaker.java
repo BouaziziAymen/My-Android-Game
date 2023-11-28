@@ -26,7 +26,6 @@ import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.ToolUtils;
 import com.evolgames.helpers.utilities.Utils;
 import com.evolgames.helpers.utilities.XmlUtils;
 import com.evolgames.scenes.AbstractScene;
@@ -142,14 +141,18 @@ public class PersistenceCaretaker {
 
   public void saveToolModel(ToolModel toolModel)
       throws FileNotFoundException, TransformerException {
+    this.saveToolModel(
+        toolModel,
+        toolModel.getToolCategory().getPrefix()
+            + "_"
+            + toolModel.getModelName().toLowerCase(Locale.ROOT)
+            + ".xml");
+  }
+
+  public void saveToolModel(ToolModel toolModel, String fileName)
+      throws FileNotFoundException, TransformerException {
     Document toolDocument = docBuilder.newDocument();
-    FileOutputStream fos =
-        gameActivity.openFileOutput(
-            toolModel.getToolCategory().getPrefix()
-                + "_"
-                + toolModel.getModelName().toLowerCase(Locale.ROOT)
-                + ".xml",
-            Context.MODE_PRIVATE);
+    FileOutputStream fos = gameActivity.openFileOutput(fileName, Context.MODE_PRIVATE);
     Element toolElement = toolDocument.createElement(TOOL_TAG);
     toolElement.setAttribute(NAME, toolModel.getModelName());
     Element bodiesElement = toolDocument.createElement(BODIES_TAG);
@@ -351,8 +354,7 @@ public class PersistenceCaretaker {
     Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
     projectileElement.appendChild(propertiesElement);
     projectileElement.setAttribute(
-        PROJECTILE_FILE_TAG,
-        PROJECTILE_CAT_PREFIX + projectileModel.getMissileFile());
+        PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getMissileFile());
     projectileElement.setAttribute(
         AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
     return projectileElement;
@@ -393,9 +395,11 @@ public class PersistenceCaretaker {
     Vector2[] outline = pointsModel.getOutlinePoints();
 
     Element outlineElement = document.createElement(OUTLINE_TAG);
-    for (Vector2 v : outline) {
-      Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);
-      outlineElement.appendChild(vectorElement);
+    if (outline != null) {
+      for (Vector2 v : outline) {
+        Element vectorElement = XmlUtils.createVectorElement(document, VECTOR_TAG, v);
+        outlineElement.appendChild(vectorElement);
+      }
     }
     element.appendChild(outlineElement);
 

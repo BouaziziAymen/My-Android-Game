@@ -81,7 +81,7 @@ public class GameEntityFactory {
     }
 
     MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x * 32, y * 32, rot, blocks);
-    mesh.setCullingEnabled(true);
+   // mesh.setCullingEnabled(true);
 
     GameEntity entity = new GameEntity(mesh, scene, name, blocks);
     entity.setMesh(mesh);
@@ -218,6 +218,7 @@ public class GameEntityFactory {
       e.setCenter(newCenter);
       scene.sortChildren();
       entities.add(e);
+      e.setParentGroup(parent.getParentGroup());
     }
     return entities;
   }
@@ -662,11 +663,11 @@ public class GameEntityFactory {
     leftHand.setType(SpecialEntityType.LeftHand);
     leftFoot.setType(SpecialEntityType.LeftFoot);
     rightFoot.setType(SpecialEntityType.RightFoot);
-    upperTorso.getMesh().setZIndex(3);
-    upperLegR.getMesh().setZIndex(2);
-    upperLegL.getMesh().setZIndex(2);
-    lowerLegR.getMesh().setZIndex(1);
-    lowerLegL.getMesh().setZIndex(1);
+    upperTorso.setZIndex(3);
+    upperLegR.setZIndex(2);
+    upperLegL.setZIndex(2);
+    lowerLegR.setZIndex(1);
+    lowerLegL.setZIndex(1);
     this.scene.sortChildren();
     ragdoll.setHead(head);
     head.setName("Head");

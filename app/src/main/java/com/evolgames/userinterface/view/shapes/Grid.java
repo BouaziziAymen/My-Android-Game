@@ -2,16 +2,17 @@ package com.evolgames.userinterface.view.shapes;
 
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.EditorScene;
 import org.andengine.entity.primitive.LineChain;
 import org.andengine.entity.primitive.LineStrip;
 
 public class Grid {
 
-  private final EditorScene editorScene;
+  private final AbstractScene<?> editorScene;
   private LineChain lineChain;
 
-  public Grid(EditorScene editorScene) {
+  public Grid(AbstractScene<?> editorScene) {
     this.editorScene = editorScene;
     update();
   }

@@ -7,9 +7,13 @@ import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.MainMenuController;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
+import com.evolgames.userinterface.view.shapes.Grid;
+
 import org.andengine.input.touch.TouchEvent;
 
 public class MenuUserInterface extends UserInterface<MenuScene> {
+  private final Grid grid;
+
   public MenuUserInterface(MenuScene scene) {
     super(scene);
     MainMenuController mainMenuController = new MainMenuController();
@@ -44,7 +48,7 @@ public class MenuUserInterface extends UserInterface<MenuScene> {
 
       }
     });
-
+    this.grid = new Grid(scene);
 
     editorButton.setBehavior(new ButtonBehavior<MainMenuController>(mainMenuController,editorButton) {
       @Override

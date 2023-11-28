@@ -6,11 +6,14 @@ public class JointProperties extends Properties {
 
   private JointDef jointDef;
 
-  @SuppressWarnings("unused")
-  public JointProperties() {}
+  public JointProperties(){}
 
   public JointProperties(JointDef jointDef) {
     this.jointDef = jointDef;
+  }
+
+  public JointDef getJointDef() {
+    return jointDef;
   }
 
   @Override
@@ -18,7 +21,4 @@ public class JointProperties extends Properties {
     return null;
   }
 
-  public JointDef getJointDef() {
-    return jointDef;
-  }
 }

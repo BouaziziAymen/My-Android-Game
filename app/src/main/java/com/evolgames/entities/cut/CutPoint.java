@@ -6,6 +6,11 @@ public class CutPoint {
   private Vector2 point;
   private float weight;
 
+
+  @SuppressWarnings("unused")
+  public CutPoint() {
+  }
+
   public CutPoint(Vector2 point, float weight) {
     this.point = point;
     this.weight = weight;

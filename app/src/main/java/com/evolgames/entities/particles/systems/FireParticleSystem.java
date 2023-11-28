@@ -9,7 +9,6 @@ import org.andengine.opengl.texture.region.TextureRegion;
 
 public class FireParticleSystem extends FlowingParticleSystem {
   public FireParticleSystem(
-      IEntityFactory<UncoloredSprite> ief,
       PolygonEmitter emitter,
       float rateMin,
       float rateMax,

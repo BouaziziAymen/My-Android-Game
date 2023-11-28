@@ -2,6 +2,8 @@ package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BombProperties;
+import com.evolgames.entities.usage.infos.BombInfo;
+import com.evolgames.entities.usage.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
@@ -11,7 +13,6 @@ public class BombModel extends ProperModel<BombProperties> {
   private final int bodyId;
   private final int bombId;
   private BombShape bombShape;
-  private GameEntity gameEntity;
   private BombField bombField;
 
   public BombModel(int bodyId, int bombId) {
@@ -44,19 +45,24 @@ public class BombModel extends ProperModel<BombProperties> {
     return bombId;
   }
 
-  public GameEntity getGameEntity() {
-    return gameEntity;
-  }
-
-  public void setGameEntity(GameEntity gameEntity) {
-    this.gameEntity = gameEntity;
-  }
-
   public BombField getBombField() {
     return bombField;
   }
 
   public void setBombField(BombField bombField) {
     this.bombField = bombField;
+  }
+
+  public BombInfo toBombInfo() {
+    BombInfo pi = new BombInfo();
+    pi.setBombPosition(this.properties.getBombPosition());
+    pi.setFireRatio(this.properties.getFireRatio());
+    pi.setSmokeRatio(this.properties.getSmokeRatio());
+    pi.setSparkRatio(this.properties.getSparkRatio());
+    pi.setForce(this.properties.getForce());
+    pi.setHeat(this.properties.getHeat());
+    pi.setParticles(this.properties.getParticles());
+    pi.setSpeed(this.properties.getSpeed());
+    return pi;
   }
 }

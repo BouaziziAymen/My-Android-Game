@@ -8,6 +8,7 @@ public class CoatingProperties extends ColoredProperties {
   private final Color radianceColor = new Color(0, 0, 0, 0);
   private final Color flameColor1 = new Color(0, 0, 0);
   private final Color flameColor2 = new Color(0, 0, 0);
+  private double nonBurnableChemicalEnergy;
   private double initialChemicalEnergy;
   private LayerProperties parentProperties;
   private boolean hasTexture, hasRadiance;
@@ -31,9 +32,18 @@ public class CoatingProperties extends ColoredProperties {
     this.chemicalEnergy = chemicalEnergy;
     this.initialChemicalEnergy = chemicalEnergy;
     this.parentProperties = parentProperties;
+    this.nonBurnableChemicalEnergy = chemicalEnergy*Math.random()*0.4f;
   }
 
   public CoatingProperties() {}
+
+  public double getNonBurnableChemicalEnergy() {
+    return nonBurnableChemicalEnergy;
+  }
+
+  public void setNonBurnableChemicalEnergy(double nonBurnableChemicalEnergy) {
+    this.nonBurnableChemicalEnergy = nonBurnableChemicalEnergy;
+  }
 
   public void updateColors() {
     MyColorUtils.setupFlameColor(flameColor1, getFlameTemperature());
@@ -71,6 +81,7 @@ public class CoatingProperties extends ColoredProperties {
     properties.setBurnRatio(burnRatio);
     properties.setChemicalEnergy(chemicalEnergy);
     properties.setInitialChemicalEnergy(initialChemicalEnergy);
+    properties.setNonBurnableChemicalEnergy(nonBurnableChemicalEnergy);
     return properties;
   }
 

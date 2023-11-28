@@ -424,6 +424,9 @@ public class BlockUtils {
       List<? extends AssociatedBlock<?, ?>> associatedBlocks,
       Cut cut) {
     for (AssociatedBlock<?, ?> associatedBlock : associatedBlocks) {
+      if(!associatedBlock.isNotAborted()){
+        continue;
+      }
       Cut projectedCut =
           BlockUtils.projectCutWithoutCorrection(
               associatedBlock.getVertices(), cut.getP1().cpy(), cut.getP2().cpy());
@@ -618,10 +621,12 @@ public class BlockUtils {
     LayerBlock result = null;
     for (LayerBlock layerBlock : blocks) {
       Vector2 point = GeometryUtils.calculateProjection(localPoint, layerBlock.getVertices());
-      float distance = point.dst(localPoint);
-      if (distance < minDistance) {
-        result = layerBlock;
-        minDistance = distance;
+      if (point != null) {
+        float distance = point.dst(localPoint);
+        if (distance < minDistance) {
+          result = layerBlock;
+          minDistance = distance;
+        }
       }
     }
     return result;

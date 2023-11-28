@@ -33,6 +33,7 @@ public abstract class Joint {
 
 	/** joint edge b **/
 	protected JointEdge jointEdgeB;
+	private Object userData;
 
 	/**
 	 * Constructs a new joint
@@ -142,4 +143,12 @@ public abstract class Joint {
 	}
 
 	private native boolean jniIsActive (long addr);
+
+	public void setUserData(Object userData) {
+		this.userData = userData;
+	}
+
+	public Object getUserData() {
+		return userData;
+	}
 }

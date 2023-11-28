@@ -4,6 +4,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.FireEmitter;
+import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.pools.FireSpritePool;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
@@ -41,8 +42,7 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
 
     this.particleSystem =
         new FireParticleSystem(
-            ief,
-            this.emitter,
+                this.emitter,
             FireParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
             FireParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
             (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1),
@@ -53,7 +53,8 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
     VelocityParticleInitializer<UncoloredSprite> velocityInitializer =
         new VelocityParticleInitializer<>(0, 0, 120, 140);
     this.particleSystem.addParticleInitializer(velocityInitializer);
-    this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0f));
+    this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(0f, 0.5f, 1f, 0f));
+    this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0.2f));
     this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
     setFlameColor();
   }

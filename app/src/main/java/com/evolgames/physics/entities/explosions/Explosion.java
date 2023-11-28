@@ -2,8 +2,9 @@ package com.evolgames.physics.entities.explosions;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.particles.wrappers.PointExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
   private final PhysicsScene<?> gameScene;
@@ -14,7 +15,7 @@ public class Explosion {
   private final Vector2 vector = new Vector2();
   private final GameEntity source;
 
-  private PointExplosiveParticleWrapper explosionParticleWrapper;
+  private DataExplosiveParticleWrapper explosionParticleWrapper;
   private int time = 0;
   private boolean alive = true;
 
@@ -37,12 +38,13 @@ public class Explosion {
     this.velocity = (1000 + speed * 1000);
 
     if (fireRatio > 0.1f || smokeRatio > 0.1f || sparkRatio > 0.1f) {
+      Vector2 c = center.cpy().mul(32f);
       this.explosionParticleWrapper =
           this.gameScene
               .getWorldFacade()
               .createPointFireSource(
                   null,
-                  center.cpy().mul(32f),
+                  new float[] {c.x, c.y, c.x, c.y},
                   velocity,
                   fireRatio,
                   smokeRatio,
@@ -72,8 +74,8 @@ public class Explosion {
                       Vector2 p = i.getWorldPoint();
                       vector.set(p.x - center.x, p.y - center.y);
                       float d = Math.max(1f, vector.len());
-                      i.setImpactImpulse(100f * force / (d));
-                      vector.mul(i.getImpactImpulse() / 320f);
+                      i.setImpactImpulse(100000f * force / (d));
+                      vector.mul(i.getImpactImpulse() / 10000f);
                       gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                     });
                 gameScene.getWorldFacade().applyImpacts(gameEntity, impacts);
@@ -83,6 +85,9 @@ public class Explosion {
     }
     if (time > 10) {
       this.explosionParticleWrapper.stopFinal();
+      if (gameScene instanceof PlayScene) {
+        ((PlayScene) gameScene).unlockSaving();
+      }
       alive = false;
     }
 

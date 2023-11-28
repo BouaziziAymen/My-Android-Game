@@ -17,6 +17,7 @@ import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.particles.persistence.PersistenceException;
+import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
@@ -25,6 +26,9 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.physics.PhysicsConstants;
+import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ToolModel;
@@ -32,18 +36,20 @@ import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 public class Shooter extends Use {
 
-  private final List<ProjectileInfo> projectileInfoList;
-  private final float cyclicTime;
-  private final int maxRounds;
-  private final float reloadTime;
-  private final BodyUsageCategory type;
+  private List<ProjectileInfo> projectileInfoList;
+  private float cyclicTime;
+  private int maxRounds;
+  private float reloadTime;
+  private BodyUsageCategory type;
   private boolean loaded = false;
   private boolean readyToFire = false;
   private boolean loading = false;
@@ -51,17 +57,26 @@ public class Shooter extends Use {
   private float loadingTimer;
   private float readyTimer;
   private boolean continueFire;
-  private Vector2 target;
   transient private List<ToolModel> missileModels;
+  transient private Map<ProjectileInfo,ExplosiveParticleWrapper> projInfFireSourceMap;
 
-  public Shooter(UsageModel<?> rangedUsageModel) {
+  public List<ProjectileInfo> getProjectileInfoList() {
+    return projectileInfoList;
+  }
+
+
+  public Shooter() {
+  }
+
+  public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene) {
     this.type = rangedUsageModel.getType();
     RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
     this.projectileInfoList =
         rangedProperties.getProjectileModelList().stream()
             .map(ProjectileModel::toProjectileInfo)
             .collect(Collectors.toList());
-   fillMissileModels();
+    fillMissileModels();
+    createFireSources(physicsScene.getWorldFacade());
     switch (rangedUsageModel.getType()) {
       case SHOOTER:
         ShooterProperties shooterProperties = (ShooterProperties) rangedProperties;
@@ -81,7 +96,7 @@ public class Shooter extends Use {
     }
   }
 
-  private void fillMissileModels() {
+  public void fillMissileModels() {
     this.missileModels = new ArrayList<>();
     for (ProjectileInfo projectileInfo : this.projectileInfoList) {
       try {
@@ -94,7 +109,9 @@ public class Shooter extends Use {
   }
 
   public void onTriggerPulled() {
-    for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
+    for (int i = 0, projectileInfoListSize = projectileInfoList.size();
+        i < projectileInfoListSize;
+        i++) {
       fire(i);
     }
   }
@@ -109,11 +126,9 @@ public class Shooter extends Use {
   }
 
   @Override
-  public void onStep(float deltaTime) {
-    for (ProjectileInfo projectileInfo : this.projectileInfoList) {
-      if (projectileInfo.getFireSource() != null) {
-        projectileInfo.getFireSource().setSpawnEnabled(false);
-      }
+  public void onStep(float deltaTime, WorldFacade worldFacade) {
+    for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
+      explosiveParticleWrapper.setSpawnEnabled(false);
     }
     if (this.loading) {
       this.loadingTimer += deltaTime;
@@ -151,26 +166,25 @@ public class Shooter extends Use {
   private void fire(int index) {
     ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
     ToolModel missileModel = this.missileModels.get(index);
-    this.createBullet(projectileInfo,missileModel);
+    this.createBullet(projectileInfo, missileModel);
     this.decrementRounds();
     this.readyToFire = false;
 
     if (projectileInfo.getCasingInfo() != null) {
-      createBulletCasing(projectileInfo,missileModel);
+      createBulletCasing(projectileInfo, missileModel);
     }
     if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
       this.continueFire = true;
     }
 
-    if (projectileInfo.getFireSource() != null) {
-      projectileInfo.getFireSource().setSpawnEnabled(true);
+    if (projInfFireSourceMap.containsKey(projectileInfo)) {
+      projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
     }
   }
 
   private void createBulletCasing(ProjectileInfo projectileInfo, ToolModel missileModel) {
     GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-    ArrayList<LayerBlock> blocks =
-        BlockUtils.createBlocks(missileModel.getBodies().get(1));
+    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(1));
     Vector2 begin = projectileInfo.getCasingInfo().getAmmoOrigin();
     Vector2 direction = projectileInfo.getCasingInfo().getAmmoDirection();
     Vector2 beginProjected =
@@ -205,8 +219,7 @@ public class Shooter extends Use {
 
   private void createBullet(ProjectileInfo projectileInfo, ToolModel missileModel) {
     GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-    ArrayList<LayerBlock> blocks =
-        BlockUtils.createBlocks(missileModel.getBodies().get(0));
+    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(0));
     Vector2 begin = projectileInfo.getProjectileOrigin();
     Vector2 end = projectileInfo.getProjectileEnd();
 
@@ -270,15 +283,40 @@ public class Shooter extends Use {
     return loaded;
   }
 
-  public Vector2 getTarget() {
-    return this.target;
-  }
-
-  public void setTarget(Vector2 target) {
-    this.target = target;
-  }
-
   public boolean isLoading() {
     return loading;
+  }
+
+  public void createFireSources(WorldFacade worldFacade){
+    this.projInfFireSourceMap = new HashMap<>();
+         this.projectileInfoList
+            .forEach(
+                    p -> {
+                      if (p.getFireRatio() >= 0.1f
+                              || p.getSmokeRatio() >= 0.1f
+                              || p.getSparkRatio() >= 0.1f) {
+                        Vector2 end = p.getProjectileEnd();
+                        Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
+                        Vector2 nor = new Vector2(-dir.y, dir.x);
+                        Vector2 e = end.cpy().sub(p.getMuzzleEntity().getCenter());
+                        int index = this.projectileInfoList.indexOf(p);
+                        float axisExtent = ToolUtils.getAxisExtent(this.missileModels.get(index), nor) / 2f;
+                        ExplosiveParticleWrapper fireSource =
+                                worldFacade
+                                        .createFireSource(
+                                                p.getMuzzleEntity(),
+                                                e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
+                                                e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
+                                                PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
+                                                        / 10f,
+                                                p.getFireRatio(),
+                                                p.getSmokeRatio(),
+                                                p.getSparkRatio(),
+                                                0.1f,
+                                                2000);
+                        fireSource.setSpawnEnabled(false);
+                        this.projInfFireSourceMap.put(p,fireSource);
+                      };
+                    });
   }
 }

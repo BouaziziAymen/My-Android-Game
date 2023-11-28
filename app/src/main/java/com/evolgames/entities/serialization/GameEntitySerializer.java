@@ -14,6 +14,8 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.usage.MeleeUse;
+import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.entities.Hand;
 
@@ -24,6 +26,7 @@ import java.util.Map;
 
 public class GameEntitySerializer {
   public static transient Map<String, GameEntity> entities = new HashMap<>();
+  private int zIndex;
 
   private InitInfo initInfo;
   private List<LayerBlock> layerBlocks;
@@ -43,11 +46,16 @@ public class GameEntitySerializer {
     this.bodyType = gameEntity.getBodyType();
     this.name = gameEntity.getName();
     this.uniqueId = gameEntity.getUniqueID();
+    this.zIndex = gameEntity.getMesh().getZIndex();
     this.center = gameEntity.getCenter();
     this.specialEntityType = gameEntity.getType();
     this.useList = gameEntity.getUseList();
-    this.layerBlocks.forEach(b-> b.getAssociatedBlocks().stream().filter(e->e instanceof JointBlock).map(e->(JointBlock)e).forEach(
-            jointBlock -> jointBlock.getJointInfo().prepareJointInfo()));
+    this.useList.stream().filter(e->e instanceof MeleeUse).map(e->(MeleeUse)e).forEach(MeleeUse::prepareToSerialize);
+    this.layerBlocks.forEach(b-> b.getAssociatedBlocks().stream().filter(e->e instanceof JointBlock).map(e->(JointBlock)e).filter(
+            j->j.isNotAborted()&&j.getBrother()!=null
+    ).forEach(
+            JointBlock::generateJointInfo));
+
   }
 
   public void afterLoad() {
@@ -99,6 +107,7 @@ public class GameEntitySerializer {
     gameEntity.setType(this.specialEntityType);
     entities.put(gameEntity.getUniqueID(), gameEntity);
     gameEntity.setUseList(useList);
+    gameEntity.getMesh().setZIndex(this.zIndex);
   }
 
   @SuppressWarnings("unused")

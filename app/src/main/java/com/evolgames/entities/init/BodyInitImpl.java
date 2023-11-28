@@ -18,6 +18,7 @@ public class BodyInitImpl implements BodyInit {
     this.filter = new Filter();
     this.filter.categoryBits = category;
     this.filter.maskBits = category;
+    this.filter.groupIndex = (short) -(groupNumber++);
   }
 
   public BodyInitImpl(Filter filter) {
