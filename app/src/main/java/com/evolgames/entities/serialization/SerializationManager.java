@@ -81,6 +81,7 @@ public class SerializationManager {
     kryo.register(com.evolgames.userinterface.model.BodyUsageCategory.class);
     kryo.register(com.evolgames.entities.usage.TimeBomb.class);
     kryo.register(com.evolgames.entities.usage.infos.BombInfo.class);
+    kryo.register(com.evolgames.entities.usage.ProjectileType.class);
     kryo.setReferences(false);
   }
 

@@ -698,8 +698,8 @@ public class WorldFacade implements ContactObserver {
         }
       }
     }
-
-    for (GameGroup gameGroup : scene.getGameGroups())
+    ArrayList<GameGroup> copy = new ArrayList<>(scene.getGameGroups());
+    for (GameGroup gameGroup : copy)
       for (GameEntity gameEntity : gameGroup.getGameEntities()) {
         if (gameEntity.getName().equals("Ground")) {
           continue;
