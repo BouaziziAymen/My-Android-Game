@@ -2,6 +2,7 @@ package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.shapes.indicators.LineShape;
@@ -17,6 +18,7 @@ public class JointShape extends LineShape implements MovablesContainer {
   final JointPointImage beginPoint;
   private final EditorUserInterface editorUserInterface;
   protected Container container;
+  protected JointModel model;
 
   public JointShape(
       EditorUserInterface editorUserInterface,

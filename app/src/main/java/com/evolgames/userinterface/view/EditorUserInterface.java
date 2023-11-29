@@ -847,6 +847,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       }
     }
     for (JointModel jointModel : toolModel.getJoints()) {
+        //TODO replace this with bind model in joint shapes
       Vector2 center1 = jointModel.getBodyModel1().getCenter();
       Vector2 center2 = jointModel.getBodyModel2().getCenter();
       Vector2 begin;
@@ -854,47 +855,43 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       JointShape jointShape = null;
       switch (jointModel.getJointType()) {
         case WeldJoint:
-          WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
-          begin = center1.add(weldJointDef.localAnchorA.cpy().mul(32f));
-          end = center2.add(weldJointDef.localAnchorB.cpy().mul(32f));
+          begin = center1.add(jointModel.getLocalAnchorA());
+          end = center2.add(jointModel.getLocalAnchorB());
           WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
           weldJointShape.updateEnd(end.x, end.y);
           jointShape = weldJointShape;
           break;
         case RevoluteJoint:
-          RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-          begin = center1.add(revoluteJointDef.localAnchorA.cpy().mul(32f));
-          end = center2.add(revoluteJointDef.localAnchorB.cpy().mul(32f));
+            begin = center1.add(jointModel.getLocalAnchorA());
+            end = center2.add(jointModel.getLocalAnchorB());
           RevoluteJointShape revoluteJointShape = new RevoluteJointShape(scene, begin);
           revoluteJointShape.updateEnd(end.x, end.y);
-          if (revoluteJointDef.enableLimit) {
+          if (jointModel.isEnableLimit()) {
             revoluteJointShape.showLimitsElements();
           }
           revoluteJointShape.updateLowerAngleIndicator(
-              (float) (revoluteJointDef.lowerAngle / (2 * Math.PI) * 360));
+              (float) (jointModel.getLowerAngle() / (2 * Math.PI) * 360));
           revoluteJointShape.updateUpperAngleIndicator(
-              (float) (revoluteJointDef.upperAngle / (2 * Math.PI) * 360));
+              (float) (jointModel.getUpperAngle() / (2 * Math.PI) * 360));
           jointShape = revoluteJointShape;
           break;
         case PrismaticJoint:
-          PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
-          begin = center1.add(prismaticJointDef.localAnchorA.cpy().mul(32f));
-          end = center2.add(prismaticJointDef.localAnchorB.cpy().mul(32f));
+            begin = center1.add(jointModel.getLocalAnchorA());
+            end = center2.add(jointModel.getLocalAnchorB());
           PrismaticJointShape prismaticJointShape = new PrismaticJointShape(scene, begin);
           prismaticJointShape.updateEnd(end.x, end.y);
-          if (prismaticJointDef.enableLimit) {
+          if (jointModel.isEnableLimit()) {
             prismaticJointShape.showLimitsElements();
           }
-          prismaticJointShape.updateLowerLimit(prismaticJointDef.lowerTranslation);
-          prismaticJointShape.updateUpperLimit(prismaticJointDef.upperTranslation);
+          prismaticJointShape.updateLowerLimit(jointModel.getLowerTranslation());
+          prismaticJointShape.updateUpperLimit(jointModel.getUpperTranslation());
           prismaticJointShape.updateDirectionAngleIndicator(
-              (float) (prismaticJointDef.referenceAngle / (2 * Math.PI) * 360));
+              (float) (jointModel.getReferenceAngle() / (2 * Math.PI) * 360));
           jointShape = prismaticJointShape;
           break;
         case DistanceJoint:
-          DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-          begin = center1.add(distanceJointDef.localAnchorA.cpy().mul(32f));
-          end = center2.add(distanceJointDef.localAnchorB.cpy().mul(32f));
+            begin = center1.add(jointModel.getLocalAnchorA());
+            end = center2.add(jointModel.getLocalAnchorB());
           DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
           distanceJointShape.updateEnd(end.x, end.y);
           jointShape = distanceJointShape;

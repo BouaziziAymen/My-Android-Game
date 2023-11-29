@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
@@ -15,8 +16,11 @@ import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
 
-  public Projectile() {
+  private final ProjectileType projectileType;
+
+  public Projectile(ProjectileType projectileType) {
     this.active = false;
+    this.projectileType = projectileType;
   }
 
   @Override
@@ -53,11 +57,27 @@ public class Projectile extends Use implements Penetrating {
     List<GameEntity> list =
         groups.values().stream()
             .map(e -> e.stream().findFirst().get())
+            .distinct()
             .collect(Collectors.toList());
+    Log.e("overlap", "-----------------------------" + list.size());
+    if (projectileType == ProjectileType.BULLET) {
+      penetrator.getBody().setActive(false);
+      worldFacade.destroyGameEntity(penetrator, true, false);
+      penetrator.getMesh().detachSelf();
+    }
 
     for (GameEntity overlappedEntity : list) {
-      worldFacade.mergeEntities(
-          overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
+      overlappedEntity
+          .getParentGroup()
+          .getGameEntities()
+          .forEach(t -> worldFacade.addNonCollidingPair(penetrator, t));
+
+      if (projectileType == ProjectileType.SHARP_WEAPON) {
+        worldFacade.mergeEntities(
+            overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
+      }
+
+      Log.e("overlap", "|" + overlappedEntity.getName());
       worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);
     }
 
@@ -85,9 +105,9 @@ public class Projectile extends Use implements Penetrating {
         penetrator.getBody().getMass()
             / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
     worldFacade.destroyGameEntity(penetrator, true, false);
+    worldFacade.addNonCollidingPair(penetrated, penetrator);
     worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-    worldFacade.applyPointImpact(
-        obtain(point), (float) (collisionImpulse * massFraction), penetrated);
+    worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
     setActive(false);
   }
 

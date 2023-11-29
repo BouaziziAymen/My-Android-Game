@@ -1,5 +1,7 @@
 package com.evolgames.scenes;
 
+import android.util.Log;
+
 import com.evolgames.entities.Plotter;
 import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.scenes.entities.SceneType;
@@ -88,7 +90,13 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void createUserInterface() {
     String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
+    Log.e("XFile",editorFile);
     ToolModel toolModel = loadToolModel(editorFile);
+    if(toolModel==null){
+      toolModel = new ToolModel(this,4);
+    }
+    init();
+
     KeyboardController keyboardController = new KeyboardController();
     OutlineController outlineController = new OutlineController();
     LayerWindowController layerWindowController = new LayerWindowController();
@@ -170,8 +178,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     creationZoneController.setUserInterface(userInterface);
     itemWindowController.setUserInterface(userInterface);
     userInterface.bindToolModel(toolModel);
-
-    init();
   }
 
   @Override

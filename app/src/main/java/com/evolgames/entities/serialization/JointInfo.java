@@ -168,7 +168,6 @@ public class JointInfo {
     this.maxMotorForce = maxMotorForce;
   }
 
-
   public JointDef getJointDef(Vector2 anchorA, Vector2 anchorB) {
     switch (jointType) {
       case Unknown:

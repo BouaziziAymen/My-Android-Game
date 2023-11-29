@@ -6,6 +6,8 @@ import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -897,7 +899,7 @@ public class WorldFacade implements ContactObserver {
     final float collisionImpulse =
     computeCollisionImpulse(V1, V2, normal, m1, m2);
     final float collisionEnergy =  computeCollisionEnergy(V1, V2, normal, m1, m2);
-    System.out.println(
+    Log.e("Penetration",
         "-----------$ Begin penetration, energy:"
             + collisionImpulse
             + "/ bullet:"
@@ -907,7 +909,7 @@ public class WorldFacade implements ContactObserver {
     final float dL = 0.05f;
     final float dTx = dL * tangent.x;
     final float dTy = dL * tangent.y;
-    final float dN = 0.01f;
+    final float dN = 0.05f;
     float pds0x = penetrationPoint.x + normal.x * range;
     float pds0y = penetrationPoint.y + normal.y * range;
     float pde0x = penetrationPoint.x - normal.x * range;
@@ -1019,7 +1021,7 @@ public class WorldFacade implements ContactObserver {
         break;
       }
       if (step % 100 == 0) {
-        System.out.println("-----------Step:" + step);
+        Log.e("Penetration","-----------Step:" + step);
       }
       if (depleted || collisionEnergy - penetrationEnergy < 0) {
         float actualAdvance = step * dN;
@@ -1034,7 +1036,7 @@ public class WorldFacade implements ContactObserver {
             environmentData,
             penetratorData,
                 (float) Math.sqrt(collisionEnergy));
-        System.out.println(
+        Log.e("Penetration",
             "-----------$ On energy consumed, penetrationEnergy:"
                 + penetrationEnergy
                 + " advance:"
@@ -1042,7 +1044,7 @@ public class WorldFacade implements ContactObserver {
         return true;
       }
     }
-    System.out.println("-----------$ On free, penetrationEnergy:" + advance);
+    Log.e("Penetration","-----------$ On free, penetrationEnergy:" + advance);
     penetration.onFree(
         this,
         contact,
@@ -1487,9 +1489,9 @@ public class WorldFacade implements ContactObserver {
     for (Vector2 p : pts) {
       Color color =
           new Color(
-              0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
+              0.5f + (float) (Math.random() * 0.3f), (float) (0.2f + Math.random() * 0.2f), (float) (0.2f + Math.random() * 0.2f));
       Color skin = new Color(layerBlock.getProperties().getDefaultColor());
-      skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
+      skin.setAlpha((float) (0.5f));
       MyColorUtils.blendColors(color, color, skin);
       this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 14, false);
     }

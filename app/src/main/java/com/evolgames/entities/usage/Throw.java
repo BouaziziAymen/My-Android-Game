@@ -23,7 +23,7 @@ public class Throw extends Use {
     Vector2 u = new Vector2(0, 1);
     GeometryUtils.rotateVectorDeg(u, angle);
     body.setLinearVelocity( throwSpeed* u.x, throwSpeed * u.y);
-    Projectile projectile = new Projectile();
+    Projectile projectile = new Projectile(ProjectileType.SHARP_WEAPON);
     hand.getGrabbedEntity().getUseList().add(projectile);
     projectile.setActive(true);
     hand.clearStack();

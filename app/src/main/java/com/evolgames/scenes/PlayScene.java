@@ -29,6 +29,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Projectile;
+import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
@@ -336,7 +337,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                   BodyDef.BodyType.DynamicBody,
                   "Projectile");
       GameGroup proj = new GameGroup(GroupType.OTHER, gameEntity);
-      gameEntity.getUseList().add(new Projectile());
+      gameEntity.getUseList().add(new Projectile(ProjectileType.SHARP_WEAPON));
       addGameGroup(proj);
     }
   }

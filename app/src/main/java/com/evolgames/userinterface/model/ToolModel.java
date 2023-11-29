@@ -68,9 +68,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     return projectileModel;
   }
 
-  public JointModel createJointModel(JointShape jointShape, JointDef jointDef) {
+  public JointModel createJointModel(JointShape jointShape, JointDef.JointType jointType) {
     int jointId = jointCounter.getAndIncrement();
-    JointModel jointModel = new JointModel(jointId, jointDef, jointShape);
+    JointModel jointModel = new JointModel(jointId,jointType, jointShape);
     joints.add(jointModel);
     return jointModel;
   }

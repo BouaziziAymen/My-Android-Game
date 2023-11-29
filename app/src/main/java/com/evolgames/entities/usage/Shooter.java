@@ -262,7 +262,7 @@ public class Shooter extends Use {
                     muzzleVelocityVector,
                     beginProjected),
                 "bullet");
-    Projectile projectile = new Projectile();
+    Projectile projectile = new Projectile(ProjectileType.BULLET);
     projectile.setActive(true);
 
     bullet.getUseList().add(projectile);

@@ -174,19 +174,18 @@ public class PersistenceCaretaker {
 
   public Element createJointElement(Document document, JointModel jointModel) {
     Element jointElement = document.createElement("joint");
-    JointDef jointDef = jointModel.getJointDef();
     jointElement.setAttribute(ID, String.valueOf(jointModel.getJointId()));
     jointElement.setIdAttribute(ID, true);
     jointElement.setAttribute(
-        JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointDef.collideConnected));
-    jointElement.setAttribute(JOINT_TYPE_ATTRIBUTE, String.valueOf(jointDef.type.getValue()));
+        JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.isCollideConnected()));
+    jointElement.setAttribute(JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getJointType().getValue()));
     int bodyId1 = jointModel.getBodyModel1().getBodyId();
     int bodyId2 = jointModel.getBodyModel2().getBodyId();
     jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
     jointElement.setAttribute(BODY_B_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId2));
     Element localAnchorAElement;
     Element localAnchorBElement;
-    switch (jointDef.type) {
+    switch (jointModel.getJointType()) {
       case Unknown:
       case FrictionJoint:
       case LineJoint:
@@ -195,68 +194,64 @@ public class PersistenceCaretaker {
       case PulleyJoint:
         break;
       case RevoluteJoint:
-        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
         localAnchorAElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorA);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
         localAnchorBElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, revoluteJointDef.localAnchorB);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
         jointElement.appendChild(localAnchorAElement);
         jointElement.appendChild(localAnchorBElement);
-        jointElement.setAttribute("enableMotor", String.valueOf(revoluteJointDef.enableMotor));
+        jointElement.setAttribute("enableMotor", String.valueOf(jointModel.isEnableMotor()));
         jointElement.setAttribute(
-            "maxMotorTorque", String.valueOf(revoluteJointDef.maxMotorTorque));
-        jointElement.setAttribute("motorSpeed", String.valueOf(revoluteJointDef.motorSpeed));
-        jointElement.setAttribute("enableLimit", String.valueOf(revoluteJointDef.enableLimit));
-        jointElement.setAttribute("lowerAngle", String.valueOf(revoluteJointDef.lowerAngle));
-        jointElement.setAttribute("upperAngle", String.valueOf(revoluteJointDef.upperAngle));
+            "maxMotorTorque", String.valueOf(jointModel.getMaxMotorTorque()));
+        jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getMotorSpeed()));
+        jointElement.setAttribute("enableLimit", String.valueOf(jointModel.isEnableLimit()));
+        jointElement.setAttribute("lowerAngle", String.valueOf(jointModel.getLowerAngle()));
+        jointElement.setAttribute("upperAngle", String.valueOf(jointModel.getUpperAngle()));
         jointElement.setAttribute(
-            "referenceAngle", String.valueOf(revoluteJointDef.referenceAngle));
+            "referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
         break;
       case PrismaticJoint:
-        PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
         localAnchorAElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAnchorA);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
         localAnchorBElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAnchorB);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
         Element localAxisElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, prismaticJointDef.localAxis1);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAxis1());
         jointElement.appendChild(localAnchorAElement);
         jointElement.appendChild(localAnchorBElement);
         jointElement.appendChild(localAxisElement);
-        jointElement.setAttribute("enableMotor", String.valueOf(prismaticJointDef.enableMotor));
-        jointElement.setAttribute("maxMotorForce", String.valueOf(prismaticJointDef.maxMotorForce));
-        jointElement.setAttribute("motorSpeed", String.valueOf(prismaticJointDef.motorSpeed));
-        jointElement.setAttribute("enableLimit", String.valueOf(prismaticJointDef.enableLimit));
+        jointElement.setAttribute("enableMotor", String.valueOf(jointModel.isEnableMotor()));
+        jointElement.setAttribute("maxMotorForce", String.valueOf(jointModel.getMaxMotorForce()));
+        jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getMotorSpeed()));
+        jointElement.setAttribute("enableLimit", String.valueOf(jointModel.isEnableLimit()));
         jointElement.setAttribute(
-            "lowerTranslation", String.valueOf(prismaticJointDef.lowerTranslation));
+            "lowerTranslation", String.valueOf(jointModel.getLowerTranslation()));
         jointElement.setAttribute(
-            "upperTranslation", String.valueOf(prismaticJointDef.upperTranslation));
+            "upperTranslation", String.valueOf(jointModel.getUpperTranslation()));
         jointElement.setAttribute(
-            "referenceAngle", String.valueOf(prismaticJointDef.referenceAngle));
+            "referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
         break;
       case DistanceJoint:
-        DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
         localAnchorAElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, distanceJointDef.localAnchorA);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
         localAnchorBElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, distanceJointDef.localAnchorB);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
 
         jointElement.appendChild(localAnchorAElement);
         jointElement.appendChild(localAnchorBElement);
-        jointElement.setAttribute("dampingRatio", String.valueOf(distanceJointDef.dampingRatio));
-        jointElement.setAttribute("length", String.valueOf(distanceJointDef.length));
-        jointElement.setAttribute("frequencyHz", String.valueOf(distanceJointDef.frequencyHz));
+        jointElement.setAttribute("dampingRatio", String.valueOf(jointModel.getDampingRatio()));
+        jointElement.setAttribute("length", String.valueOf(jointModel.getLength()));
+        jointElement.setAttribute("frequencyHz", String.valueOf(jointModel.getFrequencyHz()));
         break;
       case WeldJoint:
-        WeldJointDef weldJointDef = (WeldJointDef) jointDef;
         localAnchorAElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, weldJointDef.localAnchorA);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
         localAnchorBElement =
-            XmlUtils.createVectorElement(document, VECTOR_TAG, weldJointDef.localAnchorB);
+            XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
 
         jointElement.appendChild(localAnchorAElement);
         jointElement.appendChild(localAnchorBElement);
-        jointElement.setAttribute("referenceAngle", String.valueOf(weldJointDef.referenceAngle));
+        jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
         break;
     }
     return jointElement;
@@ -922,35 +917,15 @@ public class PersistenceCaretaker {
     JointDef.JointType jointType =
         JointDef.JointType.valueTypes[
             Integer.parseInt(jointElement.getAttribute(JOINT_TYPE_ATTRIBUTE))];
-    JointDef jointDef = null;
-    switch (jointType) {
-      case WeldJoint:
-        jointDef = new WeldJointDef();
-        break;
-      case RevoluteJoint:
-        jointDef = new RevoluteJointDef();
-        break;
-      case PrismaticJoint:
-        jointDef = new PrismaticJointDef();
-        break;
-      case DistanceJoint:
-        jointDef = new DistanceJointDef();
-        break;
-      case PulleyJoint:
-      case MouseJoint:
-      case GearJoint:
-      case LineJoint:
-      case FrictionJoint:
-        break;
-    }
-    JointModel jointModel = new JointModel(jointId, jointDef);
-    assert jointDef != null;
-    jointDef.collideConnected =
-        Boolean.parseBoolean(jointElement.getAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE));
-    Vector2 localAnchorA =
-        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0));
-    Vector2 localAnchorB =
-        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1));
+
+    JointModel jointModel = new JointModel(jointId,jointType);
+
+    jointModel.setCollideConnected(
+        Boolean.parseBoolean(jointElement.getAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE)));
+    jointModel.getLocalAnchorA().set(
+        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0)));
+    jointModel.getLocalAnchorB().set(
+        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1)));
     int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
     int bodyBId = Integer.parseInt(jointElement.getAttribute(BODY_B_ID_JOINT_ATTRIBUTE));
     BodyModel bodyModelA =
@@ -961,51 +936,39 @@ public class PersistenceCaretaker {
     jointModel.setBodyModel2(bodyModelB);
     switch (jointType) {
       case WeldJoint:
-        WeldJointDef weldJointDef = (WeldJointDef) jointDef;
-        weldJointDef.localAnchorA.set(localAnchorA);
-        weldJointDef.localAnchorB.set(localAnchorB);
         break;
       case RevoluteJoint:
-        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
-        revoluteJointDef.localAnchorA.set(localAnchorA);
-        revoluteJointDef.localAnchorB.set(localAnchorB);
-        revoluteJointDef.enableMotor =
-            Boolean.parseBoolean(jointElement.getAttribute("enableMotor"));
-        revoluteJointDef.maxMotorTorque =
-            Float.parseFloat(jointElement.getAttribute("maxMotorTorque"));
-        revoluteJointDef.motorSpeed = Float.parseFloat(jointElement.getAttribute("motorSpeed"));
-        revoluteJointDef.enableLimit =
-            Boolean.parseBoolean(jointElement.getAttribute("enableLimit"));
-        revoluteJointDef.lowerAngle = Float.parseFloat(jointElement.getAttribute("lowerAngle"));
-        revoluteJointDef.upperAngle = Float.parseFloat(jointElement.getAttribute("upperAngle"));
-        revoluteJointDef.referenceAngle =
-            Float.parseFloat(jointElement.getAttribute("referenceAngle"));
+       jointModel.setEnableMotor(
+            Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+        jointModel.setMotorSpeed(
+            Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
+       jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
+        jointModel.setEnableLimit(
+            Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+        jointModel.setLowerAngle(Float.parseFloat(jointElement.getAttribute("lowerAngle")));
+        jointModel.setUpperAngle(Float.parseFloat(jointElement.getAttribute("upperAngle")));
+        jointModel.setReferenceAngle(
+            Float.parseFloat(jointElement.getAttribute("referenceAngle")));
         break;
       case PrismaticJoint:
-        PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
-        prismaticJointDef.localAnchorA.set(localAnchorA);
-        prismaticJointDef.localAnchorB.set(localAnchorB);
-        prismaticJointDef.enableLimit =
-            Boolean.parseBoolean(jointElement.getAttribute("enableLimit"));
-        prismaticJointDef.enableMotor =
-            Boolean.parseBoolean(jointElement.getAttribute("enableMotor"));
-        prismaticJointDef.maxMotorForce =
-            Float.parseFloat(jointElement.getAttribute("maxMotorForce"));
-        prismaticJointDef.motorSpeed = Float.parseFloat(jointElement.getAttribute("motorSpeed"));
-        prismaticJointDef.lowerTranslation =
-            Float.parseFloat(jointElement.getAttribute("lowerTranslation"));
-        prismaticJointDef.upperTranslation =
-            Float.parseFloat(jointElement.getAttribute("upperTranslation"));
-        prismaticJointDef.referenceAngle =
-            Float.parseFloat(jointElement.getAttribute("referenceAngle"));
+        jointModel.setEnableLimit(
+            Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+        jointModel.setEnableMotor(
+            Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+        jointModel.setMaxMotorForce(
+            Float.parseFloat(jointElement.getAttribute("maxMotorForce")));
+        jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
+        jointModel.setLowerTranslation(
+            Float.parseFloat(jointElement.getAttribute("lowerTranslation")));
+        jointModel.setUpperTranslation(
+            Float.parseFloat(jointElement.getAttribute("upperTranslation")));
+        jointModel.setReferenceAngle(
+            Float.parseFloat(jointElement.getAttribute("referenceAngle")));
         break;
       case DistanceJoint:
-        DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
-        distanceJointDef.localAnchorA.set(localAnchorA);
-        distanceJointDef.localAnchorB.set(localAnchorB);
-        distanceJointDef.dampingRatio = Float.parseFloat(jointElement.getAttribute("dampingRatio"));
-        distanceJointDef.length = Float.parseFloat(jointElement.getAttribute("length"));
-        distanceJointDef.frequencyHz = Float.parseFloat(jointElement.getAttribute("frequencyHz"));
+        jointModel.setDampingRatio(Float.parseFloat(jointElement.getAttribute("dampingRatio")));
+        jointModel.setLength(Float.parseFloat(jointElement.getAttribute("length")));
+        jointModel.setFrequencyHz(Float.parseFloat(jointElement.getAttribute("frequencyHz")));
         break;
       case PulleyJoint:
       case MouseJoint:

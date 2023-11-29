@@ -71,7 +71,6 @@ public class JointSettingsWindowController
   private TextField<JointSettingsWindowController> prismaticDirectionAngleTextField;
   private TextField<JointSettingsWindowController> revoluteUpperAngleTextField;
   private TextField<JointSettingsWindowController> revoluteLowerAngleTextField;
-  private JointDef copyJointDef;
   private TextField<JointSettingsWindowController> prismaticLowerLimitTextField;
   private TextField<JointSettingsWindowController> prismaticUpperLimitTextField;
   private SimplePrimary<TitledButton<JointSettingsWindowController>> revoluteLimitsField;
@@ -311,7 +310,6 @@ public class JointSettingsWindowController
     this.jointModel = jointModel;
     selectBodyFields();
     if (jointModel.getJointType() == JointDef.JointType.RevoluteJoint) {
-      RevoluteJointDef jointDef = (RevoluteJointDef) jointModel.getJointDef();
       RevoluteJointShape revoluteJointShape = (RevoluteJointShape) jointModel.getJointShape();
 
       TitledButton<JointSettingsWindowController> revoluteLimitsButton =
@@ -329,14 +327,14 @@ public class JointSettingsWindowController
                   this, revoluteLimitsButton.getAttachment()) {
                 @Override
                 public void informControllerButtonClicked() {
-                  jointDef.enableLimit = true;
+                  jointModel.setEnableLimit(true);
                   revoluteJointShape.showLimitsElements();
                   onPrimaryButtonClicked(revoluteLimitsField);
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
-                  jointDef.enableLimit = false;
+                    jointModel.setEnableLimit(false);
                   revoluteJointShape.hideLimitsElements();
                   onPrimaryButtonReleased(revoluteLimitsField);
                 }
@@ -372,9 +370,9 @@ public class JointSettingsWindowController
           .setReleaseAction(
               () -> {
                 float rawValue = Float.parseFloat(revoluteLowerAngleTextField.getTextString());
-                jointDef.lowerAngle = (float) (rawValue * 2 * Math.PI);
+               jointModel.setLowerAngle ((float) (rawValue * 2 * Math.PI));
                 revoluteJointShape.updateLowerAngleIndicator(
-                    (float) (jointDef.lowerAngle / (2 * Math.PI) * 360));
+                    (float) (jointModel.getLowerAngle() / (2 * Math.PI) * 360));
               });
 
       TitledTextField<JointSettingsWindowController> upperAngleField =
@@ -407,9 +405,9 @@ public class JointSettingsWindowController
           .setReleaseAction(
               () -> {
                 float rawValue = Float.parseFloat(revoluteUpperAngleTextField.getTextString());
-                jointDef.upperAngle = (float) (rawValue * 2 * Math.PI);
+                jointModel.setUpperAngle((float) (rawValue * 2 * Math.PI));
                 revoluteJointShape.updateUpperAngleIndicator(
-                    (float) (jointDef.upperAngle / (2 * Math.PI) * 360));
+                    (float) (jointModel.getUpperAngle() / (2 * Math.PI) * 360));
               });
 
       TitledButton<JointSettingsWindowController> hasMotorButton =
@@ -428,13 +426,13 @@ public class JointSettingsWindowController
                   this, hasMotorButton.getAttachment()) {
                 @Override
                 public void informControllerButtonClicked() {
-                  jointDef.enableMotor = true;
+                  jointModel.setEnableMotor(true);
                   onPrimaryButtonClicked(revoluteHasMotorField);
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
-                  jointDef.enableMotor = false;
+                 jointModel.setEnableMotor(false);
                   onPrimaryButtonReleased(revoluteHasMotorField);
                 }
               });
@@ -463,9 +461,9 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () ->
-                  jointDef.motorSpeed =
+                 jointModel.setMotorSpeed(
                       (float)
-                          (Float.parseFloat(revoluteSpeedTextField.getTextString()) * 2 * Math.PI));
+                          (Float.parseFloat(revoluteSpeedTextField.getTextString()) * 2 * Math.PI)));
 
       SimpleSecondary<TitledTextField<JointSettingsWindowController>> speedElement =
           new SimpleSecondary<>(4, 0, speedField);
@@ -495,16 +493,14 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () ->
-                  jointDef.maxMotorTorque =
-                      Float.parseFloat(revoluteMaxTorqueTextField.getTextString()));
+                  jointModel.setMaxMotorTorque(
+                      Float.parseFloat(revoluteMaxTorqueTextField.getTextString())));
 
       SimpleSecondary<TitledTextField<JointSettingsWindowController>> torqueElement =
           new SimpleSecondary<>(4, 1, torqueField);
       window.addSecondary(torqueElement);
     }
     if (jointModel.getJointType() == JointDef.JointType.DistanceJoint) {
-
-      DistanceJointDef jointDef = (DistanceJointDef) jointModel.getJointDef();
       TitledQuantity<JointSettingsWindowController> titledDampingQuantity =
           new TitledQuantity<>("Damping:", 10, "b", 5, 76);
       dampingQuantity = titledDampingQuantity.getAttachment();
@@ -521,7 +517,7 @@ public class JointSettingsWindowController
       window.addPrimary(dampingElement);
       dampingQuantity
           .getBehavior()
-          .setChangeAction(() -> jointDef.dampingRatio = dampingQuantity.getRatio());
+          .setChangeAction(() -> jointModel.setDampingRatio(dampingQuantity.getRatio()));
 
       TitledTextField<JointSettingsWindowController> frequencyField =
           new TitledTextField<>("Frequency:", 4, 5, 120);
@@ -547,7 +543,7 @@ public class JointSettingsWindowController
       frequencyTextField
           .getBehavior()
           .setReleaseAction(
-              () -> jointDef.frequencyHz = Float.parseFloat(frequencyTextField.getTextString()));
+              () -> jointModel.setFrequencyHz(Float.parseFloat(frequencyTextField.getTextString())));
       //
       TitledTextField<JointSettingsWindowController> lengthField =
           new TitledTextField<>("Length:", 4, 5, 120);
@@ -573,11 +569,10 @@ public class JointSettingsWindowController
       lengthTextField
           .getBehavior()
           .setReleaseAction(
-              () -> jointDef.length = Float.parseFloat(lengthTextField.getTextString()));
+              () -> jointModel.setLength(Float.parseFloat(lengthTextField.getTextString())));
     }
 
     if (jointModel.getJointType() == JointDef.JointType.PrismaticJoint) {
-      PrismaticJointDef jointDef = (PrismaticJointDef) jointModel.getJointDef();
       PrismaticJointShape prismaticJointShape = (PrismaticJointShape) jointModel.getJointShape();
 
       TitledTextField<JointSettingsWindowController> directionAngleField =
@@ -615,7 +610,7 @@ public class JointSettingsWindowController
                 float angle =
                     360 * Float.parseFloat(prismaticDirectionAngleTextField.getTextString());
                 GeometryUtils.rotateVectorDeg(dir, angle);
-                jointDef.localAxis1.set(dir);
+                jointModel.getLocalAxis1().set(dir);
                 prismaticJointShape.updateDirectionAngleIndicator(angle);
               });
 
@@ -634,14 +629,14 @@ public class JointSettingsWindowController
                   this, prismaticLimitsButton.getAttachment()) {
                 @Override
                 public void informControllerButtonClicked() {
-                  jointDef.enableLimit = true;
+                  jointModel.setEnableLimit(true);
                   onPrimaryButtonClicked(prismaticLimitsField);
                   prismaticJointShape.showLimitsElements();
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
-                  jointDef.enableLimit = false;
+                    jointModel.setEnableLimit(false);
                   onPrimaryButtonReleased(prismaticLimitsField);
                   prismaticJointShape.hideLimitsElements();
                 }
@@ -676,9 +671,9 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () -> {
-                jointDef.lowerTranslation =
-                    Float.parseFloat(prismaticLowerLimitTextField.getTextString());
-                prismaticJointShape.updateLowerLimit(jointDef.lowerTranslation * 32);
+                jointModel.setLowerTranslation(
+                    Float.parseFloat(prismaticLowerLimitTextField.getTextString()));
+                prismaticJointShape.updateLowerLimit(jointModel.getLowerTranslation() * 32);
               });
 
       TitledTextField<JointSettingsWindowController> upperLimitField =
@@ -710,9 +705,9 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () -> {
-                jointDef.upperTranslation =
-                    Float.parseFloat(prismaticUpperLimitTextField.getTextString());
-                prismaticJointShape.updateUpperLimit(jointDef.upperTranslation * 32);
+                jointModel.setUpperTranslation(
+                    Float.parseFloat(prismaticUpperLimitTextField.getTextString()));
+                prismaticJointShape.updateUpperLimit(jointModel.getUpperTranslation() * 32);
               });
 
       TitledButton<JointSettingsWindowController> hasMotorButton =
@@ -731,13 +726,13 @@ public class JointSettingsWindowController
                   this, hasMotorButton.getAttachment()) {
                 @Override
                 public void informControllerButtonClicked() {
-                  jointDef.enableMotor = true;
+                  jointModel.setEnableLimit(true);
                   onPrimaryButtonClicked(prismaticHasMotorField);
                 }
 
                 @Override
                 public void informControllerButtonReleased() {
-                  jointDef.enableMotor = false;
+                    jointModel.setEnableLimit(false);
                   onPrimaryButtonReleased(prismaticHasMotorField);
                 }
               });
@@ -766,7 +761,7 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () ->
-                  jointDef.motorSpeed = Float.parseFloat(prismaticSpeedTextField.getTextString()));
+                  jointModel.setMotorSpeed(Float.parseFloat(prismaticSpeedTextField.getTextString())));
 
       SimpleSecondary<TitledTextField<JointSettingsWindowController>> speedElement =
           new SimpleSecondary<>(6, 0, speedField);
@@ -796,8 +791,8 @@ public class JointSettingsWindowController
           .getBehavior()
           .setReleaseAction(
               () ->
-                  jointDef.maxMotorForce =
-                      Float.parseFloat(prismaticMaxForceTextField.getTextString()));
+                 jointModel.setMaxMotorForce(
+                      Float.parseFloat(prismaticMaxForceTextField.getTextString())));
 
       SimpleSecondary<TitledTextField<JointSettingsWindowController>> forceElement =
           new SimpleSecondary<>(6, 1, forceField);
@@ -807,8 +802,6 @@ public class JointSettingsWindowController
     switch (jointModel.getJointType()) {
       case RevoluteJoint:
         RevoluteJointShape jointShape = (RevoluteJointShape) jointModel.getJointShape();
-        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-        performCopyJointDef(revoluteJointDef);
 
         float lowerAngleInRevolutions =
             (float)
@@ -816,97 +809,44 @@ public class JointSettingsWindowController
         float upperAngleInRevolutions =
             (float)
                 (jointShape.getUpperAngleRelative() * MathUtils.degreesToRadians / (2 * Math.PI));
-        float motorSpeedInRevolutions = (float) (revoluteJointDef.motorSpeed / (2 * Math.PI));
-        float maxTorque = revoluteJointDef.maxMotorTorque;
+        float motorSpeedInRevolutions = (float) (jointModel.getMotorSpeed() / (2 * Math.PI));
+        float maxTorque = jointModel.getMaxMotorTorque();
 
-        setRevoluteHasMotor(revoluteJointDef.enableMotor);
-        setRevoluteHasLimits(revoluteJointDef.enableLimit);
+        setRevoluteHasMotor(jointModel.isEnableMotor());
+        setRevoluteHasLimits(jointModel.isEnableLimit());
         setRevoluteLowerAngle(lowerAngleInRevolutions);
         setRevoluteUpperAngle(upperAngleInRevolutions);
         setRevoluteMotorSpeed(motorSpeedInRevolutions);
         setRevoluteMaxTorque(maxTorque);
-        setRevoluteHasLimits(revoluteJointDef.enableLimit);
+        setRevoluteHasLimits(jointModel.isEnableLimit());
 
         break;
       case WeldJoint:
-        copyJointDef = new WeldJointDef();
         break;
       case PrismaticJoint:
         PrismaticJointShape prismaticJointShape = (PrismaticJointShape) jointModel.getJointShape();
-        PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
-        performCopyJointDef(prismaticJointDef);
 
         float lowerLimit = prismaticJointShape.getLowerLimit() / 32f;
         float upperLimit = prismaticJointShape.getUpperLimit() / 32f;
         float directionAngleInRevolutions = prismaticJointShape.getDirectionAngleDegrees() / 360f;
-        setPrismaticHasLimits(prismaticJointDef.enableLimit);
+        setPrismaticHasLimits(jointModel.isEnableLimit());
         setPrismaticLowerTranslation(lowerLimit);
         setPrismaticUpperTranslation(upperLimit);
         setPrismaticDirectionAngle(directionAngleInRevolutions * 360);
-        setPrismaticHasMotor(prismaticJointDef.enableMotor);
-        float motorSpeed = prismaticJointDef.motorSpeed;
-        float maxForce = prismaticJointDef.maxMotorForce;
+        setPrismaticHasMotor(jointModel.isEnableMotor());
+        float motorSpeed = jointModel.getMotorSpeed();
+        float maxForce = jointModel.getMaxForce();
         setPrismaticMotorSpeed(motorSpeed);
         setPrismaticMaxForce(maxForce);
 
         break;
       case DistanceJoint:
-        DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-        performCopyJointDef(distanceJointDef);
-        setDistanceDamping(distanceJointDef.dampingRatio);
-        setDistanceFrequency(distanceJointDef.frequencyHz);
-        setDistanceLength(distanceJointDef.length);
+        setDistanceDamping(jointModel.getDampingRatio());
+        setDistanceFrequency(jointModel.getFrequencyHz());
+        setDistanceLength(jointModel.getLength());
         break;
     }
     onUpdated();
-  }
-
-  private void performCopyJointDef(JointDef jointDef) {
-    switch (jointDef.type) {
-      case Unknown:
-      case DistanceJoint:
-      case PulleyJoint:
-      case MouseJoint:
-      case GearJoint:
-      case LineJoint:
-      case WeldJoint:
-        break;
-      case RevoluteJoint:
-        {
-          RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
-          copyJointDef = new RevoluteJointDef();
-          RevoluteJointDef copyOfJointDef = (RevoluteJointDef) copyJointDef;
-          copyOfJointDef.bodyA = revoluteJointDef.bodyA;
-          copyOfJointDef.bodyB = revoluteJointDef.bodyB;
-          copyOfJointDef.collideConnected = revoluteJointDef.collideConnected;
-          copyOfJointDef.enableLimit = revoluteJointDef.enableLimit;
-          copyOfJointDef.enableMotor = revoluteJointDef.enableMotor;
-          copyOfJointDef.lowerAngle = revoluteJointDef.lowerAngle;
-          copyOfJointDef.upperAngle = revoluteJointDef.upperAngle;
-          copyOfJointDef.motorSpeed = revoluteJointDef.motorSpeed;
-          copyOfJointDef.maxMotorTorque = revoluteJointDef.maxMotorTorque;
-          copyJointDef = copyOfJointDef;
-        }
-        break;
-      case PrismaticJoint:
-        {
-          PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
-          PrismaticJointDef copyOfJointDef = new PrismaticJointDef();
-          copyOfJointDef.bodyA = prismaticJointDef.bodyA;
-          copyOfJointDef.bodyB = prismaticJointDef.bodyB;
-          copyOfJointDef.collideConnected = prismaticJointDef.collideConnected;
-          copyOfJointDef.enableLimit = prismaticJointDef.enableLimit;
-          copyOfJointDef.enableMotor = prismaticJointDef.enableMotor;
-          copyOfJointDef.lowerTranslation = prismaticJointDef.lowerTranslation;
-          copyOfJointDef.upperTranslation = prismaticJointDef.upperTranslation;
-          copyOfJointDef.motorSpeed = prismaticJointDef.motorSpeed;
-          copyOfJointDef.maxMotorForce = prismaticJointDef.maxMotorForce;
-          copyJointDef = copyOfJointDef;
-        }
-        break;
-      case FrictionJoint:
-        break;
-    }
   }
 
   private void resetLayout() {
@@ -922,7 +862,7 @@ public class JointSettingsWindowController
   }
 
   public void onCancelSettings() {
-    jointModel.setJointDef(copyJointDef);
+   // jointModel.setJointDef(copyJointDef);
     closeWindow();
   }
 
@@ -951,34 +891,29 @@ public class JointSettingsWindowController
   }
 
   public void setDistanceFrequency(float frequency) {
-    DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-    distanceJointDef.frequencyHz = frequency;
+    jointModel.setFrequencyHz(frequency);
     frequencyTextField.getBehavior().setTextValidated(format.format(frequency));
   }
 
   public void setDistanceLength(float length) {
-    DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-    distanceJointDef.length = length;
+    jointModel.setLength(length);
     lengthTextField.getBehavior().setTextValidated(format.format(length));
   }
 
   public void setDistanceDamping(float damping) {
-    DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-    distanceJointDef.dampingRatio = damping;
+    jointModel.setDampingRatio(damping);
     dampingQuantity.updateRatio(damping);
   }
 
   public void setRevoluteLowerAngle(float lowerAngleInRevolutions) {
-    RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-    revoluteJointDef.lowerAngle = (float) (lowerAngleInRevolutions * 2 * Math.PI);
+    jointModel.setLowerAngle((float) (lowerAngleInRevolutions * 2 * Math.PI));
     revoluteLowerAngleTextField
         .getBehavior()
         .setTextValidated(format.format(lowerAngleInRevolutions));
   }
 
   public void setRevoluteUpperAngle(float upperAngle) {
-    RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-    revoluteJointDef.upperAngle = (float) (upperAngle * 2 * Math.PI);
+    jointModel.setUpperAngle((float) (upperAngle * 2 * Math.PI));
     revoluteUpperAngleTextField.getBehavior().setTextValidated(format.format(upperAngle));
   }
 
@@ -986,7 +921,7 @@ public class JointSettingsWindowController
     prismaticDirectionAngleTextField.getBehavior().setTextValidated(format.format(directionAngle));
     Vector2 dir = new Vector2(1, 0);
     GeometryUtils.rotateVectorDeg(dir, directionAngle);
-    ((PrismaticJointDef) jointModel.getJointDef()).localAxis1.set(dir);
+    jointModel.getLocalAxis1().set(dir);
   }
 
   public void setToolModel(ToolModel toolModel) {

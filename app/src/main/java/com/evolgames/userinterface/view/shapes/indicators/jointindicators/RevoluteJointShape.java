@@ -1,9 +1,13 @@
 package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.MathUtils;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
@@ -24,11 +28,17 @@ public class RevoluteJointShape extends JointShape {
         scene,
         ResourceManager.getInstance().doubleDiskTextureRegion);
     this.editorUserInterface = scene.getUserInterface();
-    beginPoint.setMoveAction(
+    this.beginPoint.setMoveAction(
         () -> {
           Vector2 point = beginPoint.getPoint();
           RevoluteJointShape.this.onBeginPointMoved(point.x, point.y);
         });
+    this.endPoint.setMoveAction(
+            () -> {
+              Vector2 point = endPoint.getPoint();
+              RevoluteJointShape.this.onEndPointMoved(point.x, point.y);
+            });
+
 
     referenceAngleIndicator =
         new AngleIndicator(begin, scene, 48) {
@@ -81,6 +91,10 @@ public class RevoluteJointShape extends JointShape {
     hideLimitsElements();
   }
 
+  private void onEndPointMoved(float x, float y) {
+    this.model.getLocalAnchorB().set(x,y);
+  }
+
   public void onBeginPointMoved(float x, float y) {
     referenceAngleIndicator.updateBegin(x, y);
     referenceAngleIndicator.drawSelf();
@@ -88,6 +102,7 @@ public class RevoluteJointShape extends JointShape {
     upperAngleIndicator.drawSelf();
     lowerAngleIndicator.updateBegin(x, y);
     lowerAngleIndicator.drawSelf();
+    this.model.getLocalAnchorA().set(x,y);
   }
 
   @Override
@@ -198,10 +213,15 @@ public class RevoluteJointShape extends JointShape {
     upperAngleIndicator.turnAround(angle - getUpperAngle());
   }
 
-  @SuppressWarnings("unused")
   public void updateReferenceAngleIndicator(float angle) {
     float dA = angle - getReferenceAngle();
     referenceAngleIndicator.turnAround(dA);
     turnIndicators(dA);
+  }
+
+  public void bindModel(JointModel model) {
+    this.model = model;
+    this.model.getLocalAnchorA().set(begin);
+    this.model.getLocalAnchorB().set(end);
   }
 }

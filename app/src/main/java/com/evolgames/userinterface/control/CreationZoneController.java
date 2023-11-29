@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control;
 
 import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -355,9 +356,10 @@ public class CreationZoneController extends Controller {
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, new RevoluteJointDef());
+              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.RevoluteJoint);
       jointWindowController.onJointAdded(jointModel);
       indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+      ((RevoluteJointShape)indicatorArrow).bindModel(jointModel);
       return;
     }
     if (action == CreationAction.WELD) {
@@ -365,7 +367,7 @@ public class CreationZoneController extends Controller {
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, new WeldJointDef());
+              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.WeldJoint);
       jointWindowController.onJointAdded(jointModel);
       indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
       return;
@@ -375,7 +377,7 @@ public class CreationZoneController extends Controller {
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, new PrismaticJointDef());
+              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.PrismaticJoint);
       jointWindowController.onJointAdded(jointModel);
       indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
       return;
@@ -386,7 +388,7 @@ public class CreationZoneController extends Controller {
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, new DistanceJointDef());
+              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.DistanceJoint);
       jointWindowController.onJointAdded(jointModel);
       indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
       return;

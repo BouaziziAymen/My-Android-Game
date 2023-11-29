@@ -186,14 +186,15 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                       usageBodyModel.getGameEntity().getUseList().add(throwable);
                     }));
 
-    // Create joints
-    for (JointModel jointModel : joints) {
-      createJointFromModel(jointModel);
-    }
     // Create game group
     GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
     this.addGameGroup(gameGroup);
     this.sortChildren();
+    // Create joints
+    for (JointModel jointModel : joints) {
+      createJointFromModel(jointModel);
+    }
+
   }
 
   protected void createJointFromModel(JointModel jointModel) {
@@ -206,31 +207,9 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     if (entity1 == null || entity2 == null) {
       return;
     }
-    if (jointModel.getJointShape() != null) {
-      Vector2 u1 = jointModel.getJointShape().getBegin().cpy().sub(entity1.getCenter());
-      Vector2 u2 = jointModel.getJointShape().getEnd().cpy().sub(entity2.getCenter());
+      JointDef jointDef = jointModel.createJointDef(entity1.getCenter(),entity2.getCenter());
 
-      if (jointModel.getJointDef() instanceof RevoluteJointDef) {
-        RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointModel.getJointDef();
-        revoluteJointDef.localAnchorA.set(u1.mul(1 / 32f));
-        revoluteJointDef.localAnchorB.set(u2.mul(1 / 32f));
-
-      } else if (jointModel.getJointDef() instanceof WeldJointDef) {
-        WeldJointDef weldJointDef = (WeldJointDef) jointModel.getJointDef();
-        weldJointDef.localAnchorA.set(u1.mul(1 / 32f));
-        weldJointDef.localAnchorB.set(u2.mul(1 / 32f));
-      } else if (jointModel.getJointDef() instanceof DistanceJointDef) {
-        DistanceJointDef distanceJointDef = (DistanceJointDef) jointModel.getJointDef();
-        distanceJointDef.localAnchorA.set(u1.mul(1 / 32f));
-        distanceJointDef.localAnchorB.set(u2.mul(1 / 32f));
-
-      } else if (jointModel.getJointDef() instanceof PrismaticJointDef) {
-        PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointModel.getJointDef();
-        prismaticJointDef.localAnchorA.set(u1.mul(1 / 32f));
-        prismaticJointDef.localAnchorB.set(u2.mul(1 / 32f));
-      }
-    }
-    getWorldFacade().addJointToCreate(jointModel.getJointDef(), entity1, entity2);
+    getWorldFacade().addJointToCreate(jointDef, entity1, entity2);
   }
 
   public WorldFacade getWorldFacade() {
