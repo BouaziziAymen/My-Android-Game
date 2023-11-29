@@ -80,12 +80,13 @@ public class TopographyData {
       float inf = data[i][0];
       float sup = data[i][1];
       float hardness = blocks[i].getProperties().getHardness();
+      float density = blocks[i].getProperties().getDensity();
       if (advance >= inf) {
         float hardnessFactor = hardness/penetratorHardness;
         float s = 1.01f - sharpness;
-        float h = (float) Math.pow(hardnessFactor,4 );
+        float h = (float) Math.pow(hardnessFactor,3 );
         float xAdvance = (advance <= sup) ? advance - inf : sup - inf;
-        energy += xAdvance * h  * dL* PhysicsConstants.PENETRATION_CONSTANT * Math.pow(s,3);
+        energy += xAdvance * density * h  * dL* PhysicsConstants.PENETRATION_CONSTANT * Math.pow(s,3);
       }
     }
     return energy;

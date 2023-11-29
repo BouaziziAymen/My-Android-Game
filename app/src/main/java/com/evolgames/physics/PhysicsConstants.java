@@ -5,7 +5,7 @@ import android.hardware.SensorManager;
 public class PhysicsConstants {
   public static final float TENACITY_FACTOR = 50f;
   public static final float MINIMUM_STABLE_SPLINTER_AREA = 36;
-  public static final float PENETRATION_CONSTANT = 100000000f;
+  public static final float PENETRATION_CONSTANT = 50000000f;
   public static final float PULVERIZATION_CONSTANT = 3.41f;
   public static final int FLUX_PRECISION = 20;
   public static final float BACKOFF = 0.05f;

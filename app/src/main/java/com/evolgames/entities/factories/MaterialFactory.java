@@ -27,7 +27,7 @@ public class MaterialFactory {
             1,
             0.5f,
             0.5f,
-            2.5f,
+           1.5f,
             true,
             573,
             2000,
