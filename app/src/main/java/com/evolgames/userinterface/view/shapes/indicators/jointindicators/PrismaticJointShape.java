@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
@@ -200,5 +201,19 @@ public class PrismaticJointShape extends JointShape {
     upperLimitPoint.setVisible(false);
     editorUserInterface.getCreationZoneController().onPointImageReleased();
     editorUserInterface.getCreationZoneController().onPointImageReleased();
+  }
+
+  public void bindModel(JointModel model) {
+    this.model = model;
+    Vector2 modelEnd = model.getLocalAnchorB();
+    model.setJointShape(this);
+    this.updateEnd(modelEnd.x, modelEnd.y);
+    this.updateEnd(end.x, end.y);
+    if (model.isEnableLimit()) {
+      this.showLimitsElements();
+    }
+    this.updateLowerLimit(model.getLowerTranslation());
+    this.updateUpperLimit(model.getUpperTranslation());
+    this.updateDirectionAngleIndicator((float) (model.getReferenceAngle() / (2 * Math.PI) * 360));
   }
 }

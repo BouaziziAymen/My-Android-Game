@@ -3,10 +3,6 @@ package com.evolgames.userinterface.control;
 import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
@@ -352,60 +348,78 @@ public class CreationZoneController extends Controller {
       }
     }
     if (action == CreationAction.REVOLUTE) {
-      indicatorArrow = new RevoluteJointShape(editorScene, new Vector2(x, y));
+      RevoluteJointShape revoluteJointShape =
+          new RevoluteJointShape(editorScene, new Vector2(x, y));
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
               .createJointModel((JointShape) indicatorArrow, JointDef.JointType.RevoluteJoint);
+      jointModel.getLocalAnchorA().set(x, y);
+      jointModel.getLocalAnchorB().set(x, y);
+      revoluteJointShape.bindModel(jointModel);
       jointWindowController.onJointAdded(jointModel);
-      indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
-      ((RevoluteJointShape)indicatorArrow).bindModel(jointModel);
+      revoluteJointShape.setCongruentEndpoints(getCongruentAnchors());
+      this.indicatorArrow = revoluteJointShape;
       return;
     }
     if (action == CreationAction.WELD) {
-      indicatorArrow = new WeldJointShape(editorScene, new Vector2(x, y));
+      WeldJointShape weldJointShape = new WeldJointShape(editorScene, new Vector2(x, y));
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.WeldJoint);
+              .createJointModel(weldJointShape, JointDef.JointType.WeldJoint);
+      jointModel.getLocalAnchorA().set(x, y);
+      jointModel.getLocalAnchorB().set(x, y);
+      weldJointShape.bindModel(jointModel);
       jointWindowController.onJointAdded(jointModel);
-      indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+      weldJointShape.setCongruentEndpoints(getCongruentAnchors());
+      this.indicatorArrow = weldJointShape;
       return;
     }
     if (action == CreationAction.PRISMATIC) {
-      indicatorArrow = new PrismaticJointShape(editorScene, new Vector2(x, y));
+      PrismaticJointShape prismaticJointShape =
+          new PrismaticJointShape(editorScene, new Vector2(x, y));
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.PrismaticJoint);
+              .createJointModel(prismaticJointShape, JointDef.JointType.PrismaticJoint);
+      jointModel.getLocalAnchorA().set(x, y);
+      jointModel.getLocalAnchorB().set(x, y);
+      prismaticJointShape.bindModel(jointModel);
       jointWindowController.onJointAdded(jointModel);
-      indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+      prismaticJointShape.setCongruentEndpoints(getCongruentAnchors());
+      this.indicatorArrow = prismaticJointShape;
       return;
     }
-
     if (action == CreationAction.DISTANCE) {
-      indicatorArrow = new DistanceJointShape(editorScene, new Vector2(x, y));
+      DistanceJointShape distanceJointShape =
+          new DistanceJointShape(editorScene, new Vector2(x, y));
       JointModel jointModel =
           editorUserInterface
               .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.DistanceJoint);
+              .createJointModel(distanceJointShape, JointDef.JointType.DistanceJoint);
+      jointModel.getLocalAnchorA().set(x, y);
+      jointModel.getLocalAnchorB().set(x, y);
       jointWindowController.onJointAdded(jointModel);
-      indicatorArrow.setCongruentEndpoints(getCongruentAnchors());
+      distanceJointShape.bindModel(jointModel);
+      distanceJointShape.setCongruentEndpoints(getCongruentAnchors());
+      this.indicatorArrow = distanceJointShape;
       return;
     }
     if (action == CreationAction.PROJECTILE) {
       if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        indicatorArrow = new ProjectileShape(new Vector2(x, y), editorScene);
+        ProjectileShape projectileShape = new ProjectileShape(new Vector2(x, y), editorScene);
         ProjectileModel projectileModel =
             editorUserInterface
                 .getToolModel()
                 .createNewProjectile(
-                    (ProjectileShape) indicatorArrow,
+                    projectileShape,
                     editorUserInterface.getItemWindowController().getSelectedBodyId());
         projectileModel.getProperties().setProjectileOrigin(new Vector2(x, y));
         projectileModel.getProperties().setProjectileEnd(new Vector2(x, y));
         itemWindowController.onProjectileCreated(projectileModel);
-        ((ProjectileShape) indicatorArrow).bindModel(projectileModel);
+        projectileShape.bindModel(projectileModel);
+        this.indicatorArrow = projectileShape;
         return;
       }
     }
@@ -423,17 +437,15 @@ public class CreationZoneController extends Controller {
     }
     if (action == CreationAction.AMMO) {
       if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        indicatorArrow = new CasingShape(new Vector2(x, y), editorScene);
+        CasingShape casingShape = new CasingShape(new Vector2(x, y), editorScene);
         CasingModel ammoModel =
             editorUserInterface
                 .getToolModel()
                 .createNewAmmo(
-                    (CasingShape) indicatorArrow,
-                    editorUserInterface.getItemWindowController().getSelectedBodyId());
-        if (ammoModel != null) {
-          itemWindowController.onCasingCreated(ammoModel);
-          ((CasingShape) indicatorArrow).bindModel(ammoModel);
-        }
+                    casingShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+        itemWindowController.onCasingCreated(ammoModel);
+        casingShape.bindModel(ammoModel);
+        this.indicatorArrow = casingShape;
         return;
       }
     }

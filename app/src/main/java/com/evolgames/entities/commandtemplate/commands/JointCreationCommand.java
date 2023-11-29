@@ -42,6 +42,9 @@ public class JointCreationCommand extends Command {
 
   @Override
   protected boolean isReady() {
+//    if(entity1==null||entity2==null||jointDef==null){
+//      return false;
+//    }
     jointDef.bodyA = entity1.getBody();
     jointDef.bodyB = entity2.getBody();
     return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);

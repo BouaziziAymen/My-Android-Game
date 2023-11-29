@@ -221,7 +221,15 @@ public class RevoluteJointShape extends JointShape {
 
   public void bindModel(JointModel model) {
     this.model = model;
-    this.model.getLocalAnchorA().set(begin);
-    this.model.getLocalAnchorB().set(end);
+    Vector2 modelEnd = model.getLocalAnchorB();
+    model.setJointShape(this);
+    this.updateEnd(modelEnd.x, modelEnd.y);
+    if (model.isEnableLimit()) {
+      this.showLimitsElements();
+    }
+    this.updateLowerAngleIndicator(
+            (float) (model.getLowerAngle() / (2 * Math.PI) * 360));
+    this.updateUpperAngleIndicator(
+            (float) (model.getUpperAngle() / (2 * Math.PI) * 360));
   }
 }

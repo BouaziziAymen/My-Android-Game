@@ -2,6 +2,7 @@ package com.evolgames.entities.serialization;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -197,9 +198,16 @@ public class JointInfo {
         prismaticJointDef.maxMotorForce = maxMotorForce;
         prismaticJointDef.enableMotor = enableMotor;
         prismaticJointDef.referenceAngle = referenceAngle;
-        break;
+        return prismaticJointDef;
       case DistanceJoint:
-        break;
+        DistanceJointDef distanceJointDef = new DistanceJointDef();
+        distanceJointDef.localAnchorA.set(anchorA);
+        distanceJointDef.localAnchorB.set(anchorB);
+        distanceJointDef.collideConnected = collideConnected;
+        distanceJointDef.length = length;
+        distanceJointDef.frequencyHz = frequencyHz;
+        distanceJointDef.dampingRatio = dampingRatio;
+        return distanceJointDef;
       case PulleyJoint:
         break;
       case MouseJoint:

@@ -1,10 +1,6 @@
 package com.evolgames.userinterface.view;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.EditorScene;
@@ -59,7 +55,6 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
-import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.RevoluteJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
@@ -847,54 +842,23 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       }
     }
     for (JointModel jointModel : toolModel.getJoints()) {
-        //TODO replace this with bind model in joint shapes
-      Vector2 center1 = jointModel.getBodyModel1().getCenter();
-      Vector2 center2 = jointModel.getBodyModel2().getCenter();
-      Vector2 begin;
-      Vector2 end;
-      JointShape jointShape = null;
+      Vector2 begin = jointModel.getLocalAnchorA();
       switch (jointModel.getJointType()) {
         case WeldJoint:
-          begin = center1.add(jointModel.getLocalAnchorA());
-          end = center2.add(jointModel.getLocalAnchorB());
           WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
-          weldJointShape.updateEnd(end.x, end.y);
-          jointShape = weldJointShape;
+          weldJointShape.bindModel(jointModel);
           break;
         case RevoluteJoint:
-            begin = center1.add(jointModel.getLocalAnchorA());
-            end = center2.add(jointModel.getLocalAnchorB());
           RevoluteJointShape revoluteJointShape = new RevoluteJointShape(scene, begin);
-          revoluteJointShape.updateEnd(end.x, end.y);
-          if (jointModel.isEnableLimit()) {
-            revoluteJointShape.showLimitsElements();
-          }
-          revoluteJointShape.updateLowerAngleIndicator(
-              (float) (jointModel.getLowerAngle() / (2 * Math.PI) * 360));
-          revoluteJointShape.updateUpperAngleIndicator(
-              (float) (jointModel.getUpperAngle() / (2 * Math.PI) * 360));
-          jointShape = revoluteJointShape;
+          revoluteJointShape.bindModel(jointModel);
           break;
         case PrismaticJoint:
-            begin = center1.add(jointModel.getLocalAnchorA());
-            end = center2.add(jointModel.getLocalAnchorB());
           PrismaticJointShape prismaticJointShape = new PrismaticJointShape(scene, begin);
-          prismaticJointShape.updateEnd(end.x, end.y);
-          if (jointModel.isEnableLimit()) {
-            prismaticJointShape.showLimitsElements();
-          }
-          prismaticJointShape.updateLowerLimit(jointModel.getLowerTranslation());
-          prismaticJointShape.updateUpperLimit(jointModel.getUpperTranslation());
-          prismaticJointShape.updateDirectionAngleIndicator(
-              (float) (jointModel.getReferenceAngle() / (2 * Math.PI) * 360));
-          jointShape = prismaticJointShape;
+          prismaticJointShape.bindModel(jointModel);
           break;
         case DistanceJoint:
-            begin = center1.add(jointModel.getLocalAnchorA());
-            end = center2.add(jointModel.getLocalAnchorB());
           DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
-          distanceJointShape.updateEnd(end.x, end.y);
-          jointShape = distanceJointShape;
+          distanceJointShape.bindModel(jointModel);
           break;
         case PulleyJoint:
         case MouseJoint:
@@ -903,7 +867,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         case FrictionJoint:
           break;
       }
-      jointModel.setJointShape(jointShape);
     }
     toolModel.updateMesh();
     layersWindowController.init();

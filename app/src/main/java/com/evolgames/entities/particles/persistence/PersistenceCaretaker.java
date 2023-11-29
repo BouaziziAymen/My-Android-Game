@@ -940,7 +940,7 @@ public class PersistenceCaretaker {
       case RevoluteJoint:
        jointModel.setEnableMotor(
             Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
-        jointModel.setMotorSpeed(
+        jointModel.setMaxMotorTorque(
             Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
        jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
         jointModel.setEnableLimit(
