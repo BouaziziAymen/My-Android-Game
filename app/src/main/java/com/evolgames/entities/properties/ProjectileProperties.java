@@ -6,7 +6,7 @@ public class ProjectileProperties extends Properties {
 
   private Vector2 projectileOrigin;
   private Vector2 projectileEnd;
-  private float muzzleVelocity = 200f;
+  private float muzzleVelocity = 0.5f;
   private float recoil = 0.3f;
   private int fireSound = 1;
   private Explosive explosive = Explosive.OTHER;

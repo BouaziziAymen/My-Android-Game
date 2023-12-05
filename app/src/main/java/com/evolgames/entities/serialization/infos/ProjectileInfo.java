@@ -1,10 +1,9 @@
-package com.evolgames.entities.usage.infos;
+package com.evolgames.entities.serialization.infos;
 
 import android.support.annotation.Nullable;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 
 public class ProjectileInfo {
 

@@ -10,7 +10,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.entities.serialization.JointInfo;
+import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.helpers.utilities.Utils;
 import java.util.ArrayList;
 

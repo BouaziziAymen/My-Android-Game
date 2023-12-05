@@ -7,6 +7,7 @@ import com.evolgames.entities.properties.Properties;
 import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
@@ -23,8 +24,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   private final AtomicInteger layerCounter = new AtomicInteger();
   private final int bodyId;
   private final ArrayList<LayerModel> layers;
-  private final ArrayList<ProjectileModel> projectiles;
-  private final ArrayList<CasingModel> ammoModels;
+  private final ArrayList<ProjectileModel> projectileModels;
+  private final ArrayList<CasingModel> casingModels;
+  private final ArrayList<FireSourceModel> fireSourceModels;
   private final List<UsageModel<?>> usageModels;
   private GameEntity gameEntity;
   private List<BombModel> bombModels;
@@ -34,11 +36,12 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     super("Body" + bodyId);
     this.bodyId = bodyId;
     layers = new ArrayList<>();
-    projectiles = new ArrayList<>();
-    ammoModels = new ArrayList<>();
+    projectileModels = new ArrayList<>();
+    casingModels = new ArrayList<>();
     properties = new BodyProperties();
     usageModels = new ArrayList<>();
     bombModels = new ArrayList<>();
+    fireSourceModels = new ArrayList<>();
   }
 
   @SuppressWarnings("unchecked")
@@ -81,8 +84,8 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     return null;
   }
 
-  public CasingModel getAmmoModelById(int ammoId) {
-    for (CasingModel ammoModel : ammoModels) {
+  public CasingModel getCasingModelById(int ammoId) {
+    for (CasingModel ammoModel : casingModels) {
       if (ammoModel.getCasingId() == ammoId) return ammoModel;
     }
     return null;
@@ -134,7 +137,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   }
 
   public List<CasingModel> getCasingModels() {
-    return ammoModels;
+    return casingModels;
   }
 
   public List<UsageModel<?>> getUsageModels() {
@@ -142,7 +145,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   }
 
   public ArrayList<ProjectileModel> getProjectileModels() {
-    return projectiles;
+    return projectileModels;
   }
 
   public List<BombModel> getBombModels() {
@@ -166,5 +169,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
   public void setField(BodyField bodyField) {
     this.field = bodyField;
+  }
+
+  public ArrayList<FireSourceModel> getFireSourceModels() {
+    return fireSourceModels;
   }
 }

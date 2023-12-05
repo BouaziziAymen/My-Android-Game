@@ -13,7 +13,7 @@ import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.entities.serialization.InitInfo;
+import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.GeometryUtils;

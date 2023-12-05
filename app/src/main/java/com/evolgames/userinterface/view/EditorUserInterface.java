@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
+import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.entities.SceneType;
@@ -39,6 +39,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ColorSelector;
@@ -53,6 +54,7 @@ import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
@@ -727,12 +729,12 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button43) {
           @Override
           public void informControllerButtonClicked() {
-            getController().onMovePointButtonClicked(button43);
+            getController().onFireSourceButtonClicked(button43);
           }
 
           @Override
           public void informControllerButtonReleased() {
-            getController().onMovePointButtonReleased(button43);
+            getController().onFireSourceButtonReleased(button43);
           }
         });
     toolButtonBoard.addToButtonBoard(button40);
@@ -840,6 +842,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         BombShape bombShape = new BombShape(new Vector2(400, 240), scene);
         bombShape.bindModel(bombModel);
       }
+        for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+        FireSourceShape fireSourceShape = new FireSourceShape(new Vector2(400, 240), scene);
+            fireSourceShape.bindModel(fireSourceModel);
+        }
     }
     for (JointModel jointModel : toolModel.getJoints()) {
       Vector2 begin = jointModel.getLocalAnchorA();

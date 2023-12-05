@@ -1,16 +1,13 @@
-package com.evolgames.entities.particles.persistence;
+package com.evolgames.entities.persistence;
 
 import android.content.Context;
 import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.properties.Explosive;
+import com.evolgames.entities.properties.FireSourceProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
@@ -38,6 +35,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
@@ -79,6 +77,7 @@ public class PersistenceCaretaker {
   public static final String BODY_TAG = "body";
   public static final String PROJECTILES_TAG = "projectiles";
   public static final String AMMO_LIST_TAG = "ammoList";
+  public static final String FIRE_SOURCE_LIST_TAG = "fireSourceList";
   public static final String USAGE_LIST_TAG = "usageList";
   public static final String USAGE_TAG = "usage";
   public static final String USAGE_PROPERTIES_PROJECTILES_TAG = "projectiles";
@@ -93,6 +92,7 @@ public class PersistenceCaretaker {
   public static final String BODIES_TAG = "bodies";
   public static final String LAYERS_TAG = "layers";
   public static final String PROJECTILE_TAG = "projectile";
+  public static final String FIRE_SOURCE_TAG = "fireSource";
   public static final String PROJECTILE_FILE_TAG = "missileFile";
   public static final String PROJECTILE_CAT_PREFIX = "c0_";
   public static final String JOINT_COLLIDE_CONNECTED_ATTRIBUTE = "collideConnected";
@@ -178,7 +178,8 @@ public class PersistenceCaretaker {
     jointElement.setIdAttribute(ID, true);
     jointElement.setAttribute(
         JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.isCollideConnected()));
-    jointElement.setAttribute(JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getJointType().getValue()));
+    jointElement.setAttribute(
+        JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getJointType().getValue()));
     int bodyId1 = jointModel.getBodyModel1().getBodyId();
     int bodyId2 = jointModel.getBodyModel2().getBodyId();
     jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
@@ -201,14 +202,12 @@ public class PersistenceCaretaker {
         jointElement.appendChild(localAnchorAElement);
         jointElement.appendChild(localAnchorBElement);
         jointElement.setAttribute("enableMotor", String.valueOf(jointModel.isEnableMotor()));
-        jointElement.setAttribute(
-            "maxMotorTorque", String.valueOf(jointModel.getMaxMotorTorque()));
+        jointElement.setAttribute("maxMotorTorque", String.valueOf(jointModel.getMaxMotorTorque()));
         jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getMotorSpeed()));
         jointElement.setAttribute("enableLimit", String.valueOf(jointModel.isEnableLimit()));
         jointElement.setAttribute("lowerAngle", String.valueOf(jointModel.getLowerAngle()));
         jointElement.setAttribute("upperAngle", String.valueOf(jointModel.getUpperAngle()));
-        jointElement.setAttribute(
-            "referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
+        jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
         break;
       case PrismaticJoint:
         localAnchorAElement =
@@ -228,8 +227,7 @@ public class PersistenceCaretaker {
             "lowerTranslation", String.valueOf(jointModel.getLowerTranslation()));
         jointElement.setAttribute(
             "upperTranslation", String.valueOf(jointModel.getUpperTranslation()));
-        jointElement.setAttribute(
-            "referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
+        jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
         break;
       case DistanceJoint:
         localAnchorAElement =
@@ -270,11 +268,18 @@ public class PersistenceCaretaker {
               layersElement.appendChild(layerElement);
             });
     bodyElement.appendChild(layersElement);
+
     Element projectilesElement = document.createElement(PROJECTILES_TAG);
     for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
       projectilesElement.appendChild(createProjectileElement(document, projectileModel));
     }
     bodyElement.appendChild(projectilesElement);
+
+    Element fireSourcesElement = document.createElement(FIRE_SOURCE_LIST_TAG);
+    for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+      fireSourcesElement.appendChild(createFireSourcesElement(document, fireSourceModel));
+    }
+    bodyElement.appendChild(fireSourcesElement);
 
     Element ammoListElement = document.createElement(AMMO_LIST_TAG);
     for (CasingModel ammoModel : bodyModel.getCasingModels()) {
@@ -341,6 +346,16 @@ public class PersistenceCaretaker {
     return ammoElement;
   }
 
+  private Element createFireSourcesElement(Document document, FireSourceModel fireSourceModel) {
+    Element fireSourceElement = document.createElement(FIRE_SOURCE_TAG);
+    fireSourceElement.setAttribute(ID, String.valueOf(fireSourceModel.getFireSourceId()));
+    fireSourceElement.setIdAttribute(ID, true);
+    fireSourceElement.setAttribute(NAME, String.valueOf(fireSourceModel.getModelName()));
+    Element propertiesElement = createPropertiesElement(document, fireSourceModel.getProperties());
+    fireSourceElement.appendChild(propertiesElement);
+    return fireSourceElement;
+  }
+
   private Element createProjectileElement(Document document, ProjectileModel projectileModel) {
     Element projectileElement = document.createElement(PROJECTILE_TAG);
     projectileElement.setAttribute(ID, String.valueOf(projectileModel.getProjectileId()));
@@ -350,8 +365,10 @@ public class PersistenceCaretaker {
     projectileElement.appendChild(propertiesElement);
     projectileElement.setAttribute(
         PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getMissileFile());
-    projectileElement.setAttribute(
-        AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
+    if (projectileModel.getCasingModel() != null) {
+      projectileElement.setAttribute(
+          AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
+    }
     return projectileElement;
   }
 
@@ -690,6 +707,16 @@ public class PersistenceCaretaker {
                         .orElse(-1)
                     + 1);
       }
+      if (body.getFireSourceModels().size() > 0) {
+        toolModel
+            .getFireSourceCounter()
+            .set(
+                body.getFireSourceModels().stream()
+                        .mapToInt(FireSourceModel::getFireSourceId)
+                        .max()
+                        .orElse(-1)
+                    + 1);
+      }
       if (body.getLayers().size() > 0) {
         body.getLayerCounter()
             .set(body.getLayers().stream().mapToInt(LayerModel::getLayerId).max().orElse(-1) + 1);
@@ -744,13 +771,31 @@ public class PersistenceCaretaker {
     if (ammoListElement != null) {
       for (int i = 0; i < ammoListElement.getChildNodes().getLength(); i++) {
         Element ammoElement = (Element) ammoListElement.getChildNodes().item(i);
-        CasingModel ammoModel = null;
+        CasingModel ammoModel;
         try {
           ammoModel =
               readAmmoModel(ammoElement, bodyId, Integer.parseInt(ammoElement.getAttribute(ID)));
           ammoModels.add(ammoModel);
         } catch (PersistenceException e) {
           throw new PersistenceException("Error reading ammo model", e);
+        }
+      }
+    }
+
+    Element fireSourceListElement =
+        (Element) element.getElementsByTagName(FIRE_SOURCE_LIST_TAG).item(0);
+    List<FireSourceModel> fireSourceModels = bodyModel.getFireSourceModels();
+    if (fireSourceListElement != null) {
+      for (int i = 0; i < fireSourceListElement.getChildNodes().getLength(); i++) {
+        Element fireSourceElement = (Element) fireSourceListElement.getChildNodes().item(i);
+        FireSourceModel fireSourceModel;
+        try {
+          fireSourceModel =
+              readFireSourceModel(
+                  fireSourceElement, bodyId, Integer.parseInt(fireSourceElement.getAttribute(ID)));
+          fireSourceModels.add(fireSourceModel);
+        } catch (PersistenceException e) {
+          throw new PersistenceException("Error reading fire source model", e);
         }
       }
     }
@@ -889,6 +934,18 @@ public class PersistenceCaretaker {
     return ammoModel;
   }
 
+  private FireSourceModel readFireSourceModel(
+      Element fireSourceElement, int bodyId, int fireSourceId) throws PersistenceException {
+    Element propertiesElement =
+        (Element) fireSourceElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+    FireSourceModel fireSourceModel =
+        new FireSourceModel(bodyId, fireSourceId, fireSourceElement.getAttribute(NAME));
+    FireSourceProperties fireSourceProperties =
+        loadProperties(propertiesElement, FireSourceProperties.class);
+    fireSourceModel.setProperties(fireSourceProperties);
+    return fireSourceModel;
+  }
+
   private BombModel readBombModel(Element bombElement, int bodyId, int bombId)
       throws PersistenceException {
     Element propertiesElement = (Element) bombElement.getElementsByTagName(PROPERTIES_TAG).item(0);
@@ -918,14 +975,16 @@ public class PersistenceCaretaker {
         JointDef.JointType.valueTypes[
             Integer.parseInt(jointElement.getAttribute(JOINT_TYPE_ATTRIBUTE))];
 
-    JointModel jointModel = new JointModel(jointId,jointType);
+    JointModel jointModel = new JointModel(jointId, jointType);
 
     jointModel.setCollideConnected(
         Boolean.parseBoolean(jointElement.getAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE)));
-    jointModel.getLocalAnchorA().set(
-        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0)));
-    jointModel.getLocalAnchorB().set(
-        XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1)));
+    jointModel
+        .getLocalAnchorA()
+        .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0)));
+    jointModel
+        .getLocalAnchorB()
+        .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1)));
     int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
     int bodyBId = Integer.parseInt(jointElement.getAttribute(BODY_B_ID_JOINT_ATTRIBUTE));
     BodyModel bodyModelA =
@@ -938,32 +997,24 @@ public class PersistenceCaretaker {
       case WeldJoint:
         break;
       case RevoluteJoint:
-       jointModel.setEnableMotor(
-            Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
-        jointModel.setMaxMotorTorque(
-            Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
-       jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
-        jointModel.setEnableLimit(
-            Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+        jointModel.setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+        jointModel.setMaxMotorTorque(Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
+        jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
+        jointModel.setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
         jointModel.setLowerAngle(Float.parseFloat(jointElement.getAttribute("lowerAngle")));
         jointModel.setUpperAngle(Float.parseFloat(jointElement.getAttribute("upperAngle")));
-        jointModel.setReferenceAngle(
-            Float.parseFloat(jointElement.getAttribute("referenceAngle")));
+        jointModel.setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
         break;
       case PrismaticJoint:
-        jointModel.setEnableLimit(
-            Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
-        jointModel.setEnableMotor(
-            Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
-        jointModel.setMaxMotorForce(
-            Float.parseFloat(jointElement.getAttribute("maxMotorForce")));
+        jointModel.setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+        jointModel.setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+        jointModel.setMaxMotorForce(Float.parseFloat(jointElement.getAttribute("maxMotorForce")));
         jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
         jointModel.setLowerTranslation(
             Float.parseFloat(jointElement.getAttribute("lowerTranslation")));
         jointModel.setUpperTranslation(
             Float.parseFloat(jointElement.getAttribute("upperTranslation")));
-        jointModel.setReferenceAngle(
-            Float.parseFloat(jointElement.getAttribute("referenceAngle")));
+        jointModel.setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
         break;
       case DistanceJoint:
         jointModel.setDampingRatio(Float.parseFloat(jointElement.getAttribute("dampingRatio")));

@@ -1,4 +1,4 @@
-package com.evolgames.entities.usage.infos;
+package com.evolgames.entities.serialization.infos;
 
 import com.badlogic.gdx.math.Vector2;
 

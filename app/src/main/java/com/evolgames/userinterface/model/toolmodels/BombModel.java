@@ -1,9 +1,7 @@
 package com.evolgames.userinterface.model.toolmodels;
 
-import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BombProperties;
-import com.evolgames.entities.usage.infos.BombInfo;
-import com.evolgames.entities.usage.infos.ProjectileInfo;
+import com.evolgames.entities.serialization.infos.BombInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;

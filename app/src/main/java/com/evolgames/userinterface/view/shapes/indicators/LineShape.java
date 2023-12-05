@@ -19,7 +19,7 @@ public class LineShape {
   protected float mRed = 1, mGreen = 1, mBlue = 1;
   private boolean congruentEndpoints = false;
   private boolean indicatorsVisible;
-  private boolean visible = true;
+  protected boolean visible = true;
 
   public LineShape(Vector2 begin, EditorScene scene) {
     creationScene = scene;

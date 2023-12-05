@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
@@ -8,6 +9,7 @@ import com.evolgames.userinterface.view.windows.AbstractOneLevelSectionedAdvance
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
@@ -42,6 +44,13 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
     addSecondary(casingField, primaryKey, casingField.getSecondaryKey());
     casingField.setText(name);
     return casingField;
+  }
+  public FireSourceField addFireSourceField(String name, int primaryKey, int modelId) {
+    FireSourceField fireSourceField =
+        new FireSourceField(primaryKey, modelId, itemWindowController);
+    addSecondary(fireSourceField, primaryKey, fireSourceField.getSecondaryKey());
+    fireSourceField.setText(name);
+    return fireSourceField;
   }
 
   public BombField addBombField(String name, int primaryKey, int modelId) {

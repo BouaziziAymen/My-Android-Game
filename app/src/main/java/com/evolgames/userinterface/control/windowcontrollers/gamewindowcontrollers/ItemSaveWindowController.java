@@ -2,7 +2,6 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.factories.ItemCategoryFactory;
-import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -20,9 +19,8 @@ import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
-import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
-import javax.xml.transform.TransformerException;
 
 public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
 

@@ -31,7 +31,7 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
-import com.evolgames.entities.serialization.InitInfo;
+import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.utilities.BlockUtils;
 import com.evolgames.helpers.utilities.GeometryUtils;

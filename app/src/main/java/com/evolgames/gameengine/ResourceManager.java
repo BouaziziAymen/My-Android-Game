@@ -141,6 +141,7 @@ public class ResourceManager {
   private FontLoader fontLoader;
   private BuildableBitmapTextureAtlas texture;
   public TiledTextureRegion fireSourceTextureRegion;
+  public TextureRegion fireShapeTextureRegion;
 
   public void loadBatchers() {
     hudBatcher =
@@ -463,6 +464,9 @@ public class ResourceManager {
     this.casingShapeTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
+    this.fireShapeTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "shapes/fire.png");
 
 
     this.scaleButtonTextureRegion =

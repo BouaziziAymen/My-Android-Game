@@ -8,6 +8,7 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
@@ -43,6 +44,13 @@ public class OutlineController extends Controller {
         bombModel.getBombShape().release();
         if (bombModel.getBombField() != null) {
           bombModel.getBombField().hideFields();
+        }
+      }
+
+      for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+        fireSourceModel.getFireSourceShape().release();
+        if (fireSourceModel.getFireSourceField() != null) {
+          fireSourceModel.getFireSourceField().hideFields();
         }
       }
     }
@@ -91,6 +99,10 @@ public class OutlineController extends Controller {
       BombModel bombModel = (BombModel) selectedItemModel;
       bombModel.getBombShape().select();
       bombModel.getBombField().showFields();
+    }else if (selectedItemModel instanceof FireSourceModel) {
+      FireSourceModel fireSourceModel = (FireSourceModel) selectedItemModel;
+      fireSourceModel.getFireSourceShape().select();
+      fireSourceModel.getFireSourceField().showFields();
     }
   }
 
@@ -181,6 +193,9 @@ public class OutlineController extends Controller {
           }
           for (BombModel bombModel : bodyModel.getBombModels()) {
             bombModel.getBombShape().setVisible(true);
+          }
+          for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+            fireSourceModel.getFireSourceShape().setVisible(true);
           }
         }
         this.onItemSelectionUpdated(this.lastSelectedItem);

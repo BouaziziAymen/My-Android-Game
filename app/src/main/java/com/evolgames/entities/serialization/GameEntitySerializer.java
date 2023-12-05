@@ -14,10 +14,9 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.MeleeUse;
-import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Use;
-import com.evolgames.scenes.entities.Hand;
 
 import java.util.ArrayList;
 import java.util.HashMap;

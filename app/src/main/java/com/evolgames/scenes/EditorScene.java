@@ -3,7 +3,6 @@ package com.evolgames.scenes;
 import android.util.Log;
 
 import com.evolgames.entities.Plotter;
-import com.evolgames.entities.particles.persistence.PersistenceCaretaker;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
@@ -24,7 +23,6 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 
-import javax.xml.parsers.ParserConfigurationException;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.Entity;
@@ -165,6 +163,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     optionsWindowController.setCreationZoneController(creationZoneController);
     optionsWindowController.setUserInterface(userInterface);
     itemSaveWindowController.setUserInterface(userInterface);
+    itemSaveWindowController.setKeyboardController(keyboardController);
     jointWindowController.setUserInterface(userInterface);
     projectileOptionController.setUserInterface(userInterface);
     layerSettingsWindowController.setUserInterface(userInterface);

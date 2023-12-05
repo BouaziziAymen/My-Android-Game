@@ -2,7 +2,7 @@ package com.evolgames.entities.init;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.entities.serialization.InitInfo;
+import com.evolgames.entities.serialization.infos.InitInfo;
 
 public class RecoilInit extends BodyInitDecorator {
 

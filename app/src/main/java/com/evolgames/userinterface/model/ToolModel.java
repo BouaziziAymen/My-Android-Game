@@ -13,9 +13,11 @@ import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import java.io.Serializable;
@@ -24,13 +26,14 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
-  
+
   private final AbstractScene<?> scene;
   private final AtomicInteger bodyCounter = new AtomicInteger();
   private final AtomicInteger jointCounter = new AtomicInteger();
   private final AtomicInteger projectileCounter = new AtomicInteger();
   private final AtomicInteger ammoCounter = new AtomicInteger();
   private final AtomicInteger bombCounter = new AtomicInteger();
+  private final AtomicInteger fireSourceCounter = new AtomicInteger();
   private final ArrayList<BodyModel> bodies;
   private final ArrayList<JointModel> joints;
   private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
@@ -70,7 +73,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
   public JointModel createJointModel(JointShape jointShape, JointDef.JointType jointType) {
     int jointId = jointCounter.getAndIncrement();
-    JointModel jointModel = new JointModel(jointId,jointType, jointShape);
+    JointModel jointModel = new JointModel(jointId, jointType, jointShape);
     joints.add(jointModel);
     return jointModel;
   }
@@ -132,7 +135,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
   public void removeAmmo(int bodyId, int ammoId) {
     BodyModel body = getBodyModelById(bodyId);
-    body.getCasingModels().remove(body.getAmmoModelById(ammoId));
+    body.getCasingModels().remove(body.getCasingModelById(ammoId));
   }
 
   public DecorationModel removeDecoration(int bodyId, int layerId, int decorationId) {
@@ -184,6 +187,12 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         .orElse(null);
   }
 
+  public FireSourceModel getFireSourceById(int primaryKey, int modelId) {
+    return getBodyModelById(primaryKey).getFireSourceModels().stream()
+            .filter(e -> e.getFireSourceId() == modelId)
+            .findAny()
+            .orElse(null);
+  }
   public ProjectileModel getProjectileById(int primaryKey, int modelId) {
     return getBodyModelById(primaryKey).getProjectileModels().stream()
         .filter(e -> e.getProjectileId() == modelId)
@@ -236,11 +245,22 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     return bombCounter;
   }
 
+  public AtomicInteger getFireSourceCounter() {
+    return fireSourceCounter;
+  }
+
   public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
     int ammoId = ammoCounter.getAndIncrement();
     CasingModel ammoModel = new CasingModel(bodyId, ammoId, ammoShape);
     getBodyModelById(bodyId).getCasingModels().add(ammoModel);
     return ammoModel;
+  }
+
+  public FireSourceModel createNewFireSource(FireSourceShape fireSourceShape, int bodyId) {
+    int fireSourceId = fireSourceCounter.getAndIncrement();
+    FireSourceModel fireSourceModel = new FireSourceModel(bodyId, fireSourceId, fireSourceShape);
+    getBodyModelById(bodyId).getFireSourceModels().add(fireSourceModel);
+    return fireSourceModel;
   }
 
   public BombModel createNewBomb(BombShape bombShape, int bodyId) {

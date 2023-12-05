@@ -38,7 +38,7 @@ public class Quantity<C extends AdvancedWindowController<?>>
 
   public void updateRatio(float ratio) {
     if (ratio < 0 || ratio > 1) {
-      throw new IllegalArgumentException("The ratio of quantity should be between 0 and 1");
+      throw new IllegalArgumentException("The ratio of quantity should be between 0 and 1 :"+ratio);
     }
     int newNumberOfStrokes = (int) Math.ceil(ratio * inputLength);
     if (newNumberOfStrokes != mNumberOfStrokes) {

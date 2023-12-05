@@ -4,18 +4,21 @@ import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Strings;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 import java.util.ArrayList;
@@ -77,6 +80,14 @@ public class ItemWindowController
                   selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
       return model.getBombShape().getMovables(moveLimits);
     }
+    if (selectedSecondaryField instanceof FireSourceField) {
+      FireSourceModel model =
+              editorUserInterface
+                      .getToolModel()
+                      .getFireSourceById(
+                              selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+      return model.getFireSourceShape().getMovables(moveLimits);
+    }
     return null;
   }
 
@@ -102,6 +113,12 @@ public class ItemWindowController
           editorUserInterface
               .getToolModel()
               .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    } else if (itemField instanceof FireSourceField) {
+      FireSourceModel model =
+          editorUserInterface
+              .getToolModel()
+              .getFireSourceById(itemField.getPrimaryKey(), itemField.getModelId());
       outlineController.onItemSelectionUpdated(model);
     }
   }
@@ -152,6 +169,13 @@ public class ItemWindowController
               .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
       outlineController.onItemSelectionUpdated(model);
     }
+    if (itemField instanceof FireSourceField) {
+      FireSourceModel model =
+          editorUserInterface
+              .getToolModel()
+              .getFireSourceById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    }
     selectedSecondaryField = itemField;
   }
 
@@ -199,6 +223,9 @@ public class ItemWindowController
       }
       for (BombModel bombModel : bodyModel.getBombModels()) {
         onBombCreated(bombModel);
+      }
+      for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+        onFireSourceCreated(fireSourceModel);
       }
     }
     BodyModel selectedBody = getSelectedBody();
@@ -403,7 +430,7 @@ public class ItemWindowController
 
   public void onAmmoOptionButtonReleased(CasingField casingField) {
     this.ammoOptionController.onModelUpdated(
-        selectedBodyModel.getAmmoModelById(casingField.getSecondaryKey()));
+        selectedBodyModel.getCasingModelById(casingField.getSecondaryKey()));
     this.ammoOptionController.openWindow();
     unfold();
   }
@@ -430,5 +457,23 @@ public class ItemWindowController
 
   public AtomicInteger getItemCounter() {
     return itemCounter;
+  }
+
+  public void onFireSourceRemoveButtonClicked(FireSourceField fireSourceField) {}
+
+  public void onFireSourceOptionClicked(FireSourceField fireSourceField) {}
+
+  public void onFireSourceCreated(FireSourceModel fireSourceModel) {
+    FireSourceField fireSourceField =
+        window.addFireSourceField(
+            fireSourceModel.getModelName(),
+            fireSourceModel.getBodyId(),
+            fireSourceModel.getFireSourceId());
+    fireSourceModel.setFireSourceField(fireSourceField);
+    updateLayout();
+    // projectileOptionController.onModelUpdated(projectileModel);
+    onSecondaryButtonClicked(fireSourceField);
+    fireSourceField.getControl().updateState(Button.State.PRESSED);
+    //  projectileOptionController.updateCasingSelectionFields();
   }
 }

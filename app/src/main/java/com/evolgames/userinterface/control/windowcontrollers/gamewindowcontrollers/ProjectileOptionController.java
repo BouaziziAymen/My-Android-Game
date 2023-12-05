@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.factories.ItemCategoryFactory;
-import com.evolgames.entities.particles.persistence.PersistenceException;
+import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.gameengine.GameSound;
@@ -375,7 +374,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
   }
 
   private void setMissileName(String fileName) {
-    ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName);
+    ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName+".Xml");
     assert (selectedButton != null);
     missileButtonsTable.forEach((key, value) -> value.release());
     selectedButton.click();

@@ -14,6 +14,7 @@ import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
@@ -29,6 +30,7 @@ import com.evolgames.userinterface.view.shapes.indicators.ShiftArrowShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
@@ -110,6 +112,7 @@ public class CreationZoneController extends Controller {
       case ADD_POLYGON:
       case SCALE_IMAGE:
       case ROTATE_IMAGE:
+      case FIRE_SOURCE:
       case MOVE_IMAGE:
         editorScene.setScrollerEnabled(false);
         editorScene.setZoomEnabled(false);
@@ -145,7 +148,7 @@ public class CreationZoneController extends Controller {
       if (!(indicatorArrow instanceof JointShape
           || indicatorArrow instanceof ProjectileShape
           || indicatorArrow instanceof CasingShape
-          || indicatorArrow instanceof HandShape)) {
+          || indicatorArrow instanceof FireSourceShape)){
         indicatorArrow.detach();
       }
       indicatorArrow = null;
@@ -173,7 +176,7 @@ public class CreationZoneController extends Controller {
     }
     if (action == CreationAction.BOMB
         || action == CreationAction.PROJECTILE
-        || action == CreationAction.AMMO) {
+        || action == CreationAction.AMMO  || action == CreationAction.FIRE_SOURCE) {
       editorUserInterface.getItemButtonBoardController().releaseButtons();
       action = CreationAction.NONE;
     }
@@ -449,7 +452,20 @@ public class CreationZoneController extends Controller {
         return;
       }
     }
-
+    if (action == CreationAction.FIRE_SOURCE) {
+      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+        FireSourceShape fireSourceShape = new FireSourceShape(new Vector2(x, y), editorScene);
+        FireSourceModel fireSourceModel =
+                editorUserInterface
+                        .getToolModel()
+                        .createNewFireSource(
+                                fireSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+        itemWindowController.onFireSourceCreated(fireSourceModel);
+        fireSourceShape.bindModel(fireSourceModel);
+        this.indicatorArrow = fireSourceShape;
+        return;
+      }
+    }
     if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
       indicatorArrow =
           new ShiftArrowShape(
@@ -653,6 +669,6 @@ public class CreationZoneController extends Controller {
     PROJECTILE,
     MOVE_TOOL_POINT,
     AMMO,
-    BOMB
+    FIRE_SOURCE, BOMB
   }
 }

@@ -29,6 +29,17 @@ public class JointShape extends LineShape implements MovablesContainer {
     beginPoint = new JointPointImage(this, textureRegion, this.begin);
     endPoint = new JointPointImage(this, textureRegion, this.end);
 
+    this.beginPoint.setMoveAction(
+        () -> {
+          Vector2 point = beginPoint.getPoint();
+          JointShape.this.onBeginPointMoved(point.x, point.y);
+        });
+    this.endPoint.setMoveAction(
+        () -> {
+          Vector2 point = endPoint.getPoint();
+          JointShape.this.onEndPointMoved(point.x, point.y);
+        });
+
     container = new Container();
     container.addElement(beginPoint);
     container.addElement(endPoint);
@@ -60,8 +71,13 @@ public class JointShape extends LineShape implements MovablesContainer {
   public void updateEnd(float x, float y) {
     super.updateEnd(x, y);
     endPoint.setPosition(end.x, end.y);
-    if (selected) select();
-    else release();
+    if (selected){
+      select();
+    }
+    else {
+      release();
+    }
+    onEndPointMoved(x,y);
   }
 
   public Vector2 getBegin() {
@@ -82,5 +98,13 @@ public class JointShape extends LineShape implements MovablesContainer {
   public void detach() {
     super.detach();
     editorUserInterface.removeElement(container);
+  }
+
+  void onEndPointMoved(float x, float y) {
+    this.model.getLocalAnchorB().set(x, y);
+  }
+
+  public void onBeginPointMoved(float x, float y) {
+    this.model.getLocalAnchorA().set(x, y);
   }
 }

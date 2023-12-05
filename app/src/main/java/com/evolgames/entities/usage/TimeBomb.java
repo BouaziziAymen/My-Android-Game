@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.entities.usage.infos.BombInfo;
+import com.evolgames.entities.serialization.infos.BombInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.scenes.entities.PlayerSpecialAction;

@@ -94,6 +94,12 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
   }
 
   @Override
+  public void updateEnd(float x, float y) {
+    super.updateEnd(x, y);
+    model.getProperties().getAmmoDirection().set(direction);
+  }
+
+  @Override
   public void onControllerMoved(float dx, float dy) {
     super.onControllerMoved(dx, dy);
   }
@@ -104,8 +110,9 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
 
   public void bindModel(CasingModel model) {
     this.model = model;
-    updateDirection(model.getProperties().getAmmoDirection());
     model.setCasingShape(this);
-    onTurnAround();
+    Vector2 begin = model.getProperties().getAmmoOrigin();
+    updateBegin(begin.x,begin.y);
+    updateDirection(model.getProperties().getAmmoDirection());
   }
 }

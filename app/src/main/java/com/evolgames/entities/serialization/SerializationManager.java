@@ -4,6 +4,11 @@ import android.content.Context;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.evolgames.entities.serialization.infos.BombInfo;
+import com.evolgames.entities.serialization.infos.CasingInfo;
+import com.evolgames.entities.serialization.infos.InitInfo;
+import com.evolgames.entities.serialization.infos.JointInfo;
+import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
@@ -46,8 +51,8 @@ public class SerializationManager {
     kryo.register(com.evolgames.entities.serialization.GameEntitySerializer.class);
     kryo.register(com.evolgames.entities.serialization.GameGroupSerializer.class);
     kryo.register(com.evolgames.entities.serialization.SceneSerializer.class);
-    kryo.register(com.evolgames.entities.serialization.JointInfo.class);
-    kryo.register(com.evolgames.entities.serialization.InitInfo.class);
+    kryo.register(JointInfo.class);
+    kryo.register(InitInfo.class);
     kryo.register(com.evolgames.entities.GroupType.class);
     kryo.register(com.evolgames.entities.cut.SegmentFreshCut.class);
     kryo.register(com.evolgames.entities.SpecialEntityType.class);
@@ -76,11 +81,11 @@ public class SerializationManager {
     kryo.register(com.evolgames.entities.hand.HandControl[].class);
     kryo.register(com.evolgames.entities.usage.Smasher.class);
     kryo.register(com.evolgames.entities.usage.Shooter.class);
-    kryo.register(com.evolgames.entities.usage.infos.ProjectileInfo.class);
-    kryo.register(com.evolgames.entities.usage.infos.CasingInfo.class);
+    kryo.register(ProjectileInfo.class);
+    kryo.register(CasingInfo.class);
     kryo.register(com.evolgames.userinterface.model.BodyUsageCategory.class);
     kryo.register(com.evolgames.entities.usage.TimeBomb.class);
-    kryo.register(com.evolgames.entities.usage.infos.BombInfo.class);
+    kryo.register(BombInfo.class);
     kryo.register(com.evolgames.entities.usage.ProjectileType.class);
     kryo.setReferences(false);
   }

@@ -2,7 +2,7 @@ package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.ProjectileProperties;
-import com.evolgames.entities.usage.infos.ProjectileInfo;
+import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;

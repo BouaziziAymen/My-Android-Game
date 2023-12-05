@@ -28,17 +28,6 @@ public class RevoluteJointShape extends JointShape {
         scene,
         ResourceManager.getInstance().doubleDiskTextureRegion);
     this.editorUserInterface = scene.getUserInterface();
-    this.beginPoint.setMoveAction(
-        () -> {
-          Vector2 point = beginPoint.getPoint();
-          RevoluteJointShape.this.onBeginPointMoved(point.x, point.y);
-        });
-    this.endPoint.setMoveAction(
-            () -> {
-              Vector2 point = endPoint.getPoint();
-              RevoluteJointShape.this.onEndPointMoved(point.x, point.y);
-            });
-
 
     referenceAngleIndicator =
         new AngleIndicator(begin, scene, 48) {
@@ -91,18 +80,16 @@ public class RevoluteJointShape extends JointShape {
     hideLimitsElements();
   }
 
-  private void onEndPointMoved(float x, float y) {
-    this.model.getLocalAnchorB().set(x,y);
-  }
+
 
   public void onBeginPointMoved(float x, float y) {
+    super.onBeginPointMoved(x,y);
     referenceAngleIndicator.updateBegin(x, y);
     referenceAngleIndicator.drawSelf();
     upperAngleIndicator.updateBegin(x, y);
     upperAngleIndicator.drawSelf();
     lowerAngleIndicator.updateBegin(x, y);
     lowerAngleIndicator.drawSelf();
-    this.model.getLocalAnchorA().set(x,y);
   }
 
   @Override
@@ -182,6 +169,7 @@ public class RevoluteJointShape extends JointShape {
     lowerAngleIndicator.detach();
     upperAngleIndicator.detach();
   }
+
 
   @Override
   public void showLimitsElements() {
