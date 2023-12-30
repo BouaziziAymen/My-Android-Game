@@ -10,7 +10,7 @@ import com.evolgames.entities.particles.modifiers.GroundCollisionExpire;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
@@ -28,8 +28,19 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
       float smokeRatio,
       float sparkRatio,
       float particles,
-      float flameTemp) {
-    super(gameEntity, velocity, fireRatio, smokeRatio, sparkRatio, particles, flameTemp, data);
+      float flameTemp,
+      float initialFlameParticleSize,
+      float finalFlameParticleSize) {
+    super(
+        gameEntity,
+        velocity,
+        fireRatio,
+        smokeRatio,
+        sparkRatio,
+        particles,
+        flameTemp, initialFlameParticleSize,
+        finalFlameParticleSize,
+        data);
     createSystems();
   }
 
@@ -69,7 +80,13 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
   }
 
   protected BaseParticleSystem createFireSystem(
-      int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed) {
+      int lowerRate,
+      int higherRate,
+      int maxParticles,
+      float verticalSpeed,
+      float horizontalSpeed,
+      float initialFlameParticleSize,
+      float finalFlameParticleSize) {
     this.fireParticleSystem =
         new BaseParticleSystem(
             emitter,
@@ -82,7 +99,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
     Color fireColor = MyColorUtils.getColor(flameTemperature);
     Color secondColor =
         MyColorUtils.getColor(MyColorUtils.getPreviousTemperature(flameTemperature));
-    float lifeSpan = 0.3f;
+    float lifeSpan = 0.5f;
     this.fireParticleSystem.addParticleModifier(
         new org.andengine.entity.particle.modifier.ColorParticleModifier<>(
             0f,
@@ -94,9 +111,10 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
             fireColor.getBlue(),
             secondColor.getBlue()));
     this.fireParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
-    this.fireParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.3f));
     this.fireParticleSystem.addParticleModifier(
-        new ScaleParticleModifier<>(0f, lifeSpan, 0.9f, 0.8f));
+        new AlphaParticleModifier<>(0f, lifeSpan, 0.3f, 0f));
+    this.fireParticleSystem.addParticleModifier(
+        new ScaleParticleModifier<>(0f, lifeSpan, Math.min(0.99f,initialFlameParticleSize),  Math.min(0.99f,finalFlameParticleSize)));
     this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
     this.fireParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
     return fireParticleSystem;

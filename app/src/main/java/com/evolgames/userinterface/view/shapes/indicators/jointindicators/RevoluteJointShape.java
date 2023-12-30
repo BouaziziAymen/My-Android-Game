@@ -1,13 +1,10 @@
 package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.entities.blockvisitors.utilities.MathUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;

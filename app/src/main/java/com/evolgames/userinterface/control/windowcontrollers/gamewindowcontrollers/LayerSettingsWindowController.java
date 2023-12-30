@@ -15,9 +15,9 @@ import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -353,7 +353,6 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
             new ButtonBehavior<LayerSettingsWindowController>(this, juicyButton.getAttachment()) {
               @Override
               public void informControllerButtonClicked() {
-
                 onSecondaryButtonClicked(jucyField);
               }
 

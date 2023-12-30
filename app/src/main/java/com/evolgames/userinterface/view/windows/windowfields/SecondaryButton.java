@@ -2,7 +2,7 @@ package com.evolgames.userinterface.view.windows.windowfields;
 
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
-import com.evolgames.userinterface.sections.basic.SecondaryInterface;
+import com.evolgames.userinterface.view.sections.basic.SecondaryInterface;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.layouts.LinearLayout;

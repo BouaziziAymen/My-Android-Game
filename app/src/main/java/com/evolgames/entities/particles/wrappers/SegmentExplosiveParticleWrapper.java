@@ -11,7 +11,9 @@ import com.evolgames.entities.particles.modifiers.GroundCollisionExpire;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.physics.PhysicsConstants;
+
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
@@ -31,7 +33,9 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
       float smokeRatio,
       float sparkRatio,
       float intensity,
-      float flameTemp) {
+      float heatRatio,
+      float initialFlameParticleSize,
+      float finalFlameParticleSize) {
     super(
         gameEntity,
         velocity.len(),
@@ -39,7 +43,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         smokeRatio,
         sparkRatio,
         intensity * particleDensity(data),
-        flameTemp,
+            PhysicsConstants.getFlameTemperature(heatRatio),initialFlameParticleSize,finalFlameParticleSize,
         data);
     this.data = data;
     this.normal = velocity.nor();
@@ -87,7 +91,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
   }
 
   protected BaseParticleSystem createFireSystem(
-      int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed) {
+          int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, float initialFlameParticleSize, float finalFlameParticleSize) {
     this.fireParticleSystem =
         new BaseParticleSystem(
             emitter,
@@ -114,7 +118,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
             secondColor.getBlue()));
     this.fireParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
     this.fireParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.3f));
-    this.fireParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, 0.7f, 0f));
+    this.fireParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 0.5f, Math.min(0.99f,initialFlameParticleSize),  Math.min(0.99f,finalFlameParticleSize)));
     this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(0.5f));
     this.fireParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
     return fireParticleSystem;
@@ -130,15 +134,16 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
             maxParticles,
             ResourceManager.getInstance().plasmaParticle,
             ResourceManager.getInstance().vbom);
+    float lifespan = 1f;
     this.smokeParticleSystem.addParticleInitializer(
         new GameEntityAttachedMinMaxVelocityInitializer(
             parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
     this.smokeParticleSystem.addParticleInitializer(
         new ColorParticleInitializer<>(0.3f, 0.3f, 0.3f));
     this.smokeParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.2f));
-    this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, 5f, 0.2f, 0f));
-    this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, 5f, 0.99f, 0.99f));
-    this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
+    this.smokeParticleSystem.addParticleModifier(new AlphaParticleModifier<>(1f, lifespan, 0.2f, 0f));
+    this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan/3, 0.1f, 0.99f));
+    this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
     this.smokeParticleSystem.addParticleModifier(new GroundCollisionBump(20));
     return smokeParticleSystem;
   }

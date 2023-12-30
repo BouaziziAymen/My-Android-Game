@@ -16,13 +16,11 @@ public class GroundCollisionBump implements IParticleModifier<UncoloredSprite> {
 
   @Override
   public void onUpdateParticle(Particle<UncoloredSprite> pParticle) {
-    if (pParticle.getEntity().getY()
-            - (pParticle.getEntity().getHeight() / 3f * pParticle.getEntity().getScaleX())
-        < groundY) {
+    if (pParticle.getEntity().getY() < groundY) {
       float vx = pParticle.getPhysicsHandler().getVelocityX();
       float vy = pParticle.getPhysicsHandler().getVelocityY();
       if (vy < 0) {
-        vy = -vy;
+        vy = -vy/10;
       }
       pParticle.getPhysicsHandler().setVelocity(vx, vy);
     }

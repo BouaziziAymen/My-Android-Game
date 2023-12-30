@@ -2,7 +2,7 @@ package com.evolgames.userinterface.view.windows.windowfields;
 
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.abstractgamecontrollers.AbstractSectionedAdvancedWindowController2;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import org.andengine.opengl.texture.region.TiledTextureRegion;

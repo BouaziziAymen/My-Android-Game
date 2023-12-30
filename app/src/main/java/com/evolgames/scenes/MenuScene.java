@@ -13,9 +13,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
   }
 
   @Override
-  public void populate() {
-
-  }
+  public void populate() {}
 
   @Override
   public void detach() {

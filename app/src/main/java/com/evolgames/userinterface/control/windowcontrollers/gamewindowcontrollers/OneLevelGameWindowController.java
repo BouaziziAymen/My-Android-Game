@@ -2,8 +2,8 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 
 import com.evolgames.userinterface.control.windowcontrollers.OneLevelSectionedAdvancedWindowController;
-import com.evolgames.userinterface.sections.basic.PrimaryButtonField;
-import com.evolgames.userinterface.sections.basic.SecondaryButtonField;
+import com.evolgames.userinterface.view.sections.basic.PrimaryButtonField;
+import com.evolgames.userinterface.view.sections.basic.SecondaryButtonField;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.layouts.OneLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractSectionedAdvancedWindow;

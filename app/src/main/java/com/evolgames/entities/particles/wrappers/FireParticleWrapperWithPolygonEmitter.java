@@ -8,7 +8,7 @@ import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.pools.FireSpritePool;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;

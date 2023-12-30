@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.layouts;
 
-import com.evolgames.userinterface.sections.OneLevelSection;
-import com.evolgames.userinterface.sections.ZeroLevelSection;
+import com.evolgames.userinterface.view.sections.OneLevelSection;
+import com.evolgames.userinterface.view.sections.ZeroLevelSection;
 import com.evolgames.userinterface.view.basics.Element;
 import java.util.ArrayList;
 

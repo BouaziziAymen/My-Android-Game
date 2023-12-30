@@ -7,7 +7,7 @@ public class PhysicsConstants {
   public static final float MINIMUM_STABLE_SPLINTER_AREA = 36;
   public static final float PENETRATION_CONSTANT = 50000000f;
   public static final float PULVERIZATION_CONSTANT = 3.41f;
-  public static final int FLUX_PRECISION = 20;
+  public static final int FLUX_PRECISION = 10;
   public static final float BACKOFF = 0.05f;
   public static final float BLEEDING_CONSTANT = 1f;
   public static final float LIQUID_DENSITY_CONSTANT = 100;
@@ -40,5 +40,13 @@ public class PhysicsConstants {
 
   public static float getTenacityRatio(float tenacity) {
     return (tenacity - 0.001f) / (8f - 0.001f);
+  }
+
+    public static float getParticleVelocity(float speedRatio) {
+      return (100+1000*speedRatio);
+    }
+
+  public static float getFlameTemperature(float heatRatio) {
+    return 500+10000*heatRatio;
   }
 }

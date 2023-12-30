@@ -3,7 +3,6 @@ package com.evolgames.scenes;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
-import android.util.Log;
 import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -13,6 +12,10 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
 import com.evolgames.entities.Plotter;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.Vector2Utils;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -28,20 +31,19 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.SavingBox;
+import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MyColorUtils;
-import com.evolgames.helpers.utilities.Vector2Utils;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerAction;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
+import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
+import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -65,6 +67,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         PinchZoomDetector.IPinchZoomDetectorListener {
 
   public static boolean pause = false;
+  public static Plotter plotter;
   private RagDoll ragdoll;
   private GameGroup gameGroup1;
   private PlayerAction playerAction = PlayerAction.Drag;
@@ -76,7 +79,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private int step = 0;
   private boolean scroll;
   private SavingBox savingBox;
-  public static Plotter plotter;
 
   public PlayScene(Camera pCamera) {
     super(pCamera, SceneType.PLAY);
@@ -346,7 +348,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     float x = touchEvent.getX();
     float y = touchEvent.getY();
     if (touchEvent.isActionDown()) {
-      this.worldFacade.createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f);
+      this.worldFacade.createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f,1f,0f);
     }
   }
 
@@ -397,10 +399,10 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private void createGround() {
     ArrayList<LayerBlock> blocks = new ArrayList<>();
     List<Vector2> vertices1 = new ArrayList<>();
-    vertices1.add(obtain(-900, 0));
-    vertices1.add(obtain(-900, 20));
-    vertices1.add(obtain(400, 20));
-    vertices1.add(obtain(400, 0));
+    vertices1.add(obtain(-900000, 0));
+    vertices1.add(obtain(-900000, 20));
+    vertices1.add(obtain(900000, 20));
+    vertices1.add(obtain(900000, 0));
 
     List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));
@@ -424,7 +426,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         BlockFactory.createLayerBlock(
             vertices1,
             PropertiesFactory.getInstance()
-                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(0)),
+                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(13)),
             0,
             0,
             false));
@@ -592,6 +594,9 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       case Throw:
       case Grenade:
       case Shoot:
+      case ThrowFire:
+      case Rocket:
+      case Missile:
         angleDeg = 0;
         forceFactor = 3000f;
         break;
@@ -603,7 +608,42 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         forceFactor = 0;
         angleDeg = 0;
     }
-    Log.e("setAngle","size:"+hands.size());
+   if(action==PlayerSpecialAction.Missile){
+     Missile missile = null;
+     for (Map.Entry<Integer, Hand> entry : PlayScene.this.hands.entrySet()) {
+       Hand h = entry.getValue();
+       if (h.getMouseJoint() != null) {
+         if(h.getGrabbedEntity().hasUsage(Missile.class)){
+           missile = h.getGrabbedEntity().getUsage(Missile.class);
+         }
+       }
+     }
+     Missile finalMissile = missile;
+      userInterface
+          .getPanel()
+          .allocateController(
+              800 - 64 / 2f,
+              64 / 2f,
+              ControlElement.Type.AnalogController,
+              new ControllerAction() {
+                @Override
+                public void controlMoved(float pX, float pY) {
+                  if (finalMissile != null) {
+                    finalMissile.setSteerValue(pY);
+                  }
+                }
+
+                @Override
+                public void controlClicked() {}
+
+                @Override
+                public void controlReleased() {
+                  if (finalMissile != null) {
+                    finalMissile.setSteerValue(0);
+                  }
+                }
+              });
+   }
     for (Map.Entry<Integer, Hand> entry : this.hands.entrySet()) {
       Hand h = entry.getValue();
       if (h.getMouseJoint() != null) {

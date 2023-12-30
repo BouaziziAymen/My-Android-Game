@@ -1,7 +1,7 @@
 package com.evolgames.physics;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import java.util.ArrayList;
 
 public class GameEntityTransformation {

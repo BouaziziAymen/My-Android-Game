@@ -1,6 +1,6 @@
 package com.evolgames.entities.properties;
 
-import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import org.andengine.util.adt.color.Color;
 
 public class CoatingProperties extends ColoredProperties {

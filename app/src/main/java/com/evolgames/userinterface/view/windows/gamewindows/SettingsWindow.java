@@ -1,10 +1,10 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.ThreeLevelSectionLayout;
 import com.evolgames.userinterface.view.windows.AbstractThreeLevelSectionedAdvancedWindow;

@@ -30,6 +30,8 @@ public class BodyCreationCommand extends Command {
     entity.setVisible(true);
     bodyInit.initialize(body);
     entity.createJuiceSources();
+    body.setLinearDamping(0.1f);
+    body.setAngularDamping(0.1f);
   }
 
   public GameEntity getGameEntity() {

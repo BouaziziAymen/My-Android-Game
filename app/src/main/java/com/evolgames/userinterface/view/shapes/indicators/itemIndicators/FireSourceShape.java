@@ -37,17 +37,26 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
 
     this.direction = new Vector2(1, 0);
     this.editorUserInterface.addElement(originPoint);
-    this.extent = 12f;
+    this.extent = 0f;
     this.extentPoint =
         new ControllerPointImage(
             ResourceManager.getInstance().diamondTextureRegion, new Vector2(begin)) {
           @Override
           protected void performControl(float dx, float dy) {
-            extent+=dy;
+            extent += dy;
+            if (extent < 0) {
+              extent = 0f;
+            }
+            if (extent > 8f) {
+              extent = 8f;
+            }
             FireSourceShape.this.updateExtent();
+            model.getProperties().setExtent(extent);
             FireSourceShape.this.drawSelf();
           }
         };
+    originPoint.setDepth(1);
+    extentPoint.setDepth(2);
     this.editorUserInterface.addElement(extentPoint);
     editorUserInterface.setUpdated(true);
   }
@@ -55,7 +64,7 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
   @Override
   public void updateBegin(float x, float y) {
     super.updateBegin(x, y);
-    this.model.getProperties().setFireSourceOrigin(new Vector2(x,y));
+    this.model.getProperties().getFireSourceOrigin().set(x, y);
     updateExtent();
   }
 
@@ -119,7 +128,7 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
   }
 
   private void updateExtent() {
-    extentPoint.setPosition(begin.x - extent*direction.y, begin.y + extent*direction.x);
+    extentPoint.setPosition(begin.x - extent * direction.y, begin.y + extent * direction.x);
     extentPoint.setUpdated(true);
   }
 
@@ -136,7 +145,7 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
       lineStrip.shift();
       lineStrip.setIndex(lineStrip.getIndex() - 1);
     }
-    lineStrip.add(extentPoint.getPoint().x,extentPoint.getPoint().y);
+    lineStrip.add(extentPoint.getPoint().x, extentPoint.getPoint().y);
     lineStrip.add(begin.x, begin.y);
     lineStrip.add(end.x, end.y);
     lineStrip.setColor(mRed, mGreen, mBlue);
@@ -147,11 +156,6 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
     model.getProperties().getFireSourceDirection().set(direction);
   }
 
-  @Override
-  public void onControllerMoved(float dx, float dy) {
-    super.onControllerMoved(dx, dy);
-  }
-
   public FireSourceModel getModel() {
     return model;
   }
@@ -160,11 +164,10 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
     this.model = model;
     updateDirection(model.getProperties().getFireSourceDirection());
     Vector2 begin = model.getProperties().getFireSourceOrigin();
-    this.originPoint.setPosition(begin.x,begin.y);
-    updateBegin(begin.x,begin.y);
+    updateBegin(begin.x, begin.y);
+    this.extent = model.getProperties().getExtent();
+    updateExtent();
     this.drawSelf();
-
     model.setFireSourceShape(this);
-    onTurnAround();
   }
 }

@@ -3,7 +3,7 @@ package com.evolgames.entities.blocks;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blockvisitors.ClipVisitor;
 import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.entities.blockvisitors.utilities.Utils;
 import java.util.ArrayList;
 
 public final class DecorationBlock extends AssociatedBlock<DecorationBlock, DecorationProperties> {

@@ -4,7 +4,7 @@ import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.helpers.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import java.util.ArrayList;
 
 public abstract class AssociatedBlock<T extends AssociatedBlock<T, P>, P extends Properties>

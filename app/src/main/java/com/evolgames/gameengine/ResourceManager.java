@@ -142,8 +142,10 @@ public class ResourceManager {
   private BuildableBitmapTextureAtlas texture;
   public TiledTextureRegion fireSourceTextureRegion;
   public TextureRegion fireShapeTextureRegion;
+  public TextureRegion projectileDragTextureRegion;
+  public TiledTextureRegion projDragTextureRegion;
 
-  public void loadBatchers() {
+  public void loadBatches() {
     hudBatcher =
     new SpriteBatch(
             ResourceManager.getInstance().gameTextureAtlas,
@@ -395,7 +397,7 @@ public class ResourceManager {
             this.activity.getAssets(),
             "controllers/switcher/switcherBackground.png");
     this.particularUsages = new ArrayList<>();
-    for (int i = 0; i <= 7; i++) {
+    for (int i = 0; i <= 10; i++) {
       this.particularUsages.add(
           BitmapTextureAtlasTextureRegionFactory.createFromAsset(
               this.gameTextureAtlas,
@@ -467,6 +469,9 @@ public class ResourceManager {
     this.fireShapeTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "shapes/fire.png");
+    this.projectileDragTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "shapes/projdrag.png");
 
 
     this.scaleButtonTextureRegion =
@@ -566,6 +571,10 @@ public class ResourceManager {
     this.fireSourceTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
+    this.projDragTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "boards/projdrag.png", 1, 3);
+
 
 
     this.checkBoxTextureRegion =

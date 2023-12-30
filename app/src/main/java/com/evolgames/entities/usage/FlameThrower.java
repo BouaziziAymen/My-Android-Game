@@ -1,0 +1,103 @@
+package com.evolgames.entities.usage;
+
+import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.properties.usage.FlameThrowerProperties;
+import com.evolgames.entities.serialization.infos.FireSourceInfo;
+import com.evolgames.physics.PhysicsConstants;
+import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class FlameThrower extends Use {
+    private List<FireSourceInfo> fireSourceInfoList;
+    transient private HashMap<FireSourceInfo, ExplosiveParticleWrapper> flameThrowerInfFireSourceMap;
+    private boolean on;
+    public FlameThrower() {}
+
+  public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene) {
+    this.fireSourceInfoList =
+            ((FlameThrowerProperties)usageModel.getProperties()).getFireSources().stream()
+            .map(FireSourceModel::toFireSourceInfo)
+            .collect(Collectors.toList());
+    createFireSources(physicsScene.getWorldFacade());
+  }
+
+    public List<FireSourceInfo> getFireSourceInfoList() {
+        return fireSourceInfoList;
+    }
+
+    public void onTriggerPulled() {
+        on = true;
+        for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
+             i < projectileInfoListSize;
+             i++) {
+            FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
+            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
+            flameThrowerInfFireSourceMap.get(fireSourceInfo).setSpawnEnabled(true);
+            }
+        }
+    }
+    public void onTriggerReleased() {
+        on = false;
+    for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
+        i < projectileInfoListSize;
+        i++) {
+            FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
+            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
+                flameThrowerInfFireSourceMap.get(fireSourceInfo).setSpawnEnabled(false);
+            }
+        }
+    }
+  @Override
+  public void onStep(float deltaTime, WorldFacade worldFacade) {}
+
+  @Override
+  public PlayerSpecialAction getAction() {
+    return PlayerSpecialAction.ThrowFire;
+  }
+
+    public void createFireSources(WorldFacade worldFacade){
+        this.flameThrowerInfFireSourceMap = new HashMap<>();
+        this.fireSourceInfoList
+                .forEach(
+                        p -> {
+                            if (p.getFireRatio() >= 0.1f
+                                    || p.getSmokeRatio() >= 0.1f
+                                    || p.getSparkRatio() >= 0.1f) {
+
+                                Vector2 dir = p.getFireDirection();
+                                Vector2 nor = new Vector2(-dir.y, dir.x);
+                                Vector2 e = p.getFireSourceOrigin().cpy().sub(p.getMuzzleEntity().getCenter());
+                                float axisExtent = p.getExtent();
+                                ExplosiveParticleWrapper fireSource =
+                                        worldFacade
+                                                .createFireSource(
+                                                        p.getMuzzleEntity(),
+                                                        e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
+                                                        e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
+                                                        PhysicsConstants.getParticleVelocity(p.getSpeedRatio()),
+                                                        p.getFireRatio(),
+                                                       p.getSmokeRatio(),
+                                                        p.getSparkRatio(),
+                                                        p.getParticles(),
+                                                        p.getHeat(),p.getInFirePartSize(),p.getFinFirePartSize());
+                                fireSource.setSpawnEnabled(this.on);
+                                this.flameThrowerInfFireSourceMap.put(p,fireSource);
+                            };
+                        });
+    }
+
+    public boolean isOn() {
+        return on;
+    }
+
+    public void setOn(boolean on) {
+        this.on = on;
+    }
+}

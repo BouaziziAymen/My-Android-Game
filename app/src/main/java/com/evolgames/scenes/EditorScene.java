@@ -9,6 +9,8 @@ import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BodySettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.BombOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DragOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.FireSourceOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.CasingOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
@@ -104,6 +106,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     ProjectileOptionController projectileOptionController = new ProjectileOptionController(this);
     CasingOptionController ammoOptionController = new CasingOptionController();
     BombOptionController bombOptionController = new BombOptionController();
+    FireSourceOptionController fireSourceOptionController = new FireSourceOptionController();
+    DragOptionController dragOptionController = new DragOptionController();
     ItemWindowController itemWindowController = new ItemWindowController();
     LayerSettingsWindowController layerSettingsWindowController =
         new LayerSettingsWindowController();
@@ -126,6 +130,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
             projectileOptionController,
             ammoOptionController,
             bombOptionController,
+            fireSourceOptionController,
+            dragOptionController,
             itemSaveWindowController,
             decorationSettingsWindowController,
             optionsWindowController,
@@ -149,9 +155,13 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     itemWindowController.setOutlineController(outlineController);
     itemWindowController.setBombOptionController(bombOptionController);
     itemWindowController.setProjectileOptionController(projectileOptionController);
+    itemWindowController.setFireSourceOptionController(fireSourceOptionController);
+    itemWindowController.setDragOptionController(dragOptionController);
     projectileOptionController.setItemWindowController(itemWindowController);
     ammoOptionController.setItemWindowController(itemWindowController);
     bombOptionController.setItemWindowController(itemWindowController);
+    fireSourceOptionController.setItemWindowController(itemWindowController);
+    dragOptionController.setItemWindowController(itemWindowController);
     layerSettingsWindowController.setLayerWindowController(layerWindowController);
     layerSettingsWindowController.setKeyboardController(keyboardController);
     bodySettingsWindowController.setLayerWindowController(layerWindowController);

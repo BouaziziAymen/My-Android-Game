@@ -4,9 +4,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
@@ -26,10 +27,11 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   private final ArrayList<LayerModel> layers;
   private final ArrayList<ProjectileModel> projectileModels;
   private final ArrayList<CasingModel> casingModels;
+  private final ArrayList<DragModel> dragModels;
   private final ArrayList<FireSourceModel> fireSourceModels;
   private final List<UsageModel<?>> usageModels;
   private GameEntity gameEntity;
-  private List<BombModel> bombModels;
+  private final List<BombModel> bombModels;
   private BodyField field;
 
   public BodyModel(int bodyId) {
@@ -41,6 +43,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     properties = new BodyProperties();
     usageModels = new ArrayList<>();
     bombModels = new ArrayList<>();
+    dragModels = new ArrayList<>();
     fireSourceModels = new ArrayList<>();
   }
 
@@ -152,8 +155,8 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     return bombModels;
   }
 
-  public void setBombModels(List<BombModel> bombModels) {
-    this.bombModels = bombModels;
+  public ArrayList<DragModel> getDragModels() {
+    return dragModels;
   }
 
   public BombModel getBombModelById(int bombId) {

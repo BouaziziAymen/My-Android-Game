@@ -2,7 +2,7 @@ package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.entities.blockvisitors.utilities.MathUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.view.shapes.points.ControllerPointImage;
 
@@ -20,7 +20,7 @@ public abstract class AngleIndicator extends TurnAroundIndicator {
         new ControllerPointImage(ResourceManager.getInstance().diamondTextureRegion, end) {
           @Override
           protected void performControl(float dx, float dy) {
-            AngleIndicator.this.onControllerMoved(dx, dy);
+            AngleIndicator.this.onControllerMoved(5*dx, 5*dy);
           }
         };
 

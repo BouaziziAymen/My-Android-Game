@@ -16,7 +16,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.scenes.PhysicsScene;
 import java.util.ArrayDeque;
 import java.util.ArrayList;

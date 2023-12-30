@@ -3,7 +3,7 @@ package com.evolgames.entities.particles.emitters;
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
 
-import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.entities.blockvisitors.utilities.Utils;
 import java.util.Arrays;
 
 public class ClusterEmitter extends DataEmitter {

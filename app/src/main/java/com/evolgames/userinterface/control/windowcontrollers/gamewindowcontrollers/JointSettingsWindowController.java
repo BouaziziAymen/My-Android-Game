@@ -2,13 +2,9 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.MathUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -20,8 +16,8 @@ import com.evolgames.userinterface.control.windowcontrollers.OneLevelSectionedAd
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.basics.Element;

@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.view.windows.windowfields;
 
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.view.basics.Element;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.basics.Text;
 
 public class SimpleTitleField extends SimplePrimary<Text> {

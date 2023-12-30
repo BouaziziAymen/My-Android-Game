@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.ClusterEmitter;
 import com.evolgames.entities.particles.emitters.DataEmitter;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import org.andengine.util.adt.color.Color;
 
 public class ClusterLiquidParticleWrapper extends DataLiquidParticleWrapper {

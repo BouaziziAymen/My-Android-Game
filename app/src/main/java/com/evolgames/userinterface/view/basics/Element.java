@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.basics;
 
-import com.evolgames.userinterface.sections.Section;
+import com.evolgames.userinterface.view.sections.Section;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.inputs.bounds.Bounds;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;

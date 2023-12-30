@@ -3,7 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;

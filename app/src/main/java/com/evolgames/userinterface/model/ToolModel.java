@@ -7,16 +7,18 @@ import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.ToolProperties;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -33,6 +35,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
   private final AtomicInteger projectileCounter = new AtomicInteger();
   private final AtomicInteger ammoCounter = new AtomicInteger();
   private final AtomicInteger bombCounter = new AtomicInteger();
+  private final AtomicInteger dragCounter = new AtomicInteger();
   private final AtomicInteger fireSourceCounter = new AtomicInteger();
   private final ArrayList<BodyModel> bodies;
   private final ArrayList<JointModel> joints;
@@ -58,7 +61,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
     return null;
   }
-
   public void swapLayers(int bodyId, int index1, int index2) {
     Objects.requireNonNull(getBodyById(bodyId)).swapLayers(index1, index2);
     updateMesh();
@@ -206,6 +208,12 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         .findAny()
         .orElse(null);
   }
+  public DragModel getDragModelById(int primaryKey, int modelId) {
+    return getBodyModelById(primaryKey).getDragModels().stream()
+            .filter(e -> e.getDragId() == modelId)
+            .findAny()
+            .orElse(null);
+  }
 
   public void removeProjectile(int primaryKey, int modelId) {
     getBodyModelById(primaryKey)
@@ -215,6 +223,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
   public void removeBomb(int primaryKey, int secondaryKey) {
     getBodyModelById(primaryKey).getBombModels().removeIf(e -> e.getBombId() == secondaryKey);
+  }
+  public void removeDrag(int primaryKey, int secondaryKey) {
+    getBodyModelById(primaryKey).getDragModels().removeIf(e -> e.getDragId() == secondaryKey);
   }
 
   public ItemCategory getToolCategory() {
@@ -245,6 +256,9 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     return bombCounter;
   }
 
+  public AtomicInteger getDragCounter() {
+    return dragCounter;
+  }
   public AtomicInteger getFireSourceCounter() {
     return fireSourceCounter;
   }
@@ -267,8 +281,15 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     int bombId = bombCounter.getAndIncrement();
     BombModel bombModel = new BombModel(bodyId, bombId, bombShape);
     getBodyModelById(bodyId).getBombModels().add(bombModel);
-    bombShape.bindModel(bombModel);
     return bombModel;
   }
+
+    public DragModel createNewDrag(DragShape dragShape, int bodyId) {
+      int dragId = dragCounter.getAndIncrement();
+      DragModel dragModel = new DragModel(bodyId, dragId, dragShape);
+      getBodyModelById(bodyId).getDragModels().add(dragModel);
+      return dragModel;
+    }
+
 
 }

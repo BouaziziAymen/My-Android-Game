@@ -7,8 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.entities.PlayerSpecialAction;

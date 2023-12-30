@@ -3,11 +3,12 @@ package com.evolgames.physics.entities.explosions;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
-  private final PhysicsScene<?> gameScene;
+  private final PhysicsScene<?> scene;
   private final Vector2 center;
   private final float force;
   private final float heat;
@@ -20,27 +21,29 @@ public class Explosion {
   private boolean alive = true;
 
   public Explosion(
-      PhysicsScene<?> gameScene,
+      PhysicsScene<?> scene,
       GameEntity source,
       Vector2 center,
-      float particles,
-      float force,
-      float speed,
-      float heat,
+      float particlesRatio,
+      float forceRatio,
+      float speedRatio,
+      float heatRatio,
       float fireRatio,
       float smokeRatio,
-      float sparkRatio) {
-    this.gameScene = gameScene;
+      float sparkRatio,
+      float inParticleSizeRatio,
+      float finParticleSizeRatio) {
+    this.scene = scene;
     this.source = source;
     this.center = center;
-    this.force = force;
-    this.heat = heat;
-    this.velocity = (1000 + speed * 1000);
+    this.force = forceRatio;
+    this.heat = heatRatio;
+    this.velocity = PhysicsConstants.getParticleVelocity(speedRatio)*32f;
 
     if (fireRatio > 0.1f || smokeRatio > 0.1f || sparkRatio > 0.1f) {
       Vector2 c = center.cpy().mul(32f);
       this.explosionParticleWrapper =
-          this.gameScene
+          this.scene
               .getWorldFacade()
               .createPointFireSource(
                   null,
@@ -49,8 +52,8 @@ public class Explosion {
                   fireRatio,
                   smokeRatio,
                   sparkRatio,
-                  particles,
-                  2000,
+                      particlesRatio,
+                  2000,inParticleSizeRatio,finParticleSizeRatio,
                   false);
     }
   }
@@ -63,8 +66,8 @@ public class Explosion {
     if (!alive) {
       return;
     }
-    if (time < 1) {
-      gameScene
+    if (time < 5) {
+      scene
           .getWorldFacade()
           .performFlux(
               center,
@@ -78,15 +81,15 @@ public class Explosion {
                       vector.mul(i.getImpactImpulse() / 10000f);
                       gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                     });
-                gameScene.getWorldFacade().applyImpacts(gameEntity, impacts);
-                gameScene.getWorldFacade().applyImpactHeat(heat, impacts);
+                scene.getWorldFacade().applyImpacts(gameEntity, impacts);
+                scene.getWorldFacade().applyImpactHeat(heat, impacts);
               },
               source);
     }
     if (time > 10) {
       this.explosionParticleWrapper.stopFinal();
-      if (gameScene instanceof PlayScene) {
-        ((PlayScene) gameScene).unlockSaving();
+      if (scene instanceof PlayScene) {
+        ((PlayScene) scene).unlockSaving();
       }
       alive = false;
     }

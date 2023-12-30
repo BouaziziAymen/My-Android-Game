@@ -1,18 +1,20 @@
 package com.evolgames.userinterface.view.inputs.controllers;
 
+import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.EditorScene;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.scene.Scene;
 
 public class ControlPanel {
   private final ArrayList<ControlElement> registeredElements;
   private final Camera camera;
-  private final EditorScene scene;
+  private final AbstractScene<?> scene;
   private final AtomicInteger controlIdCounter;
 
-  public ControlPanel(EditorScene scene) {
+  public ControlPanel(AbstractScene<?> scene) {
     this.camera = scene.getCamera();
     this.scene = scene;
     this.registeredElements = new ArrayList<>();
@@ -32,7 +34,6 @@ public class ControlPanel {
 
   public ControlElement allocateController(
       float x, float y, ControlElement.Type type, ControllerAction action) {
-    boolean found = false;
     for (ControlElement controlElement : registeredElements) {
       if (controlElement.getType() == type) {
         controlElement.getAssociate().setPosition(x, y);

@@ -1,9 +1,9 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.ShiftText;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;

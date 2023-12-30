@@ -3,9 +3,12 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
+import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
+import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
+import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.SmashProperties;
@@ -22,11 +25,12 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -50,6 +54,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
   private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8, 5);
   private final NumericValidator gunReloadTimeValidator =
       new NumericValidator(false, false, 0, 1000, 3, 0);
+  private final NumericValidator rocketFuelValidator =
+      new NumericValidator(false, false, 0, 1000, 3, 0);
   private final NumericValidator roundsValidator =
       new NumericValidator(false, false, 0, 1000, 3, 0);
   private final NumericValidator bombDelayValidator =
@@ -72,6 +78,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
   private TextField<BodySettingsWindowController> roundsTextField;
   private TextField<BodySettingsWindowController> bombDelayTextField;
   private TextField<BodySettingsWindowController> bombMinImpactTextField;
+  private Quantity<BodySettingsWindowController> rocketPowerQuantityField;
+  private Quantity<BodySettingsWindowController> missileControlQuantityField;
+  private TextField<BodySettingsWindowController> rocketFuelTextField;
 
   public void setLayerWindowController(LayerWindowController layerWindowController) {
     this.layerWindowController = layerWindowController;
@@ -148,6 +157,23 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         break;
       case THROWING:
         break;
+      case FLAME_THROWER:
+        break;
+      case ROCKET:
+        UsageModel<RocketProperties> rocketPropertiesUsageModel =
+            this.bodyModel.getUsageModel(usageCategory);
+        RocketProperties rocketProperties = rocketPropertiesUsageModel.getProperties();
+        setRocketPower(rocketProperties.getPower());
+        setFuel(rocketProperties.getFuel());
+        break;
+      case MISSILE:
+        UsageModel<MissileProperties> missilePropertiesUsageModel =
+            this.bodyModel.getUsageModel(usageCategory);
+        MissileProperties missileProperties = missilePropertiesUsageModel.getProperties();
+        setRocketPower(missileProperties.getPower());
+        setFuel(missileProperties.getFuel());
+        setMissileControl(missileProperties.getControl());
+        break;
     }
   }
 
@@ -197,10 +223,23 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     fireRateQuantityField.updateRatio(fireRate);
   }
 
+  private void setRocketPower(float power) {
+    rocketPowerQuantityField.updateRatio(power);
+  }
+
+  private void setMissileControl(float control) {
+    missileControlQuantityField.updateRatio(control);
+  }
+
+
   private void setReloadTime(float reloadTime) {
     rangedManualReloadTimeTextField
         .getBehavior()
         .setTextValidated("" + Float.valueOf(reloadTime).intValue());
+  }
+
+  private void setFuel(int fuel) {
+    rocketFuelTextField.getBehavior().setTextValidated("" + fuel);
   }
 
   private void setBombDelay(float delay) {
@@ -309,7 +348,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             case SHOOTER_CONTINUOUS:
               ContinuousShooterProperties automaticProperties =
                   bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER_CONTINUOUS);
-              createReloadTimeField(primaryId, 1, automaticProperties);
+              createReloadTimeField(primaryId, 0, automaticProperties);
               createFireRateField(
                   primaryId,
                   1,
@@ -355,6 +394,50 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
               break;
             case THROWING:
               break;
+            case FLAME_THROWER:
+              FlameThrowerProperties flameThrowerProperties =
+                  bodyModel.getUsageModelProperties(BodyUsageCategory.FLAME_THROWER);
+              createFlameThrowerFireSourceField(primaryId, 1, flameThrowerProperties);
+              break;
+            case ROCKET:
+              RocketProperties rocketProperties =
+                  bodyModel.getUsageModelProperties(BodyUsageCategory.ROCKET);
+              createRocketFireSourceField(primaryId, 0, rocketProperties);
+              createRocketPowerField(
+                  primaryId,
+                  1,
+                  () ->
+                      rocketPowerQuantityField
+                          .getBehavior()
+                          .setChangeAction(
+                              () ->
+                                  rocketProperties.setPower(rocketPowerQuantityField.getRatio())));
+              createRocketFuelField(primaryId, 2, rocketProperties);
+              break;
+            case MISSILE:
+              MissileProperties missileProperties =
+                  bodyModel.getUsageModelProperties(BodyUsageCategory.MISSILE);
+              createRocketFireSourceField(primaryId, 0, missileProperties);
+              createRocketPowerField(
+                  primaryId,
+                  1,
+                  () ->
+                      rocketPowerQuantityField
+                          .getBehavior()
+                          .setChangeAction(
+                              () ->
+                                  missileProperties.setPower(rocketPowerQuantityField.getRatio())));
+              createMissileControlField(
+                      primaryId,
+                      2,
+                      () ->
+                              missileControlQuantityField
+                                      .getBehavior()
+                                      .setChangeAction(
+                                              () ->
+                                                      missileProperties.setControl(rocketPowerQuantityField.getRatio())));
+              createRocketFuelField(primaryId, 3, missileProperties);
+              break;
           }
         }
       }
@@ -398,6 +481,85 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         new SimpleSecondary<>(primaryId, secondaryId, fireRateFieldWithError);
     window.addSecondary(rangedFireRateElement);
     action.run();
+  }
+
+  private void createRocketPowerField(int primaryId, int secondaryId, Runnable action) {
+    TitledQuantity<BodySettingsWindowController> titledMotorPowerQuantity =
+        new TitledQuantity<>("Power:", 16, "r", 5, 50);
+    rocketPowerQuantityField = titledMotorPowerQuantity.getAttachment();
+    titledMotorPowerQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<BodySettingsWindowController>(this, rocketPowerQuantityField) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+
+    FieldWithError rocketPowerFieldWithError = new FieldWithError(titledMotorPowerQuantity);
+    SimpleSecondary<FieldWithError> rocketPowerElement =
+        new SimpleSecondary<>(primaryId, secondaryId, rocketPowerFieldWithError);
+    window.addSecondary(rocketPowerElement);
+    action.run();
+  }
+
+  private void createMissileControlField(int primaryId, int secondaryId, Runnable action) {
+    TitledQuantity<BodySettingsWindowController> titledMissileControlQuantity =
+        new TitledQuantity<>("Control:", 16, "r", 5, 50);
+    missileControlQuantityField = titledMissileControlQuantity.getAttachment();
+    titledMissileControlQuantity
+        .getAttachment()
+        .setBehavior(
+            new QuantityBehavior<BodySettingsWindowController>(this, missileControlQuantityField) {
+              @Override
+              public void informControllerQuantityUpdated(Quantity<?> quantity) {}
+            });
+
+    FieldWithError missileControlFieldWithError = new FieldWithError(titledMissileControlQuantity);
+    SimpleSecondary<FieldWithError> missileControlElement =
+        new SimpleSecondary<>(primaryId, secondaryId, missileControlFieldWithError);
+    window.addSecondary(missileControlElement);
+    action.run();
+  }
+
+  private void createRocketFuelField(
+      int primaryId, int secondaryId, RocketProperties rocketProperties) {
+    TitledTextField<BodySettingsWindowController> rocketFuelField =
+        new TitledTextField<>("Fuel:", 6, 5, 80);
+    rocketFuelTextField = rocketFuelField.getAttachment();
+
+    rocketFuelField
+        .getAttachment()
+        .setBehavior(
+            new TextFieldBehavior<BodySettingsWindowController>(
+                this,
+                rocketFuelTextField,
+                Keyboard.KeyboardType.Numeric,
+                rocketFuelValidator,
+                true) {
+              @Override
+              protected void informControllerTextFieldTapped() {
+                BodySettingsWindowController.super.onTextFieldTapped(rocketFuelTextField);
+              }
+
+              @Override
+              protected void informControllerTextFieldReleased() {
+                BodySettingsWindowController.super.onTextFieldReleased(rocketFuelTextField);
+              }
+            });
+
+    FieldWithError rocketFuelFieldWithError = new FieldWithError(rocketFuelField);
+    SimpleSecondary<FieldWithError> rocketFuelElement =
+        new SimpleSecondary<>(primaryId, secondaryId, rocketFuelFieldWithError);
+    window.addSecondary(rocketFuelElement);
+
+    rocketFuelTextField
+        .getBehavior()
+        .setReleaseAction(
+            () -> {
+              int fuel = Integer.parseInt(rocketFuelTextField.getTextString());
+              assert rocketProperties != null;
+              rocketProperties.setFuel(fuel);
+            });
   }
 
   private void createReloadTimeField(
@@ -541,6 +703,60 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     }
   }
 
+  private void createFlameThrowerFireSourceField(
+      int primaryId, int secondaryId, FlameThrowerProperties flameThrowerProperties) {
+    SecondarySectionField<BodySettingsWindowController> fireSourcesField =
+        new SecondarySectionField<>(
+            primaryId,
+            secondaryId,
+            "Fire Sources",
+            ResourceManager.getInstance().mainButtonTextureRegion,
+            this);
+    window.addSecondary(fireSourcesField);
+    List<FireSourceModel> fireSources =
+        editorUserInterface.getToolModel().getBodies().stream()
+            .map(BodyModel::getFireSourceModels)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    for (FireSourceModel fireSourceModel : fireSources) {
+      createFlameThrowerFireSourceButton(
+          primaryId, secondaryId, fireSourceModel, flameThrowerProperties);
+    }
+  }
+
+  private void createFlameThrowerFireSourceButton(
+      int primaryKey,
+      int secondaryKey,
+      FireSourceModel fireSourceModel,
+      FlameThrowerProperties flameThrowerProperties) {
+    ButtonWithText<BodySettingsWindowController> fireSourceButton =
+        new ButtonWithText<>(
+            fireSourceModel.getModelName(),
+            2,
+            ResourceManager.getInstance().simpleButtonTextureRegion,
+            Button.ButtonType.Selector,
+            true);
+    SimpleTertiary<ButtonWithText<?>> fireSourceField =
+        new SimpleTertiary<>(
+            primaryKey, secondaryKey, fireSourceModel.getFireSourceId(), fireSourceButton);
+    window.addTertiary(fireSourceField);
+    fireSourceButton.setBehavior(
+        new ButtonBehavior<BodySettingsWindowController>(this, fireSourceButton) {
+          @Override
+          public void informControllerButtonClicked() {
+            flameThrowerProperties.getFireSources().add(fireSourceModel);
+          }
+
+          @Override
+          public void informControllerButtonReleased() {
+            flameThrowerProperties.getFireSources().remove(fireSourceModel);
+          }
+        });
+    if (flameThrowerProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
+      fireSourceButton.updateState(Button.State.PRESSED);
+    }
+  }
+
   private void createProjectileButton(
       int primaryKey,
       int secondaryKey,
@@ -632,6 +848,25 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     if (e == BodyUsageCategory.THROWING) {
       UsageModel<ThrowProperties> usage = new UsageModel<>("", e);
       bodyModel.getUsageModels().add(usage);
+    }
+
+    if (e == BodyUsageCategory.FLAME_THROWER) {
+      UsageModel<FlameThrowerProperties> usage = new UsageModel<>("", e);
+      bodyModel.getUsageModels().add(usage);
+      FlameThrowerProperties properties = usage.getProperties();
+      properties.setFireSourceIds(new ArrayList<>());
+    }
+    if (e == BodyUsageCategory.ROCKET) {
+      UsageModel<RocketProperties> usage = new UsageModel<>("", e);
+      bodyModel.getUsageModels().add(usage);
+      RocketProperties properties = usage.getProperties();
+      properties.setFireSourceModelListIds(new ArrayList<>());
+    }
+    if (e == BodyUsageCategory.MISSILE) {
+      UsageModel<MissileProperties> usage = new UsageModel<>("", e);
+      bodyModel.getUsageModels().add(usage);
+      MissileProperties properties = usage.getProperties();
+      properties.setFireSourceModelListIds(new ArrayList<>());
     }
   }
 
@@ -735,6 +970,59 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     if (bombUsageProperties.getBombModelList().stream()
         .anyMatch(b -> bombModel.getBombId() == b.getBombId())) {
       bombButton.updateState(Button.State.PRESSED);
+    }
+  }
+
+  private void createRocketFireSourceField(
+      int primaryId, int secondaryId, RocketProperties rocketProperties) {
+    SecondarySectionField<BodySettingsWindowController> fireSourcesField =
+        new SecondarySectionField<>(
+            primaryId,
+            secondaryId,
+            "Fire Sources",
+            ResourceManager.getInstance().mainButtonTextureRegion,
+            this);
+    window.addSecondary(fireSourcesField);
+    List<FireSourceModel> fireSources =
+        editorUserInterface.getToolModel().getBodies().stream()
+            .map(BodyModel::getFireSourceModels)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    for (FireSourceModel fireSourceModel : fireSources) {
+      createRocketFireSourceButton(primaryId, secondaryId, fireSourceModel, rocketProperties);
+    }
+  }
+
+  private void createRocketFireSourceButton(
+      int primaryKey,
+      int secondaryKey,
+      FireSourceModel fireSourceModel,
+      RocketProperties rocketProperties) {
+    ButtonWithText<BodySettingsWindowController> fireSourceButton =
+        new ButtonWithText<>(
+            fireSourceModel.getModelName(),
+            2,
+            ResourceManager.getInstance().simpleButtonTextureRegion,
+            Button.ButtonType.Selector,
+            true);
+    SimpleTertiary<ButtonWithText<?>> fireSourceField =
+        new SimpleTertiary<>(
+            primaryKey, secondaryKey, fireSourceModel.getFireSourceId(), fireSourceButton);
+    window.addTertiary(fireSourceField);
+    fireSourceButton.setBehavior(
+        new ButtonBehavior<BodySettingsWindowController>(this, fireSourceButton) {
+          @Override
+          public void informControllerButtonClicked() {
+            rocketProperties.getFireSourceModelList().add(fireSourceModel);
+          }
+
+          @Override
+          public void informControllerButtonReleased() {
+            rocketProperties.getFireSourceModelList().remove(fireSourceModel);
+          }
+        });
+    if (rocketProperties.getFireSourceModelListIds().contains(fireSourceModel.getFireSourceId())) {
+      fireSourceButton.updateState(Button.State.PRESSED);
     }
   }
 }

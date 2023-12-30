@@ -9,7 +9,7 @@ public class BombUsageProperties extends Properties {
 
   private final List<BombModel> bombModelList;
   private List<Integer> bombIds;
-  private float delay = 5f;
+  protected float delay = 5f;
 
   public BombUsageProperties() {
     this.bombModelList = new ArrayList<>();

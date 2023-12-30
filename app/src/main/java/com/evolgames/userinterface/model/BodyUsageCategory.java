@@ -9,7 +9,10 @@ public enum BodyUsageCategory {
   SLASHER("Slashing", "Slashing Options", 3),
   BLUNT("Blunt", "Blunt Options", 4),
   STABBER("Stabbing", "Stabbing Options", 5),
-  THROWING("Throwing", "Throwing Options", 6);
+  THROWING("Throwing", "Throwing Options", 6),
+  FLAME_THROWER("Flame Thrower", "Flame Thr. Options", 7),
+  ROCKET("Rocket", "Rocket. Options", 8),
+  MISSILE("Missile", "Missile. Options", 8);
   final String name;
   final int group;
   private final String optionsTitle;

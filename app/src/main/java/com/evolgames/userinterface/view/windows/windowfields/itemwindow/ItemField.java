@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.windows.windowfields.itemwindow;
 
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
-import com.evolgames.userinterface.sections.basic.SecondaryButtonField;
+import com.evolgames.userinterface.view.sections.basic.SecondaryButtonField;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
 public class ItemField extends SecondaryButtonField {

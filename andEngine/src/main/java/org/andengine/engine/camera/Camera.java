@@ -184,6 +184,10 @@ public class Camera implements IUpdateHandler {
 		this.mChaseEntity = pChaseEntity;
 	}
 
+	public IEntity getChasedEntity() {
+		return mChaseEntity;
+	}
+
 	public boolean isRotated() {
 		return this.mRotation != 0;
 	}

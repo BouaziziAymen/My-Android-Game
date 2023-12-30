@@ -16,16 +16,16 @@ import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.ToolUtils;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
@@ -59,14 +59,10 @@ public class Shooter extends Use {
   private boolean continueFire;
   transient private List<ToolModel> missileModels;
   transient private Map<ProjectileInfo,ExplosiveParticleWrapper> projInfFireSourceMap;
-
-  public List<ProjectileInfo> getProjectileInfoList() {
-    return projectileInfoList;
-  }
-
-
+  @SuppressWarnings("unused")
   public Shooter() {
   }
+
 
   public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene) {
     this.type = rangedUsageModel.getType();
@@ -94,6 +90,10 @@ public class Shooter extends Use {
       default:
         throw new IllegalStateException("Unexpected value: " + rangedUsageModel.getType());
     }
+  }
+
+  public List<ProjectileInfo> getProjectileInfoList() {
+    return projectileInfoList;
   }
 
   public void fillMissileModels() {
@@ -312,8 +312,8 @@ public class Shooter extends Use {
                                                 p.getFireRatio(),
                                                 p.getSmokeRatio(),
                                                 p.getSparkRatio(),
-                                                0.1f,
-                                                2000);
+                                                1f,
+                                                0.2f,1f,0f);
                         fireSource.setSpawnEnabled(false);
                         this.projInfFireSourceMap.put(p,fireSource);
                       };

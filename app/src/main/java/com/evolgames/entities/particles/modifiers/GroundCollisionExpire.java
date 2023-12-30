@@ -17,7 +17,6 @@ public class GroundCollisionExpire implements IParticleModifier<UncoloredSprite>
   @Override
   public void onUpdateParticle(Particle<UncoloredSprite> pParticle) {
     if (pParticle.getEntity().getY()
-            - (pParticle.getEntity().getHeight() / 3f * pParticle.getEntity().getScaleX())
         < groundY) {
       pParticle.setExpired(true);
     }

@@ -5,7 +5,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.cut.ShatterData;
-import com.evolgames.helpers.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import java.util.ArrayDeque;

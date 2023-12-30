@@ -8,7 +8,7 @@ import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;

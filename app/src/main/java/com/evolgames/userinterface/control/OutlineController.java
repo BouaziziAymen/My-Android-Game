@@ -8,6 +8,7 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.Color;
@@ -44,6 +45,12 @@ public class OutlineController extends Controller {
         bombModel.getBombShape().release();
         if (bombModel.getBombField() != null) {
           bombModel.getBombField().hideFields();
+        }
+      }
+      for (DragModel dragModel : bodyModel.getDragModels()) {
+        dragModel.getDragShape().release();
+        if (dragModel.getDragField() != null) {
+          dragModel.getDragField().hideFields();
         }
       }
 
@@ -103,6 +110,10 @@ public class OutlineController extends Controller {
       FireSourceModel fireSourceModel = (FireSourceModel) selectedItemModel;
       fireSourceModel.getFireSourceShape().select();
       fireSourceModel.getFireSourceField().showFields();
+    } else if (selectedItemModel instanceof DragModel) {
+      DragModel dragModel = (DragModel) selectedItemModel;
+      dragModel.getDragShape().select();
+      dragModel.getDragField().showFields();
     }
   }
 
@@ -190,6 +201,9 @@ public class OutlineController extends Controller {
           }
           for (CasingModel casingModel : bodyModel.getCasingModels()) {
             casingModel.getCasingShape().setVisible(true);
+          }
+          for (DragModel dragModel : bodyModel.getDragModels()) {
+            dragModel.getDragShape().setVisible(true);
           }
           for (BombModel bombModel : bodyModel.getBombModels()) {
             bombModel.getBombShape().setVisible(true);

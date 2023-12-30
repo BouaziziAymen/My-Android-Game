@@ -9,6 +9,7 @@ import com.evolgames.userinterface.view.windows.AbstractOneLevelSectionedAdvance
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BombField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
@@ -58,6 +59,13 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
     addSecondary(bombField, primaryKey, bombField.getSecondaryKey());
     bombField.setText(name);
     return bombField;
+  }
+
+  public DragField addDragField(String name, int primaryKey, int modelId) {
+    DragField dragField = new DragField(primaryKey, modelId, itemWindowController);
+    addSecondary(dragField, primaryKey, dragField.getSecondaryKey());
+    dragField.setText(name);
+    return dragField;
   }
 
   @Override

@@ -14,12 +14,15 @@ public class ProjectileProperties extends Properties {
   private float fireRatio;
   private float sparkRatio;
   private float particles;
+  private float inFirePartSize;
+  private float finFirePartSize;
 
   public ProjectileProperties(Vector2 begin, Vector2 end) {
     this.projectileOrigin = begin.cpy();
     this.projectileEnd = end.cpy();
   }
 
+  @SuppressWarnings("unused")
   public ProjectileProperties() {}
 
   @Override
@@ -31,6 +34,12 @@ public class ProjectileProperties extends Properties {
     properties.setMuzzleVelocity(muzzleVelocity);
     properties.setProjectileEnd(projectileEnd.cpy());
     properties.setProjectileOrigin(projectileOrigin.cpy());
+    properties.setSmokeRatio(this.smokeRatio);
+    properties.setSparkRatio(this.sparkRatio);
+    properties.setFireRatio(this.fireRatio);
+    properties.setParticles(this.particles);
+    properties.setInFirePartSize(this.inFirePartSize);
+    properties.setFinFirePartSize(this.finFirePartSize);
     return properties;
   }
 
@@ -112,5 +121,21 @@ public class ProjectileProperties extends Properties {
 
   public void setParticles(float particles) {
     this.particles = particles;
+  }
+
+  public float getInFirePartSize() {
+    return inFirePartSize;
+  }
+
+  public void setInFirePartSize(float inFirePartSize) {
+    this.inFirePartSize = inFirePartSize;
+  }
+
+  public float getFinFirePartSize() {
+    return finFirePartSize;
+  }
+
+  public void setFinFirePartSize(float finFirePartSize) {
+    this.finFirePartSize = finFirePartSize;
   }
 }

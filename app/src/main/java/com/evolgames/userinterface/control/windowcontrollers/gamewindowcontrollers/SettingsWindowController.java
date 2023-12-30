@@ -4,10 +4,10 @@ import com.evolgames.entities.properties.Properties;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.ThreeLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleQuaternary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.windows.gamewindows.SettingsWindow;
 

@@ -7,16 +7,14 @@ import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
-import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -24,14 +22,17 @@ import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.usage.Drag;
+import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.entities.usage.Missile;
+import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Slasher;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.SceneType;
@@ -40,6 +41,7 @@ import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
 import java.util.ArrayList;
@@ -110,6 +112,14 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
       gameEntities.add(gameEntity);
       bodyModel.setGameEntity(gameEntity);
       gameEntity.setCenter(center);
+      bodyModel
+          .getDragModels()
+          .forEach(
+              e -> {
+                Drag drag = new Drag(e);
+                gameEntity.getUseList().add(drag);
+                drag.setDraggedEntity(gameEntity);
+              });
     }
     // Handle usage
     List<ProjectileModel> projectileModels =
@@ -125,6 +135,19 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("Body not found!"))
                     .getGameEntity()));
+    List<FireSourceModel> fireSourceModels =
+        bodies.stream()
+            .map(BodyModel::getFireSourceModels)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+    fireSourceModels.forEach(
+        fireSourceModel ->
+            fireSourceModel.setMuzzleEntity(
+                bodies.stream()
+                    .filter(e -> e.getBodyId() == fireSourceModel.getBodyId())
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException("Body not found!"))
+                    .getGameEntity()));
 
     bodies.forEach(
         usageBodyModel ->
@@ -135,7 +158,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                             || e.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS)
                 .forEach(
                     e -> {
-                      Shooter shooter = new Shooter(e,this);
+                      Shooter shooter = new Shooter(e, this);
                       usageBodyModel.getGameEntity().getUseList().add(shooter);
                     }));
 
@@ -148,6 +171,16 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                       TimeBomb timeBomb = new TimeBomb(e);
                       usageBodyModel.getGameEntity().getUseList().add(timeBomb);
                       timeBomb.setGameEntity(usageBodyModel.getGameEntity());
+                    }));
+    bodies.forEach(
+        usageBodyModel ->
+            usageBodyModel.getUsageModels().stream()
+                .filter(e -> e.getType() == BodyUsageCategory.IMPACT_BOMB)
+                .forEach(
+                    e -> {
+                      ImpactBomb impactBomb = new ImpactBomb(e);
+                      usageBodyModel.getGameEntity().getUseList().add(impactBomb);
+                      impactBomb.setGameEntity(usageBodyModel.getGameEntity());
                     }));
     bodies.forEach(
         usageBodyModel ->
@@ -170,6 +203,15 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     bodies.forEach(
         usageBodyModel ->
             usageBodyModel.getUsageModels().stream()
+                .filter(e -> e.getType() == BodyUsageCategory.FLAME_THROWER)
+                .forEach(
+                    e -> {
+                      FlameThrower flameThrower = new FlameThrower(e, this);
+                      usageBodyModel.getGameEntity().getUseList().add(flameThrower);
+                    }));
+    bodies.forEach(
+        usageBodyModel ->
+            usageBodyModel.getUsageModels().stream()
                 .filter(e -> e.getType() == BodyUsageCategory.BLUNT)
                 .forEach(
                     e -> {
@@ -185,6 +227,26 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                       Throw throwable = new Throw();
                       usageBodyModel.getGameEntity().getUseList().add(throwable);
                     }));
+    bodies.forEach(
+        usageBodyModel ->
+            usageBodyModel.getUsageModels().stream()
+                .filter(e -> e.getType() == BodyUsageCategory.ROCKET)
+                .forEach(
+                    e -> {
+                      Rocket rocket = new Rocket(e, this);
+                      rocket.setRocketBodyGameEntity(usageBodyModel.getGameEntity());
+                      usageBodyModel.getGameEntity().getUseList().add(rocket);
+                    }));
+    bodies.forEach(
+        usageBodyModel ->
+            usageBodyModel.getUsageModels().stream()
+                .filter(e -> e.getType() == BodyUsageCategory.MISSILE)
+                .forEach(
+                    e -> {
+                      Missile missile = new Missile(e, this);
+                      missile.setRocketBodyGameEntity(usageBodyModel.getGameEntity());
+                      usageBodyModel.getGameEntity().getUseList().add(missile);
+                    }));
 
     // Create game group
     GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
@@ -194,7 +256,6 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     for (JointModel jointModel : joints) {
       createJointFromModel(jointModel);
     }
-
   }
 
   protected void createJointFromModel(JointModel jointModel) {
@@ -207,7 +268,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     if (entity1 == null || entity2 == null) {
       return;
     }
-      JointDef jointDef = jointModel.createJointDef(entity1.getCenter(),entity2.getCenter());
+    JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter());
 
     getWorldFacade().addJointToCreate(jointDef, entity1, entity2);
   }
@@ -244,10 +305,14 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     return hands;
   }
 
+  public void setHands(HashMap<Integer, Hand> hands) {
+    this.hands = hands;
+  }
+
   public void setMouseJoint(MouseJoint joint, GameEntity gameEntity, MouseJointDef jointDef) {
     if (hands.get(gameEntity.getHangedPointerId()) != null) {
       Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId()))
-          .setMouseJoint(joint,jointDef, gameEntity);
+          .setMouseJoint(joint, jointDef, gameEntity);
     }
   }
 
@@ -265,9 +330,5 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
       }
     }
     return null;
-  }
-
-  public void setHands(HashMap<Integer, Hand> hands) {
-    this.hands = hands;
   }
 }

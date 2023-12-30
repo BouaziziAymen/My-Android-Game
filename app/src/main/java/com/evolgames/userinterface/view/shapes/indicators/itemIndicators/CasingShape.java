@@ -99,11 +99,6 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
     model.getProperties().getAmmoDirection().set(direction);
   }
 
-  @Override
-  public void onControllerMoved(float dx, float dy) {
-    super.onControllerMoved(dx, dy);
-  }
-
   public CasingModel getModel() {
     return model;
   }

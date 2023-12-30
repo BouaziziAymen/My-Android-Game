@@ -2,8 +2,7 @@ package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.Utils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
 import java.util.List;
 import org.andengine.util.adt.color.Color;

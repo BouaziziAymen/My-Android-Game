@@ -5,7 +5,7 @@ import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.gameengine.GameSound;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.ToolUtils;
+import com.evolgames.entities.blockvisitors.utilities.ToolUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -15,9 +15,9 @@ import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
@@ -55,6 +55,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
   private Quantity<ProjectileOptionController> sparkRatioQuantityField;
   private Quantity<ProjectileOptionController> intensityQuantityField;
   private ItemWindowController itemWindowController;
+  private Quantity<ProjectileOptionController> inSizeQuantityField;
+  private Quantity<ProjectileOptionController> finSizeQuantityField;
 
   public ProjectileOptionController(EditorScene editorScene) {
     this.editorScene = editorScene;
@@ -375,9 +377,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
   private void setMissileName(String fileName) {
     ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName+".Xml");
-    assert (selectedButton != null);
-    missileButtonsTable.forEach((key, value) -> value.release());
-    selectedButton.click();
+    if (selectedButton != null) {
+      missileButtonsTable.forEach((key, value) -> value.release());
+      selectedButton.click();
+    }
   }
 
   private void checkExplosive() {
@@ -541,7 +544,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     // -----
     TitledQuantity<ProjectileOptionController> titledIntensityQuantity =
-        new TitledQuantity<>("Particles:", 10, "b", 5, 70);
+        new TitledQuantity<>("Part. Density:", 10, "b", 5, 70);
     intensityQuantityField = titledIntensityQuantity.getAttachment();
     titledIntensityQuantity
         .getAttachment()
@@ -558,6 +561,47 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     SimpleSecondary<FieldWithError> intensityElement =
         new SimpleSecondary<>(5, 3, intensityFieldWithError);
     window.addSecondary(intensityElement);
+
+
+    // -----
+    TitledQuantity<ProjectileOptionController> titledInitialSizeQuantity =
+            new TitledQuantity<>("In. Part. Size:", 10, "b", 5, 70);
+    inSizeQuantityField = titledInitialSizeQuantity.getAttachment();
+    titledInitialSizeQuantity
+            .getAttachment()
+            .setBehavior(
+                    new QuantityBehavior<ProjectileOptionController>(this, inSizeQuantityField) {
+                      @Override
+                      public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                        ProjectileOptionController.this.projectileProperties.setInFirePartSize(
+                                quantity.getRatio());
+                      }
+                    });
+
+    FieldWithError inSizeFieldWithError = new FieldWithError(titledInitialSizeQuantity);
+    SimpleSecondary<FieldWithError> inSizeElement =
+            new SimpleSecondary<>(5, 4, inSizeFieldWithError);
+    window.addSecondary(inSizeElement);
+
+    // -----
+    TitledQuantity<ProjectileOptionController> titledFinalSizeQuantity =
+            new TitledQuantity<>("Fin. Part. Size:", 10, "b", 5, 70);
+    finSizeQuantityField = titledFinalSizeQuantity.getAttachment();
+    titledFinalSizeQuantity
+            .getAttachment()
+            .setBehavior(
+                    new QuantityBehavior<ProjectileOptionController>(this, finSizeQuantityField) {
+                      @Override
+                      public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                        ProjectileOptionController.this.projectileProperties.setFinFirePartSize(
+                                quantity.getRatio());
+                      }
+                    });
+
+    FieldWithError finSizeFieldWithError = new FieldWithError(titledFinalSizeQuantity);
+    SimpleSecondary<FieldWithError> finSizeElement =
+            new SimpleSecondary<>(5, 5, finSizeFieldWithError);
+    window.addSecondary(finSizeElement);
   }
 
   private void onExplosiveOptionsChanged() {

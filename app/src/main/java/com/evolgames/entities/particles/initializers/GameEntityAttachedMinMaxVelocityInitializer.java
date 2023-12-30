@@ -42,6 +42,7 @@ public class GameEntityAttachedMinMaxVelocityInitializer
     Vector2 localTangent = new Vector2(-localNormal.y, localNormal.x);
     Vector2 N = localNormal.cpy().mul(na);
     Vector2 T = localTangent.cpy().mul(ta);
-    pParticle.getPhysicsHandler().setVelocity(N.x + T.x, N.y + T.y);
+    Vector2 V = gameEntity.getBody().getLinearVelocity().cpy().mul(32f*0.9f);
+    pParticle.getPhysicsHandler().setVelocity(N.x + T.x + V.x, N.y + T.y+V.y);
   }
 }

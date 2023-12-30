@@ -14,6 +14,7 @@ import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
@@ -30,8 +31,8 @@ import com.evolgames.userinterface.view.shapes.indicators.ShiftArrowShape;
 import com.evolgames.userinterface.view.shapes.indicators.ShiftImageShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
-import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.HandShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -62,7 +63,6 @@ public class CreationZoneController extends Controller {
   private boolean fixedRadiusForPolygon;
   private boolean reference;
   private float movePointSpeed;
-
   private int numberOfPointsForPolygon = 3;
   private boolean magnet, magnetLines, magnetCenters;
   private boolean moveLimits;
@@ -123,6 +123,7 @@ public class CreationZoneController extends Controller {
       case MOVE_POINT:
       case ADD_POINT:
       case BOMB:
+      case DRAG:
         editorScene.setScrollerEnabled(true);
         editorScene.setZoomEnabled(true);
         break;
@@ -148,7 +149,7 @@ public class CreationZoneController extends Controller {
       if (!(indicatorArrow instanceof JointShape
           || indicatorArrow instanceof ProjectileShape
           || indicatorArrow instanceof CasingShape
-          || indicatorArrow instanceof FireSourceShape)){
+          || indicatorArrow instanceof FireSourceShape||indicatorArrow instanceof DragShape)){
         indicatorArrow.detach();
       }
       indicatorArrow = null;
@@ -176,7 +177,7 @@ public class CreationZoneController extends Controller {
     }
     if (action == CreationAction.BOMB
         || action == CreationAction.PROJECTILE
-        || action == CreationAction.AMMO  || action == CreationAction.FIRE_SOURCE) {
+        || action == CreationAction.AMMO  || action == CreationAction.FIRE_SOURCE|| action == CreationAction.DRAG) {
       editorUserInterface.getItemButtonBoardController().releaseButtons();
       action = CreationAction.NONE;
     }
@@ -426,6 +427,18 @@ public class CreationZoneController extends Controller {
         return;
       }
     }
+    if (action == CreationAction.DRAG) {
+      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+        DragShape dragShape = new DragShape(new Vector2(x, y), editorScene);
+        DragModel dragModel =
+                editorUserInterface
+                        .getToolModel()
+                        .createNewDrag(
+                                dragShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+        itemWindowController.onDragCreated(dragModel);
+        dragShape.bindModel(dragModel);
+      }
+    }
     if (action == CreationAction.BOMB) {
       if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
         BombShape bombShape = new BombShape(new Vector2(x, y), editorScene);
@@ -669,6 +682,6 @@ public class CreationZoneController extends Controller {
     PROJECTILE,
     MOVE_TOOL_POINT,
     AMMO,
-    FIRE_SOURCE, BOMB
+    FIRE_SOURCE, BOMB, DRAG
   }
 }

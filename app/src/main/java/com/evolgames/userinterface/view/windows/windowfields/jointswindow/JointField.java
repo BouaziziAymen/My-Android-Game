@@ -3,7 +3,7 @@ package com.evolgames.userinterface.view.windows.windowfields.jointswindow;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
-import com.evolgames.userinterface.sections.basic.PrimaryLinearLayout;
+import com.evolgames.userinterface.view.sections.basic.PrimaryLinearLayout;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;

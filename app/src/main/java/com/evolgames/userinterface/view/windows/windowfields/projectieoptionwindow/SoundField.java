@@ -3,7 +3,7 @@ package com.evolgames.userinterface.view.windows.windowfields.projectieoptionwin
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
-import com.evolgames.userinterface.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;

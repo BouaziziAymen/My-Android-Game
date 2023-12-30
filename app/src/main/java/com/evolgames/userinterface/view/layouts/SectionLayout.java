@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.layouts;
 
-import com.evolgames.userinterface.sections.Section;
+import com.evolgames.userinterface.view.sections.Section;
 import com.evolgames.userinterface.view.basics.Element;
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -19,6 +19,8 @@ public class ProjectileInfo {
   private float smokeRatio;
   private float sparkRatio;
   private String missileFile;
+  private float inFirePartSize = 1f;
+  private float finFirePartSize = 0f;
 
   public CasingInfo getCasingInfo() {
     return casingInfo;
@@ -113,5 +115,21 @@ public class ProjectileInfo {
 
   public void setMissileFile(String missileFile) {
     this.missileFile = missileFile;
+  }
+
+  public float getInFirePartSize() {
+    return inFirePartSize;
+  }
+
+  public void setInFirePartSize(float inFirePartSize) {
+    this.inFirePartSize = inFirePartSize;
+  }
+
+  public float getFinFirePartSize() {
+    return finFirePartSize;
+  }
+
+  public void setFinFirePartSize(float finFirePartSize) {
+    this.finFirePartSize = finFirePartSize;
   }
 }

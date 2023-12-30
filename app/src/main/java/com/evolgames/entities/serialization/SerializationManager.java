@@ -87,6 +87,12 @@ public class SerializationManager {
     kryo.register(com.evolgames.entities.usage.TimeBomb.class);
     kryo.register(BombInfo.class);
     kryo.register(com.evolgames.entities.usage.ProjectileType.class);
+    kryo.register(com.evolgames.entities.usage.FlameThrower.class);
+    kryo.register(com.evolgames.entities.serialization.infos.FireSourceInfo.class);
+    kryo.register(com.evolgames.entities.usage.Rocket.class);
+    kryo.register(com.evolgames.entities.usage.Drag.class);
+    kryo.register(com.evolgames.entities.serialization.infos.DragInfo.class);
+    kryo.register(com.evolgames.entities.usage.ImpactBomb.class);
     kryo.setReferences(false);
   }
 

@@ -2,7 +2,7 @@ package com.evolgames.entities.particles.emitters;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import java.util.List;
 import java.util.function.Predicate;
 

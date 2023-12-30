@@ -3,7 +3,7 @@ package com.evolgames.entities.factories;
 import com.evolgames.entities.Liquid;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.properties.JuiceProperties;
-import com.evolgames.helpers.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import java.util.ArrayList;
 import org.andengine.util.adt.color.Color;
 

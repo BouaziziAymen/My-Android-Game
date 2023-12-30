@@ -1,8 +1,8 @@
 package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MathUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.MathUtils;
 import com.evolgames.scenes.entities.Hand;
 
 public class ThrowHandControl extends HandControl {

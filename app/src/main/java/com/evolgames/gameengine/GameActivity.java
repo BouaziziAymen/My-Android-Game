@@ -95,7 +95,7 @@ public class GameActivity extends BaseGameActivity {
   public EngineOptions onCreateEngineOptions() {
     this.camera =
         new SmoothCamera(
-            0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000f, 1000f, 5f);
+            0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000*32f, 1000*32f, 5f);
     this.camera.setZClippingPlanes(-1, 1);
 
     IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();
@@ -124,7 +124,7 @@ public class GameActivity extends BaseGameActivity {
     ResourceManager.getInstance().loadFonts();
     ResourceManager.getInstance().loadImages();
     ResourceManager.getInstance().loadGameAudio();
-    ResourceManager.getInstance().loadBatchers();
+    ResourceManager.getInstance().loadBatches();
     pOnCreateResourcesCallback.onCreateResourcesFinished();
   }
 

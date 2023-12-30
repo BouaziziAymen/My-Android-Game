@@ -1,6 +1,6 @@
 package com.evolgames.entities.factories;
 
-import static com.evolgames.helpers.utilities.GeometryUtils.transformation;
+import static com.evolgames.entities.blockvisitors.utilities.GeometryUtils.transformation;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.DecorationBlock;
@@ -10,8 +10,8 @@ import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.StainProperties;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.physics.PhysicsConstants;
 import java.util.ArrayList;
 import java.util.Collections;

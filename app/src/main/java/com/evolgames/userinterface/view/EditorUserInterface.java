@@ -23,6 +23,8 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ConfirmWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DragOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.FireSourceOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemSaveWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointSettingsWindowController;
@@ -39,6 +41,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -54,6 +57,7 @@ import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.shapes.PointsShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
@@ -68,6 +72,8 @@ import com.evolgames.userinterface.view.windows.gamewindows.BombOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ColorSelectorWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ConfirmWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.DecorationSettingsWindow;
+import com.evolgames.userinterface.view.windows.gamewindows.DragOptionWindow;
+import com.evolgames.userinterface.view.windows.gamewindows.FireSourceOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemSaveWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.JointOptionWindow;
@@ -117,6 +123,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       ProjectileOptionController projectileOptionController,
       CasingOptionController casingOptionController,
       BombOptionController bombOptionController,
+      FireSourceOptionController fireSourceOptionController,
+      DragOptionController dragOptionController,
       ItemSaveWindowController itemSaveWindowController,
       DecorationSettingsWindowController decorationSettingsWindowController,
       OptionsWindowController optionsWindowController,
@@ -214,12 +222,21 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     addElement(ammoOptionWindow);
 
     BombOptionWindow bombOptionWindow = new BombOptionWindow(0, 0, bombOptionController);
-    // bombOptionWindow.setPosition(800 - bombOptionWindow.getWidth() - itemWindow.getWidth() - 16,
-    // 480 - bombOptionWindow.getHeight());
     bombOptionWindow.setPosition(
         800 - bombOptionWindow.getWidth() - 12, 480 - bombOptionWindow.getHeight() - 32);
-
     addElement(bombOptionWindow);
+
+    FireSourceOptionWindow fireSourceOptionWindow =
+        new FireSourceOptionWindow(0, 0, fireSourceOptionController);
+    fireSourceOptionWindow.setPosition(
+        800 - fireSourceOptionWindow.getWidth() - 12,
+        480 - fireSourceOptionWindow.getHeight() - 32);
+    addElement(fireSourceOptionWindow);
+
+    DragOptionWindow dragOptionWindow = new DragOptionWindow(0, 0, dragOptionController);
+    dragOptionWindow.setPosition(
+        800 - dragOptionWindow.getWidth() - 12, 480 - dragOptionWindow.getHeight() - 32);
+    addElement(dragOptionWindow);
 
     ItemSaveWindow itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
     itemSaveWindow.setPosition(
@@ -737,11 +754,28 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             getController().onFireSourceButtonReleased(button43);
           }
         });
+
+    Button<ToolButtonBoardController> button45 =
+        new Button<>(
+            ResourceManager.getInstance().projDragTextureRegion, Button.ButtonType.Selector, true);
+    button45.setBehavior(
+        new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button45) {
+          @Override
+          public void informControllerButtonClicked() {
+            getController().onDragButtonClicked(button45);
+          }
+
+          @Override
+          public void informControllerButtonReleased() {
+            getController().onDragButtonReleased(button45);
+          }
+        });
     toolButtonBoard.addToButtonBoard(button40);
     toolButtonBoard.addToButtonBoard(button41);
     toolButtonBoard.addToButtonBoard(button42);
     toolButtonBoard.addToButtonBoard(button43);
     toolButtonBoard.addToButtonBoard(button44);
+    toolButtonBoard.addToButtonBoard(button45);
     toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
 
     panel = new ControlPanel(editorScene);
@@ -839,13 +873,18 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       }
 
       for (BombModel bombModel : bodyModel.getBombModels()) {
-        BombShape bombShape = new BombShape(new Vector2(400, 240), scene);
+        BombShape bombShape = new BombShape(bombModel.getProperties().getBombPosition(), scene);
         bombShape.bindModel(bombModel);
       }
-        for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
-        FireSourceShape fireSourceShape = new FireSourceShape(new Vector2(400, 240), scene);
-            fireSourceShape.bindModel(fireSourceModel);
-        }
+      for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+        FireSourceShape fireSourceShape =
+            new FireSourceShape(fireSourceModel.getProperties().getFireSourceOrigin(), scene);
+        fireSourceShape.bindModel(fireSourceModel);
+      }
+      for (DragModel dragModel : bodyModel.getDragModels()) {
+        DragShape dragShape = new DragShape(dragModel.getProperties().getDragOrigin(), scene);
+        dragShape.bindModel(dragModel);
+      }
     }
     for (JointModel jointModel : toolModel.getJoints()) {
       Vector2 begin = jointModel.getLocalAnchorA();
@@ -955,8 +994,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         case DISTANCE:
         case SCALE_IMAGE:
         case ROTATE_IMAGE:
-          if (getMoveElementControlElement() != null) {
-            getPanel().hideControlElement(getMoveElementControlElement().getID());
+          if (this.moveElementController != null) {
+            getPanel().hideControlElement(moveElementController.getID());
           }
           break;
         case MOVE_TOOL_POINT:
@@ -1012,11 +1051,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   public void setMoveElementController(ControlElement moveElementController) {
     this.moveElementController = moveElementController;
   }
-
-  public ControlElement getMoveElementControlElement() {
-    return moveElementController;
-  }
-
   public void saveToolModel() {
     try {
       PersistenceCaretaker.getInstance().saveToolModel(this.toolModel);

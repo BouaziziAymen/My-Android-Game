@@ -5,7 +5,7 @@ import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
 import com.evolgames.entities.SpecialEntityType;
 import com.evolgames.entities.ragdoll.RagDoll;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.scenes.PhysicsScene;
 
 import java.util.ArrayList;

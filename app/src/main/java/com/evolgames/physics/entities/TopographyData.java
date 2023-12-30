@@ -5,7 +5,6 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.physics.PhysicsConstants;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 

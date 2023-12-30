@@ -4,21 +4,30 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.Fire;
-import com.evolgames.helpers.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.sprite.UncoloredSprite;
 
 public abstract class ExplosiveParticleWrapper implements Fire {
 
-  private static final float RATE_MIN = 3000;
-  private static final float RATE_MAX = 4000;
-  private static final int PARTICLES_MAX = 10000;
+  private static final float RATE_MIN = 30;
+  private static final float RATE_MAX = 40;
+  private static final int PARTICLES_MAX = 200;
+  private static final float RATE_MIN_SMOKE = 5;
+  private static final float RATE_MAX_SMOKE = 10;
+  private static final int PARTICLES_MAX_SMOKE = 50;
+  private static final float RATE_MIN_SPARK = 20;
+  private static final float RATE_MAX_SPARK = 40;
+  private static final int PARTICLES_MAX_SPARK = 40;
+
   protected final DataEmitter emitter;
   protected final float particleDensity;
   private final float fireRatio;
   private final float smokeRatio;
   private final float sparkRatio;
   private final float velocity;
+  private final float initialFlameParticleSize;
+  private final float finalFlameParticleSize;
   protected float flameTemperature;
   protected BaseParticleSystem fireParticleSystem;
   protected BaseParticleSystem smokeParticleSystem;
@@ -35,6 +44,8 @@ public abstract class ExplosiveParticleWrapper implements Fire {
       float sparkRatio,
       float particleDensity,
       float flameTemperature,
+      float initialFlameParticleSize,
+      float finalFlameParticleSize,
       float[] data) {
     this.emitter = createEmitter(data);
     this.parent = gameEntity;
@@ -44,6 +55,8 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     this.sparkRatio = sparkRatio;
     this.particleDensity = particleDensity;
     this.flameTemperature = flameTemperature;
+    this.initialFlameParticleSize = initialFlameParticleSize;
+    this.finalFlameParticleSize = finalFlameParticleSize;
     this.updateEmitter();
   }
 
@@ -51,12 +64,12 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     int rateMinFire = (int) (fireRatio * particleDensity * RATE_MIN);
     int rateMaxFire = (int) (fireRatio * particleDensity * RATE_MAX);
     int particlesMaxFire = (int) (fireRatio * particleDensity * PARTICLES_MAX);
-    int rateMinSmoke = (int) (smokeRatio * particleDensity * RATE_MIN);
-    int rateMaxSmoke = (int) (smokeRatio * particleDensity * RATE_MAX);
-    int particlesMaxSmoke = (int) (smokeRatio * particleDensity * PARTICLES_MAX);
-    int rateMinSpark = (int) (sparkRatio * particleDensity * RATE_MIN);
-    int rateMaxSpark = (int) (sparkRatio * particleDensity * RATE_MAX);
-    int particlesMaxSpark = (int) (sparkRatio * particleDensity * PARTICLES_MAX);
+    int rateMinSmoke = (int) (smokeRatio * particleDensity * RATE_MIN_SMOKE);
+    int rateMaxSmoke = (int) (smokeRatio * particleDensity * RATE_MAX_SMOKE);
+    int particlesMaxSmoke = (int) (smokeRatio * particleDensity * PARTICLES_MAX_SMOKE);
+    int rateMinSpark = (int) (sparkRatio * particleDensity * RATE_MIN_SPARK);
+    int rateMaxSpark = (int) (sparkRatio * particleDensity * RATE_MAX_SPARK);
+    int particlesMaxSpark = (int) (sparkRatio * particleDensity * PARTICLES_MAX_SPARK);
 
     float fireVerticalSpeed = 0.08f * velocity;
     float smokeVerticalSpeed = 0.06f * velocity;
@@ -67,7 +80,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     if (fireRatio > 0) {
       this.fireParticleSystem =
           createFireSystem(
-              rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed);
+              rateMinFire, rateMaxFire, particlesMaxFire, fireVerticalSpeed, fireHorizontalSpeed, initialFlameParticleSize, finalFlameParticleSize);
     }
     if (smokeRatio > 0) {
       this.smokeParticleSystem =
@@ -93,7 +106,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
       int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
 
   protected abstract BaseParticleSystem createFireSystem(
-      int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
+          int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed, float initialFlameParticleSize, float finalFlameParticleSize);
 
   protected abstract BaseParticleSystem createSmokeSystem(
       int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);

@@ -9,6 +9,7 @@ import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
+import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 import com.evolgames.userinterface.view.shapes.Grid;
 
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import org.andengine.input.touch.TouchEvent;
 
 public class PlayUserInterface extends UserInterface<PlayScene> {
 
+    private final ControlPanel panel;
   private final Switcher particularUsageSwitcher;
   private final Switcher generalUsageSwitcher;
   private PlayerSpecialAction[] particularUsages;
@@ -34,6 +36,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
             (index) -> scene.setSpecialAction(this.particularUsages[index]));
     particularUsageSwitcher.reset();
     addElement(particularUsageSwitcher);
+    this.panel = new ControlPanel(scene);
 
     generalUsageSwitcher =
         new Switcher(
@@ -153,4 +156,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
     }
   }
 
+    public ControlPanel getPanel() {
+        return panel;
+    }
 }

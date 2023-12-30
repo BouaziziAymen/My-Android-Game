@@ -10,7 +10,7 @@ import com.evolgames.userinterface.control.behaviors.actions.Action;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.TextFieldValidator;
 import com.evolgames.userinterface.model.ProperModel;
-import com.evolgames.userinterface.sections.basic.SimplePrimary;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.TextField;

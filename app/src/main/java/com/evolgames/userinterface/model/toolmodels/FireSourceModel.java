@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.FireSourceProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.userinterface.model.ProperModel;
@@ -12,6 +13,7 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
   private final int fireSourceId;
   private FireSourceShape fireSourceShape;
   private FireSourceField fireSourceField;
+  private GameEntity muzzleEntity;
 
   public FireSourceModel(int bodyId, int fireSourceId, String fireSourceName) {
     super(fireSourceName);
@@ -26,6 +28,10 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
     this.fireSourceShape = fireSourceShape;
     this.bodyId = bodyId;
     this.fireSourceId = fireSourceId;
+  }
+
+  public void setMuzzleEntity(GameEntity muzzleEntity) {
+    this.muzzleEntity = muzzleEntity;
   }
 
   public FireSourceShape getFireSourceShape() {
@@ -56,10 +62,21 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
     this.fireSourceField = fireSourceField;
   }
 
+
   public FireSourceInfo toFireSourceInfo() {
     FireSourceInfo fireSourceInfo = new FireSourceInfo();
     fireSourceInfo.setFireSourceOrigin(this.properties.getFireSourceOrigin());
     fireSourceInfo.setFireDirection(this.properties.getFireSourceDirection());
+    fireSourceInfo.setFireRatio(this.properties.getFireRatio());
+    fireSourceInfo.setSmokeRatio(this.properties.getSmokeRatio());
+    fireSourceInfo.setSparkRatio(this.properties.getSparkRatio());
+    fireSourceInfo.setHeat(this.properties.getHeatRatio());
+    fireSourceInfo.setParticles(this.properties.getParticles());
+    fireSourceInfo.setSpeed(this.properties.getSpeedRatio());
+    fireSourceInfo.setInFirePartSize(this.properties.getInFirePartSize());
+    fireSourceInfo.setFinFirePartSize(this.properties.getFinFirePartSize());
+    fireSourceInfo.setMuzzleEntity(this.muzzleEntity);
+    fireSourceInfo.setExtent(this.properties.getExtent());
     return fireSourceInfo;
   }
 }

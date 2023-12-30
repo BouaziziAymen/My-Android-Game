@@ -29,6 +29,9 @@ import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
+import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.physics.entities.callbacks.BlockIntersectionCallback;
+import com.evolgames.physics.entities.callbacks.FluxInnerRayCastCallback;
 import com.evolgames.entities.blockvisitors.BreakVisitor;
 import com.evolgames.entities.blockvisitors.GameEntityMultiShatterVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
@@ -66,20 +69,18 @@ import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
-import com.evolgames.helpers.utilities.BlockUtils;
-import com.evolgames.helpers.utilities.GeometryUtils;
-import com.evolgames.helpers.utilities.MathUtils;
-import com.evolgames.helpers.utilities.MyColorUtils;
-import com.evolgames.helpers.utilities.PhysicsUtils;
-import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.helpers.utilities.Vector2Utils;
+import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.blockvisitors.utilities.MathUtils;
+import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.entities.blockvisitors.utilities.PhysicsUtils;
+import com.evolgames.entities.blockvisitors.utilities.Utils;
+import com.evolgames.entities.blockvisitors.utilities.Vector2Utils;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.physics.entities.Touch;
-import com.evolgames.physics.entities.callbacks.BlockIntersectionCallback;
 import com.evolgames.physics.entities.callbacks.BlockQueryCallBack;
 import com.evolgames.physics.entities.callbacks.CutRayCastCallback;
 import com.evolgames.physics.entities.callbacks.DetectionRayCastCallback;
-import com.evolgames.physics.entities.callbacks.FluxInnerRayCastCallback;
 import com.evolgames.physics.entities.callbacks.FluxRayCastCallback;
 import com.evolgames.physics.entities.callbacks.GameEntityQueryCallBack;
 import com.evolgames.physics.entities.callbacks.SimpleDetectionRayCastCallback;
@@ -378,24 +379,24 @@ public class WorldFacade implements ContactObserver {
       GameEntity entity,
       Vector2 v1,
       Vector2 v2,
-      float velocity,
+      float velocityMeter,
       float fireRatio,
       float smokeRatio,
       float sparkRatio,
       float intensity,
-      float temperature) {
+      float heatRatio, float inFireSize, float finFireSize) {
     Vector2 dir = v1.cpy().sub(v2).nor();
     Vector2 normal = new Vector2(-dir.y, dir.x);
     SegmentExplosiveParticleWrapper explosiveParticleWrapper =
         new SegmentExplosiveParticleWrapper(
             entity,
             new float[] {v1.x, v1.y, v2.x, v2.y},
-            normal.cpy().mul(32f * velocity),
+            normal.cpy().mul(32f * velocityMeter),
             fireRatio,
             smokeRatio,
             sparkRatio,
             intensity,
-            temperature);
+            heatRatio,inFireSize,finFireSize);
 
     explosiveParticleWrapper.setParent(entity);
     if (explosiveParticleWrapper.getFireParticleSystem() != null) {
@@ -424,19 +425,19 @@ public class WorldFacade implements ContactObserver {
       float smokeRatio,
       float sparkRatio,
       float particles,
-      float temperature,
+      float temperature,float inFireSize, float finFireSize,
       boolean trackFireParticles) {
 
     DataExplosiveParticleWrapper explosiveParticleWrapper =
         new DataExplosiveParticleWrapper(
             entity,
            data,
-            32f * velocity / 10f,
+            velocity,
             fireRatio,
             smokeRatio,
             sparkRatio,
             particles,
-            temperature);
+            temperature,inFireSize,finFireSize);
 
     explosiveParticleWrapper.setParent(entity);
     if (explosiveParticleWrapper.getFireParticleSystem() != null) {
@@ -506,7 +507,7 @@ public class WorldFacade implements ContactObserver {
       float particles,
       float force,
       float heat,
-      float speed) {
+      float speedRatio, float inFirePartSize, float finFirePartSize) {
     Explosion explosion =
         new Explosion(
             scene,
@@ -514,11 +515,11 @@ public class WorldFacade implements ContactObserver {
             new Vector2(x, y),
             particles,
             force,
-            speed,
+            speedRatio,
             heat,
             fireRatio,
             smokeRatio,
-            sparkRatio);
+            sparkRatio,inFirePartSize,finFirePartSize);
     explosions.add(explosion);
   }
 
@@ -663,8 +664,8 @@ public class WorldFacade implements ContactObserver {
 
         float x = spark.getX();
         float y = spark.getY();
-        float w = 3;
-        float h = 3;
+        float w = spark.getWidth()*spark.getScaleX();
+        float h = spark.getHeight()*spark.getScaleY();
         Vector2 worldPosition = new Vector2(x / 32f, y / 32f);
         Vector2 lower = new Vector2(x - w / 2f, y - h / 2f).mul(1 / 32f);
         Vector2 upper = new Vector2(x + w / 2f, y + h / 2f).mul(1 / 32f);
@@ -1734,6 +1735,12 @@ public class WorldFacade implements ContactObserver {
         || block.getProperties().getMaterialNumber() == 12) {
       this.applyBluntTrauma(
           localPoint.x, localPoint.y, (float) Math.sqrt(impulse), gameEntity, block);
+    }
+    if (gameEntity.hasUsage(ImpactBomb.class)) {
+      ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
+      if(impulse>impactBomb.getMinImpact()){
+      impactBomb.setImpacted(true);
+      }
     }
     if (gameEntity.hasActiveUsage(Smasher.class)) {
       gameEntity.getActiveUsage(Smasher.class).onCancel();

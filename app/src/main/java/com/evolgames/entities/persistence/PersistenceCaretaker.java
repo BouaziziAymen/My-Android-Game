@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
+import com.evolgames.entities.properties.DragProperties;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.FireSourceProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -13,9 +14,12 @@ import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
+import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
+import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
+import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
@@ -23,8 +27,8 @@ import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.gameengine.GameActivity;
 import com.evolgames.gameengine.ResourceManager;
-import com.evolgames.helpers.utilities.Utils;
-import com.evolgames.helpers.utilities.XmlUtils;
+import com.evolgames.entities.blockvisitors.utilities.Utils;
+import com.evolgames.entities.blockvisitors.utilities.XmlUtils;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
@@ -35,6 +39,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
+import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
@@ -79,8 +84,10 @@ public class PersistenceCaretaker {
   public static final String AMMO_LIST_TAG = "ammoList";
   public static final String FIRE_SOURCE_LIST_TAG = "fireSourceList";
   public static final String USAGE_LIST_TAG = "usageList";
+  public static final String DRAG_LIST_TAG = "dragList";
   public static final String USAGE_TAG = "usage";
   public static final String USAGE_PROPERTIES_PROJECTILES_TAG = "projectiles";
+  public static final String USAGE_PROPERTIES_FIRE_SOURCES_TAG = "fireSources";
   public static final String USAGE_PROPERTIES_BOMBS_TAG = "bombs";
   public static final String USAGE_TYPE_TAG = "type";
   public static final String AMMO_TAG = "ammo";
@@ -277,7 +284,7 @@ public class PersistenceCaretaker {
 
     Element fireSourcesElement = document.createElement(FIRE_SOURCE_LIST_TAG);
     for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
-      fireSourcesElement.appendChild(createFireSourcesElement(document, fireSourceModel));
+      fireSourcesElement.appendChild(createFireSourceElement(document, fireSourceModel));
     }
     bodyElement.appendChild(fireSourcesElement);
 
@@ -292,6 +299,12 @@ public class PersistenceCaretaker {
       bombListElement.appendChild(createBombElement(document, bombModel));
     }
     bodyElement.appendChild(bombListElement);
+
+    Element dragListElement = document.createElement(DRAG_LIST_TAG);
+    for (DragModel dragModel : bodyModel.getDragModels()) {
+      dragListElement.appendChild(createDragElement(document, dragModel));
+    }
+    bodyElement.appendChild(dragListElement);
 
     Element usageListElement = document.createElement(USAGE_LIST_TAG);
     for (UsageModel<?> usageModel : bodyModel.getUsageModels()) {
@@ -318,6 +331,44 @@ public class PersistenceCaretaker {
                     .map(BombModel::getBombId)
                     .collect(Collectors.toList())));
       }
+      if (usageModel.getType() == BodyUsageCategory.IMPACT_BOMB) {
+        ImpactBombUsageProperties impactBombUsageProperties =
+                bodyModel.getUsageModelProperties(usageModel.getType());
+        propertiesElement.setAttribute(
+                USAGE_PROPERTIES_BOMBS_TAG,
+                convertIntListToString(
+                        impactBombUsageProperties.getBombModelList().stream()
+                                .map(BombModel::getBombId)
+                                .collect(Collectors.toList())));
+      }
+      if (usageModel.getType() == BodyUsageCategory.FLAME_THROWER) {
+        FlameThrowerProperties flameThrowerProperties =
+            bodyModel.getUsageModelProperties(usageModel.getType());
+        propertiesElement.setAttribute(
+            USAGE_PROPERTIES_FIRE_SOURCES_TAG,
+            convertIntListToString(
+                flameThrowerProperties.getFireSources().stream()
+                    .map(FireSourceModel::getFireSourceId)
+                    .collect(Collectors.toList())));
+      }
+      if (usageModel.getType() == BodyUsageCategory.ROCKET) {
+        RocketProperties rocketProperties = bodyModel.getUsageModelProperties(usageModel.getType());
+        propertiesElement.setAttribute(
+            USAGE_PROPERTIES_FIRE_SOURCES_TAG,
+            convertIntListToString(
+                rocketProperties.getFireSourceModelList().stream()
+                    .map(FireSourceModel::getFireSourceId)
+                    .collect(Collectors.toList())));
+      }
+      if (usageModel.getType() == BodyUsageCategory.MISSILE) {
+        MissileProperties missileProperties = bodyModel.getUsageModelProperties(usageModel.getType());
+        propertiesElement.setAttribute(
+                USAGE_PROPERTIES_FIRE_SOURCES_TAG,
+                convertIntListToString(
+                        missileProperties.getFireSourceModelList().stream()
+                                .map(FireSourceModel::getFireSourceId)
+                                .collect(Collectors.toList())));
+      }
       usageElement.appendChild(propertiesElement);
       usageElement.setAttribute(USAGE_TYPE_TAG, usageModel.getType().getName());
       usageListElement.appendChild(usageElement);
@@ -326,6 +377,15 @@ public class PersistenceCaretaker {
     return bodyElement;
   }
 
+  private Element createDragElement(Document document, DragModel dragModel) {
+    Element dragElement = document.createElement(BOMB_TAG);
+    dragElement.setAttribute(ID, String.valueOf(dragModel.getDragId()));
+    dragElement.setIdAttribute(ID, true);
+    dragElement.setAttribute(NAME, String.valueOf(dragModel.getModelName()));
+    Element propertiesElement = createPropertiesElement(document, dragModel.getProperties());
+    dragElement.appendChild(propertiesElement);
+    return dragElement;
+  }
   private Element createBombElement(Document document, BombModel bombModel) {
     Element bombElement = document.createElement(BOMB_TAG);
     bombElement.setAttribute(ID, String.valueOf(bombModel.getBombId()));
@@ -346,7 +406,7 @@ public class PersistenceCaretaker {
     return ammoElement;
   }
 
-  private Element createFireSourcesElement(Document document, FireSourceModel fireSourceModel) {
+  private Element createFireSourceElement(Document document, FireSourceModel fireSourceModel) {
     Element fireSourceElement = document.createElement(FIRE_SOURCE_TAG);
     fireSourceElement.setAttribute(ID, String.valueOf(fireSourceModel.getFireSourceId()));
     fireSourceElement.setIdAttribute(ID, true);
@@ -584,6 +644,11 @@ public class PersistenceCaretaker {
         throw new PersistenceException("Error reading body model:" + ID, e);
       }
     }
+    List<FireSourceModel> allFireSources = new ArrayList<>();
+    for (BodyModel model : bodyModels) {
+      ArrayList<FireSourceModel> fireSourceModels = model.getFireSourceModels();
+      allFireSources.addAll(fireSourceModels);
+    }
     List<ProjectileModel> allProjectiles = new ArrayList<>();
     for (BodyModel model : bodyModels) {
       ArrayList<ProjectileModel> projectiles = model.getProjectileModels();
@@ -597,7 +662,32 @@ public class PersistenceCaretaker {
 
     for (BodyModel bodyModel : bodyModels) {
       for (UsageModel<?> e : bodyModel.getUsageModels()) {
-        if (e.getType().toString().startsWith("Shooter")) {
+        if (e.getType().toString().startsWith("Rocket")||e.getType().toString().startsWith("Missile")) {
+          RocketProperties rocketProperties = (RocketProperties) e.getProperties();
+          rocketProperties
+              .getFireSourceModelList()
+              .addAll(
+                  allFireSources.stream()
+                      .filter(
+                          p ->
+                              rocketProperties
+                                  .getFireSourceModelListIds()
+                                  .contains(p.getFireSourceId()))
+                      .collect(Collectors.toList()));
+        } else if (e.getType().toString().startsWith("Flame Thrower")) {
+          FlameThrowerProperties flameThrowerProperties =
+              (FlameThrowerProperties) e.getProperties();
+          flameThrowerProperties
+              .getFireSources()
+              .addAll(
+                  allFireSources.stream()
+                      .filter(
+                          p ->
+                              flameThrowerProperties
+                                  .getFireSourceIds()
+                                  .contains(p.getFireSourceId()))
+                      .collect(Collectors.toList()));
+        } else if (e.getType().toString().startsWith("Shooter")) {
           RangedProperties rangedProperties = (RangedProperties) e.getProperties();
           rangedProperties
               .getProjectileModelList()
@@ -716,6 +806,16 @@ public class PersistenceCaretaker {
                         .max()
                         .orElse(-1)
                     + 1);
+      }
+      if (body.getDragModels().size() > 0) {
+        toolModel
+                .getDragCounter()
+                .set(
+                        body.getDragModels().stream()
+                                .mapToInt(DragModel::getDragId)
+                                .max()
+                                .orElse(-1)
+                                + 1);
       }
       if (body.getLayers().size() > 0) {
         body.getLayerCounter()
@@ -841,6 +941,22 @@ public class PersistenceCaretaker {
       }
     }
 
+    Element dragListElement = (Element) element.getElementsByTagName(DRAG_LIST_TAG).item(0);
+    if (dragListElement != null) {
+      List<DragModel> dragModels = bodyModel.getDragModels();
+      for (int i = 0; i < dragListElement.getChildNodes().getLength(); i++) {
+        Element dragElement = (Element) dragListElement.getChildNodes().item(i);
+        DragModel dragModel;
+        try {
+          dragModel =
+                  readDragModel(dragElement, bodyId, Integer.parseInt(dragElement.getAttribute(ID)));
+          dragModels.add(dragModel);
+        } catch (PersistenceException e) {
+          throw new PersistenceException("Error reading drag model", e);
+        }
+      }
+    }
+
     Element usageListElement = (Element) element.getElementsByTagName(USAGE_LIST_TAG).item(0);
     if (usageListElement != null) {
       for (int i = 0; i < usageListElement.getChildNodes().getLength(); i++) {
@@ -852,7 +968,7 @@ public class PersistenceCaretaker {
     return bodyModel;
   }
 
-  private UsageModel readUsageModel(Element usageElement) throws PersistenceException {
+  private UsageModel<?> readUsageModel(Element usageElement) throws PersistenceException {
     Element propertiesElement = (Element) usageElement.getElementsByTagName(PROPERTIES_TAG).item(0);
     BodyUsageCategory bodyUsageCategory =
         BodyModel.allCategories.stream()
@@ -862,6 +978,7 @@ public class PersistenceCaretaker {
     UsageModel<Properties> usageModel = new UsageModel<>("", bodyUsageCategory);
     List<Integer> usageProjectileIds;
     List<Integer> usageBombIds;
+    List<Integer> usageFireSourceIds;
     switch (bodyUsageCategory) {
       case SHOOTER:
         usageProjectileIds =
@@ -919,6 +1036,33 @@ public class PersistenceCaretaker {
         ThrowProperties throwProperties = loadProperties(propertiesElement, ThrowProperties.class);
         usageModel.setProperties(throwProperties);
         break;
+      case FLAME_THROWER:
+        FlameThrowerProperties flameThrowerProperties =
+            loadProperties(propertiesElement, FlameThrowerProperties.class);
+        usageFireSourceIds =
+            convertStringToIntList(
+                propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+        flameThrowerProperties.setFireSourceIds(usageFireSourceIds);
+        usageModel.setProperties(flameThrowerProperties);
+        break;
+      case ROCKET:
+        RocketProperties rocketProperties =
+            loadProperties(propertiesElement, RocketProperties.class);
+        usageFireSourceIds =
+            convertStringToIntList(
+                propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+        rocketProperties.setFireSourceModelListIds(usageFireSourceIds);
+        usageModel.setProperties(rocketProperties);
+        break;
+      case MISSILE:
+        MissileProperties missileProperties =
+                loadProperties(propertiesElement, MissileProperties.class);
+        usageFireSourceIds =
+                convertStringToIntList(
+                        propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+        missileProperties.setFireSourceModelListIds(usageFireSourceIds);
+        usageModel.setProperties(missileProperties);
+        break;
       default:
         throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
     }
@@ -944,6 +1088,15 @@ public class PersistenceCaretaker {
         loadProperties(propertiesElement, FireSourceProperties.class);
     fireSourceModel.setProperties(fireSourceProperties);
     return fireSourceModel;
+  }
+
+  private DragModel readDragModel(Element dragElement, int bodyId, int dragId)
+          throws PersistenceException {
+    Element propertiesElement = (Element) dragElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+    DragModel dragModel = new DragModel(bodyId, dragId);
+    DragProperties dragProperties = loadProperties(propertiesElement, DragProperties.class);
+    dragModel.setProperties(dragProperties);
+    return dragModel;
   }
 
   private BombModel readBombModel(Element bombElement, int bodyId, int bombId)

@@ -9,8 +9,12 @@ import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.TimedCommand;
+import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
+import com.evolgames.entities.usage.Drag;
+import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.MeleeUse;
+import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
@@ -23,6 +27,8 @@ import com.evolgames.scenes.PlayScene;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerAction;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -182,6 +188,32 @@ public class SceneSerializer {
       shooter.fillMissileModels();
       shooter.createFireSources(scene.getWorldFacade());
     }
+    if (gameEntity.hasUsage(Drag.class)) {
+      Drag drag = gameEntity.getUsage(Drag.class);
+      drag.setDraggedEntity(GameEntitySerializer.entities.get(drag.getDraggedEntityUniqueId()));
+    }
+    if (gameEntity.hasUsage(Rocket.class)) {
+      Rocket rocket = gameEntity.getUsage(Rocket.class);
+
+      for (FireSourceInfo fireSourceInfo : rocket.getFireSourceInfoList()) {
+        fireSourceInfo.setMuzzleEntity(
+                GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
+      }
+      rocket.setRocketBodyGameEntity(
+              Objects.requireNonNull(
+                      GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId())));
+      rocket.createFireSources(scene.getWorldFacade());
+    }
+    if (gameEntity.hasUsage(FlameThrower.class)) {
+      FlameThrower flameThrower = gameEntity.getUsage(FlameThrower.class);
+      for (FireSourceInfo fireSourceInfo : flameThrower.getFireSourceInfoList()) {
+        fireSourceInfo.setMuzzleEntity(
+                GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
+      }
+      flameThrower.createFireSources(scene.getWorldFacade());
+    }
+
+
     if (gameEntity.hasUsage(TimeBomb.class)) {
       TimeBomb timeBomb = gameEntity.getUsage(TimeBomb.class);
       if (timeBomb != null) {
