@@ -9,6 +9,7 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
@@ -29,6 +30,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   private final ArrayList<CasingModel> casingModels;
   private final ArrayList<DragModel> dragModels;
   private final ArrayList<FireSourceModel> fireSourceModels;
+  private final ArrayList<LiquidSourceModel> liquidSourceModels;
   private final List<UsageModel<?>> usageModels;
   private GameEntity gameEntity;
   private final List<BombModel> bombModels;
@@ -45,6 +47,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     bombModels = new ArrayList<>();
     dragModels = new ArrayList<>();
     fireSourceModels = new ArrayList<>();
+    liquidSourceModels = new ArrayList<>();
   }
 
   @SuppressWarnings("unchecked")
@@ -176,5 +179,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
   public ArrayList<FireSourceModel> getFireSourceModels() {
     return fireSourceModels;
+  }
+
+  public ArrayList<LiquidSourceModel> getLiquidSourceModels() {
+    return liquidSourceModels;
   }
 }

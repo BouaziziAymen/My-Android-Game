@@ -1,11 +1,13 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.BodyProperties;
+import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
+import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
@@ -26,6 +28,7 @@ import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
@@ -173,6 +176,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         setRocketPower(missileProperties.getPower());
         setFuel(missileProperties.getFuel());
         setMissileControl(missileProperties.getControl());
+        break;
+      case LIQUID_CONTAINER:
+        UsageModel<LiquidContainerProperties> liquidContainerPropertiesUsageModel =
+                this.bodyModel.getUsageModel(usageCategory);
+        LiquidContainerProperties liquidContainerProperties = liquidContainerPropertiesUsageModel.getProperties();
+
         break;
     }
   }
@@ -437,6 +446,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                               () ->
                                                       missileProperties.setControl(rocketPowerQuantityField.getRatio())));
               createRocketFuelField(primaryId, 3, missileProperties);
+              break;
+            case LIQUID_CONTAINER:
+              LiquidContainerProperties liquidContainerProperties =
+                      bodyModel.getUsageModelProperties(BodyUsageCategory.LIQUID_CONTAINER);
+              createLiquidSourceField(primaryId,0,liquidContainerProperties);
               break;
           }
         }
@@ -756,6 +770,60 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
       fireSourceButton.updateState(Button.State.PRESSED);
     }
   }
+  private void createLiquidSourceField(
+          int primaryId, int secondaryId, LiquidContainerProperties liquidContainerProperties) {
+    SecondarySectionField<BodySettingsWindowController> liquidSourcesField =
+            new SecondarySectionField<>(
+                    primaryId,
+                    secondaryId,
+                    "Liquid Sources",
+                    ResourceManager.getInstance().mainButtonTextureRegion,
+                    this);
+    window.addSecondary(liquidSourcesField);
+    List<LiquidSourceModel> liquidSourceModelList =
+            editorUserInterface.getToolModel().getBodies().stream()
+                    .map(BodyModel::getLiquidSourceModels)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+    for (LiquidSourceModel liquidSourceModel : liquidSourceModelList) {
+      createLiquidSourceButton(
+              primaryId, secondaryId, liquidSourceModel, liquidContainerProperties);
+    }
+  }
+
+  private void createLiquidSourceButton(
+          int primaryKey,
+          int secondaryKey,
+          LiquidSourceModel liquidSourceModel,
+          LiquidContainerProperties liquidContainerProperties) {
+    ButtonWithText<BodySettingsWindowController> liquidSourceButton =
+            new ButtonWithText<>(
+                    liquidSourceModel.getModelName(),
+                    2,
+                    ResourceManager.getInstance().simpleButtonTextureRegion,
+                    Button.ButtonType.Selector,
+                    true);
+    SimpleTertiary<ButtonWithText<?>> liquidField =
+            new SimpleTertiary<>(
+                    primaryKey, secondaryKey, liquidSourceModel.getLiquidSourceId(), liquidSourceButton);
+    window.addTertiary(liquidField);
+    liquidSourceButton.setBehavior(
+            new ButtonBehavior<BodySettingsWindowController>(this, liquidSourceButton) {
+              @Override
+              public void informControllerButtonClicked() {
+                liquidContainerProperties.getLiquidSourceModelList().add(liquidSourceModel);
+              }
+
+              @Override
+              public void informControllerButtonReleased() {
+                liquidContainerProperties.getLiquidSourceModelList().remove(liquidSourceModel);
+              }
+            });
+    if (liquidContainerProperties.getLiquidSourceIds().contains(liquidSourceModel.getLiquidSourceId())) {
+      liquidSourceButton.updateState(Button.State.PRESSED);
+    }
+  }
+
 
   private void createProjectileButton(
       int primaryKey,
@@ -867,6 +935,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
       bodyModel.getUsageModels().add(usage);
       MissileProperties properties = usage.getProperties();
       properties.setFireSourceModelListIds(new ArrayList<>());
+    }
+    if (e == BodyUsageCategory.LIQUID_CONTAINER) {
+      UsageModel<LiquidContainerProperties> usage = new UsageModel<>("", e);
+      bodyModel.getUsageModels().add(usage);
+      LiquidContainerProperties properties = usage.getProperties();
+      properties.setLiquidSourceIds(new ArrayList<>());
     }
   }
 

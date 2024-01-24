@@ -1,6 +1,5 @@
 package com.evolgames.entities.factories;
 
-import com.evolgames.entities.Liquid;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.properties.JuiceProperties;
 import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
@@ -10,13 +9,14 @@ import org.andengine.util.adt.color.Color;
 public class MaterialFactory {
   private static final MaterialFactory INSTANCE = new MaterialFactory();
   public ArrayList<Material> materials;
-  public ArrayList<Liquid> liquids;
+  public ArrayList<JuiceProperties> liquids;
 
   private MaterialFactory() {
 
     this.liquids = new ArrayList<>();
-    liquids.add(new Liquid(new JuiceProperties("Blood", MyColorUtils.bloodColor)));
-    liquids.add(new Liquid(new JuiceProperties("Goo", new Color(0.1f, 0.1f, 0.1f, 0.5f))));
+    liquids.add(new JuiceProperties(0,"Blood",false,0, MyColorUtils.bloodColor));
+    liquids.add(new JuiceProperties(1,"Goo",false,0, new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+
     this.materials = new ArrayList<>();
     this.materials.add(
         new Material(
@@ -237,7 +237,7 @@ public class MaterialFactory {
     return this.materials.get(index);
   }
 
-  public Liquid getLiquidByIndex(int i) {
+  public JuiceProperties getLiquidByIndex(int i) {
     return liquids.get(i);
   }
 }

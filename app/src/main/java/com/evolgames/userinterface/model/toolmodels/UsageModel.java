@@ -1,10 +1,12 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
+import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
@@ -58,6 +60,9 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
         break;
       case MISSILE:
         this.properties = (T) new MissileProperties();
+        break;
+      case LIQUID_CONTAINER:
+        this.properties = (T) new LiquidContainerProperties();
         break;
     }
     this.type = type;

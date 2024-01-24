@@ -10,12 +10,14 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 
 public class OutlineController extends Controller {
   private EditorUserInterface editorUserInterface;
@@ -58,6 +60,13 @@ public class OutlineController extends Controller {
         fireSourceModel.getFireSourceShape().release();
         if (fireSourceModel.getFireSourceField() != null) {
           fireSourceModel.getFireSourceField().hideFields();
+        }
+      }
+
+      for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
+        liquidSourceModel.getLiquidSourceShape().release();
+        if (liquidSourceModel.getLiquidSourceField() != null) {
+          liquidSourceModel.getLiquidSourceField().hideFields();
         }
       }
     }
@@ -110,6 +119,10 @@ public class OutlineController extends Controller {
       FireSourceModel fireSourceModel = (FireSourceModel) selectedItemModel;
       fireSourceModel.getFireSourceShape().select();
       fireSourceModel.getFireSourceField().showFields();
+    }else if (selectedItemModel instanceof LiquidSourceModel) {
+      LiquidSourceModel liquidSourceModel = (LiquidSourceModel) selectedItemModel;
+      liquidSourceModel.getLiquidSourceShape().select();
+      liquidSourceModel.getLiquidSourceField().showFields();
     } else if (selectedItemModel instanceof DragModel) {
       DragModel dragModel = (DragModel) selectedItemModel;
       dragModel.getDragShape().select();
@@ -210,6 +223,9 @@ public class OutlineController extends Controller {
           }
           for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
             fireSourceModel.getFireSourceShape().setVisible(true);
+          }
+          for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
+            liquidSourceModel.getLiquidSourceShape().setVisible(true);
           }
         }
         this.onItemSelectionUpdated(this.lastSelectedItem);

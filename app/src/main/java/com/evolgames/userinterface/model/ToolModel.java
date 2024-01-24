@@ -15,11 +15,13 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import java.io.Serializable;
@@ -37,6 +39,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
   private final AtomicInteger bombCounter = new AtomicInteger();
   private final AtomicInteger dragCounter = new AtomicInteger();
   private final AtomicInteger fireSourceCounter = new AtomicInteger();
+  private final AtomicInteger liquidSourceCounter = new AtomicInteger();
   private final ArrayList<BodyModel> bodies;
   private final ArrayList<JointModel> joints;
   private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
@@ -188,7 +191,12 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         .findAny()
         .orElse(null);
   }
-
+  public LiquidSourceModel getLiquidSourceById(int primaryKey, int modelId) {
+    return getBodyModelById(primaryKey).getLiquidSourceModels().stream()
+            .filter(e -> e.getLiquidSourceId() == modelId)
+            .findAny()
+            .orElse(null);
+  }
   public FireSourceModel getFireSourceById(int primaryKey, int modelId) {
     return getBodyModelById(primaryKey).getFireSourceModels().stream()
             .filter(e -> e.getFireSourceId() == modelId)
@@ -220,7 +228,12 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         .getProjectileModels()
         .removeIf(e -> e.getProjectileId() == modelId);
   }
-
+  public void removeFireSource(int primaryKey, int secondaryKey) {
+    getBodyModelById(primaryKey).getFireSourceModels().removeIf(e -> e.getFireSourceId() == secondaryKey);
+  }
+  public void removeLiquidSource(int primaryKey, int secondaryKey) {
+    getBodyModelById(primaryKey).getFireSourceModels().removeIf(e -> e.getFireSourceId() == secondaryKey);
+  }
   public void removeBomb(int primaryKey, int secondaryKey) {
     getBodyModelById(primaryKey).getBombModels().removeIf(e -> e.getBombId() == secondaryKey);
   }
@@ -262,6 +275,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
   public AtomicInteger getFireSourceCounter() {
     return fireSourceCounter;
   }
+  public AtomicInteger getLiquidSourceCounter() {
+    return liquidSourceCounter;
+  }
+
 
   public CasingModel createNewAmmo(CasingShape ammoShape, int bodyId) {
     int ammoId = ammoCounter.getAndIncrement();
@@ -275,6 +292,13 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     FireSourceModel fireSourceModel = new FireSourceModel(bodyId, fireSourceId, fireSourceShape);
     getBodyModelById(bodyId).getFireSourceModels().add(fireSourceModel);
     return fireSourceModel;
+  }
+  public LiquidSourceModel createNewLiquidSource(LiquidSourceShape liquidSourceShape, int bodyId) {
+    int liquidSourceId = liquidSourceCounter.getAndIncrement();
+    LiquidSourceModel liquidSourceModel =
+        new LiquidSourceModel(bodyId, liquidSourceId, liquidSourceShape);
+    getBodyModelById(bodyId).getLiquidSourceModels().add(liquidSourceModel);
+    return liquidSourceModel;
   }
 
   public BombModel createNewBomb(BombShape bombShape, int bodyId) {

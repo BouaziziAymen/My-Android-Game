@@ -726,7 +726,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
   }
 
   private String getLiquidNameByIndex(int i) {
-    return MaterialFactory.getInstance().getLiquidByIndex(i).getProperties().getJuiceName();
+    return MaterialFactory.getInstance().getLiquidByIndex(i).getJuiceName();
   }
 
   private void setLayerName(String layerName) {
@@ -806,7 +806,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
   }
 
   void onJuiceButtonClicked(SimpleQuaternary<?> juiceButton) {
-    Log.e("interface", juiceButton.getQuaternaryKey() + "/");
+
   }
 
   void onMaterialButtonClicked(SimpleSecondary<?> materialButton) {

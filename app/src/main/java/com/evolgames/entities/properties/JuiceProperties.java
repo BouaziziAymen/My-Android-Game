@@ -4,12 +4,18 @@ import org.andengine.util.adt.color.Color;
 
 public class JuiceProperties extends Properties {
 
+  private final int juiceId;
   private final String JuiceName;
   private final Color defaultColor;
+  private final boolean flammable;
+  private final float ignitionTemperature;
 
-  public JuiceProperties(String name, Color color) {
+  public JuiceProperties(int id,String name, boolean flammable, float ignitionTemperature, Color color) {
     this.defaultColor = color;
-    JuiceName = name;
+    this.JuiceName = name;
+    this.juiceId = id;
+    this.flammable = flammable;
+    this.ignitionTemperature = ignitionTemperature;
   }
 
   @Override
@@ -23,5 +29,16 @@ public class JuiceProperties extends Properties {
 
   public Color getDefaultColor() {
     return defaultColor;
+  }
+  public int getJuiceId() {
+    return juiceId;
+  }
+
+  public boolean isFlammable() {
+    return flammable;
+  }
+
+  public float getIgnitionTemperature() {
+    return ignitionTemperature;
   }
 }

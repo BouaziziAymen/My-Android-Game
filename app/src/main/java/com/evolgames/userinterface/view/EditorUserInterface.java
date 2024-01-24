@@ -31,6 +31,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LiquidSourceOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
@@ -43,6 +44,7 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ColorSelector;
@@ -59,6 +61,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
@@ -80,6 +83,7 @@ import com.evolgames.userinterface.view.windows.gamewindows.JointOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.JointsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.LayerSettingsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.LayersWindow;
+import com.evolgames.userinterface.view.windows.gamewindows.LiquidSourceOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.OptionsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ProjectileOptionWindow;
 import java.io.FileNotFoundException;
@@ -113,24 +117,24 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   private ToolModel toolModel;
 
   public EditorUserInterface(
-      EditorScene editorScene,
-      LayerWindowController layerWindowController,
-      JointWindowController jointWindowController,
-      LayerSettingsWindowController layerSettingsController,
-      BodySettingsWindowController bodySettingsWindowController,
-      JointSettingsWindowController jointSettingsWindowController,
-      ItemWindowController itemWindowController,
-      ProjectileOptionController projectileOptionController,
-      CasingOptionController casingOptionController,
-      BombOptionController bombOptionController,
-      FireSourceOptionController fireSourceOptionController,
-      DragOptionController dragOptionController,
-      ItemSaveWindowController itemSaveWindowController,
-      DecorationSettingsWindowController decorationSettingsWindowController,
-      OptionsWindowController optionsWindowController,
-      OutlineController outlineController,
-      CreationZoneController creationZoneController,
-      KeyboardController keyboardController) {
+          EditorScene editorScene,
+          LayerWindowController layerWindowController,
+          JointWindowController jointWindowController,
+          LayerSettingsWindowController layerSettingsController,
+          BodySettingsWindowController bodySettingsWindowController,
+          JointSettingsWindowController jointSettingsWindowController,
+          ItemWindowController itemWindowController,
+          ProjectileOptionController projectileOptionController,
+          CasingOptionController casingOptionController,
+          BombOptionController bombOptionController,
+          FireSourceOptionController fireSourceOptionController,
+          LiquidSourceOptionController liquidSourceOptionController, DragOptionController dragOptionController,
+          ItemSaveWindowController itemSaveWindowController,
+          DecorationSettingsWindowController decorationSettingsWindowController,
+          OptionsWindowController optionsWindowController,
+          OutlineController outlineController,
+          CreationZoneController creationZoneController,
+          KeyboardController keyboardController) {
     super(editorScene);
 
     ResourceManager.getInstance().hudBatcher.setZIndex(1);
@@ -232,6 +236,14 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         800 - fireSourceOptionWindow.getWidth() - 12,
         480 - fireSourceOptionWindow.getHeight() - 32);
     addElement(fireSourceOptionWindow);
+
+
+      LiquidSourceOptionWindow liquidSourceOptionWindow =
+              new LiquidSourceOptionWindow(0, 0, liquidSourceOptionController);
+      liquidSourceOptionWindow.setPosition(
+              800 - liquidSourceOptionWindow.getWidth() - 12,
+              480 - liquidSourceOptionWindow.getHeight() - 32);
+      addElement(liquidSourceOptionWindow);
 
     DragOptionWindow dragOptionWindow = new DragOptionWindow(0, 0, dragOptionController);
     dragOptionWindow.setPosition(
@@ -770,12 +782,30 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             getController().onDragButtonReleased(button45);
           }
         });
+    Button<ToolButtonBoardController> button46 =
+        new Button<>(
+            ResourceManager.getInstance().liquidSourceTextureRegion,
+            Button.ButtonType.Selector,
+            true);
+    button46.setBehavior(
+        new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button46) {
+          @Override
+          public void informControllerButtonClicked() {
+            getController().onLiquidButtonClicked(button46);
+          }
+
+          @Override
+          public void informControllerButtonReleased() {
+            getController().onLiquidButtonReleased(button46);
+          }
+        });
     toolButtonBoard.addToButtonBoard(button40);
     toolButtonBoard.addToButtonBoard(button41);
     toolButtonBoard.addToButtonBoard(button42);
     toolButtonBoard.addToButtonBoard(button43);
-    toolButtonBoard.addToButtonBoard(button44);
+    toolButtonBoard.addToButtonBoard(button46);
     toolButtonBoard.addToButtonBoard(button45);
+    toolButtonBoard.addToButtonBoard(button44);
     toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
 
     panel = new ControlPanel(editorScene);
@@ -881,6 +911,12 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             new FireSourceShape(fireSourceModel.getProperties().getFireSourceOrigin(), scene);
         fireSourceShape.bindModel(fireSourceModel);
       }
+      for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
+        LiquidSourceShape liquidSourceShape =
+            new LiquidSourceShape(liquidSourceModel.getProperties().getLiquidSourceOrigin(), scene);
+        liquidSourceShape.bindModel(liquidSourceModel);
+      }
+
       for (DragModel dragModel : bodyModel.getDragModels()) {
         DragShape dragShape = new DragShape(dragModel.getProperties().getDragOrigin(), scene);
         dragShape.bindModel(dragModel);
@@ -1051,6 +1087,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   public void setMoveElementController(ControlElement moveElementController) {
     this.moveElementController = moveElementController;
   }
+
   public void saveToolModel() {
     try {
       PersistenceCaretaker.getInstance().saveToolModel(this.toolModel);

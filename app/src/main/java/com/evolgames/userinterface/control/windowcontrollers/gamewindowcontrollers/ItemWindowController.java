@@ -6,6 +6,7 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Strings;
@@ -14,6 +15,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
@@ -23,6 +25,7 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingFi
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +42,7 @@ public class ItemWindowController
   private CasingOptionController ammoOptionController;
   private BombOptionController bombOptionController;
   private DragOptionController dragOptionController;
+  private LiquidSourceOptionController liquidSourceOptionController;
 
   public void setFireSourceOptionController(FireSourceOptionController fireSourceOptionController) {
     this.fireSourceOptionController = fireSourceOptionController;
@@ -97,6 +101,14 @@ public class ItemWindowController
                   selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
       return model.getFireSourceShape().getMovables(moveLimits);
     }
+    if (selectedSecondaryField instanceof LiquidSourceField) {
+      LiquidSourceModel model =
+              editorUserInterface
+                      .getToolModel()
+                      .getLiquidSourceById(
+                              selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+      return model.getLiquidSourceShape().getMovables(moveLimits);
+    }
     if (selectedSecondaryField instanceof DragField) {
       DragModel model =
           editorUserInterface
@@ -136,6 +148,12 @@ public class ItemWindowController
           editorUserInterface
               .getToolModel()
               .getFireSourceById(itemField.getPrimaryKey(), itemField.getModelId());
+      outlineController.onItemSelectionUpdated(model);
+    }else if (itemField instanceof LiquidSourceField) {
+      LiquidSourceModel model =
+              editorUserInterface
+                      .getToolModel()
+                      .getLiquidSourceById(itemField.getPrimaryKey(), itemField.getModelId());
       outlineController.onItemSelectionUpdated(model);
     } else if (itemField instanceof DragField) {
       DragModel model =
@@ -259,6 +277,9 @@ public class ItemWindowController
       for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
         onFireSourceCreated(fireSourceModel);
       }
+      for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
+        onLiquidSourceCreated(liquidSourceModel);
+      }
       for (DragModel dragModel : bodyModel.getDragModels()) {
         onDragCreated(dragModel);
       }
@@ -320,6 +341,10 @@ public class ItemWindowController
   private void detachFireSourceShape(FireSourceModel fireSourceModel) {
     FireSourceShape fireSourceShape = fireSourceModel.getFireSourceShape();
     fireSourceShape.detach();
+  }
+  private void detachLiquidSourceShape(LiquidSourceModel liquidSourceModel) {
+    LiquidSourceShape liquidSourceShape = liquidSourceModel.getLiquidSourceShape();
+    liquidSourceShape.detach();
   }
 
   private void detachDragShape(DragModel dragModel) {
@@ -533,7 +558,7 @@ public class ItemWindowController
           fireSourceOptionController.onModelUpdated(null);
           editorUserInterface
               .getToolModel()
-              .removeBomb(fireSourceModel.getBodyId(), fireSourceModel.getFireSourceId());
+              .removeFireSource(fireSourceModel.getBodyId(), fireSourceModel.getFireSourceId());
           updateLayout();
         });
   }
@@ -601,4 +626,54 @@ public class ItemWindowController
     public void setDragOptionController(DragOptionController dragOptionController) {
         this.dragOptionController = dragOptionController;
     }
+
+    public void onLiquidSourceRemoveButtonClicked(LiquidSourceField liquidSourceField) {
+      LiquidSourceModel liquidSourceModel =
+              editorUserInterface
+                      .getToolModel()
+                      .getLiquidSourceById(liquidSourceField.getPrimaryKey(), liquidSourceField.getModelId());
+      editorUserInterface.doWithConfirm(
+              String.format(Strings.ITEM_DELETE_CONFIRM, liquidSourceModel.getModelName()),
+              () -> {
+                if (liquidSourceField == selectedSecondaryField) {
+                  selectedSecondaryField = null;
+                }
+                window
+                        .getLayout()
+                        .removeSecondary(liquidSourceField.getPrimaryKey(), liquidSourceField.getSecondaryKey());
+                detachLiquidSourceShape(liquidSourceModel);
+                liquidSourceOptionController.onModelUpdated(null);
+                editorUserInterface
+                        .getToolModel()
+                        .removeLiquidSource(liquidSourceModel.getBodyId(), liquidSourceModel.getLiquidSourceId());
+                updateLayout();
+              });
+    }
+
+  public void onLiquidSourceOptionClicked(LiquidSourceField liquidSourceField) {
+    LiquidSourceModel liquidSourceModel =
+            editorUserInterface
+                    .getToolModel()
+                    .getLiquidSourceById(liquidSourceField.getPrimaryKey(), liquidSourceField.getModelId());
+    liquidSourceOptionController.openWindow();
+    liquidSourceOptionController.onModelUpdated(liquidSourceModel);
+    unfold();
+  }
+
+  public void onLiquidSourceCreated(LiquidSourceModel liquidSourceModel) {
+    LiquidSourceField liquidSourceField =
+            window.addLiquidSourceField(
+                    liquidSourceModel.getModelName(),
+                    liquidSourceModel.getBodyId(),
+                    liquidSourceModel.getLiquidSourceId());
+    liquidSourceModel.setLiquidSourceField(liquidSourceField);
+    updateLayout();
+    liquidSourceOptionController.onModelUpdated(liquidSourceModel);
+    onSecondaryButtonClicked(liquidSourceField);
+    liquidSourceField.getControl().updateState(Button.State.PRESSED);
+  }
+
+  public void setLiquidSourceOptionController(LiquidSourceOptionController liquidSourceOptionController) {
+    this.liquidSourceOptionController = liquidSourceOptionController;
+  }
 }

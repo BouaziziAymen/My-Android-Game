@@ -12,6 +12,7 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingFi
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 
 public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyField, ItemField> {
@@ -52,6 +53,13 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
     addSecondary(fireSourceField, primaryKey, fireSourceField.getSecondaryKey());
     fireSourceField.setText(name);
     return fireSourceField;
+  }
+  public LiquidSourceField addLiquidSourceField(String name, int primaryKey, int modelId) {
+    LiquidSourceField liquidSourceField =
+        new LiquidSourceField(primaryKey, modelId, itemWindowController);
+    addSecondary(liquidSourceField, primaryKey, liquidSourceField.getSecondaryKey());
+    liquidSourceField.setText(name);
+    return liquidSourceField;
   }
 
   public BombField addBombField(String name, int primaryKey, int modelId) {

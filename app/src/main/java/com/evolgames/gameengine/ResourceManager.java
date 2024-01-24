@@ -141,7 +141,9 @@ public class ResourceManager {
   private FontLoader fontLoader;
   private BuildableBitmapTextureAtlas texture;
   public TiledTextureRegion fireSourceTextureRegion;
+  public TiledTextureRegion liquidSourceTextureRegion;
   public TextureRegion fireShapeTextureRegion;
+  public TextureRegion liquidShapeTextureRegion;
   public TextureRegion projectileDragTextureRegion;
   public TiledTextureRegion projDragTextureRegion;
 
@@ -469,6 +471,9 @@ public class ResourceManager {
     this.fireShapeTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "shapes/fire.png");
+    this.liquidShapeTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "shapes/liquid.png");
     this.projectileDragTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "shapes/projdrag.png");
@@ -571,6 +576,9 @@ public class ResourceManager {
     this.fireSourceTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
+    this.liquidSourceTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "boards/liquidsource.png", 1, 3);
     this.projDragTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "boards/projdrag.png", 1, 3);

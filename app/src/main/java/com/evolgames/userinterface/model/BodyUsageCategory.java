@@ -12,7 +12,8 @@ public enum BodyUsageCategory {
   THROWING("Throwing", "Throwing Options", 6),
   FLAME_THROWER("Flame Thrower", "Flame Thr. Options", 7),
   ROCKET("Rocket", "Rocket. Options", 8),
-  MISSILE("Missile", "Missile. Options", 8);
+  MISSILE("Missile", "Missile. Options", 8),
+  LIQUID_CONTAINER("Liquid Container", "Container. Options", 9);
   final String name;
   final int group;
   private final String optionsTitle;

@@ -19,6 +19,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerSettingsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LiquidSourceOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.model.BodyModel;
@@ -107,6 +108,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     CasingOptionController ammoOptionController = new CasingOptionController();
     BombOptionController bombOptionController = new BombOptionController();
     FireSourceOptionController fireSourceOptionController = new FireSourceOptionController();
+    LiquidSourceOptionController liquidSourceOptionController = new LiquidSourceOptionController();
     DragOptionController dragOptionController = new DragOptionController();
     ItemWindowController itemWindowController = new ItemWindowController();
     LayerSettingsWindowController layerSettingsWindowController =
@@ -131,6 +133,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
             ammoOptionController,
             bombOptionController,
             fireSourceOptionController,
+            liquidSourceOptionController,
             dragOptionController,
             itemSaveWindowController,
             decorationSettingsWindowController,
@@ -156,11 +159,13 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     itemWindowController.setBombOptionController(bombOptionController);
     itemWindowController.setProjectileOptionController(projectileOptionController);
     itemWindowController.setFireSourceOptionController(fireSourceOptionController);
+    itemWindowController.setLiquidSourceOptionController(liquidSourceOptionController);
     itemWindowController.setDragOptionController(dragOptionController);
     projectileOptionController.setItemWindowController(itemWindowController);
     ammoOptionController.setItemWindowController(itemWindowController);
     bombOptionController.setItemWindowController(itemWindowController);
     fireSourceOptionController.setItemWindowController(itemWindowController);
+    liquidSourceOptionController.setItemWindowController(itemWindowController);
     dragOptionController.setItemWindowController(itemWindowController);
     layerSettingsWindowController.setLayerWindowController(layerWindowController);
     layerSettingsWindowController.setKeyboardController(keyboardController);
@@ -172,6 +177,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     creationZoneController.setItemWindowController(itemWindowController);
     optionsWindowController.setCreationZoneController(creationZoneController);
     optionsWindowController.setUserInterface(userInterface);
+    optionsWindowController.setKeyboardController(keyboardController);
     itemSaveWindowController.setUserInterface(userInterface);
     itemSaveWindowController.setKeyboardController(keyboardController);
     jointWindowController.setUserInterface(userInterface);

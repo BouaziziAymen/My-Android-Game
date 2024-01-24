@@ -1,6 +1,8 @@
 package com.evolgames.entities;
 
 
+import com.evolgames.entities.properties.JuiceProperties;
+
 import org.andengine.util.adt.color.Color;
 
 public class Material {
@@ -22,7 +24,7 @@ public class Material {
   private final double flameTemperature;
   private final double energy;
   private final boolean flammable;
-  private Liquid juice;
+  private JuiceProperties juice;
 
   public Material(
       String name,
@@ -33,7 +35,7 @@ public class Material {
       float restitution,
       float tenacity,
       float hardness,
-      Liquid Juice,
+      JuiceProperties Juice,
       float jd,
       float jlp,
       float jup,
@@ -54,7 +56,7 @@ public class Material {
     this.JuicinessLowerPressure = jlp;
     this.JuicinessUpperPressure = jup;
     this.JuicinessDensity = jd;
-    this.juiceColor = Juice.getProperties().getDefaultColor();
+    this.juiceColor = Juice.getDefaultColor();
     this.flammable = flammable;
     this.ignitionTemperature = ignitionTemperature;
     this.flameTemperature = flameTemperature;

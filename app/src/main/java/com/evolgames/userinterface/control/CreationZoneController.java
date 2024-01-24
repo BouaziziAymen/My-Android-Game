@@ -16,6 +16,7 @@ import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
@@ -33,6 +34,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
@@ -113,6 +115,8 @@ public class CreationZoneController extends Controller {
       case SCALE_IMAGE:
       case ROTATE_IMAGE:
       case FIRE_SOURCE:
+      case LIQUID_SOURCE:
+      case DRAG:
       case MOVE_IMAGE:
         editorScene.setScrollerEnabled(false);
         editorScene.setZoomEnabled(false);
@@ -123,7 +127,6 @@ public class CreationZoneController extends Controller {
       case MOVE_POINT:
       case ADD_POINT:
       case BOMB:
-      case DRAG:
         editorScene.setScrollerEnabled(true);
         editorScene.setZoomEnabled(true);
         break;
@@ -149,7 +152,7 @@ public class CreationZoneController extends Controller {
       if (!(indicatorArrow instanceof JointShape
           || indicatorArrow instanceof ProjectileShape
           || indicatorArrow instanceof CasingShape
-          || indicatorArrow instanceof FireSourceShape||indicatorArrow instanceof DragShape)){
+          || indicatorArrow instanceof FireSourceShape|| indicatorArrow instanceof LiquidSourceShape||indicatorArrow instanceof DragShape)){
         indicatorArrow.detach();
       }
       indicatorArrow = null;
@@ -177,7 +180,7 @@ public class CreationZoneController extends Controller {
     }
     if (action == CreationAction.BOMB
         || action == CreationAction.PROJECTILE
-        || action == CreationAction.AMMO  || action == CreationAction.FIRE_SOURCE|| action == CreationAction.DRAG) {
+        || action == CreationAction.AMMO|| action == CreationAction.LIQUID_SOURCE  || action == CreationAction.FIRE_SOURCE|| action == CreationAction.DRAG) {
       editorUserInterface.getItemButtonBoardController().releaseButtons();
       action = CreationAction.NONE;
     }
@@ -437,6 +440,20 @@ public class CreationZoneController extends Controller {
                                 dragShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
         itemWindowController.onDragCreated(dragModel);
         dragShape.bindModel(dragModel);
+        this.indicatorArrow = dragShape;
+      }
+    }
+    if (action == CreationAction.LIQUID_SOURCE) {
+      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+        LiquidSourceShape liquidSourceShape = new LiquidSourceShape(new Vector2(x, y), editorScene);
+        LiquidSourceModel liquidSourceModel =
+                editorUserInterface
+                        .getToolModel()
+                        .createNewLiquidSource(
+                                liquidSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+        itemWindowController.onLiquidSourceCreated(liquidSourceModel);
+        liquidSourceShape.bindModel(liquidSourceModel);
+        this.indicatorArrow = liquidSourceShape;
       }
     }
     if (action == CreationAction.BOMB) {
@@ -682,6 +699,6 @@ public class CreationZoneController extends Controller {
     PROJECTILE,
     MOVE_TOOL_POINT,
     AMMO,
-    FIRE_SOURCE, BOMB, DRAG
+    FIRE_SOURCE, BOMB, LIQUID_SOURCE, DRAG
   }
 }
