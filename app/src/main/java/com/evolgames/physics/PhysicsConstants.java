@@ -16,7 +16,7 @@ public class PhysicsConstants {
   public static final float MAX_PROJECTILE_VELOCITY = 1000f;
   public static final float MIN_FIRE_RATE = 1f;
   public static final float MAX_FIRE_RATE = 10f;
-  public static final float GRAIN_SPACING = 10f;
+  public static final float GRAIN_SPACING = 16f;
   public static final float PARTICLE_TERMINAL_VELOCITY = 10f;
   public static float gravity = -3 * SensorManager.GRAVITY_EARTH;
   public static float ambient_temperature = 60;

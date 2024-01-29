@@ -399,10 +399,10 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private void createGround() {
     ArrayList<LayerBlock> blocks = new ArrayList<>();
     List<Vector2> vertices1 = new ArrayList<>();
-    vertices1.add(obtain(-900000, 0));
-    vertices1.add(obtain(-900000, 20));
-    vertices1.add(obtain(900000, 20));
-    vertices1.add(obtain(900000, 0));
+    vertices1.add(obtain(-900, 0));
+    vertices1.add(obtain(-900, 20));
+    vertices1.add(obtain(900, 20));
+    vertices1.add(obtain(900, 0));
 
     List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));

@@ -61,8 +61,8 @@ public class Explosion {
   public boolean isAlive() {
     return alive;
   }
-
   public void update() {
+
     if (!alive) {
       return;
     }

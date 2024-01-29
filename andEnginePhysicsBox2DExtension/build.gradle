@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 android {
     signingConfigs {
         release {
-            storeFile file('C:\\Users\\HP\\keystore.jks')
+            storeFile file('C:\\Users\\keystore.jks')
             storePassword 'alexeigonzalez'
             keyAlias 'key0'
             keyPassword 'alexeigonzalez'

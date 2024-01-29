@@ -6,7 +6,7 @@ android {
             storePassword 'alexeigonzalez'
             keyPassword 'alexeigonzalez'
             keyAlias 'key0'
-            storeFile file('C:\\Users\\HP\\keystore.jks')
+            storeFile file('C:\\Users\\keystore.jks')
         }
     }
     compileSdkVersion 29
