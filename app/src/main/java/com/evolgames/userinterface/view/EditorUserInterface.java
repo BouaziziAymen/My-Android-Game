@@ -1002,7 +1002,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   }
 
   public void onAddImageButtonClicked() {
-    ResourceManager.getInstance().activity.startLoadPictureIntent();
+      ResourceManager.getInstance().activity.requestImagePermission();
+
   }
 
   public ImageShape getImageShape() {

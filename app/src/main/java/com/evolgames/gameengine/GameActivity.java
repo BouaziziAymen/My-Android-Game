@@ -1,5 +1,10 @@
 package com.evolgames.gameengine;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.READ_MEDIA_VIDEO;
+import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -8,6 +13,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -162,23 +168,23 @@ public class GameActivity extends BaseGameActivity {
     return super.onKeyDown(keyCode, event);
   }
 
-  public void startLoadPictureIntent() {
+  public void startLoadPictureIntent(String permission) {
 
     /// Here, thisActivity is the current activity
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+    if (ContextCompat.checkSelfPermission(this, permission)
         != PackageManager.PERMISSION_GRANTED) {
 
       // Permission is not granted
       if (ActivityCompat.shouldShowRequestPermissionRationale(
-          this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+          this, permission)) {
         // Show an explanation
         Toast.makeText(this, "Load images from your storage", Toast.LENGTH_SHORT).show();
         ActivityCompat.requestPermissions(
-            this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST);
+            this, new String[] {permission}, MY_PERMISSIONS_REQUEST);
       } else {
         // No explanation needed; request the permission
         ActivityCompat.requestPermissions(
-            this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST);
+            this, new String[] {permission}, MY_PERMISSIONS_REQUEST);
       }
     } else {
 
@@ -244,5 +250,17 @@ public class GameActivity extends BaseGameActivity {
 
     // Start the intent
     startActivity(intent);
+  }
+
+  public void requestImagePermission() {
+    // Permission request logic
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+      ResourceManager.getInstance().activity.startLoadPictureIntent(READ_MEDIA_IMAGES);
+     // requestPermissions.launch(arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VISUAL_USER_SELECTED))
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      ResourceManager.getInstance().activity.startLoadPictureIntent(READ_MEDIA_IMAGES);
+    } else {
+      ResourceManager.getInstance().activity.startLoadPictureIntent(READ_EXTERNAL_STORAGE);
+    }
   }
 }
