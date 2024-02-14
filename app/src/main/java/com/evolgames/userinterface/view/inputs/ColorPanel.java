@@ -6,6 +6,8 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.layouts.BoxLayout;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ColorPanel extends Panel {
   public static int N = 6;
   public static int NUMBER_SQUARES = 8;
@@ -16,6 +18,8 @@ public class ColorPanel extends Panel {
   public static float SQUARE_SIDE = 16f;
   private final BoxLayout colorsLayout;
   private final ColorSelectorWindowController mController;
+
+  private final AtomicInteger atomicInteger = new AtomicInteger();
 
   public ColorPanel(float pX, float pY, ColorSelectorWindowController controller) {
     super(pX, pY, N, true, true);
@@ -29,13 +33,13 @@ public class ColorPanel extends Panel {
     this.mController = controller;
   }
 
-  public void addColor(final float pRed, final float pGreen, final float pBlue) {
-
+  public Button<ColorSelectorWindowController> addColor(final float pRed, final float pGreen, final float pBlue) {
     Button<ColorSelectorWindowController> square =
         new Button<>(
             ResourceManager.getInstance().squareTextureRegion, Button.ButtonType.Selector, true);
     colorsLayout.addToLayout(square);
     square.setColor(pRed, pGreen, pBlue);
+    square.setId(atomicInteger.getAndIncrement());
     square.setBehavior(
         new ButtonBehavior<ColorSelectorWindowController>(mController, square) {
           @Override
@@ -48,6 +52,7 @@ public class ColorPanel extends Panel {
             mController.onColorSlotReleased(square);
           }
         });
+    return square;
   }
 
   public BoxLayout getColorsLayout() {
@@ -56,5 +61,9 @@ public class ColorPanel extends Panel {
 
   public void removeColor(Button selectedSlot) {
     colorsLayout.removeElement(selectedSlot);
+  }
+
+  public Button<?> getColorSlotById(int id){
+    return (Button<?>) colorsLayout.getContents().stream().filter(b->b.getId()==id).findAny().orElseGet(null);
   }
 }

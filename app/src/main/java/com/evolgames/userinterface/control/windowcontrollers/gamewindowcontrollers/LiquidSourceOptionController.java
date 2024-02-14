@@ -60,6 +60,22 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
           });
     }
   }
+  private void setLiquidNumber(int index) {
+    for (int i = 0; i < window.getLayout().getSecondariesSize(1); i++) {
+      SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(1, i);
+      Element main = element.getMain();
+      if (element.getSecondaryKey() == index) {
+        if (main instanceof ButtonWithText) {
+          ((ButtonWithText<?>) main).updateState(Button.State.PRESSED);
+        }
+      } else {
+        if (main instanceof ButtonWithText) {
+          ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+        }
+      }
+    }
+  }
+
 
   private void onLiquidButtonClicked(SimpleSecondary<ButtonWithText<?>> liquidField) {
     int primaryKey = liquidField.getPrimaryKey();
@@ -86,6 +102,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
       return;
     }
     this.liquidSourceProperties = model.getProperties();
+    this.setLiquidNumber(model.getProperties().getLiquid());
   }
 
   @Override

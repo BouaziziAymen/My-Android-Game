@@ -51,6 +51,6 @@ public class LiquidSourceProperties extends Properties {
   }
 
   public void setLiquid(int liquidId) {
-    this.liquid = liquid;
+    this.liquid = liquidId;
   }
 }

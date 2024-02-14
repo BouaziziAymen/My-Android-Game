@@ -13,6 +13,7 @@ public class ColorSelector
     extends ClickableImage<ColorSelectorWindowController, ColorSelectorBehavior> {
   private final Button<ColorSelectorWindowController> removeColorButton;
   private final Mesh mesh;
+  private final ColorSelectorWindowController controller;
   private float value;
   private float saturation;
   private float hue;
@@ -24,6 +25,7 @@ public class ColorSelector
   public ColorSelector(float pX, float pY, ColorSelectorWindowController controller) {
     super(pX, pY, ResourceManager.getInstance().colorSelectorTextureRegion, false);
 
+    this.controller = controller;
     float[] circle_vertices = new float[24 * 3];
     float RAY = 8f;
 
@@ -128,19 +130,12 @@ public class ColorSelector
   }
 
   public void updateColorHSV() {
-
     int color = Color.HSVToColor(new float[] {this.hue, this.saturation, this.value});
     red = Color.red(color) / (float) 255;
     green = Color.green(color) / (float) 255;
     blue = Color.blue(color) / (float) 255;
-    updateMeshColor();
+    controller.updateMeshColor(red,green,blue,alpha);
   }
-
-  public void updateMeshColor() {
-    mesh.setColor(red, green, blue);
-    mesh.setAlpha(alpha);
-  }
-
   public void updateColorRGB() {
     float[] hsv = new float[3];
     Color.RGBToHSV(
@@ -151,7 +146,7 @@ public class ColorSelector
     hue = hsv[0];
     saturation = hsv[1];
     value = hsv[2];
-    updateMeshColor();
+    controller.updateMeshColor(red,green,blue,alpha);
   }
 
   public float getValue() {

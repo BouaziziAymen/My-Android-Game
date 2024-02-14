@@ -16,6 +16,7 @@ public class MaterialFactory {
     this.liquids = new ArrayList<>();
     liquids.add(new JuiceProperties(0,"Blood",false,0, MyColorUtils.bloodColor));
     liquids.add(new JuiceProperties(1,"Goo",false,0, new Color(0.1f, 0.1f, 0.1f, 0.5f)));
+    liquids.add(new JuiceProperties(2,"Petrol",true,200, new Color(156f/255f, 89/255f, 0, 0.5f)));
 
     this.materials = new ArrayList<>();
     this.materials.add(
@@ -225,6 +226,20 @@ public class MaterialFactory {
             0,
             0,
             0));
+    this.materials.add(
+            new Material(
+                    "Plastic",
+                    15,
+                    new Color(200 / 255f, 200 / 255f, 200 / 255f),
+                    4f * 1f,
+                    1,
+                    0.3f,
+                    0.6f,
+                    2f,
+                    true,
+                    600f,
+                    800f,
+                    2000f));
   }
 
   public static MaterialFactory getInstance() {

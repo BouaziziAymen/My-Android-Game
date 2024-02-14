@@ -50,7 +50,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
 
     createBackToMenuButton();
     createLastItemButton();
-    String[] items = new String[]{"c1_sword.xml","c1_knife.xml","c2_grenade.xml","c2_revolver_latest.xml"};
+    String[] items = new String[]{"c1_sword.xml","guided_rocket.xml","c1_knife.xml","c2_grenade.xml","c2_revolver_latest.xml","c1_morning_star.xml"};
     int t=0;
     for(String item:items){createItemButton(t,item);t++; }
     setUpdated(true);

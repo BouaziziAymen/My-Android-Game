@@ -87,8 +87,8 @@ public class DecorationSettingsWindowController
           @Override
           public void informControllerButtonReleased() {
             if (colorSelectorController != null) {
-              colorSelectorController.bindToColor(
-                  ((ColoredProperties) model.getProperties()).getDefaultColor());
+              colorSelectorController.bindProperties(
+                  ((ColoredProperties) model.getProperties()));
               colorSelectorController.setAcceptAction(
                   new Action() {
                     @Override

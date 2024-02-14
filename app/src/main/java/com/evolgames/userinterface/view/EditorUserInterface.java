@@ -2,6 +2,7 @@ package com.evolgames.userinterface.view;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
+import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.entities.SceneType;
@@ -112,7 +113,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   private final JointSettingsWindowController jointSettingsWindowController;
   private final CreationZoneController creationZoneController;
   private final ItemSaveWindowController itemSaveWindowController;
-  private ControlElement moveElementController;
+    private final ColorSelectorWindowController colorSelectorWindowController;
+    private ControlElement moveElementController;
   private ImageShape imageShape;
   private ToolModel toolModel;
 
@@ -256,7 +258,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     itemSaveWindow.setVisible(false);
     addElement(itemSaveWindow);
 
-    ColorSelectorWindowController colorSelectorWindowController =
+    colorSelectorWindowController =
         new ColorSelectorWindowController(this);
     ColorSelectorWindow colorSelector =
         new ColorSelectorWindow(400, 0, colorSelectorWindowController);
@@ -817,7 +819,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     // panel.allocateController( 800 - 64f / 2,64/2f,ControlElement.Type.AnalogController,null);
 
     // panel.showControlElement(0);
-
+    addImage();
     setUpdated(true);
   }
 
@@ -871,6 +873,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     }
     this.itemSaveWindowController.onModelUpdated(toolModel);
     this.jointSettingsWindowController.setToolModel(toolModel);
+    this.colorSelectorWindowController.setColorPanelProperties(toolModel.getColorPanelProperties());
     this.toolModel = toolModel;
 
     for (BodyModel bodyModel : toolModel.getBodies()) {
@@ -950,6 +953,9 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       }
     }
     toolModel.updateMesh();
+  for(SquareProperties squareProperties:toolModel.getColorPanelProperties().getSquarePropertiesList()) {
+      colorSelectorWindowController.addColorToPanel(squareProperties.getColor());
+  }
     layersWindowController.init();
     outlineController.init();
     itemWindowController.init();
@@ -963,7 +969,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
   @Override
   public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
     creationZone.onTouchScene(pTouchEvent, scroll);
-
     if (creationZoneController.getAction() == CreationZoneController.CreationAction.PIPING
         && imageShape != null) {
       Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), 10);
@@ -1005,6 +1010,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       ResourceManager.getInstance().activity.requestImagePermission();
 
   }
+    public void addImage() {
+      if(ResourceManager.getInstance().sketchTextureRegion!=null) {
+          imageShape = new ImageShape(getScene());
+          addElement(imageShape);
+          imageButtonBoardController.enableButtons();
+      }
+    }
 
   public ImageShape getImageShape() {
     return imageShape;
@@ -1104,4 +1116,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       e.printStackTrace();
     }
   }
+
+    public ColorSelectorWindowController getColorSelectorWindowController() {
+        return colorSelectorWindowController;
+    }
 }

@@ -1,7 +1,10 @@
 package com.evolgames.scenes;
 
 import com.evolgames.scenes.entities.SceneType;
+import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.shapes.ImageShape;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
@@ -77,7 +80,9 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
     }
   }
 
-  public void onBackgroundImageLoaded() {}
+  public void onBackgroundImageLoaded() {
+    ((EditorScene)scene).addImage();
+  }
 
   @Override
   public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {

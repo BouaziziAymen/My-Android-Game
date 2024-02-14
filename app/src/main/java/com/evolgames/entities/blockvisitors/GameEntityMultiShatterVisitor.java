@@ -4,6 +4,8 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.physics.WorldFacade;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +22,7 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
 
   @Override
   public void visitTheElement(GameEntity gameEntity) {
-    Iterator<LayerBlock> iterator = gameEntity.getBlocks().iterator();
+    Iterator<LayerBlock> iterator = new ArrayList<>(gameEntity.getBlocks()).iterator();
     while (iterator.hasNext()) {
       LayerBlock layerBlock = iterator.next();
       MultiShatterVisitor blockShatterVisitor =

@@ -6,6 +6,7 @@ import com.evolgames.entities.ItemCategory;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
+import com.evolgames.entities.properties.ColorPanelProperties;
 import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
@@ -44,6 +45,12 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
   private final ArrayList<JointModel> joints;
   private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
   private ItemCategory toolCategory;
+
+  private final ColorPanelProperties colorPanelProperties = new ColorPanelProperties();
+
+  public ColorPanelProperties getColorPanelProperties() {
+    return colorPanelProperties;
+  }
 
   public ToolModel(AbstractScene<?> gameScene, int toolId) {
     super("Tool" + toolId);

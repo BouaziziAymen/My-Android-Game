@@ -1,6 +1,5 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.ColoredProperties;
@@ -158,8 +157,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
           @Override
           public void informControllerButtonReleased() {
             if (colorSelectorController != null) {
-              colorSelectorController.bindToColor(
-                  ((ColoredProperties) model.getProperties()).getDefaultColor());
+              colorSelectorController.bindProperties(
+                  ((ColoredProperties) model.getProperties()));
               colorSelectorController.setAcceptAction(() -> setLayerColorSlot());
               colorSelectorController.openWindow();
             }
@@ -388,8 +387,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
           @Override
           public void informControllerButtonReleased() {
             if (colorSelectorController != null) {
-              colorSelectorController.bindToColor(
-                  ((LayerProperties) model.getProperties()).getJuiceColor());
+              colorSelectorController.bindProperties(
+                  ((LayerProperties) model.getProperties()));
               colorSelectorController.setAcceptAction(() -> setJuiceColorSlot());
               colorSelectorController.openWindow();
             }

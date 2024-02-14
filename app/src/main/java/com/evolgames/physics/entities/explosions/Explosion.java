@@ -8,6 +8,7 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
+  public static final int EXPLOSION_LIFESPAN = 5;
   private final PhysicsScene<?> scene;
   private final Vector2 center;
   private final float force;
@@ -61,12 +62,12 @@ public class Explosion {
   public boolean isAlive() {
     return alive;
   }
-  public void update() {
+  public void update(float stepFactor) {
 
     if (!alive) {
       return;
     }
-    if (time < 5) {
+    if (time < EXPLOSION_LIFESPAN) {
       scene
           .getWorldFacade()
           .performFlux(
@@ -77,8 +78,8 @@ public class Explosion {
                       Vector2 p = i.getWorldPoint();
                       vector.set(p.x - center.x, p.y - center.y);
                       float d = Math.max(1f, vector.len());
-                      i.setImpactImpulse(100000f * force / (d));
-                      vector.mul(i.getImpactImpulse() / 10000f);
+                      i.setImpactImpulse(10000f * force / (d));
+                      vector.mul(i.getImpactImpulse() / 100000000f);
                       gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                     });
                 scene.getWorldFacade().applyImpacts(gameEntity, impacts);
@@ -86,7 +87,7 @@ public class Explosion {
               },
               source);
     }
-    if (time > 10) {
+    if (time > EXPLOSION_LIFESPAN) {
       this.explosionParticleWrapper.stopFinal();
       if (scene instanceof PlayScene) {
         ((PlayScene) scene).unlockSaving();

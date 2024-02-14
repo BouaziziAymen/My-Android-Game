@@ -96,7 +96,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     if (this.savingBox != null) {
       this.savingBox.onStep();
     }
-    this.worldFacade.onStep();
+    this.worldFacade.onStep(pSecondsElapsed);
     Invoker.onStep();
     List<GameGroup> clone = new ArrayList<>(getGameGroups());
     for (GameGroup gameGroup : clone) {
@@ -399,12 +399,12 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private void createGround() {
     ArrayList<LayerBlock> blocks = new ArrayList<>();
     List<Vector2> vertices1 = new ArrayList<>();
-    vertices1.add(obtain(-900, 0));
-    vertices1.add(obtain(-900, 20));
-    vertices1.add(obtain(900, 20));
-    vertices1.add(obtain(900, 0));
+    vertices1.add(obtain(-400, 0));
+    vertices1.add(obtain(-400, 20));
+    vertices1.add(obtain(400, 20));
+    vertices1.add(obtain(400, 0));
 
-    List<Vector2> vertices2 = new ArrayList<>();
+   /* List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));
     vertices2.add(obtain(200, 20));
     vertices2.add(obtain(340, 20));
@@ -420,7 +420,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     vertices4.add(obtain(140, 18));
     vertices4.add(obtain(140, 16));
     vertices4.add(obtain(50, 16));
-    vertices4.add(obtain(50, 18));
+    vertices4.add(obtain(50, 18));*/
 
     blocks.add(
         BlockFactory.createLayerBlock(
@@ -430,7 +430,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             0,
             0,
             false));
-    blocks.add(
+   /* blocks.add(
         BlockFactory.createLayerBlock(
             vertices2,
             PropertiesFactory.getInstance()
@@ -455,7 +455,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             0,
             3,
             false));
-
+*/
     GameGroup groundGroup =
         GameEntityFactory.getInstance()
             .createGameGroupTest(

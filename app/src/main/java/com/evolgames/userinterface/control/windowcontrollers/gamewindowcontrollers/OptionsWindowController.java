@@ -119,7 +119,9 @@ public class OptionsWindowController
         colorValidatedButton.setBehavior(
             new ButtonBehavior<OptionsWindowController>(this, colorValidatedButton) {
               @Override
-              public void informControllerButtonClicked() {}
+              public void informControllerButtonClicked() {
+                  editorUserInterface.getColorSelectorWindowController().addColorToPanel(pipeColorSlot.getColor());
+              }
 
               @Override
               public void informControllerButtonReleased() {}
@@ -328,7 +330,6 @@ public class OptionsWindowController
   }
 
   public void updatePipeColor(Color color) {
-
     pipeColorSlot.setColor(color.getRed(), color.getGreen(), color.getBlue());
   }
 

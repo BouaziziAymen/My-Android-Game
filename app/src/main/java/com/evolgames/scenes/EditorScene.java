@@ -314,4 +314,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     ((MainScene)this.mParentScene).goToScene(sceneType);
   }
 
+  public void addImage() {
+    userInterface.addImage();
+  }
 }
