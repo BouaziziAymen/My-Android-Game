@@ -244,4 +244,5 @@ public abstract class Element implements Comparable<Element> {
   }
 
   public void updateZoom(float pZoomFactor) {}
+
 }

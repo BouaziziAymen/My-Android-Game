@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
+import com.evolgames.entities.properties.LiquidProperties;
+
 import org.andengine.util.adt.color.Color;
 
 public class SegmentLiquidParticleWrapper extends DataLiquidParticleWrapper {
@@ -11,10 +13,10 @@ public class SegmentLiquidParticleWrapper extends DataLiquidParticleWrapper {
       GameEntity gameEntity,
       float[] emitterData,
       Vector2 splashVelocity,
-      Color color,
+      LiquidProperties liquid,
       int lowerRate,
       int higherRate) {
-    super(gameEntity, emitterData, null, splashVelocity, color, lowerRate, higherRate);
+    super(gameEntity, emitterData, null, splashVelocity, liquid, lowerRate, higherRate);
   }
 
   @Override

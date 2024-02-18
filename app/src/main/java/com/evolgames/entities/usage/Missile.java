@@ -7,6 +7,9 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Missile extends Rocket {
 
   private float control;
@@ -32,8 +35,8 @@ public class Missile extends Rocket {
       }
   }
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Missile;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.Missile);
   }
 
   private void steer() {

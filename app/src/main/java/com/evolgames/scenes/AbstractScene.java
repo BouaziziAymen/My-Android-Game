@@ -53,10 +53,10 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
     Debug.d("Back key pressed");
   }
 
-    public ToolModel loadToolModel(String file) {
+    public ToolModel loadToolModel(String file, boolean editor) {
       ToolModel toolModel = null;
       try {
-        toolModel = PersistenceCaretaker.getInstance().loadToolModel(file);
+        toolModel = PersistenceCaretaker.getInstance().loadToolModel(file,editor);
         toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
       } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
         e.printStackTrace();

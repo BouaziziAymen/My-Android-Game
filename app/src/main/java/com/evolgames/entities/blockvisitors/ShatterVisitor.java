@@ -1,5 +1,7 @@
 package com.evolgames.entities.blockvisitors;
 
+import static com.evolgames.physics.PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -27,7 +29,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     this.gameEntity = gameEntity;
   }
 
-  private void processBlock(LayerBlock layerBlock) {
+  private void processBlock(LayerBlock layerBlock, boolean isFirst) {
     float pulverizationImpulse = calculatePulverizationImpulse(layerBlock);
     if (availableImpulse > pulverizationImpulse) {
       layerBlock.setAborted(true);
@@ -46,7 +48,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
       }
       if (availableImpulse - data.getDestructionEnergy() >= 0) {
 
-        if (!data.isNonValid()) {
+        if (!data.isNonValid()&& (isFirst||layerBlock.getBlockArea()>= 5*MINIMUM_STABLE_SPLINTER_AREA)) {
           shatterPerformed = true;
           layerBlock.performCut(data.getDestructionCut());
         }
@@ -82,7 +84,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
         break;
       }
       if (current.isNotAborted()) {
-        this.processBlock(current); // visit
+        this.processBlock(current,cutBlock==current); // visit
       }
 
       if (this.isExhausted() || this.isError()) {

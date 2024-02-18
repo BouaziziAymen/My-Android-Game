@@ -9,6 +9,8 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
+
+import java.util.Collections;
 import java.util.List;
 
 public class Smasher extends MeleeUse implements Penetrating {
@@ -27,8 +29,8 @@ public class Smasher extends MeleeUse implements Penetrating {
 
 
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Smash;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.Smash);
   }
 
   @Override

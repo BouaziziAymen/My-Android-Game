@@ -10,6 +10,8 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,8 +20,10 @@ public class FlameThrower extends Use {
     private List<FireSourceInfo> fireSourceInfoList;
     transient private HashMap<FireSourceInfo, ExplosiveParticleWrapper> flameThrowerInfFireSourceMap;
     private boolean on;
-    public FlameThrower() {}
 
+
+    @SuppressWarnings("unused")
+    public FlameThrower() {}
   public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene) {
     this.fireSourceInfoList =
             ((FlameThrowerProperties)usageModel.getProperties()).getFireSources().stream()
@@ -55,11 +59,12 @@ public class FlameThrower extends Use {
         }
     }
   @Override
-  public void onStep(float deltaTime, WorldFacade worldFacade) {}
+  public void onStep(float deltaTime, WorldFacade worldFacade) {
+  }
 
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.ThrowFire;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.ThrowFire);
   }
 
     public void createFireSources(WorldFacade worldFacade){

@@ -105,7 +105,7 @@ public class GameActivity extends BaseGameActivity {
         GameActivity.SCREEN_HEIGHT = metrics.heightPixels;
         GameActivity.SCREEN_WIDTH = metrics.widthPixels;
 
-        engine = new LimitedFPSEngine(pEngineOptions, 50);
+        engine = new LimitedFPSEngine(pEngineOptions, 40);
         engine.setTouchController(new MultiTouchController());
         engine.registerUpdateHandler(new FPSLogger());
         this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);

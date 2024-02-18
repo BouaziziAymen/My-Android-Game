@@ -31,6 +31,7 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.SavingBox;
+import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
@@ -72,7 +73,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   private GameGroup gameGroup1;
   private PlayerAction playerAction = PlayerAction.Drag;
   private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
-  private PlayerSpecialAction savedSpecialAction;
   private Vector2 point1, point2;
   private Line line;
   private ArrayList<Vector2> points;
@@ -83,7 +83,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   public PlayScene(Camera pCamera) {
     super(pCamera, SceneType.PLAY);
     this.savingBox = new SavingBox(this);
-    this.plotter = new Plotter();
+    plotter = new Plotter();
     this.attachChild(plotter);
   }
 
@@ -540,7 +540,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     if (true) {
       for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
         Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(4000));
+        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(40000));
       }
     }
   }
@@ -597,6 +597,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       case ThrowFire:
       case Rocket:
       case Missile:
+      case Sealed:
+      case Pouring:
         angleDeg = 0;
         forceFactor = 3000f;
         break;
@@ -608,6 +610,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         forceFactor = 0;
         angleDeg = 0;
     }
+
    if(action==PlayerSpecialAction.Missile){
      Missile missile = null;
      for (Map.Entry<Integer, Hand> entry : PlayScene.this.hands.entrySet()) {
@@ -682,30 +685,22 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 .forEach(
                     u -> {
                       if (this.playerAction == PlayerAction.Hold) {
-                        if (u.getAction() != null && u.getAction().iconId != -1) {
-                          usageList.add(u.getAction());
+                        if (u.getActions()!=null&&!u.getActions().isEmpty()) {
+                          usageList.addAll(u.getActions());
                         }
                       }
                     });
           }
         });
-    if (this.playerAction == PlayerAction.Hold && !usageList.isEmpty()) {
+     boolean hasNone = usageList.stream().anyMatch(e->e.hasNone);
+    if (this.playerAction == PlayerAction.Hold && hasNone) {
       usageList.add(0, PlayerSpecialAction.None);
     }
     if (!usageList.contains(specialAction)) {
       this.setSpecialAction(PlayerSpecialAction.None);
     }
     this.userInterface.updateParticularUsageSwitcher(usageList.toArray(new PlayerSpecialAction[0]));
-    if (savedSpecialAction != null) {
-      this.userInterface.updatePlayerSpecialActionOnSwitcher(this.savedSpecialAction);
-      this.savedSpecialAction = null;
-    }
   }
-
-  public void setSavedSpecialAction(PlayerSpecialAction savedSpecialAction) {
-    this.savedSpecialAction = savedSpecialAction;
-  }
-
   public GameActivity getActivity() {
     return ResourceManager.getInstance().activity;
   }
@@ -750,10 +745,10 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   }
 
   public void createLastItem() {
-    createTool(loadToolModel(EditorScene.SAVE_MUT));
+    createTool(loadToolModel(EditorScene.SAVE_MUT,false));
   }
 
   public void createItem(String name) {
-    createTool(loadToolModel(name));
+    createTool(loadToolModel(name,false));
   }
 }

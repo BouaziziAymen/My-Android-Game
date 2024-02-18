@@ -8,6 +8,7 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Slasher extends MeleeUse {
@@ -59,8 +60,8 @@ public class Slasher extends MeleeUse {
   }
 
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Slash;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.Slash);
   }
 
   public String getTargetEntityId() {

@@ -1,10 +1,8 @@
 package com.evolgames.entities.usage;
 
-import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
@@ -15,6 +13,8 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ public class Rocket extends Use {
     this.on = true;
     Body body = rocketBodyEntity.getBody();
     body.setTransform(body.getPosition(), angle);
-    //ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
+    ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
     for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
         i < projectileInfoListSize;
         i++) {
@@ -97,8 +97,8 @@ public class Rocket extends Use {
   }
 
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Rocket;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.Rocket);
   }
 
   public void createFireSources(WorldFacade worldFacade) {

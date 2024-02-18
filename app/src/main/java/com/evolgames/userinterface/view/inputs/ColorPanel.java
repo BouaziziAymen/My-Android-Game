@@ -64,6 +64,6 @@ public class ColorPanel extends Panel {
   }
 
   public Button<?> getColorSlotById(int id){
-    return (Button<?>) colorsLayout.getContents().stream().filter(b->b.getId()==id).findAny().orElseGet(null);
+    return (Button<?>) colorsLayout.getContents().stream().filter(b->b.getId()==id).findAny().orElse(null);
   }
 }

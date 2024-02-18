@@ -8,6 +8,9 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Throw extends Use {
 
   private float angle;
@@ -30,8 +33,8 @@ public class Throw extends Use {
   }
 
   @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Throw;
+  public List<PlayerSpecialAction> getActions() {
+    return Collections.singletonList(PlayerSpecialAction.Throw);
   }
 
   public void reset(float angle, float speed) {

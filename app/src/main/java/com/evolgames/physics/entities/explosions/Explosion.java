@@ -79,7 +79,7 @@ public class Explosion {
                       vector.set(p.x - center.x, p.y - center.y);
                       float d = Math.max(1f, vector.len());
                       i.setImpactImpulse(10000f * force / (d));
-                      vector.mul(i.getImpactImpulse() / 100000000f);
+                      vector.mul(i.getImpactImpulse() / 1000f);
                       gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                     });
                 scene.getWorldFacade().applyImpacts(gameEntity, impacts);

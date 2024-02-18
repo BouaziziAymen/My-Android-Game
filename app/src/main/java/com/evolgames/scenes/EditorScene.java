@@ -92,7 +92,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   public void createUserInterface() {
     String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
     Log.e("XFile",editorFile);
-    ToolModel toolModel = loadToolModel(editorFile);
+    ToolModel toolModel = loadToolModel(editorFile,true);
     if(toolModel==null){
       toolModel = new ToolModel(this,4);
     }

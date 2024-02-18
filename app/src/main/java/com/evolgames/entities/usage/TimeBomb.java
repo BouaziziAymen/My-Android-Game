@@ -5,6 +5,9 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
+import java.util.Collections;
+import java.util.List;
+
 public class TimeBomb extends Bomb {
   
   private float countDown;
@@ -34,11 +37,6 @@ public class TimeBomb extends Bomb {
 
   public void onTriggerReleased() {
     count = true;
-  }
-
-  @Override
-  public PlayerSpecialAction getAction() {
-    return PlayerSpecialAction.Grenade;
   }
 
 }

@@ -1,8 +1,6 @@
 package com.evolgames.entities;
 
 
-import com.evolgames.entities.properties.JuiceProperties;
-
 import org.andengine.util.adt.color.Color;
 
 public class Material {
@@ -14,7 +12,6 @@ public class Material {
   private final Color color;
   private final String name;
   private final int index;
-  private final Color juiceColor;
   private final float JuicinessDensity;
   private final float JuicinessLowerPressure;
   private final float JuicinessUpperPressure;
@@ -23,8 +20,11 @@ public class Material {
   private final double ignitionTemperature;
   private final double flameTemperature;
   private final double energy;
+  private final boolean combustible;
   private final boolean flammable;
-  private JuiceProperties juice;
+
+  private final float flammability;
+  private int juiceIndex;
 
   public Material(
       String name,
@@ -35,15 +35,17 @@ public class Material {
       float restitution,
       float tenacity,
       float hardness,
-      JuiceProperties Juice,
+      int juiceIndex,
       float jd,
       float jlp,
       float jup,
-      boolean flammable,
+      boolean combustible,
       double ignitionTemperature,
       double flameTemperature,
+      boolean flammable,
+      float flammability,
       double energy) {
-    this.juice = Juice;
+    this.juiceIndex = juiceIndex;
     this.density = density;
     this.friction = friction;
     this.restitution = restitution;
@@ -56,11 +58,12 @@ public class Material {
     this.JuicinessLowerPressure = jlp;
     this.JuicinessUpperPressure = jup;
     this.JuicinessDensity = jd;
-    this.juiceColor = Juice.getDefaultColor();
-    this.flammable = flammable;
+    this.combustible = combustible;
     this.ignitionTemperature = ignitionTemperature;
     this.flameTemperature = flameTemperature;
     this.energy = energy;
+    this.flammable = flammable;
+    this.flammability = flammability;
   }
 
   public Material(
@@ -72,9 +75,11 @@ public class Material {
       float restitution,
       float tenacity,
       float hardness,
-      boolean flammable,
+      boolean combustible,
       double ignitionTemperature,
       double flameTemperature,
+      boolean flammable,
+      float flammability,
       double energy) {
     this.density = density;
     this.friction = friction;
@@ -88,11 +93,12 @@ public class Material {
     this.JuicinessLowerPressure = 0;
     this.JuicinessUpperPressure = 0;
     this.JuicinessDensity = 0;
-    this.juiceColor = null;
-    this.flammable = flammable;
+    this.combustible = combustible;
     this.ignitionTemperature = ignitionTemperature;
     this.flameTemperature = flameTemperature;
     this.energy = energy;
+    this.flammable = flammable;
+    this.flammability = flammability;
   }
 
   public double getFlameTemperature() {
@@ -107,8 +113,8 @@ public class Material {
     return ignitionTemperature;
   }
 
-  public boolean isFlammable() {
-    return flammable;
+  public boolean isCombustible() {
+    return combustible;
   }
 
   public boolean isJuicy() {
@@ -155,11 +161,19 @@ public class Material {
     return JuicinessUpperPressure;
   }
 
-  public org.andengine.util.adt.color.Color getJuiceColor() {
-    return juiceColor;
-  }
-
   public float getHardness() {
     return hardness;
+  }
+
+  public int getJuiceIndex() {
+    return juiceIndex;
+  }
+
+  public boolean isFlammable() {
+    return flammable;
+  }
+
+  public float getFlammability() {
+    return flammability;
   }
 }

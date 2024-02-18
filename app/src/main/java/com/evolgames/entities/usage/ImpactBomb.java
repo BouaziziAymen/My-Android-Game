@@ -5,6 +5,8 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
+import java.util.List;
+
 public class ImpactBomb extends Bomb{
 
   private float countDown;
@@ -43,7 +45,7 @@ public class ImpactBomb extends Bomb{
     }
 
     @Override
-    public PlayerSpecialAction getAction() {
+    public List<PlayerSpecialAction> getActions() {
         return null;
     }
 }

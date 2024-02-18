@@ -25,6 +25,7 @@ import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.Shooter;
@@ -42,6 +43,7 @@ import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
 import java.util.ArrayList;
@@ -140,6 +142,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             .map(BodyModel::getFireSourceModels)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
+
     fireSourceModels.forEach(
         fireSourceModel ->
             fireSourceModel.setMuzzleEntity(
@@ -148,6 +151,28 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                     .findAny()
                     .orElseThrow(() -> new RuntimeException("Body not found!"))
                     .getGameEntity()));
+
+      List<LiquidSourceModel> liquidSourceModels =
+              bodies.stream()
+                      .map(BodyModel::getLiquidSourceModels)
+                      .flatMap(Collection::stream)
+                      .collect(Collectors.toList());
+
+      liquidSourceModels.forEach(
+              liquidSourceModel ->{
+                      liquidSourceModel.setContainerEntity(
+                              bodies.stream()
+                                      .filter(e -> e.getBodyId() == liquidSourceModel.getBodyId())
+                                      .findAny()
+                                      .orElseThrow(() -> new RuntimeException("Body not found!"))
+                                      .getGameEntity());
+                  liquidSourceModel.setSealEntity(
+                          bodies.stream()
+                                  .filter(e -> e.getBodyId() == liquidSourceModel.getProperties().getSealBodyId())
+                                  .findAny()
+                                  .orElseThrow(() -> new RuntimeException("Body not found!"))
+                                  .getGameEntity());
+              });
 
     bodies.forEach(
         usageBodyModel ->
@@ -218,6 +243,15 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                       Smasher smasher = new Smasher();
                       usageBodyModel.getGameEntity().getUseList().add(smasher);
                     }));
+      bodies.forEach(
+              usageBodyModel ->
+                      usageBodyModel.getUsageModels().stream()
+                              .filter(e -> e.getType() == BodyUsageCategory.LIQUID_CONTAINER)
+                              .forEach(
+                                      e -> {
+                                          LiquidContainer liquidContainer = new LiquidContainer(e,this);
+                                          usageBodyModel.getGameEntity().getUseList().add(liquidContainer);
+                                      }));
     bodies.forEach(
         usageBodyModel ->
             usageBodyModel.getUsageModels().stream()

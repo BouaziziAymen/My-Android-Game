@@ -8,6 +8,7 @@ import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.blockvisitors.utilities.Utils;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   public Vector2 position;
   public float value;
   private boolean isOnFire;
+  private boolean isOnFlame;
   private transient MosaicMesh mesh;
   private int layerId;
   private boolean hasFlame;
@@ -132,13 +134,15 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
   public void update() {
     double temperature = getTemperature();
-    if (getProperties().isFlammable()) {
+    if (getProperties().isCombustible()) {
       double ignitionTemperature = getProperties().getIgnitionTemperature();
       double chemicalEnergy = getProperties().getChemicalEnergy();
       double initialChemicalEnergy = getProperties().getInitialChemicalEnergy();
 
-      setOnFire(temperature > ignitionTemperature
-              && chemicalEnergy >= getProperties().getNonBurnableChemicalEnergy());
+      boolean onFire = (isOnFlame||temperature > ignitionTemperature)
+              && chemicalEnergy >= getProperties().getNonBurnableChemicalEnergy();
+      setOnFire(
+              onFire);
 
       if (isOnFire()) {
         double deltaE = getFlameTemperature() / 1000;
@@ -231,4 +235,33 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   public void setParent(LayerBlock parent) {
     this.parent = parent;
   }
+
+  public void onSpark(double sparkTemperature) {
+    float layerFlammability  = parent.getProperties().getFlammability();
+    float flammability = 0f;
+    for(AssociatedBlock<?,?> associatedBlock: parent.getAssociatedBlocks()){
+      if(associatedBlock instanceof StainBlock){
+        StainBlock stain = (StainBlock) associatedBlock;
+        if(stain.getLiquid()!=null){
+            if(stain.getLiquid().isFlammable()){
+              float d = this.position.dst(stain.getLocalCenterX(),stain.getLocalCenterY());
+              float liquidFlammability = stain.getLiquid().getFlammability();
+              float delta = liquidFlammability / (10f * Math.max(1, d*d));
+              if(flammability+delta<liquidFlammability) {
+                flammability += delta;
+              } else {
+                flammability = liquidFlammability;
+              }
+            }
+        }
+      }
+    }
+    flammability = Math.max(flammability,layerFlammability);
+    if(Math.random()<flammability){
+      this.isOnFlame = true;
+      this.isOnFire = true;
+    }
+  }
+
+
 }

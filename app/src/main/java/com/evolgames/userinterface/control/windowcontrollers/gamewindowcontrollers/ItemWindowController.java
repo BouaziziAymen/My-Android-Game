@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
@@ -676,4 +677,5 @@ public class ItemWindowController
   public void setLiquidSourceOptionController(LiquidSourceOptionController liquidSourceOptionController) {
     this.liquidSourceOptionController = liquidSourceOptionController;
   }
+
 }

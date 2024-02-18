@@ -145,8 +145,10 @@ public class ColorSelectorWindowController
     window.getSelector().getMesh().setColor(selectedColoredProperties.getDefaultColor());
     if(coloredProperties.getColorSquareId()!=-1) {
       Button<?> slot = window.getPanel().getColorSlotById(coloredProperties.getColorSquareId());
-      onColorSlotClicked(slot);
-      slot.updateState(Button.State.PRESSED);
+     if(slot!=null) {
+       onColorSlotClicked(slot);
+       slot.updateState(Button.State.PRESSED);
+     }
     }
   }
 

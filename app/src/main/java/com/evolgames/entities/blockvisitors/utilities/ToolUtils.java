@@ -24,7 +24,7 @@ public class ToolUtils {
 
   public static ToolModel getProjectileModel(String fileName)
       throws PersistenceException, IOException, ParserConfigurationException, SAXException {
-    return PersistenceCaretaker.getInstance().loadToolModel(fileName);
+    return PersistenceCaretaker.getInstance().loadToolModel(fileName,false);
   }
 
   public static float getAxisExtent(ToolModel toolModel, Vector2 axis) {

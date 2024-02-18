@@ -8,6 +8,8 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 
+import java.util.List;
+
 public class Drag extends Use {
 
   private DragInfo dragInfo;
@@ -65,7 +67,7 @@ public class Drag extends Use {
   }
 
   @Override
-  public PlayerSpecialAction getAction() {
+  public List<PlayerSpecialAction> getActions() {
     return null;
   }
 }

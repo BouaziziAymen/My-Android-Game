@@ -54,6 +54,7 @@ import com.evolgames.entities.cut.Segment;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
@@ -66,8 +67,10 @@ import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrap
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Smasher;
@@ -95,7 +98,6 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
-import org.andengine.util.WifiUtils;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
@@ -326,15 +328,15 @@ public class WorldFacade implements ContactObserver {
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
+
+        LiquidProperties juice = MaterialFactory.getInstance().getLiquidByIndex(layerBlock.getProperties().getJuiceIndex());
         LiquidParticleWrapper particleWrapper =
                 scene
                         .getWorldFacade()
                         .createLiquidParticleWrapper(
                                 parentEntity,
                                 freshCut,
-                                (layerBlock.getProperties().getJuiceColor() != null)
-                                        ? layerBlock.getProperties().getJuiceColor()
-                                        : Utils.getRandomColor(),
+                                juice,
                                 lowerRate,
                                 higherRate);
         SpawnAction spawnAction =
@@ -351,7 +353,7 @@ public class WorldFacade implements ContactObserver {
     private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(
             GameEntity parentEntity,
             FreshCut freshCut,
-            Color color,
+            LiquidProperties liquid,
             final int lowerRate,
             final int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
@@ -360,7 +362,7 @@ public class WorldFacade implements ContactObserver {
                     parentEntity,
                     new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y},
                     sfc.getSplashVelocity(),
-                    color,
+                    liquid,
                     lowerRate,
                     higherRate);
 
@@ -373,7 +375,7 @@ public class WorldFacade implements ContactObserver {
                     Utils.mapWeightsToArray(
                             pfc.getPoints().stream().map(CutPoint::getWeight).collect(Collectors.toList()));
             return new ClusterLiquidParticleWrapper(
-                    parentEntity, color, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
+                    parentEntity, liquid, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
     }
 
@@ -465,11 +467,11 @@ public class WorldFacade implements ContactObserver {
     public LiquidParticleWrapper createLiquidParticleWrapper(
             GameEntity parentEntity,
             final FreshCut freshCut,
-            Color color,
+           LiquidProperties liquid,
             int lowerRate,
             int higherRate) {
         LiquidParticleWrapper liquidSource =
-                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, lowerRate, higherRate);
+                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, liquid, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
         scene.attachChild(liquidSource.getParticleSystem());
@@ -529,68 +531,68 @@ public class WorldFacade implements ContactObserver {
         HashSet<GameEntity> affectedEntities = new HashSet<>();
         for (LiquidParticleWrapper liquidSource : liquidParticleWrappers) {
             if (liquidSource.getParticleSystem().hasParent()) {
-              liquidSource.getParticleSystem().getParticles();
-              for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
-                if (p != null
-                        && !p.isExpired()
-                        && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
-                  Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
-                  float halfWidth = p.getEntity().getWidth() / 32f / 2f;
-                  float halfHeight = p.getEntity().getHeight() / 32f / 2f;
-                  float rx = position.x / 32f;
-                  float ry = position.y / 32f;
-                  HashSet<GameEntity> entities = findEntitiesInZone(rx, ry, halfWidth, halfHeight);
-                  Vector2 rPosition = new Vector2(rx, ry);
-                  boolean onBoundaries = false;
+                liquidSource.getParticleSystem().getParticles();
+                for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
+                    if (p != null
+                            && !p.isExpired()
+                            && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
+                        Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
+                        float halfWidth = p.getEntity().getWidth() / 32f / 2f;
+                        float halfHeight = p.getEntity().getHeight() / 32f / 2f;
+                        float rx = position.x / 32f;
+                        float ry = position.y / 32f;
+                        HashSet<GameEntity> entities = findEntitiesInZone(rx, ry, halfWidth, halfHeight);
+                        Vector2 rPosition = new Vector2(rx, ry);
+                        boolean onBoundaries = false;
 
-                  for (GameEntity entity : entities) {
-                    if (entity.getBody() != null) {
-                      for (LayerBlock block : entity.getBlocks()) {
-                        if (block.testPoint(entity.getBody(), rx, ry)) {
-                          onBoundaries = true;
-                          break;
+                        for (GameEntity entity : entities) {
+                            if (entity.getBody() != null) {
+                                for (LayerBlock block : entity.getBlocks()) {
+                                    if (block.testPoint(entity.getBody(), rx, ry)) {
+                                        onBoundaries = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                      }
+
+                        boolean dead = false;
+                        if (onBoundaries) {
+                            for (GameEntity entity : entities) {
+                                if (entity.getBody() != null) {
+                                    boolean affected = false;
+                                    Body body = entity.getBody();
+                                    Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
+                                    List<LayerBlock> blocks = entity.getBlocks();
+                                    for (int i = blocks.size() - 1; i >= 0; i--) {
+                                        boolean applied =
+                                                applyLiquidStain(
+                                                        entity,
+                                                        localPoint.x,
+                                                        localPoint.y,
+                                                        blocks.get(i),
+                                                        liquidSource.getLiquid(),
+                                                        random.nextInt(14),
+                                                        false);
+                                        if (applied) {
+                                            affected = true;
+                                            break;
+                                        }
+                                    }
+                                    recycle(localPoint);
+                                    if (affected) {
+                                        dead = true;
+                                        affectedEntities.add(entity);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (dead) {
+                            p.setExpired(true);
+                        }
                     }
-                  }
-
-                  boolean dead = false;
-                  if (onBoundaries) {
-                    for (GameEntity entity : entities) {
-                      if (entity.getBody() != null) {
-                        boolean affected = false;
-                        Body body = entity.getBody();
-                        Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
-                        List<LayerBlock> blocks = entity.getBlocks();
-                        for (int i = blocks.size() - 1; i >= 0; i--) {
-                          boolean applied =
-                                  applyStain(
-                                          entity,
-                                          localPoint.x,
-                                          localPoint.y,
-                                          blocks.get(i),
-                                          liquidSource.getLiquidColor(),
-                                          random.nextInt(14),
-                                          false);
-                          if (applied) {
-                            affected = true;
-                            break;
-                          }
-                        }
-                        recycle(localPoint);
-                        if (affected) {
-                          dead = true;
-                          affectedEntities.add(entity);
-                        }
-                      }
-                    }
-                  }
-
-                  if (dead) {
-                    p.setExpired(true);
-                  }
                 }
-              }
             }
         }
         for (GameEntity entity : affectedEntities) {
@@ -693,6 +695,7 @@ public class WorldFacade implements ContactObserver {
 
                     if (nearestCoatingBlock != null) {
                         double sparkTemperature = fire.getParticleTemperature(p);
+                        nearestCoatingBlock.onSpark(sparkTemperature);
                         PhysicsUtils.transferHeatByConvection(
                                 nearestCoatingBlock.getProperties().getHeatResistance(),
                                 sparkTemperature,
@@ -1512,7 +1515,23 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public boolean applyStain(
+    public boolean applyLiquidStain(
+            GameEntity gameEntity,
+            float x,
+            float y,
+            LayerBlock concernedBlock,
+            LiquidProperties liquid,
+            int index,
+            boolean superpose) {
+        StainBlock stain = applyStain(gameEntity, x, y, concernedBlock, liquid.getDefaultColor(), index, superpose);
+        if (stain != null) {
+            stain.setLiquid(liquid.getLiquidId());
+            return true;
+        }
+        return false;
+    }
+
+    public StainBlock applyStain(
             GameEntity gameEntity,
             float x,
             float y,
@@ -1533,9 +1552,9 @@ public class WorldFacade implements ContactObserver {
             stainBlock.setId(index);
             stainBlock.setPriority(this.getStainPriorityFromIndex(index));
             gameEntity.addStain(concernedBlock, stainBlock);
-            return true;
+            return stainBlock;
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -1784,16 +1803,16 @@ public class WorldFacade implements ContactObserver {
         scene.attachChild(pulverizationParticleWrapper.getParticleSystem());
     }
 
-  public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactData) {
-    BreakVisitor<GameEntity> visitor = new GameEntityMultiShatterVisitor(impactData, this);
-    visitor.visitTheElement(gameEntity);
-    if (visitor.isShatterPerformed()) {
-      if (visitor.getSplintersBlocks().size() > 0) {
-        computeSplinters(visitor.getSplintersBlocks(), gameEntity);
-      }
-      this.destroyGameEntity(gameEntity, false, false);
+    public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactData) {
+        BreakVisitor<GameEntity> visitor = new GameEntityMultiShatterVisitor(impactData, this);
+        visitor.visitTheElement(gameEntity);
+        if (visitor.isShatterPerformed()) {
+            if (visitor.getSplintersBlocks().size() > 0) {
+                computeSplinters(visitor.getSplintersBlocks(), gameEntity);
+            }
+            this.destroyGameEntity(gameEntity, false, false);
+        }
     }
-  }
 
     public void applyImpactHeat(float heat, List<ImpactData> impactData) {
         impactData.forEach(

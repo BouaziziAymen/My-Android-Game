@@ -5,18 +5,20 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.ClusterEmitter;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.properties.LiquidProperties;
+
 import org.andengine.util.adt.color.Color;
 
 public class ClusterLiquidParticleWrapper extends DataLiquidParticleWrapper {
   public ClusterLiquidParticleWrapper(
       GameEntity gameEntity,
-      Color color,
+      LiquidProperties liquid,
       float[] data,
       float[] weights,
       Vector2 splashVelocity,
       int lowerRate,
       int higherRate) {
-    super(gameEntity, data, weights, splashVelocity, color, lowerRate, higherRate);
+    super(gameEntity, data, weights, splashVelocity, liquid, lowerRate, higherRate);
   }
 
   @Override

@@ -155,6 +155,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     this.itemWindowController = itemWindowController;
     this.projectileOptionController = projectileOptionController;
     this.creationZoneController = creationZoneController;
+    liquidSourceOptionController.setUserInterface(this);
 
     creationZone = new CreationZone(creationZoneController);
     creationZoneController.setCreationZone(creationZone);

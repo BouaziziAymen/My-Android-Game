@@ -13,6 +13,7 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.MeleeUse;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.Shooter;
@@ -108,7 +109,6 @@ public class SceneSerializer {
 
     if (scene instanceof PlayScene) {
       PlayScene playScene = (PlayScene) scene;
-      playScene.setSavedSpecialAction(this.playerSpecialAction);
       playScene.getUserInterface().updatePlayerSpecialActionOnSwitcher(this.playerAction);
     }
   }
@@ -187,6 +187,16 @@ public class SceneSerializer {
       }
       shooter.fillMissileModels();
       shooter.createFireSources(scene.getWorldFacade());
+    }
+    if (gameEntity.hasUsage(LiquidContainer.class)) {
+      LiquidContainer liquidContainer = gameEntity.getUsage(LiquidContainer.class);
+      liquidContainer.getLiquidSourceInfoList().forEach(
+              liquidSourceInfo -> {liquidSourceInfo.setSealEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getSealEntityUniqueId()));});
+
+      liquidContainer.getLiquidSourceInfoList().forEach(
+              liquidSourceInfo -> {liquidSourceInfo.setContainerEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getContainerEntityUniqueId()));});
+
+    liquidContainer.createLiquidSources(scene.getWorldFacade());
     }
     if (gameEntity.hasUsage(Drag.class)) {
       Drag drag = gameEntity.getUsage(Drag.class);

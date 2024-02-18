@@ -239,7 +239,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     getBodyModelById(primaryKey).getFireSourceModels().removeIf(e -> e.getFireSourceId() == secondaryKey);
   }
   public void removeLiquidSource(int primaryKey, int secondaryKey) {
-    getBodyModelById(primaryKey).getFireSourceModels().removeIf(e -> e.getFireSourceId() == secondaryKey);
+    getBodyModelById(primaryKey).getLiquidSourceModels().removeIf(e -> e.getLiquidSourceId() == secondaryKey);
   }
   public void removeBomb(int primaryKey, int secondaryKey) {
     getBodyModelById(primaryKey).getBombModels().removeIf(e -> e.getBombId() == secondaryKey);

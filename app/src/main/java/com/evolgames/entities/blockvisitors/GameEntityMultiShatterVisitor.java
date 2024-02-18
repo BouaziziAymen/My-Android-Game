@@ -1,5 +1,7 @@
 package com.evolgames.entities.blockvisitors;
 
+import static com.evolgames.physics.PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA;
+
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.properties.LayerProperties;
@@ -32,8 +34,8 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
                   .collect(Collectors.toList()),
               worldFacade,
               gameEntity);
+        blockShatterVisitor.visitTheElement(layerBlock);
 
-      blockShatterVisitor.visitTheElement(layerBlock);
       if (blockShatterVisitor.isShatterPerformed()) {
         shatterPerformed = true;
         iterator.remove();

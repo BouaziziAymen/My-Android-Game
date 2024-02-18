@@ -31,7 +31,7 @@ public class Projectile extends Use implements Penetrating {
   public void onStep(float deltaTime, WorldFacade worldFacade) {}
 
   @Override
-  public PlayerSpecialAction getAction() {
+  public List<PlayerSpecialAction> getActions() {
     return null;
   }
 

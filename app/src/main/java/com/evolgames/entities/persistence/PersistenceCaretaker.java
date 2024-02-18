@@ -697,7 +697,7 @@ public class PersistenceCaretaker {
         return propertiesElement;
     }
 
-    public ToolModel loadToolModel(String toolFileName)
+    public ToolModel loadToolModel(String toolFileName, boolean editor)
             throws IOException, ParserConfigurationException, SAXException, PersistenceException {
         if (toolFileName.isEmpty()) {
             return new ToolModel(scene, 0);
@@ -825,9 +825,11 @@ public class PersistenceCaretaker {
             }
             toolModel.getJoints().addAll(jointModels);
         }
-        Element panelColorsElement = (Element) toolElement.getElementsByTagName(PANEL_COLORS_TAG).item(0);
-        List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
-        toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
+        if(editor) {
+            Element panelColorsElement = (Element) toolElement.getElementsByTagName(PANEL_COLORS_TAG).item(0);
+            List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
+            toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
+        }
         this.initializeCounters(toolModel);
         return toolModel;
     }

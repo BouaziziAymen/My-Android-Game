@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
-import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.entities.serialization.infos.BombInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PlayScene;
@@ -12,6 +11,7 @@ import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,8 +73,8 @@ public abstract class Bomb extends Use {
     }
 
     @Override
-    public PlayerSpecialAction getAction() {
-        return PlayerSpecialAction.Grenade;
+    public List<PlayerSpecialAction> getActions() {
+        return Collections.singletonList(PlayerSpecialAction.Grenade);
     }
 
     public void setGameEntity(GameEntity gameEntity) {

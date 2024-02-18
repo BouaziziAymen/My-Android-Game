@@ -1,5 +1,7 @@
 package com.evolgames.entities.blockvisitors;
 
+import static com.evolgames.physics.PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -30,6 +32,7 @@ public class MultiShatterVisitor extends BreakVisitor<LayerBlock> {
       LayerBlock nearest = BlockUtils.getNearestBlock(point, splintersBlocks);
       splintersBlocks.remove(nearest);
       ShatterVisitor shatterVisitor = new ShatterVisitor(energy, point, worldFacade, gameEntity);
+
       if (nearest != null) {
         shatterVisitor.visitTheElement(nearest);
         if (shatterVisitor.isShatterPerformed()) {

@@ -14,6 +14,7 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
   private LiquidSourceShape liquidSourceShape;
   private LiquidSourceField liquidSourceField;
   private GameEntity containerEntity;
+  private GameEntity sealEntity;
 
   public LiquidSourceModel(int bodyId, int liquidSourceId, String liquidSourceName) {
     super(liquidSourceName);
@@ -32,6 +33,10 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
 
   public void setContainerEntity(GameEntity containerEntity) {
     this.containerEntity = containerEntity;
+  }
+
+  public void setSealEntity(GameEntity sealEntity) {
+    this.sealEntity = sealEntity;
   }
 
   public LiquidSourceShape getLiquidSourceShape() {
@@ -61,13 +66,13 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
   public void setLiquidSourceField(LiquidSourceField liquidSourceField) {
     this.liquidSourceField = liquidSourceField;
   }
-
   public LiquidSourceInfo toLiquidSourceInfo() {
     LiquidSourceInfo liquidSourceInfo = new LiquidSourceInfo();
     liquidSourceInfo.setLiquidSourceOrigin(this.properties.getLiquidSourceOrigin());
     liquidSourceInfo.setLiquidDirection(this.properties.getLiquidSourceDirection());
     liquidSourceInfo.setExtent(this.properties.getExtent());
     liquidSourceInfo.setContainerEntity(this.containerEntity);
+    liquidSourceInfo.setSealEntity(this.sealEntity);
     liquidSourceInfo.setLiquid(this.properties.getLiquid());
     return liquidSourceInfo;
   }

@@ -93,8 +93,8 @@ public class CoatingProperties extends ColoredProperties {
     return parentProperties.getFlameTemperature();
   }
 
-  public boolean isFlammable() {
-    return parentProperties.isFlammable();
+  public boolean isCombustible() {
+    return parentProperties.isCombustible();
   }
 
   public double getInitialChemicalEnergy() {

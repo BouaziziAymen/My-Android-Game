@@ -218,4 +218,5 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
   public void setLiquidQuantity(int liquidQuantity) {
     this.liquidQuantity = liquidQuantity;
   }
+
 }

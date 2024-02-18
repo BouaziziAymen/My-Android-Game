@@ -399,7 +399,7 @@ public class ResourceManager {
             this.activity.getAssets(),
             "controllers/switcher/switcherBackground.png");
     this.particularUsages = new ArrayList<>();
-    for (int i = 0; i <= 10; i++) {
+    for (int i = 0; i <= 12; i++) {
       this.particularUsages.add(
           BitmapTextureAtlasTextureRegionFactory.createFromAsset(
               this.gameTextureAtlas,

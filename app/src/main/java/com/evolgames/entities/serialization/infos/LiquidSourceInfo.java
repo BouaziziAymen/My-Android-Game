@@ -10,6 +10,8 @@ public class LiquidSourceInfo {
     private String containerEntityUniqueId;
     private int liquid;
     private float extent;
+    private transient GameEntity sealEntity;
+    private String sealEntityUniqueId;
 
     public Vector2 getLiquidSourceOrigin() {
         return liquidSourceOrigin;
@@ -36,6 +38,10 @@ public class LiquidSourceInfo {
         this.containerEntityUniqueId = containerEntity.getUniqueID();
     }
 
+    public String getSealEntityUniqueId() {
+        return sealEntityUniqueId;
+    }
+
     public String getContainerEntityUniqueId() {
         return containerEntityUniqueId;
     }
@@ -54,5 +60,14 @@ public class LiquidSourceInfo {
 
     public void setExtent(float extent) {
         this.extent = extent;
+    }
+
+    public void setSealEntity(GameEntity sealEntity) {
+        this.sealEntity = sealEntity;
+        this.sealEntityUniqueId = sealEntity.getUniqueID();
+    }
+
+    public GameEntity getSealEntity() {
+        return sealEntity;
     }
 }
