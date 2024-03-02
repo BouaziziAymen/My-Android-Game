@@ -22,7 +22,7 @@ public class ConfirmWindow extends AbstractLinearLayoutAdvancedWindow<LinearLayo
     this.maxTextWidth = 8 * 32 - 24;
     this.fontId = fontId;
     this.textList = new ArrayList<>();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
       Text text = new Text("", fontId);
       this.textList.add(text);
       this.getLayout().addToLayout(text);
@@ -66,7 +66,7 @@ public class ConfirmWindow extends AbstractLinearLayoutAdvancedWindow<LinearLayo
     return new LinearLayout(12, getLocalVisibilitySup(), LinearLayout.Direction.Vertical);
   }
 
-  public void updateText(String text) {
+  public void updateText(String text) throws IllegalAccessException {
     for (Text t : textList) {
       t.updateText("");
     }
@@ -88,6 +88,9 @@ public class ConfirmWindow extends AbstractLinearLayoutAdvancedWindow<LinearLayo
       }
     }
     for (int i = 0; i < lines.size(); i++) {
+      if(i>this.textList.size()){
+        throw new IllegalAccessException("This confirmation window cannot support the length of message!");
+      }
       this.textList.get(i).updateText(lines.get(i).toString().trim());
     }
   }

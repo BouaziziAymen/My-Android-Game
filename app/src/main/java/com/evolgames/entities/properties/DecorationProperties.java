@@ -1,5 +1,7 @@
 package com.evolgames.entities.properties;
 
+import android.support.annotation.NonNull;
+
 import org.andengine.util.adt.color.Color;
 
 public class DecorationProperties extends ColoredProperties {
@@ -11,8 +13,12 @@ public class DecorationProperties extends ColoredProperties {
   public DecorationProperties() {
   }
 
+  @NonNull
   @Override
-  public ColoredProperties copy() {
-    return new DecorationProperties(getDefaultColor());
+  public Object clone() {
+    DecorationProperties clone = (DecorationProperties) super.clone();
+    clone.setDefaultColor(new Color(getDefaultColor()));
+    return clone;
   }
+
 }

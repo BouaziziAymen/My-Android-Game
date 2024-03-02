@@ -5,28 +5,34 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.scenes.EditorScene;
+import com.evolgames.userinterface.model.ImageShapeModel;
+import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.basics.Container;
 import java.util.ArrayList;
 import org.andengine.entity.primitive.LineLoop;
-import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.transformation.Transformation;
 
 public class ImageShape extends Container {
   private final Sprite sketchSprite;
   private final CircleShape pipeCircle;
-  private final Scene creationScene;
+  private final EditorScene creationScene;
+  private final ImageShapeModel imageShapeModel;
   private LineLoop lineLoop;
 
   private ArrayList<Vector2> points;
   private final Bitmap bitmap;
+  private final float ratio;
 
-  public ImageShape(Scene scene) {
+  public ImageShape(EditorScene scene, ImageShapeModel imageShapeModel) {
     creationScene = scene;
+    TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
     sketchSprite =
         new Sprite(
-            400,
-            240,
+                region.getWidth(),
+            region.getHeight(),
             ResourceManager.getInstance().sketchTextureRegion,
             ResourceManager.getInstance().vbom);
     creationScene.attachChild(sketchSprite);
@@ -35,7 +41,14 @@ public class ImageShape extends Container {
     setDepth(-10);
     updateSelf();
     bitmap = ResourceManager.getInstance().sketchBitmap;
-    pipeCircle = new CircleShape(sketchSprite);
+    this.pipeCircle = new CircleShape(sketchSprite);
+    this.imageShapeModel = imageShapeModel;
+    this.pipeCircle.setVisible(false);
+    this.ratio = region.getHeight()/region.getWidth();
+  }
+
+  public Sprite getSprite() {
+    return sketchSprite;
   }
 
   public void setPipeCircleVisibility(boolean visible) {
@@ -107,11 +120,6 @@ public class ImageShape extends Container {
   public void resume() {
     // updateSelf();
   }
-
-  public Sprite getSprite() {
-    return sketchSprite;
-  }
-
   public org.andengine.util.adt.color.Color getColorAt(float touchX, float touchY, int radius) {
     setPipeCircleRadius(radius);
     float[] pos = sketchSprite.convertSceneCoordinatesToLocalCoordinates(touchX, touchY);
@@ -129,5 +137,42 @@ public class ImageShape extends Container {
       return MyColorUtils.getAverageRGBCircle(bitmap, x, y, 5);
     }
     return null;
+  }
+
+  public float getX() {
+    return sketchSprite.getX();
+  }
+
+  public float getY() {
+    return this.sketchSprite.getY();
+  }
+
+
+
+  public void updateWidth(float width) {
+    this.sketchSprite.setWidth(width);
+    imageShapeModel.setWidth(width);
+
+  }
+
+  public void updateHeight(float height) {
+    this.sketchSprite.setHeight(height);
+    imageShapeModel.setHeight(height);
+  }
+
+  public void updatePosition(float x, float y) {
+    this.sketchSprite.setPosition(x,y);
+    imageShapeModel.setX(x);
+    imageShapeModel.setY(y);
+  }
+
+  public void updateRotation(float angle) {
+    this.sketchSprite.setRotation(angle);
+    imageShapeModel.setRotation(angle);
+  }
+
+  public void updateWidthWithRatio(float disX) {
+    updateWidth(disX);
+    updateHeight(disX*ratio);
   }
 }

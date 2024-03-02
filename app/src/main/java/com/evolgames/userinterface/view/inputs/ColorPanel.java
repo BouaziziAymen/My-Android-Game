@@ -19,7 +19,7 @@ public class ColorPanel extends Panel {
   private final BoxLayout colorsLayout;
   private final ColorSelectorWindowController mController;
 
-  private final AtomicInteger atomicInteger = new AtomicInteger();
+  private final AtomicInteger squareCounter = new AtomicInteger();
 
   public ColorPanel(float pX, float pY, ColorSelectorWindowController controller) {
     super(pX, pY, N, true, true);
@@ -39,7 +39,7 @@ public class ColorPanel extends Panel {
             ResourceManager.getInstance().squareTextureRegion, Button.ButtonType.Selector, true);
     colorsLayout.addToLayout(square);
     square.setColor(pRed, pGreen, pBlue);
-    square.setId(atomicInteger.getAndIncrement());
+    square.setId(squareCounter.getAndIncrement());
     square.setBehavior(
         new ButtonBehavior<ColorSelectorWindowController>(mController, square) {
           @Override
@@ -65,5 +65,9 @@ public class ColorPanel extends Panel {
 
   public Button<?> getColorSlotById(int id){
     return (Button<?>) colorsLayout.getContents().stream().filter(b->b.getId()==id).findAny().orElse(null);
+  }
+
+  public AtomicInteger getSquareCounter() {
+    return squareCounter;
   }
 }

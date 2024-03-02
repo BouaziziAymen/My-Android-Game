@@ -16,7 +16,6 @@ import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import com.evolgames.entities.blockvisitors.utilities.Vector2Utils;
-import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MaterialFactory;
@@ -28,10 +27,10 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.wrappers.FluxParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.SavingBox;
-import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
@@ -47,7 +46,6 @@ import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
 import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -89,18 +87,9 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
   @Override
   protected void onManagedUpdate(float pSecondsElapsed) {
-    step++;
-    if (!pause) {
-      super.onManagedUpdate(pSecondsElapsed);
-    }
+    super.onManagedUpdate(1/60f);
     if (this.savingBox != null) {
       this.savingBox.onStep();
-    }
-    this.worldFacade.onStep(pSecondsElapsed);
-    Invoker.onStep();
-    List<GameGroup> clone = new ArrayList<>(getGameGroups());
-    for (GameGroup gameGroup : clone) {
-      gameGroup.onStep(pSecondsElapsed);
     }
     for (Hand hand : hands.values()) {
       hand.onUpdate();
@@ -122,6 +111,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
   }
 
+
   private void processHandling(TouchEvent touchEvent) {
     int pointerID = touchEvent.getPointerID();
 
@@ -140,7 +130,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
   @Override
   protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-    boolean hudTouched = this.userInterface.onTouchHud(hudTouchEvent, scroll);
+    boolean hudTouched = this.userInterface.onTouchHud(hudTouchEvent);
     if (!hudTouched) {
       //   userInterface.onTouchScene(touchEvent, scroll);
     }
@@ -175,7 +165,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
   @Override
   public void populate() {
-    createRagDoll();
+    createRagDoll(400,420);
     createTestUnit();
     createGround();
     testMesh();
@@ -195,10 +185,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     this.worldFacade.getTimedCommands().clear();
   }
 
-  private void createRagDoll() {
-    this.ragdoll = GameEntityFactory.getInstance().createRagdoll(600 / 32f, 240 / 32f);
-  }
-
   @Override
   public void onPause() {
     this.savingBox.onScenePause();
@@ -215,9 +201,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   }
 
   private void destroyEntities() {
-    for (Iterator<GameGroup> iterator = this.getGameGroups().iterator(); iterator.hasNext(); ) {
-      GameGroup gameGroup = iterator.next();
-      iterator.remove();
+    for (GameGroup gameGroup : this.getGameGroups()) {
+      this.getGameGroups().remove(gameGroup);
       for (GameEntity gameEntity : gameGroup.getGameEntities()) {
         this.worldFacade.destroyGameEntity(gameEntity, true, false);
       }
@@ -484,13 +469,9 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 new Vector2(100f / 32f, 200 / 32f),
                 BodyDef.BodyType.DynamicBody,
                 GroupType.OTHER);
-    this.worldFacade.applyStain(
-        gameGroup1.getGameEntityByIndex(0), 0, 10, block1, Color.RED, 0, false);
-    this.worldFacade.applyStain(
-        gameGroup1.getGameEntityByIndex(0), 0, 15, block1, Color.RED, 0, false);
+
     GameEntity gameEntity1 = gameGroup1.getGameEntityByIndex(0);
     gameEntity1.setCenter(new Vector2());
-    gameEntity1.redrawStains();
     gameEntity1.setName("test");
 
     List<Vector2> vertices2 = VerticesFactory.createRectangle(20, 200);
@@ -535,12 +516,15 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 new Vector2(300f / 32f, 200 / 32f),
                 BodyDef.BodyType.DynamicBody,
                 GroupType.OTHER);
-    gameGroup.getGameEntityByIndex(0).setName("small rectangle");
-    gameGroup.getGameEntityByIndex(0).getUseList().add(new Stabber());
-    if (true) {
-      for (LayerBlock layerBlock : gameGroup.getGameEntityByIndex(0).getBlocks()) {
+    GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
+    gameEntity3.setName("small rectangle");
+    gameEntity3.getUseList().add(new Stabber());
+    gameEntity3.setCenter(new Vector2());
+    gameEntity1.setCenter(new Vector2());
+    if (false) {
+      for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
         Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(40000));
+        layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(4000));
       }
     }
   }
@@ -594,6 +578,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
       case Throw:
       case Grenade:
       case Shoot:
+      case RocketLauncher:
       case ThrowFire:
       case Rocket:
       case Missile:
@@ -745,10 +730,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   }
 
   public void createLastItem() {
-    createTool(loadToolModel(EditorScene.SAVE_MUT,false));
+    createItem(EditorScene.SAVE_MUT);
   }
 
-  public void createItem(String name) {
-    createTool(loadToolModel(name,false));
-  }
 }

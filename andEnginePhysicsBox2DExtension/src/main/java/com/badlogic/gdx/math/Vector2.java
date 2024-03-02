@@ -18,7 +18,7 @@ package com.badlogic.gdx.math;
  * @author badlogicgames@gmail.com
  *
  */
-public final class Vector2 {
+public final class Vector2 implements Cloneable {
 	/** static temporary vector **/
 	private final static Vector2 tmp = new Vector2();
 
@@ -56,7 +56,11 @@ public final class Vector2 {
 	 * @return a copy of this vector
 	 */
 	public Vector2 cpy () {
-		return new Vector2(this);
+		try {
+			return (Vector2) super.clone();
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
 	}
 
 	/**

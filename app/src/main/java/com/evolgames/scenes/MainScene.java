@@ -1,13 +1,38 @@
 package com.evolgames.scenes;
 
+import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
+import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.GameGroup;
+import com.evolgames.entities.GroupType;
+import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.entities.factories.BlockFactory;
+import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.factories.PropertiesFactory;
+import com.evolgames.entities.factories.VerticesFactory;
+import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.wrappers.FluxParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.entities.usage.Stabber;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MainScene extends AbstractScene<UserInterface<?>> {
 
@@ -24,6 +49,9 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
     if (sceneType == SceneType.MAIN) {
       throw new UnsupportedOperationException("Cannot load main scene here");
     }
+    SmoothCamera cam = (SmoothCamera) this.mCamera;
+    cam.setZoomFactor(1f);
+    cam.setCenter(400,240);
     this.clearChildScene();
     if (this.scene != null) {
       this.scene.detach();
@@ -59,7 +87,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
   public void onResume() {
  //String sceneName="EDITOR";
    String sceneName = loadStringFromPreferences("SCENE");
-    if (!sceneName.isEmpty()) {
+    if (!sceneName.isEmpty()&&!sceneName.equals("MENU")) {
       changeScene(SceneType.valueOf(sceneName), false);
     } else {
       changeScene(SceneType.MENU, true);
@@ -94,4 +122,6 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
     this.saveStringToPreferences("SCENE", "");
     this.scene.createUserInterface();
   }
+
+
 }

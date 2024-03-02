@@ -44,7 +44,7 @@ public class PolygonArrowShape extends ArrowShape {
     Vector2Pool.recycle(dir);
     ArrayList<Vector2> newPoints =
         VerticesFactory.createPolygon(begin.x, begin.y, angle, d, d, numberOfPoints);
-    if (shapePointsModel.test(newPoints)) {
+    if (shapePointsModel.testPoints(newPoints)) {
       shapePointsModel.getPointsShape().detachPointImages();
       super.updateEnd(x, y);
       shapePointsModel.setPoints(newPoints);

@@ -30,7 +30,7 @@ public abstract class QuantityBehavior<C extends AdvancedWindowController<?>>
   public abstract void informControllerQuantityUpdated(Quantity<?> quantity);
 
   @Override
-  public boolean processTouch(TouchEvent touchEvent, boolean touched) {
+  public boolean processTouch(TouchEvent touchEvent) {
     if (touchEvent.isActionDown())
       if (quantity.isInBounds(touchEvent.getX(), touchEvent.getY())) {
         this.touched = true;

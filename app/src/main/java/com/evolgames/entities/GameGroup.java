@@ -1,30 +1,30 @@
 package com.evolgames.entities;
 
 import com.evolgames.entities.commandtemplate.commands.Command;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameGroup {
 
-  private final ArrayList<GameEntity> entities;
-  private final ArrayList<Command> commands;
+  private final List<GameEntity> entities;
+  private final List<Command> commands;
   private final GroupType groupType;
 
   public GameGroup(GroupType groupType, GameEntity... groupOfEntities) {
     this.groupType = groupType;
-    entities = new ArrayList<>();
-    commands = new ArrayList<>();
+    entities = new CopyOnWriteArrayList<>();
+    commands = new CopyOnWriteArrayList<>();
     entities.addAll(Arrays.asList(groupOfEntities));
     for (GameEntity entity : groupOfEntities) {
       entity.setParentGroup(this);
     }
   }
 
-  public GameGroup(GroupType groupType,ArrayList<GameEntity> groupOfEntities) {
+  public GameGroup(GroupType groupType,List<GameEntity> groupOfEntities) {
     this.groupType = groupType;
     entities = groupOfEntities;
-    commands = new ArrayList<>();
+    commands = new CopyOnWriteArrayList<>();
     for (GameEntity entity : groupOfEntities) {
       entity.setParentGroup(this);
     }
@@ -43,18 +43,17 @@ public class GameGroup {
     return entities.get(index);
   }
 
-  public ArrayList<GameEntity> getGameEntities() {
+  public List<GameEntity> getGameEntities() {
     return entities;
   }
 
   public void onStep(float timeStep) {
-    List<GameEntity> clone = new ArrayList<>(entities);
-    for (GameEntity entity : clone) {
+    for (GameEntity entity : entities) {
       entity.onStep(timeStep);
     }
   }
 
-  public ArrayList<Command> getCommands() {
+  public List<Command> getCommands() {
     return commands;
   }
 }

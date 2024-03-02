@@ -29,27 +29,11 @@ public abstract class ButtonBehavior<C extends Controller> extends ClickableBeha
   public abstract void informControllerButtonReleased();
 
   @Override
-  public boolean processTouch(TouchEvent touchEvent, boolean touched) {
+  public boolean processTouch(TouchEvent touchEvent) {
     if (button.getState() == Button.State.DISABLED) {
       return false;
     }
 
-    if (touched) {
-      if (button.getType() == Button.ButtonType.OneClick) {
-        if (touchEvent.getAction() == TouchEvent.ACTION_UP
-            || touchEvent.getAction() == TouchEvent.ACTION_CANCEL
-            || touchEvent.getAction() == TouchEvent.ACTION_OUTSIDE) {
-          if (button.getState() == Button.State.PRESSED) {
-            button.updateState(Button.State.NORMAL);
-            informControllerButtonReleased();
-            if (releaseAction != null) {
-              releaseAction.performAction();
-            }
-          }
-        }
-      }
-      return false;
-    }
     boolean isInBounds = button.isInBounds(touchEvent.getX(), touchEvent.getY());
 
     if (button.getType() == Button.ButtonType.OneClick) {

@@ -39,7 +39,6 @@ public class ToolUtils {
         }
       }
     }
-
     return max - min;
   }
 }

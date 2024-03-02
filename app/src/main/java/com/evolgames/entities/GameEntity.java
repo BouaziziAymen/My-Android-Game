@@ -3,6 +3,7 @@ package com.evolgames.entities;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointEdge;
+import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -62,15 +63,6 @@ public class GameEntity extends EntityWithBody {
     this.name = entityName;
     this.layerBlocks = layerBlocks;
     this.useList = new ArrayList<>();
-
-    for (LayerBlock layerBlock : this.layerBlocks) {
-      for (Block<?, ?> decorationBlock : layerBlock.getAssociatedBlocks()) {
-        if (decorationBlock instanceof CoatingBlock) {
-          CoatingBlock coatingBlock = ((CoatingBlock) decorationBlock);
-          coatingBlock.setMesh(mesh);
-        }
-      }
-    }
 
     computeArea();
     if (area >= 5) {
@@ -133,17 +125,17 @@ public class GameEntity extends EntityWithBody {
     mesh.attachChild(batch);
   }
 
-  private void updateGrains() {
+  private void updateAssociatedBlocks() {
     for (LayerBlock block : this.getBlocks()) {
-      for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-        grain.update();
+      for (AssociatedBlock<?,?> associatedBlock : block.getAssociatedBlocks()) {
+        associatedBlock.onStep(this);
       }
     }
   }
 
   public void onStep(float timeStep) {
     if (!this.getName().equals("Ground")) {
-      updateGrains();
+      updateAssociatedBlocks();
     }
     for (Use use : useList) {
       use.onStep(timeStep,scene.getWorldFacade());
@@ -536,5 +528,9 @@ public class GameEntity extends EntityWithBody {
 
   public void setZIndex(int i) {
     mesh.setZIndex(i);
+  }
+
+  public void setChanged(boolean changed) {
+    this.changed = changed;
   }
 }

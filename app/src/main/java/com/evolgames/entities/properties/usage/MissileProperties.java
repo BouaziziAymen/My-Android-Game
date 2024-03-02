@@ -7,11 +7,6 @@ public class MissileProperties extends RocketProperties {
     public MissileProperties() {
         super();
     }
-    
-    @Override
-    public Properties copy() {
-        return null;
-    }
 
     public float getControl() {
         return control;

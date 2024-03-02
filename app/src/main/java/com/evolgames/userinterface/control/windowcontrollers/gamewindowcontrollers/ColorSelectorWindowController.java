@@ -101,11 +101,16 @@ public class ColorSelectorWindowController
     colorSelector.updateColorHSV();
     onColorUpdated();
   }
-  public void addColorToPanel(Color color) {
+  public void addColorToPanel(Color color, boolean addToProperties) {
     window
             .getPanel()
             .addColor(color.getRed(), color.getGreen(), color.getBlue());
-  }
+    int id =  window
+            .getPanel().getSquareCounter().getAndIncrement();
+    if(addToProperties) {
+      colorPanelProperties.getSquarePropertiesList().add(new SquareProperties(id, new Color(color.getRed(), color.getGreen(), color.getBlue())));
+    }
+    }
   public void addColorToPanel() {
     ColorSelector colorSelector = window.getSelector();
     Button<ColorSelectorWindowController> square = window

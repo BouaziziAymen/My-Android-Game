@@ -16,7 +16,7 @@ public class ColorSelectorBehavior extends ClickableBehavior<ColorSelectorWindow
   }
 
   @Override
-  public boolean processTouch(TouchEvent touchEvent, boolean touched) {
+  public boolean processTouch(TouchEvent touchEvent) {
 
     float x = touchEvent.getX();
     float y = touchEvent.getY();

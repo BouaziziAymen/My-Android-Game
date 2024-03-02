@@ -1,62 +1,75 @@
 package com.evolgames.entities.particles.wrappers;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.particles.emitters.FireEmitter;
+import com.evolgames.entities.particles.emitters.RelativePolygonEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
-import com.evolgames.entities.particles.pools.FireSpritePool;
+import com.evolgames.entities.particles.modifiers.BezierModifier;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.gameengine.ResourceManager;
 
-import org.andengine.entity.IEntityFactory;
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.ParticleSystem;
+import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
-import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
 import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FluxParticleWrapperWithPolygonEmitter{
-    private static final float RATE_MIN = 30 * 3;
-    private static final float RATE_MAX = 50 * 3;
-    private static final int PARTICLES_MAX = 75 * 3;
-    private final GameEntity gameEntity;
-    public BatchedSpriteParticleSystem fluxParticleSystem;
-    public FireEmitter emitter;
+public class FluxParticleWrapperWithPolygonEmitter {
+    private static final float RATE_MIN = 30 * 200;
+    private static final float RATE_MAX = 50 * 200;
+    private static final int PARTICLES_MAX = 750 * 100;
+    private final BatchedSpriteParticleSystem energyParticleSystem;
+    private final RelativePolygonEmitter startEmitter;
+    private final RelativePolygonEmitter endEmitter;
+    private final BezierModifier bezierModifier;
+    private final GameEntity source;
+    private final GameEntity target;
 
-    public FluxParticleWrapperWithPolygonEmitter(GameEntity entity) {
-        this.gameEntity = entity;
-        IEntityFactory<UncoloredSprite> ief = FireSpritePool::obtain;
-        this.emitter = new FireEmitter(entity);
+
+    public FluxParticleWrapperWithPolygonEmitter(GameEntity source, GameEntity target) {
+        this.startEmitter = new RelativePolygonEmitter(source,  (b) -> true);
+        this.endEmitter = new RelativePolygonEmitter(target, (b) -> true);
+        this.source = source;
+        this.target = target;
 
         float area = 0;
-        for (LayerBlock b : entity.getBlocks()) {
+        for (LayerBlock b : source.getBlocks()) {
             area += b.getBlockArea();
         }
         float ratio = area / (32f * 32f);
 
-        this.fluxParticleSystem =
+        this.energyParticleSystem =
                 new FireParticleSystem(
-                        this.emitter,
+                        this.startEmitter,
                         FluxParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
                         FluxParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
                         (int) (FluxParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1),
                         ResourceManager.getInstance().plasmaParticle);
 
-        fluxParticleSystem.setZIndex(entity.getMesh().getZIndex() + 1);
-
-        VelocityParticleInitializer<UncoloredSprite> velocityInitializer =
-                new VelocityParticleInitializer<>(0, 0, 120, 140);
-        this.fluxParticleSystem.addParticleInitializer(velocityInitializer);
-
-        setFluxColor(Color.BLACK,Color.BLACK);
+        final float lifespan = 1f;
+        this.energyParticleSystem.setZIndex(source.getMesh().getZIndex() - 1);
+        this.bezierModifier = new BezierModifier(this.endEmitter, lifespan);
+        this.energyParticleSystem.addParticleModifier(this.bezierModifier);
+        this.energyParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
+        this.energyParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.1f));
+        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan-0.05f,lifespan,0.1f,0f));
+        this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan-0.1f, 0.2f, 0.2f));
+        this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(lifespan-0.1f, lifespan, 0.2f, 0f));
+        setFluxColor(Color.BLACK, Color.BLACK);
+    }
+    public ParticleSystem<?> getParticleSystem() {
+        return this.energyParticleSystem;
     }
 
     public void update() {
-        this.emitter.onStep();
-        this.setFluxColor(Color.RED,Color.RED);
+        this.startEmitter.onStep();
+        this.endEmitter.onStep();
+
+        bezierModifier.transform(new Vector2(source.getMesh().getX(),source.getMesh().getY()),new Vector2(target.getMesh().getX(),target.getMesh().getY()));
     }
 
     private void setFluxColor(Color color1, Color color2) {
@@ -69,7 +82,7 @@ public class FluxParticleWrapperWithPolygonEmitter{
                 color2.getGreen(),
                 color1.getBlue(),
                 color2.getBlue());
-        this.fluxParticleSystem.addParticleModifier(colorModifier);
+        this.energyParticleSystem.addParticleModifier(colorModifier);
     }
 }
 

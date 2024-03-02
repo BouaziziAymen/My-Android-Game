@@ -2,6 +2,7 @@ package com.evolgames.entities.blocks;
 
 import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.CoatingProperties;
@@ -28,23 +29,13 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   private float step;
   private boolean pulverized;
   private transient LayerBlock parent;
+  private boolean emittingEnergy;
 
   @Override
   protected CoatingBlock getThis() {
     return this;
   }
 
-  private void updateColor() {
-    mesh.onColorsUpdated();
-  }
-
-  public MosaicMesh getMesh() {
-    return mesh;
-  }
-
-  public void setMesh(MosaicMesh mesh) {
-    this.mesh = mesh;
-  }
 
   public void centerCoreCoatingBlock() {
     if (position == null) {
@@ -132,7 +123,8 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     getProperties().setTemperature(temperature);
   }
 
-  public void update() {
+  @Override
+  public void onStep(GameEntity parent) {
     double temperature = getTemperature();
     if (getProperties().isCombustible()) {
       double ignitionTemperature = getProperties().getIgnitionTemperature();
@@ -141,39 +133,38 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
 
       boolean onFire = (isOnFlame||temperature > ignitionTemperature)
               && chemicalEnergy >= getProperties().getNonBurnableChemicalEnergy();
-      setOnFire(
-              onFire);
-
+      setOnFire(onFire);
       if (isOnFire()) {
-        double deltaE = getFlameTemperature() / 1000;
-        if (chemicalEnergy - deltaE >= 0) {
-          chemicalEnergy -= deltaE;
-        }
-        else {
-          chemicalEnergy = 0;
-        }
         if (chemicalEnergy < getProperties().getNonBurnableChemicalEnergy()) {
           setOnFire(false);
         }
-        getProperties().setBurnRatio(1 - chemicalEnergy / initialChemicalEnergy);
-      }
-      getProperties().setChemicalEnergy(chemicalEnergy);
-    }
-    getProperties().updateColors();
+        double deltaE = - getFlameTemperature() / 1000;
+         changeChemicalEnergy(deltaE);
 
-    updateColor();
+      }
+      double ratio =  chemicalEnergy / initialChemicalEnergy;
+      getProperties().setBurnRatio(1 - ratio);
+    }
+
+    getProperties().updateColors();
+    parent.getMesh().onColorsUpdated();
+  }
+  private void applyDeltaChemicalEnergy(double delta){
+    double chemicalEnergy = getProperties().getChemicalEnergy();
+    if (chemicalEnergy + delta >= 0) {
+      chemicalEnergy += delta;
+    }
+    getProperties().setChemicalEnergy(chemicalEnergy);
+  }
+  private void changeChemicalEnergy(double delta){
+    applyDeltaChemicalEnergy(delta);
+    for(CoatingBlock neighbor:neighbors){
+      neighbor.applyDeltaChemicalEnergy(delta/10);
+    }
   }
 
   public float distance(Vector2 point) {
     return point.dst(position);
-  }
-
-  public boolean hasFlame() {
-    return hasFlame;
-  }
-
-  public void setFlame(boolean b) {
-    hasFlame = b;
   }
 
   public HashSet<CoatingBlock> getNeighbors() {
@@ -246,11 +237,13 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
             if(stain.getLiquid().isFlammable()){
               float d = this.position.dst(stain.getLocalCenterX(),stain.getLocalCenterY());
               float liquidFlammability = stain.getLiquid().getFlammability();
-              float delta = liquidFlammability / (10f * Math.max(1, d*d));
-              if(flammability+delta<liquidFlammability) {
-                flammability += delta;
+              float tempRatio = (float) (sparkTemperature/10000f);
+              float diff = liquidFlammability - flammability;
+              float delta = tempRatio*diff / (Math.max(1, d*d));
+              if(delta<0){
+                flammability = Math.max(0,flammability+delta);
               } else {
-                flammability = liquidFlammability;
+                flammability = Math.min(liquidFlammability,flammability+delta);
               }
             }
         }
@@ -264,4 +257,11 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   }
 
 
+    public boolean isEmittingEnergy() {
+        return emittingEnergy;
+    }
+
+    public void setEmittingEnergy(boolean emittingEnergy) {
+        this.emittingEnergy = emittingEnergy;
+    }
 }

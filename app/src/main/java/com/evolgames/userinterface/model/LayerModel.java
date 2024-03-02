@@ -19,6 +19,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
   private final int bodyId;
   private final int layerId;
   private LayerField field;
+  private boolean show = true;
 
   public LayerModel(
       int bodyId, int layerId, String layerName, LayerProperties properties, BodyModel bodyModel) {
@@ -66,7 +67,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
   DecorationModel createDecoration() {
     DecorationModel decorationModel =
-        new DecorationModel(this, decorationCounter.getAndIncrement());
+        new DecorationModel(bodyId,layerId,decorationCounter.getAndIncrement(), this);
     decorations.add(decorationModel);
     return decorationModel;
   }
@@ -78,18 +79,20 @@ public class LayerModel extends PointsModel<LayerProperties> {
   }
 
   @Override
-  public boolean test(Vector2 movedPoint, float dx, float dy) {
-
-    for (Vector2 p : getPoints())
-      if (p != movedPoint)
-        if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES)
+  public boolean testMove(Vector2 movedPoint, float dx, float dy) {
+    for (Vector2 p : getPoints()) {
+      if (p != movedPoint) {
+        if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES) {
           return false;
+        }
+      }
+    }
     float x = movedPoint.x;
     float y = movedPoint.y;
     movedPoint.set(x + dx, y + dy);
     boolean test = true;
     for (DecorationModel decorationModel : decorations) {
-      if (!decorationModel.test(decorationModel.getPoints())) {
+      if (!decorationModel.testPoints(decorationModel.getPoints())) {
         test = false;
         break;
       }
@@ -99,7 +102,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
   }
 
   @Override
-  public boolean test(float x, float y) {
+  public boolean testAdd(float x, float y) {
     for (Vector2 p : getPoints()) {
       if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) {
         return false;
@@ -109,11 +112,11 @@ public class LayerModel extends PointsModel<LayerProperties> {
   }
 
   @Override
-  public boolean test(List<Vector2> newPoints) {
+  public boolean testPoints(List<Vector2> newPoints) {
     Vector2[] originalPoints = getOutlinePoints();
     setOutlinePoints(newPoints.toArray(new Vector2[0]));
     for (DecorationModel decorationModel : decorations) {
-      if (!decorationModel.test(decorationModel.getPoints())) {
+      if (!decorationModel.testPoints(decorationModel.getPoints())) {
         setOutlinePoints(originalPoints);
         return false;
       }
@@ -123,8 +126,11 @@ public class LayerModel extends PointsModel<LayerProperties> {
   }
 
   DecorationModel getDecorationById(int tertiaryKey) {
-    for (DecorationModel model : decorations)
-      if (model.getDecorationId() == tertiaryKey) return model;
+    for (DecorationModel model : decorations) {
+      if (model.getDecorationId() == tertiaryKey) {
+        return model;
+      }
+    }
     return null;
   }
 
@@ -161,5 +167,17 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
   public void setField(LayerField field) {
     this.field = field;
+  }
+
+  public void show() {
+    this.show = true;
+  }
+
+  public void hide() {
+    this.show = false;
+  }
+
+  public boolean isShow() {
+    return show;
   }
 }

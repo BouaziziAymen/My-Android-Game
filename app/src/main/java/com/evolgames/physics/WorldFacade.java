@@ -70,7 +70,6 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.usage.ImpactBomb;
-import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Smasher;
@@ -153,6 +152,7 @@ public class WorldFacade implements ContactObserver {
         scene.registerUpdateHandler(physicsWorld);
         physicsWorld.setVelocityIterations(8);
         physicsWorld.setPositionIterations(3);
+        physicsWorld.setContinuousPhysics(true);
     }
 
     public void onStep(float pSecondsElapsed) {
@@ -623,8 +623,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     private void computeConduction() {
-        List<GameGroup> clone = new ArrayList<>(scene.getGameGroups());
-        for (GameGroup gameGroup : clone)
+        for (GameGroup gameGroup : scene.getGameGroups())
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
                 if (!gameEntity.getName().equals("Ground")) {
                     for (LayerBlock block : gameEntity.getBlocks()) {
@@ -637,8 +636,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     private void createFires() {
-        List<GameGroup> clone = new ArrayList<>(scene.getGameGroups());
-        for (GameGroup gameGroup : clone)
+        for (GameGroup gameGroup : scene.getGameGroups())
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
                 if (!gameEntity.isAlive() || gameEntity.getName().equals("Ground")) {
                     continue;
@@ -704,8 +702,7 @@ public class WorldFacade implements ContactObserver {
                 }
             }
         }
-        ArrayList<GameGroup> copy = new ArrayList<>(scene.getGameGroups());
-        for (GameGroup gameGroup : copy)
+        for (GameGroup gameGroup : scene.getGameGroups())
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
                 if (gameEntity.getName().equals("Ground")) {
                     continue;
@@ -1232,7 +1229,7 @@ public class WorldFacade implements ContactObserver {
         if (entity == null || !entity.isAlive()) {
             return;
         }
-        Invoker.addBodyDestructionCommand(entity, finalDestruction);
+        Invoker.addBodyDestructionCommand(entity);
 
         if (finalDestruction) {
             for (LayerBlock layerBlock : entity.getBlocks()) {
@@ -1250,8 +1247,6 @@ public class WorldFacade implements ContactObserver {
                 layerBlock.recycleSelf();
             }
         }
-
-        entity.setAlive(false);
     }
 
     public void performScanFlux(
@@ -1343,9 +1338,10 @@ public class WorldFacade implements ContactObserver {
         Vector2 v = new Vector2(1, 0);
         // GameScene.plotter2.detachChildren();
         List<ImpactData> list = new ArrayList<>();
+        float phi = (float) (Math.random()*360);
         for (int i = 0; i < FLUX_PRECISION; i++) {
             v.set(1, 0);
-            GeometryUtils.rotateVectorDeg(v, i * 360 / (float) FLUX_PRECISION);
+            GeometryUtils.rotateVectorDeg(v, i * 360 / (float) FLUX_PRECISION+phi);
             Vector2 end = obtain(sourceWorldPoint.x + v.x * 100, sourceWorldPoint.y + v.y * 100);
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
@@ -2022,5 +2018,9 @@ public class WorldFacade implements ContactObserver {
 
     public HashSet<Pair<GameEntity>> getNonCollidingPairs() {
         return this.contactListener.getNonCollidingEntities();
+    }
+
+    public PhysicsScene<?> getPhysicsScene() {
+        return scene;
     }
 }

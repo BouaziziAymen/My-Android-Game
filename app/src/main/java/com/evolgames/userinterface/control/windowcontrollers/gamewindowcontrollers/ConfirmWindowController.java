@@ -1,9 +1,13 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import android.util.Log;
+
 import com.evolgames.userinterface.control.behaviors.actions.ConfirmableAction;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.windows.gamewindows.ConfirmWindow;
+
+import java.util.Objects;
 
 public class ConfirmWindowController extends LinearLayoutAdvancedWindowController<ConfirmWindow> {
 
@@ -21,7 +25,11 @@ public class ConfirmWindowController extends LinearLayoutAdvancedWindowControlle
 
   public void bindAction(ConfirmableAction confirmableAction) {
     this.confirmableAction = confirmableAction;
-    window.updateText(this.confirmableAction.getPrompt());
+    try {
+      window.updateText(this.confirmableAction.getPrompt());
+    } catch (IllegalAccessException e) {
+      Log.e("Error", e.toString());
+    }
     this.openWindow();
     this.editorUserInterface.shade(window);
   }

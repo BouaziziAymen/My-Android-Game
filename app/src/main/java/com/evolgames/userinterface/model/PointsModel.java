@@ -18,11 +18,11 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
     this.referencePoints = new ArrayList<>();
   }
 
-  public abstract boolean test(Vector2 movedPoint, float dx, float dy);
+  public abstract boolean testMove(Vector2 movedPoint, float dx, float dy);
 
-  public abstract boolean test(float x, float y);
+  public abstract boolean testAdd(float x, float y);
 
-  public abstract boolean test(List<Vector2> points);
+  public abstract boolean testPoints(List<Vector2> points);
 
   public PointsShape getPointsShape() {
     return (PointsShape) outlineShape;

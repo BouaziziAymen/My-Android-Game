@@ -15,11 +15,6 @@ public class BombUsageProperties extends Properties {
     this.bombModelList = new ArrayList<>();
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public List<BombModel> getBombModelList() {
     return bombModelList;
   }

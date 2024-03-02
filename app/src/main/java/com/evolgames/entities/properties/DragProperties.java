@@ -18,11 +18,6 @@ public class DragProperties extends Properties {
         this.dragOrigin = begin.cpy();
         this.dragNormal = normal.cpy();
     }
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public Vector2 getDragOrigin() {
         return dragOrigin;
     }

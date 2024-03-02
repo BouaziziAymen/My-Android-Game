@@ -6,11 +6,15 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.MyLetter;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
@@ -146,6 +150,11 @@ public class ResourceManager {
   public TextureRegion liquidShapeTextureRegion;
   public TextureRegion projectileDragTextureRegion;
   public TiledTextureRegion projDragTextureRegion;
+  public TiledTextureRegion showHideTextureRegion
+          ;
+  public TextureRegion playTextureRegion
+          ;
+  public Music mMusic;
 
   public void loadBatches() {
     hudBatcher =
@@ -177,7 +186,7 @@ public class ResourceManager {
             Color.WHITE_ABGR_PACKED_INT);
     this.font.load();
     this.font.prepareLetters(
-        "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?".toCharArray());
+        "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzéè.,!?".toCharArray());
   }
 
   public MyLetter getLetter(int fontId, char character) {
@@ -307,6 +316,9 @@ public class ResourceManager {
     this.removeTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "removeround.png", 1, 2);
+    this.showHideTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "showhide.png", 1, 2);
     this.mainButtonTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "bodybutton.png", 1, 2);
@@ -431,6 +443,10 @@ public class ResourceManager {
             "controllers/switcher/rightButton.png",
             1,
             3);
+
+    this.playTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "play.png");
     this.handPointTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");
@@ -567,6 +583,8 @@ public class ResourceManager {
     this.decaleTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
+
+
     this.ammoTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
@@ -696,6 +714,14 @@ public class ResourceManager {
       }
 
       MusicFactory.setAssetBasePath("mfx/");
+      try {
+        mMusic = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "music_main.mp3");
+        mMusic.setLooping(true); // Loop the music
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      mMusic.play();
+      mMusic.setVolume(0.007f);
     } catch (Exception e) {
       throw new RuntimeException("Error while loading audio", e);
     }

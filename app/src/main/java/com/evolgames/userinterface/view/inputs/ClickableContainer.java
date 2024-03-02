@@ -24,11 +24,11 @@ public class ClickableContainer<C extends Controller, B extends ClickableBehavio
   }
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean touched) {
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
     if (!isEnabled() || behavior == null) {
       return false;
     }
-    return behavior.processTouch(pTouchEvent, touched);
+    return behavior.processTouch(pTouchEvent);
   }
 
   protected boolean isEnabled() {

@@ -4,10 +4,10 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.modifier.IParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public class GroundCollisionExpire implements IParticleModifier<UncoloredSprite> {
+public class GroundCollisionStopModifier implements IParticleModifier<UncoloredSprite> {
   private final int groundY;
 
-  public GroundCollisionExpire(int groundY) {
+  public GroundCollisionStopModifier(int groundY) {
     this.groundY = groundY;
   }
 
@@ -16,9 +16,10 @@ public class GroundCollisionExpire implements IParticleModifier<UncoloredSprite>
 
   @Override
   public void onUpdateParticle(Particle<UncoloredSprite> pParticle) {
-    if (pParticle.getEntity().getY()
-        < groundY) {
-      pParticle.setExpired(true);
+    float vy = pParticle.getPhysicsHandler().getVelocityY();
+    if (pParticle.getEntity().getY()+vy/60f < groundY) {
+      pParticle.getEntity().setY(groundY);
+      pParticle.getPhysicsHandler().setEnabled(false);
     }
   }
 }

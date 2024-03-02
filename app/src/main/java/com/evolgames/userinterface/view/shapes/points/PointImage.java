@@ -60,7 +60,7 @@ public class PointImage extends SceneImage implements Movable {
   }
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
     return false;
   }
 

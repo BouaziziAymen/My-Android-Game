@@ -10,7 +10,7 @@ public abstract class ClickableBehavior<C extends Controller> extends Behavior<C
     super(controller);
   }
 
-  public abstract boolean processTouch(TouchEvent touchEvent, boolean touched);
+  public abstract boolean processTouch(TouchEvent touchEvent);
 
   public void onViewUpdated() {
     if (getController() instanceof LinearLayoutAdvancedWindowController) {

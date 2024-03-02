@@ -1,5 +1,7 @@
 package com.evolgames.entities.properties;
 
+import android.support.annotation.NonNull;
+
 import com.badlogic.gdx.math.Vector2;
 
 public class ProjectileProperties extends Properties {
@@ -25,22 +27,13 @@ public class ProjectileProperties extends Properties {
   @SuppressWarnings("unused")
   public ProjectileProperties() {}
 
+  @NonNull
   @Override
-  public Properties copy() {
-    ProjectileProperties properties =
-        new ProjectileProperties(projectileOrigin.cpy(), projectileEnd.cpy());
-    properties.setFireSound(fireSound);
-    properties.setRecoil(recoil);
-    properties.setMuzzleVelocity(muzzleVelocity);
-    properties.setProjectileEnd(projectileEnd.cpy());
-    properties.setProjectileOrigin(projectileOrigin.cpy());
-    properties.setSmokeRatio(this.smokeRatio);
-    properties.setSparkRatio(this.sparkRatio);
-    properties.setFireRatio(this.fireRatio);
-    properties.setParticles(this.particles);
-    properties.setInFirePartSize(this.inFirePartSize);
-    properties.setFinFirePartSize(this.finFirePartSize);
-    return properties;
+  public Object clone() {
+    ProjectileProperties projectileProperties = (ProjectileProperties) super.clone();
+    projectileProperties.setProjectileOrigin(projectileOrigin.cpy());
+    projectileProperties.setProjectileEnd(projectileEnd.cpy());
+    return projectileProperties;
   }
 
   public Vector2 getProjectileOrigin() {

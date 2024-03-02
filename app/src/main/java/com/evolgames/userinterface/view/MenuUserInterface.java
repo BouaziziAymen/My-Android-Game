@@ -5,6 +5,7 @@ import com.evolgames.scenes.MenuScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.MainMenuController;
+import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.shapes.Grid;
@@ -12,11 +13,12 @@ import com.evolgames.userinterface.view.shapes.Grid;
 import org.andengine.input.touch.TouchEvent;
 
 public class MenuUserInterface extends UserInterface<MenuScene> {
-  private final Grid grid;
-
   public MenuUserInterface(MenuScene scene) {
     super(scene);
-    MainMenuController mainMenuController = new MainMenuController();
+    Image image = new Image(400-(131f/2),240-(70f/2)-42f,ResourceManager.getInstance().playTextureRegion);
+    this.addElement(image);
+/*    MainMenuController mainMenuController = new MainMenuController();
+
     ButtonWithText<MainMenuController> playButton =
         new ButtonWithText<>(
             400,
@@ -48,9 +50,7 @@ public class MenuUserInterface extends UserInterface<MenuScene> {
 
       }
     });
-    this.grid = new Grid(scene);
-
-    editorButton.setBehavior(new ButtonBehavior<MainMenuController>(mainMenuController,editorButton) {
+      editorButton.setBehavior(new ButtonBehavior<MainMenuController>(mainMenuController,editorButton) {
       @Override
       public void informControllerButtonClicked() {
         scene.goToScene(SceneType.EDITOR);
@@ -63,12 +63,14 @@ public class MenuUserInterface extends UserInterface<MenuScene> {
     });
 
     addElement(playButton);
-    addElement(editorButton);
+    addElement(editorButton);*/
+setUpdated(true);
+
   }
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
-    return super.onTouchHud(pTouchEvent, isTouched);
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
+    return super.onTouchHud(pTouchEvent);
   }
 
   @Override

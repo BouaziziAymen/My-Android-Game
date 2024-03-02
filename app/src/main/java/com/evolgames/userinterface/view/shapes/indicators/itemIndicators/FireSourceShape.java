@@ -101,9 +101,12 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
   @Override
   public List<PointImage> getMovables(boolean moveLimits) {
     ArrayList<PointImage> movables = new ArrayList<>();
-    movables.add(getLimit());
-    movables.add(originPoint);
-    movables.add(extentPoint);
+    if(moveLimits) {
+      movables.add(getLimit());
+      movables.add(extentPoint);
+    } else {
+      movables.add(originPoint);
+    }
     return movables;
   }
 

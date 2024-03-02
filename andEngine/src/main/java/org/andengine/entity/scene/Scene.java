@@ -51,7 +51,7 @@ public class Scene extends Entity {
 
 	private IOnAreaTouchListener mOnAreaTouchListener;
 
-	private IBackground mBackground = new Background(Color.BLACK);
+	private IBackground mBackground = new Background(new Color(0.1f,0.1f,0.1f));
 	private boolean mBackgroundEnabled = true;
 
 	private boolean mOnAreaTouchTraversalBackToFront = true;

@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control;
 
 import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.scenes.EditorScene;
@@ -45,660 +46,583 @@ import com.evolgames.userinterface.view.shapes.points.ModelPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CreationZoneController extends Controller {
 
-  private final EditorScene editorScene;
-  private LayerWindowController layerWindowController;
-  private JointWindowController jointWindowController;
-  private ItemWindowController itemWindowController;
-  private CreationAction action = CreationAction.NONE;
-  private EditorUserInterface editorUserInterface;
-  private LineShape indicatorArrow;
-  private CreationZone creationZone;
-  private PointImage selectedPointImage = null;
-  private boolean upLocked;
-  private float radiusForPolygon = 32;
-  private boolean fixedRadiusForPolygon;
-  private boolean reference;
-  private float movePointSpeed;
-  private int numberOfPointsForPolygon = 3;
-  private boolean magnet, magnetLines, magnetCenters;
-  private boolean moveLimits;
-  private boolean congruentAnchors;
+    private final EditorScene editorScene;
+    private LayerWindowController layerWindowController;
+    private JointWindowController jointWindowController;
+    private ItemWindowController itemWindowController;
+    private CreationAction action = CreationAction.NONE;
+    private EditorUserInterface editorUserInterface;
+    private LineShape indicatorArrow;
+    private CreationZone creationZone;
+    private PointImage selectedPointImage = null;
+    private boolean upLocked;
+    private float radiusForPolygon = 32;
+    private boolean fixedRadiusForPolygon;
+    private boolean reference;
+    private float movePointSpeed;
+    private int numberOfPointsForPolygon = 3;
+    private boolean magnet, magnetLines, magnetCenters;
+    private boolean moveLimits;
+    private boolean congruentAnchors;
+    private boolean sameShape;
+    private boolean invertShape;
+    private boolean imageFixedRatio = true;
 
-  public CreationZoneController(EditorScene editorScene) {
-    this.editorScene = editorScene;
-  }
-
-  public void setLayerWindowController(LayerWindowController layerWindowController) {
-    this.layerWindowController = layerWindowController;
-  }
-
-  public void setJointWindowController(JointWindowController jointWindowController) {
-    this.jointWindowController = jointWindowController;
-  }
-
-  public void setItemWindowController(ItemWindowController itemWindowController) {
-    this.itemWindowController = itemWindowController;
-  }
-
-  public void setUserInterface(EditorUserInterface editorUserInterface) {
-    this.editorUserInterface = editorUserInterface;
-  }
-
-  public CreationAction getAction() {
-    return action;
-  }
-
-  public void setAction(CreationAction action) {
-    this.action = action;
-    if (editorUserInterface.getImageShape() != null)
-      editorUserInterface.getImageShape().setPipeCircleVisibility(action == CreationAction.PIPING);
-    editorUserInterface.onActionChanged(action);
-    switch (action) {
-      case MOVE_TOOL_POINT:
-      case AMMO:
-      case DISTANCE:
-      case WELD:
-      case PRISMATIC:
-      case ROTATE:
-      case MIRROR:
-      case SHIFT:
-      case REVOLUTE:
-      case PROJECTILE:
-      case NONE:
-      case ADD_POLYGON:
-      case SCALE_IMAGE:
-      case ROTATE_IMAGE:
-      case FIRE_SOURCE:
-      case LIQUID_SOURCE:
-      case DRAG:
-      case MOVE_IMAGE:
-        editorScene.setScrollerEnabled(false);
-        editorScene.setZoomEnabled(false);
-        break;
-      case MOVE_JOINT_POINT:
-      case PIPING:
-      case REMOVE_POINT:
-      case MOVE_POINT:
-      case ADD_POINT:
-      case BOMB:
-        editorScene.setScrollerEnabled(true);
-        editorScene.setZoomEnabled(true);
-        break;
-    }
-  }
-
-  @Override
-  public void init() {}
-
-  public void onZoneActionUp(float x, float y) {
-    if (upLocked) {
-      return;
-    }
-    processAbortedIndicators();
-    if (action == CreationAction.ADD_POINT) {
-      processAddPoint(x, y);
-    }
-    if (action == CreationAction.REMOVE_POINT) {
-      processRemovePoint(x, y);
+    public CreationZoneController(EditorScene editorScene) {
+        this.editorScene = editorScene;
     }
 
-    if (indicatorArrow != null) {
-      if (!(indicatorArrow instanceof JointShape
-          || indicatorArrow instanceof ProjectileShape
-          || indicatorArrow instanceof CasingShape
-          || indicatorArrow instanceof FireSourceShape|| indicatorArrow instanceof LiquidSourceShape||indicatorArrow instanceof DragShape)){
-        indicatorArrow.detach();
-      }
-      indicatorArrow = null;
-      creationZone.setTouchLocked(false);
+    public void setLayerWindowController(LayerWindowController layerWindowController) {
+        this.layerWindowController = layerWindowController;
     }
-    processMobilePoints(x, y);
 
-    releaseBoardsButtons();
-  }
+    public void setJointWindowController(JointWindowController jointWindowController) {
+        this.jointWindowController = jointWindowController;
+    }
 
-  private void releaseBoardsButtons() {
-    if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
-      editorUserInterface.getDrawButtonBoardController().releaseButtons();
-      action = CreationAction.NONE;
+    public void setItemWindowController(ItemWindowController itemWindowController) {
+        this.itemWindowController = itemWindowController;
     }
-    if (action == CreationAction.REVOLUTE
-        || action == CreationAction.DISTANCE
-        || action == CreationAction.PRISMATIC) {
-      editorUserInterface.getJointButtonBoardController().releaseButtons();
-      action = CreationAction.NONE;
-    }
-    if (action == CreationAction.PIPING) {
-      editorUserInterface.getImageButtonBoardController().releaseButtons();
-      action = CreationAction.NONE;
-    }
-    if (action == CreationAction.BOMB
-        || action == CreationAction.PROJECTILE
-        || action == CreationAction.AMMO|| action == CreationAction.LIQUID_SOURCE  || action == CreationAction.FIRE_SOURCE|| action == CreationAction.DRAG) {
-      editorUserInterface.getItemButtonBoardController().releaseButtons();
-      action = CreationAction.NONE;
-    }
-  }
 
-  private void processRemovePoint(float x, float y) {
-    if (layerWindowController.getSelectedPointsModel() != null) {
-      float distance = 32;
-      Vector2 point = null;
-      for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
-        float d = p.dst(x, y);
-        if (d < distance) {
-          point = p;
-          distance = d;
+    public void setUserInterface(EditorUserInterface editorUserInterface) {
+        this.editorUserInterface = editorUserInterface;
+    }
+
+    public CreationAction getAction() {
+        return action;
+    }
+
+    public void setAction(CreationAction action) {
+        this.action = action;
+        if (editorUserInterface.getImageShape() != null)
+            editorUserInterface.getImageShape().setPipeCircleVisibility(action == CreationAction.PIPING);
+        editorUserInterface.onActionChanged(action);
+        switch (action) {
+            case MOVE_TOOL_POINT:
+            case AMMO:
+            case DISTANCE:
+            case WELD:
+            case PRISMATIC:
+            case ROTATE:
+            case MIRROR:
+            case SHIFT:
+            case REVOLUTE:
+            case PROJECTILE:
+            case ADD_POLYGON:
+            case SCALE_IMAGE:
+            case ROTATE_IMAGE:
+            case FIRE_SOURCE:
+            case LIQUID_SOURCE:
+            case DRAG:
+            case MOVE_IMAGE:
+                editorScene.setScrollerEnabled(false);
+                editorScene.setZoomEnabled(false);
+                break;
+            case MOVE_JOINT_POINT:
+            case PIPING:
+            case REMOVE_POINT:
+            case MOVE_POINT:
+            case ADD_POINT:
+            case BOMB:
+            case NONE:
+                editorScene.setScrollerEnabled(true);
+                editorScene.setZoomEnabled(true);
+                break;
         }
-      }
-
-      if (point != null) {
-        layerWindowController.getSelectedPointsModel().remove(point);
-        ModelPointImage p =
-            layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
-        layerWindowController.getSelectedPointsModel().getPointsShape().removeElement(p);
-        layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
-      }
     }
-  }
 
-  private void processAbortedIndicators() {
-    if (indicatorArrow != null && indicatorArrow.isAborted()) {
-      if (action == CreationAction.PROJECTILE) {
-        itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
-      } else if (action == CreationAction.AMMO) {
-        itemWindowController.onAmmoAborted(((CasingShape) indicatorArrow).getModel());
-      }
+    @Override
+    public void init() {
     }
-  }
 
-  private void processAddPoint(float x, float y) {
-    if (layerWindowController.getSelectedPointsModel() != null) {
-      PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
-      if (pointsModel.test(x, y)) {
-        pointsModel.addPoint(new Vector2(x, y));
-        pointsModel.getPointsShape().onModelUpdated();
-      }
-    }
-  }
-
-  private void processMobilePoints(float x, float y) {
-    List<PointImage> movablePointImages = null;
-    switch (action) {
-      case MOVE_POINT:
-        if (!this.isReferenceEnabled()) {
-          movablePointImages = layerWindowController.getModelMovables();
-        } else {
-          movablePointImages = new ArrayList<>(creationZone.getReferencePointImageArrayList());
+    public void onZoneActionUp(float x, float y) {
+        if (upLocked) {
+            return;
         }
-        break;
-      case MOVE_TOOL_POINT:
-        if (itemWindowController.hasSelectedItem()) {
-          movablePointImages = itemWindowController.getSelectedModelMovables(moveLimits);
+        processAbortedIndicators();
+        if (action == CreationAction.ADD_POINT) {
+            processAddPoint(x, y);
+            this.editorUserInterface.saveToolModel("editor_auto_save.mut");
         }
-        break;
-      case MOVE_JOINT_POINT:
-        movablePointImages = jointWindowController.getSelectedModelMovables(moveLimits);
-        break;
-    }
-    if (movablePointImages != null) {
-      float distance = 32;
-      PointImage point = null;
-      for (PointImage p : movablePointImages) {
-        float d = p.getPoint().dst(x, y);
-        if (d < distance) {
-          point = p;
-          distance = d;
+        if (action == CreationAction.REMOVE_POINT) {
+            processRemovePoint(x, y);
         }
-      }
-      if (point != null) {
-        onPointImageReleased();
-        selectPointImage(point);
-      }
-    }
-  }
 
-  public void createReferencePoint() {
-    if (selectedPointImage != null) {
-      if (selectedPointImage.getPointsShape() != null) {
-        if (selectedPointImage
-                .getPointsShape()
-                .getReferencePointImage(selectedPointImage.getPoint())
-            == null) {
-          selectedPointImage
-              .getPointsShape()
-              .createReferencePointImage(selectedPointImage.getPoint());
+        if (indicatorArrow != null) {
+            if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof CasingShape || indicatorArrow instanceof FireSourceShape || indicatorArrow instanceof LiquidSourceShape || indicatorArrow instanceof DragShape)) {
+                indicatorArrow.detach();
+            }
+            indicatorArrow = null;
+            creationZone.setTouchLocked(false);
         }
-      }
-    }
-  }
+        processMobilePoints(x, y);
 
-  public void selectPointImage(PointImage pointImage) {
-    pointImage.doubleSelect();
-    selectedPointImage = pointImage;
-    editorUserInterface.setMoveElementController(
-        editorUserInterface
-            .getPanel()
-            .allocateController(
-                800 - 64 / 2f,
-                64 / 2f,
-                ControlElement.Type.AnalogController,
-                new ControllerAction() {
-                  @Override
-                  public void controlMoved(float pX, float pY) {
-                    pointImage.onControllerMoved(pX, pY);
-                  }
-
-                  @Override
-                  public void controlClicked() {}
-
-                  @Override
-                  public void controlReleased() {}
-                }));
-  }
-
-  public void onPointImageReleased() {
-    if (selectedPointImage != null) {
-      selectedPointImage.undoDoubleSelect();
-      selectedPointImage.release();
-      selectedPointImage = null;
-    }
-  }
-
-  public int getNumberOfPointsForPolygon() {
-    return numberOfPointsForPolygon;
-  }
-
-  public void setNumberOfPointsForPolygon(int numberOfPointsForPolygon) {
-    this.numberOfPointsForPolygon = numberOfPointsForPolygon;
-  }
-
-  public void onZoneActionDown(float x, float y) {
-
-    upLocked = false;
-
-    if (action == CreationAction.NONE) {
-      return;
+        releaseBoardsButtons();
     }
 
-    if (action == CreationAction.ROTATE_IMAGE) {
-      if (editorScene.getUserInterface().getImageShape() != null) {
-        float X = editorScene.getUserInterface().getImageShape().getSprite().getX();
-        float Y = editorScene.getUserInterface().getImageShape().getSprite().getY();
-
-        indicatorArrow =
-            new RotateImageShape(
-                new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, 32);
-      }
-    }
-    if (action == CreationAction.SCALE_IMAGE) {
-      if (editorScene.getUserInterface().getImageShape() != null) {
-        float X = editorScene.getUserInterface().getImageShape().getSprite().getX();
-        float Y = editorScene.getUserInterface().getImageShape().getSprite().getY();
-        indicatorArrow =
-            new ScaleImageShape(
-                new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene);
-      }
-    }
-
-    if (action == CreationAction.MOVE_IMAGE) {
-      if (editorScene.getUserInterface().getImageShape() != null) {
-        indicatorArrow =
-            new ShiftImageShape(
-                new Vector2(x, y), editorScene.getUserInterface().getImageShape(), editorScene);
-      }
-    }
-    if (action == CreationAction.REVOLUTE) {
-      RevoluteJointShape revoluteJointShape =
-          new RevoluteJointShape(editorScene, new Vector2(x, y));
-      JointModel jointModel =
-          editorUserInterface
-              .getToolModel()
-              .createJointModel((JointShape) indicatorArrow, JointDef.JointType.RevoluteJoint);
-      jointModel.getLocalAnchorA().set(x, y);
-      jointModel.getLocalAnchorB().set(x, y);
-      revoluteJointShape.bindModel(jointModel);
-      jointWindowController.onJointAdded(jointModel);
-      revoluteJointShape.setCongruentEndpoints(getCongruentAnchors());
-      this.indicatorArrow = revoluteJointShape;
-      return;
-    }
-    if (action == CreationAction.WELD) {
-      WeldJointShape weldJointShape = new WeldJointShape(editorScene, new Vector2(x, y));
-      JointModel jointModel =
-          editorUserInterface
-              .getToolModel()
-              .createJointModel(weldJointShape, JointDef.JointType.WeldJoint);
-      jointModel.getLocalAnchorA().set(x, y);
-      jointModel.getLocalAnchorB().set(x, y);
-      weldJointShape.bindModel(jointModel);
-      jointWindowController.onJointAdded(jointModel);
-      weldJointShape.setCongruentEndpoints(getCongruentAnchors());
-      this.indicatorArrow = weldJointShape;
-      return;
-    }
-    if (action == CreationAction.PRISMATIC) {
-      PrismaticJointShape prismaticJointShape =
-          new PrismaticJointShape(editorScene, new Vector2(x, y));
-      JointModel jointModel =
-          editorUserInterface
-              .getToolModel()
-              .createJointModel(prismaticJointShape, JointDef.JointType.PrismaticJoint);
-      jointModel.getLocalAnchorA().set(x, y);
-      jointModel.getLocalAnchorB().set(x, y);
-      prismaticJointShape.bindModel(jointModel);
-      jointWindowController.onJointAdded(jointModel);
-      prismaticJointShape.setCongruentEndpoints(getCongruentAnchors());
-      this.indicatorArrow = prismaticJointShape;
-      return;
-    }
-    if (action == CreationAction.DISTANCE) {
-      DistanceJointShape distanceJointShape =
-          new DistanceJointShape(editorScene, new Vector2(x, y));
-      JointModel jointModel =
-          editorUserInterface
-              .getToolModel()
-              .createJointModel(distanceJointShape, JointDef.JointType.DistanceJoint);
-      jointModel.getLocalAnchorA().set(x, y);
-      jointModel.getLocalAnchorB().set(x, y);
-      jointWindowController.onJointAdded(jointModel);
-      distanceJointShape.bindModel(jointModel);
-      distanceJointShape.setCongruentEndpoints(getCongruentAnchors());
-      this.indicatorArrow = distanceJointShape;
-      return;
-    }
-    if (action == CreationAction.PROJECTILE) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        ProjectileShape projectileShape = new ProjectileShape(new Vector2(x, y), editorScene);
-        ProjectileModel projectileModel =
-            editorUserInterface
-                .getToolModel()
-                .createNewProjectile(
-                    projectileShape,
-                    editorUserInterface.getItemWindowController().getSelectedBodyId());
-        projectileModel.getProperties().setProjectileOrigin(new Vector2(x, y));
-        projectileModel.getProperties().setProjectileEnd(new Vector2(x, y));
-        itemWindowController.onProjectileCreated(projectileModel);
-        projectileShape.bindModel(projectileModel);
-        this.indicatorArrow = projectileShape;
-        return;
-      }
-    }
-    if (action == CreationAction.DRAG) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        DragShape dragShape = new DragShape(new Vector2(x, y), editorScene);
-        DragModel dragModel =
-                editorUserInterface
-                        .getToolModel()
-                        .createNewDrag(
-                                dragShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
-        itemWindowController.onDragCreated(dragModel);
-        dragShape.bindModel(dragModel);
-        this.indicatorArrow = dragShape;
-      }
-    }
-    if (action == CreationAction.LIQUID_SOURCE) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        LiquidSourceShape liquidSourceShape = new LiquidSourceShape(new Vector2(x, y), editorScene);
-        LiquidSourceModel liquidSourceModel =
-                editorUserInterface
-                        .getToolModel()
-                        .createNewLiquidSource(
-                                liquidSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
-        itemWindowController.onLiquidSourceCreated(liquidSourceModel);
-        liquidSourceShape.bindModel(liquidSourceModel);
-        this.indicatorArrow = liquidSourceShape;
-      }
-    }
-    if (action == CreationAction.BOMB) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        BombShape bombShape = new BombShape(new Vector2(x, y), editorScene);
-        BombModel bombModel =
-            editorUserInterface
-                .getToolModel()
-                .createNewBomb(
-                    bombShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
-        itemWindowController.onBombCreated(bombModel);
-        bombShape.bindModel(bombModel);
-      }
-    }
-    if (action == CreationAction.AMMO) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        CasingShape casingShape = new CasingShape(new Vector2(x, y), editorScene);
-        CasingModel ammoModel =
-            editorUserInterface
-                .getToolModel()
-                .createNewAmmo(
-                    casingShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
-        itemWindowController.onCasingCreated(ammoModel);
-        casingShape.bindModel(ammoModel);
-        this.indicatorArrow = casingShape;
-        return;
-      }
-    }
-    if (action == CreationAction.FIRE_SOURCE) {
-      if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
-        FireSourceShape fireSourceShape = new FireSourceShape(new Vector2(x, y), editorScene);
-        FireSourceModel fireSourceModel =
-                editorUserInterface
-                        .getToolModel()
-                        .createNewFireSource(
-                                fireSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
-        itemWindowController.onFireSourceCreated(fireSourceModel);
-        fireSourceShape.bindModel(fireSourceModel);
-        this.indicatorArrow = fireSourceShape;
-        return;
-      }
-    }
-    if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
-      indicatorArrow =
-          new ShiftArrowShape(
-              new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene);
-      creationZone.setTouchLocked(true);
-      return;
-    }
-    if (action == CreationAction.ROTATE && layerWindowController.getSelectedPointsModel() != null) {
-      Log.e("indicator", "rotate");
-      indicatorArrow =
-          new RotateArrowShape(
-              new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene, 64);
-      creationZone.setTouchLocked(true);
-      return;
+    private void releaseBoardsButtons() {
+        if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
+            editorUserInterface.getDrawButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.REVOLUTE || action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
+            editorUserInterface.getJointButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.PIPING) {
+            editorUserInterface.getImageButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
+        if (action == CreationAction.BOMB || action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
+            editorUserInterface.getItemButtonBoardController().releaseButtons();
+            action = CreationAction.NONE;
+        }
     }
 
-    if (action == CreationAction.ADD_POLYGON
-        && layerWindowController.getSelectedPointsModel() != null) {
+    private void processRemovePoint(float x, float y) {
+        if (layerWindowController.getSelectedPointsModel() != null) {
+            float distance = 32;
+            Vector2 point = null;
+            for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
+                float d = p.dst(x, y);
+                if (d < distance) {
+                    point = p;
+                    distance = d;
+                }
+            }
 
-      PointsModel<?> selectedPointsModel = layerWindowController.getSelectedPointsModel();
-      if (selectedPointsModel == null) {
-        return;
-      }
-      Vector2 center = new Vector2(x, y);
-
-      indicatorArrow =
-          (fixedRadiusForPolygon)
-              ? new PolygonArrowShape(
-                  center,
-                  layerWindowController.getSelectedPointsModel(),
-                  editorScene,
-                  numberOfPointsForPolygon,
-                  radiusForPolygon)
-              : new PolygonArrowShape(
-                  center,
-                  layerWindowController.getSelectedPointsModel(),
-                  editorScene,
-                  numberOfPointsForPolygon);
-      selectedPointsModel.getReferencePoints().add(center);
-      creationZone.setTouchLocked(true);
-      return;
+            if (point != null) {
+                layerWindowController.getSelectedPointsModel().remove(point);
+                ModelPointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
+                layerWindowController.getSelectedPointsModel().getPointsShape().removeElement(p);
+                layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
+            }
+        }
     }
 
-    if (action == CreationAction.MIRROR && layerWindowController.getSelectedPointsModel() != null) {
-      PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedPointsModel();
-      PointsModel<?> shapePointsModel;
-      if (selectedLayerPointsModel instanceof LayerModel) {
-        LayerModel layerModel = (LayerModel) selectedLayerPointsModel;
-        LayerField layer =
-            layerWindowController.onAddLayerButtonCLicked(
-                editorUserInterface
-                    .getToolModel()
-                    .getBodyModelById(layerModel.getBodyId())
-                    .getField());
-        shapePointsModel =
-            layerWindowController.getLayerModel(layer.getPrimaryKey(), layer.getSecondaryKey());
-      } else {
-        DecorationModel decorationModel = (DecorationModel) selectedLayerPointsModel;
-        DecorationField decoration =
-            layerWindowController.onLayerAddDecorationClicked(
-                editorUserInterface
-                    .getToolModel()
-                    .getLayerModelById(
-                        decorationModel.getLayerModel().getBodyId(),
-                        decorationModel.getLayerModel().getLayerId())
-                    .getField());
-        shapePointsModel =
-            layerWindowController.getDecorationModel(
-                decoration.getPrimaryKey(),
-                decoration.getSecondaryKey(),
-                decoration.getTertiaryKey());
-      }
-
-      shapePointsModel.setPoints(
-          selectedLayerPointsModel.getPoints().stream()
-              .map(Vector2::new)
-              .collect(Collectors.toList()));
-      shapePointsModel.setReferencePoints(
-          selectedLayerPointsModel.getReferencePoints().stream()
-              .map(Vector2::new)
-              .collect(Collectors.toList()));
-      indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene);
-      creationZone.setTouchLocked(true);
-    }
-  }
-
-  public void onZoneActionMove(float x, float y) {
-    if (action == CreationAction.NONE) {
-      return;
+    private void processAbortedIndicators() {
+        if (indicatorArrow != null && indicatorArrow.isAborted()) {
+            if (action == CreationAction.PROJECTILE) {
+                itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
+            } else if (action == CreationAction.AMMO) {
+                itemWindowController.onAmmoAborted(((CasingShape) indicatorArrow).getModel());
+            }
+        }
     }
 
-    if (indicatorArrow != null && !indicatorArrow.isCongruentEndpoints()) {
-      indicatorArrow.updateEnd(x, y);
+    private void processAddPoint(float x, float y) {
+        if (layerWindowController.getSelectedPointsModel() != null) {
+            PointsModel<?> pointsModel = layerWindowController.getSelectedPointsModel();
+            if (pointsModel.testAdd(x, y)) {
+                pointsModel.addPoint(new Vector2(x, y));
+                pointsModel.getPointsShape().onModelUpdated();
+            }
+        }
     }
-  }
 
-  public void setUpLocked(boolean b) {
-    upLocked = true;
-  }
+    private void processMobilePoints(float x, float y) {
+        List<PointImage> movablePointImages = null;
+        switch (action) {
+            case MOVE_POINT:
+                if (!this.isReferenceEnabled()) {
+                    movablePointImages = layerWindowController.getModelMovables();
+                } else {
+                    movablePointImages = new ArrayList<>(creationZone.getReferencePointImageArrayList());
+                }
+                break;
+            case MOVE_TOOL_POINT:
+                if (itemWindowController.hasSelectedItem()) {
+                    movablePointImages = itemWindowController.getSelectedModelMovables(moveLimits);
+                }
+                break;
+            case MOVE_JOINT_POINT:
+                movablePointImages = jointWindowController.getSelectedModelMovables(moveLimits);
+                break;
+        }
 
-  public void resetScrollAndZoom() {
-    setAction(action);
-  }
+        if (movablePointImages != null) {
+            float distance = 32;
+            PointImage point = null;
+            for (PointImage p : movablePointImages) {
+                float d = p.getPoint().dst(x, y);
+                if (d < distance) {
+                    point = p;
+                    distance = d;
+                }
+            }
+            if (point != null) {
+                if (point == selectedPointImage) {
+                    releaseSelectedPointImage();
+                    editorUserInterface.hideMoveElementController();
+                } else {
+                    releaseSelectedPointImage();
+                    selectPointImage(point);
+                }
+            }
+        }
+    }
 
-  public float getRadiusForPolygon() {
-    return radiusForPolygon;
-  }
+    public void createReferencePoint() {
+        if (selectedPointImage != null) {
+            if (selectedPointImage.getPointsShape() != null) {
+                if (selectedPointImage.getPointsShape().getReferencePointImage(selectedPointImage.getPoint()) == null) {
+                    selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
+                }
+            }
+        }
+    }
 
-  public void setRadiusForPolygon(float radiusForPolygon) {
-    this.radiusForPolygon = radiusForPolygon;
-  }
+    public void selectPointImage(PointImage pointImage) {
+        pointImage.doubleSelect();
+        selectedPointImage = pointImage;
 
-  public void setFixedRadiusEnabled(boolean b) {
-    fixedRadiusForPolygon = b;
-  }
+        editorUserInterface.setMoveElementController(editorUserInterface.getPanel().allocateController(800 - 64 / 2f - 16f, 64 / 2f + 16f, ControlElement.Type.AnalogController, new ControllerAction() {
+            @Override
+            public void controlMoved(float pX, float pY) {
+                pointImage.onControllerMoved(pX, pY);
+            }
 
-  public boolean isFixedRadiusForPolygonEnabled() {
-    return fixedRadiusForPolygon;
-  }
+            @Override
+            public void controlClicked() {
+            }
 
-  public boolean isMagnet() {
-    return magnet;
-  }
+            @Override
+            public void controlReleased() {
+            }
+        }));
+    }
 
-  public void setMagnet(boolean magnet) {
-    this.magnet = magnet;
-  }
+    public void releaseSelectedPointImage() {
+        if (selectedPointImage != null) {
+            selectedPointImage.undoDoubleSelect();
+            selectedPointImage.release();
+            selectedPointImage = null;
+        }
+    }
 
-  public boolean isMagnetLines() {
-    return magnetLines;
-  }
+    public int getNumberOfPointsForPolygon() {
+        return numberOfPointsForPolygon;
+    }
 
-  public void setMagnetLines(boolean magnetLines) {
-    this.magnetLines = magnetLines;
-  }
+    public void setNumberOfPointsForPolygon(int numberOfPointsForPolygon) {
+        this.numberOfPointsForPolygon = numberOfPointsForPolygon;
+    }
 
-  public boolean isMagnetCenters() {
-    return magnetCenters;
-  }
+    public void onZoneActionDown(float x, float y) {
 
-  public void setMagnetCenters(boolean magnetCenters) {
-    this.magnetCenters = magnetCenters;
-  }
+        upLocked = false;
 
-  public void setReference(boolean reference) {
-    this.reference = reference;
-  }
+        if (action == CreationAction.NONE) {
+            return;
+        }
 
-  public boolean isReferenceEnabled() {
-    return reference;
-  }
+        if (action == CreationAction.ROTATE_IMAGE) {
+            if (editorScene.getUserInterface().getImageShape() != null) {
+                float X = editorScene.getUserInterface().getImageShape().getX();
+                float Y = editorScene.getUserInterface().getImageShape().getY();
 
-  public float getMovePointSpeed() {
-    return movePointSpeed;
-  }
+                indicatorArrow = new RotateImageShape(new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, 32);
+            }
+        }
+        if (action == CreationAction.SCALE_IMAGE) {
+            if (editorScene.getUserInterface().getImageShape() != null) {
+                float X = editorScene.getUserInterface().getImageShape().getX();
+                float Y = editorScene.getUserInterface().getImageShape().getY();
+                indicatorArrow = new ScaleImageShape(new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, imageFixedRatio);
+            }
+        }
 
-  public void setMovePointSpeed(float movePointSpeed) {
-    this.movePointSpeed = movePointSpeed;
-  }
+        if (action == CreationAction.MOVE_IMAGE) {
+            if (editorScene.getUserInterface().getImageShape() != null) {
+                indicatorArrow = new ShiftImageShape(new Vector2(x, y), editorScene.getUserInterface().getImageShape(), editorScene);
+            }
+        }
+        if (action == CreationAction.REVOLUTE) {
+            RevoluteJointShape revoluteJointShape = new RevoluteJointShape(editorScene, new Vector2(x, y));
+            JointModel jointModel = editorUserInterface.getToolModel().createJointModel((JointShape) indicatorArrow, JointDef.JointType.RevoluteJoint);
+            jointModel.getLocalAnchorA().set(x, y);
+            jointModel.getLocalAnchorB().set(x, y);
+            revoluteJointShape.bindModel(jointModel);
+            jointWindowController.onJointAdded(jointModel);
+            revoluteJointShape.setCongruentEndpoints(getCongruentAnchors());
+            this.indicatorArrow = revoluteJointShape;
+            return;
+        }
+        if (action == CreationAction.WELD) {
+            WeldJointShape weldJointShape = new WeldJointShape(editorScene, new Vector2(x, y));
+            JointModel jointModel = editorUserInterface.getToolModel().createJointModel(weldJointShape, JointDef.JointType.WeldJoint);
+            jointModel.getLocalAnchorA().set(x, y);
+            jointModel.getLocalAnchorB().set(x, y);
+            weldJointShape.bindModel(jointModel);
+            jointWindowController.onJointAdded(jointModel);
+            weldJointShape.setCongruentEndpoints(getCongruentAnchors());
+            this.indicatorArrow = weldJointShape;
+            return;
+        }
+        if (action == CreationAction.PRISMATIC) {
+            PrismaticJointShape prismaticJointShape = new PrismaticJointShape(editorScene, new Vector2(x, y));
+            JointModel jointModel = editorUserInterface.getToolModel().createJointModel(prismaticJointShape, JointDef.JointType.PrismaticJoint);
+            jointModel.getLocalAnchorA().set(x, y);
+            jointModel.getLocalAnchorB().set(x, y);
+            prismaticJointShape.bindModel(jointModel);
+            jointWindowController.onJointAdded(jointModel);
+            prismaticJointShape.setCongruentEndpoints(getCongruentAnchors());
+            this.indicatorArrow = prismaticJointShape;
+            return;
+        }
+        if (action == CreationAction.DISTANCE) {
+            DistanceJointShape distanceJointShape = new DistanceJointShape(editorScene, new Vector2(x, y));
+            JointModel jointModel = editorUserInterface.getToolModel().createJointModel(distanceJointShape, JointDef.JointType.DistanceJoint);
+            jointModel.getLocalAnchorA().set(x, y);
+            jointModel.getLocalAnchorB().set(x, y);
+            jointWindowController.onJointAdded(jointModel);
+            distanceJointShape.bindModel(jointModel);
+            distanceJointShape.setCongruentEndpoints(getCongruentAnchors());
+            this.indicatorArrow = distanceJointShape;
+            return;
+        }
+        if (action == CreationAction.PROJECTILE) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                ProjectileShape projectileShape = new ProjectileShape(new Vector2(x, y), editorScene);
+                ProjectileModel projectileModel = editorUserInterface.getToolModel().createNewProjectile(projectileShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                projectileModel.getProperties().setProjectileOrigin(new Vector2(x, y));
+                projectileModel.getProperties().setProjectileEnd(new Vector2(x, y));
+                itemWindowController.onProjectileCreated(projectileModel);
+                projectileShape.bindModel(projectileModel);
+                this.indicatorArrow = projectileShape;
+                return;
+            }
+        }
+        if (action == CreationAction.DRAG) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                DragShape dragShape = new DragShape(new Vector2(x, y), editorScene);
+                DragModel dragModel = editorUserInterface.getToolModel().createNewDrag(dragShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onDragCreated(dragModel);
+                dragShape.bindModel(dragModel);
+                this.indicatorArrow = dragShape;
+            }
+        }
+        if (action == CreationAction.LIQUID_SOURCE) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                LiquidSourceShape liquidSourceShape = new LiquidSourceShape(new Vector2(x, y), editorScene);
+                LiquidSourceModel liquidSourceModel = editorUserInterface.getToolModel().createNewLiquidSource(liquidSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onLiquidSourceCreated(liquidSourceModel);
+                liquidSourceShape.bindModel(liquidSourceModel);
+                this.indicatorArrow = liquidSourceShape;
+            }
+        }
+        if (action == CreationAction.BOMB) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                BombShape bombShape = new BombShape(new Vector2(x, y), editorScene);
+                BombModel bombModel = editorUserInterface.getToolModel().createNewBomb(bombShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onBombCreated(bombModel);
+                bombShape.bindModel(bombModel);
+            }
+        }
+        if (action == CreationAction.AMMO) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                CasingShape casingShape = new CasingShape(new Vector2(x, y), editorScene);
+                CasingModel ammoModel = editorUserInterface.getToolModel().createNewAmmo(casingShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onCasingCreated(ammoModel);
+                casingShape.bindModel(ammoModel);
+                this.indicatorArrow = casingShape;
+                return;
+            }
+        }
+        if (action == CreationAction.FIRE_SOURCE) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                FireSourceShape fireSourceShape = new FireSourceShape(new Vector2(x, y), editorScene);
+                FireSourceModel fireSourceModel = editorUserInterface.getToolModel().createNewFireSource(fireSourceShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onFireSourceCreated(fireSourceModel);
+                fireSourceShape.bindModel(fireSourceModel);
+                this.indicatorArrow = fireSourceShape;
+                return;
+            }
+        }
+        if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
+            indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene);
+            creationZone.setTouchLocked(true);
+            return;
+        }
+        if (action == CreationAction.ROTATE && layerWindowController.getSelectedPointsModel() != null) {
+            Log.e("indicator", "rotate");
+            indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene, 64);
+            creationZone.setTouchLocked(true);
+            return;
+        }
 
-  public boolean getMoveLimits() {
-    return moveLimits;
-  }
+        if (action == CreationAction.ADD_POLYGON && layerWindowController.getSelectedPointsModel() != null) {
 
-  public void setMoveLimits(boolean moveLimits) {
-    this.moveLimits = moveLimits;
-  }
+            PointsModel<?> selectedPointsModel = layerWindowController.getSelectedPointsModel();
+            if (selectedPointsModel == null) {
+                return;
+            }
+            Vector2 center = new Vector2(x, y);
 
-  public boolean getCongruentAnchors() {
-    return congruentAnchors;
-  }
+            indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon);
+            selectedPointsModel.getReferencePoints().add(center);
+            creationZone.setTouchLocked(true);
+            return;
+        }
 
-  public void setCongruentAnchors(boolean congruentAnchors) {
-    this.congruentAnchors = congruentAnchors;
-  }
+        if (action == CreationAction.MIRROR && layerWindowController.getSelectedPointsModel() != null) {
+            PointsModel<?> selectedLayerPointsModel = layerWindowController.getSelectedPointsModel();
+            PointsModel<?> shapePointsModel;
+            if (selectedLayerPointsModel instanceof LayerModel) {
+                LayerModel layerModel = (LayerModel) selectedLayerPointsModel;
+                if (!isSameShape()) {
+                    LayerField layer = layerWindowController.onAddLayerButtonCLicked(editorUserInterface.getToolModel().getBodyModelById(layerModel.getBodyId()).getField());
+                    shapePointsModel = layerWindowController.getLayerModel(layer.getPrimaryKey(), layer.getSecondaryKey());
+                } else {
+                    shapePointsModel = layerModel;
+                }
 
-  public void setCreationZone(CreationZone creationZone) {
-    this.creationZone = creationZone;
-  }
+            } else {
+                DecorationModel decorationModel = (DecorationModel) selectedLayerPointsModel;
+                if (!isSameShape()) {
+                    DecorationField decoration = layerWindowController.onLayerAddDecorationClicked(editorUserInterface.getToolModel().getLayerModelById(decorationModel.getLayerModel().getBodyId(), decorationModel.getLayerModel().getLayerId()).getField());
+                    shapePointsModel = layerWindowController.getDecorationModel(decoration.getPrimaryKey(), decoration.getSecondaryKey(), decoration.getTertiaryKey());
+                } else {
+                    shapePointsModel = decorationModel;
+                }
+            }
 
-  public void setDirection(OptionsWindowController.Direction direction) {}
+            shapePointsModel.setPoints(selectedLayerPointsModel.getPoints().stream().map(Vector2::new).collect(Collectors.toList()));
+            shapePointsModel.setReferencePoints(selectedLayerPointsModel.getReferencePoints().stream().map(Vector2::new).collect(Collectors.toList()));
+            indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene, isSameShape(),isInvertShape());
+            creationZone.setTouchLocked(true);
+        }
+    }
 
-  public enum CreationAction {
-    ADD_POINT,
-    MOVE_POINT,
-    REMOVE_POINT,
-    ADD_POLYGON,
-    NONE,
-    MIRROR,
-    ROTATE,
-    SHIFT,
-    REVOLUTE,
-    PRISMATIC,
-    WELD,
-    DISTANCE,
-    MOVE_JOINT_POINT,
-    MOVE_IMAGE,
-    ROTATE_IMAGE,
-    SCALE_IMAGE,
-    PIPING,
-    PROJECTILE,
-    MOVE_TOOL_POINT,
-    AMMO,
-    FIRE_SOURCE, BOMB, LIQUID_SOURCE, DRAG
-  }
+    public void onZoneActionMove(float x, float y) {
+        if (action == CreationAction.NONE) {
+            return;
+        }
+
+        if (indicatorArrow != null && !indicatorArrow.isCongruentEndpoints()) {
+            indicatorArrow.updateEnd(x, y);
+        }
+    }
+
+    public void setUpLocked(boolean b) {
+        upLocked = true;
+    }
+
+    public void resetScrollAndZoom() {
+        setAction(action);
+    }
+
+    public float getRadiusForPolygon() {
+        return radiusForPolygon;
+    }
+
+    public void setRadiusForPolygon(float radiusForPolygon) {
+        this.radiusForPolygon = radiusForPolygon;
+    }
+
+    public void setFixedRadiusEnabled(boolean b) {
+        fixedRadiusForPolygon = b;
+    }
+
+    public boolean isFixedRadiusForPolygonEnabled() {
+        return fixedRadiusForPolygon;
+    }
+
+    public boolean isMagnet() {
+        return magnet;
+    }
+
+    public void setMagnet(boolean magnet) {
+        this.magnet = magnet;
+    }
+
+    public boolean isMagnetLines() {
+        return magnetLines;
+    }
+
+    public void setMagnetLines(boolean magnetLines) {
+        this.magnetLines = magnetLines;
+    }
+
+    public boolean isMagnetCenters() {
+        return magnetCenters;
+    }
+
+    public void setMagnetCenters(boolean magnetCenters) {
+        this.magnetCenters = magnetCenters;
+    }
+
+    public void setReference(boolean reference) {
+        this.reference = reference;
+    }
+
+    public boolean isReferenceEnabled() {
+        return reference;
+    }
+
+    public float getMovePointSpeed() {
+        return movePointSpeed;
+    }
+
+    public void setMovePointSpeed(float movePointSpeed) {
+        this.movePointSpeed = movePointSpeed;
+    }
+
+    public boolean getMoveLimits() {
+        return moveLimits;
+    }
+
+    public void setMoveLimits(boolean moveLimits) {
+        this.moveLimits = moveLimits;
+    }
+
+    public boolean getCongruentAnchors() {
+        return congruentAnchors;
+    }
+
+    public void setCongruentAnchors(boolean congruentAnchors) {
+        this.congruentAnchors = congruentAnchors;
+    }
+
+    public void setCreationZone(CreationZone creationZone) {
+        this.creationZone = creationZone;
+    }
+
+    public void setDirection(OptionsWindowController.Direction direction) {
+    }
+
+    public void setSameShape(boolean sameShape) {
+        this.sameShape = sameShape;
+    }
+
+    public boolean isSameShape() {
+        return sameShape;
+    }
+
+    public void setInvertShape(boolean invertShape) {
+        this.invertShape = invertShape;
+    }
+
+    public boolean isInvertShape() {
+        return invertShape;
+    }
+
+    public void setImageFixedRatio(boolean imageFixedRatio) {
+        this.imageFixedRatio = imageFixedRatio;
+    }
+
+    public boolean isImageFixedRatio() {
+        return imageFixedRatio;
+    }
+
+    public enum CreationAction {
+        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO, FIRE_SOURCE, BOMB, LIQUID_SOURCE, DRAG
+    }
 }

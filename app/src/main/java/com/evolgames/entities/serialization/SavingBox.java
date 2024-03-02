@@ -64,7 +64,7 @@ public class SavingBox {
       try {
         load("game_save.mut");
       } catch (Throwable throwable) {
-        Log.e("Saving", "Error loading saved scene line 53: " + throwable);
+        Log.e("Saving", "Error loading saved scene line line 67: " + throwable);
         try {
           loadLatestAutoSave();
         } catch (Throwable t) {

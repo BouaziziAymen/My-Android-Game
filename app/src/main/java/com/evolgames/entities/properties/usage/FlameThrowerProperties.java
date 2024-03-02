@@ -15,11 +15,6 @@ public class FlameThrowerProperties extends Properties {
         fireSources = new ArrayList<>();
     }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public List<FireSourceModel> getFireSources() {
         return fireSources;
     }

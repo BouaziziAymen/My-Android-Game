@@ -3,7 +3,6 @@ package com.evolgames.scenes;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.gameengine.ResourceManager;
@@ -57,7 +56,6 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
       ToolModel toolModel = null;
       try {
         toolModel = PersistenceCaretaker.getInstance().loadToolModel(file,editor);
-        toolModel.setToolCategory(ItemCategoryFactory.getInstance().getItemCategoryByIndex(2));
       } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
         e.printStackTrace();
       }

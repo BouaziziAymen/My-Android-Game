@@ -7,129 +7,165 @@ import com.evolgames.entities.GameEntity;
 
 public class ProjectileInfo {
 
-  private CasingInfo casingInfo;
-  private transient GameEntity muzzleEntity;
-  private String muzzleEntityUniqueId;
-  private Vector2 projectileOrigin;
-  private Vector2 projectileEnd;
-  private float muzzleVelocity;
-  private float recoil;
-  private int fireSound;
-  private float fireRatio;
-  private float smokeRatio;
-  private float sparkRatio;
-  private String missileFile;
-  private float inFirePartSize = 1f;
-  private float finFirePartSize = 0f;
+    private CasingInfo casingInfo;
+    private transient GameEntity muzzleEntity;
+    private String muzzleEntityUniqueId;
+    private Vector2 projectileOrigin;
+    private Vector2 projectileEnd;
+    private float muzzleVelocity;
+    private float recoil;
+    private int fireSound;
+    private float fireRatio;
+    private float smokeRatio;
+    private float sparkRatio;
+    private String missileFile;
+    private float inFirePartSize = 1f;
+    private float finFirePartSize = 0f;
+    private int id;
 
-  public CasingInfo getCasingInfo() {
-    return casingInfo;
-  }
+    private String rocketEntityUniqueId;
 
-  public void setCasingInfo(CasingInfo casingInfo) {
-    this.casingInfo = casingInfo;
-  }
-
-  public GameEntity getMuzzleEntity() {
-    return muzzleEntity;
-  }
-
-  public void setMuzzleEntity(@Nullable GameEntity muzzleEntity) {
-    this.muzzleEntity = muzzleEntity;
-    if (this.muzzleEntity != null) {
-      this.muzzleEntityUniqueId = muzzleEntity.getUniqueID();
+    public CasingInfo getCasingInfo() {
+        return casingInfo;
     }
-  }
 
-  public String getMuzzleEntityUniqueId() {
-    return muzzleEntityUniqueId;
-  }
+    public void setCasingInfo(CasingInfo casingInfo) {
+        this.casingInfo = casingInfo;
+    }
 
-  public Vector2 getProjectileOrigin() {
-    return projectileOrigin;
-  }
+    public GameEntity getMuzzleEntity() {
+        return muzzleEntity;
+    }
 
-  public void setProjectileOrigin(Vector2 projectileOrigin) {
-    this.projectileOrigin = projectileOrigin;
-  }
+    public void setMuzzleEntity(@Nullable GameEntity muzzleEntity) {
+        this.muzzleEntity = muzzleEntity;
+        if (this.muzzleEntity != null) {
+            this.muzzleEntityUniqueId = muzzleEntity.getUniqueID();
+        }
+    }
 
-  public Vector2 getProjectileEnd() {
-    return projectileEnd;
-  }
+    public String getMuzzleEntityUniqueId() {
+        return muzzleEntityUniqueId;
+    }
 
-  public void setProjectileEnd(Vector2 projectileEnd) {
-    this.projectileEnd = projectileEnd;
-  }
+    public void setMuzzleEntityUniqueId(String muzzleEntityUniqueId) {
+        this.muzzleEntityUniqueId = muzzleEntityUniqueId;
+    }
 
-  public float getMuzzleVelocity() {
-    return muzzleVelocity;
-  }
+    public Vector2 getProjectileOrigin() {
+        return projectileOrigin;
+    }
 
-  public void setMuzzleVelocity(float muzzleVelocity) {
-    this.muzzleVelocity = muzzleVelocity;
-  }
+    public void setProjectileOrigin(Vector2 projectileOrigin) {
+        this.projectileOrigin = projectileOrigin;
+    }
 
-  public float getRecoil() {
-    return recoil;
-  }
+    public Vector2 getProjectileEnd() {
+        return projectileEnd;
+    }
 
-  public void setRecoil(float recoil) {
-    this.recoil = recoil;
-  }
+    public void setProjectileEnd(Vector2 projectileEnd) {
+        this.projectileEnd = projectileEnd;
+    }
 
-  public int getFireSound() {
-    return fireSound;
-  }
+    public float getMuzzleVelocity() {
+        return muzzleVelocity;
+    }
 
-  public void setFireSound(int fireSound) {
-    this.fireSound = fireSound;
-  }
+    public void setMuzzleVelocity(float muzzleVelocity) {
+        this.muzzleVelocity = muzzleVelocity;
+    }
 
-  public float getFireRatio() {
-    return fireRatio;
-  }
+    public float getRecoil() {
+        return recoil;
+    }
 
-  public void setFireRatio(float fireRatio) {
-    this.fireRatio = fireRatio;
-  }
+    public void setRecoil(float recoil) {
+        this.recoil = recoil;
+    }
 
-  public float getSmokeRatio() {
-    return smokeRatio;
-  }
+    public int getFireSound() {
+        return fireSound;
+    }
 
-  public void setSmokeRatio(float smokeRatio) {
-    this.smokeRatio = smokeRatio;
-  }
+    public void setFireSound(int fireSound) {
+        this.fireSound = fireSound;
+    }
 
-  public float getSparkRatio() {
-    return sparkRatio;
-  }
+    public float getFireRatio() {
+        return fireRatio;
+    }
 
-  public void setSparkRatio(float sparkRatio) {
-    this.sparkRatio = sparkRatio;
-  }
+    public void setFireRatio(float fireRatio) {
+        this.fireRatio = fireRatio;
+    }
 
-  public String getMissileFile() {
-    return missileFile;
-  }
+    public float getSmokeRatio() {
+        return smokeRatio;
+    }
 
-  public void setMissileFile(String missileFile) {
-    this.missileFile = missileFile;
-  }
+    public void setSmokeRatio(float smokeRatio) {
+        this.smokeRatio = smokeRatio;
+    }
 
-  public float getInFirePartSize() {
-    return inFirePartSize;
-  }
+    public float getSparkRatio() {
+        return sparkRatio;
+    }
 
-  public void setInFirePartSize(float inFirePartSize) {
-    this.inFirePartSize = inFirePartSize;
-  }
+    public void setSparkRatio(float sparkRatio) {
+        this.sparkRatio = sparkRatio;
+    }
 
-  public float getFinFirePartSize() {
-    return finFirePartSize;
-  }
+    public String getMissileFile() {
+        return missileFile;
+    }
 
-  public void setFinFirePartSize(float finFirePartSize) {
-    this.finFirePartSize = finFirePartSize;
-  }
-}
+    public void setMissileFile(String missileFile) {
+        this.missileFile = missileFile;
+    }
+
+    public float getInFirePartSize() {
+        return inFirePartSize;
+    }
+
+    public void setInFirePartSize(float inFirePartSize) {
+        this.inFirePartSize = inFirePartSize;
+    }
+
+    public float getFinFirePartSize() {
+        return finFirePartSize;
+    }
+
+    public void setFinFirePartSize(float finFirePartSize) {
+        this.finFirePartSize = finFirePartSize;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    public String getRocketEntityUniqueId() {
+        return rocketEntityUniqueId;
+    }
+
+    public void setRocketEntityUniqueId(String rocketEntityUniqueId) {
+        this.rocketEntityUniqueId = rocketEntityUniqueId;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof ProjectileInfo)) {
+            return false;
+        }
+        return id == ((ProjectileInfo) obj).id;
+    }
+}/**/

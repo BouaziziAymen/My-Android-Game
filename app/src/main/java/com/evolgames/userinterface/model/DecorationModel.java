@@ -1,72 +1,77 @@
 package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
-import java.util.List;
+
 import org.andengine.util.adt.color.Color;
 
+import java.util.List;
+
 public class DecorationModel extends PointsModel<DecorationProperties> {
-  private static final float MINIMAL_DISTANCE_BETWEEN_VERTICES = 4f;
-  private final LayerModel layerModel;
-  private final int decorationId;
-  private DecorationField field;
+    private final LayerModel layerModel;
+    private final int decorationId;
+    private final int bodyId;
+    private final int layerId;
+    private DecorationField field;
 
-  public DecorationModel(LayerModel layerModel, int decorationId) {
-    super("Decoration" + decorationId);
-    this.decorationId = decorationId;
-    this.layerModel = layerModel;
-    properties = new DecorationProperties(new Color(Color.WHITE));
-  }
-
-  public String toString() {
-    return "Decoration" + getDecorationId() + ": \n";
-  }
-
-  public int getDecorationId() {
-    return decorationId;
-  }
-
-  @Override
-  public boolean test(Vector2 movedPoint, float dx, float dy) {
-    boolean inside =
-        GeometryUtils.isPointInPolygon(movedPoint.x + dx, movedPoint.y + dy, layerModel.getOutlinePoints());
-    if (!inside) return false;
-    for (Vector2 p : getPoints())
-      if (p != movedPoint)
-        if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES)
-          return false;
-    return true;
-  }
-
-  @Override
-  public boolean test(List<Vector2> points) {
-    for (Vector2 p : points) {
-      if (!GeometryUtils.isPointInPolygon(p.x, p.y, layerModel.getOutlinePoints())) return false;
+    public DecorationModel(
+            int bodyId, int layerId, int decorationId, String decorationName, DecorationProperties properties, LayerModel layerModel) {
+        super(decorationName);
+        this.bodyId = bodyId;
+        this.layerId = layerId;
+        this.decorationId = decorationId;
+        this.properties = properties;
+        this.layerModel = layerModel;
+    }
+    public DecorationModel(int bodyId, int layerId, int decorationId, LayerModel layerModel) {
+        super("Decoration" + decorationId);
+        this.bodyId = bodyId;
+        this.layerId = layerId;
+        this.decorationId = decorationId;
+        this.layerModel = layerModel;
+        properties = new DecorationProperties(new Color(Color.WHITE));
     }
 
-    return true;
-  }
+    public String toString() {
+        return "Decoration" + getDecorationId() + ": \n";
+    }
 
-  @Override
-  public boolean test(float x, float y) {
+    public int getDecorationId() {
+        return decorationId;
+    }
 
-    boolean inside = GeometryUtils.isPointInPolygon(x, y, layerModel.getOutlinePoints());
-    if (!inside) return false;
-    for (Vector2 p : getPoints()) if (p.dst(x, y) < MINIMAL_DISTANCE_BETWEEN_VERTICES) return false;
-    return true;
-  }
+    @Override
+    public boolean testMove(Vector2 movedPoint, float dx, float dy) {
+        return GeometryUtils.isPointInPolygon(movedPoint.x + dx, movedPoint.y + dy, layerModel.getOutlinePoints());
+    }
 
-  public DecorationField getField() {
-    return field;
-  }
+    @Override
+    public boolean testPoints(List<Vector2> points) {
+        for (Vector2 p : points) {
+            if (!GeometryUtils.isPointInPolygon(p.x, p.y, layerModel.getOutlinePoints())) {
+                return false;
+            }
+        }
 
-  public void setField(DecorationField field) {
-    this.field = field;
-  }
+        return true;
+    }
 
-  public LayerModel getLayerModel() {
-    return layerModel;
-  }
+    @Override
+    public boolean testAdd(float x, float y) {
+        return GeometryUtils.isPointInPolygon(x, y, layerModel.getOutlinePoints());
+    }
+
+    public DecorationField getField() {
+        return field;
+    }
+
+    public void setField(DecorationField field) {
+        this.field = field;
+    }
+
+    public LayerModel getLayerModel() {
+        return layerModel;
+    }
 }

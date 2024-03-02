@@ -1,5 +1,7 @@
 package com.evolgames.entities.properties;
 
+import android.support.annotation.NonNull;
+
 import com.badlogic.gdx.math.Vector2;
 import org.andengine.util.adt.color.Color;
 
@@ -20,13 +22,19 @@ public class StainProperties extends ColoredProperties {
     this.color = color;
   }
 
+  @NonNull
   @Override
-  public ColoredProperties copy() {
-    return new StainProperties(textureRegionIndex, new Vector2(localCenter), rotation, color);
+  public Object clone() {
+    StainProperties clone = (StainProperties) super.clone();
+    clone.setTextureRegionIndex(textureRegionIndex);
+    clone.setLocalCenter(localCenter.cpy());
+    clone.setRotation(rotation);
+    clone.setDefaultColor(color);
+    return clone;
   }
 
-  public void setLocalCenter(float x, float y) {
-    this.localCenter.set(x, y);
+  public void setLocalCenter(Vector2 center) {
+    this.localCenter = center;
   }
 
   public Color getColor() {

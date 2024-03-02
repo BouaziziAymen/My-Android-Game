@@ -9,6 +9,7 @@ import com.evolgames.entities.blockvisitors.utilities.Utils;
 import com.evolgames.entities.blockvisitors.utilities.XmlUtils;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.DragProperties;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.FireSourceProperties;
@@ -25,6 +26,7 @@ import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
+import com.evolgames.entities.properties.usage.RocketLauncherProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
@@ -37,6 +39,7 @@ import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
 import com.evolgames.userinterface.model.DecorationModel;
+import com.evolgames.userinterface.model.ImageShapeModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.model.ToolModel;
@@ -83,6 +86,9 @@ public class PersistenceCaretaker {
 
     public static final String LAYER_TAG = "layer";
     public static final String DECORATION_TAG = "decoration";
+    public static final String BODIES_TAG = "bodies";
+    public static final String LAYERS_TAG = "layers";
+    public static final String DECORATIONS_TAG = "decorations";
     public static final String PROPERTIES_TAG = "properties";
     public static final String VERTICES_TAG = "vertices";
     public static final String REF_VERTICES_TAG = "refVertices";
@@ -108,18 +114,17 @@ public class PersistenceCaretaker {
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String VECTOR_TAG = "v";
-    public static final String BODIES_TAG = "bodies";
-    public static final String LAYERS_TAG = "layers";
     public static final String PROJECTILE_TAG = "projectile";
     public static final String FIRE_SOURCE_TAG = "fireSource";
     public static final String LIQUID_SOURCE_TAG = "liquidSource";
     public static final String PROJECTILE_FILE_TAG = "missileFile";
-    public static final String PROJECTILE_CAT_PREFIX = "c0_";
     public static final String JOINT_COLLIDE_CONNECTED_ATTRIBUTE = "collideConnected";
     public static final String JOINT_TYPE_ATTRIBUTE = "type";
     public static final String BODY_A_ID_JOINT_ATTRIBUTE = "bodyAId";
     public static final String BODY_B_ID_JOINT_ATTRIBUTE = "bodyBId";
     private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
+
+    private static final String IMAGE_SHAPE_TAG = "imageShape";
     private static final String JOINTS_TAG = "joints";
     private static final String BOMB_LIST_TAG = "bombList";
     private static final String BOMB_TAG = "bomb";
@@ -164,8 +169,8 @@ public class PersistenceCaretaker {
             throws FileNotFoundException, TransformerException {
         this.saveToolModel(
                 toolModel,
-                toolModel.getToolCategory().getPrefix()
-                        + "_"
+                toolModel.getToolCategory().name.toLowerCase(Locale.ROOT)
+                        + "$"
                         + toolModel.getModelName().toLowerCase(Locale.ROOT)
                         + ".xml");
     }
@@ -192,6 +197,14 @@ public class PersistenceCaretaker {
         //Saving color panel
         Element colorPanelElement = createPanelColorsElement(toolDocument, toolModel.getColorPanelProperties().getSquarePropertiesList());
         toolElement.appendChild(colorPanelElement);
+
+
+        if(toolModel.getImageShapeModel()!=null) {
+            Element imageShapeElement = toolDocument.createElement(IMAGE_SHAPE_TAG);
+            Element imageShapePropertiesElement = createPropertiesElement(toolDocument, toolModel.getImageShapeModel());
+            imageShapeElement.appendChild(imageShapePropertiesElement);
+            toolElement.appendChild(imageShapeElement);
+        }
 
         toolDocument.appendChild(toolElement);
         XmlUtils.writeXml(toolDocument, fos);
@@ -336,7 +349,7 @@ public class PersistenceCaretaker {
             Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
             Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
             if (usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS
-                    || usageModel.getType() == BodyUsageCategory.SHOOTER) {
+                    || usageModel.getType() == BodyUsageCategory.SHOOTER ||usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER ) {
                 RangedProperties rangedProperties = bodyModel.getUsageModelProperties(usageModel.getType());
                 propertiesElement.setAttribute(
                         USAGE_PROPERTIES_PROJECTILES_TAG,
@@ -471,7 +484,7 @@ public class PersistenceCaretaker {
         Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
         projectileElement.appendChild(propertiesElement);
         projectileElement.setAttribute(
-                PROJECTILE_FILE_TAG, PROJECTILE_CAT_PREFIX + projectileModel.getMissileFile());
+                PROJECTILE_FILE_TAG, projectileModel.getMissileFile());
         if (projectileModel.getCasingModel() != null) {
             projectileElement.setAttribute(
                     AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
@@ -482,11 +495,13 @@ public class PersistenceCaretaker {
     private Element createLayerElement(Document document, LayerModel layerModel) {
         Element layerElement =
                 createElementFromPointsModel(document, layerModel, layerModel.getLayerId(), LAYER_TAG);
+        Element decorationsElement = document.createElement(DECORATIONS_TAG);
         layerModel
                 .getDecorations()
                 .forEach(
                         decorationModel ->
-                                layerElement.appendChild(createDecorationElement(document, decorationModel)));
+                                decorationsElement.appendChild(createDecorationElement(document, decorationModel)));
+        layerElement.appendChild(decorationsElement);
         return layerElement;
     }
 
@@ -744,8 +759,8 @@ public class PersistenceCaretaker {
 
         for (BodyModel bodyModel : bodyModels) {
             for (UsageModel<?> e : bodyModel.getUsageModels()) {
-                if (e.getType().toString().startsWith("Rocket")
-                        || e.getType().toString().startsWith("Missile")) {
+                if (e.getType()==BodyUsageCategory.ROCKET
+                        || e.getType()==BodyUsageCategory.MISSILE) {
                     RocketProperties rocketProperties = (RocketProperties) e.getProperties();
                     rocketProperties
                             .getFireSourceModelList()
@@ -770,7 +785,7 @@ public class PersistenceCaretaker {
                                                                     .getFireSourceIds()
                                                                     .contains(p.getFireSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Shooter")) {
+                } else if (e.getType().toString().startsWith("Shooter")||e.getType()==BodyUsageCategory.ROCKET_LAUNCHER) {
                     RangedProperties rangedProperties = (RangedProperties) e.getProperties();
                     rangedProperties
                             .getProjectileModelList()
@@ -827,14 +842,22 @@ public class PersistenceCaretaker {
         }
         if(editor) {
             Element panelColorsElement = (Element) toolElement.getElementsByTagName(PANEL_COLORS_TAG).item(0);
-            List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
-            toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
+            if(panelColorsElement!=null) {
+                List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
+                toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
+            }
+
+            Element imageShapeElement = (Element) toolElement.getElementsByTagName(IMAGE_SHAPE_TAG).item(0);
+           if(imageShapeElement!=null) {
+               Element propertiesElement = (Element) imageShapeElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+               ImageShapeModel imageShapeModel = loadProperties(propertiesElement, ImageShapeModel.class);
+               toolModel.setImageShapeModel(imageShapeModel);
+           }
         }
         this.initializeCounters(toolModel);
         return toolModel;
     }
-
-    LayerModel readLayerModel(Element element, BodyModel bodyModel, int layerId)
+    DecorationModel readDecorationModel(Element element, LayerModel layerModel, int bodyId, int layerId, int decorationId)
             throws PersistenceException {
         Element verticesElement = (Element) element.getElementsByTagName(VERTICES_TAG).item(0);
         Element refVerticesElement = (Element) element.getElementsByTagName(REF_VERTICES_TAG).item(0);
@@ -845,19 +868,64 @@ public class PersistenceCaretaker {
         } else {
             referencePoints = new ArrayList<>();
         }
-
+        Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
+        DecorationProperties decorationProperties = loadProperties(propertiesElement, DecorationProperties.class);
+        DecorationModel decorationModel =
+                new DecorationModel(
+                        bodyId,
+                        layerId,
+                        decorationId,
+                        element.getAttribute(NAME),
+                        decorationProperties,
+                        layerModel);
+        decorationModel.setPoints(vertices);
+        decorationModel.setReferencePoints(referencePoints);
+        decorationModel.setProperties(decorationProperties);
+        return decorationModel;
+    }
+    LayerModel readLayerModel(Element element, BodyModel bodyModel, int bodyId, int layerId)
+            throws PersistenceException {
+        Element verticesElement = (Element) element.getElementsByTagName(VERTICES_TAG).item(0);
+        Element refVerticesElement = (Element) element.getElementsByTagName(REF_VERTICES_TAG).item(0);
+        List<Vector2> vertices = readVectors(verticesElement);
+        List<Vector2> referencePoints;
+        if (refVerticesElement != null) {
+            referencePoints = readVectors(refVerticesElement);
+        } else {
+            referencePoints = new ArrayList<>();
+        }
+        Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
+        LayerProperties layerProperties = loadProperties(propertiesElement, LayerProperties.class);
         LayerModel layerModel =
                 new LayerModel(
                         bodyModel.getBodyId(),
                         layerId,
                         element.getAttribute(NAME),
-                        new LayerProperties(),
+                        layerProperties,
                         bodyModel);
         layerModel.setPoints(vertices);
         layerModel.setReferencePoints(referencePoints);
-        Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
-        LayerProperties layerProperties = loadProperties(propertiesElement, LayerProperties.class);
         layerModel.setProperties(layerProperties);
+
+        Element decorationsElement = (Element) element.getElementsByTagName(DECORATIONS_TAG).item(0);
+        List<DecorationModel> decorations = new ArrayList<>();
+        if(decorationsElement!=null) {
+            NodeList childNodes = decorationsElement.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Element decorationElement = (Element) childNodes.item(i);
+                DecorationModel decorationModel;
+                try {
+                    decorationModel =
+                            readDecorationModel(
+                                    decorationElement, layerModel, bodyId, layerId, Integer.parseInt(decorationElement.getAttribute(ID)));
+                    decorations.add(decorationModel);
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading layer model", e);
+                }
+            }
+        }
+        layerModel.getDecorations().addAll(decorations);
+
         return layerModel;
     }
 
@@ -963,7 +1031,7 @@ public class PersistenceCaretaker {
             try {
                 layerModel =
                         readLayerModel(
-                                layerElement, bodyModel, Integer.parseInt(layerElement.getAttribute(ID)));
+                                layerElement, bodyModel,bodyId, Integer.parseInt(layerElement.getAttribute(ID)));
                 layers.add(layerModel);
             } catch (PersistenceException e) {
                 throw new PersistenceException("Error reading layer model", e);
@@ -1197,6 +1265,15 @@ public class PersistenceCaretaker {
                                 propertiesElement.getAttribute(USAGE_PROPERTIES_LIQUID_SOURCES_TAG));
                 liquidContainerProperties.setLiquidSourceIds(usageLiquidSourceIds);
                 usageModel.setProperties(liquidContainerProperties);
+                break;
+            case ROCKET_LAUNCHER:
+                usageProjectileIds =
+                        convertStringToIntList(
+                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                RocketLauncherProperties rocketLauncherProperties =
+                        loadProperties(propertiesElement, RocketLauncherProperties.class);
+                rocketLauncherProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(rocketLauncherProperties);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);

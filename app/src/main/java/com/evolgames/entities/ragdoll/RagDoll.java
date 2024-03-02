@@ -7,15 +7,12 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
 import com.evolgames.entities.SpecialEntityType;
-import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.PhysicsScene;
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import org.andengine.util.adt.color.Color;
 
 public class RagDoll extends GameGroup {
 
-  private final Brain brain;
   transient private final PhysicsScene<?> scene;
   transient public GameEntity head;
   transient public GameEntity upperTorso;
@@ -40,13 +37,6 @@ public class RagDoll extends GameGroup {
   public RagDoll(PhysicsScene<?> scene, GameEntity... entities) {
     super(GroupType.DOLL,entities);
     this.scene = scene;
-    this.brain =
-        new Brain(
-            new int[][] {{0, 0}, {0, 0}, {20000}},
-            new int[][] {{10, -10}, {10, 10}, {10}},
-            new int[][] {{0, 1}, {2, 3}, {4}},
-            new int[] {2, 2, 1},
-            3);
   }
 
 
@@ -60,17 +50,10 @@ public class RagDoll extends GameGroup {
     }
 
     detectGround();
-
-    this.brain.run();
-
-    for (int i = 0; i < this.brain.numStat[this.brain.current]; i++) {
-      this.performAction(
-          this.brain.actions[this.brain.current][i], this.brain.speeds[this.brain.current][i]);
-    }
+      this.performAction();
   }
 
-  private void performAction(int action, int amplitude) {
-
+  private void performAction() {
     if (leftLegReadyToStand && rightLegReadyToStand)
       for (Balancer balancer : balancers)
         if (balancer.getEntity() != null && ((GameEntity) balancer.getEntity()).isAlive())

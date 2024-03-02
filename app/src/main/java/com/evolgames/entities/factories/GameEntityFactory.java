@@ -318,9 +318,9 @@ public class GameEntityFactory {
     final float UPPERLEG_L1 = G * G * G * HEAD_RAY / (G + 1);
     final float LOWERLEG_LENGTH1 = G * G * HEAD_RAY;
     final float LOWERLEG_LENGTH2 = (G * G * HEAD_RAY) / (G + 1);
-    final float LOWERLEG_THICKNESS = 9f;
-    final float LOWERLEG_CIR1 = 8f;
-    final float LOWERLEG_CIR2 = 7f;
+    final float LOWERLEG_THICKNESS = 7f;
+    final float LOWERLEG_CIR1 = 6f;
+    final float LOWERLEG_CIR2 = 8f;
     final float RIGHT = SHOULDER_WIDTH / 2 - UPPERLEG_CIR1;
     final float FOOT_LENGTH = 16f;
 

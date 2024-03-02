@@ -63,10 +63,9 @@ public class Projectile extends Use implements Penetrating {
             .map(e -> e.stream().findFirst().get())
             .distinct()
             .collect(Collectors.toList());
-    Log.e("overlap", "-----------------------------" + list.size());
     if (projectileType == ProjectileType.BULLET) {
       penetrator.getBody().setActive(false);
-      worldFacade.destroyGameEntity(penetrator, true, false);
+      worldFacade.scheduleGameEntityToDestroy(penetrator, 60);
       penetrator.getMesh().detachSelf();
     }
 
@@ -81,7 +80,6 @@ public class Projectile extends Use implements Penetrating {
             overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
       }
 
-      Log.e("overlap", "|" + overlappedEntity.getName());
       worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);
     }
 
@@ -108,7 +106,7 @@ public class Projectile extends Use implements Penetrating {
     float massFraction =
         penetrator.getBody().getMass()
             / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
-    worldFacade.destroyGameEntity(penetrator, true, false);
+    worldFacade.scheduleGameEntityToDestroy(penetrator, 60);
     worldFacade.addNonCollidingPair(penetrated, penetrator);
     worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
     worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);

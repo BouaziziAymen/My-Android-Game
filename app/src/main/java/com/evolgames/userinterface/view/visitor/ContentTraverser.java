@@ -20,7 +20,9 @@ public class ContentTraverser {
     while (!deque.isEmpty()) {
       Element current = deque.pop();
       if (visitStartingElement || current != startingElement) behavior.visitElement(current);
-      if (!behavior.carryOnCondition()) return;
+      if (!behavior.carryOnCondition()) {
+        return;
+      }
       if (behavior.forkCondition(current))
         if (current instanceof Container) {
           Container container = (Container) current;

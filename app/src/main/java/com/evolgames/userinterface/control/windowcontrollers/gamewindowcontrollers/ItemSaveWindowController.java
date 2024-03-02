@@ -1,12 +1,11 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.ItemCategory;
-import com.evolgames.entities.factories.ItemCategoryFactory;
 import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
+import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
@@ -61,12 +60,12 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
         new SectionField<>(
             1, "Category:", ResourceManager.getInstance().mainButtonTextureRegion, this);
     window.addPrimary(categorySection);
-    ArrayList<ItemCategory> categories = ItemCategoryFactory.getInstance().itemCategories;
-    for (int i = 0; i < categories.size(); i++) {
-      ItemCategory itemCategory = categories.get(i);
+
+    for (int i = 0; i < ItemCategory.values().length; i++) {
+      ItemCategory itemCategory = ItemCategory.values()[i];
       ButtonWithText<ItemSaveWindowController> categoryButton =
           new ButtonWithText<>(
-              itemCategory.getCategoryName(),
+              itemCategory.name,
               2,
               ResourceManager.getInstance().simpleButtonTextureRegion,
               Button.ButtonType.Selector,
@@ -104,7 +103,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
     }
     if (model != null) {
       ItemCategory category =
-          ItemCategoryFactory.getInstance().getItemCategoryByIndex(categoryField.getSecondaryKey());
+              ItemCategory.values()[categoryField.getSecondaryKey()];
       ((ToolModel) model).setToolCategory(category);
     }
   }

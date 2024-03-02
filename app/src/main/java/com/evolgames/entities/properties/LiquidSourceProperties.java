@@ -20,11 +20,6 @@ public class LiquidSourceProperties extends Properties {
         this.liquidSourceDirection = direction.cpy();
     }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public Vector2 getLiquidSourceOrigin() {
         return liquidSourceOrigin;
     }

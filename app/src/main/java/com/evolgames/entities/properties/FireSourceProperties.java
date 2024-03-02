@@ -28,11 +28,6 @@ public class FireSourceProperties  extends Properties {
         this.fireSourceOrigin = fireSourceOrigin;
     }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public Vector2 getFireSourceOrigin() {
         return fireSourceOrigin;
     }

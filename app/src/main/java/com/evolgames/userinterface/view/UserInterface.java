@@ -98,9 +98,10 @@ public abstract class UserInterface<T extends AbstractScene> extends Container
   public abstract void onTouchScene(TouchEvent pTouchEvent, boolean scroll);
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
     hudTouchVisitBehavior.setSceneTouchEvent(pTouchEvent);
     hudTouchVisitBehavior.setTouched(false);
+    hudTouchVisitBehavior.setLocked(false);
     contentTraverser.setBehavior(hudTouchVisitBehavior);
     contentTraverser.traverse(this, false, true);
     return hudTouchVisitBehavior.isTouched();

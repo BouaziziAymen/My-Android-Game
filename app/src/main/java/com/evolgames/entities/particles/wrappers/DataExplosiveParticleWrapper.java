@@ -5,8 +5,8 @@ import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
 import com.evolgames.entities.particles.initializers.RandomVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
-import com.evolgames.entities.particles.modifiers.GroundCollisionBump;
-import com.evolgames.entities.particles.modifiers.GroundCollisionExpire;
+import com.evolgames.entities.particles.modifiers.GroundCollisionBumpModifier;
+import com.evolgames.entities.particles.modifiers.GroundCollisionExpireModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.gameengine.ResourceManager;
@@ -75,7 +75,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
     this.sparkParticleSystem.addParticleModifier(
         new ScaleParticleModifier<>(0f, lifeSpan, 0.25f, 0.25f));
     this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-    this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
+    this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpireModifier(20));
     return sparkParticleSystem;
   }
 
@@ -116,7 +116,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
     this.fireParticleSystem.addParticleModifier(
         new ScaleParticleModifier<>(0f, lifeSpan, Math.min(0.99f,initialFlameParticleSize),  Math.min(0.99f,finalFlameParticleSize)));
     this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-    this.fireParticleSystem.addParticleModifier(new GroundCollisionExpire(20));
+    this.fireParticleSystem.addParticleModifier(new GroundCollisionExpireModifier(20));
     return fireParticleSystem;
   }
 
@@ -142,7 +142,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         new AlphaParticleModifier<>(1f, lifeSpan, 0.1f, 0f));
     this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifeSpan, 2f, 2f));
     this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-    this.smokeParticleSystem.addParticleModifier(new GroundCollisionBump(20));
+    this.smokeParticleSystem.addParticleModifier(new GroundCollisionBumpModifier(20));
     return smokeParticleSystem;
   }
 }

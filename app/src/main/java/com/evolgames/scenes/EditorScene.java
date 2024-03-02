@@ -91,7 +91,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void createUserInterface() {
     String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
-    Log.e("XFile",editorFile);
     ToolModel toolModel = loadToolModel(editorFile,true);
     if(toolModel==null){
       toolModel = new ToolModel(this,4);
@@ -214,7 +213,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
   @Override
   protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-    boolean hudTouched = userInterface.onTouchHud(hudTouchEvent, scroll);
+    boolean hudTouched = userInterface.onTouchHud(hudTouchEvent);
     if (!hudTouched) {
       userInterface.onTouchScene(touchEvent, scroll);
     }
@@ -224,7 +223,9 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
       if (mPinchZoomDetector.isZooming()) {
         mScrollDetector.setEnabled(false);
       } else {
-        if (!hudTouched) mScrollDetector.onTouchEvent(touchEvent);
+        if (!hudTouched){
+          mScrollDetector.onTouchEvent(touchEvent);
+        }
       }
     } else {
       if (!hudTouched) {
@@ -244,6 +245,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
       PinchZoomDetector pPinchZoomDetector, TouchEvent pSceneTouchEvent) {
     SmoothCamera cam = (SmoothCamera) this.mCamera;
     this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
+    userInterface.lockInteraction();
     userInterface.getCreationZoneController().setUpLocked(true);
   }
 
@@ -269,6 +271,9 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
       cam.setZoomFactor(zf);
       userInterface.updateZoom(zf);
     }
+    userInterface.getCreationZoneController().resetScrollAndZoom();
+    userInterface.getCreationZoneController().setUpLocked(false);
+    userInterface.unlockInteraction();
   }
 
   @Override
@@ -304,10 +309,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
   public void setZoomEnabled(boolean pZoomEnabled) {
     mPinchZoomDetector.setEnabled(pZoomEnabled);
-  }
-
-  public EditorUserInterface getUserInterface() {
-    return userInterface;
   }
 
   public void goToScene(SceneType sceneType){

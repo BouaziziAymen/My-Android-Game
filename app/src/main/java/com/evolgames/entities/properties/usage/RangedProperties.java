@@ -15,11 +15,6 @@ public class RangedProperties extends Properties {
     this.projectileModelList = new ArrayList<>();
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public List<ProjectileModel> getProjectileModelList() {
     return projectileModelList;
   }

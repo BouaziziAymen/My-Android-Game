@@ -151,7 +151,7 @@ public class LayerWindowController
     for (int i = 0; i < window.getLayout().getSecondariesSize(layerField.getPrimaryKey()); i++) {
       LayerField otherLayerField =
           window.getLayout().getSecondaryByIndex(layerField.getPrimaryKey(), i);
-      if (otherLayerField != layerField) {
+      if (otherLayerField != layerField &&  otherLayerField.getLayerControl().getState()== Button.State.PRESSED) {
         otherLayerField.getLayerControl().updateState(Button.State.NORMAL);
         onSecondaryButtonReleased(otherLayerField);
       }
@@ -241,7 +241,7 @@ public class LayerWindowController
       }
     }
     this.selectedPointsModel = selectedDecorationModel;
-    outlineController.onSelectionUpdated(
+    this.outlineController.onSelectionUpdated(
         selectedBodyModel, selectedLayerModel, selectedDecorationModel);
   }
 
@@ -254,7 +254,7 @@ public class LayerWindowController
         editorUserInterface
             .getToolModel()
             .getLayerModelById(decorationField.getPrimaryKey(), decorationField.getSecondaryKey());
-    this.selectedPointsModel = null;
+    this.selectedPointsModel = getLayerModel(decorationField.getPrimaryKey(),decorationField.getSecondaryKey());
     outlineController.onSelectionUpdated(selectedBodyModel, selectedLayerModel, null);
   }
 
@@ -389,7 +389,7 @@ public class LayerWindowController
           editorUserInterface.getToolModel().removeBody(bodyField.getPrimaryKey());
           updateLayout();
           editorUserInterface.getJointSettingsWindowController().updateBodySelectionFields();
-          editorUserInterface.getProjectileOptionsController().updateMissileSelectionFields();
+//          editorUserInterface.getProjectileOptionsController().updateMissileSelectionFields();
           editorUserInterface.getItemWindowController().refresh();
           editorUserInterface.getToolModel().updateMesh();
         });
@@ -518,5 +518,17 @@ public class LayerWindowController
       return getSelectedPointsModel().getPointsShape().getMovablePointImages();
     }
     return null;
+  }
+
+  public void onLayerShowHideButtonClicked(LayerField layerField) {
+    LayerModel layerModel = getLayerModel(layerField.getPrimaryKey(),layerField.getSecondaryKey());
+    layerModel.show();
+    editorUserInterface.getToolModel().updateMesh();
+  }
+
+  public void onLayerShowHideButtonReleased(LayerField layerField) {
+    LayerModel layerModel = getLayerModel(layerField.getPrimaryKey(),layerField.getSecondaryKey());
+    layerModel.hide();
+    editorUserInterface.getToolModel().updateMesh();
   }
 }

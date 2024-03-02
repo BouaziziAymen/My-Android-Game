@@ -7,7 +7,7 @@ public enum PlayerSpecialAction {
   Stab(9,true),
   Throw(7,false),
   Smash(10,false),
-  Shoot(8,false), ThrowFire(4,false), Rocket(3,false),Missile(3,false), GuidedRocket(2,false), Pouring(1,false), Sealed(0,false);
+  Shoot(8,false), ThrowFire(4,false), Rocket(3,false), RocketLauncher(3,false),Missile(3,false), GuidedRocket(2,false), Pouring(1,false), Sealed(0,false);
   public final int iconId;
   public final boolean hasNone;
 

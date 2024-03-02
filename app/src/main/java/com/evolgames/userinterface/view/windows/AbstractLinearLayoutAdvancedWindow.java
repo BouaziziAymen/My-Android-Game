@@ -69,7 +69,8 @@ public abstract class AbstractLinearLayoutAdvancedWindow<L extends LinearLayout>
             getVisibilityZoneLength());
     scroller.setDepth(5);
     scroller.setWindowPartIdentifier(WindowPartIdentifier.SCROLLER);
-    scroller.onHeightUpdated(getLayout().getHeight());
+    scroller.onLayoutHeightUpdated(getLayout().getHeight());
     addElement(scroller);
   }
+
 }

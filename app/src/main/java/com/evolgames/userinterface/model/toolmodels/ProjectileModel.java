@@ -87,10 +87,13 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     pi.setFireRatio(this.properties.getFireRatio());
     pi.setSmokeRatio(this.properties.getSmokeRatio());
     pi.setSparkRatio(this.properties.getSparkRatio());
-    pi.setCasingInfo(this.casingModel.toCasingInfo());
+    if(casingModel!=null) {
+      pi.setCasingInfo(this.casingModel.toCasingInfo());
+    }
     pi.setMissileFile(this.missileFile);
     pi.setInFirePartSize(this.properties.getInFirePartSize());
     pi.setFinFirePartSize(this.properties.getFinFirePartSize());
+    pi.setId(this.projectileId);
     return pi;
   }
 }

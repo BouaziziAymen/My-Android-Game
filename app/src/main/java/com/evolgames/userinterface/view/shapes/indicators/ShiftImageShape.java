@@ -21,8 +21,7 @@ public class ShiftImageShape extends LineShape {
     super.updateEnd(x, y);
     Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
     imageShape
-        .getSprite()
-        .setPosition(imagePosition.x + displacement.x, imagePosition.y + displacement.y);
+        .updatePosition(imagePosition.x + displacement.x, imagePosition.y + displacement.y);
     imageShape.updateSelf();
   }
 }

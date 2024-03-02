@@ -17,7 +17,7 @@ public class LayersWindow
   private final LayerWindowController layerWindowController;
 
   public LayersWindow(float pX, float pY, LayerWindowController controller) {
-    super(pX, pY, 8, 8, true, controller);
+    super(pX, pY, 8, 9, true, controller);
     layerWindowController = controller;
     Text text = new Text("Bodies:", 2);
     LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal, 5f);

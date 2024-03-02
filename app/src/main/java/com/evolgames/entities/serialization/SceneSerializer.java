@@ -13,9 +13,11 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.MeleeUse;
 import com.evolgames.entities.usage.Rocket;
+import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
@@ -188,6 +190,25 @@ public class SceneSerializer {
       shooter.fillMissileModels();
       shooter.createFireSources(scene.getWorldFacade());
     }
+    if (gameEntity.hasUsage(RocketLauncher.class)) {
+      RocketLauncher rocketLauncher = gameEntity.getUsage(RocketLauncher.class);
+      for (ProjectileInfo projectileInfo : rocketLauncher.getProjectileInfoList()) {
+        projectileInfo.setMuzzleEntity(
+                GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
+      }
+      rocketLauncher.fillMissileModels();
+      Map<ProjectileInfo, Rocket> rocketsMap =new HashMap<>();
+      rocketLauncher.getProjectileInfoList().forEach(projectileInfo -> {
+        GameEntity rocketEntity = GameEntitySerializer.entities.get(projectileInfo.getRocketEntityUniqueId());
+        if(rocketEntity!=null) {
+          Rocket rocket = rocketEntity.getUsage(Rocket.class);
+          rocket.setRocketBodyGameEntity(rocketEntity);
+          rocketsMap.put(projectileInfo, rocket);
+        }
+      });
+       rocketLauncher.setRockets(rocketsMap);
+       rocketLauncher.createFireSources(scene.getWorldFacade());
+    }
     if (gameEntity.hasUsage(LiquidContainer.class)) {
       LiquidContainer liquidContainer = gameEntity.getUsage(LiquidContainer.class);
       liquidContainer.getLiquidSourceInfoList().forEach(
@@ -204,15 +225,7 @@ public class SceneSerializer {
     }
     if (gameEntity.hasUsage(Rocket.class)) {
       Rocket rocket = gameEntity.getUsage(Rocket.class);
-
-      for (FireSourceInfo fireSourceInfo : rocket.getFireSourceInfoList()) {
-        fireSourceInfo.setMuzzleEntity(
-                GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
-      }
-      rocket.setRocketBodyGameEntity(
-              Objects.requireNonNull(
-                      GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId())));
-      rocket.createFireSources(scene.getWorldFacade());
+      reloadRocket(scene, rocket);
     }
     if (gameEntity.hasUsage(FlameThrower.class)) {
       FlameThrower flameThrower = gameEntity.getUsage(FlameThrower.class);
@@ -232,5 +245,21 @@ public class SceneSerializer {
                 GameEntitySerializer.entities.get(timeBomb.getGameEntityUniqueId())));
       }
     }
+    if (gameEntity.hasUsage(ImpactBomb.class)) {
+      ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
+      if (impactBomb != null) {
+        impactBomb.setGameEntity(
+                Objects.requireNonNull(
+                        GameEntitySerializer.entities.get(impactBomb.getGameEntityUniqueId())));
+      }
+    }
+  }
+
+  private static void reloadRocket(PhysicsScene<?> scene, Rocket rocket) {
+    for (FireSourceInfo fireSourceInfo : rocket.getFireSourceInfoList()) {
+      fireSourceInfo.setMuzzleEntity(GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
+    }
+    rocket.setRocketBodyGameEntity(GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId()));
+    rocket.createFireSources(scene.getWorldFacade());
   }
 }

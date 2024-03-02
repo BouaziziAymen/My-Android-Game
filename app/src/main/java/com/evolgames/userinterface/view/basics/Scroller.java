@@ -18,12 +18,11 @@ public class Scroller extends LinearLayout implements Touchable {
   private final Image knob;
 
   private final LinearLayoutAdvancedWindowController<?> mController;
-  private final float effectiveHeight;
+  private final float SCROLLABLE_HEIGHT;
   private final Button<LinearLayoutAdvancedWindowController<?>> upArrowButton;
   private final Button<LinearLayoutAdvancedWindowController<?>> downArrowButton;
   private final float visibilityLength;
   private float knobHeight;
-  private float mAdvance;
   private boolean isTouched;
 
   public Scroller(
@@ -36,7 +35,7 @@ public class Scroller extends LinearLayout implements Touchable {
     this.mController = controller;
     this.visibilityLength = visibilityLength;
 
-    effectiveHeight = (TRAIL_HEIGHT + SPACE_MARGIN) * rows;
+    SCROLLABLE_HEIGHT = (TRAIL_HEIGHT + SPACE_MARGIN) * rows;
 
     Image upper = new Image(-SLOT_WIDTH / 2, 0, ResourceManager.getInstance().upperTextureRegion);
     addToLayout(upper);
@@ -101,76 +100,51 @@ public class Scroller extends LinearLayout implements Touchable {
   }
 
   private float getEffectiveInf() {
-    return getEffectiveSup() - effectiveHeight;
+    return getEffectiveSup() - SCROLLABLE_HEIGHT;
   }
 
-  public void onHeightUpdated(float height) {
+  public void onLayoutHeightUpdated(float height) {
     float ratio = visibilityLength / height;
+    knobHeight = SCROLLABLE_HEIGHT * ratio;
+    knob.setLowerBottomY(-knobHeight - UPPER_HEIGHT);
+    float advance = getAdvance();
+    updateKnobSize();
     if (ratio >= 1) {
       upArrowButton.updateState(Button.State.DISABLED);
       downArrowButton.updateState(Button.State.DISABLED);
       knob.setVisible(false);
-      knob.setLowerBottomY(-knobHeight - UPPER_HEIGHT);
-      updateAdvance();
-      mController.onScrolled(mAdvance);
     } else {
       upArrowButton.updateState(Button.State.NORMAL);
       downArrowButton.updateState(Button.State.NORMAL);
       knob.setVisible(true);
-      knobHeight = effectiveHeight * ratio;
-      updateKnobSize();
-      correctKnob();
-      updateKnobLowerBottomY();
-      updateAdvance();
-      mController.onVisibleZoneUpdate();
     }
+    mController.onScrolled(advance);
   }
 
   private void incrementAdvance(float dA) {
-    updateKnobPosition(mAdvance + dA);
-    updateAdvance();
+    float advance = getAdvance();
+    updateKnobPosition(advance + dA);
     knob.setUpdated(true);
-    mController.onScrolled(mAdvance);
+    mController.onScrolled(advance+dA);
   }
 
-  public void setRatio(float ratio) {
-    if (ratio >= 1) {
-
-      knob.setVisible(false);
-      knob.setLowerBottomY(-knobHeight - UPPER_HEIGHT);
-      updateAdvance();
-      mController.onScrolled(mAdvance);
-
-    } else {
-      knob.setVisible(true);
-      knobHeight = effectiveHeight * ratio;
-      updateKnobSize();
-      correctKnob();
-      updateAdvance();
-      mController.onScrolled(mAdvance);
-    }
+  private float getAdvance() {
+    return -(knob.getLowerBottomY() + knobHeight + UPPER_HEIGHT) / SCROLLABLE_HEIGHT;
   }
 
   private void updateKnobPosition(float newAdvance) {
-    float newY = -newAdvance * effectiveHeight - knobHeight - UPPER_HEIGHT;
+    float newY = -newAdvance * SCROLLABLE_HEIGHT - knobHeight - UPPER_HEIGHT;
     knob.setLowerBottomY(newY);
     correctKnob();
   }
 
-  private void updateAdvance() {
-    mAdvance = -(knob.getLowerBottomY() + knobHeight + UPPER_HEIGHT) / effectiveHeight;
-  }
-
-  private void updateKnobLowerBottomY() {
-    knob.setLowerBottomY(-(mAdvance * effectiveHeight + knobHeight + UPPER_HEIGHT));
-  }
 
   private void updateKnobSize() {
     knob.setScale(1, knobHeight / 100f);
   }
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
     if (!knob.isVisible()) return false;
     if (pTouchEvent.isActionDown()) {
       if (Math.abs(pTouchEvent.getX() - getAbsoluteX()) < UPPER_WIDTH / 2) {
@@ -192,9 +166,8 @@ public class Scroller extends LinearLayout implements Touchable {
       float newY = pTouchEvent.getY() - getAbsoluteY() - knobHeight / 2;
       knob.setLowerBottomY(newY);
       correctKnob();
-      updateAdvance();
       knob.setUpdated(true);
-      mController.onScrolled(mAdvance);
+      mController.onScrolled(getAdvance());
       return true;
     }
 
@@ -204,7 +177,7 @@ public class Scroller extends LinearLayout implements Touchable {
   private void correctKnob() {
     float newY = knob.getLowerBottomY();
     if (newY > -UPPER_HEIGHT - knobHeight) newY = -knobHeight - UPPER_HEIGHT;
-    if (newY < -UPPER_HEIGHT - effectiveHeight) newY = -UPPER_HEIGHT - effectiveHeight;
+    if (newY < -UPPER_HEIGHT - SCROLLABLE_HEIGHT) newY = -UPPER_HEIGHT - SCROLLABLE_HEIGHT;
     knob.setLowerBottomY(newY);
   }
 }

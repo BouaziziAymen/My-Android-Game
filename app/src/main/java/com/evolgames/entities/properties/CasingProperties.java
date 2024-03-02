@@ -17,11 +17,6 @@ public class CasingProperties extends Properties {
     this.ammoDirection = direction.cpy();
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public Vector2 getAmmoOrigin() {
     return ammoOrigin;
   }

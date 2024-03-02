@@ -178,7 +178,7 @@ public class RevoluteJointShape extends JointShape {
 
   private void hide(AngleIndicator indicator) {
     indicator.setVisible(false);
-    editorUserInterface.getCreationZoneController().onPointImageReleased();
+    editorUserInterface.getCreationZoneController().releaseSelectedPointImage();
   }
 
   @Override

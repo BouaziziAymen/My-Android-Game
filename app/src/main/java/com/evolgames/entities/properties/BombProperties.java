@@ -16,11 +16,6 @@ public class BombProperties extends Properties {
 
   public BombProperties() {}
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public Vector2 getBombPosition() {
     return bombPosition;
   }

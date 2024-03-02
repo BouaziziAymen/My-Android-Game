@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.andengine.util.adt.transformation.Transformation;
 
-public abstract class RelativePolygonEmitter extends PolygonEmitter {
+public class RelativePolygonEmitter extends PolygonEmitter {
 
   protected GameEntity gameEntity;
   private float positionX;
@@ -24,18 +24,18 @@ public abstract class RelativePolygonEmitter extends PolygonEmitter {
   }
 
   public void onStep() {
-    calculateWeights();
-    if (Math.abs(positionX - gameEntity.getMesh().getX()) > 1
-        || Math.abs(positionY - gameEntity.getMesh().getY()) > 1
-        || Math.abs(rotation - gameEntity.getMesh().getRotation()) > 1) {
-      computeTrianglesData();
+   this.randomPointPicker.calculateWeights();
+    if (Math.abs(positionX - gameEntity.getMesh().getX()) > 5
+        || Math.abs(positionY - gameEntity.getMesh().getY()) > 5
+        || Math.abs(rotation - gameEntity.getMesh().getRotation()) > 5) {
+      this.randomPointPicker.computeTrianglesData();
       transformData();
     }
   }
 
   private void transformData() {
     Transformation transformation = gameEntity.getMesh().getLocalToSceneTransformation();
-    transformation.transform(trianglesData);
+   this.randomPointPicker.transformData(transformation);
     positionX = gameEntity.getMesh().getX();
     positionY = gameEntity.getMesh().getY();
     rotation = gameEntity.getMesh().getRotation();

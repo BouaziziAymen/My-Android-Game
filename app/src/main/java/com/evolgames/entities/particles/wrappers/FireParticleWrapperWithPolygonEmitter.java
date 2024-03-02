@@ -31,7 +31,6 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
 
   public FireParticleWrapperWithPolygonEmitter(GameEntity entity) {
     this.gameEntity = entity;
-    IEntityFactory<UncoloredSprite> ief = FireSpritePool::obtain;
     this.emitter = new FireEmitter(entity);
 
     float area = 0;

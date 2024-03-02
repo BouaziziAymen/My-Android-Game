@@ -23,6 +23,7 @@ import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Rocket;
+import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.Slasher;
 import com.evolgames.entities.usage.Smasher;
@@ -318,7 +319,16 @@ public class Hand {
                             }
                         }
                     }
-                } else if (this.playScene.getSpecialAction() == PlayerSpecialAction.Grenade) {
+                }
+                else if (this.playScene.getSpecialAction() == PlayerSpecialAction.RocketLauncher) {
+                    if (touchData != null && grabbedEntity == touchData.first) {
+                        grab(touchData.first, touchEvent, touchData.second);
+                        holdHand();
+                    } else {
+                            RocketLauncher rocketLauncher = this.grabbedEntity.getUsage(RocketLauncher.class);
+                            rocketLauncher.onTriggerPulled();
+                    }
+                }else if (this.playScene.getSpecialAction() == PlayerSpecialAction.Grenade) {
                     if (grabbedEntity != null) {
                         TimeBomb timeBomb = grabbedEntity.getUsage(TimeBomb.class);
                         timeBomb.onTriggerReleased();

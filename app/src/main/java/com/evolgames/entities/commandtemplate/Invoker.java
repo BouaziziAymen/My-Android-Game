@@ -17,6 +17,7 @@ import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.scenes.PhysicsScene;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Invoker {
 
@@ -29,24 +30,20 @@ public class Invoker {
         .runOnUpdateThread(
             () -> {
               for (GameGroup gameGroup : scene.getGameGroups()) {
-                Iterator<GameEntity> entitiesIterator = gameGroup.getGameEntities().iterator();
-                while (entitiesIterator.hasNext()) {
-                  GameEntity gameEntity = entitiesIterator.next();
+                for (GameEntity gameEntity : gameGroup.getGameEntities()) {
                   for (Command command : gameEntity.getCommands()) {
                     if (!command.isAborted()) {
                       command.execute();
                       if (command instanceof BodyDestructionCommand) {
-                        entitiesIterator.remove();
+                        gameGroup.getGameEntities().remove(gameEntity);
                       }
                     }
                   }
                 }
-                Iterator<Command> groupCommandsIterator = gameGroup.getCommands().iterator();
-                while (groupCommandsIterator.hasNext()) {
-                  Command command = groupCommandsIterator.next();
+                for (Command command : gameGroup.getCommands()) {
                   command.execute();
                   if (command.isAborted()) {
-                    groupCommandsIterator.remove();
+                    gameGroup.getCommands().remove(command);
                   }
                 }
               }
@@ -67,7 +64,7 @@ public class Invoker {
     entity.getCommands().add(command);
   }
 
-  public static void addBodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
+  public static void addBodyDestructionCommand(GameEntity entity) {
     if (!entity.isAlive()) {
       return;
     }
@@ -77,13 +74,13 @@ public class Invoker {
       }
     }
 
-    Command command = new BodyDestructionCommand(entity,finalDestruction);
+    Command command = new BodyDestructionCommand(entity);
     entity.getCommands().add(command);
     entity.setAlive(false);
   }
 
   public static void addJointDestructionCommand(GameGroup gameGroup, Joint joint) {
-    ArrayList<Command> commandContainer = gameGroup.getCommands();
+    List<Command> commandContainer = gameGroup.getCommands();
     commandContainer.add(new JointDestructionCommand(joint));
   }
 

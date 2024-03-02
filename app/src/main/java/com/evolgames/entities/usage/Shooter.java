@@ -128,8 +128,10 @@ public class Shooter extends Use {
 
   @Override
   public void onStep(float deltaTime, WorldFacade worldFacade) {
-    for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
-      explosiveParticleWrapper.setSpawnEnabled(false);
+    if(this.projInfFireSourceMap!=null) {
+      for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
+        explosiveParticleWrapper.setSpawnEnabled(false);
+      }
     }
     if (this.loading) {
       this.loadingTimer += deltaTime;
@@ -185,7 +187,7 @@ public class Shooter extends Use {
 
   private void createBulletCasing(ProjectileInfo projectileInfo, ToolModel missileModel) {
     GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(1));
+    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(1).getLayers());
     Vector2 begin = projectileInfo.getCasingInfo().getAmmoOrigin();
     Vector2 direction = projectileInfo.getCasingInfo().getAmmoDirection();
     Vector2 beginProjected =
@@ -220,7 +222,7 @@ public class Shooter extends Use {
 
   private void createBullet(ProjectileInfo projectileInfo, ToolModel missileModel) {
     GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(0));
+    ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(missileModel.getBodies().get(0).getLayers());
     Vector2 begin = projectileInfo.getProjectileOrigin();
     Vector2 end = projectileInfo.getProjectileEnd();
 
@@ -237,14 +239,14 @@ public class Shooter extends Use {
     Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
     float muzzleVelocity = getProjectileVelocity(projectileInfo.getMuzzleVelocity());
     Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
-    Filter filter = new Filter();
-    filter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
-    filter.maskBits = OBJECTS_MIDDLE_CATEGORY;
-    filter.groupIndex = muzzleEntity.getGroupIndex();
+    Filter projectileFilter = new Filter();
+    projectileFilter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
+    projectileFilter.maskBits = OBJECTS_MIDDLE_CATEGORY;
+    projectileFilter.groupIndex = muzzleEntity.getGroupIndex();
     BodyInit bodyInit =
         new BulletInit(
             new TransformInit(
-                new LinearVelocityInit(new BodyInitImpl(filter), muzzleVelocityVector),
+                new LinearVelocityInit(new BodyInitImpl(projectileFilter), muzzleVelocityVector),
                 endProjected.x,
                 endProjected.y,
                 muzzleEntity.getBody().getAngle()),
@@ -255,7 +257,7 @@ public class Shooter extends Use {
                 muzzleEntity.getParentGroup(),
                 blocks,
                 endProjected,
-                GeometryUtils.calculateAngleRad(directionProjected.x, directionProjected.y),
+                GeometryUtils.calculateAngleDegrees(directionProjected.x, directionProjected.y),
                 new RecoilInit(
                     bodyInit,
                     muzzleEntity.getBody(),
@@ -309,7 +311,7 @@ public class Shooter extends Use {
                                                 e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                 e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                 PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
-                                                        / 10f,
+                                                        / 5f,
                                                 p.getFireRatio(),
                                                 p.getSmokeRatio(),
                                                 p.getSparkRatio(),

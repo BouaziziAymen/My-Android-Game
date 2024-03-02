@@ -9,11 +9,6 @@ public class ColorPanelProperties extends Properties {
         this.squarePropertiesList = new ArrayList<>();
     }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public List<SquareProperties> getSquarePropertiesList() {
         return squarePropertiesList;
     }

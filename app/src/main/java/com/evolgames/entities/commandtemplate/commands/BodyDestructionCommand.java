@@ -10,11 +10,9 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 public class BodyDestructionCommand extends Command {
   private final GameEntity entity;
-  private final boolean finalDestruction;
 
-  public BodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
+  public BodyDestructionCommand(GameEntity entity) {
     this.entity = entity;
-    this.finalDestruction = finalDestruction;
   }
 
   @Override

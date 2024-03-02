@@ -11,14 +11,14 @@ public class MirrorArrowShape extends DoubleInvertedArrowsShape {
 
   private final TransformationStrategy transformationStrategy;
 
-  public MirrorArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, EditorScene scene) {
+  public MirrorArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, EditorScene scene, boolean append, boolean invertShape) {
     super(begin, scene);
 
     this.transformationStrategy =
-        new TransformationStrategy(shapePointsModel) {
+        new TransformationStrategy(shapePointsModel,append) {
           @Override
           protected boolean testPoints(List<Vector2> transformedPoints) {
-            return shapePointsModel.test(transformedPoints);
+            return shapePointsModel.testPoints(transformedPoints);
           }
 
           @Override

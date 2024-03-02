@@ -3,20 +3,27 @@ package com.evolgames.userinterface.view.windows;
 import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Image;
+import com.evolgames.userinterface.view.inputs.Touchable;
+import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 
-public abstract class Window extends Container {
+import org.andengine.input.touch.TouchEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Window extends Container implements Touchable {
 
   static final float TILE_SIDE = 32f;
-  static final float PADDING_VERTICAL_DECALATION = -4;
   final int mRows;
   final int mColumns;
   final int mNumSlots;
   private final float[] slotXPositions;
+  private final List<Image> clickableParts = new ArrayList<>();
   public Window(float pX, float pY, int rows, int columns, boolean hasPadding, int numberOfSlots) {
     super(pX, pY, columns * (TILE_SIDE - 1), rows * (TILE_SIDE - 1));
     mRows = rows;
     mColumns = columns;
-    mNumSlots = numberOfSlots <= columns ? numberOfSlots : columns;
+    mNumSlots = Math.min(numberOfSlots, columns);
     Container padding = new Container();
     Container midPadding = new Container();
     Container body = new Container();
@@ -51,6 +58,7 @@ public abstract class Window extends Container {
         float y = i * TILE_SIDE - i;
         Image image = new Image(x, y, ResourceManager.getInstance().window.get(keys[i][j]));
         body.addElement(image);
+        clickableParts.add(image);
       }
     }
     slotXPositions = new float[mNumSlots];
@@ -68,12 +76,7 @@ public abstract class Window extends Container {
         if (j >= begin) key += 15;
         Image image = new Image(x, y, ResourceManager.getInstance().window.get(key));
         padding.addElement(image);
-
-        if (j == 0) key = 3;
-        else if (j == columns - 1) key = 5;
-        else key = 4;
-        image = new Image(x, y - 12, ResourceManager.getInstance().window.get(key));
-        // midPadding.addElement(image);
+        clickableParts.add(image);
 
         if (j >= begin) {
           slotXPositions[counter] = x;
@@ -82,10 +85,25 @@ public abstract class Window extends Container {
       }
     }
 
+    for(Image image: clickableParts){
+      image.setBounds(new RectangularBounds(image, image.getWidth(), image.getHeight()));
+    }
     setWidth(mColumns * (TILE_SIDE - 1));
   }
 
   float[] getSlotXPositions() {
     return slotXPositions;
+  }
+
+  @Override
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
+    for(Image image: clickableParts){
+      if(image.isVisible()) {
+        if(image.getBounds().isInBounds(pTouchEvent.getX(),pTouchEvent.getY())){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

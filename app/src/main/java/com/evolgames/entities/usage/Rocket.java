@@ -53,14 +53,23 @@ public class Rocket extends Use {
     return fireSourceInfoList;
   }
 
-  public void onLaunch(float angle) {
+  public void onLaunch(float angleRad) {
     this.on = true;
     Body body = rocketBodyEntity.getBody();
-    body.setTransform(body.getPosition(), angle);
-    ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
-    for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
-        i < projectileInfoListSize;
-        i++) {
+    body.setTransform(body.getPosition(), angleRad);
+    //ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
+    for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
+      FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
+      if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
+        rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
+        rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
+      }
+    }
+  }
+  public void onLaunch() {
+    this.on = true;
+    //ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
+    for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
       FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
       if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
         rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
@@ -82,9 +91,6 @@ public class Rocket extends Use {
           Body body = rocketBodyEntity.getBody();
           if (body != null) {
             if (fuel > 0) {
-              // rocketBodyEntity.getBody().setAngularDamping(3f);
-              Vector2 pos = fireSourceInfo.getFireSourceOrigin();
-              Vector2 lp = body.getLocalPoint(new Vector2(pos.x / 32F, pos.y / 32F)).cpy();
               Vector2 lv = body.getWorldVector(v).cpy();
               body.applyForce(lv.cpy().mul(-FORCE_FACTOR * power), body.getWorldCenter());
             } else {
@@ -94,6 +100,10 @@ public class Rocket extends Use {
         }
         }
     }
+  }
+
+  public float getPower() {
+    return power;
   }
 
   @Override

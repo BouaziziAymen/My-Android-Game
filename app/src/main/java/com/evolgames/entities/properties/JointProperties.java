@@ -16,9 +16,4 @@ public class JointProperties extends Properties {
     return jointDef;
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
 }

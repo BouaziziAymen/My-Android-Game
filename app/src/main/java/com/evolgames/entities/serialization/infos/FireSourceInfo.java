@@ -91,7 +91,7 @@ public class FireSourceInfo {
     }
 
     public float getParticles() {
-        return particles;
+        return particles+0.2f;
     }
 
     public void setParticles(float particles) {
@@ -115,7 +115,7 @@ public class FireSourceInfo {
     }
 
     public float getExtent() {
-        return extent;
+        return extent+1f;
     }
 
     public void setExtent(float extent) {

@@ -96,7 +96,6 @@ public class DecorationField extends TertiaryLinearLayout {
     this.decorationOptionsButton.setVisible(false);
     this.decorationRemoveButton.setVisible(false);
   }
-
   @Override
   public void setVisible(boolean visible) {
     super.setVisible(visible);

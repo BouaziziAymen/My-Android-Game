@@ -36,7 +36,7 @@ public class SettingsWindowController<P extends Properties>
   void onModelUpdated(ProperModel<P> model) {
     this.model = model;
     if (model != null && model.getProperties() != null) {
-      tempProperty = (P) model.getProperties().copy();
+      tempProperty = (P) model.getProperties().clone();
     }
   }
 

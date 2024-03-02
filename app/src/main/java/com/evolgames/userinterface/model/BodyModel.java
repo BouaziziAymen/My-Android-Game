@@ -2,9 +2,9 @@ package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
@@ -13,6 +13,7 @@ import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -35,6 +36,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   private GameEntity gameEntity;
   private final List<BombModel> bombModels;
   private BodyField field;
+  private boolean bullet;
 
   public BodyModel(int bodyId) {
     super("Body" + bodyId);
@@ -184,4 +186,12 @@ public class BodyModel extends OutlineModel<BodyProperties> {
   public ArrayList<LiquidSourceModel> getLiquidSourceModels() {
     return liquidSourceModels;
   }
+
+    public boolean isBullet() {
+        return bullet;
+    }
+
+    public void setBullet(boolean bullet) {
+        this.bullet = bullet;
+    }
 }

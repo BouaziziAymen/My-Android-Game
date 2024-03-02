@@ -30,7 +30,7 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
 
   public void updateScroller() {
     if (window.getScroller() != null) {
-      window.getScroller().onHeightUpdated(window.getLayout().getHeight());
+      window.getScroller().onLayoutHeightUpdated(window.getLayout().getHeight());
     }
   }
 

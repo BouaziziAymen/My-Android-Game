@@ -49,7 +49,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
     editorUserInterface
         .getCreationZoneController()
         .setAction(CreationZoneController.CreationAction.SCALE_IMAGE);
-    editorUserInterface.updateOptionsWindow(SettingsType.NONE);
+    editorUserInterface.updateOptionsWindow(SettingsType.SCALE_IMAGE_SETTINGS);
   }
 
   public void onScaleImageButtonReleased(Button<ImageButtonBoardController> button) {

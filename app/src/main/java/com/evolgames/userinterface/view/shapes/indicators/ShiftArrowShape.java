@@ -14,10 +14,10 @@ public class ShiftArrowShape extends LineShape {
   public ShiftArrowShape(Vector2 begin, PointsModel<?> shapePointsModel, EditorScene scene) {
     super(begin, scene);
     transformationStrategy =
-        new TransformationStrategy(shapePointsModel) {
+        new TransformationStrategy(shapePointsModel,false) {
           @Override
           protected boolean testPoints(List<Vector2> transformedPoints) {
-            return shapePointsModel.test(transformedPoints);
+            return shapePointsModel.testPoints(transformedPoints);
           }
 
           @Override

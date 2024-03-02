@@ -18,11 +18,6 @@ public class LiquidContainerProperties extends Properties {
         return liquidSourceModelList;
     }
 
-    @Override
-    public Properties copy() {
-        return null;
-    }
-
     public float getQuantity() {
         return quantity;
     }

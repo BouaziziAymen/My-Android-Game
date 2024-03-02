@@ -7,10 +7,10 @@ import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.bounds.CircularBounds;
 
 public class AdvancedWindow<C extends AdvancedWindowController> extends Window {
-  private static final float SLOT1_DECALATION = 18f;
-  private static final float SLOT2_DECALATION = 18f;
-  private static final float SLOT3_DECALATION = 14f;
-  private static final float SLOT_VERTICAL_DECALATION = 14.5f;
+  private static final float SLOT1_SHIFT = 18f;
+  private static final float SLOT2_SHIFT = 18f;
+  private static final float SLOT3_SHIFT = 14f;
+  private static final float SLOT_VERTICAL_SHIFT = 14.5f;
   private static final float FOLD_UNFOLD_BUTTON_RAY = 12f;
   private final C controller;
   private Button<AdvancedWindowController<?>> foldButton;
@@ -73,11 +73,11 @@ public class AdvancedWindow<C extends AdvancedWindowController> extends Window {
   private void addToSlot(Button<?> button, int slotNumber) {
     if (slotNumber >= mNumSlots) return;
     float dx;
-    if (slotNumber == 0 && mNumSlots == mColumns) dx = SLOT1_DECALATION;
-    else if (slotNumber == mNumSlots - 1) dx = SLOT3_DECALATION;
-    else dx = SLOT2_DECALATION;
+    if (slotNumber == 0 && mNumSlots == mColumns) dx = SLOT1_SHIFT;
+    else if (slotNumber == mNumSlots - 1) dx = SLOT3_SHIFT;
+    else dx = SLOT2_SHIFT;
     float x = getSlotXPositions()[slotNumber] + dx - button.getWidth() / 2;
-    float y = mRows * TILE_SIDE - mRows + SLOT_VERTICAL_DECALATION - button.getHeight() / 2;
+    float y = mRows * TILE_SIDE - mRows + SLOT_VERTICAL_SHIFT - button.getHeight() / 2;
     button.setPosition(x, y);
     addElement(button);
   }

@@ -6,8 +6,6 @@ public abstract class ColoredProperties extends Properties {
   private Color defaultColor;
   private int colorSquareId = -1;
 
-  public abstract ColoredProperties copy();
-
   public Color getDefaultColor() {
     return defaultColor;
   }

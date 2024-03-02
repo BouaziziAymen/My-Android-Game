@@ -20,11 +20,6 @@ public class LiquidProperties extends Properties {
     this.ignitionTemperature = ignitionTemperature;
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public String getJuiceName() {
     return JuiceName;
   }

@@ -4,8 +4,4 @@ import com.evolgames.entities.properties.Properties;
 
 public class SlashProperties extends Properties {
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
 }

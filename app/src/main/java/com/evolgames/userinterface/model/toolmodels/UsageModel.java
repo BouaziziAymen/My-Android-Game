@@ -7,6 +7,7 @@ import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
+import com.evolgames.entities.properties.usage.RocketLauncherProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.properties.usage.SlashProperties;
@@ -62,6 +63,9 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
                 break;
             case LIQUID_CONTAINER:
                 this.properties = (T) new LiquidContainerProperties();
+                break;
+            case ROCKET_LAUNCHER:
+                this.properties = (T) new RocketLauncherProperties();
                 break;
         }
         this.type = type;

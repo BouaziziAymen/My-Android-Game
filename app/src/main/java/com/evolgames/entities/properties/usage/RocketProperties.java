@@ -31,11 +31,6 @@ public class RocketProperties extends Properties {
     this.fuel = fuel;
   }
 
-  @Override
-  public Properties copy() {
-    return null;
-  }
-
   public List<FireSourceModel> getFireSourceModelList() {
     return fireSourceModelList;
   }

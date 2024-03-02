@@ -27,10 +27,6 @@ public class GeometryUtils {
     return (float) Math.sqrt(x_d * x_d + y_d * y_d);
   }
 
-  public static Vector2 imageMirror(Vector2 mirror, Vector2 vector) {
-    float angle = (float) (-Math.atan2(mirror.y, mirror.x) + Math.atan2(vector.y, vector.x));
-    return GeometryUtils.rotatedVectorRad(vector, -2 * angle);
-  }
 
   public static float calculateTriangleArea(Vector2 A, Vector2 B, Vector2 C) {
     float area = (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y)) / 2.0f;
@@ -46,16 +42,19 @@ public class GeometryUtils {
   }
 
   public static List<Vector2> mirrorPoints(List<Vector2> points, Vector2 begin, Vector2 end) {
-    List<Vector2> mirroredPoints = new ArrayList<>();
+    List<Vector2> result = new ArrayList<>();
     Vector2 direction = end.cpy().sub(begin);
     for (int i = 0; i < points.size(); i++) {
       Vector2 v = points.get(i).cpy().sub(begin);
       Vector2 mirroredPoint = begin.cpy().add(GeometryUtils.imageMirror(direction, v));
-      mirroredPoints.add(mirroredPoint);
+      result.add(mirroredPoint);
     }
-    return mirroredPoints;
+    return result;
   }
-
+  public static Vector2 imageMirror(Vector2 mirrorDirection, Vector2 point) {
+    float angle = (float) (-Math.atan2(mirrorDirection.y, mirrorDirection.x) + Math.atan2(point.y, point.x));
+    return GeometryUtils.rotatedVectorRad(point, -2 * angle);
+  }
   public static boolean IsClockwise(List<Vector2> vertices) {
 
     double sum = 0;
@@ -394,8 +393,11 @@ public class GeometryUtils {
         ? clockwiseDistance
         : -counterclockwiseDistance;
   }
-
-  public static float calculateAngleRad(float x, float y) {
+  public static float calculateAngleRadians(float x, float y) {
+    // Calculate the angle in radians
+  return (float) Math.atan2(y, x);
+  }
+  public static float calculateAngleDegrees(float x, float y) {
     // Calculate the angle in radians
     float angleRadians = (float) Math.atan2(y, x);
 

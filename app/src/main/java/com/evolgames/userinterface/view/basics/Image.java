@@ -135,7 +135,7 @@ public class Image extends Element implements Limited, Touchable {
   }
 
   @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent, boolean isTouched) {
+  public boolean onTouchHud(TouchEvent pTouchEvent) {
     return isInBounds(pTouchEvent.getX(), pTouchEvent.getY());
   }
 }

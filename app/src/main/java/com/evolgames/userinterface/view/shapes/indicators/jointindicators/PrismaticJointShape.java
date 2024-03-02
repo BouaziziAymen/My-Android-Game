@@ -199,8 +199,8 @@ public class PrismaticJointShape extends JointShape {
     }
     lowerLimitPoint.setVisible(false);
     upperLimitPoint.setVisible(false);
-    editorUserInterface.getCreationZoneController().onPointImageReleased();
-    editorUserInterface.getCreationZoneController().onPointImageReleased();
+    editorUserInterface.getCreationZoneController().releaseSelectedPointImage();
+    editorUserInterface.getCreationZoneController().releaseSelectedPointImage();
   }
 
   public void bindModel(JointModel model) {

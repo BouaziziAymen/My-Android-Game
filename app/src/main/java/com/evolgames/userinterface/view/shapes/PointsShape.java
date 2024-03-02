@@ -21,8 +21,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     pointImages = new ArrayList<>();
     referencePointImages = new ArrayList<>();
     setDepth(-10);
-    setScale(
-        0.5f / editorUserInterface.getZoomFactor(), 0.5f / editorUserInterface.getZoomFactor());
+   updateZoom(editorUserInterface.getZoomFactor());
   }
 
   public ModelPointImage getPointImage(Vector2 p) {
@@ -66,23 +65,14 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
     pointImages.clear();
   }
-
-  @Override
-  public void setScale(float pScaleX, float pScaleY) {
-    super.setScale(pScaleX, pScaleY);
-    for (ModelPointImage pointImage : pointImages) {
-      pointImage.setScale(pScaleX, pScaleY);
-    }
-  }
-
   @Override
   public void updateOutlineShape() {
     Vector2[] points = outlineModel.getOutlinePoints();
     if (lineLoop != null) {
       lineLoop.detachSelf();
     }
-    this.lineLoop = new LineLoop(0, 0, 4f, 100, ResourceManager.getInstance().vbom);
-    lineLoop.setZIndex(0);
+    this.lineLoop = new LineLoop(0, 0, 2f, 100, ResourceManager.getInstance().vbom);
+    lineLoop.setZIndex(10);
     lineLoop.setColor(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
     editorUserInterface.getScene().attachChild(lineLoop);
     editorUserInterface.getScene().sortChildren();
@@ -108,12 +98,12 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
       if (getPointImage(point) == null) {
         ModelPointImage pointImage =
             new ModelPointImage(this, ResourceManager.getInstance().diskTextureRegion, point);
-        pointImage.setScale(scaleX, scaleY);
         addElement(pointImage);
         pointImage.setPointsShape(this);
         this.pointImages.add(pointImage);
       }
     }
+    updateZoom(editorUserInterface.getZoomFactor());
   }
 
   public void createReferencePointImage(Vector2 center) {
@@ -155,6 +145,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
       lineLoop.setVisible(visible);
     }
     outlineVisible = visible;
+    editorUserInterface.getScene().sortChildren();
   }
 
   @Override
