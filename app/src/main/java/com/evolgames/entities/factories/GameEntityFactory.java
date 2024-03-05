@@ -32,7 +32,7 @@ import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.infos.InitInfo;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.blockvisitors.utilities.Utils;
@@ -307,7 +307,7 @@ public class GameEntityFactory {
     final float SHOULDER_WIDTH = 44;
 
     final float NECK_LENGTH = (G - 1) * HEAD_RAY;
-    final float TORSO_HEIGHT = 1.5f * G * (NECK_LENGTH + 2 * HEAD_RAY);
+    final float TORSO_HEIGHT = 2f*(G - 1) * G * (NECK_LENGTH + 2 * HEAD_RAY);
 
     final float ARM_LENGTH = 32f;
 

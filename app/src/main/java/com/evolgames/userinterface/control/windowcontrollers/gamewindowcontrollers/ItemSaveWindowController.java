@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.ToolProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
@@ -18,8 +18,6 @@ import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
-
-import java.util.ArrayList;
 
 public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
 

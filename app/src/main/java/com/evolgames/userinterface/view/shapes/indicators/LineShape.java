@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;

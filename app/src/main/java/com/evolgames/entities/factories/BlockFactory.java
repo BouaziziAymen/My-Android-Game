@@ -9,7 +9,7 @@ import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.StainProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.physics.PhysicsConstants;

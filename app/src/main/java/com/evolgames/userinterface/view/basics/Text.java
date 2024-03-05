@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.basics;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.helpers.MyLetter;
 
 public class Text extends Container {

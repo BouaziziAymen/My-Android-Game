@@ -3,7 +3,7 @@ package com.evolgames.entities.blockvisitors.utilities;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
-import com.evolgames.gameengine.GameActivity;
+import com.evolgames.activity.GameActivity;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
@@ -24,7 +24,7 @@ public class ToolUtils {
 
   public static ToolModel getProjectileModel(String fileName)
       throws PersistenceException, IOException, ParserConfigurationException, SAXException {
-    return PersistenceCaretaker.getInstance().loadToolModel(fileName,false);
+    return PersistenceCaretaker.getInstance().loadToolModel(fileName,false,true);
   }
 
   public static float getAxisExtent(ToolModel toolModel, Vector2 axis) {

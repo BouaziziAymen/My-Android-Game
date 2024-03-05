@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles.systems;
 
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.math.MathUtils;

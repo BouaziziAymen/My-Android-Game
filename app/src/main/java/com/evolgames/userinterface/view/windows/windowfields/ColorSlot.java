@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.windows.windowfields;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Image;
 

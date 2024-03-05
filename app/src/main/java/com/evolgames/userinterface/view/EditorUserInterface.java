@@ -3,7 +3,7 @@ package com.evolgames.userinterface.view;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.Controller;
@@ -69,7 +69,6 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.Distan
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.RevoluteJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
-import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.AmmoOptionWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.BodySettingsWindow;

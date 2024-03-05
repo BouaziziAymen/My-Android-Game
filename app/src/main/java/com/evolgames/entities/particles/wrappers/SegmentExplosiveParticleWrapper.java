@@ -10,7 +10,7 @@ import com.evolgames.entities.particles.modifiers.GroundCollisionBumpModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionExpireModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import com.evolgames.physics.PhysicsConstants;
 

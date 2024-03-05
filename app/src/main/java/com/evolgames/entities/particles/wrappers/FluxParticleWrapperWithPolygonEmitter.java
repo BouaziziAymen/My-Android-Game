@@ -7,7 +7,7 @@ import com.evolgames.entities.particles.emitters.RelativePolygonEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.BezierModifier;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.ParticleSystem;
@@ -19,8 +19,8 @@ import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
 public class FluxParticleWrapperWithPolygonEmitter {
-    private static final float RATE_MIN = 30 * 200;
-    private static final float RATE_MAX = 50 * 200;
+    private static final float RATE_MIN = 30 * 100;
+    private static final float RATE_MAX = 50 * 100;
     private static final int PARTICLES_MAX = 750 * 100;
     private final BatchedSpriteParticleSystem energyParticleSystem;
     private final RelativePolygonEmitter startEmitter;
@@ -31,7 +31,7 @@ public class FluxParticleWrapperWithPolygonEmitter {
 
 
     public FluxParticleWrapperWithPolygonEmitter(GameEntity source, GameEntity target) {
-        this.startEmitter = new RelativePolygonEmitter(source,  (b) -> true);
+        this.startEmitter = new RelativePolygonEmitter(source,  (b) -> b.getParent().getId()==3);
         this.endEmitter = new RelativePolygonEmitter(target, (b) -> true);
         this.source = source;
         this.target = target;

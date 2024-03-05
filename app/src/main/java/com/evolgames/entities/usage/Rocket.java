@@ -6,7 +6,6 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;

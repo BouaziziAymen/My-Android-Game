@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control.validators;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
-import com.evolgames.gameengine.ResourceManager;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 
 public class AlphaNumericValidator extends TextFieldValidator {

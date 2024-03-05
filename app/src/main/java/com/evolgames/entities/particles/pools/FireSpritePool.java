@@ -1,6 +1,6 @@
 package com.evolgames.entities.particles.pools;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.pool.GenericPool;
 

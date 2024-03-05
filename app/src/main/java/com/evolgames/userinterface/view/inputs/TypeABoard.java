@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.inputs;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;

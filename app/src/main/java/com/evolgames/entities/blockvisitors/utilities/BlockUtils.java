@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class BlockUtils {
     public static float e = 4f;
@@ -248,9 +249,10 @@ public class BlockUtils {
 
         do {
             repeat = false;
-            Iterator<Vector2> iterator = polygon.iterator();
+            ListIterator<Vector2> iterator = polygon.listIterator();
             while (iterator.hasNext()) {
-                int i = polygon.indexOf(iterator.next());
+                int i = iterator.nextIndex();
+                iterator.next();
                 int pi = (i == 0) ? polygon.size() - 1 : i - 1;
 
                 Vector2 p = polygon.get(i);
@@ -267,9 +269,10 @@ public class BlockUtils {
 
         do {
             repeat = false;
-            Iterator<Vector2> iterator = polygon.iterator();
+            ListIterator<Vector2> iterator = polygon.listIterator();
             while (iterator.hasNext()) {
-                int i = polygon.indexOf(iterator.next());
+                int i = iterator.nextIndex();
+                iterator.next();
                 int pi = (i == 0) ? polygon.size() - 1 : i - 1;
                 int ni = (i == polygon.size() - 1) ? 0 : i + 1;
 
@@ -289,9 +292,10 @@ public class BlockUtils {
         boolean repeat;
         do {
             repeat = false;
-            Iterator<Vector2> iterator = polygon.iterator();
+            ListIterator<Vector2> iterator = polygon.listIterator();
             while (iterator.hasNext()) {
-                int i = polygon.indexOf(iterator.next());
+                int i = iterator.nextIndex();
+                iterator.next();
                 int pi = (i == 0) ? polygon.size() - 1 : i - 1;
                 int ni = (i == polygon.size() - 1) ? 0 : i + 1;
 

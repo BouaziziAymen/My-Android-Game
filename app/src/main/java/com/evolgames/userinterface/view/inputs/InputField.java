@@ -1,15 +1,15 @@
 package com.evolgames.userinterface.view.inputs;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.Controller;
-import com.evolgames.userinterface.control.behaviors.ClickableBehavior;
+import com.evolgames.userinterface.control.behaviors.AdvancedClickableBehavior;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import java.util.ArrayList;
 import org.andengine.opengl.texture.region.ITextureRegion;
 
-public class InputField<C extends Controller, B extends ClickableBehavior<C>>
+public class InputField<C extends Controller, B extends AdvancedClickableBehavior<C>>
     extends ClickableContainer<C, B> {
 
   private final LinearLayout layout;

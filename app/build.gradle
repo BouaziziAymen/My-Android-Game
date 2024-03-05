@@ -46,6 +46,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:15.0'
     implementation project(path: ':andEngine')
     implementation project(path: ':andEnginePhysicsBox2DExtension')
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.10.19'
     implementation 'org.apache.commons:commons-lang3:3.6'

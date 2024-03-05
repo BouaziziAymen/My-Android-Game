@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import org.andengine.entity.primitive.LineStrip;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;

@@ -6,7 +6,7 @@ import com.evolgames.userinterface.control.behaviors.actions.Action;
 import com.evolgames.userinterface.view.inputs.Button;
 import org.andengine.input.touch.TouchEvent;
 
-public abstract class ButtonBehavior<C extends Controller> extends ClickableBehavior<C> {
+public abstract class ButtonBehavior<C extends Controller> extends AdvancedClickableBehavior<C> {
   private final Button<C> button;
   private Action pushAction;
   private Action releaseAction;

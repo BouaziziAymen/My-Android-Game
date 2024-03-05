@@ -1,6 +1,6 @@
 package com.evolgames.entities.mesh.mosaic;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.opengl.util.GLState;

@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.view.inputs;
 
 import com.evolgames.userinterface.control.Controller;
+import com.evolgames.userinterface.control.behaviors.AdvancedClickableBehavior;
 import com.evolgames.userinterface.control.behaviors.ClickableBehavior;
 import com.evolgames.userinterface.view.basics.Image;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;

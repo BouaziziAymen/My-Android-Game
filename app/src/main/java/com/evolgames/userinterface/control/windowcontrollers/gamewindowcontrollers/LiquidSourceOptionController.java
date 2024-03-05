@@ -3,7 +3,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.entities.properties.LiquidSourceProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ProperModel;

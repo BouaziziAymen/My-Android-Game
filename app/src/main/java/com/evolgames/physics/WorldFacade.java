@@ -74,7 +74,7 @@ import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.physics.entities.Touch;
@@ -150,8 +150,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8);
-        physicsWorld.setPositionIterations(3);
+        physicsWorld.setVelocityIterations(8*3);
+        physicsWorld.setPositionIterations(3*3);
         physicsWorld.setContinuousPhysics(true);
     }
 

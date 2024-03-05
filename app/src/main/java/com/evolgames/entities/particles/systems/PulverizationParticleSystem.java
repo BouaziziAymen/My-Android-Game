@@ -2,7 +2,7 @@ package com.evolgames.entities.particles.systems;
 
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.sprite.UncoloredSprite;

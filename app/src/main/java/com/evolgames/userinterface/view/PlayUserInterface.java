@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.scenes.entities.PlayerAction;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
@@ -49,7 +49,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
 
         createBackToMenuButton();
         createLastItemButton();
-        String[] items = new String[]{"melee$sword.xml", "rocket$guided_rocket.xml", "rocket$bazooka_rocket.xml", "melee$knife.xml", "grenade$grenade.xml", "gun$revolver.xml", "melee$morning_star.xml", "object$petrol_container.xml"};
+        String[] items = new String[]{"melee$sword.xml", "rocket$guided_rocket.xml","rocket_laucher$RPG.xml", "rocket$bazooka_rocket.xml", "melee$knife.xml", "grenade$grenade.xml", "gun$revolver.xml", "melee$morning_star.xml", "object$petrol_container.xml"};
         int t = 0;
         for (String item : items) {
             createItemButton(t, item);
@@ -112,7 +112,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
 
                     @Override
                     public void informControllerButtonReleased() {
-                        scene.createItem(name);
+                        scene.createItem(name,true);
                     }
                 });
         createItemButton.setPosition(0, 480 - (3 + i) * height);

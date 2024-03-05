@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.control.behaviors;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.view.ShiftText;
 

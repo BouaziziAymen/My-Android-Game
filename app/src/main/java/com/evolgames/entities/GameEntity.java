@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.cut.FreshCut;
@@ -16,7 +15,7 @@ import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonE
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.scenes.PhysicsScene;
 import java.util.ArrayDeque;

@@ -3,7 +3,7 @@ package com.evolgames.userinterface.control.behaviors;
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.view.basics.Element;
 
-public abstract class ErrorClickableBehavior<C extends Controller> extends ClickableBehavior<C> {
+public abstract class ErrorClickableBehavior<C extends Controller> extends AdvancedClickableBehavior<C> {
   private final Element errorProducer;
   protected boolean showError = false;
   private int errorTimer = 0;

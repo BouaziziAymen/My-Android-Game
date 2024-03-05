@@ -1,4 +1,4 @@
-package com.evolgames.gameengine;
+package com.evolgames.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -150,10 +150,10 @@ public class ResourceManager {
   public TextureRegion liquidShapeTextureRegion;
   public TextureRegion projectileDragTextureRegion;
   public TiledTextureRegion projDragTextureRegion;
-  public TiledTextureRegion showHideTextureRegion
-          ;
-  public TextureRegion playTextureRegion
-          ;
+  public TiledTextureRegion showHideTextureRegion;
+  public TextureRegion playTextureRegion;
+
+  public TextureRegion labTextureRegion;
   public Music mMusic;
 
   public void loadBatches() {
@@ -447,6 +447,9 @@ public class ResourceManager {
     this.playTextureRegion =
             BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                     this.gameTextureAtlas, this.activity.getAssets(), "play.png");
+    this.labTextureRegion =
+            BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                    this.gameTextureAtlas, this.activity.getAssets(), "lab.png");
     this.handPointTextureRegion =
         BitmapTextureAtlasTextureRegionFactory.createFromAsset(
             this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");

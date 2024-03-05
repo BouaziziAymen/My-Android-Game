@@ -13,10 +13,9 @@ import com.evolgames.entities.commandtemplate.commands.CustomCommand;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.PhysicsScene;
-import java.util.ArrayList;
-import java.util.Iterator;
+
 import java.util.List;
 
 public class Invoker {

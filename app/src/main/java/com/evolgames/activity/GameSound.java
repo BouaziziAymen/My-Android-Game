@@ -1,4 +1,4 @@
-package com.evolgames.gameengine;
+package com.evolgames.activity;
 
 import java.util.List;
 import org.andengine.audio.sound.Sound;

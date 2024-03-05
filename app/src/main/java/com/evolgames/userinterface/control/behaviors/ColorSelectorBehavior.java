@@ -6,7 +6,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.view.inputs.ColorSelector;
 import org.andengine.input.touch.TouchEvent;
 
-public class ColorSelectorBehavior extends ClickableBehavior<ColorSelectorWindowController> {
+public class ColorSelectorBehavior extends AdvancedClickableBehavior<ColorSelectorWindowController> {
 
   private final ColorSelector mSelector;
 

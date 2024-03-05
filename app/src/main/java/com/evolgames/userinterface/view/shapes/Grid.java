@@ -1,9 +1,9 @@
 package com.evolgames.userinterface.view.shapes;
 
-import com.evolgames.gameengine.GameActivity;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.GameActivity;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.AbstractScene;
-import com.evolgames.scenes.EditorScene;
+
 import org.andengine.entity.primitive.LineChain;
 import org.andengine.entity.primitive.LineStrip;
 

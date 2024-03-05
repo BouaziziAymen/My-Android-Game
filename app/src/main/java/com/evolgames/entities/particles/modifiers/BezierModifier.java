@@ -54,7 +54,7 @@ public class BezierModifier implements IParticleModifier<UncoloredSprite> {
 
     public void transform(Vector2 center1, Vector2 center2) {
         C1[0] =center1.x;
-        C1[1] =center1.y+50;
+        C1[1] =center1.y+100;
         C2[0] = center2.x;
         C2[1] = center2.y;
     }

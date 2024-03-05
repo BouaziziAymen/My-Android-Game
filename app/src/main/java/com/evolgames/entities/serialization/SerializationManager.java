@@ -9,7 +9,7 @@ import com.evolgames.entities.serialization.infos.CasingInfo;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 import java.io.FileInputStream;

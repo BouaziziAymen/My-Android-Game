@@ -3,7 +3,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import android.util.Log;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.DecorationProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.behaviors.actions.Action;

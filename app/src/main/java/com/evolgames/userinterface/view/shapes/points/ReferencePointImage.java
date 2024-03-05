@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes.points;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.actions.ControllerAction;
 
 public class ReferencePointImage extends PointImage {

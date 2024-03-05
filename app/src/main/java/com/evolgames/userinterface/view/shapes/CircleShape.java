@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.shapes;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.primitive.LineLoop;

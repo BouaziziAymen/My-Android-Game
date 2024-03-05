@@ -163,7 +163,9 @@ public abstract class Element implements Comparable<Element> {
   }
 
   public boolean isInBounds(float pX, float pY) {
-    if (bounds == null) return false;
+    if (bounds == null){
+      return false;
+    }
     return bounds.isInBounds(pX, pY);
   }
 

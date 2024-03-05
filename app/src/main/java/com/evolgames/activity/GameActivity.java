@@ -1,13 +1,11 @@
-
-package com.evolgames.gameengine;
+package com.evolgames.activity;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VIDEO;
 import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 
-import android.Manifest;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,18 +13,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.evolgames.gameengine.R;
 import com.evolgames.scenes.MainScene;
 
 import org.andengine.engine.Engine;
-import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
@@ -39,6 +39,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.controller.MultiTouchController;
 import org.andengine.opengl.util.GLState;
+import org.andengine.opengl.view.RenderSurfaceView;
 import org.andengine.ui.IGameInterface;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
@@ -57,13 +58,16 @@ public class GameActivity extends BaseGameActivity {
      * Called when the activity is first created.
      */
     final int MY_PERMISSIONS_REQUEST = 7;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
     public Engine engine;
+    UIFacade uiFacade;
     private Camera camera;
     private MainScene scene;
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    public UIFacade getUiFacade() {
+        return uiFacade;
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
         int height = options.outHeight;
         int width = options.outWidth;
@@ -81,8 +85,7 @@ public class GameActivity extends BaseGameActivity {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromResource(
-            String strPath, int reqWidth, int reqHeight) {
+    public static Bitmap decodeSampledBitmapFromResource(String strPath, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
         // options.inJustDecodeBounds = true;
@@ -92,10 +95,6 @@ public class GameActivity extends BaseGameActivity {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return bitmap;
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
     }
 
     @Override
@@ -115,15 +114,18 @@ public class GameActivity extends BaseGameActivity {
     }
 
     @Override
+    protected void onSetContentView() {
+        this.mRenderSurfaceView = new RenderSurfaceView(this);
+        this.mRenderSurfaceView.setRenderer(this.mEngine, this);
+    }
+
+    @Override
     public EngineOptions onCreateEngineOptions() {
-        this.camera =
-                new SmoothCamera(
-                        0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000 * 32f, 1000 * 32f, 5f);
+        this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000 * 32f, 1000 * 32f, 5f);
         this.camera.setZClippingPlanes(-1, 1);
 
         IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();
-        EngineOptions engineOptions =
-                new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, resolutionPolicy, this.camera);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, resolutionPolicy, this.camera);
 
         engineOptions.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
         engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
@@ -141,10 +143,8 @@ public class GameActivity extends BaseGameActivity {
     }
 
     @Override
-    public void onCreateResources(
-            IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback) {
-        ResourceManager.getInstance()
-                .create(this, this.getEngine(), camera, this.getVertexBufferObjectManager());
+    public void onCreateResources(IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback) {
+        ResourceManager.getInstance().create(this, this.getEngine(), camera, this.getVertexBufferObjectManager());
         ResourceManager.getInstance().loadFonts();
         ResourceManager.getInstance().loadImages();
         ResourceManager.getInstance().loadGameAudio();
@@ -158,10 +158,8 @@ public class GameActivity extends BaseGameActivity {
         pOnCreateSceneCallback.onCreateSceneFinished(this.scene);
     }
 
-
     @Override
-    public void onPopulateScene(
-            Scene pScene, IGameInterface.OnPopulateSceneCallback pOnPopulateSceneCallback) {
+    public void onPopulateScene(Scene pScene, IGameInterface.OnPopulateSceneCallback pOnPopulateSceneCallback) {
         this.scene.populate();
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
@@ -190,20 +188,16 @@ public class GameActivity extends BaseGameActivity {
     public void startLoadPictureIntent(String[] permissions) {
 
         /// Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this, permissions[0])
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, permissions[0]) != PackageManager.PERMISSION_GRANTED) {
 
             // Permission is not granted
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this, permissions[0])) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissions[0])) {
                 // Show an explanation
                 Toast.makeText(this, "Load images from your storage", Toast.LENGTH_SHORT).show();
-                ActivityCompat.requestPermissions(
-                        this, permissions, MY_PERMISSIONS_REQUEST);
+                ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST);
             } else {
                 // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(
-                        this, permissions, MY_PERMISSIONS_REQUEST);
+                ActivityCompat.requestPermissions(this, permissions, MY_PERMISSIONS_REQUEST);
             }
         } else {
 
@@ -213,10 +207,8 @@ public class GameActivity extends BaseGameActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(
-            int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode
-                == MY_PERMISSIONS_REQUEST) { // If request is cancelled, the result arrays are empty.
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST) { // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
                 Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -233,14 +225,11 @@ public class GameActivity extends BaseGameActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GameActivity.RESULT_LOAD_IMAGE
-                && resultCode == Activity.RESULT_OK
-                && null != data) {
+        if (requestCode == GameActivity.RESULT_LOAD_IMAGE && resultCode == Activity.RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-            Cursor cursor =
-                    this.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            Cursor cursor = this.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
@@ -283,4 +272,14 @@ public class GameActivity extends BaseGameActivity {
             ResourceManager.getInstance().activity.startLoadPictureIntent(new String[]{READ_EXTERNAL_STORAGE});
         }
     }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        FrameLayout gameContainer = this.findViewById(R.id.game_container);
+        gameContainer.addView(mRenderSurfaceView, 0);
+        uiFacade = new UIFacade(this);
+    }
+
 }

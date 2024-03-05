@@ -1,4 +1,4 @@
-package com.evolgames.gameengine;
+package com.evolgames.activity;
 import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.atlas.source.BaseTextureAtlasSource;
 

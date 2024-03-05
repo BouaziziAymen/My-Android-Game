@@ -9,7 +9,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.SparseArray;
 
-import com.evolgames.gameengine.BitmapTextureAtlasSource;
+import com.evolgames.activity.BitmapTextureAtlasSource;
 
 import java.util.ArrayList;
 import org.andengine.opengl.font.exception.FontException;

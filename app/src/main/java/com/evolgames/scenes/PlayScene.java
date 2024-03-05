@@ -27,7 +27,6 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.particles.wrappers.FluxParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.SavingBox;
@@ -35,8 +34,8 @@ import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Stabber;
-import com.evolgames.gameengine.GameActivity;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.GameActivity;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.entities.Hand;
 import com.evolgames.scenes.entities.PlayerAction;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
@@ -730,7 +729,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
   }
 
   public void createLastItem() {
-    createItem(EditorScene.SAVE_MUT);
+    createItem(EditorScene.SAVE_MUT, false);
   }
 
 }

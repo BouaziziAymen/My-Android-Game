@@ -3,7 +3,7 @@ package com.evolgames.entities.serialization;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.PlayScene;
 import java.io.FileNotFoundException;
 

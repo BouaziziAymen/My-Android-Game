@@ -22,7 +22,7 @@
         tools:targetApi="q"
         tools:ignore="HardcodedDebugMode">
         <activity
-            android:name="GameActivity"
+            android:name="com.evolgames.activity.GameActivity"
 
             android:exported="true">
             <intent-filter>

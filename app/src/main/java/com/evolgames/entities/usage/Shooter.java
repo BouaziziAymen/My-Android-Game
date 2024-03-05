@@ -22,7 +22,7 @@ import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
 import com.evolgames.entities.blockvisitors.utilities.ToolUtils;

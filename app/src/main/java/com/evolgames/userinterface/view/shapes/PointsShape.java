@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.model.PointsModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.points.ModelPointImage;

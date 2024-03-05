@@ -91,7 +91,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void createUserInterface() {
     String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
-    ToolModel toolModel = loadToolModel(editorFile,true);
+    ToolModel toolModel = loadToolModel(editorFile,true, false);
     if(toolModel==null){
       toolModel = new ToolModel(this,4);
     }
@@ -197,7 +197,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void onPause() {
     this.saveStringToPreferences(EDITOR_FILE, SAVE_MUT);
-    this.getUserInterface().saveToolModel("editor_auto_save.mut");
+    this.getUserInterface().saveToolModel(SAVE_MUT);
   }
 
   @Override

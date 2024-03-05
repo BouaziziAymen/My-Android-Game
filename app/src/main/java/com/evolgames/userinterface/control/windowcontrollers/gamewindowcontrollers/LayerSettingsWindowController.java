@@ -4,7 +4,7 @@ import com.evolgames.entities.Material;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;

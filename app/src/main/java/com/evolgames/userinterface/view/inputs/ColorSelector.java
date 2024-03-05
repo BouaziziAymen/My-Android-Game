@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.inputs;
 
 import android.graphics.Color;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.ColorSelectorBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;

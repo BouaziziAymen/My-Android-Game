@@ -6,7 +6,7 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.entities.properties.StainProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 
 import org.andengine.opengl.texture.region.ITextureRegion;
 

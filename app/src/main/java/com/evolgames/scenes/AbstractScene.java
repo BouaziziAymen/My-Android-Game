@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
@@ -52,10 +52,10 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
     Debug.d("Back key pressed");
   }
 
-    public ToolModel loadToolModel(String file, boolean editor) {
+    public ToolModel loadToolModel(String file, boolean editor, boolean assets) {
       ToolModel toolModel = null;
       try {
-        toolModel = PersistenceCaretaker.getInstance().loadToolModel(file,editor);
+        toolModel = PersistenceCaretaker.getInstance().loadToolModel(file,editor,assets);
       } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
         e.printStackTrace();
       }

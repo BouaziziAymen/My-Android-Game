@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.shapes.points;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.view.basics.Image;
 import org.andengine.opengl.texture.region.ITextureRegion;
 

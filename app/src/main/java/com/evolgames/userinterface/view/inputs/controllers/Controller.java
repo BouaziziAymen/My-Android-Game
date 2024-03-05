@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.inputs.controllers;
 
 import android.view.MotionEvent;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.timer.TimerHandler;

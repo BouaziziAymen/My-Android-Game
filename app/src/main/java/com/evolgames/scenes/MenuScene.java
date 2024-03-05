@@ -1,5 +1,7 @@
 package com.evolgames.scenes;
 
+import android.widget.Toast;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.entities.GameEntity;
@@ -13,12 +15,11 @@ import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.entities.particles.wrappers.FluxParticleWrapperWithPolygonEmitter;
 import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.MenuUserInterface;
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.scene.IOnSceneTouchListener;
-import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
     GameGroup gameGroup1 = GameEntityFactory.getInstance()
             .createGameGroupTest(
                     blocks,
-                    new Vector2(400 / 32f, 200 / 32f),
+                    new Vector2(400 / 32f, 210 / 32f),
                     BodyDef.BodyType.StaticBody,
                     GroupType.OTHER);
 
@@ -53,14 +54,14 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
     gameEntity1.setCenter(new Vector2());
     gameEntity1.setName("Main Button");
 
-
+    ResourceManager.getInstance().activity.runOnUiThread(() -> Toast.makeText(ResourceManager.getInstance().activity, "This doll represents human ignorance", Toast.LENGTH_SHORT).show());
 //      gameEntity3.setCenter(new Vector2());
 //      gameEntity1.setCenter(new Vector2());
 //      this.flux = new FluxParticleWrapperWithPolygonEmitter(gameEntity3, gameEntity1);
 //      this.attachChild(flux.getParticleSystem());
 
     createRagDoll(400,460);
-    jarGroup = createItem("jar_latest.xml", 300, 320);
+    jarGroup = createItem("evil_jar_latest.xml", 300, 320,true);
   }
 
   @Override
@@ -70,7 +71,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
       this.flux.update();
     }
     if(step == 10){
-      this.flux = new FluxParticleWrapperWithPolygonEmitter(jarGroup.getGameEntityByIndex(1), ragdoll.upperTorso);
+      this.flux = new FluxParticleWrapperWithPolygonEmitter(jarGroup.getGameEntityByIndex(0), ragdoll.upperTorso);
       this.attachChild(flux.getParticleSystem());
     }
    if(step>10&&Math.random()<0.05f){

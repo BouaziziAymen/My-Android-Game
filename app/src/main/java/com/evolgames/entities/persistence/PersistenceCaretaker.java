@@ -1,6 +1,7 @@
 package com.evolgames.entities.persistence;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
@@ -33,8 +34,8 @@ import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.gameengine.GameActivity;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.GameActivity;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.BodyUsageCategory;
@@ -61,10 +62,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -712,12 +713,13 @@ public class PersistenceCaretaker {
         return propertiesElement;
     }
 
-    public ToolModel loadToolModel(String toolFileName, boolean editor)
+    public ToolModel loadToolModel(String toolFileName, boolean editor, boolean assets)
             throws IOException, ParserConfigurationException, SAXException, PersistenceException {
         if (toolFileName.isEmpty()) {
             return new ToolModel(scene, 0);
         }
-        FileInputStream fis = gameActivity.openFileInput(toolFileName);
+        AssetManager assetManager = gameActivity.getAssets();
+        InputStream fis = assets?assetManager.open(toolFileName): gameActivity.openFileInput(toolFileName);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
         Document xml = docBuilder.parse(fis);

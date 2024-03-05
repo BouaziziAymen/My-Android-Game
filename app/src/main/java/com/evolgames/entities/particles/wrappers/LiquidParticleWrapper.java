@@ -9,7 +9,7 @@ import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.properties.LiquidProperties;
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;

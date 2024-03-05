@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.view.sections.basic;
 
-import com.evolgames.gameengine.ResourceManager;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OneLevelGameWindowController;
 import com.evolgames.userinterface.view.inputs.Button;

@@ -399,8 +399,8 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             gameGroup.onStep(pSecondsElapsed);
         }
     }
-    public GameGroup createItem(String name, float x, float y) {
-        return createTool(loadToolModel(name, false), x, y);
+    public GameGroup createItem(String name, float x, float y, boolean assets) {
+        return createTool(loadToolModel(name, false, assets), x, y);
     }
 
     public GameGroup createItem(ToolModel toolModel) {
@@ -411,7 +411,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         this.ragdoll = GameEntityFactory.getInstance().createRagdoll(x / 32f, y / 32f);
     }
 
-    public void createItem(String name) {
-      createItem(loadToolModel(name,false));
+    public void createItem(String name, boolean assets) {
+      createItem(loadToolModel(name,false,assets));
     }
 }
