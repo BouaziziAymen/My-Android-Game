@@ -1,6 +1,6 @@
 package com.evolgames.entities.blocks;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.composite.Composite;
 import com.evolgames.entities.cut.Cut;

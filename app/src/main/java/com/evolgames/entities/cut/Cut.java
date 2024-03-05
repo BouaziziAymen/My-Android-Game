@@ -1,6 +1,6 @@
 package com.evolgames.entities.cut;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
 import java.util.List;

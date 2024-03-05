@@ -9,11 +9,11 @@ android {
             keyPassword 'alexeigonzalez'
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 29
+        targetSdkVersion 33
 
         ndk {
             moduleName "andenginephysicsbox2dextension"

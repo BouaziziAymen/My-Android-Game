@@ -1,6 +1,6 @@
 package com.evolgames.entities.properties;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.badlogic.gdx.math.Vector2;
 import org.andengine.util.adt.color.Color;

@@ -9,11 +9,11 @@ android {
             storeFile file('C:\\Users\\keystore.jks')
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 29
+        targetSdkVersion 33
 
         ndk {
             moduleName "andengine_shared"
@@ -31,6 +31,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    dependencies {
+        implementation 'androidx.appcompat:appcompat:1.6.1'
     }
     namespace 'org.andengine'
 }

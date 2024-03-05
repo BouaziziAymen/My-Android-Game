@@ -1,6 +1,6 @@
 package com.evolgames.entities.properties;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.andengine.util.adt.color.Color;
 

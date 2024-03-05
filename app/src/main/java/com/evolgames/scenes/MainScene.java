@@ -35,17 +35,19 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
         switch (sceneType) {
             case MENU:
+                ResourceManager.getInstance().activity.installMenuUi();
                 this.scene = new MenuScene(this.mCamera);
                 break;
             case PLAY:
-                ResourceManager.getInstance().activity.getUiFacade().createPlaySceneUi();
+                ResourceManager.getInstance().activity.installGameUi();
                 this.scene = new PlayScene(this.mCamera);
                 break;
             case EDITOR:
+                ResourceManager.getInstance().activity.installEditorUi();
                 this.scene = new EditorScene(this.mCamera);
                 break;
         }
-        ResourceManager.getInstance().activity.getUiFacade().onSceneChanged(sceneType);
+
         if (this.scene != null) {
             if (populate) {
                 this.scene.populate();

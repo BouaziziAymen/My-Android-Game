@@ -5,7 +5,6 @@ import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -15,14 +14,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.gameengine.R;
 import com.evolgames.scenes.MainScene;
 
@@ -44,9 +47,6 @@ import org.andengine.ui.IGameInterface;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class GameActivity extends BaseGameActivity {
 
     public static final int CAMERA_WIDTH = 800;
@@ -59,13 +59,9 @@ public class GameActivity extends BaseGameActivity {
      */
     final int MY_PERMISSIONS_REQUEST = 7;
     public Engine engine;
-    UIFacade uiFacade;
     private Camera camera;
     private MainScene scene;
-
-    public UIFacade getUiFacade() {
-        return uiFacade;
-    }
+    private PlayUIFragment gameUIFragment;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -208,6 +204,7 @@ public class GameActivity extends BaseGameActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MY_PERMISSIONS_REQUEST) { // If request is cancelled, the result arrays are empty.
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
@@ -279,7 +276,31 @@ public class GameActivity extends BaseGameActivity {
         setContentView(R.layout.activity_main);
         FrameLayout gameContainer = this.findViewById(R.id.game_container);
         gameContainer.addView(mRenderSurfaceView, 0);
-        uiFacade = new UIFacade(this);
+        this.gameUIFragment = new PlayUIFragment();
+        replaceFragment(this.gameUIFragment);
+    }
+    public void replaceFragment(Fragment fragment) {
+        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.hide(fragment);
+        transaction.commit();
     }
 
+    public void installGameUi() {
+        getSupportFragmentManager().beginTransaction()
+                .show(this.gameUIFragment)
+                .commit();
+    }
+
+    public void installEditorUi() {
+        getSupportFragmentManager().beginTransaction()
+                .hide(this.gameUIFragment)
+                .commit();
+    }
+
+    public void installMenuUi() {
+        getSupportFragmentManager().beginTransaction()
+                .hide(this.gameUIFragment)
+                .commit();
+    }
 }

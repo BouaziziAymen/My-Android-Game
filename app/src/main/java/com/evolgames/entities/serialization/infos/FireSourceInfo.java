@@ -1,6 +1,6 @@
 package com.evolgames.entities.serialization.infos;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;

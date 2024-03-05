@@ -17,10 +17,10 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
     private final HashMap<String,List<String>> listHashMap;
     private final LayoutInflater inflater;
 
-    public ExpandableListViewAdaptor(Context context, List<String> dataHeader, HashMap<String, List<String>> listHashMap) {
+    public ExpandableListViewAdaptor(LayoutInflater inflater, List<String> dataHeader, HashMap<String, List<String>> listHashMap) {
         this.dataHeader = dataHeader;
         this.listHashMap = listHashMap;
-        inflater = LayoutInflater.from(context.getApplicationContext());
+        this.inflater = inflater;
     }
 
 
