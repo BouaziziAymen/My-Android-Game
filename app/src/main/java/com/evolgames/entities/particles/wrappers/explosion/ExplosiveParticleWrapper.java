@@ -4,7 +4,7 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.Fire;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.utilities.GeometryUtils;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.sprite.UncoloredSprite;
 

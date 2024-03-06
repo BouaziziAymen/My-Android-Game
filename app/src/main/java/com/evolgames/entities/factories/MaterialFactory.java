@@ -1,7 +1,7 @@
 package com.evolgames.entities.factories;
 
 import com.evolgames.entities.Material;
-import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.utilities.MyColorUtils;
 import com.evolgames.entities.properties.LiquidProperties;
 
 import org.andengine.util.adt.color.Color;

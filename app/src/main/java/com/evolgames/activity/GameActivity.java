@@ -14,20 +14,23 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.gameengine.R;
+import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.MainScene;
+import com.evolgames.userinterface.model.ItemCategory;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
@@ -47,6 +50,10 @@ import org.andengine.ui.IGameInterface;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 public class GameActivity extends BaseGameActivity {
 
     public static final int CAMERA_WIDTH = 800;
@@ -60,8 +67,9 @@ public class GameActivity extends BaseGameActivity {
     final int MY_PERMISSIONS_REQUEST = 7;
     public Engine engine;
     private Camera camera;
-    private MainScene scene;
+    private MainScene mainScene;
     private PlayUIFragment gameUIFragment;
+    private NativeUIController uiController;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -150,29 +158,30 @@ public class GameActivity extends BaseGameActivity {
 
     @Override
     public void onCreateScene(IGameInterface.OnCreateSceneCallback pOnCreateSceneCallback) {
-        this.scene = new MainScene(this.camera);
-        pOnCreateSceneCallback.onCreateSceneFinished(this.scene);
+        this.mainScene = new MainScene(this.camera);
+        uiController = new NativeUIController(mainScene);
+        pOnCreateSceneCallback.onCreateSceneFinished(this.mainScene);
     }
 
     @Override
     public void onPopulateScene(Scene pScene, IGameInterface.OnPopulateSceneCallback pOnPopulateSceneCallback) {
-        this.scene.populate();
+        this.mainScene.populate();
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
     @Override
     public synchronized void onSurfaceCreated(GLState pGLState) {
         super.onSurfaceCreated(pGLState);
-        if (scene != null) {
-            scene.onResume();
+        if (mainScene != null) {
+            mainScene.onResume();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (scene != null) {
-            scene.onPause();
+        if (mainScene != null) {
+            mainScene.onPause();
         }
     }
 
@@ -226,7 +235,9 @@ public class GameActivity extends BaseGameActivity {
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
+            assert selectedImage != null;
             Cursor cursor = this.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            assert cursor != null;
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
@@ -239,12 +250,16 @@ public class GameActivity extends BaseGameActivity {
 
             if (bitmap != null) {
                 ResourceManager.getInstance().loadImage(bitmap);
-                scene.onBackgroundImageLoaded();
+                mainScene.onBackgroundImageLoaded();
             } else {
                 Toast toast = Toast.makeText(this, "Invalid Image", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }
+    }
+
+    public NativeUIController getUiController() {
+        return uiController;
     }
 
     @SuppressWarnings("unused")
@@ -276,9 +291,11 @@ public class GameActivity extends BaseGameActivity {
         setContentView(R.layout.activity_main);
         FrameLayout gameContainer = this.findViewById(R.id.game_container);
         gameContainer.addView(mRenderSurfaceView, 0);
+        this.fillItemsMap();
         this.gameUIFragment = new PlayUIFragment();
         replaceFragment(this.gameUIFragment);
     }
+
     public void replaceFragment(Fragment fragment) {
         FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
@@ -302,5 +319,10 @@ public class GameActivity extends BaseGameActivity {
         getSupportFragmentManager().beginTransaction()
                 .hide(this.gameUIFragment)
                 .commit();
+    }
+    private void fillItemsMap() {
+        Map<ItemCategory, List<ItemMetaData>> map = new XmlHelper(this).fillItemsMap();
+        map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
+        ResourceManager.getInstance().setItemsMap(map);
     }
 }

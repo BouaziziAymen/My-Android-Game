@@ -49,12 +49,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
 
         createBackToMenuButton();
         createLastItemButton();
-        String[] items = new String[]{"melee$sword.xml", "rocket$guided_rocket.xml","rocket_laucher$RPG.xml", "rocket$bazooka_rocket.xml", "melee$knife.xml", "grenade$grenade.xml", "gun$revolver.xml", "melee$morning_star.xml", "object$petrol_container.xml"};
-        int t = 0;
-        for (String item : items) {
-            createItemButton(t, item);
-            t++;
-        }
+
         setUpdated(true);
     }
 
@@ -84,39 +79,6 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
                 });
         backToMenu.setPosition(0, 480 - backToMenu.getHeight());
         addElement(backToMenu);
-    }
-
-    private String formatName(String filename) {
-        String token = filename.split("\\$")[1];
-        return token.substring(0, token.length() - 4);
-    }
-
-    private void createItemButton(int i, String name) {
-        float height = ResourceManager.getInstance().simpleButtonTextureRegion.getHeight();
-        ButtonWithText<Controller> createItemButton =
-                new ButtonWithText<>(formatName(name), 2,
-                        ResourceManager.getInstance().simpleButtonTextureRegion,
-                        Button.ButtonType.OneClick,
-                        true);
-        createItemButton.setBehavior(
-                new ButtonBehavior<Controller>(
-                        new Controller() {
-                            @Override
-                            public void init() {
-                            }
-                        },
-                        createItemButton) {
-                    @Override
-                    public void informControllerButtonClicked() {
-                    }
-
-                    @Override
-                    public void informControllerButtonReleased() {
-                        scene.createItem(name,true);
-                    }
-                });
-        createItemButton.setPosition(0, 480 - (3 + i) * height);
-        addElement(createItemButton);
     }
 
     private void createLastItemButton() {

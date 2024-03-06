@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:padding="8dp"
-    android:background="@drawable/bg_question"
+    android:background="@drawable/bg_items_section"
     android:layout_height="wrap_content">
     <TextView
-        android:id="@+id/questionTextView"
+        android:id="@+id/itemsSectionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#ffffff"
+        android:textColor="#222222"
+        android:textStyle="bold"
         android:paddingStart="?android:attr/expandableListPreferredItemPaddingLeft"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        tools:ignore="RtlSymmetry" />
 </LinearLayout>

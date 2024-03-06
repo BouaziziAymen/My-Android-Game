@@ -2,7 +2,7 @@ package com.evolgames.entities;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.blockvisitors.utilities.MathUtils;
+import com.evolgames.utilities.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.andengine.entity.Entity;

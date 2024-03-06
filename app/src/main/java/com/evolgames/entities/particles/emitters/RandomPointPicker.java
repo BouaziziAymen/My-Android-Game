@@ -2,7 +2,7 @@ package com.evolgames.entities.particles.emitters;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.CoatingBlock;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.utilities.GeometryUtils;
 
 import org.andengine.util.adt.transformation.Transformation;
 

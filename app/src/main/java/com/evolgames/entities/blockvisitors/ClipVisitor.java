@@ -2,7 +2,7 @@ package com.evolgames.entities.blockvisitors;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.Block;
-import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.utilities.BlockUtils;
 import java.util.ArrayList;
 import java.util.List;
 

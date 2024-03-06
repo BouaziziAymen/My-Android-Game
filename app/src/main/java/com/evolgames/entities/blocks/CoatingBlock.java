@@ -6,9 +6,9 @@ import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.CoatingProperties;
-import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
-import com.evolgames.entities.blockvisitors.utilities.Utils;
+import com.evolgames.utilities.BlockUtils;
+import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

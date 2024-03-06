@@ -6,8 +6,9 @@ import android.util.Log;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
-import com.evolgames.entities.blockvisitors.utilities.Utils;
-import com.evolgames.entities.blockvisitors.utilities.XmlUtils;
+import com.evolgames.userinterface.model.ItemCategory;
+import com.evolgames.utilities.Utils;
+import com.evolgames.utilities.XmlUtils;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.properties.DecorationProperties;
@@ -129,6 +130,8 @@ public class PersistenceCaretaker {
     private static final String JOINTS_TAG = "joints";
     private static final String BOMB_LIST_TAG = "bombList";
     private static final String BOMB_TAG = "bomb";
+    public static final String XML_FOLDER = "xml";
+    public static final String JOINT = "joint";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private AbstractScene<?> scene;
@@ -170,10 +173,7 @@ public class PersistenceCaretaker {
             throws FileNotFoundException, TransformerException {
         this.saveToolModel(
                 toolModel,
-                toolModel.getToolCategory().name.toLowerCase(Locale.ROOT)
-                        + "$"
-                        + toolModel.getModelName().toLowerCase(Locale.ROOT)
-                        + ".xml");
+                String.format("%s$%s.xml", toolModel.getToolCategory().name.toLowerCase(Locale.ROOT), toolModel.getModelName().toLowerCase(Locale.ROOT)));
     }
 
     public void saveToolModel(ToolModel toolModel, String fileName)
@@ -212,7 +212,7 @@ public class PersistenceCaretaker {
     }
 
     public Element createJointElement(Document document, JointModel jointModel) {
-        Element jointElement = document.createElement("joint");
+        Element jointElement = document.createElement(JOINT);
         jointElement.setAttribute(ID, String.valueOf(jointModel.getJointId()));
         jointElement.setIdAttribute(ID, true);
         jointElement.setAttribute(
@@ -602,7 +602,10 @@ public class PersistenceCaretaker {
                                     } else if (field.getType() == Explosive.class) {
                                         int v = Integer.parseInt(propertiesElement.getAttribute(field.getName()));
                                         method.invoke(properties, Explosive.values()[v]);
-                                    }
+                                    }   else if (field.getType() == ItemCategory.class) {
+                                    String v = propertiesElement.getAttribute(field.getName());
+                                    method.invoke(properties, ItemCategory.fromName(v));
+                                }
                                 } catch (Throwable ignored) {
                                 }
                             });
@@ -662,6 +665,7 @@ public class PersistenceCaretaker {
                                         || field.getType().isPrimitive()
                                         || field.getType() == Color.class
                                         || field.getType() == ProjectileTriggerType.class
+                                        || field.getType() == ItemCategory.class
                                         || field.getType() == Explosive.class
                                         || field.getType() == Vector2.class
                                         || field.getType() == String.class) {
@@ -688,7 +692,17 @@ public class PersistenceCaretaker {
                                             int value = projectileTriggerType.getValue();
                                             propertiesElement.setAttribute(field.getName(), String.valueOf(value));
                                         }
-                                    } else if (field.getType() == Explosive.class) {
+                                    }
+                                    else if (field.getType() == ItemCategory.class) {
+                                        ItemCategory itemCategory =
+                                                (ItemCategory) method.invoke(properties);
+                                        if (itemCategory != null) {
+
+                                            propertiesElement.setAttribute(field.getName(),itemCategory.toString());
+                                        }
+                                    }
+
+                                    else if (field.getType() == Explosive.class) {
                                         Explosive explosive = (Explosive) method.invoke(properties);
                                         if (explosive != null) {
                                             int value = explosive.ordinal();
@@ -719,7 +733,7 @@ public class PersistenceCaretaker {
             return new ToolModel(scene, 0);
         }
         AssetManager assetManager = gameActivity.getAssets();
-        InputStream fis = assets?assetManager.open(toolFileName): gameActivity.openFileInput(toolFileName);
+        InputStream fis = assets?assetManager.open(String.format("%s/%s", XML_FOLDER, toolFileName)): gameActivity.openFileInput(toolFileName);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
         Document xml = docBuilder.parse(fis);

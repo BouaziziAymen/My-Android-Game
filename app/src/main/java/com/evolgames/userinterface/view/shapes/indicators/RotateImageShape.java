@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.view.shapes.indicators;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.view.shapes.ImageShape;
 

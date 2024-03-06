@@ -44,8 +44,8 @@ public class GameImageButton extends FrameLayout {
         button = findViewById(R.id.image);
         icon = findViewById(R.id.icon);
     }
-    // Method to set the image resource from outside
-    public void setImageResource(int resourceId) {
+
+    public void setIcon(int resourceId) {
         icon.setImageResource(resourceId);
     }
 

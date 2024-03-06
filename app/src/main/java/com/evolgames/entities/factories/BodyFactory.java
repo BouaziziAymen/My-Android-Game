@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.evolgames.entities.Material;
 import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.utilities.BlockUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.andengine.extension.physics.box2d.PhysicsFactory;

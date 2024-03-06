@@ -11,7 +11,7 @@ import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.serialization.infos.JointInfo;
-import com.evolgames.entities.blockvisitors.utilities.Utils;
+import com.evolgames.utilities.Utils;
 import java.util.ArrayList;
 
 public class JointBlock extends AssociatedBlock<JointBlock, JointProperties> {

@@ -2,8 +2,8 @@ package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
-import com.evolgames.entities.blockvisitors.utilities.MathUtils;
+import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.MathUtils;
 import com.evolgames.scenes.entities.Hand;
 
 public class AngleChangerHandControl extends HandControl {

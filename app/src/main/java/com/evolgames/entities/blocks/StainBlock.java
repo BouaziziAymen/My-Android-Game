@@ -1,7 +1,7 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blockvisitors.utilities.Utils;
+import com.evolgames.utilities.Utils;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.LiquidProperties;

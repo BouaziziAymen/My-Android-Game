@@ -2,7 +2,7 @@ package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.blockvisitors.utilities.MathUtils;
+import com.evolgames.utilities.MathUtils;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.view.Colors;

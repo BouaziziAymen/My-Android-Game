@@ -5,13 +5,16 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import com.evolgames.helpers.FontLoader;
+import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.MyLetter;
+import com.evolgames.userinterface.model.ItemCategory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.andengine.audio.music.Music;
@@ -155,6 +158,7 @@ public class ResourceManager {
 
   public TextureRegion labTextureRegion;
   public Music mMusic;
+  private Map<ItemCategory, List<ItemMetaData>> itemsMap;
 
   public void loadBatches() {
     hudBatcher =
@@ -742,4 +746,12 @@ public class ResourceManager {
   public String getString(int id) {
     return activity.getString(id);
   }
+
+    public void setItemsMap(Map<ItemCategory, List<ItemMetaData>> itemsMap) {
+        this.itemsMap = itemsMap;
+    }
+
+    public Map<ItemCategory, List<ItemMetaData>> getItemsMap() {
+        return itemsMap;
+    }
 }

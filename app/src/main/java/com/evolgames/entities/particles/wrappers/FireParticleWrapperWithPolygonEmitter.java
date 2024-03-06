@@ -7,7 +7,7 @@ import com.evolgames.entities.particles.emitters.FireEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.blockvisitors.utilities.MyColorUtils;
+import com.evolgames.utilities.MyColorUtils;
 
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.Particle;

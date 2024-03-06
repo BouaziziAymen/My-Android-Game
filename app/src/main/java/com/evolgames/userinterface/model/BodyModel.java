@@ -2,7 +2,7 @@ package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.userinterface.model.toolmodels.BombModel;

@@ -1,12 +1,12 @@
 package com.evolgames.entities.factories;
 
-import static com.evolgames.entities.blockvisitors.utilities.GeometryUtils.transformation;
+import static com.evolgames.utilities.GeometryUtils.transformation;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
-import com.evolgames.entities.blockvisitors.utilities.BlockUtils;
+import com.evolgames.utilities.BlockUtils;
 import com.evolgames.scenes.EditorScene;
 import java.util.List;
 import org.andengine.extension.physics.box2d.util.triangulation.EarClippingTriangulator;

@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.blockvisitors.utilities.ToolUtils;
+import com.evolgames.utilities.ToolUtils;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;

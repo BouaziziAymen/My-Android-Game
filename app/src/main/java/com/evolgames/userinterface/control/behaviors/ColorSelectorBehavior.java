@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control.behaviors;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blockvisitors.utilities.GeometryUtils;
+import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 import com.evolgames.userinterface.view.inputs.ColorSelector;
 import org.andengine.input.touch.TouchEvent;

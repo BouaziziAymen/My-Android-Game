@@ -1106,10 +1106,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         return toolButtonBoardController;
     }
 
-    public ProjectileOptionController getProjectileOptionsController() {
-        return projectileOptionController;
-    }
-
     public LayerWindowController getLayersWindowController() {
         return layersWindowController;
     }
