@@ -159,7 +159,7 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public void onCreateScene(IGameInterface.OnCreateSceneCallback pOnCreateSceneCallback) {
         this.mainScene = new MainScene(this.camera);
-        uiController = new NativeUIController(mainScene);
+        uiController = new NativeUIController(mainScene, this);
         pOnCreateSceneCallback.onCreateSceneFinished(this.mainScene);
     }
 
@@ -324,5 +324,9 @@ public class GameActivity extends BaseGameActivity {
         Map<ItemCategory, List<ItemMetaData>> map = new XmlHelper(this).fillItemsMap();
         map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
         ResourceManager.getInstance().setItemsMap(map);
+    }
+
+    public PlayUIFragment getGameUIFragment() {
+        return gameUIFragment;
     }
 }

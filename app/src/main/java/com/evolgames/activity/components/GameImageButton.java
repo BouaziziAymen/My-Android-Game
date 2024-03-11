@@ -1,12 +1,14 @@
 package com.evolgames.activity.components;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.view.inputs.Button;
 
@@ -14,15 +16,12 @@ import com.evolgames.userinterface.view.inputs.Button;
 public class GameImageButton extends FrameLayout {
     private ImageView button;
     private ImageView icon;
-    private ButtonType buttonType;
     private Button.State state;
 
     private Runnable onPressed;
     private Runnable onReleased;
 
-    public enum ButtonType {
-        SELECT,CLICK
-    }
+    private ButtonType buttonType;
 
     public GameImageButton(Context context) {
         super(context);
@@ -31,13 +30,26 @@ public class GameImageButton extends FrameLayout {
 
     public GameImageButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public GameImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
+
+    private void init(AttributeSet attrs) {
+        init();
+        if (attrs != null) {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.GameImageButton);
+            int buttonTypeOrdinal = a.getInt(R.styleable.GameImageButton_buttonType, 0);
+            buttonType = ButtonType.values()[buttonTypeOrdinal];
+            int iconResId = a.getResourceId(R.styleable.GameImageButton_icon, 0);
+            setIcon(iconResId);
+            a.recycle();
+        }
+    }
+
 
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.image_button, this, true);
@@ -47,10 +59,6 @@ public class GameImageButton extends FrameLayout {
 
     public void setIcon(int resourceId) {
         icon.setImageResource(resourceId);
-    }
-
-    public void setButtonType(GameImageButton.ButtonType buttonType) {
-        this.buttonType = buttonType;
     }
 
     public void setOnPressed(Runnable onPressed) {
@@ -63,15 +71,22 @@ public class GameImageButton extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(buttonType== GameImageButton.ButtonType.CLICK) {
+        if (buttonType == GameImageButton.ButtonType.CLICK) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     button.setImageResource(R.drawable.button_clicked_two);
+                    if(onPressed!=null) {
+                        onPressed.run();
+                    }
+                    ResourceManager.getInstance().onSound.play();
                     performClick(); // Handle click event
                     return true;
                 case MotionEvent.ACTION_UP:
                     // Handle touch up event
                     button.setImageResource(R.drawable.button_released);
+                    if(onReleased!=null) {
+                        onReleased.run();
+                    }
                     performClick(); // Handle click event
                     return true; // Consume the event
                 case MotionEvent.ACTION_MOVE:
@@ -83,16 +98,18 @@ public class GameImageButton extends FrameLayout {
         } else {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    if(state== Button.State.PRESSED) {
+                    if (state == Button.State.PRESSED) {
                         button.setImageResource(R.drawable.button_released);
                         this.state = Button.State.NORMAL;
-                        if(onReleased !=null){
+                        ResourceManager.getInstance().offSound.play();
+                        if (onReleased != null) {
                             onReleased.run();
                         }
                     } else {
                         button.setImageResource(R.drawable.button_clicked_two);
                         this.state = Button.State.PRESSED;
-                        if(onPressed !=null){
+                        ResourceManager.getInstance().onSound.play();
+                        if (onPressed != null) {
                             onPressed.run();
                         }
                     }
@@ -116,5 +133,19 @@ public class GameImageButton extends FrameLayout {
         // Handle the click event here if needed
 
         return handled;
+    }
+
+    public enum ButtonType {
+        CLICK,
+        SELECT
+    }
+
+    public void setState(Button.State state) {
+        this.state = state;
+        if(this.state == Button.State.PRESSED){
+            button.setImageResource(R.drawable.button_clicked_two);
+        } else {
+            button.setImageResource(R.drawable.button_released);
+        }
     }
 }

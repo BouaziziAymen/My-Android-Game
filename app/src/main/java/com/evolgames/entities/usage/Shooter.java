@@ -173,7 +173,7 @@ public class Shooter extends Use {
     this.decrementRounds();
     this.readyToFire = false;
 
-    if (projectileInfo.getCasingInfo() != null) {
+    if (missileModel.getBodies().size()>1) {
       createBulletCasing(projectileInfo, missileModel);
     }
     if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
@@ -279,7 +279,7 @@ public class Shooter extends Use {
 
   @Override
   public List<PlayerSpecialAction> getActions() {
-    return Collections.singletonList(PlayerSpecialAction.Shoot);
+    return Collections.singletonList(PlayerSpecialAction.Fire);
   }
 
   public boolean isLoaded() {

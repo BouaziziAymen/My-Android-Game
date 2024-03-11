@@ -304,17 +304,17 @@ public class GameEntityFactory {
     final float LOWERARM_CIR2 = 5f;
     final float G = 1.618f;
     final float HEAD_RAY = 12;
-    final float SHOULDER_WIDTH = 44;
+    final float SHOULDER_WIDTH = 40;
 
     final float NECK_LENGTH = (G - 1) * HEAD_RAY;
     final float TORSO_HEIGHT = 2f*(G - 1) * G * (NECK_LENGTH + 2 * HEAD_RAY);
 
     final float ARM_LENGTH = 32f;
 
-    final float HAND_SIDE = 10f;
+    final float HAND_SIDE = 7f;
 
-    final float UPPERLEG_CIR1 = 11f;
-    final float UPPERLEG_CIR2 = 9f;
+    final float UPPERLEG_CIR1 = 10f;
+    final float UPPERLEG_CIR2 = 8f;
     final float UPPERLEG_L1 = G * G * G * HEAD_RAY / (G + 1);
     final float LOWERLEG_LENGTH1 = G * G * HEAD_RAY;
     final float LOWERLEG_LENGTH2 = (G * G * HEAD_RAY) / (G + 1);
@@ -327,7 +327,7 @@ public class GameEntityFactory {
     float level0 = y - (HEAD_RAY + NECK_LENGTH + TORSO_HEIGHT / 2) / 32f;
 
     ArrayList<Vector2> points =
-        VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 20);
+        VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 30);
     LayerBlock block =
         BlockFactory.createLayerBlock(
             points,
@@ -339,10 +339,7 @@ public class GameEntityFactory {
     GameEntity head = createDollPart(x, y, 0, blocks, "head");
 
     blocks = new ArrayList<>();
-    points = VerticesFactory.createDistorted(SHOULDER_WIDTH, SHOULDER_WIDTH, TORSO_HEIGHT, 0, 0);
-    Vector2 A = points.get(0).cpy();
-    Vector2 B = points.get(1).cpy();
-
+    points = VerticesFactory.createRectangleWithBorders(SHOULDER_WIDTH, TORSO_HEIGHT, 3, 0, 0);
     block =
         BlockFactory.createLayerBlock(
             points,
@@ -350,27 +347,15 @@ public class GameEntityFactory {
                 .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
             0);
 
-    float alpha1 = SHOULDER_WIDTH / 2f;
-    float alpha2 = SHOULDER_WIDTH / 2f;
-    float b = UPPERLEG_CIR1 * (alpha2 - alpha1) / TORSO_HEIGHT;
-
-    Vector2 C =
-        new Vector2(0, 0)
-            .sub(0, TORSO_HEIGHT / 2f)
-            .add(alpha2, 0)
-            .sub(b, 0)
-            .add(0, 2 * UPPERLEG_CIR1);
-    Vector2 Cprime = new Vector2(-C.x, C.y);
-
-    points = new ArrayList<>();
-    points.add(A);
-    points.add(B);
-    points.add(C);
-    points.add(Cprime);
-
+    points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT, 3,15, 0, 0);
     DecorationBlock stripBlock =
         BlockFactory.createDecorationBlock(points, new DecorationProperties(pantColor), 0);
     block.addAssociatedBlock(stripBlock);
+
+    points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT-20, 3,5, 0, 0);
+    DecorationBlock stripBlock2 =
+            BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(100/255f,40F/255,0f)), 1);
+    block.addAssociatedBlock(stripBlock2);
 
     blocks.add(block);
     block.getProperties().setDefaultColor(pullColor);
@@ -450,7 +435,7 @@ public class GameEntityFactory {
             blocks,
             "head");
 
-    points = VerticesFactory.createSquare(HAND_SIDE);
+    points = VerticesFactory.createPolygon(0,0,0,HAND_SIDE,HAND_SIDE,8);
     blocks = new ArrayList<>();
     block =
         BlockFactory.createLayerBlock(
@@ -459,22 +444,23 @@ public class GameEntityFactory {
                 .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
             0);
     blocks.add(block);
+    float v = (SHOULDER_WIDTH / 2
+            + 2 * ARM_LENGTH
+            + UPPERARM_CIR1
+            + UPPERARM_CIR2
+            + LOWERARM_CIR1
+            + LOWERARM_CIR2)
+            / 32f;
     GameEntity rightHand =
         createDollPart(
             x
-                + (SHOULDER_WIDTH / 2
-                        + 2 * ARM_LENGTH
-                        + UPPERARM_CIR1
-                        + UPPERARM_CIR2
-                        + LOWERARM_CIR1
-                        + LOWERARM_CIR2)
-                    / 32f,
+                + v,
             y - (HEAD_RAY + UPPERARM_CIR1) / 32f,
             0,
             blocks,
             "head");
 
-    points = VerticesFactory.createSquare(HAND_SIDE);
+    points = VerticesFactory.createPolygon(0,0,0,HAND_SIDE,HAND_SIDE,8);
     blocks = new ArrayList<>();
     block =
         BlockFactory.createLayerBlock(
@@ -486,13 +472,7 @@ public class GameEntityFactory {
     GameEntity leftHand =
         createDollPart(
             x
-                - (SHOULDER_WIDTH / 2
-                        + 2 * ARM_LENGTH
-                        + UPPERARM_CIR1
-                        + UPPERARM_CIR2
-                        + LOWERARM_CIR1
-                        + LOWERARM_CIR2)
-                    / 32f,
+                - v,
             y - (HEAD_RAY + UPPERARM_CIR1) / 32f,
             0,
             blocks,

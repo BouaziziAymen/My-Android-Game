@@ -41,7 +41,7 @@ import java.util.Objects;
 public class SceneSerializer {
 
   private List<GameGroupSerializer> gameGroupSerializers;
-  private HashMap<Integer, Hand> hands;
+  private Hand hand;
   private WorldFacadeSerializer worldFacadeSerializer;
   private PlayerAction playerAction;
   private PlayerSpecialAction playerSpecialAction;
@@ -60,7 +60,7 @@ public class SceneSerializer {
     }
     if (abstractScene instanceof PhysicsScene) {
       PhysicsScene<?> physicsScene = (PhysicsScene<?>) abstractScene;
-      this.hands = physicsScene.getHands();
+      this.hand = physicsScene.getHand();
     }
     if (abstractScene instanceof PlayScene) {
       PlayScene playScene = (PlayScene) abstractScene;
@@ -79,12 +79,11 @@ public class SceneSerializer {
     List<TimedCommand> timedCommands = this.worldFacadeSerializer.timedCommandList;
     scene.getWorldFacade().getTimedCommands().addAll(timedCommands);
     if (scene instanceof PlayScene) {
-      scene.setHands(this.hands);
-      this.hands.forEach(
-          (integer, hand) -> {
-            hand.getHandControlStack().forEach(e -> e.setHand(hand));
-            hand.setPlayScene((PlayScene) scene);
-          });
+      if(hand!=null) {
+        scene.setHand(this.hand);
+        hand.getHandControlStack().forEach(e -> e.setHand(hand));
+        hand.setPlayScene((PlayScene) scene);
+      }
     }
     for (GameEntity gameEntity : GameEntitySerializer.entities.values()) {
       for (Use use : gameEntity.getUseList()) {
@@ -100,18 +99,13 @@ public class SceneSerializer {
         }
         if (use instanceof Stabber) {
           Stabber stabber = (Stabber) use;
-          stabber.setHand(this.hands.get(stabber.getHandId()));
+          stabber.setHand(this.hand);
         }
         if (use instanceof Smasher) {
           Smasher smasher = (Smasher) use;
-          smasher.setHand(this.hands.get(smasher.getHandId()));
+          smasher.setHand(Objects.requireNonNull(this.hand));
         }
       }
-    }
-
-    if (scene instanceof PlayScene) {
-      PlayScene playScene = (PlayScene) scene;
-      playScene.getUserInterface().updatePlayerSpecialActionOnSwitcher(this.playerAction);
     }
   }
 

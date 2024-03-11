@@ -48,7 +48,7 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
                     .sum();
         LayerProperties properties = layerBlock.getProperties();
         float ratio =
-            (float) Math.min(0.3f, 0.002f * energy / (Math.pow(properties.getTenacity(), 6)));
+            (float) Math.min(0.1f, 0.0002f * energy / (Math.pow(properties.getTenacity(), 6)));
         float newTenacity = properties.getTenacity() * (1f - ratio);
         properties.setTenacity(newTenacity);
       }

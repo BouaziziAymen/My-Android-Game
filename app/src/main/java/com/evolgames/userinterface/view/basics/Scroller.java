@@ -103,12 +103,9 @@ public class Scroller extends LinearLayout implements Touchable {
     return getEffectiveSup() - SCROLLABLE_HEIGHT;
   }
 
-  public void onLayoutHeightUpdated(float height) {
-    float ratio = visibilityLength / height;
-    knobHeight = SCROLLABLE_HEIGHT * ratio;
-    knob.setLowerBottomY(-knobHeight - UPPER_HEIGHT);
-    float advance = getAdvance();
-    updateKnobSize();
+  public void onLayoutHeightUpdated(float layoutHeight) {
+    float ratio = layoutHeight==0.0?0:visibilityLength / layoutHeight;
+   float advance = 0;
     if (ratio >= 1) {
       upArrowButton.updateState(Button.State.DISABLED);
       downArrowButton.updateState(Button.State.DISABLED);
@@ -117,7 +114,11 @@ public class Scroller extends LinearLayout implements Touchable {
       upArrowButton.updateState(Button.State.NORMAL);
       downArrowButton.updateState(Button.State.NORMAL);
       knob.setVisible(true);
+      updateKnobSize(ratio);
+      correctKnob();
+      advance = getAdvance();
     }
+
     mController.onScrolled(advance);
   }
 
@@ -139,7 +140,8 @@ public class Scroller extends LinearLayout implements Touchable {
   }
 
 
-  private void updateKnobSize() {
+  private void updateKnobSize(float ratio) {
+    knobHeight = SCROLLABLE_HEIGHT * ratio;
     knob.setScale(1, knobHeight / 100f);
   }
 

@@ -59,7 +59,7 @@ public final class Vector2 implements Cloneable {
 		try {
 			return (Vector2) super.clone();
 		} catch (CloneNotSupportedException e) {
-			return null;
+			return new Vector2(this);
 		}
 	}
 

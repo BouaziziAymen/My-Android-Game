@@ -34,10 +34,6 @@ public class Missile extends Rocket {
       }
       }
   }
-  @Override
-  public List<PlayerSpecialAction> getActions() {
-    return Collections.singletonList(PlayerSpecialAction.Missile);
-  }
 
   private void steer() {
     float steer =

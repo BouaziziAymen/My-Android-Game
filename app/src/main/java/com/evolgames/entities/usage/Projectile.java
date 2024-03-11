@@ -2,11 +2,11 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
-import android.util.Log;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.entities.PlayerSpecialAction;
@@ -63,11 +63,6 @@ public class Projectile extends Use implements Penetrating {
             .map(e -> e.stream().findFirst().get())
             .distinct()
             .collect(Collectors.toList());
-    if (projectileType == ProjectileType.BULLET) {
-      penetrator.getBody().setActive(false);
-      worldFacade.scheduleGameEntityToDestroy(penetrator, 60);
-      penetrator.getMesh().detachSelf();
-    }
 
     for (GameEntity overlappedEntity : list) {
       overlappedEntity
@@ -75,10 +70,11 @@ public class Projectile extends Use implements Penetrating {
           .getGameEntities()
           .forEach(t -> worldFacade.addNonCollidingPair(penetrator, t));
 
-      if (projectileType == ProjectileType.SHARP_WEAPON) {
         worldFacade.mergeEntities(
             overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-      }
+        if(projectileType!=ProjectileType.SHARP_WEAPON) {
+          worldFacade.scheduleGameEntityToDestroy(penetrator, 10);
+        }
 
       worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);
     }
@@ -106,7 +102,6 @@ public class Projectile extends Use implements Penetrating {
     float massFraction =
         penetrator.getBody().getMass()
             / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
-    worldFacade.scheduleGameEntityToDestroy(penetrator, 60);
     worldFacade.addNonCollidingPair(penetrated, penetrator);
     worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
     worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);

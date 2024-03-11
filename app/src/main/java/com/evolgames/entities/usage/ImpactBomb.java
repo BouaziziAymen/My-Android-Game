@@ -36,6 +36,11 @@ public class ImpactBomb extends Bomb{
         return isImpacted&&countDown<0;
     }
 
+    @Override
+    protected boolean isActivated() {
+        return false;
+    }
+
     public void setImpacted(boolean impacted) {
         isImpacted = impacted;
     }

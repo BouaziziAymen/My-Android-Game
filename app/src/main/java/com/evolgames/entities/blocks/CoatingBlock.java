@@ -21,15 +21,15 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   public float value;
   private boolean isOnFire;
   private boolean isOnFlame;
-  private transient MosaicMesh mesh;
-  private int layerId;
-  private boolean hasFlame;
   private transient HashSet<CoatingBlock> neighbors;
   private float area;
   private float step;
   private boolean pulverized;
   private transient LayerBlock parent;
   private boolean emittingEnergy;
+
+  public CoatingBlock() {
+  }
 
   @Override
   protected CoatingBlock getThis() {

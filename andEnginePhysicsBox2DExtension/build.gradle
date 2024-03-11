@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    compileSdk  34
     signingConfigs {
         release {
             storeFile file('C:\\Users\\keystore.jks')
@@ -9,11 +10,10 @@ android {
             keyPassword 'alexeigonzalez'
         }
     }
-    compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 33
+        minSdkVersion 24
+        targetSdkVersion 34
 
         ndk {
             moduleName "andenginephysicsbox2dextension"

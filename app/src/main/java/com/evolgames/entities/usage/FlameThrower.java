@@ -64,7 +64,7 @@ public class FlameThrower extends Use {
 
   @Override
   public List<PlayerSpecialAction> getActions() {
-    return Collections.singletonList(PlayerSpecialAction.ThrowFire);
+    return Collections.singletonList(PlayerSpecialAction.Fire);
   }
 
     public void createFireSources(WorldFacade worldFacade){

@@ -159,6 +159,7 @@ public class ResourceManager {
   public TextureRegion labTextureRegion;
   public Music mMusic;
   private Map<ItemCategory, List<ItemMetaData>> itemsMap;
+  public Sound onSound, offSound;
 
   public void loadBatches() {
     hudBatcher =
@@ -705,6 +706,18 @@ public class ResourceManager {
 
       gunshotSounds = new ArrayList<>();
       SoundFactory.setAssetBasePath("sfx/");
+
+      onSound =
+              SoundFactory.createSoundFromAsset(
+                      this.activity.getSoundManager(),
+                      this.activity,
+                      "on.wav");
+      offSound =
+              SoundFactory.createSoundFromAsset(
+                      this.activity.getSoundManager(),
+                      this.activity,
+                      "off.wav");
+
 
       for (int i = 1; i <= 10; i++) {
         int n = numbers[i - 1];

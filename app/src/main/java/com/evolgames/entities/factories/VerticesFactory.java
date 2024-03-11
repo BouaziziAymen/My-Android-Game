@@ -148,7 +148,40 @@ public class VerticesFactory {
     list.add(Vector2Pool.obtain(-hw, +hh).add(x, y));
     return list;
   }
+  public static ArrayList<Vector2> createLowerStrip(float w, float h, float d,float s, float x, float y) {
 
+    float hw = w / 2;
+    float hh = h / 2;
+    ArrayList<Vector2> list = new ArrayList<>();
+    list.add(Vector2Pool.obtain(-hw, -hh+d).add(x, y));
+    list.add(Vector2Pool.obtain(-hw+d, -hh).add(x, y));
+    list.add(Vector2Pool.obtain(+hw-d, -hh).add(x, y));
+    list.add(Vector2Pool.obtain(hw, -hh+d).add(x, y));
+    list.add(Vector2Pool.obtain(hw, -hh+d+s).add(x, y));
+    list.add(Vector2Pool.obtain(hw-d, -hh+s).add(x, y));
+    list.add(Vector2Pool.obtain(-hw+d, -hh+s).add(x, y));
+    list.add(Vector2Pool.obtain(-hw, -hh+d+s).add(x, y));
+    return list;
+  }
+
+  public static ArrayList<Vector2> createRectangleWithBorders(float w, float h, float d, float x, float y) {
+
+    float hw = w / 2;
+    float hh = h / 2;
+    ArrayList<Vector2> list = new ArrayList<>();
+    list.add(Vector2Pool.obtain(-hw, -hh+d).add(x, y));
+    list.add(Vector2Pool.obtain(-hw+d, -hh).add(x, y));
+
+    list.add(Vector2Pool.obtain(+hw-d, -hh).add(x, y));
+    list.add(Vector2Pool.obtain(hw, -hh+d).add(x, y));
+
+    list.add(Vector2Pool.obtain(hw, hh-d).add(x, y));
+    list.add(Vector2Pool.obtain(hw-d, hh).add(x, y));
+
+    list.add(Vector2Pool.obtain(-hw+d, +hh).add(x, y));
+    list.add(Vector2Pool.obtain(-hw, +hh-d).add(x, y));
+    return list;
+  }
   public static ArrayList<Vector2> createDistorted(float w1, float w2, float h, float x, float y) {
 
     float hw1 = w1 / 2;

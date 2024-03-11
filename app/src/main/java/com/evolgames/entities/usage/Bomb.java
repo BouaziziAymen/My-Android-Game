@@ -35,6 +35,8 @@ public abstract class Bomb extends Use {
 
     protected abstract boolean isBombOn();
 
+    protected abstract boolean isActivated();
+
     private void detonate(WorldFacade worldFacade){
         for (BombInfo bombInfo : bombInfoList) {
             Body body = gameEntity.getBody();
@@ -74,7 +76,10 @@ public abstract class Bomb extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.Grenade);
+         if(!isActivated()){
+             return Collections.singletonList(PlayerSpecialAction.Trigger);
+         }
+         return null;
     }
 
     public void setGameEntity(GameEntity gameEntity) {

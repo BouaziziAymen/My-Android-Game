@@ -5,6 +5,7 @@ import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.scenes.MainScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationZoneController;
@@ -100,7 +101,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     private final ControlPanel panel;
     private final CreationZone creationZone;
-    private final Grid grid;
     // controllers
     private final ConfirmWindowController confirmWindowController;
     private final JointWindowController jointsWindowController;
@@ -148,7 +148,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
         createBackToMenuButton();
 
-        this.grid = new Grid(editorScene);
+        Grid grid = new Grid(editorScene);
 
         this.jointSettingsWindowController = jointSettingsWindowController;
         this.layersWindowController = layerWindowController;
@@ -843,8 +843,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
                     @Override
                     public void informControllerButtonReleased() {
-                        scene.onPause();
                         scene.goToScene(SceneType.MENU);
+
                     }
                 });
         backToMenu.setPosition(0, 480 - backToMenu.getHeight());

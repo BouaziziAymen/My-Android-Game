@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.ToolUtils;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -109,6 +110,7 @@ public class RocketLauncher extends Use {
             if (this.loadingTimer > this.reloadTime) {
                 this.loading = false;
                 loadRockets(worldFacade);
+                ((PlayScene)worldFacade.getPhysicsScene()).onUsagesUpdated();
                 // Reload finished
             }
         }
@@ -132,6 +134,9 @@ public class RocketLauncher extends Use {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
 
         GameEntity rocketEntity = Objects.requireNonNull(rockets.get(projectileInfo)).rocketBodyEntity;
+        if(rocketEntity.getBody()==null){
+            return;
+        }
         GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
         muzzleEntity.getBody().getJointList().forEach(jointEdge -> {
             Body bodyA = jointEdge.joint.getBodyA();
@@ -210,7 +215,9 @@ public class RocketLauncher extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.RocketLauncher);
+        if(!loading) {
+            return Collections.singletonList(PlayerSpecialAction.Trigger);
+        } else return null;
     }
 
     public void createFireSources(WorldFacade worldFacade) {

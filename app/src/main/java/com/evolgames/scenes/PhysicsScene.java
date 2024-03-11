@@ -66,7 +66,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
 
     protected final WorldFacade worldFacade;
     protected final List<GameGroup> gameGroups = new CopyOnWriteArrayList<>();
-    protected HashMap<Integer, Hand> hands = new HashMap<>();
+    protected  Hand hand = null;
     protected RagDoll ragdoll;
     protected int step;
 
@@ -358,24 +358,25 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         gameGroups.add(gameGroup);
     }
 
-    public HashMap<Integer, Hand> getHands() {
-        return hands;
+    public Hand getHand() {
+        return hand;
     }
 
-    public void setHands(HashMap<Integer, Hand> hands) {
-        this.hands = hands;
+    public void setHand(Hand hand) {
+        this.hand = hand;
     }
 
     public void setMouseJoint(MouseJoint joint, GameEntity gameEntity, MouseJointDef jointDef) {
-        if (hands.get(gameEntity.getHangedPointerId()) != null) {
-            Objects.requireNonNull(hands.get(gameEntity.getHangedPointerId()))
+        if(hand!=null) {
+            Objects.requireNonNull(hand)
                     .setMouseJoint(joint, jointDef, gameEntity);
         }
     }
 
     public void onDestroyMouseJoint(MouseJoint j) {
-        Optional<Hand> hand = hands.values().stream().filter(e -> e.getMouseJoint() == j).findFirst();
-        hand.ifPresent(Hand::onMouseJointDestroyed);
+        if(hand!=null) {
+            hand.onMouseJointDestroyed();
+        }
     }
 
     public GameEntity getGameEntityByUniqueId(String uniqueId) {

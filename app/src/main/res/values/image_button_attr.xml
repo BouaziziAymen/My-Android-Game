@@ -1,0 +1,9 @@
+<resources>
+    <declare-styleable name="GameImageButton">
+        <attr name="buttonType" format="enum">
+            <enum name="click" value="0"/>
+            <enum name="select" value="1"/>
+        </attr>
+        <attr name="icon" format="reference" />
+    </declare-styleable>
+</resources>

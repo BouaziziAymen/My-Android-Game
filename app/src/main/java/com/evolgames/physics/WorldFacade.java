@@ -3,6 +3,7 @@ package com.evolgames.physics;
 import static com.evolgames.physics.PhysicsConstants.BACKOFF;
 import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
+import static com.evolgames.physics.PhysicsConstants.TENACITY_FACTOR;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
@@ -19,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.GameEntity;
 import com.evolgames.entities.GameGroup;
 import com.evolgames.entities.GroupType;
@@ -32,13 +34,6 @@ import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.blockvisitors.BreakVisitor;
 import com.evolgames.entities.blockvisitors.GameEntityMultiShatterVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
-import com.evolgames.utilities.BlockUtils;
-import com.evolgames.utilities.GeometryUtils;
-import com.evolgames.utilities.MathUtils;
-import com.evolgames.utilities.MyColorUtils;
-import com.evolgames.utilities.PhysicsUtils;
-import com.evolgames.utilities.Utils;
-import com.evolgames.utilities.Vector2Utils;
 import com.evolgames.entities.commandtemplate.EntityDestructionCommand;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.commandtemplate.TimedCommand;
@@ -74,7 +69,6 @@ import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.physics.entities.Touch;
@@ -91,6 +85,14 @@ import com.evolgames.physics.entities.explosions.ImpactInterface;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
+import com.evolgames.scenes.entities.Hand;
+import com.evolgames.utilities.BlockUtils;
+import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.MathUtils;
+import com.evolgames.utilities.MyColorUtils;
+import com.evolgames.utilities.PhysicsUtils;
+import com.evolgames.utilities.Utils;
+import com.evolgames.utilities.Vector2Utils;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
@@ -150,8 +152,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8*3);
-        physicsWorld.setPositionIterations(3*3);
+        physicsWorld.setVelocityIterations(8);
+        physicsWorld.setPositionIterations(3);
         physicsWorld.setContinuousPhysics(true);
     }
 
@@ -228,18 +230,15 @@ public class WorldFacade implements ContactObserver {
                                 JointBlock jointBlock = (JointBlock) associatedBlock;
                                 if (jointBlock.isNotAborted()) {
                                     if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
-                                        scene
-                                                .getHands()
-                                                .forEach(
-                                                        (k, h) -> {
-                                                            if (h.getGrabbedEntity() == parentEntity) {
-                                                                if (h.isFollow() || h.isHolding() || h.isDragging()) {
-                                                                    recreateJoint(jointBlock, splinter);
-                                                                } else {
-                                                                    h.onMouseJointDestroyed();
-                                                                }
-                                                            }
-                                                        });
+                                        Hand h = scene
+                                                .getHand();
+                                        if (h.getGrabbedEntity() == parentEntity) {
+                                            if (h.isFollow() || h.isHolding() || h.isDragging()) {
+                                                recreateJoint(jointBlock, splinter);
+                                            } else {
+                                                h.onMouseJointDestroyed();
+                                            }
+                                        }
                                     } else {
                                         recreateJoint(jointBlock, splinter);
                                     }
@@ -467,7 +466,7 @@ public class WorldFacade implements ContactObserver {
     public LiquidParticleWrapper createLiquidParticleWrapper(
             GameEntity parentEntity,
             final FreshCut freshCut,
-           LiquidProperties liquid,
+            LiquidProperties liquid,
             int lowerRate,
             int higherRate) {
         LiquidParticleWrapper liquidSource =
@@ -747,15 +746,10 @@ public class WorldFacade implements ContactObserver {
 
         float[] normalImpulses = impulse.getNormalImpulses();
         float[] tangentImpulses = impulse.getTangentImpulses();
-        float normalImpulse = normalImpulses[0];
         float impulseValue =
                 (float)
                         Math.sqrt(
                                 normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
-
-        if (normalImpulse < PhysicsConstants.TENACITY_FACTOR * 6) {
-            return;
-        }
 
         computeShatterImpact(contact, impulseValue, entity1, entity2);
     }
@@ -1338,10 +1332,10 @@ public class WorldFacade implements ContactObserver {
         Vector2 v = new Vector2(1, 0);
         // GameScene.plotter2.detachChildren();
         List<ImpactData> list = new ArrayList<>();
-        float phi = (float) (Math.random()*360);
+        float phi = (float) (Math.random() * 360);
         for (int i = 0; i < FLUX_PRECISION; i++) {
             v.set(1, 0);
-            GeometryUtils.rotateVectorDeg(v, i * 360 / (float) FLUX_PRECISION+phi);
+            GeometryUtils.rotateVectorDeg(v, i * 360 / (float) FLUX_PRECISION + phi);
             Vector2 end = obtain(sourceWorldPoint.x + v.x * 100, sourceWorldPoint.y + v.y * 100);
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
@@ -1693,7 +1687,6 @@ public class WorldFacade implements ContactObserver {
                                             length
                                                     * layerBlock.getProperties().getJuicinessDensity()
                                                     * BLEEDING_CONSTANT);
-                    System.out.println("$$$ Limit:" + limit);
                     if (limit >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
                                 new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
@@ -1766,9 +1759,11 @@ public class WorldFacade implements ContactObserver {
             gameEntity.getActiveUsage(Smasher.class).onCancel();
         }
 
-        List<ImpactData> impactData = new ArrayList<>();
-        impactData.add(new ImpactData(gameEntity, block, worldPoint, impulse));
-        this.applyImpacts(gameEntity, impactData);
+        if (impulse > TENACITY_FACTOR) {
+            List<ImpactData> impactData = new ArrayList<>();
+            impactData.add(new ImpactData(gameEntity, block, worldPoint, impulse));
+            this.applyImpacts(gameEntity, impactData);
+        }
     }
 
     public void pulverizeBlock(LayerBlock layerBlock, GameEntity gameEntity) {

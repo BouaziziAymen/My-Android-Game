@@ -8,10 +8,11 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
-  public static final int EXPLOSION_LIFESPAN = 5;
+
+  private final float FORCE_THRESHOLD = 100f;
   private final PhysicsScene<?> scene;
   private final Vector2 center;
-  private final float force;
+  private float force;
   private final float heat;
   private final float velocity;
   private final Vector2 vector = new Vector2();
@@ -26,7 +27,7 @@ public class Explosion {
       GameEntity source,
       Vector2 center,
       float particlesRatio,
-      float forceRatio,
+      float force,
       float speedRatio,
       float heatRatio,
       float fireRatio,
@@ -37,7 +38,7 @@ public class Explosion {
     this.scene = scene;
     this.source = source;
     this.center = center;
-    this.force = forceRatio;
+    this.force = force;
     this.heat = heatRatio;
     this.velocity = PhysicsConstants.getParticleVelocity(speedRatio)*32f;
 
@@ -58,7 +59,7 @@ public class Explosion {
                   false);
     }
   }
-
+private int count = 0;
   public boolean isAlive() {
     return alive;
   }
@@ -67,7 +68,11 @@ public class Explosion {
     if (!alive) {
       return;
     }
-    if (time < EXPLOSION_LIFESPAN) {
+    if (force > 0) {
+
+      float delta = count>10?force:Math.min(force, FORCE_THRESHOLD);
+      force-=delta;
+      count++;
       scene
           .getWorldFacade()
           .performFlux(
@@ -78,7 +83,7 @@ public class Explosion {
                       Vector2 p = i.getWorldPoint();
                       vector.set(p.x - center.x, p.y - center.y);
                       float d = Math.max(0.05f, vector.len());
-                      i.setImpactImpulse(10000f * force / (d * d));
+                      i.setImpactImpulse(2000f * delta / (d * d));
                       vector.mul(i.getImpactImpulse() / 1000f);
                       gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                     });
@@ -87,7 +92,7 @@ public class Explosion {
               },
               source);
     }
-    if (time > EXPLOSION_LIFESPAN) {
+    if (force <= 0) {
       this.explosionParticleWrapper.stopFinal();
       if (scene instanceof PlayScene) {
         ((PlayScene) scene).unlockSaving();

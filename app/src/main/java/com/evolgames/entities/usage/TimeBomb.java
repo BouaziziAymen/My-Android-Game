@@ -28,6 +28,11 @@ public class TimeBomb extends Bomb {
   }
 
   @Override
+  protected boolean isActivated() {
+    return count;
+  }
+
+  @Override
   public void onStep(float deltaTime, WorldFacade worldFacade) {
     super.onStep(deltaTime,worldFacade);
     if (count&&alive) {

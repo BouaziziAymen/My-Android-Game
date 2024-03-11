@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
+    compileSdk  34
     signingConfigs {
         release {
             storePassword 'alexeigonzalez'
@@ -9,11 +10,10 @@ android {
             storeFile file('C:\\Users\\keystore.jks')
         }
     }
-    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdkVersion 34
 
         ndk {
             moduleName "andengine_shared"

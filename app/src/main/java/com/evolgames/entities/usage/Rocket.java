@@ -107,7 +107,11 @@ public class Rocket extends Use {
 
   @Override
   public List<PlayerSpecialAction> getActions() {
-    return Collections.singletonList(PlayerSpecialAction.Rocket);
+    if(isOn()) {
+      return Collections.singletonList(PlayerSpecialAction.SwitchOff);
+    } else {
+      return Collections.singletonList(PlayerSpecialAction.SwitchOn);
+    }
   }
 
   public void createFireSources(WorldFacade worldFacade) {

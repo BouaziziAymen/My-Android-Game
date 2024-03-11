@@ -85,7 +85,11 @@ public class LiquidContainer extends Use {
     @Override
     public List<PlayerSpecialAction> getActions() {
         List<PlayerSpecialAction> playerSpecialActions = new java.util.ArrayList<>();
-        playerSpecialActions.add(isOpen()?PlayerSpecialAction.Sealed:PlayerSpecialAction.Pouring);
+        if(isOpen()) {
+            playerSpecialActions.add(PlayerSpecialAction.SwitchOff);
+        } else {
+            playerSpecialActions.add(PlayerSpecialAction.SwitchOn);
+        }
         return playerSpecialActions;
     }
 
