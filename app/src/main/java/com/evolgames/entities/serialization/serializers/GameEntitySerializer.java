@@ -1,9 +1,9 @@
-package com.evolgames.entities.serialization;
+package com.evolgames.entities.serialization.serializers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.GameEntityFactory;

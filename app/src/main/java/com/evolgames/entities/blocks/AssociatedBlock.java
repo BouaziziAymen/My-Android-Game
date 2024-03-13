@@ -2,7 +2,7 @@ package com.evolgames.entities.blocks;
 
 import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.utilities.BlockUtils;

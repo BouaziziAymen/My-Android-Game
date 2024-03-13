@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles.initializers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.IParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;

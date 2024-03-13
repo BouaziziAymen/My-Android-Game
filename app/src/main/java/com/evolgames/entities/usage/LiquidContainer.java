@@ -1,17 +1,18 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.factories.Materials;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.properties.LiquidProperties;
+import com.evolgames.entities.basics.Liquid;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.serialization.infos.LiquidSourceInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
@@ -103,13 +104,14 @@ public class LiquidContainer extends Use {
                             Vector2 e = p.getLiquidSourceOrigin().cpy().sub(p.getContainerEntity().getCenter());
                             float axisExtent = p.getExtent();
                             FreshCut freshCut = new SegmentFreshCut(e.cpy(), e.cpy().add(axisExtent * nor.x, axisExtent * nor.y), false, 1f);
-                            LiquidProperties liquid = MaterialFactory.getInstance().getLiquidByIndex(p.getLiquid());
+                            Liquid liquid = Materials.getLiquidByIndex(p.getLiquid());
                             LiquidParticleWrapper liquidParticleWrapper =
                                     worldFacade
                                             .createLiquidParticleWrapper(
                                                     p.getContainerEntity(),
                                                     freshCut,
-                                                    liquid,
+                                                    liquid.getDefaultColor(),
+                                                    liquid.getFlammability(),
                                                     (int) (10 + 10 * p.getExtent()), (int) (10 + 20 * p.getExtent())
                                             );
                             this.liquidSourceInfoHashMap.put(p, liquidParticleWrapper);

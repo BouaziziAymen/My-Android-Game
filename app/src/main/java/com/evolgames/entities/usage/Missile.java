@@ -4,11 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.properties.usage.MissileProperties;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-
-import java.util.Collections;
-import java.util.List;
 
 public class Missile extends Rocket {
 

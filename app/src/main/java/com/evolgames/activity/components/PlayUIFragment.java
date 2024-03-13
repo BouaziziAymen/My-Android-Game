@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.view.inputs.Button;
 
@@ -24,18 +24,31 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayUIFragment extends Fragment {
-    private ExpandableListView itemsListView;
+    private ExpandableListView itemsExpandableListView;
     private TouchHoldState touchHoldState = TouchHoldState.TOUCH;
-    private GameImageButton usesButton;
+    private GameImageButton usesButton,touchHoldButton,weaponsButton;
     private RecyclerView optionsRecyclerView;
     private OptionsListAdaptor optionsListAdaptor;
-
-    public enum TouchHoldState{
-        TOUCH,HOLD
-    }
+    private ExpandableListViewAdaptor expandableListViewAdaptor;
 
     public PlayUIFragment() {
         // Required empty public constructor
+    }
+
+    public void reset() {
+        touchHoldButton.setState(Button.State.NORMAL);
+        touchHoldState = TouchHoldState.TOUCH;
+        touchHoldButton.setIcon(R.drawable.drag_icon);
+        usesButton.setState(Button.State.NORMAL);
+        optionsListAdaptor.setPlayerSpecialActionList(new ArrayList<>(),null);
+        optionsRecyclerView.setVisibility(View.GONE);
+        itemsExpandableListView.setVisibility(View.GONE);
+        weaponsButton.setState(Button.State.NORMAL);
+        for (int i = 0; i < expandableListViewAdaptor.getGroupCount(); i++) {
+            if(itemsExpandableListView.isGroupExpanded(i)) {
+                itemsExpandableListView.collapseGroup(i);
+            }
+        }
     }
 
     @Nullable
@@ -45,45 +58,45 @@ public class PlayUIFragment extends Fragment {
         View leftLayout = fragment.findViewById(R.id.left_layout);
         View topLayout = fragment.findViewById(R.id.top_layout);
         View rightLayout = fragment.findViewById(R.id.right_layout);
-        GameImageButton weaponsButton = leftLayout.findViewById(R.id.weapons_button);
+        weaponsButton = leftLayout.findViewById(R.id.weapons_button);
         setupWeaponsButton(weaponsButton);
         GameImageButton homeButton = topLayout.findViewById(R.id.home_button);
         setupHomeButton(homeButton);
-        GameImageButton touchHoldButton = rightLayout.findViewById(R.id.touch_hold_button);
+        touchHoldButton = rightLayout.findViewById(R.id.touch_hold_button);
         setupTouchHoldButton(touchHoldButton);
         usesButton = rightLayout.findViewById(R.id.uses_button);
         setupUsesButton(usesButton);
 
-        this.itemsListView = leftLayout.findViewById(R.id.exp_list);
+        this.itemsExpandableListView = leftLayout.findViewById(R.id.exp_list);
+        this.itemsExpandableListView.setVisibility(View.GONE);
         setupWeaponsListView(inflater);
 
         optionsRecyclerView = rightLayout.findViewById(R.id.options_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL); // Ensure vertical orientation
         optionsRecyclerView.setLayoutManager(layoutManager);
-        optionsListAdaptor = new OptionsListAdaptor((optionButton, playerSpecialAction) -> ((GameActivity)getActivity()).getUiController().onOptionSelected(playerSpecialAction));
+        optionsListAdaptor = new OptionsListAdaptor((optionButton, playerSpecialAction) -> ((GameActivity) getActivity()).getUiController().onOptionSelected(playerSpecialAction));
 
         List<PlayerSpecialAction> imageList = new ArrayList<>();
-        optionsListAdaptor.setPlayerSpecialActionList(imageList,null );
+        optionsListAdaptor.setPlayerSpecialActionList(imageList, null);
         optionsRecyclerView.setAdapter(optionsListAdaptor);
         optionsRecyclerView.setVisibility(View.GONE);
-
-        itemsListView.setVisibility(View.GONE);
         return fragment;
     }
 
-    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction){
-            optionsListAdaptor.setPlayerSpecialActionList(optionsList,selectedAction);
+    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction) {
+        optionsListAdaptor.setPlayerSpecialActionList(optionsList, selectedAction);
     }
+
     private void setupUsesButton(GameImageButton usesButton) {
         usesButton.setVisibility(View.INVISIBLE);
-        usesButton.setOnReleased(()->optionsRecyclerView.setVisibility(View.GONE));
-        usesButton.setOnPressed(()->optionsRecyclerView.setVisibility(View.VISIBLE));
+        usesButton.setOnReleased(() -> optionsRecyclerView.setVisibility(View.GONE));
+        usesButton.setOnPressed(() -> optionsRecyclerView.setVisibility(View.VISIBLE));
     }
 
     private void setupTouchHoldButton(GameImageButton touchHoldButton) {
-        touchHoldButton.setOnReleased(()->{
-            if(touchHoldState==TouchHoldState.HOLD){
+        touchHoldButton.setOnReleased(() -> {
+            if (touchHoldState == TouchHoldState.HOLD) {
                 touchHoldState = TouchHoldState.TOUCH;
                 touchHoldButton.setIcon(R.drawable.drag_icon);
                 usesButton.setState(Button.State.NORMAL);
@@ -91,41 +104,48 @@ public class PlayUIFragment extends Fragment {
                 touchHoldState = TouchHoldState.HOLD;
                 touchHoldButton.setIcon(R.drawable.grab_icon);
             }
-            if(touchHoldState==TouchHoldState.HOLD){
-               showUsesButton();
+            if (touchHoldState == TouchHoldState.HOLD) {
+                showUsesButton();
             } else {
-             hideUsesButton();
+                hideUsesButton();
             }
             ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
         });
     }
-    void showUsesButton(){
+
+    void showUsesButton() {
         usesButton.setVisibility(View.VISIBLE);
     }
-    void hideUsesButton(){
+
+    void hideUsesButton() {
         usesButton.setVisibility(View.INVISIBLE);
         optionsRecyclerView.setVisibility(View.GONE);
     }
 
     private void setupWeaponsButton(GameImageButton weaponsButton) {
-        weaponsButton.setOnPressed(() -> itemsListView.setVisibility(View.VISIBLE));
-        weaponsButton.setOnReleased(() -> itemsListView.setVisibility(View.GONE));
+        weaponsButton.setOnPressed(() -> itemsExpandableListView.setVisibility(View.VISIBLE));
+        weaponsButton.setOnReleased(() -> itemsExpandableListView.setVisibility(View.GONE));
     }
+
     private void setupHomeButton(GameImageButton homeButton) {
-        homeButton.setOnReleased(() ->ResourceManager.getInstance().activity.getUiController().onHomeButtonPressed());
+        homeButton.setOnReleased(() -> ResourceManager.getInstance().activity.getUiController().onHomeButtonPressed());
     }
 
     private void setupWeaponsListView(LayoutInflater inflater) {
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
         List<ItemCategory> listDataHeader = new ArrayList<>(ResourceManager.getInstance().getItemsMap().keySet());
-        ExpandableListViewAdaptor viewAdaptor = new ExpandableListViewAdaptor(inflater, listDataHeader, map);
-        itemsListView.setAdapter(viewAdaptor);
+        this.expandableListViewAdaptor = new ExpandableListViewAdaptor(inflater, listDataHeader, map);
+        itemsExpandableListView.setAdapter(expandableListViewAdaptor);
 
-        itemsListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+        itemsExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             ItemMetaData clickedItem = (ItemMetaData) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
             ResourceManager.getInstance().activity.getUiController().onItemButtonPressed(clickedItem);
             return true;
         });
+    }
+
+    public enum TouchHoldState {
+        TOUCH, HOLD
     }
 
 }

@@ -2,9 +2,8 @@ package com.evolgames.entities.blocks;
 
 import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.cut.Cut;
-import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
@@ -233,10 +232,10 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     for(AssociatedBlock<?,?> associatedBlock: parent.getAssociatedBlocks()){
       if(associatedBlock instanceof StainBlock){
         StainBlock stain = (StainBlock) associatedBlock;
-        if(stain.getLiquid()!=null){
-            if(stain.getLiquid().isFlammable()){
+
+            if(stain.getProperties().getFlammability()>0){
               float d = this.position.dst(stain.getLocalCenterX(),stain.getLocalCenterY());
-              float liquidFlammability = stain.getLiquid().getFlammability();
+              float liquidFlammability = stain.getProperties().getFlammability();
               float tempRatio = (float) (sparkTemperature/10000f);
               float diff = liquidFlammability - flammability;
               float delta = tempRatio*diff / (Math.max(1, d*d));
@@ -247,7 +246,6 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
               }
             }
         }
-      }
     }
     flammability = Math.max(flammability,layerFlammability);
     if(Math.random()<flammability){

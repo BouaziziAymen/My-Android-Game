@@ -1,7 +1,5 @@
 package com.evolgames.entities.hand;
 
-import com.evolgames.scenes.entities.Hand;
-
 public abstract class HandControl {
 
   private boolean hasLifespan;

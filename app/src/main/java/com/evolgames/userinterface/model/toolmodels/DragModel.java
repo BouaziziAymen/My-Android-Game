@@ -1,9 +1,8 @@
 package com.evolgames.userinterface.model.toolmodels;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.DragProperties;
 import com.evolgames.entities.serialization.infos.DragInfo;
-import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragField;

@@ -1,7 +1,7 @@
 package com.evolgames.entities.usage;
 
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 
 import java.util.List;
 

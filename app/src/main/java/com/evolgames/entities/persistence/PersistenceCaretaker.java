@@ -39,7 +39,7 @@ import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.BodyUsageCategory;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.ImageShapeModel;
 import com.evolgames.userinterface.model.LayerModel;

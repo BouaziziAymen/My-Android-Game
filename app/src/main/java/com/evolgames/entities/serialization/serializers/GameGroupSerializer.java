@@ -1,10 +1,11 @@
-package com.evolgames.entities.serialization;
+package com.evolgames.entities.serialization.serializers;
 
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
-import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.ragdoll.RagDoll;
+import com.evolgames.entities.serialization.serializers.GameEntitySerializer;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.scenes.PhysicsScene;
 
@@ -18,7 +19,7 @@ public class GameGroupSerializer {
   @SuppressWarnings("unused")
   GameGroupSerializer() {}
 
-  GameGroupSerializer(GameGroup gameGroup) {
+  public GameGroupSerializer(GameGroup gameGroup) {
     this.groupType = gameGroup.getGroupType();
     gameEntitySerializerList = new ArrayList<>();
     for (GameEntity gameEntity : gameGroup.getGameEntities()) {

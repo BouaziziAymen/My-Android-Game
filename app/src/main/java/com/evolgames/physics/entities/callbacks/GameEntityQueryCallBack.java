@@ -2,7 +2,7 @@ package com.evolgames.physics.entities.callbacks;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import java.util.HashSet;
 
 public class GameEntityQueryCallBack implements QueryCallback {

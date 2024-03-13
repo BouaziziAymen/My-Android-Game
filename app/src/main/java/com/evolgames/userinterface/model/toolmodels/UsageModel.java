@@ -15,7 +15,7 @@ import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.userinterface.model.BodyUsageCategory;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 
 public class UsageModel<T extends Properties> extends ProperModel<T> {

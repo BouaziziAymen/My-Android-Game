@@ -4,9 +4,9 @@ import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
@@ -87,7 +87,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
     }
   }
   public GameGroup createItem(float x, float y, ToolModel toolModel) {
-    return createTool(toolModel,x,y);
+    return createTool(toolModel,x,y,0);
   }
   @Override
   public void onPause() {

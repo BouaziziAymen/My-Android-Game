@@ -1,4 +1,4 @@
-package com.evolgames.entities;
+package com.evolgames.entities.basics;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;

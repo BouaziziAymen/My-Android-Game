@@ -1,6 +1,6 @@
 package com.evolgames.entities.particles.wrappers.explosion;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import com.evolgames.entities.particles.wrappers.Fire;

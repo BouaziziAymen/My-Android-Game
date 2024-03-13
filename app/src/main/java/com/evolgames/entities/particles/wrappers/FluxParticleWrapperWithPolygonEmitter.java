@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.RelativePolygonEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;

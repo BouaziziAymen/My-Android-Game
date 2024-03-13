@@ -1,8 +1,8 @@
 package com.evolgames.entities.factories;
 
-import com.evolgames.entities.Material;
+import com.evolgames.entities.basics.Material;
 import com.evolgames.utilities.MyColorUtils;
-import com.evolgames.entities.properties.LiquidProperties;
+import com.evolgames.entities.basics.Liquid;
 
 import org.andengine.util.adt.color.Color;
 
@@ -11,14 +11,7 @@ import java.util.ArrayList;
 public class MaterialFactory {
     private static final MaterialFactory INSTANCE = new MaterialFactory();
     public ArrayList<Material> materials;
-    public ArrayList<LiquidProperties> liquids;
-
     private MaterialFactory() {
-
-        this.liquids = new ArrayList<>();
-        liquids.add(new LiquidProperties(0, "Blood", false, 0f,0, MyColorUtils.bloodColor));
-        liquids.add(new LiquidProperties(1, "Goo", false, 0f,0, new Color(0.1f, 0.1f, 0.1f, 0.5f)));
-        liquids.add(new LiquidProperties(2, "Petrol", true, 0.5f,200, new Color(156f / 255f, 89 / 255f, 0, 0.5f)));
 
         this.materials = new ArrayList<>();
         this.materials.add(
@@ -208,8 +201,8 @@ public class MaterialFactory {
                         1f,
                         0,
                         0.3f,
-                        0.6f * 5f,
-                        1f * 5f,
+                        0.2f,
+                        0.3f,
                         true,
                         200 + 273,
                         700,
@@ -228,8 +221,8 @@ public class MaterialFactory {
                         1.2f,
                         0,
                         0.5f,
-                        0.3f * 5f,
-                        0.5f * 5f,
+                        0.2f,
+                        0.25f,
                         true,
                         220 + 273,
                         650,
@@ -285,7 +278,4 @@ public class MaterialFactory {
         return this.materials.get(index);
     }
 
-    public LiquidProperties getLiquidByIndex(int i) {
-        return liquids.get(i);
-    }
 }

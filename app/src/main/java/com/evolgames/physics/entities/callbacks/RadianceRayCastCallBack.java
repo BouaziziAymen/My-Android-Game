@@ -3,7 +3,7 @@ package com.evolgames.physics.entities.callbacks;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 
 public class RadianceRayCastCallBack implements RayCastCallback {

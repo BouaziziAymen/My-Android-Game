@@ -1,7 +1,7 @@
 package com.evolgames.entities.ragdoll;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.entities.EntityWithBody;
+import com.evolgames.entities.basics.EntityWithBody;
 
 public class Balancer {
 

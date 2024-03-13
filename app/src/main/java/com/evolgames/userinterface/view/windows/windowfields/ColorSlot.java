@@ -20,6 +20,10 @@ public class ColorSlot extends Container {
     inner.setColor(color.getRed(),color.getGreen(),color.getBlue());
   }
 
+  public void setColor(Color color) {
+    inner.setColor(color.getRed(), color.getGreen(), color.getBlue());
+    color.set(color.getRed(), color.getGreen(), color.getBlue());
+  }
   @Override
   public void setColor(float pRed, float pGreen, float pBlue) {
     inner.setColor(pRed, pGreen, pBlue);

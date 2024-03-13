@@ -10,9 +10,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
@@ -38,10 +38,10 @@ import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.entities.Hand;
+import com.evolgames.entities.hand.Hand;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.BodyUsageCategory;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
@@ -55,10 +55,8 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -79,7 +77,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         Invoker.setScene(this);
     }
 
-    protected GameGroup createTool(ToolModel toolModel, float x, float y) {
+    protected GameGroup createTool(ToolModel toolModel, float x, float y, float angle) {
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
@@ -401,12 +399,19 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         }
     }
     public GameGroup createItem(String name, float x, float y, boolean assets) {
-        return createTool(loadToolModel(name, false, assets), x, y);
+        return createTool(loadToolModel(name, false, assets), x, y,0);
     }
 
     public GameGroup createItem(ToolModel toolModel) {
-      return createTool(toolModel,400,240);
+      return createTool(toolModel,400,240,0);
     }
+    public GameGroup createItem(float x, float y, ToolModel toolModel) {
+        return createTool(toolModel,x,y,0);
+    }
+    public GameGroup createItem(float x, float y,float angle, ToolModel toolModel) {
+        return createTool(toolModel,x,y,angle);
+    }
+
 
     protected void createRagDoll(float x, float y) {
         this.ragdoll = GameEntityFactory.getInstance().createRagdoll(x / 32f, y / 32f);

@@ -2,11 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-
-import java.util.Collections;
-import java.util.List;
 
 public class TimeBomb extends Bomb {
   

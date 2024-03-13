@@ -70,6 +70,7 @@ public class GameActivity extends BaseGameActivity {
     private MainScene mainScene;
     private PlayUIFragment gameUIFragment;
     private NativeUIController uiController;
+    private UIType installedUI;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -99,6 +100,10 @@ public class GameActivity extends BaseGameActivity {
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         return bitmap;
+    }
+
+    public UIType getInstalledUI() {
+        return installedUI;
     }
 
     @Override
@@ -307,19 +312,23 @@ public class GameActivity extends BaseGameActivity {
         getSupportFragmentManager().beginTransaction()
                 .show(this.gameUIFragment)
                 .commit();
+        this.installedUI = UIType.GAME;
     }
 
     public void installEditorUi() {
         getSupportFragmentManager().beginTransaction()
                 .hide(this.gameUIFragment)
                 .commit();
+        this.installedUI = UIType.EDITOR;
     }
 
     public void installMenuUi() {
         getSupportFragmentManager().beginTransaction()
                 .hide(this.gameUIFragment)
                 .commit();
+        this.installedUI = UIType.MENU;
     }
+
     private void fillItemsMap() {
         Map<ItemCategory, List<ItemMetaData>> map = new XmlHelper(this).fillItemsMap();
         map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
@@ -328,5 +337,9 @@ public class GameActivity extends BaseGameActivity {
 
     public PlayUIFragment getGameUIFragment() {
         return gameUIFragment;
+    }
+
+    public enum UIType {
+        GAME, EDITOR, MENU
     }
 }

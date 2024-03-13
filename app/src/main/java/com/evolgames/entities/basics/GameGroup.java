@@ -1,4 +1,4 @@
-package com.evolgames.entities;
+package com.evolgames.entities.basics;
 
 import com.evolgames.entities.commandtemplate.commands.Command;
 import java.util.Arrays;

@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.view.visitor;
 
+import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.basics.Limited;
 
@@ -34,11 +35,12 @@ public class LimitBehavior extends VisitBehavior {
       }
 
     } else {
+      e.setVisible(true);
       if (e instanceof Limited) {
         Limited limited = (Limited) e;
         limited.setLimited(false);
       }
-    }
+      }
   }
 
   @Override

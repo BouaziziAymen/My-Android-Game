@@ -2,7 +2,7 @@ package com.evolgames.entities.commandtemplate.commands;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.init.BodyInit;

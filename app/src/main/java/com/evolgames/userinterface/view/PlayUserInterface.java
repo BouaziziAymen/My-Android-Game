@@ -2,8 +2,7 @@ package com.evolgames.userinterface.view;
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.scenes.entities.PlayerAction;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.view.inputs.Button;

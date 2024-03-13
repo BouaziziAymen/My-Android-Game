@@ -1,6 +1,6 @@
 package com.evolgames.entities.particles.wrappers;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
 import com.evolgames.entities.particles.initializers.RandomVelocityInitializer;

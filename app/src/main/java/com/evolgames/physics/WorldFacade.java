@@ -21,10 +21,10 @@ import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
-import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
@@ -49,7 +49,6 @@ import com.evolgames.entities.cut.Segment;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
-import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
@@ -62,7 +61,6 @@ import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrap
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.Penetrating;
@@ -85,7 +83,7 @@ import com.evolgames.physics.entities.explosions.ImpactInterface;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.scenes.entities.Hand;
+import com.evolgames.entities.hand.Hand;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MathUtils;
@@ -321,21 +319,20 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         int lowerRate =
-                (int) (layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
+                (int) (10*layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
         int higherRate =
-                (int) (layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
+                (int) (10*layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
-
-        LiquidProperties juice = MaterialFactory.getInstance().getLiquidByIndex(layerBlock.getProperties().getJuiceIndex());
         LiquidParticleWrapper particleWrapper =
                 scene
                         .getWorldFacade()
                         .createLiquidParticleWrapper(
                                 parentEntity,
                                 freshCut,
-                                juice,
+                                layerBlock.getProperties().getJuiceColor(),
+                                layerBlock.getProperties().getFlammability(),
                                 lowerRate,
                                 higherRate);
         SpawnAction spawnAction =
@@ -352,7 +349,8 @@ public class WorldFacade implements ContactObserver {
     private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(
             GameEntity parentEntity,
             FreshCut freshCut,
-            LiquidProperties liquid,
+            Color color,
+            float flammability,
             final int lowerRate,
             final int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
@@ -361,7 +359,7 @@ public class WorldFacade implements ContactObserver {
                     parentEntity,
                     new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y},
                     sfc.getSplashVelocity(),
-                    liquid,
+                    color,flammability,
                     lowerRate,
                     higherRate);
 
@@ -374,7 +372,7 @@ public class WorldFacade implements ContactObserver {
                     Utils.mapWeightsToArray(
                             pfc.getPoints().stream().map(CutPoint::getWeight).collect(Collectors.toList()));
             return new ClusterLiquidParticleWrapper(
-                    parentEntity, liquid, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
+                    parentEntity, color,flammability, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
     }
 
@@ -466,11 +464,11 @@ public class WorldFacade implements ContactObserver {
     public LiquidParticleWrapper createLiquidParticleWrapper(
             GameEntity parentEntity,
             final FreshCut freshCut,
-            LiquidProperties liquid,
+            Color color,float flammability,
             int lowerRate,
             int higherRate) {
         LiquidParticleWrapper liquidSource =
-                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, liquid, lowerRate, higherRate);
+                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color,flammability, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
         scene.attachChild(liquidSource.getParticleSystem());
@@ -570,7 +568,8 @@ public class WorldFacade implements ContactObserver {
                                                         localPoint.x,
                                                         localPoint.y,
                                                         blocks.get(i),
-                                                        liquidSource.getLiquid(),
+                                                        liquidSource.getColor(),
+                                                        liquidSource.getFlammability(),
                                                         random.nextInt(14),
                                                         false);
                                         if (applied) {
@@ -1490,9 +1489,9 @@ public class WorldFacade implements ContactObserver {
                     new Color(
                             0.5f + (float) (Math.random() * 0.3f), (float) (0.2f + Math.random() * 0.2f), (float) (0.2f + Math.random() * 0.2f));
             Color skin = new Color(layerBlock.getProperties().getDefaultColor());
-            skin.setAlpha((float) (0.5f));
+            skin.setAlpha(0.5f);
             MyColorUtils.blendColors(color, color, skin);
-            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 14, false);
+            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 0f,14, false);
         }
         gameEntity.redrawStains();
     }
@@ -1510,23 +1509,19 @@ public class WorldFacade implements ContactObserver {
             float x,
             float y,
             LayerBlock concernedBlock,
-            LiquidProperties liquid,
+            Color color,float flammability,
             int index,
             boolean superpose) {
-        StainBlock stain = applyStain(gameEntity, x, y, concernedBlock, liquid.getDefaultColor(), index, superpose);
-        if (stain != null) {
-            stain.setLiquid(liquid.getLiquidId());
-            return true;
-        }
-        return false;
+        return applyStain(gameEntity, x, y, concernedBlock, color,flammability, index, superpose);
     }
 
-    public StainBlock applyStain(
+    public boolean applyStain(
             GameEntity gameEntity,
             float x,
             float y,
             LayerBlock concernedBlock,
             Color color,
+            float flammability,
             int index,
             boolean superpose) {
         Vector2 localPosition = new Vector2(x, y);
@@ -1534,7 +1529,7 @@ public class WorldFacade implements ContactObserver {
         float angle = random.nextInt(360);
         StainBlock stainBlock =
                 BlockFactory.createStainBlock(
-                        localPosition, angle, concernedBlock.getVertices(), index, color);
+                        localPosition, angle, concernedBlock.getVertices(), index, color,flammability);
 
         if (stainBlock != null
                 && stainBlock.isNotAborted()
@@ -1542,9 +1537,9 @@ public class WorldFacade implements ContactObserver {
             stainBlock.setId(index);
             stainBlock.setPriority(this.getStainPriorityFromIndex(index));
             gameEntity.addStain(concernedBlock, stainBlock);
-            return stainBlock;
+            return true;
         } else {
-            return null;
+            return false;
         }
     }
 

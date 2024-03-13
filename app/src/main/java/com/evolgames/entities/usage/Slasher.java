@@ -1,12 +1,12 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.entities.Hand;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

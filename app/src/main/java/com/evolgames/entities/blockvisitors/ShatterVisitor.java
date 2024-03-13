@@ -3,7 +3,7 @@ package com.evolgames.entities.blockvisitors;
 import static com.evolgames.physics.PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.cut.ShatterData;

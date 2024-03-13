@@ -3,7 +3,6 @@ package com.evolgames.entities.hand;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MathUtils;
-import com.evolgames.scenes.entities.Hand;
 
 public class ThrowHandControl extends HandControl {
 

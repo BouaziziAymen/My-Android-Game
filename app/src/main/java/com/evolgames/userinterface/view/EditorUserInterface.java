@@ -844,6 +844,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                     @Override
                     public void informControllerButtonReleased() {
                         scene.goToScene(SceneType.MENU);
+                        saveToolModel("editor_auto_save.mut");
 
                     }
                 });

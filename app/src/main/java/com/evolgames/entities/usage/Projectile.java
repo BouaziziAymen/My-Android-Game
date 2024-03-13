@@ -4,12 +4,11 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.physics.PhysicsConstants;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -1,10 +1,10 @@
-package com.evolgames.entities.serialization;
+package com.evolgames.entities.serialization.serializers;
 
 import static com.evolgames.entities.blocks.JointBlock.Position.A;
 import static com.evolgames.entities.blocks.JointBlock.Position.B;
 
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -27,10 +27,9 @@ import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.scenes.entities.Hand;
-import com.evolgames.scenes.entities.PlayerAction;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
-import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.entities.hand.PlayerAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class SceneSerializer {
   @SuppressWarnings("unused")
   SceneSerializer() {}
 
-  SceneSerializer(AbstractScene<?> abstractScene) {
+  public SceneSerializer(AbstractScene<?> abstractScene) {
     this.gameGroupSerializers = new ArrayList<>();
     if (abstractScene instanceof PhysicsScene) {
       PhysicsScene<?> physicsScene = (PhysicsScene<?>) abstractScene;
@@ -69,7 +68,7 @@ public class SceneSerializer {
     }
   }
 
-  void create(PhysicsScene<?> scene) {
+  public void create(PhysicsScene<?> scene) {
     List<GameGroup> gameGroups = new ArrayList<>();
     for (GameGroupSerializer gameGroupSerializer : gameGroupSerializers) {
       GameGroup gameGroup = gameGroupSerializer.create(scene);
@@ -109,7 +108,7 @@ public class SceneSerializer {
     }
   }
 
-  void afterCreate(PhysicsScene<?> scene) {
+  public void afterCreate(PhysicsScene<?> scene) {
     this.worldFacadeSerializer
         .getNonCollidingPairs()
         .forEach(

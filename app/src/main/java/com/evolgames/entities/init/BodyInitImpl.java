@@ -3,7 +3,7 @@ package com.evolgames.entities.init;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.evolgames.entities.EntityWithBody;
+import com.evolgames.entities.basics.EntityWithBody;
 import com.evolgames.entities.serialization.infos.InitInfo;
 
 public class BodyInitImpl implements BodyInit {

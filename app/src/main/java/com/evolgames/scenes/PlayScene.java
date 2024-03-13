@@ -2,7 +2,6 @@ package com.evolgames.scenes;
 
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
-import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
 import android.util.Pair;
 
@@ -11,9 +10,9 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.Plotter;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -38,9 +37,9 @@ import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.TimeBomb;
-import com.evolgames.scenes.entities.Hand;
-import com.evolgames.scenes.entities.PlayerAction;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.entities.hand.PlayerAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
@@ -226,7 +225,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 Color skin = new Color(head.getBlocks().get(0).getProperties().getDefaultColor());
                 skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
                 MyColorUtils.blendColors(color, color, skin);
-                this.worldFacade.applyStain(head, p.x, p.y, head.getBlocks().get(0), color, 14, true);
+                this.worldFacade.applyStain(head, p.x, p.y, head.getBlocks().get(0), color, 0f,14, true);
             }
             head.redrawStains();
         }
@@ -565,9 +564,14 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     public void setSpecialAction(PlayerSpecialAction action) {
         this.specialAction = action;
-        float angleDeg = 0;
         if (specialAction == PlayerSpecialAction.Stab) {
-            angleDeg = 90;
+            getHand().setHoldingAngle(90);
+        }
+        if (specialAction == PlayerSpecialAction.Slash) {
+            getHand().setHoldingAngle(0);
+        }
+        if (specialAction == PlayerSpecialAction.Fire) {
+            getHand().setHoldingAngle(0);
         }
         float forceFactor = 3000f;
         Missile missile = null;
@@ -608,7 +612,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
         if (getHand() != null) {
             getHand().setForceFactor(forceFactor);
-            getHand().setHoldingAngle(angleDeg);
         }
     }
 

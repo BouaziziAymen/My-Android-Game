@@ -1,7 +1,7 @@
 package com.evolgames.physics;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 
 @FunctionalInterface

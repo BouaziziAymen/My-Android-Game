@@ -9,11 +9,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
-import com.evolgames.entities.EntityWithBody;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.entities.GameGroup;
-import com.evolgames.entities.GroupType;
-import com.evolgames.entities.SpecialEntityType;
+import com.evolgames.entities.basics.EntityWithBody;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -354,7 +354,7 @@ public class GameEntityFactory {
 
     points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT-20, 3,5, 0, 0);
     DecorationBlock stripBlock2 =
-            BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(100/255f,40F/255,0f)), 1);
+            BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(0.4f,0.4f,0f)), 1);
     block.addAssociatedBlock(stripBlock2);
 
     blocks.add(block);
@@ -574,16 +574,17 @@ public class GameEntityFactory {
                 .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
             0);
     blocks.add(block);
+    float v1 = (HEAD_RAY
+            + TORSO_HEIGHT
+            + 2 * hLegLength
+            + 2 * lowerLegHalfLength
+            + LOWERLEG_CIR2)
+            / 32f;
     GameEntity leftFoot =
         createDollPart(
             x - (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f,
             y
-                - (HEAD_RAY
-                        + TORSO_HEIGHT
-                        + 2 * hLegLength
-                        + 2 * lowerLegHalfLength
-                        + LOWERLEG_CIR2)
-                    / 32f,
+                - v1,
             (float) 0,
             blocks,
             "head");
@@ -601,12 +602,7 @@ public class GameEntityFactory {
         createDollPart(
             x + (SHOULDER_WIDTH / 2 - UPPERLEG_CIR1) / 32f,
             y
-                - (HEAD_RAY
-                        + TORSO_HEIGHT
-                        + 2 * hLegLength
-                        + 2 * lowerLegHalfLength
-                        + LOWERLEG_CIR2)
-                    / 32f,
+                - v1,
             0,
             blocks,
             "head");

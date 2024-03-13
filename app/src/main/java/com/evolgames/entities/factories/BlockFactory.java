@@ -56,7 +56,7 @@ public class BlockFactory {
       float angle,
       List<Vector2> clipPath,
       int textureRegionIndex,
-      Color color) {
+      Color color, float flammability) {
     ITextureRegion textureRegion =
         ResourceManager.getInstance().stainTextureRegions.getTextureRegion(textureRegionIndex);
     float halfWidth = textureRegion.getWidth() / 2f;
@@ -88,7 +88,9 @@ public class BlockFactory {
       imageBounds.get(i).set(verticesData[2 * i], verticesData[2 * i + 1]);
     }
 
-    if (!GeometryUtils.IsClockwise(imageBounds)) Collections.reverse(imageBounds);
+    if (!GeometryUtils.IsClockwise(imageBounds)){
+      Collections.reverse(imageBounds);
+    }
 
     List<Vector2> clippedImageBounds = BlockUtils.applyClip(imageBounds, clipPath);
     if (clippedImageBounds == null) {
@@ -97,7 +99,7 @@ public class BlockFactory {
 
     StainBlock stainBlock = new StainBlock();
     StainProperties properties =
-        new StainProperties(textureRegionIndex, localPosition, angle, color);
+        new StainProperties(textureRegionIndex, localPosition, angle, color,flammability);
     stainBlock.initialization(clippedImageBounds, properties, 0);
 
     return stainBlock;

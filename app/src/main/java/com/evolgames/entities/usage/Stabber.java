@@ -5,12 +5,12 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import androidx.annotation.Nullable;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.MoveToStabHandControl;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
-import com.evolgames.scenes.entities.Hand;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 
 import java.util.Collections;
 import java.util.List;

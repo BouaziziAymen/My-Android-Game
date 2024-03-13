@@ -1,6 +1,6 @@
 package com.evolgames.entities.commandtemplate;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.physics.WorldFacade;
 
 public class EntityDestructionCommand extends TimedCommand {

@@ -1,6 +1,6 @@
 package com.evolgames.entities.particles.wrappers;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.FireEmitter;

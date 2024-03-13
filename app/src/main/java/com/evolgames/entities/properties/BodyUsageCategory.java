@@ -1,4 +1,4 @@
-package com.evolgames.userinterface.model;
+package com.evolgames.entities.properties;
 
 public enum BodyUsageCategory {
   SHOOTER("Shooter", "Ranged Options", 1),

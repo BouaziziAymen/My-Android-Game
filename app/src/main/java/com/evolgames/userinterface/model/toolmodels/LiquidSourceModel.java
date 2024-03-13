@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.entities.serialization.infos.LiquidSourceInfo;
 import com.evolgames.userinterface.model.ProperModel;

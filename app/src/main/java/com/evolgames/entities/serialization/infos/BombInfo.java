@@ -1,7 +1,7 @@
 package com.evolgames.entities.serialization.infos;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 
 public class BombInfo {
     private Vector2 bombPosition;

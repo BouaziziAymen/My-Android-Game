@@ -1,7 +1,8 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.factories.MaterialFactory;
-import com.evolgames.entities.properties.LiquidProperties;
+import com.evolgames.entities.basics.Liquid;
+import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -109,7 +110,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
     }
 
     public void createLiquidButtons() {
-        ArrayList<LiquidProperties> liquids = MaterialFactory.getInstance().liquids;
+        ArrayList<Liquid> liquids = Materials.liquids;
         for (int i = 0; i < liquids.size(); i++) {
             ButtonWithText<LiquidSourceOptionController> liquidButton =
                     new ButtonWithText<>(
@@ -166,7 +167,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
             }
         }
 
-        LiquidProperties liquid = MaterialFactory.getInstance().getLiquidByIndex(secondaryKey);
+        Liquid liquid = Materials.getLiquidByIndex(secondaryKey);
         liquidSourceProperties.setLiquid(liquid.getLiquidId());
     }
 

@@ -5,8 +5,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.physics.WorldFacade;
-import com.evolgames.scenes.entities.Hand;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 
 import java.util.Collections;
 import java.util.List;

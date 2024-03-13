@@ -1,6 +1,6 @@
-package com.evolgames.entities.serialization;
+package com.evolgames.entities.serialization.serializers;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.commandtemplate.EntityDestructionCommand;
 import com.evolgames.entities.commandtemplate.TimedCommand;
 import com.evolgames.entities.contact.Pair;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class WorldFacadeSerializer {
 
     private List<Pair<String>> nonCollidingPairs;
-    List<TimedCommand> timedCommandList;
+    public List<TimedCommand> timedCommandList;
 
     @SuppressWarnings("unused")
     public WorldFacadeSerializer() {

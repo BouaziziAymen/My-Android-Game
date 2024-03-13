@@ -7,7 +7,7 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 

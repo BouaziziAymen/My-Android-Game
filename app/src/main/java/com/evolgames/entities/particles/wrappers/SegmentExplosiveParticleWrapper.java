@@ -1,7 +1,7 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedMinMaxVelocityInitializer;

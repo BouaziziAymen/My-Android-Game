@@ -1,7 +1,10 @@
-package com.evolgames.entities;
+package com.evolgames.entities.basics;
 
+
+import com.evolgames.entities.factories.MaterialFactory;
 
 import org.andengine.util.adt.color.Color;
+import com.evolgames.entities.factories.Materials;
 
 public class Material {
 
@@ -16,6 +19,8 @@ public class Material {
   private final float JuicinessLowerPressure;
   private final float JuicinessUpperPressure;
   private final boolean juicy;
+  private final Color juiceColor;
+  private final float juiceFlammability;
   private final float hardness;
   private final double ignitionTemperature;
   private final double flameTemperature;
@@ -58,6 +63,8 @@ public class Material {
     this.JuicinessLowerPressure = jlp;
     this.JuicinessUpperPressure = jup;
     this.JuicinessDensity = jd;
+    this.juiceColor = Materials.getLiquidByIndex(juiceIndex).getDefaultColor();
+    this.juiceFlammability = Materials.getLiquidByIndex(juiceIndex).getFlammability();
     this.combustible = combustible;
     this.ignitionTemperature = ignitionTemperature;
     this.flameTemperature = flameTemperature;
@@ -90,6 +97,8 @@ public class Material {
     this.tenacity = tenacity;
     this.hardness = hardness;
     this.juicy = false;
+    this.juiceColor = new Color(Color.WHITE);
+    this.juiceFlammability = 0f;
     this.JuicinessLowerPressure = 0;
     this.JuicinessUpperPressure = 0;
     this.JuicinessDensity = 0;
@@ -161,6 +170,10 @@ public class Material {
     return JuicinessUpperPressure;
   }
 
+  public Color getJuiceColor() {
+    return juiceColor;
+  }
+
   public float getHardness() {
     return hardness;
   }
@@ -175,5 +188,13 @@ public class Material {
 
   public float getFlammability() {
     return flammability;
+  }
+
+  public float getJuiceFlammability() {
+    return juiceFlammability;
+  }
+
+  public void setJuiceIndex(int juiceIndex) {
+    this.juiceIndex = juiceIndex;
   }
 }

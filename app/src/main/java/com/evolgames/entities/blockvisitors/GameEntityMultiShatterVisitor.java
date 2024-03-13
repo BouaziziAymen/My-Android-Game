@@ -1,8 +1,6 @@
 package com.evolgames.entities.blockvisitors;
 
-import static com.evolgames.physics.PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA;
-
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.physics.WorldFacade;

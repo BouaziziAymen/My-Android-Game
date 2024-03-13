@@ -91,12 +91,12 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
   @Override
   public void createUserInterface() {
     String editorFile = this.loadStringFromPreferences(EDITOR_FILE);
-    ToolModel toolModel = loadToolModel(editorFile,true, false);
+    ToolModel toolModel = loadToolModel("editor_auto_save.mut",true, false);
     if(toolModel==null){
       toolModel = new ToolModel(this,4);
     }
     init();
-
+Log.e("Loading!!!!!!",""+toolModel.getModelName());
     KeyboardController keyboardController = new KeyboardController();
     OutlineController outlineController = new OutlineController();
     LayerWindowController layerWindowController = new LayerWindowController();

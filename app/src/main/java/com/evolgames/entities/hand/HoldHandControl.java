@@ -1,8 +1,7 @@
 package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.entities.GameEntity;
-import com.evolgames.scenes.entities.Hand;
+import com.evolgames.entities.basics.GameEntity;
 
 public class HoldHandControl extends HandControl {
 

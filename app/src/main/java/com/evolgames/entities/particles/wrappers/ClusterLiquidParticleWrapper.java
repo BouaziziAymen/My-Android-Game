@@ -1,22 +1,24 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.ClusterEmitter;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.utilities.GeometryUtils;
-import com.evolgames.entities.properties.LiquidProperties;
+
+import org.andengine.util.adt.color.Color;
 
 public class ClusterLiquidParticleWrapper extends DataLiquidParticleWrapper {
   public ClusterLiquidParticleWrapper(
       GameEntity gameEntity,
-      LiquidProperties liquid,
+      Color color,
+      float flammability,
       float[] data,
       float[] weights,
       Vector2 splashVelocity,
       int lowerRate,
       int higherRate) {
-    super(gameEntity, data, weights, splashVelocity, liquid, lowerRate, higherRate);
+    super(gameEntity, data, weights, splashVelocity, color,flammability, lowerRate, higherRate);
   }
 
   @Override

@@ -1,13 +1,14 @@
 package com.evolgames.userinterface.view.windows.windowfields;
 
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.windowcontrollers.ThreeLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.abstractgamecontrollers.AbstractSectionedAdvancedWindowController2;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 
-public class Sub2SectionField<C extends AbstractSectionedAdvancedWindowController2>
+public class Sub2SectionField<C extends ThreeLevelSectionedAdvancedWindowController>
     extends SimpleTertiary<ButtonWithText<C>> {
 
   public Sub2SectionField(
@@ -30,12 +31,12 @@ public class Sub2SectionField<C extends AbstractSectionedAdvancedWindowControlle
             new ButtonBehavior<C>(controller, getMain()) {
               @Override
               public void informControllerButtonClicked() {
-                controller.onSecondaryButtonClicked(Sub2SectionField.this);
+                controller.onTertiaryButtonClicked(Sub2SectionField.this);
               }
 
               @Override
               public void informControllerButtonReleased() {
-                controller.onSecondaryButtonReleased(Sub2SectionField.this);
+                controller.onTertiaryButtonReleased(Sub2SectionField.this);
               }
             });
   }

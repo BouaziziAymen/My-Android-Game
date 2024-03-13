@@ -1,4 +1,4 @@
-package com.evolgames.entities;
+package com.evolgames.entities.basics;
 
 public enum SpecialEntityType {
   Default,

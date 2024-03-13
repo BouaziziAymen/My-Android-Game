@@ -1,14 +1,13 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
-import com.evolgames.entities.properties.LiquidProperties;
 import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.particle.Particle;
@@ -26,22 +25,26 @@ public abstract class LiquidParticleWrapper {
     private final GameEntityAttachedVelocityInitializer velocityInitializer;
     private final GameEntity parent;
     private final Vector2 splashVelocity;
-    private final LiquidProperties liquid;
+    private final float flammability;
     private boolean alive = true;
     private int timer = 0;
 
+    private final Color color;
+
     public LiquidParticleWrapper(
             GameEntity gameEntity,
-            LiquidProperties liquid,
+            Color color,
+            float flammability,
             float[] data,
             float[] weights,
             Vector2 splashVelocity,
             int lowerRate,
             int higherRate) {
-        this.liquid = liquid;
         this.splashVelocity = splashVelocity;
         this.emitter = createEmitter(data, weights);
         this.parent = gameEntity;
+        this.color = color;
+        this.flammability = flammability;
 
         this.particleSystem =
                 new BaseParticleSystem(
@@ -55,10 +58,10 @@ public abstract class LiquidParticleWrapper {
         this.velocityInitializer = new GameEntityAttachedVelocityInitializer(gameEntity, new Vector2());
         this.particleSystem.addParticleInitializer(velocityInitializer);
 
-        Color liquidColor = liquid.getDefaultColor();
+
         this.particleSystem.addParticleInitializer(
                 new ColorParticleInitializer<>(
-                        liquidColor.getRed(), liquidColor.getGreen(), liquidColor.getBlue()));
+                        color.getRed(), color.getGreen(), color.getBlue()));
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(0.3f));
         this.addGravity();
         this.particleSystem.addParticleModifier(new SmoothRotationModifier());
@@ -74,10 +77,6 @@ public abstract class LiquidParticleWrapper {
     }
 
     protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights);
-
-    public LiquidProperties getLiquid() {
-        return liquid;
-    }
 
     public void update() {
         timer++;
@@ -102,6 +101,14 @@ public abstract class LiquidParticleWrapper {
             }
             updateEmitter();
         }
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public float getFlammability() {
+        return flammability;
     }
 
     public void updateEmitter() {

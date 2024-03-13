@@ -1,4 +1,4 @@
-package com.evolgames.scenes.entities;
+package com.evolgames.entities.hand;
 
 public enum PlayerAction {
   Drag,

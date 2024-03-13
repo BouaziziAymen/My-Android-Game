@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.evolgames.entities.Material;
+import com.evolgames.entities.basics.Material;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.utilities.BlockUtils;
 import java.util.ArrayList;

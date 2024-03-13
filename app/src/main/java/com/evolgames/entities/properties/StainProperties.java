@@ -6,20 +6,21 @@ import com.badlogic.gdx.math.Vector2;
 import org.andengine.util.adt.color.Color;
 
 public class StainProperties extends ColoredProperties {
-
   private Color color;
   private Vector2 localCenter;
   private int textureRegionIndex;
   private float rotation;
+  private float flammability;
 
   @SuppressWarnings("unused")
   public StainProperties() {}
 
-  public StainProperties(int textureRegionIndex, Vector2 localCenter, float rotation, Color color) {
+  public StainProperties(int textureRegionIndex, Vector2 localCenter, float rotation, Color color, float flammability) {
     this.textureRegionIndex = textureRegionIndex;
     this.localCenter = new Vector2(localCenter);
     this.rotation = rotation;
     this.color = color;
+    this.flammability = flammability;
   }
 
   @NonNull
@@ -30,7 +31,12 @@ public class StainProperties extends ColoredProperties {
     clone.setLocalCenter(localCenter.cpy());
     clone.setRotation(rotation);
     clone.setDefaultColor(color);
+    clone.setFlammability(flammability);
     return clone;
+  }
+
+  public void setFlammability(float flammability) {
+    this.flammability = flammability;
   }
 
   public void setLocalCenter(Vector2 center) {
@@ -59,5 +65,9 @@ public class StainProperties extends ColoredProperties {
 
   public void setTextureRegionIndex(int textureRegionIndex) {
     this.textureRegionIndex = textureRegionIndex;
+  }
+
+  public float getFlammability() {
+    return flammability;
   }
 }

@@ -21,4 +21,13 @@ public class TitledButton<C extends AdvancedWindowController<?>> extends TitledF
       boolean attachmentFirst) {
     super(titleString, new Button<>(textureRegion, buttonType, true), margin, attachmentFirst);
   }
+
+  public TitledButton(
+          String titleString,
+          TiledTextureRegion textureRegion,
+          Button.ButtonType buttonType,
+          float margin,
+          boolean attachmentFirst, int fontId) {
+    super(titleString, new Button<>(textureRegion, buttonType, true), margin, attachmentFirst,fontId);
+  }
 }

@@ -1,6 +1,6 @@
 package com.evolgames.entities.usage;
 
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -22,3 +22,19 @@
 -keep class com.badlogic.gdx.physics.box2d.World{
     *;
 }
+
+# Keep all classes in the com.example package
+-keep class com.evolgames.entities.properties.** { *; }
+-keep class com.evolgames.entities.serialization.infos.** { *; }
+-keep class com.evolgames.entities.serialization.serializers.** { *; }
+-keep class com.evolgames.userinterface.model.** { *; }
+-keep class com.evolgames.entities.hand.** { *; }
+-keep class com.evolgames.entities.usage.** { *; }
+-keep class com.evolgames.entities.init.BodyInitImpl
+-keep class com.evolgames.entities.basics.SpecialEntityType { *; }
+-keep class com.evolgames.entities.basics.GroupType { *; }
+-keep class com.evolgames.entities.commandtemplate.EntityDestructionCommand
+-keep class com.evolgames.entities.contact.Pair
+-keep class com.evolgames.entities.cut.PointsFreshCut
+-keep class com.evolgames.entities.cut.CutPoint
+-keep class com.evolgames.entities.cut.SegmentFreshCut

@@ -1,7 +1,8 @@
 package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.GameEntity;
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;

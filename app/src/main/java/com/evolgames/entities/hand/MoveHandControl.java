@@ -2,7 +2,6 @@ package com.evolgames.entities.hand;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
-import com.evolgames.scenes.entities.Hand;
 
 public class MoveHandControl extends HandControl {
 

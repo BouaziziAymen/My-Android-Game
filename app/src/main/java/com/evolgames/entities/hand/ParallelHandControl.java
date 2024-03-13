@@ -1,15 +1,19 @@
 package com.evolgames.entities.hand;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ParallelHandControl extends HandControl {
 
-  private HandControl[] controls;
+  private List<HandControl> controls;
 
   @SuppressWarnings("unused")
   public ParallelHandControl() {
   }
   public ParallelHandControl(HandControl... list) {
     super();
-    this.controls = list;
+    this.controls = new ArrayList<>(Arrays.asList(list));
   }
 
   @Override

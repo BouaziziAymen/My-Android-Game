@@ -2,6 +2,8 @@ package com.evolgames.entities.properties;
 
 import com.evolgames.entities.factories.PropertiesFactory;
 
+import org.andengine.util.adt.color.Color;
+
 public class LayerProperties extends ColoredProperties {
     private String layerName;
     private int order;
@@ -19,10 +21,14 @@ public class LayerProperties extends ColoredProperties {
     private float hardness;
     private float sharpness = 0f;
     private boolean juicy;
+
+    private Color juiceColor = new Color(Color.WHITE);
     private float juicinessDensity;
     private float juicinessLowerPressure;
     private float juicinessUpperPressure;
     private int juiceIndex;
+
+    private float juiceFlammability;
     private float heatResistance = 10f;
 
     public LayerProperties copy() {
@@ -195,5 +201,21 @@ public class LayerProperties extends ColoredProperties {
 
     public void setFlammability(float flammability) {
         this.flammability = flammability;
+    }
+
+    public Color getJuiceColor() {
+        return juiceColor;
+    }
+
+    public void setJuiceColor(Color juiceColor) {
+        this.juiceColor = juiceColor;
+    }
+
+    public float getJuiceFlammability() {
+        return juiceFlammability;
+    }
+
+    public void setJuiceFlammability(float juiceFlammability) {
+        this.juiceFlammability = juiceFlammability;
     }
 }

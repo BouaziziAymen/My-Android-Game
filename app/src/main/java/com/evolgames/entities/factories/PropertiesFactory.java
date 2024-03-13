@@ -1,6 +1,6 @@
 package com.evolgames.entities.factories;
 
-import com.evolgames.entities.Material;
+import com.evolgames.entities.basics.Material;
 import com.evolgames.entities.properties.LayerProperties;
 import org.andengine.util.adt.color.Color;
 
@@ -33,7 +33,8 @@ public class PropertiesFactory {
     properties.setChemicalEnergy(material.getEnergy());
     properties.setFlammable(material.isFlammable());
     properties.setFlammability(material.getFlammability());
-
+    properties.setJuiceColor(material.getJuiceColor());
+    properties.setJuiceFlammability(material.getJuiceFlammability());
     return properties;
   }
 
@@ -57,6 +58,8 @@ public class PropertiesFactory {
     properties.setFlameTemperature(original.getFlameTemperature());
     properties.setChemicalEnergy(original.getChemicalEnergy());
     properties.setSharpness(original.getSharpness());
+    properties.setJuiceColor(original.getJuiceColor());
+    properties.setJuiceFlammability(original.getJuiceFlammability());
     return properties;
   }
 }

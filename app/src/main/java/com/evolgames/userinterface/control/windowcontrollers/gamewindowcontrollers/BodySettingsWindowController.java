@@ -24,7 +24,7 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.BodyUsageCategory;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;

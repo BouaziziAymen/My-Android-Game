@@ -12,11 +12,10 @@ public class TitledField<A extends Element> extends LinearLayout {
   public TitledField(String titleString, A attachment) {
     this(titleString, attachment, 10);
   }
-
-  public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst) {
+  public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst, int fontId) {
     super(LinearLayout.Direction.Horizontal, margin);
     this.mAttachment = attachment;
-    Text title = new Text(titleString, 2);
+    Text title = new Text(titleString, fontId);
     title.setLowerBottomY(attachment.getHeight() / 2);
     if (attachmentFirst) {
       addToLayout(attachment);
@@ -26,11 +25,14 @@ public class TitledField<A extends Element> extends LinearLayout {
       addToLayout(attachment);
     }
     float maxY =
-        Math.max(
-            title.getLowerBottomY() + title.getHeight(),
-            attachment.getLowerBottomY() + attachment.getHeight());
+            Math.max(
+                    title.getLowerBottomY() + title.getHeight(),
+                    attachment.getLowerBottomY() + attachment.getHeight());
     float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
     setHeight(maxY - minY);
+  }
+  public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst) {
+  this(titleString,attachment,margin,attachmentFirst,2);
   }
 
   public TitledField(String titleString, A attachment, float margin) {

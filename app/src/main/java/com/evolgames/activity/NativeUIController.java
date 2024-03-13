@@ -1,17 +1,13 @@
 package com.evolgames.activity;
 
-import android.app.Activity;
-
 import com.evolgames.activity.components.PlayUIFragment;
-import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.scenes.MainScene;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.scenes.entities.PlayerAction;
-import com.evolgames.scenes.entities.PlayerSpecialAction;
+import com.evolgames.entities.hand.PlayerAction;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.scenes.entities.SceneType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NativeUIController implements INativeUIController{
@@ -32,6 +28,7 @@ public class NativeUIController implements INativeUIController{
     public void onHomeButtonPressed() {
         gameActivity.runOnUpdateThread(()->{
             ((PlayScene)mainScene.getChildScene()).onPause();
+            resetUI();
             mainScene.goToScene(SceneType.MENU);
         });
 
@@ -49,8 +46,24 @@ public class NativeUIController implements INativeUIController{
     playUIFragment.setOptionsList(usageList,selected);
     }
 
+    @Override
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
         PlayScene playScene = ((PlayScene)mainScene.getChildScene());
         playScene.onOptionSelected(playerSpecialAction);
+    }
+    @Override
+    public void resetUI(){
+        gameActivity.runOnUiThread(()->{
+            switch(gameActivity.getInstalledUI()){
+                case GAME:
+                    PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+                    gameUIFragment.reset();
+                    break;
+                case EDITOR:
+                    break;
+                case MENU:
+                    break;
+            }
+        });
     }
 }

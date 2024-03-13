@@ -2,6 +2,7 @@ package com.evolgames.scenes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
@@ -57,7 +58,7 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
       try {
         toolModel = PersistenceCaretaker.getInstance().loadToolModel(file,editor,assets);
       } catch (IOException | ParserConfigurationException | SAXException | PersistenceException e) {
-        e.printStackTrace();
+     Log.e("----------- Loading Error ---------",e.toString());
       }
       return toolModel;
     }
