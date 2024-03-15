@@ -1,11 +1,13 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.entities.serialization.infos.LiquidSourceInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
+import com.evolgames.utilities.GeometryUtils;
 
 public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
 
@@ -66,10 +68,20 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
   public void setLiquidSourceField(LiquidSourceField liquidSourceField) {
     this.liquidSourceField = liquidSourceField;
   }
-  public LiquidSourceInfo toLiquidSourceInfo() {
+  public LiquidSourceInfo toLiquidSourceInfo(boolean mirrored) {
     LiquidSourceInfo liquidSourceInfo = new LiquidSourceInfo();
-    liquidSourceInfo.setLiquidSourceOrigin(this.properties.getLiquidSourceOrigin());
-    liquidSourceInfo.setLiquidDirection(this.properties.getLiquidSourceDirection());
+    Vector2 centredOrigin = this.properties
+            .getLiquidSourceOrigin()
+            .cpy()
+            .sub(containerEntity.getCenter())
+            .mul(1 / 32f);
+    Vector2 direction = this.properties.getLiquidSourceDirection();
+    if(mirrored){
+      centredOrigin = GeometryUtils.mirrorPoint(centredOrigin);
+      direction.x = -direction.x;
+    }
+    liquidSourceInfo.setLiquidSourceOrigin(centredOrigin);
+    liquidSourceInfo.setLiquidDirection(direction);
     liquidSourceInfo.setExtent(this.properties.getExtent());
     liquidSourceInfo.setContainerEntity(this.containerEntity);
     liquidSourceInfo.setSealEntity(this.sealEntity);

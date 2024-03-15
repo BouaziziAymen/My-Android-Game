@@ -13,11 +13,10 @@ import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
-import com.evolgames.entities.particles.wrappers.FluxParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.FluxParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.entities.SceneType;
-import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.MenuUserInterface;
 import org.andengine.engine.camera.Camera;
 import org.andengine.input.touch.TouchEvent;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuScene extends PhysicsScene<MenuUserInterface> {
-  private FluxParticleWrapperWithPolygonEmitter flux;
+  private FluxParticleWrapper flux;
   private GameGroup jarGroup;
 
   public MenuScene(Camera pCamera) {
@@ -61,7 +60,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
 //      this.attachChild(flux.getParticleSystem());
 
     createRagDoll(400,460);
-    jarGroup = createItem("evil_jar_latest.xml", 300, 320,true);
+    jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 320,true,false);
   }
 
   @Override
@@ -71,7 +70,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
       this.flux.update();
     }
     if(step == 10){
-      this.flux = new FluxParticleWrapperWithPolygonEmitter(jarGroup.getGameEntityByIndex(0), ragdoll.upperTorso);
+      this.flux = new FluxParticleWrapper(jarGroup.getGameEntityByIndex(0), ragdoll.upperTorso);
       this.attachChild(flux.getParticleSystem());
     }
    if(step>10&&Math.random()<0.05f){
@@ -86,9 +85,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
       this.userInterface.detachSelf();
     }
   }
-  public GameGroup createItem(float x, float y, ToolModel toolModel) {
-    return createTool(toolModel,x,y,0);
-  }
+
   @Override
   public void onPause() {
     this.detach();

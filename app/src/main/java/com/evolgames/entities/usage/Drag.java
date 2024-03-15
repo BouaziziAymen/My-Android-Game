@@ -6,6 +6,7 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.serialization.infos.DragInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 
 import java.util.List;
@@ -13,8 +14,6 @@ import java.util.List;
 public class Drag extends Use {
 
   private DragInfo dragInfo;
-  private transient GameEntity draggedEntity;
-  private String draggedEntityUniqueId;
 
   @SuppressWarnings("unused")
   public Drag(){}
@@ -23,30 +22,17 @@ public class Drag extends Use {
     this.dragInfo = dragModel.toDragInfo();
   }
 
-  public String getDraggedEntityUniqueId() {
-    return draggedEntityUniqueId;
-  }
 
-  public GameEntity getDraggedEntity() {
-    return draggedEntity;
-  }
-
-  public void setDraggedEntity(GameEntity draggedEntity) {
-    this.draggedEntity = draggedEntity;
-    this.draggedEntityUniqueId = draggedEntity.getUniqueID();
-  }
 
   @Override
   public void onStep(float deltaTime, WorldFacade worldFacade) {
-    if(draggedEntity==null){
+    if(dragInfo.getDraggedEntity()==null){
       return;
     }
-    Body body = draggedEntity.getBody();
+    Body body = dragInfo.getDraggedEntity().getBody();
     if (body != null) {
       Vector2 normal = dragInfo.getDragNormal();
-      Vector2 begin = dragInfo.getDragOrigin();
-      Vector2 center =
-          body.getWorldPoint(begin.cpy().sub(draggedEntity.getCenter()).mul(1 / 32f)).cpy();
+      Vector2 center = body.getWorldPoint( dragInfo.getDragOrigin()).cpy();
       Vector2 velocity = body.getLinearVelocity();
       Vector2 projectedNormal = body.getWorldVector(normal);
       float velocityProjection = velocity.dot(projectedNormal);
@@ -56,11 +42,9 @@ public class Drag extends Use {
                 * dragInfo.getExtent()
                 * velocityProjection
                 * velocityProjection
-                * draggedEntity.getBody().getMass();
+                * dragInfo.getDraggedEntity().getBody().getMass();
         Vector2 force = projectedNormal.cpy().mul(forceFactor);
 
-        // PlayScene.plotter.drawVector(center.cpy().mul(32f), projectedNormal.cpy().mul(32),
-        // Color.RED);
         body.applyForce(force.x, force.y, center.x, center.y);
       }
     }
@@ -69,5 +53,14 @@ public class Drag extends Use {
   @Override
   public List<PlayerSpecialAction> getActions() {
     return null;
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
+  }
+
+  public DragInfo getDragInfo() {
+    return dragInfo;
   }
 }

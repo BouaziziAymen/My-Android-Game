@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.FireSourceProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
@@ -65,7 +66,13 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
 
   public FireSourceInfo toFireSourceInfo() {
     FireSourceInfo fireSourceInfo = new FireSourceInfo();
-    fireSourceInfo.setFireSourceOrigin(this.properties.getFireSourceOrigin());
+
+    Vector2 centredOrigin = this.properties
+            .getFireSourceOrigin()
+            .cpy()
+            .sub(muzzleEntity.getCenter())
+            .mul(1 / 32f);
+    fireSourceInfo.setFireSourceOrigin(centredOrigin);
     fireSourceInfo.setFireDirection(this.properties.getFireSourceDirection());
     fireSourceInfo.setFireRatio(this.properties.getFireRatio());
     fireSourceInfo.setSmokeRatio(this.properties.getSmokeRatio());

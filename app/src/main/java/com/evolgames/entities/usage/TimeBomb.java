@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 public class TimeBomb extends Bomb {
@@ -10,10 +11,10 @@ public class TimeBomb extends Bomb {
   private boolean count;
 
   @SuppressWarnings("unused")
-  public TimeBomb() {
+  public TimeBomb(UsageModel<?> e) {
   }
-  public TimeBomb(UsageModel<?> usageModel) {
-    super(usageModel);
+  public TimeBomb(UsageModel<?> usageModel, boolean mirrored) {
+    super(usageModel,mirrored);
     TimeBombUsageProperties properties = (TimeBombUsageProperties) usageModel.getProperties();
     this.countDown = properties.getDelay();
   }
@@ -34,6 +35,11 @@ public class TimeBomb extends Bomb {
     if (count&&alive) {
       countDown -= deltaTime;
     }
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
   }
 
   public void onTriggerReleased() {

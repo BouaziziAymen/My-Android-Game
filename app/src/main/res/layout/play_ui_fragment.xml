@@ -102,12 +102,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.evolgames.activity.components.GameImageButton
-            android:id="@+id/weapons_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:buttonType="select"
-            app:icon="@drawable/tools_icon" />
+            android:orientation="horizontal">
+
+            <com.evolgames.activity.components.GameImageButton
+                android:id="@+id/weapons_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:buttonType="select"
+                app:icon="@drawable/tools_icon" />
+            <com.evolgames.activity.components.GameImageButton
+                android:id="@+id/mirror_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:buttonType="click"
+                app:icon="@drawable/flip_icon" />
+        </LinearLayout>
 
         <ExpandableListView
             android:id="@+id/exp_list"

@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.DragProperties;
 import com.evolgames.entities.serialization.infos.DragInfo;
@@ -67,7 +68,12 @@ public class DragModel extends ProperModel<DragProperties> {
 
   public DragInfo toDragInfo() {
     DragInfo dragInfo = new DragInfo();
-    dragInfo.setDragOrigin(this.properties.getDragOrigin());
+    Vector2 centredOrigin = this.properties
+            .getDragOrigin()
+            .cpy()
+            .sub(draggedEntity.getCenter())
+            .mul(1 / 32f);
+    dragInfo.setDragOrigin(centredOrigin);
     dragInfo.setDragNormal(this.properties.getDragNormal());
     dragInfo.setExtent(Math.abs(this.properties.getExtent1())+Math.abs(this.properties.getExtent2()));
     dragInfo.setSymmetrical(this.properties.isSymmetrical());

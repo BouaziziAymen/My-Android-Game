@@ -1,7 +1,8 @@
 package com.evolgames.entities.commandtemplate.commands;
 
 
-import com.badlogic.gdx.physics.box2d.Body;
+import android.util.Log;
+
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
@@ -9,7 +10,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
-import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 public class JointCreationCommand extends Command {
@@ -26,13 +27,12 @@ public class JointCreationCommand extends Command {
     this.entity2 = entity2;
     this.mainBlock = main;
   }
-
-
   @Override
   protected void run() {
     PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
     Joint joint = physicsWorld.createJoint(jointDef);
     joint.setUserData(this.mainBlock);
+    Log.e("Mirror","Creating :"+joint.getType()+" on:"+entity2.getName());
     if (joint instanceof MouseJoint) {
       Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
     }
@@ -40,33 +40,9 @@ public class JointCreationCommand extends Command {
 
   @Override
   protected boolean isReady() {
-//    if(entity1==null||entity2==null||jointDef==null){
-//      return false;
-//    }
     jointDef.bodyA = entity1.getBody();
     jointDef.bodyB = entity2.getBody();
     return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
-  }
-
-  public JointDef getJointDef() {
-    return jointDef;
-  }
-
-  private boolean isBodyAlive(Body body) {
-    if (body == null) {
-      return false;
-    }
-    AtomicBoolean result = new AtomicBoolean(false);
-    Invoker.scene
-        .getPhysicsWorld()
-        .getBodies()
-        .forEachRemaining(
-            body1 -> {
-              if (body1 == body) {
-                result.set(true);
-              }
-            });
-    return result.get();
   }
 
 }

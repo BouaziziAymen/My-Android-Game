@@ -40,18 +40,30 @@ public class GeometryUtils {
     float newY = u.y + begin.y;
     point.set(newX, newY);
   }
+  private final static Vector2 UP = new Vector2(0,1);
+  public static List<Vector2> mirrorPoints(List<Vector2> points) {
+    List<Vector2> result = new ArrayList<>();
+    for (int i = 0; i < points.size(); i++) {
+      Vector2 mirroredPoint = GeometryUtils.vectorRotated(UP, points.get(i));
+      result.add(mirroredPoint);
+    }
+    return result;
+  }
+  public static Vector2 mirrorPoint(Vector2 point){
+    return GeometryUtils.vectorRotated(UP, point);
+  }
 
   public static List<Vector2> mirrorPoints(List<Vector2> points, Vector2 begin, Vector2 end) {
     List<Vector2> result = new ArrayList<>();
     Vector2 direction = end.cpy().sub(begin);
     for (int i = 0; i < points.size(); i++) {
       Vector2 v = points.get(i).cpy().sub(begin);
-      Vector2 mirroredPoint = begin.cpy().add(GeometryUtils.imageMirror(direction, v));
+      Vector2 mirroredPoint = begin.cpy().add(GeometryUtils.vectorRotated(direction, v));
       result.add(mirroredPoint);
     }
     return result;
   }
-  public static Vector2 imageMirror(Vector2 mirrorDirection, Vector2 point) {
+  public static Vector2 vectorRotated(Vector2 mirrorDirection, Vector2 point) {
     float angle = (float) (-Math.atan2(mirrorDirection.y, mirrorDirection.x) + Math.atan2(point.y, point.x));
     return GeometryUtils.rotatedVectorRad(point, -2 * angle);
   }
@@ -221,6 +233,7 @@ public class GeometryUtils {
     v.x = rx;
     v.y = ry;
   }
+
   public static Vector2 rotatedVectorRad(Vector2 v, float r) {
 
     float rx = (float) (v.x * Math.cos(r) - v.y * Math.sin(r));

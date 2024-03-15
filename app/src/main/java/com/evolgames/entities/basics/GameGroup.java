@@ -56,4 +56,9 @@ public class GameGroup {
   public List<Command> getCommands() {
     return commands;
   }
+
+  public List<GameEntity> getEntities() {
+    return entities;
+  }
+
 }

@@ -3,7 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.RocketProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
@@ -12,6 +12,7 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -114,6 +115,7 @@ public class Rocket extends Use {
     }
   }
 
+
   public void createFireSources(WorldFacade worldFacade) {
     this.rocketFireSourceInfMap = new HashMap<>();
     this.fireSourceInfoList.forEach(
@@ -122,7 +124,7 @@ public class Rocket extends Use {
 
             Vector2 dir = p.getFireDirection();
             Vector2 nor = new Vector2(-dir.y, dir.x);
-            Vector2 e = p.getFireSourceOrigin().cpy().sub(p.getMuzzleEntity().getCenter());
+            Vector2 e = p.getFireSourceOrigin().cpy().mul(32f);
             float axisExtent = p.getExtent();
             ExplosiveParticleWrapper fireSource =
                 worldFacade.createFireSource(
@@ -151,4 +153,17 @@ public class Rocket extends Use {
   public boolean isOn() {
     return this.on;
   }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    fireSourceInfoList.forEach(fireSourceInfo -> {
+      fireSourceInfo.getFireSourceOrigin().set(GeometryUtils.mirrorPoint(fireSourceInfo.getFireSourceOrigin()));
+      fireSourceInfo.getFireDirection().x = -fireSourceInfo.getFireDirection().x;
+    });
+    this.rocketFireSourceInfMap.values().forEach(
+            ExplosiveParticleWrapper::detach
+    );
+    createFireSources(physicsScene.getWorldFacade());
+  }
+
 }

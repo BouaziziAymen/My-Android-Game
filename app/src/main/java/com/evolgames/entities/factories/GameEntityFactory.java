@@ -53,7 +53,6 @@ import org.andengine.util.adt.color.Color;
 
 public class GameEntityFactory {
   private static final GameEntityFactory INSTANCE = new GameEntityFactory();
-  public Box hand;
   private PhysicsScene<?> scene;
   private PhysicsWorld physicsWorld;
 
@@ -70,6 +69,7 @@ public class GameEntityFactory {
       float x,
       float y,
       float rot,
+      boolean mirrored,
       BodyInit bodyInit,
       List<LayerBlock> blocks,
       BodyDef.BodyType bodyType,
@@ -82,8 +82,8 @@ public class GameEntityFactory {
 
     MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x * 32, y * 32, rot, blocks);
    // mesh.setCullingEnabled(true);
-
     GameEntity entity = new GameEntity(mesh, scene, name, blocks);
+    entity.setMirrored(mirrored);
     entity.setMesh(mesh);
     entity.setVisible(false);
     this.scene.attachChild(entity.getMesh());
@@ -209,6 +209,7 @@ public class GameEntityFactory {
                   x + newCenter.x / 32f,
                   y + newCenter.y / 32f,
                   rot,
+                  false,
                   bodyInit,
                   group,
                   BodyDef.BodyType.DynamicBody,
@@ -233,7 +234,7 @@ public class GameEntityFactory {
     GameGroup gameGroup = new GameGroup(groupType);
     BodyInit bodyInit = new TransformInit(new BodyInitImpl(category), position.x, position.y, 0);
     GameEntity entity =
-        createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, name);
+        createGameEntity(position.x, position.y, 0,false, bodyInit, groupBlocks, bodyType, name);
     gameGroup.addGameEntity(entity);
     scene.addGameGroup(gameGroup);
     return gameGroup;
@@ -251,6 +252,7 @@ public class GameEntityFactory {
             position.x,
             position.y,
             angle,
+            false,
             bodyInit,
             parentBlocks,
             BodyDef.BodyType.DynamicBody,
@@ -265,7 +267,7 @@ public class GameEntityFactory {
     BodyInit bodyInit =
         new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), position.x, position.y, 0);
     GameEntity entity =
-        createGameEntity(position.x, position.y, 0, bodyInit, groupBlocks, bodyType, "");
+        createGameEntity(position.x, position.y, 0,false, bodyInit, groupBlocks, bodyType, "");
     gameGroup.addGameEntity(entity);
     scene.addGameGroup(gameGroup);
     return gameGroup;
@@ -274,24 +276,14 @@ public class GameEntityFactory {
   GameEntity createDollPart(
       float x, float y, float rot, ArrayList<LayerBlock> blocks, String name) {
     BodyInit bodyInit =
-        new BulletInit(
             new TransformInit(
                 new BodyInitImpl(
                     (short)
                         (OBJECTS_MIDDLE_CATEGORY | OBJECTS_FRONT_CATEGORY | OBJECTS_BACK_CATEGORY)),
                 x,
                 y,
-                rot),
-            false);
-    return this.createGameEntity(x, y, rot, bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
-  }
-
-  GameEntity createDollPart(
-      float x, float y, Filter filter, ArrayList<LayerBlock> blocks, String name) {
-    BodyInit bodyInit =
-        new BulletInit(new TransformInit(new BodyInitImpl(filter), x, y, (float) 0), false);
-    return this.createGameEntity(
-        x, y, (float) 0, bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
+                rot);
+    return this.createGameEntity(x, y, rot, false,bodyInit, blocks, BodyDef.BodyType.DynamicBody, name);
   }
 
   public RagDoll createRagdoll(float x, float y) {
@@ -795,121 +787,4 @@ public class GameEntityFactory {
     return ragdoll;
   }
 
-  /*    public void createTest() {
-
-
-          ArrayList<Vector2> points = VerticesFactory.createPolygon(0, 0, 40, 40, 4);
-          LayerBlock block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(2), new Filter()), 0);
-          ArrayList<LayerBlock> blocks = new ArrayList<>();
-          points = VerticesFactory.createPolygon(0, 0, 10, 60, 4);
-          LayerBlock block2 = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), new Filter()), 1);
-          blocks.add(block);
-          blocks.add(block2);
-          entity1 = createGameEntity(480 / 32f, 4f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity1", true);
-          scene.attachChild(entity1.getMesh());
-
-
-          points = VerticesFactory.createPolygon(0, 0, 80, 80, 4);
-          block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(0), new Filter()), 0);
-          blocks = new ArrayList<>();
-          blocks.add(block);
-
-          entity2 = createGameEntity(600 / 32f, 3f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity2", true);
-          scene.attachChild(entity2.getMesh());
-
-
-          points = VerticesFactory.createPolygon(0, 0, 10, 30, 4);
-          block = BlockFactory.createBlockA(points, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1), new Filter()), 0);
-          blocks = new ArrayList<>();
-          blocks.add(block);
-          entity3 = createGameEntity(480 / 32f, 3f, 0, blocks, BodyDef.BodyType.DynamicBody, "entity3", true);
-          scene.attachChild(entity3.getMesh());
-
-  */
-  /*
-          RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-          revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-HEAD_RAY - NECK_LENGTH) / 32));
-          revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, TORSO_HEIGHT / 2 / 32));
-          revoluteJointDef.collideConnected = true;
-          scene.getWorldFacade().addJointToCreate(revoluteJointDef, head, upperTorso);
-
-
-          revoluteJointDef = new RevoluteJointDef();
-          revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-TORSO_HEIGHT / 2 + TORSO_D) / 32));
-          revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, TORSO_HEIGHT / 2 / 32));
-          revoluteJointDef.enableLimit = true;
-          revoluteJointDef.lowerAngle = -TORSO_ANGLE;
-          revoluteJointDef.upperAngle = TORSO_ANGLE;
-          revoluteJointDef.collideConnected = false;
-          scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, lowerTorso);
-  */
-  /*
-  }*/
-
-  /*    public void createLinks() {
-      HashSet<JointZoneBlock> zones = scene.getWorldFacade().findWeldZones(entity1, entity2, new Vector2(2, 2));
-      float x = entity1.getBody().getPosition().x;
-      float y = entity1.getBody().getPosition().y;
-      float x1 = entity2.getBody().getPosition().x;
-      float y1 = entity2.getBody().getPosition().y;
-      scene.getWorldFacade().mergeEntities(entity2, entity1, new Vector2(-2, -2), new Vector2(x, y), zones);
-
-      Vector2 advance = new Vector2(2, 0);
-      zones = scene.getWorldFacade().findWeldZones(entity3, entity2, advance.cpy());
-      scene.getWorldFacade().mergeEntities(entity2, entity3, advance.cpy().mul(-1), new Vector2(x1, y1), zones);
-  }*/
-
-  public class Box extends EntityWithBody {
-
-    private final float x0;
-    private final float y0;
-    private final float w;
-    private final float h;
-    private Rectangle rectangle;
-
-    public Box(float x0, float y0, ITextureRegion region, boolean visible) {
-      this.x0 = x0;
-      this.y0 = y0;
-
-      Sprite sprite = new Sprite(x0, y0, region, ResourceManager.getInstance().vbom);
-      this.w = sprite.getWidth();
-      this.h = sprite.getHeight();
-      sprite.setVisible(visible);
-      scene.attachChild(sprite);
-
-      //  rectangle = new Rectangle(x0,y0,w,h,ResourceManager.getInstance().vbom);
-      //  scene.attachChild(rectangle);
-      //  rectangle.setColor(Color.RED);
-
-      // sprite.setBlendFunction(IShape.BLENDFUNCTION_SOURCE_DEFAULT,IShape.BLENDFUNCTION_DESTINATION_PREMULTIPLYALPHA_DEFAULT);
-      body = BodyFactory.getInstance().createBoxBody(x0, y0, w, h, BodyDef.BodyType.DynamicBody);
-      physicsWorld.registerPhysicsConnector(new PhysicsConnector(sprite, body));
-      // physicsWorld.registerPhysicsConnector( new PhysicsConnector(rectangle, body));
-
-    }
-
-    public float getX0() {
-      return x0;
-    }
-
-    public float getY0() {
-      return y0;
-    }
-
-    public float getW() {
-      return w;
-    }
-
-    public float getH() {
-      return h;
-    }
-
-    public Rectangle getRectangle() {
-      return rectangle;
-    }
-
-    public void setRectangle(Rectangle rectangle) {
-      this.rectangle = rectangle;
-    }
-  }
 }

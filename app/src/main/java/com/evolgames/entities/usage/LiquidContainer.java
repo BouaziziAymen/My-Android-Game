@@ -31,10 +31,10 @@ public class LiquidContainer extends Use {
     public LiquidContainer() {
     }
 
-    public LiquidContainer(UsageModel<?> usageModel, PhysicsScene<?> physicsScene) {
+    public LiquidContainer(UsageModel<?> usageModel, PhysicsScene<?> physicsScene,boolean mirrored) {
         this.liquidSourceInfoList =
                 ((LiquidContainerProperties) usageModel.getProperties()).getLiquidSourceModelList().stream()
-                        .map(LiquidSourceModel::toLiquidSourceInfo)
+                        .map(m->m.toLiquidSourceInfo(mirrored))
                         .collect(Collectors.toList());
         createLiquidSources(physicsScene.getWorldFacade());
 
@@ -94,6 +94,11 @@ public class LiquidContainer extends Use {
         return playerSpecialActions;
     }
 
+    @Override
+    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
+    }
+
     public void createLiquidSources(WorldFacade worldFacade) {
         this.liquidSourceInfoHashMap = new HashMap<>();
         this.liquidSourceInfoList
@@ -101,9 +106,9 @@ public class LiquidContainer extends Use {
                         p -> {
                             Vector2 dir = p.getLiquidDirection();
                             Vector2 nor = new Vector2(-dir.y, dir.x);
-                            Vector2 e = p.getLiquidSourceOrigin().cpy().sub(p.getContainerEntity().getCenter());
+                            Vector2 e = p.getLiquidSourceOrigin().cpy().mul(32f);
                             float axisExtent = p.getExtent();
-                            FreshCut freshCut = new SegmentFreshCut(e.cpy(), e.cpy().add(axisExtent * nor.x, axisExtent * nor.y), false, 1f);
+                            FreshCut freshCut = new SegmentFreshCut(e.cpy().sub(axisExtent/2 * nor.x, axisExtent/2 * nor.y), e.cpy().add(axisExtent/2 * nor.x, axisExtent/2 * nor.y), false, 1f);
                             Liquid liquid = Materials.getLiquidByIndex(p.getLiquid());
                             LiquidParticleWrapper liquidParticleWrapper =
                                     worldFacade

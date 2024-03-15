@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 import java.util.List;
@@ -16,8 +17,8 @@ public class ImpactBomb extends Bomb{
     @SuppressWarnings("Unused")
     public ImpactBomb() {
     }
-    public ImpactBomb(UsageModel<?> usageModel) {
-        super(usageModel);
+    public ImpactBomb(UsageModel<?> usageModel,boolean mirrored) {
+        super(usageModel,mirrored);
         ImpactBombUsageProperties properties = (ImpactBombUsageProperties) usageModel.getProperties();
         this.countDown = properties.getDelay();
         this.minImpact = properties.getMinImpact();
@@ -52,5 +53,10 @@ public class ImpactBomb extends Bomb{
     @Override
     public List<PlayerSpecialAction> getActions() {
         return null;
+    }
+
+    @Override
+    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
     }
 }

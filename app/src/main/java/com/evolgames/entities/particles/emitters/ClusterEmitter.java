@@ -3,6 +3,7 @@ package com.evolgames.entities.particles.emitters;
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
 
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.utilities.Utils;
 import java.util.Arrays;
 
@@ -11,8 +12,8 @@ public class ClusterEmitter extends DataEmitter {
   protected final float[] dataCopy;
   protected final float[] weights;
 
-  public ClusterEmitter(float pCenterX, float pCenterY, float[] data, float[] weights) {
-    super(pCenterX, pCenterY, data);
+  public ClusterEmitter(GameEntity gameEntity,float pCenterX, float pCenterY, float[] data, float[] weights) {
+    super(pCenterX, pCenterY, data,gameEntity);
     assert (data.length % 2 == 0) : "Data has to be multiple of two";
     this.dataCopy = Arrays.copyOf(data, data.length);
     this.weights = weights;

@@ -3,6 +3,8 @@ package com.evolgames.entities.particles.emitters;
 import static org.andengine.util.Constants.VERTEX_INDEX_X;
 import static org.andengine.util.Constants.VERTEX_INDEX_Y;
 
+import com.evolgames.entities.basics.GameEntity;
+
 import org.andengine.util.math.MathUtils;
 
 public class SegmentEmitter extends DataEmitter {
@@ -12,8 +14,8 @@ public class SegmentEmitter extends DataEmitter {
   private final float endX;
   private final float endY;
 
-  public SegmentEmitter(float[] data) {
-    super((data[0] + data[2]) / 2, (data[1] + data[3]) / 2, data);
+  public SegmentEmitter(GameEntity gameEntity,float[] data) {
+    super((data[0] + data[2]) / 2, (data[1] + data[3]) / 2, data,gameEntity);
     this.beginX = data[0];
     this.beginY = data[1];
     this.endX = data[2];

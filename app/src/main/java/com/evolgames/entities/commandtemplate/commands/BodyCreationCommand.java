@@ -1,5 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import android.util.Log;
+
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.entities.basics.GameEntity;
@@ -22,6 +24,7 @@ public class BodyCreationCommand extends Command {
 
   @Override
   protected void run() {
+    Log.e("Mirror","Begin create body entity:"+entity);
     Body body = BodyFactory.getInstance().createBody(entity.getBlocks(), type);
     PhysicsConnector physicsConnector = new PhysicsConnector(entity.getMesh(), body);
     PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();

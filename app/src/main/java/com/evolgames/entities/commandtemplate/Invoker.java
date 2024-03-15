@@ -8,6 +8,7 @@ import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.commands.BodyCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.BodyDestructionCommand;
+import com.evolgames.entities.commandtemplate.commands.BodyMirrorCommand;
 import com.evolgames.entities.commandtemplate.commands.Command;
 import com.evolgames.entities.commandtemplate.commands.CustomCommand;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
@@ -25,29 +26,53 @@ public class Invoker {
   public static synchronized void onStep() {
 
     ResourceManager.getInstance()
-        .activity
-        .runOnUpdateThread(
-            () -> {
-              for (GameGroup gameGroup : scene.getGameGroups()) {
-                for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                  for (Command command : gameEntity.getCommands()) {
-                    if (!command.isAborted()) {
-                      command.execute();
-                      if (command instanceof BodyDestructionCommand) {
-                        gameGroup.getGameEntities().remove(gameEntity);
+            .activity
+            .runOnUpdateThread(
+                    () -> {
+                      for (GameGroup gameGroup : scene.getGameGroups()) {
+                        for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                          for (Command command : gameEntity.getCommands()) {
+                            if (!command.isAborted()) {
+                              command.execute();
+                              if (command instanceof BodyDestructionCommand) {
+                                gameGroup.getGameEntities().remove(gameEntity);
+                              }
+                            }
+                          }
+                        }
                       }
-                    }
-                  }
-                }
-                for (Command command : gameGroup.getCommands()) {
-                  command.execute();
-                  if (command.isAborted()) {
-                    gameGroup.getCommands().remove(command);
-                  }
-                }
-              }
-            });
+                      // after creating the bodies we can create the joints
+                      for (GameGroup gameGroup : scene.getGameGroups()) {
+                        for (Command command : gameGroup.getCommands()) {
+                          if(!(command instanceof BodyMirrorCommand)) {
+                            command.execute();
+                            if (command.isAborted()) {
+                              gameGroup.getCommands().remove(command);
+                            }
+                          }
+                        }
+                      }
+                      for (GameGroup gameGroup : scene.getGameGroups()) {
+                        for (Command command : gameGroup.getCommands()) {
+                          if((command instanceof BodyMirrorCommand)) {
+                            command.execute();
+                            if (command.isAborted()) {
+                              gameGroup.getCommands().remove(command);
+                            }
+                          }
+                        }
+                      }
+
+
+                    });
   }
+
+  public static void addBodyMirrorCommand(
+          GameEntity entity) {
+    BodyMirrorCommand command = new BodyMirrorCommand(entity);
+    entity.getParentGroup().getCommands().add(command);
+  }
+
 
   public static void addBodyCreationCommand(
       GameEntity entity, BodyDef.BodyType type, BodyInit bodyInit) {

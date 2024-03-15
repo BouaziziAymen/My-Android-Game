@@ -1,21 +1,34 @@
 package com.evolgames.entities.particles.emitters;
 
+import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.utilities.GeometryUtils;
+
 import org.andengine.entity.particle.emitter.BaseParticleEmitter;
-import org.andengine.util.adt.transformation.Transformation;
 
 public abstract class DataEmitter extends BaseParticleEmitter {
 
   protected final float[] data;
+  private final GameEntity gameEntity;
 
-  DataEmitter(float pCenterX, float pCenterY, float[] data) {
+  DataEmitter(float pCenterX, float pCenterY, float[] data, GameEntity gameEntity) {
     super(pCenterX, pCenterY);
     this.data = data;
+    this.gameEntity = gameEntity;
   }
 
   protected abstract void prepareData();
 
-  public void onStep(Transformation parentTransformation) {
+  public void update() {
+    if(gameEntity==null){
+      return;
+    }
+    float x = gameEntity.getMesh().getX();
+    float y = gameEntity.getMesh().getY();
+    float rot = gameEntity.getMesh().getRotation();
+    GeometryUtils.transformation.setToIdentity();
+    GeometryUtils.transformation.preTranslate(x, y);
+    GeometryUtils.transformation.preRotate(-rot);
     prepareData();
-    parentTransformation.transform(data);
+    GeometryUtils.transformation.transform(data);
   }
 }

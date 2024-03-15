@@ -9,6 +9,8 @@ import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PhysicsScene;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +34,11 @@ public class Projectile extends Use implements Penetrating {
   @Override
   public List<PlayerSpecialAction> getActions() {
     return null;
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
   }
 
   @Override

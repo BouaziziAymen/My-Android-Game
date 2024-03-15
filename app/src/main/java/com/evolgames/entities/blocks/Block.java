@@ -43,7 +43,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     }
     if (isNotAborted()) {
       if (shouldArrangeVertices()) {
-        arrangeVertices();
+        arrangeVertices(false);
       }
     }
     specificInitialization();
@@ -89,8 +89,8 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     BlockUtils.bruteForceRectification(getVertices(), 0.1f);
   }
 
-  private void arrangeVertices() {
-    if (!GeometryUtils.IsClockwise(getVertices())) {
+  private void arrangeVertices(boolean skipTest) {
+    if (skipTest||!GeometryUtils.IsClockwise(getVertices())) {
       Collections.reverse(getVertices());
     }
   }
@@ -136,5 +136,14 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
       return false;
     }
     return vertices.equals(obj);
+  }
+
+
+  public void mirror(){
+    this.vertices = GeometryUtils.mirrorPoints(this.vertices);
+    arrangeVertices(true);
+    if(triangles!=null) {
+      this.triangles = GeometryUtils.mirrorPoints(this.triangles);
+    }
   }
 }

@@ -2,6 +2,7 @@ package com.evolgames.activity;
 
 import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.MainScene;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.entities.hand.PlayerAction;
@@ -21,13 +22,13 @@ public class NativeUIController implements INativeUIController{
 
     @Override
     public void onItemButtonPressed(ItemMetaData itemMetaData) {
-        ((PlayScene) mainScene.getChildScene()).createItem(itemMetaData.getFileName(),true);
+        ((PlayScene) mainScene.getChildScene()).createItemFromFile(itemMetaData.getFileName(),true,true);
     }
 
     @Override
     public void onHomeButtonPressed() {
         gameActivity.runOnUpdateThread(()->{
-            ((PlayScene)mainScene.getChildScene()).onPause();
+            ((AbstractScene<?>)mainScene.getChildScene()).onPause();
             resetUI();
             mainScene.goToScene(SceneType.MENU);
         });
@@ -65,5 +66,11 @@ public class NativeUIController implements INativeUIController{
                     break;
             }
         });
+    }
+
+    @Override
+    public void onMirrorButtonClicked() {
+        PlayScene playScene = ((PlayScene)mainScene.getChildScene());
+        playScene.onMirrorButtonClicked();
     }
 }

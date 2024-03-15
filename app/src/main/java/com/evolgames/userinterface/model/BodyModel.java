@@ -3,6 +3,19 @@ package com.evolgames.userinterface.model;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.BodyUsageCategory;
+import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.entities.usage.LiquidContainer;
+import com.evolgames.entities.usage.Missile;
+import com.evolgames.entities.usage.Rocket;
+import com.evolgames.entities.usage.RocketLauncher;
+import com.evolgames.entities.usage.Shooter;
+import com.evolgames.entities.usage.Slasher;
+import com.evolgames.entities.usage.Smasher;
+import com.evolgames.entities.usage.Stabber;
+import com.evolgames.entities.usage.Throw;
+import com.evolgames.entities.usage.TimeBomb;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.Properties;
@@ -14,6 +27,8 @@ import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
+
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,4 +210,75 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     public void setBullet(boolean bullet) {
         this.bullet = bullet;
     }
+
+
+
+
+    public void setupUsages(PhysicsScene<?> physicsScene, boolean mirrored){
+                      this.getUsageModels()
+                              .forEach(
+                                      e -> {
+                                        switch (e.getType()){
+                                          case SHOOTER:
+                                          case SHOOTER_CONTINUOUS:
+                                            Shooter shooter = new Shooter(e, physicsScene,mirrored);
+                                            this.getGameEntity().getUseList().add(shooter);
+                                            break;
+                                          case TIME_BOMB:
+                                            TimeBomb timeBomb = new TimeBomb(e,mirrored);
+                                            this.getGameEntity().getUseList().add(timeBomb);
+                                            break;
+                                          case FUZE_BOMB:
+                                            break;
+                                          case IMPACT_BOMB:
+                                            ImpactBomb impactBomb = new ImpactBomb(e,mirrored);
+                                            this.getGameEntity().getUseList().add(impactBomb);
+                                            break;
+                                          case SLASHER:
+                                            Slasher slasher = new Slasher();
+                                            this.getGameEntity().getUseList().add(slasher);
+                                            break;
+                                          case BLUNT:
+                                            Smasher smasher = new Smasher();
+                                            this.getGameEntity().getUseList().add(smasher);
+                                            break;
+                                          case STABBER:
+                                            Stabber stabber = new Stabber();
+                                            this.getGameEntity().getUseList().add(stabber);
+                                            break;
+                                          case THROWING:
+                                            Throw throwable = new Throw();
+                                            this.getGameEntity().getUseList().add(throwable);
+                                            break;
+                                          case FLAME_THROWER:
+                                            FlameThrower flameThrower = new FlameThrower(e, physicsScene);
+                                            this.getGameEntity().getUseList().add(flameThrower);
+                                            break;
+                                          case ROCKET:
+                                            Rocket rocket = new Rocket(e, physicsScene);
+                                            rocket.setRocketBodyGameEntity(this.getGameEntity());
+                                            this.getGameEntity().getUseList().add(rocket);
+                                            break;
+                                          case MISSILE:
+                                            Missile missile = new Missile(e, physicsScene);
+                                            missile.setRocketBodyGameEntity(this.getGameEntity());
+                                            this.getGameEntity().getUseList().add(missile);
+                                            break;
+                                          case LIQUID_CONTAINER:
+                                            LiquidContainer liquidContainer = new LiquidContainer(e, physicsScene,mirrored);
+                                            this.getGameEntity().getUseList().add(liquidContainer);
+                                            break;
+                                          case ROCKET_LAUNCHER:
+                                            RocketLauncher rocketLauncher = new RocketLauncher(e, physicsScene.getWorldFacade(),mirrored);
+                                            this.getGameEntity().getUseList().add(rocketLauncher);
+                                            break;
+                                        }
+
+                                      });
+
+
+    }
+
+
+
 }

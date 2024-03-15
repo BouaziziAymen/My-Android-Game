@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 
 public class ProjectileInfo {
-
     private CasingInfo casingInfo;
     private transient GameEntity muzzleEntity;
     private String muzzleEntityUniqueId;

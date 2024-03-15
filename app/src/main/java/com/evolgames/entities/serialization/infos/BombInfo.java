@@ -12,7 +12,8 @@ public class BombInfo {
     private float heat;
     private float particles;
     private float speed;
-    private GameEntity gameEntity;
+    private transient GameEntity carrierEntity;
+    private String carrierEntityUniqueId;
 
     public Vector2 getBombPosition() {
         return bombPosition;
@@ -78,4 +79,18 @@ public class BombInfo {
         this.speed = speed;
     }
 
+    public void setCarrierEntity(GameEntity carrierEntity) {
+        this.carrierEntity = carrierEntity;
+        if (this.carrierEntity != null) {
+            this.carrierEntityUniqueId = carrierEntity.getUniqueID();
+        }
+    }
+
+    public GameEntity getCarrierEntity() {
+        return carrierEntity;
+    }
+
+    public String getCarrierEntityUniqueId() {
+        return carrierEntityUniqueId;
+    }
 }

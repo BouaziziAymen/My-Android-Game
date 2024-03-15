@@ -54,10 +54,10 @@ import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -113,7 +113,7 @@ import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
-    private final HashSet<PulverizationParticleWrapperWithPolygonEmitter> powderParticleWrappers =
+    private final HashSet<PulverizationParticleWrapper> powderParticleWrappers =
             new HashSet<>();
     private final ArrayList<Fire> flames = new ArrayList<>();
     private final HashSet<ExplosiveParticleWrapper> explosives = new HashSet<>();
@@ -260,7 +260,7 @@ public class WorldFacade implements ContactObserver {
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
 
-    private void recreateJoint(JointBlock jointBlock, GameEntity splinter) {
+    public void recreateJoint(JointBlock jointBlock, GameEntity splinter) {
         if (jointBlock.getBrother() == null) {
             jointBlock.setAborted(true);
             return;
@@ -343,7 +343,6 @@ public class WorldFacade implements ContactObserver {
                     }
                 };
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
-        particleWrapper.updateEmitter();
     }
 
     private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(
@@ -399,7 +398,6 @@ public class WorldFacade implements ContactObserver {
                         intensity,
                         heatRatio, inFireSize, finFireSize);
 
-        explosiveParticleWrapper.setParent(entity);
         if (explosiveParticleWrapper.getFireParticleSystem() != null) {
             scene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
             explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
@@ -419,7 +417,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public DataExplosiveParticleWrapper createPointFireSource(
-            GameEntity entity,
+            GameEntity parent,
             float[] data,
             float velocity,
             float fireRatio,
@@ -431,7 +429,7 @@ public class WorldFacade implements ContactObserver {
 
         DataExplosiveParticleWrapper explosiveParticleWrapper =
                 new DataExplosiveParticleWrapper(
-                        entity,
+                        parent,
                         data,
                         velocity,
                         fireRatio,
@@ -440,7 +438,6 @@ public class WorldFacade implements ContactObserver {
                         particles,
                         temperature, inFireSize, finFireSize);
 
-        explosiveParticleWrapper.setParent(entity);
         if (explosiveParticleWrapper.getFireParticleSystem() != null) {
             scene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
             explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
@@ -608,10 +605,10 @@ public class WorldFacade implements ContactObserver {
     }
 
     private void clearPulverizationWrappers() {
-        Iterator<PulverizationParticleWrapperWithPolygonEmitter> iterator =
+        Iterator<PulverizationParticleWrapper> iterator =
                 powderParticleWrappers.iterator();
         while (iterator.hasNext()) {
-            PulverizationParticleWrapperWithPolygonEmitter particleWrapper = iterator.next();
+            PulverizationParticleWrapper particleWrapper = iterator.next();
             particleWrapper.update();
             if (!particleWrapper.isAlive() && particleWrapper.isAllParticlesExpired()) {
                 iterator.remove();
@@ -1782,8 +1779,8 @@ public class WorldFacade implements ContactObserver {
                         jointBlock.setAborted(true);
                     }
                 });
-        PulverizationParticleWrapperWithPolygonEmitter pulverizationParticleWrapper =
-                new PulverizationParticleWrapperWithPolygonEmitter(
+        PulverizationParticleWrapper pulverizationParticleWrapper =
+                new PulverizationParticleWrapper(
                         this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
         powderParticleWrappers.add(pulverizationParticleWrapper);
         scene.attachChild(pulverizationParticleWrapper.getParticleSystem());

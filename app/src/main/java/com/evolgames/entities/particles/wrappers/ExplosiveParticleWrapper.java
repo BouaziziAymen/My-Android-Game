@@ -1,10 +1,9 @@
-package com.evolgames.entities.particles.wrappers.explosion;
+package com.evolgames.entities.particles.wrappers;
 
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
-import com.evolgames.entities.particles.wrappers.Fire;
-import com.evolgames.utilities.GeometryUtils;
+
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.sprite.UncoloredSprite;
 
@@ -32,7 +31,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
   protected BaseParticleSystem fireParticleSystem;
   protected BaseParticleSystem smokeParticleSystem;
   protected BaseParticleSystem sparkParticleSystem;
-  protected GameEntity parent;
+  protected final GameEntity parent;
   protected boolean followParent = true;
   private boolean alive = true;
 
@@ -47,7 +46,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
       float initialFlameParticleSize,
       float finalFlameParticleSize,
       float[] data) {
-    this.emitter = createEmitter(data);
+    this.emitter = createEmitter(data, gameEntity);
     this.parent = gameEntity;
     this.velocity = velocity;
     this.fireRatio = fireRatio;
@@ -57,7 +56,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     this.flameTemperature = flameTemperature;
     this.initialFlameParticleSize = initialFlameParticleSize;
     this.finalFlameParticleSize = finalFlameParticleSize;
-    this.updateEmitter();
+    this.emitter.update();
   }
 
   public void createSystems() {
@@ -111,11 +110,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
   protected abstract BaseParticleSystem createSmokeSystem(
       int lowerRate, int higherRate, int maxParticles, float verticalSpeed, float horizontalSpeed);
 
-  protected abstract DataEmitter createEmitter(float[] data);
-
-  public void setParent(GameEntity entity) {
-    this.parent = entity;
-  }
+  protected abstract DataEmitter createEmitter(float[] data, GameEntity gameEntity);
 
   public void stopFollowingParent() {
     followParent = false;
@@ -132,21 +127,8 @@ public abstract class ExplosiveParticleWrapper implements Fire {
       return;
     }
     if (followParent && parent != null) {
-      updateEmitter();
+      emitter.update();
     }
-  }
-
-  private void updateEmitter() {
-    if (parent == null) {
-      return;
-    }
-    float x = parent.getMesh().getX();
-    float y = parent.getMesh().getY();
-    float rot = parent.getMesh().getRotation();
-    GeometryUtils.transformation.setToIdentity();
-    GeometryUtils.transformation.preTranslate(x, y);
-    GeometryUtils.transformation.preRotate(-rot);
-    emitter.onStep(GeometryUtils.transformation);
   }
 
   public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
@@ -183,6 +165,10 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     if (smokeParticleSystem != null) this.smokeParticleSystem.detachSelf();
     if (sparkParticleSystem != null) this.sparkParticleSystem.detachSelf();
     if (fireParticleSystem != null) this.fireParticleSystem.detachSelf();
+  }
+  public void detach(){
+    stopFinal();
+    finishSelf();
   }
 
   public boolean isAllParticlesExpired() {

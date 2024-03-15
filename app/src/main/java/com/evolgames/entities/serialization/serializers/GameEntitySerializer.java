@@ -35,6 +35,7 @@ public class GameEntitySerializer {
   private String name;
   private Vector2 center;
   private String uniqueId;
+  private boolean mirrored;
 
   @SuppressWarnings("unused")
   GameEntitySerializer() {}
@@ -46,6 +47,7 @@ public class GameEntitySerializer {
     this.name = gameEntity.getName();
     this.uniqueId = gameEntity.getUniqueID();
     this.zIndex = gameEntity.getMesh().getZIndex();
+    this.mirrored = gameEntity.isMirrored();
     this.center = gameEntity.getCenter();
     this.specialEntityType = gameEntity.getType();
     this.useList = gameEntity.getUseList();
@@ -70,6 +72,7 @@ public class GameEntitySerializer {
             initInfo.getX(),
             initInfo.getY(),
             initInfo.getAngle(),
+            mirrored,
             bodyInit,
             layerBlocks,
             bodyType,

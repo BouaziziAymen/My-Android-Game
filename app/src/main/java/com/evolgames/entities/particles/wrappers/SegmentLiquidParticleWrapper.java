@@ -7,7 +7,7 @@ import com.evolgames.entities.particles.emitters.SegmentEmitter;
 
 import org.andengine.util.adt.color.Color;
 
-public class SegmentLiquidParticleWrapper extends DataLiquidParticleWrapper {
+public class SegmentLiquidParticleWrapper extends LiquidParticleWrapper {
   public SegmentLiquidParticleWrapper(
       GameEntity gameEntity,
       float[] emitterData,
@@ -15,11 +15,11 @@ public class SegmentLiquidParticleWrapper extends DataLiquidParticleWrapper {
       Color color,float flammability,
       int lowerRate,
       int higherRate) {
-    super(gameEntity, emitterData, null, splashVelocity, color,flammability, lowerRate, higherRate);
+    super(gameEntity, emitterData, null, color,flammability, splashVelocity, lowerRate, higherRate);
   }
 
   @Override
-  protected DataEmitter createEmitter(float[] emitterData, float[] weights) {
-    return new SegmentEmitter(emitterData);
+  protected DataEmitter createEmitter(float[] emitterData, float[] weights, GameEntity gameEntity) {
+    return new SegmentEmitter(gameEntity,emitterData);
   }
 }

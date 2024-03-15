@@ -219,4 +219,11 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
     this.liquidQuantity = liquidQuantity;
   }
 
+  @Override
+  public void mirror() {
+    super.mirror();
+    for(AssociatedBlock<?,?> associatedBlock:associatedBlocks){
+      associatedBlock.mirror();
+    }
+  }
 }

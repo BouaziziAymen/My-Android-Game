@@ -1,11 +1,13 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
+import com.evolgames.utilities.GeometryUtils;
 
 public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
@@ -76,10 +78,16 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     this.projectileField = projectileField;
   }
 
-  public ProjectileInfo toProjectileInfo() {
+  public ProjectileInfo toProjectileInfo(boolean mirrored) {
     ProjectileInfo pi = new ProjectileInfo();
-    pi.setProjectileEnd(this.properties.getProjectileEnd());
-    pi.setProjectileOrigin(this.properties.getProjectileOrigin());
+    Vector2 originProjected = this.properties.getProjectileOrigin().cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f);
+    Vector2 endProjected = this.properties.getProjectileEnd().cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f);
+    if(mirrored){
+      originProjected = GeometryUtils.mirrorPoint(originProjected);
+      endProjected = GeometryUtils.mirrorPoint(endProjected);
+    }
+    pi.setProjectileOrigin(originProjected);
+    pi.setProjectileEnd(endProjected);
     pi.setMuzzleVelocity(this.properties.getMuzzleVelocity());
     pi.setFireSound(this.properties.getFireSound());
     pi.setRecoil(this.properties.getRecoil());

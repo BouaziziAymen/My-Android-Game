@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import org.andengine.entity.particle.emitter.BaseParticleEmitter;
 
-public abstract class PolygonEmitter extends BaseParticleEmitter {
+public class PolygonEmitter extends BaseParticleEmitter {
   protected final RandomPointPicker randomPointPicker;
 
   public PolygonEmitter(List<CoatingBlock> coatingBlockList, Predicate<CoatingBlock> predicate) {

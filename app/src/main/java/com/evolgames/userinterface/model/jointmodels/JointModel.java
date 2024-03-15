@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
+import com.evolgames.utilities.GeometryUtils;
 
 public class JointModel {
 
@@ -255,9 +256,13 @@ public class JointModel {
     this.maxMotorForce = maxMotorForce;
   }
 
-  public JointDef createJointDef(Vector2 center1, Vector2 center2) {
+  public JointDef createJointDef(Vector2 center1, Vector2 center2, boolean mirrored) {
     Vector2 u1 = this.localAnchorA.cpy().sub(center1).mul(1/32f);
     Vector2 u2 = this.localAnchorB.cpy().sub(center2).mul(1/32f);
+    if(mirrored){
+      u1 = GeometryUtils.mirrorPoint(u1);
+      u2 = GeometryUtils.mirrorPoint(u2);
+    }
     switch (jointType) {
       case Unknown:
         break;

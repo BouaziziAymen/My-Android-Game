@@ -1,6 +1,9 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.commandtemplate.Invoker;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Command {
 
@@ -26,4 +29,21 @@ public abstract class Command {
   protected boolean isReady() {
     return true;
   }
+
+    protected boolean isBodyAlive(Body body) {
+      if (body == null) {
+        return false;
+      }
+      AtomicBoolean result = new AtomicBoolean(false);
+      Invoker.scene
+          .getPhysicsWorld()
+          .getBodies()
+          .forEachRemaining(
+              body1 -> {
+                if (body1 == body) {
+                  result.set(true);
+                }
+              });
+      return result.get();
+    }
 }

@@ -19,7 +19,7 @@ import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FireParticleWrapperWithPolygonEmitter implements Fire {
+public class FireParticleWrapper implements Fire {
   private static final float RATE_MIN = 30 * 3;
   private static final float RATE_MAX = 50 * 3;
   private static final int PARTICLES_MAX = 75 * 3;
@@ -28,7 +28,7 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
   public FireEmitter emitter;
   private ColorParticleModifier<UncoloredSprite> colorModifier;
 
-  public FireParticleWrapperWithPolygonEmitter(GameEntity entity) {
+  public FireParticleWrapper(GameEntity entity) {
     this.gameEntity = entity;
     this.emitter = new FireEmitter(entity);
 
@@ -41,9 +41,9 @@ public class FireParticleWrapperWithPolygonEmitter implements Fire {
     this.particleSystem =
         new FireParticleSystem(
                 this.emitter,
-            FireParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
-            FireParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
-            (int) (FireParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1),
+            FireParticleWrapper.RATE_MIN * ratio,
+            FireParticleWrapper.RATE_MAX * ratio,
+            (int) (FireParticleWrapper.PARTICLES_MAX * ratio + 1),
             ResourceManager.getInstance().plasmaParticle);
 
     particleSystem.setZIndex(entity.getMesh().getZIndex() + 1);

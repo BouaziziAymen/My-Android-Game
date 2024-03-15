@@ -9,7 +9,6 @@ import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionBumpModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionExpireModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.utilities.MyColorUtils;
 import com.evolgames.physics.PhysicsConstants;
@@ -57,8 +56,8 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
   }
 
   @Override
-  protected DataEmitter createEmitter(float[] data) {
-    return new SegmentEmitter(data);
+  protected DataEmitter createEmitter(float[] data, GameEntity gameEntity) {
+    return new SegmentEmitter(gameEntity,data);
   }
 
   @Override

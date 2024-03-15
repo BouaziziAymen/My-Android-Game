@@ -9,6 +9,7 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PhysicsScene;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,11 @@ public class Smasher extends MeleeUse implements Penetrating {
   @Override
   public List<PlayerSpecialAction> getActions() {
     return Collections.singletonList(PlayerSpecialAction.Smash);
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
   }
 
   @Override

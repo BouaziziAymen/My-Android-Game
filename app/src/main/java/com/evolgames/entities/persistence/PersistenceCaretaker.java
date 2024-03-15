@@ -836,7 +836,7 @@ public class PersistenceCaretaker {
         }
 
         ToolModel toolModel = new ToolModel(scene, 0);
-        toolModel.setModelName(toolFileName.substring(3, toolFileName.length() - 4));
+        toolModel.setModelName(toolFileName);
         toolModel.getBodies().addAll(bodyModels);
 
         List<JointModel> jointModels = new ArrayList<>();

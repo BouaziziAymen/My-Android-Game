@@ -1,5 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import android.util.Log;
+
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.blocks.JointBlock;
@@ -15,24 +17,18 @@ public class JointDestructionCommand extends Command {
 
   @Override
   protected void run() {
-    PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
-    physicsWorld
-        .getJoints()
-        .forEachRemaining(
-            j -> {
-              if (j == joint) {
-                physicsWorld.destroyJoint(joint);
-                System.out.println("-------------Destroying joint-----------:"+joint.getType());
+    Log.e("Mirror",joint+"-------------Destroying joint-----------:"+joint.getType());
 
-                JointBlock jointBlock = (JointBlock) joint.getUserData();
-                System.out.println("--------------------------------------:"+jointBlock.getEntity().getName());
-                jointBlock.setAborted(true);
-                jointBlock.getBrother().setAborted(true);
-                if (this.joint instanceof MouseJoint) {
-                  Invoker.scene.onDestroyMouseJoint((MouseJoint) joint);
-                }
-              }
-            });
+    PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
+
+    JointBlock jointBlock = (JointBlock) joint.getUserData();
+    jointBlock.getEntity().removeJointBlock(jointBlock);
+    jointBlock.setAborted(true);
+    jointBlock.getBrother().setAborted(true);
+    if (this.joint instanceof MouseJoint) {
+      Invoker.scene.onDestroyMouseJoint((MouseJoint) joint);
+    }
+    physicsWorld.destroyJoint(joint);
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PhysicsScene;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public abstract class Use {
   public void setActive(boolean active) {
     this.active = active;
   }
+
+  public abstract void dynamicMirror(PhysicsScene<?> physicsScene);
 }

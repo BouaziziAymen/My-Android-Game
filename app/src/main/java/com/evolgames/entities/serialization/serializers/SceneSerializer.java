@@ -9,8 +9,10 @@ import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.TimedCommand;
+import com.evolgames.entities.serialization.infos.BombInfo;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
+import com.evolgames.entities.usage.Bomb;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.ImpactBomb;
@@ -214,7 +216,7 @@ public class SceneSerializer {
     }
     if (gameEntity.hasUsage(Drag.class)) {
       Drag drag = gameEntity.getUsage(Drag.class);
-      drag.setDraggedEntity(GameEntitySerializer.entities.get(drag.getDraggedEntityUniqueId()));
+      drag.getDragInfo().setDraggedEntity(GameEntitySerializer.entities.get(drag.getDragInfo().getDraggedEntityUniqueId()));
     }
     if (gameEntity.hasUsage(Rocket.class)) {
       Rocket rocket = gameEntity.getUsage(Rocket.class);
@@ -228,22 +230,11 @@ public class SceneSerializer {
       }
       flameThrower.createFireSources(scene.getWorldFacade());
     }
-
-
-    if (gameEntity.hasUsage(TimeBomb.class)) {
-      TimeBomb timeBomb = gameEntity.getUsage(TimeBomb.class);
-      if (timeBomb != null) {
-        timeBomb.setGameEntity(
-            Objects.requireNonNull(
-                GameEntitySerializer.entities.get(timeBomb.getGameEntityUniqueId())));
-      }
-    }
-    if (gameEntity.hasUsage(ImpactBomb.class)) {
-      ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
-      if (impactBomb != null) {
-        impactBomb.setGameEntity(
-                Objects.requireNonNull(
-                        GameEntitySerializer.entities.get(impactBomb.getGameEntityUniqueId())));
+    if (gameEntity.hasUsage(Bomb.class)) {
+      Bomb bomb = gameEntity.getUsage(Bomb.class);
+      for (BombInfo bombInfo : bomb.getBombInfoList()) {
+        bombInfo.setCarrierEntity(
+                GameEntitySerializer.entities.get(bombInfo.getCarrierEntityUniqueId()));
       }
     }
   }

@@ -17,6 +17,7 @@ import org.andengine.extension.physics.box2d.util.Vector2Pool;
 public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingProperties> {
 
   public Vector2 position;
+
   public float value;
   private boolean isOnFire;
   private boolean isOnFlame;
@@ -25,7 +26,6 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
   private float step;
   private boolean pulverized;
   private transient LayerBlock parent;
-  private boolean emittingEnergy;
 
   public CoatingBlock() {
   }
@@ -254,12 +254,9 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
   }
 
-
-    public boolean isEmittingEnergy() {
-        return emittingEnergy;
-    }
-
-    public void setEmittingEnergy(boolean emittingEnergy) {
-        this.emittingEnergy = emittingEnergy;
-    }
+  @Override
+  public void mirror() {
+    super.mirror();
+    position.set(GeometryUtils.mirrorPoint(position));
+  }
 }

@@ -1,6 +1,7 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.properties.StainProperties;
@@ -75,5 +76,14 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
 
   public void setPriority(int priority) {
     this.priority = priority;
+  }
+
+  @Override
+  public void mirror() {
+    super.mirror();
+    Vector2 pos = GeometryUtils.mirrorPoint(getProperties().getLocalCenter());
+    getProperties().setLocalCenter(pos);
+    getProperties().setRotation(getLocalRotation());
+   computeData();
   }
 }

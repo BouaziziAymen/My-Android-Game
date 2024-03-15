@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.entities.hand.Hand;
@@ -35,6 +36,11 @@ public class Throw extends Use {
   @Override
   public List<PlayerSpecialAction> getActions() {
     return Collections.singletonList(PlayerSpecialAction.Throw);
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
   }
 
   public void reset(float angle, float speed) {

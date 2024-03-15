@@ -1,7 +1,7 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.particles.wrappers.explosion.ExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
@@ -14,6 +14,7 @@ import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FlameThrower extends Use {
@@ -43,7 +44,7 @@ public class FlameThrower extends Use {
              i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
-            flameThrowerInfFireSourceMap.get(fireSourceInfo).setSpawnEnabled(true);
+            Objects.requireNonNull(flameThrowerInfFireSourceMap.get(fireSourceInfo)).setSpawnEnabled(true);
             }
         }
     }
@@ -54,7 +55,7 @@ public class FlameThrower extends Use {
         i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
-                flameThrowerInfFireSourceMap.get(fireSourceInfo).setSpawnEnabled(false);
+                Objects.requireNonNull(flameThrowerInfFireSourceMap.get(fireSourceInfo)).setSpawnEnabled(false);
             }
         }
     }
@@ -67,6 +68,11 @@ public class FlameThrower extends Use {
     return Collections.singletonList(PlayerSpecialAction.Fire);
   }
 
+    @Override
+    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
+    }
+
     public void createFireSources(WorldFacade worldFacade){
         this.flameThrowerInfFireSourceMap = new HashMap<>();
         this.fireSourceInfoList
@@ -78,7 +84,7 @@ public class FlameThrower extends Use {
 
                                 Vector2 dir = p.getFireDirection();
                                 Vector2 nor = new Vector2(-dir.y, dir.x);
-                                Vector2 e = p.getFireSourceOrigin().cpy().sub(p.getMuzzleEntity().getCenter());
+                                Vector2 e = p.getFireSourceOrigin().cpy().mul(32f);
                                 float axisExtent = p.getExtent();
                                 ExplosiveParticleWrapper fireSource =
                                         worldFacade

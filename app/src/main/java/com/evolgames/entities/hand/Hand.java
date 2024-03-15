@@ -2,12 +2,14 @@ package com.evolgames.entities.hand;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
+import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.Penetrating;
@@ -66,6 +68,7 @@ public class Hand {
         boolean grabbedOtherEntity = this.grabbedEntity != entity;
         releaseGrabbedEntity(false);
         this.grabbedEntity = entity;
+
         if (grabbedOtherEntity) {
             this.playScene.onUsagesUpdated();
         }
@@ -143,7 +146,7 @@ public class Hand {
     }
 
     public void releaseGrabbedEntity(boolean updateUsages) {
-        if (grabbedEntity == null) {
+        if (grabbedEntity == null||mouseJoint==null) {
             return;
         }
         if (grabbedEntity.getBody() != null) {
@@ -154,8 +157,6 @@ public class Hand {
         if (!handControlStack.isEmpty()) {
             handControlStack.peek().setDead(true);
         }
-        this.grabbedEntity = null;
-        this.mouseJoint = null;
         this.onAction = false;
         this.playScene.unlockSaving();
         if (updateUsages) {
@@ -490,6 +491,7 @@ public class Hand {
     }
 
     public void onMouseJointDestroyed() {
+        Log.e("Mirror","On Mouse Joint Destroyed:"+mouseJoint);
         this.mouseJoint = null;
         this.mouseJointDef = null;
         this.grabbedEntity = null;

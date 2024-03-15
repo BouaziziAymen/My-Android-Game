@@ -21,7 +21,8 @@ public class PhysicsConstants {
   public static final int COLLISION_CONSTANT = 500;
     public static final float EXPLOSION_FORCE_THRESHOLD = 100f;
   public static final int EXPLOSION_LIFESPAN = 10;
-  public static float gravity = -3 * SensorManager.GRAVITY_EARTH;
+    public static final int PULVERIZATION_DURATION = 10;
+    public static float gravity = -3 * SensorManager.GRAVITY_EARTH;
   public static float ambient_temperature = 60;
 
   public static float getProjectileVelocity(float ratio) {

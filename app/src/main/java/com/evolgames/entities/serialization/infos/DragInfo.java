@@ -1,6 +1,7 @@
 package com.evolgames.entities.serialization.infos;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.basics.GameEntity;
 
 public class DragInfo {
 
@@ -9,6 +10,9 @@ public class DragInfo {
     private float extent;
     private boolean symmetrical;
     private float magnitude;
+
+    private transient GameEntity draggedEntity;
+    private String draggedEntityUniqueId;
 
     public Vector2 getDragOrigin() {
         return dragOrigin;
@@ -49,4 +53,20 @@ public class DragInfo {
     public float getMagnitude() {
         return magnitude;
     }
+
+    public GameEntity getDraggedEntity() {
+        return draggedEntity;
+    }
+
+    public void setDraggedEntity(GameEntity draggedEntity) {
+        this.draggedEntity = draggedEntity;
+        if(draggedEntity!=null) {
+            this.draggedEntityUniqueId = draggedEntity.getUniqueID();
+        }
+    }
+
+    public String getDraggedEntityUniqueId() {
+        return draggedEntityUniqueId;
+    }
+
 }

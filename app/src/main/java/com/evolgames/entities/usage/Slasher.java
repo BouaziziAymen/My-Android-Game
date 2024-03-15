@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 import com.evolgames.physics.WorldFacade;
@@ -62,6 +63,11 @@ public class Slasher extends MeleeUse {
   @Override
   public List<PlayerSpecialAction> getActions() {
     return Collections.singletonList(PlayerSpecialAction.Slash);
+  }
+
+  @Override
+  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
   }
 
   public String getTargetEntityId() {

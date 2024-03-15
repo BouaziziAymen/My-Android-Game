@@ -1,535 +1,693 @@
 package com.evolgames.entities.basics;
 
+import android.util.Log;
+import android.util.Pair;
+
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.JointEdge;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
+import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
+import com.evolgames.entities.factories.MeshFactory;
+import com.evolgames.entities.init.AngularVelocityInit;
+import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
+import com.evolgames.entities.init.LinearVelocityInit;
+import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.mesh.batch.TexturedMeshBatch;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
-import com.evolgames.entities.particles.wrappers.FireParticleWrapperWithPolygonEmitter;
+import com.evolgames.entities.particles.wrappers.FireParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
-import com.evolgames.activity.ResourceManager;
-import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.scenes.PhysicsScene;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.evolgames.utilities.GeometryUtils;
+
 import org.andengine.entity.primitive.Line;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 public class GameEntity extends EntityWithBody {
 
-  private PhysicsScene<?> scene;
-  private final List<LayerBlock> layerBlocks;
-  private List<Use> useList;
-  public boolean changed = true;
-  private String name;
-  private GameGroup parentGroup;
-  private Vector2 center;
-  private FireParticleWrapperWithPolygonEmitter fireParticleWrapperWithPolygonEmitter;
-  private boolean isFireSetup;
-  private TexturedMeshBatch batch;
-  private int stainDataLimit;
-  private boolean isBatcherSetup = false;
-  private SpecialEntityType type = SpecialEntityType.Default;
-  private int hangedPointerId;
-  private float sortingValue;
-  private float area;
-  private boolean alive = true;
-  private MosaicMesh mesh;
-  private BodyDef.BodyType bodyType;
-  private InitInfo initInfo;
-  private String uniqueID = UUID.randomUUID().toString();
+    private final List<LayerBlock> layerBlocks;
+    public boolean changed = true;
+    private Body mirrorBody;
+    private boolean mirrorCreated = false;
+    private PhysicsScene<?> scene;
+    private List<Use> useList;
+    private String name;
+    private GameGroup parentGroup;
+    private Vector2 center;
+    private FireParticleWrapper fireParticleWrapper;
+    private boolean isFireSetup;
+    private TexturedMeshBatch batch;
+    private int stainDataLimit;
+    private boolean isBatcherSetup = false;
+    private SpecialEntityType type = SpecialEntityType.Default;
+    private float sortingValue;
+    private float area;
+    private boolean alive = true;
+    private MosaicMesh mesh, mirrorMesh;
+    private BodyDef.BodyType bodyType;
+    private InitInfo initInfo;
+    private String uniqueID = UUID.randomUUID().toString();
+    private boolean mirrored;
 
-  public GameEntity(
-      MosaicMesh mesh, PhysicsScene<?> scene, String entityName, List<LayerBlock> layerBlocks) {
-    super();
-    this.mesh = mesh;
-    this.scene = scene;
-    this.name = entityName;
-    this.layerBlocks = layerBlocks;
-    this.useList = new ArrayList<>();
+    public GameEntity(
+            MosaicMesh mesh, PhysicsScene<?> scene, String entityName, List<LayerBlock> layerBlocks) {
+        super();
+        this.mesh = mesh;
+        this.scene = scene;
+        this.name = entityName;
+        this.layerBlocks = layerBlocks;
+        this.useList = new ArrayList<>();
 
-    computeArea();
-    if (area >= 5) {
-      if (hasStains()) {
-        setupBatcher();
-      }
-    }
-  }
-
-  public PhysicsScene<?> getScene() {
-    return scene;
-  }
-
-  private void computeArea() {
-    this.area = 0;
-    for (LayerBlock layerBlock : layerBlocks) {
-      area += layerBlock.getBlockArea();
-    }
-  }
-
-  public GameGroup getParentGroup() {
-    return parentGroup;
-  }
-
-  public void setParentGroup(GameGroup parentGroup) {
-    this.parentGroup = parentGroup;
-  }
-
-  public FireParticleWrapperWithPolygonEmitter getFireParticleWrapperWithPolygonEmitter() {
-    return fireParticleWrapperWithPolygonEmitter;
-  }
-
-  public boolean isFireSetup() {
-    return isFireSetup;
-  }
-
-  public void setupFire() {
-    isFireSetup = true;
-    fireParticleWrapperWithPolygonEmitter = new FireParticleWrapperWithPolygonEmitter(this);
-    scene.attachChild(fireParticleWrapperWithPolygonEmitter.getParticleSystem());
-    scene.sortChildren();
-  }
-
-  private void setupBatcher() {
-    isBatcherSetup = true;
-    float area = 0;
-    for (LayerBlock b : layerBlocks) {
-      area += b.getBlockArea();
-    }
-    int stainLimit = (int) (area / 32);
-    if (stainLimit < 1) {
-      stainLimit = 1;
-    }
-    stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
-    batch =
-        new TexturedMeshBatch(
-            ResourceManager.getInstance().texturedMesh,
-            stainDataLimit + 12,
-            ResourceManager.getInstance().vbom);
-    mesh.attachChild(batch);
-  }
-
-  private void updateAssociatedBlocks() {
-    for (LayerBlock block : this.getBlocks()) {
-      for (AssociatedBlock<?,?> associatedBlock : block.getAssociatedBlocks()) {
-        associatedBlock.onStep(this);
-      }
-    }
-  }
-
-  public void onStep(float timeStep) {
-    if (!this.getName().equals("Ground")) {
-      updateAssociatedBlocks();
-    }
-    for (Use use : useList) {
-      use.onStep(timeStep,scene.getWorldFacade());
-    }
-
-    if (isFireSetup) {
-      fireParticleWrapperWithPolygonEmitter.update();
-    }
-  }
-
-  public Vector2 computeTouch(TouchEvent touch, boolean withHold) {
-    Vector2 t =
-        this.body.getLocalPoint(new Vector2(touch.getX() / 32f, touch.getY() / 32f)).cpy().mul(32f);
-    Vector2 result = null;
-    float minDis = Float.MAX_VALUE;
-    for (Block<?, ?> block : layerBlocks) {
-      LayerProperties layerProperties = (LayerProperties) block.getProperties();
-      if (layerProperties.getSharpness() > 0.0f && withHold) {
-        continue;
-      }
-      Vector2 point = GeometryUtils.calculateProjection(t, block.getVertices());
-      if (point != null) {
-        float dis = t.dst(point);
-        if (dis < minDis) {
-          minDis = dis;
-          result = point;
+        computeArea();
+        if (area >= 5) {
+            if (hasStains()) {
+                setupBatcher();
+            }
         }
-      }
     }
-    if (result != null) {
-      return body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f);
+
+    public PhysicsScene<?> getScene() {
+        return scene;
     }
-    return null;
-  }
 
-  public MosaicMesh getMesh() {
-    return mesh;
-  }
+    public void setScene(PhysicsScene<?> scene) {
+        this.scene = scene;
+    }
 
-  public void setMesh(MosaicMesh mesh) {
-    this.mesh = mesh;
-  }
-
-  public void setVisible(boolean b) {
-    mesh.setVisible(b);
-  }
-
-  public float getMassOfGroup() {
-
-    HashSet<GameEntity> entities = new HashSet<>();
-    ArrayDeque<GameEntity> deque = new ArrayDeque<>();
-    deque.push(this);
-    while (!deque.isEmpty()) {
-      GameEntity current = deque.pop();
-      entities.add(current);
-      if (current.getBody() != null) {
-        for (JointEdge edge : current.getBody().getJointList()) {
-          GameEntity entity = (GameEntity) edge.other.getUserData();
-          if (entity != null) if (!entities.contains(entity)) deque.push(entity);
+    private void computeArea() {
+        this.area = 0;
+        for (LayerBlock layerBlock : layerBlocks) {
+            area += layerBlock.getBlockArea();
         }
-      }
     }
 
-    float mass = 0;
-    for (GameEntity e : entities) {
-      if (e.getBody() != null) {
-        mass += e.getBody().getMass();
-      }
+    public GameGroup getParentGroup() {
+        return parentGroup;
     }
-    return mass;
-  }
 
-  public boolean isNonValidStainPosition(LayerBlock block, StainBlock stainBlock) {
-    float x = stainBlock.getLocalCenterX();
-    float y = stainBlock.getLocalCenterY();
-    for (Block<?, ?> b : block.getAssociatedBlocks()) {
-      if (b instanceof StainBlock) {
-        StainBlock other = (StainBlock) b;
-        float distance = GeometryUtils.dst(x, y, other.getLocalCenterX(), other.getLocalCenterY());
-        if (distance < 2f) {
-          return true;
+    public void setParentGroup(GameGroup parentGroup) {
+        this.parentGroup = parentGroup;
+    }
+
+    public FireParticleWrapper getFireParticleWrapperWithPolygonEmitter() {
+        return fireParticleWrapper;
+    }
+
+    public boolean isFireSetup() {
+        return isFireSetup;
+    }
+
+    public void setupFire() {
+        isFireSetup = true;
+        fireParticleWrapper = new FireParticleWrapper(this);
+        scene.attachChild(fireParticleWrapper.getParticleSystem());
+        scene.sortChildren();
+    }
+
+    private void setupBatcher() {
+        isBatcherSetup = true;
+        float area = 0;
+        for (LayerBlock b : layerBlocks) {
+            area += b.getBlockArea();
         }
-      }
-    }
-    return false;
-  }
-
-  public void addStain(LayerBlock block, StainBlock stainBlock) {
-    block.addAssociatedBlock(stainBlock);
-    changed = true;
-    if (!isBatcherSetup) {
-      setupBatcher();
-    }
-  }
-
-  private boolean hasStains() {
-    for (LayerBlock b : layerBlocks) {
-      for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
-        if (decorationBlock instanceof StainBlock) {
-          return true;
+        int stainLimit = (int) (area / 32);
+        if (stainLimit < 1) {
+            stainLimit = 1;
         }
-      }
+        stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
+        batch =
+                new TexturedMeshBatch(
+                        ResourceManager.getInstance().texturedMesh,
+                        stainDataLimit + 12,
+                        ResourceManager.getInstance().vbom);
+        mesh.attachChild(batch);
     }
-    return false;
-  }
 
-  private int getStainDataCount(ArrayList<StainBlock> stains) {
-    int count = 0;
-    for (StainBlock b : stains) {
-      if (b.getData() == null) {
-        b.computeData();
-      }
-      count += b.getData().length;
-    }
-    return count;
-  }
-
-  private ArrayList<StainBlock> getStains() {
-    ArrayList<StainBlock> result = new ArrayList<>();
-    for (LayerBlock b : layerBlocks) {
-      for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
-        if (decorationBlock instanceof StainBlock) {
-          result.add((StainBlock) decorationBlock);
+    private void updateAssociatedBlocks() {
+        for (LayerBlock block : this.getBlocks()) {
+            for (AssociatedBlock<?, ?> associatedBlock : block.getAssociatedBlocks()) {
+                associatedBlock.onStep(this);
+            }
         }
-      }
-    }
-    return result;
-  }
-
-  public void redrawStains() {
-    if (batch == null || !changed) {
-      return;
     }
 
-    batch.reset();
-    ArrayList<StainBlock> allStains = getStains();
-    int stainDataCount = getStainDataCount(allStains);
-    while (stainDataCount > stainDataLimit) {
-      StainBlock removedStainBlock = allStains.get(0);
-      for (LayerBlock b : layerBlocks) {
-        if (b.getAssociatedBlocks().contains(removedStainBlock)) {
-          b.getAssociatedBlocks().remove(removedStainBlock);
-          break;
+    public void onStep(float timeStep) {
+        if (!this.getName().equals("Ground")) {
+            updateAssociatedBlocks();
         }
-      }
-      stainDataCount -= removedStainBlock.getData().length;
-      allStains.remove(removedStainBlock);
-    }
-
-    for (LayerBlock layerBlock : getBlocks()) {
-      ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
-      List<StainBlock> stainBlocks =
-          associatedBlocks.stream()
-              .filter(e -> e instanceof StainBlock)
-              .map(e -> (StainBlock) e)
-              .collect(Collectors.toList());
-      stainBlocks.sort(Comparator.comparing(StainBlock::getPriority));
-      for (StainBlock stain : stainBlocks) {
-        Color color = stain.getProperties().getColor();
-        batch.draw(
-            stain.getTextureRegion(),
-            stain.getData(),
-            color.getRed(),
-            color.getGreen(),
-            color.getBlue(),
-            color.getAlpha());
-      }
-    }
-    batch.submit();
-    changed = false;
-  }
-
-  public void dispose() {
-    if (batch != null) {
-      batch.dispose();
-      batch.detachSelf();
-    }
-  }
-
-  public Vector2 getCenter() {
-    return center;
-  }
-
-  public void setCenter(Vector2 center) {
-    this.center = center;
-  }
-
-  public boolean isAlive() {
-    return alive;
-  }
-
-  public void setAlive(boolean alive) {
-    this.alive = alive;
-  }
-
-  public void detach() {
-    mesh.detachSelf();
-    if (fireParticleWrapperWithPolygonEmitter != null) {
-      scene.getWorldFacade().removeFireParticleWrapper(fireParticleWrapperWithPolygonEmitter);
-    }
-    dispose();
-  }
-
-  public void createJuiceSources() {
-    for (LayerBlock block : this.getBlocks()) {
-      LayerProperties properties = block.getProperties();
-      ArrayList<FreshCut> freshCuts = block.getFreshCuts();
-      for (FreshCut freshCut : freshCuts) {
-        if (freshCut.getLength() < 5f) {
-          continue;
+        for (Use use : useList) {
+            use.onStep(timeStep, scene.getWorldFacade());
         }
-        if (freshCut.getLimit() > 0 && properties.isJuicy()) {
-          scene.getWorldFacade().createJuiceSource(this, block, freshCut);
+
+        if (isFireSetup) {
+            fireParticleWrapper.update();
         }
-        if (freshCut instanceof SegmentFreshCut) {
-          SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
-          if (segmentFreshCut.isInner()) {
-            Line line =
-                new Line(
-                    segmentFreshCut.first.x,
-                    segmentFreshCut.first.y,
-                    segmentFreshCut.second.x,
-                    segmentFreshCut.second.y,
-                    2,
-                    ResourceManager.getInstance().vbom);
-            line.setColor(Color.BLACK);
-            mesh.attachChild(line);
-          }
+    }
+
+    public Vector2 computeTouch(TouchEvent touch, boolean withHold) {
+        Vector2 t =
+                this.body.getLocalPoint(new Vector2(touch.getX() / 32f, touch.getY() / 32f)).cpy().mul(32f);
+        Vector2 result = null;
+        float minDis = Float.MAX_VALUE;
+        for (Block<?, ?> block : layerBlocks) {
+            LayerProperties layerProperties = (LayerProperties) block.getProperties();
+            if (layerProperties.getSharpness() > 0.0f && withHold) {
+                continue;
+            }
+            Vector2 point = GeometryUtils.calculateProjection(t, block.getVertices());
+            if (point != null) {
+                float dis = t.dst(point);
+                if (dis < minDis) {
+                    minDis = dis;
+                    result = point;
+                }
+            }
         }
-      }
-    }
-  }
-
-  @SafeVarargs
-  public final <T> boolean hasUsage(Class<T>... targetTypes) {
-    for (Use obj : this.useList) {
-      for (Class<T> targetType : targetTypes) {
-        if (targetType.isInstance(obj)) {
-          return true;
+        if (result != null) {
+            return body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f);
         }
-      }
+        return null;
     }
-    return false;
-  }
 
-  public boolean hasActiveUsage(Class<?>... targetTypes) {
-    for (Use obj : this.useList) {
-      for (Class<?> targetType : targetTypes) {
-        if (targetType.isInstance(obj) && obj.isActive()) {
-          return true;
+    public MosaicMesh getMesh() {
+        return mesh;
+    }
+
+    public void setMesh(MosaicMesh mesh) {
+        this.mesh = mesh;
+    }
+
+    public void setVisible(boolean b) {
+        mesh.setVisible(b);
+    }
+
+    public float getMassOfGroup() {
+
+        HashSet<GameEntity> entities = new HashSet<>();
+        ArrayDeque<GameEntity> deque = new ArrayDeque<>();
+        deque.push(this);
+        while (!deque.isEmpty()) {
+            GameEntity current = deque.pop();
+            entities.add(current);
+            if (current.getBody() != null) {
+                ArrayList<JointEdge> list = new ArrayList<>(current.getBody().getJointList());
+                for (JointEdge edge : list) {
+                    GameEntity entity = (GameEntity) edge.other.getUserData();
+                    if (entity != null) if (!entities.contains(entity)) deque.push(entity);
+                }
+            }
         }
-      }
+
+        float mass = 0;
+        for (GameEntity e : entities) {
+            if (e.getBody() != null) {
+                mass += e.getBody().getMass();
+            }
+        }
+        return mass;
     }
-    return false;
-  }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    GameEntity that = (GameEntity) o;
-    return Objects.equals(layerBlocks, that.layerBlocks);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(layerBlocks);
-  }
-
-  public float getSortingValue() {
-    return sortingValue;
-  }
-
-  public void setSortingValue(float sortingValue) {
-    this.sortingValue = sortingValue;
-  }
-
-  public List<GameEntity> getConnectedEntities() {
-    List<GameEntity> list = new ArrayList<>();
-    scene
-        .getPhysicsWorld()
-        .getJoints()
-        .forEachRemaining(
-            e -> {
-              if (e.getBodyA() == this.getBody()) {
-                list.add((GameEntity) e.getBodyB().getUserData());
-              } else if (e.getBodyB() == this.getBody()) {
-                list.add((GameEntity) e.getBodyA().getUserData());
-              }
-            });
-    return list;
-  }
-
-  public SpecialEntityType getType() {
-    return type;
-  }
-
-  public void setType(SpecialEntityType type) {
-    this.type = type;
-  }
-
-  public <T extends Use> T getActiveUsage(Class<T> targetType) {
-    for (Use obj : this.useList) {
-      if (targetType.isInstance(obj) && obj.isActive()) {
-        return (T) obj;
-      }
+    public boolean isNonValidStainPosition(LayerBlock block, StainBlock stainBlock) {
+        float x = stainBlock.getLocalCenterX();
+        float y = stainBlock.getLocalCenterY();
+        for (Block<?, ?> b : block.getAssociatedBlocks()) {
+            if (b instanceof StainBlock) {
+                StainBlock other = (StainBlock) b;
+                float distance = GeometryUtils.dst(x, y, other.getLocalCenterX(), other.getLocalCenterY());
+                if (distance < 2f) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-    return null;
-  }
 
-  public <T extends Use> T getUsage(Class<T> targetType) {
-    for (Use obj : this.useList) {
-      if (targetType.isInstance(obj)) {
-        return (T) obj;
-      }
+    public void addStain(LayerBlock block, StainBlock stainBlock) {
+        block.addAssociatedBlock(stainBlock);
+        changed = true;
+        if (!isBatcherSetup) {
+            setupBatcher();
+        }
     }
-    return null;
-  }
 
-  public int getHangedPointerId() {
-    return hangedPointerId;
-  }
-
-  public void setHangedPointerId(int hangedPointerId) {
-    this.hangedPointerId = hangedPointerId;
-  }
-
-  public List<Use> getUseList() {
-    return useList;
-  }
-
-  public float getArea() {
-    return area;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public List<LayerBlock> getBlocks() {
-    return layerBlocks;
-  }
-
-  public BodyDef.BodyType getBodyType() {
-    return bodyType;
-  }
-
-  public void setBodyType(BodyDef.BodyType bodyType) {
-    this.bodyType = bodyType;
-  }
-
-  public void setInitInfo(InitInfo initInfo) {
-    this.initInfo = initInfo;
-  }
-
-  public InitInfo getCreationInitInfo() {
-    if (getBody() == null) {
-      return this.initInfo;
+    private boolean hasStains() {
+        for (LayerBlock b : layerBlocks) {
+            for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
+                if (decorationBlock instanceof StainBlock) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-    InitInfo initInfo = new InitInfo();
-    initInfo.setLinearVelocity(this.body.getLinearVelocity());
-    initInfo.setBullet(this.body.isBullet());
-    initInfo.setAngularVelocity(this.body.getAngularVelocity());
-    initInfo.setX(this.body.getPosition().x);
-    initInfo.setY(this.body.getPosition().y);
-    initInfo.setAngle(this.body.getAngle());
-    initInfo.setFilter(this.initInfo.getFilter());
-    return initInfo;
-  }
 
-  public String getUniqueID() {
-    return uniqueID;
-  }
+    private int getStainDataCount(ArrayList<StainBlock> stains) {
+        int count = 0;
+        for (StainBlock b : stains) {
+            if (b.getData() == null) {
+                b.computeData();
+            }
+            count += b.getData().length;
+        }
+        return count;
+    }
 
-  public void setUniqueId(String uniqueId) {
-    this.uniqueID = uniqueId;
-  }
+    private ArrayList<StainBlock> getStains() {
+        ArrayList<StainBlock> result = new ArrayList<>();
+        for (LayerBlock b : layerBlocks) {
+            for (Block<?, ?> decorationBlock : b.getAssociatedBlocks()) {
+                if (decorationBlock instanceof StainBlock) {
+                    result.add((StainBlock) decorationBlock);
+                }
+            }
+        }
+        return result;
+    }
 
-  public void setScene(PhysicsScene<?> scene) {
-    this.scene = scene;
-  }
+    public void redrawStains() {
+        if (batch == null || !changed) {
+            return;
+        }
 
-  public void setUseList(List<Use> useList) {
-    this.useList = useList;
-  }
+        batch.reset();
+        ArrayList<StainBlock> allStains = getStains();
+        int stainDataCount = getStainDataCount(allStains);
+        while (stainDataCount > stainDataLimit) {
+            StainBlock removedStainBlock = allStains.get(0);
+            for (LayerBlock b : layerBlocks) {
+                if (b.getAssociatedBlocks().contains(removedStainBlock)) {
+                    b.getAssociatedBlocks().remove(removedStainBlock);
+                    break;
+                }
+            }
+            stainDataCount -= removedStainBlock.getData().length;
+            allStains.remove(removedStainBlock);
+        }
 
-  public void setZIndex(int i) {
-    mesh.setZIndex(i);
-  }
+        for (LayerBlock layerBlock : getBlocks()) {
+            ArrayList<? extends Block<?, ?>> associatedBlocks = layerBlock.getAssociatedBlocks();
+            List<StainBlock> stainBlocks =
+                    associatedBlocks.stream()
+                            .filter(e -> e instanceof StainBlock)
+                            .map(e -> (StainBlock) e).sorted(Comparator.comparing(StainBlock::getPriority)).collect(Collectors.toList());
+            for (StainBlock stain : stainBlocks) {
+                Color color = stain.getProperties().getColor();
+                batch.draw(
+                        stain.getTextureRegion(),
+                        stain.getData(),
+                        color.getRed(),
+                        color.getGreen(),
+                        color.getBlue(),
+                        color.getAlpha());
+            }
+        }
+        batch.submit();
+        changed = false;
+    }
 
-  public void setChanged(boolean changed) {
-    this.changed = changed;
-  }
+    public void dispose() {
+        if (batch != null) {
+            batch.dispose();
+            batch.detachSelf();
+        }
+    }
+
+    public Vector2 getCenter() {
+        return center;
+    }
+
+    public void setCenter(Vector2 center) {
+        this.center = center;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public void detach() {
+        mesh.detachSelf();
+        if (mirrorMesh != null) {
+            mirrorMesh.detachSelf();
+        }
+        if (fireParticleWrapper != null) {
+            scene.getWorldFacade().removeFireParticleWrapper(fireParticleWrapper);
+        }
+        dispose();
+    }
+
+    public void createJuiceSources() {
+        for (LayerBlock block : this.getBlocks()) {
+            LayerProperties properties = block.getProperties();
+            ArrayList<FreshCut> freshCuts = block.getFreshCuts();
+            for (FreshCut freshCut : freshCuts) {
+                if (freshCut.getLength() < 5f) {
+                    continue;
+                }
+                if (freshCut.getLimit() > 0 && properties.isJuicy()) {
+                    scene.getWorldFacade().createJuiceSource(this, block, freshCut);
+                }
+                if (freshCut instanceof SegmentFreshCut) {
+                    SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
+                    if (segmentFreshCut.isInner()) {
+                        Line line =
+                                new Line(
+                                        segmentFreshCut.first.x,
+                                        segmentFreshCut.first.y,
+                                        segmentFreshCut.second.x,
+                                        segmentFreshCut.second.y,
+                                        2,
+                                        ResourceManager.getInstance().vbom);
+                        line.setColor(Color.BLACK);
+                        mesh.attachChild(line);
+                    }
+                }
+            }
+        }
+    }
+
+    @SafeVarargs
+    public final <T> boolean hasUsage(Class<T>... targetTypes) {
+        for (Use obj : this.useList) {
+            for (Class<T> targetType : targetTypes) {
+                if (targetType.isInstance(obj)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasActiveUsage(Class<?>... targetTypes) {
+        for (Use obj : this.useList) {
+            for (Class<?> targetType : targetTypes) {
+                if (targetType.isInstance(obj) && obj.isActive()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameEntity that = (GameEntity) o;
+        return Objects.equals(layerBlocks, that.layerBlocks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(layerBlocks);
+    }
+
+    public float getSortingValue() {
+        return sortingValue;
+    }
+
+    public void setSortingValue(float sortingValue) {
+        this.sortingValue = sortingValue;
+    }
+
+    public List<GameEntity> getConnectedEntities() {
+        List<GameEntity> list = new ArrayList<>();
+        scene
+                .getPhysicsWorld()
+                .getJoints()
+                .forEachRemaining(
+                        e -> {
+                            if (e.getBodyA() == this.getBody()) {
+                                list.add((GameEntity) e.getBodyB().getUserData());
+                            } else if (e.getBodyB() == this.getBody()) {
+                                list.add((GameEntity) e.getBodyA().getUserData());
+                            }
+                        });
+        return list;
+    }
+
+    public SpecialEntityType getType() {
+        return type;
+    }
+
+    public void setType(SpecialEntityType type) {
+        this.type = type;
+    }
+
+    public <T extends Use> T getActiveUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj) && obj.isActive()) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
+
+    public <T extends Use> T getUsage(Class<T> targetType) {
+        for (Use obj : this.useList) {
+            if (targetType.isInstance(obj)) {
+                return (T) obj;
+            }
+        }
+        return null;
+    }
+
+    public void setHangedPointerId(int hangedPointerId) {
+    }
+
+    public List<Use> getUseList() {
+        return useList;
+    }
+
+    public void setUseList(List<Use> useList) {
+        this.useList = useList;
+    }
+
+    public float getArea() {
+        return area;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<LayerBlock> getBlocks() {
+        return layerBlocks;
+    }
+
+    public BodyDef.BodyType getBodyType() {
+        return bodyType;
+    }
+
+    public void setBodyType(BodyDef.BodyType bodyType) {
+        this.bodyType = bodyType;
+    }
+
+    public void setInitInfo(InitInfo initInfo) {
+        this.initInfo = initInfo;
+    }
+
+    public InitInfo getCreationInitInfo() {
+        if (getBody() == null) {
+            return this.initInfo;
+        }
+        InitInfo initInfo = new InitInfo();
+        initInfo.setLinearVelocity(this.body.getLinearVelocity());
+        initInfo.setBullet(this.body.isBullet());
+        initInfo.setAngularVelocity(this.body.getAngularVelocity());
+        initInfo.setX(this.body.getPosition().x);
+        initInfo.setY(this.body.getPosition().y);
+        initInfo.setAngle(this.body.getAngle());
+        initInfo.setFilter(this.initInfo.getFilter());
+        return initInfo;
+    }
+
+    public String getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueID = uniqueId;
+    }
+
+    public void setZIndex(int i) {
+        mesh.setZIndex(i);
+    }
+
+    public boolean isMirrored() {
+        return mirrored;
+    }
+
+    public void setMirrored(boolean mirrored) {
+        this.mirrored = mirrored;
+    }
+
+    public Pair<List<GameEntity>, Boolean> directAttachedEntities() {
+        if (body == null) {
+            return new Pair<>(null, false);
+        }
+        final List<GameEntity> attachedEntities = new ArrayList<>();
+        body.getJointList().forEach(jointEdge -> {
+            if(jointEdge.joint.getType()!= JointDef.JointType.MouseJoint) {
+                GameEntity other = (GameEntity) jointEdge.other.getUserData();
+                attachedEntities.add(other);
+            }
+        });
+        return new Pair<>(attachedEntities, true);
+    }
+
+
+
+    private void destroyJoints() {
+        ArrayList<Joint> jointsToDestroy = new ArrayList<>();
+        for (JointEdge je: body.getJointList()) {
+            Joint joint = je.joint;
+                jointsToDestroy.add(joint);
+        }
+        for (Joint joint : jointsToDestroy) {
+            scene.getPhysicsWorld().destroyJoint(joint);
+            Log.e("Mirror","Destroy :"+joint.getType());
+            if (joint.getType() == JointDef.JointType.MouseJoint) {
+               scene.onDestroyMouseJoint((MouseJoint) joint);
+            }
+        }
+    }
+
+    private BodyInit getBodyInit() {
+        return new AngularVelocityInit(new LinearVelocityInit(new BulletInit(new TransformInit(new BodyInitImpl(initInfo.getFilter()), body.getPosition().x, body.getPosition().y, body.getAngle()), body.isBullet()), body.getLinearVelocity()), body.getAngularVelocity());
+    }
+
+    private void mirror() {
+        Log.e("Mirror","Begin Mirror---------------------------"+this.getName());
+        if (body == null) {
+            return;
+        }
+        //mirror blocks and usages
+        for (LayerBlock layerBlock : layerBlocks) {
+            layerBlock.mirror();
+        }
+        for (Use use : useList) {
+            use.dynamicMirror(scene);
+        }
+
+        // Iterate over the joints attached to the body and collect them
+        Log.e("Mirror","Begin Destroy Joints");
+        destroyJoints();
+
+        body.setActive(false);
+        mesh.detachSelf();
+        if (isBatcherSetup) {
+            batch.detachSelf();
+        }
+        if (mirrorCreated) {
+            mirrorBody.setActive(true);
+            Body joker = body;
+            body = mirrorBody;
+            mirrorBody = joker;
+
+            MosaicMesh jokerMesh = mesh;
+            mesh = mirrorMesh;
+            mirrorMesh = jokerMesh;
+            scene.attachChild(mesh);
+            Log.e("Mirror","Swap elements");
+        } else {
+            mirrorBody = body;
+            mirrorMesh = mesh;
+            //create new mirrored body and assign it to body
+            Invoker.addBodyCreationCommand(this, bodyType, getBodyInit());
+            //create new mirrored mesh and assign it to mesh
+            mesh = MeshFactory.getInstance().createMosaicMesh(mesh.getX(), mesh.getY(), mesh.getRotation(), layerBlocks);
+            mesh.setZIndex(mirrorMesh.getZIndex());
+            scene.attachChild(mesh);
+            mirrorCreated = true;
+            Log.e("Mirror",this+"Entered into creating a new body");
+        }
+        scene.sortChildren();
+        if (isBatcherSetup) {
+            mesh.attachChild(batch);
+        }
+        changed = true;
+        redrawStains();
+
+    }
+    public void tryDynamicMirror() {
+        Log.e("Mirror",this+"---------------------------Begin Try Dynamic Mirror---------------------------");
+        Queue<GameEntity> deque = new ArrayDeque<>();
+        deque.add(this);
+        HashSet<GameEntity> visited = new HashSet<>();
+        while (!deque.isEmpty()) {
+            GameEntity current = deque.poll();
+            assert current != null;
+            Pair<List<GameEntity>, Boolean> res = current.directAttachedEntities();
+            visited.add(current);
+            if (!res.second) {
+                continue;
+            }
+            deque.addAll(res.first.stream().filter(e -> !visited.contains(e)).collect(Collectors.toList()));
+        }
+        for (GameEntity gameEntity : visited) {
+            gameEntity.mirror();
+        }
+        HashSet<JointBlock> used = new HashSet<>();
+        List<JointBlock> list = visited.stream().flatMap(e -> e.layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream().filter(a -> a instanceof JointBlock).map(jb -> (JointBlock) jb))).collect(Collectors.toList());
+        for (JointBlock jointBlock : list) {
+            if (used.contains(jointBlock)) {
+                continue;
+            }
+            Log.e("Mirror","Schedule recreate:"+jointBlock.getJointType()+" /"+jointBlock);
+            scene.getWorldFacade().recreateJoint(jointBlock, jointBlock.getEntity());
+            used.add(jointBlock);
+            used.add(jointBlock.getBrother());
+        }
+
+        // mirror each entity and mirror their joints
+    }
+
+    public void removeJointBlock(JointBlock jointBlock){
+        for(LayerBlock layerBlock:layerBlocks){
+            layerBlock.getAssociatedBlocks().remove(jointBlock);
+        }
+    }
+
+    public Body getMirrorBody() {
+        return mirrorBody;
+    }
+
+    public void setMirrorBody(Body body) {
+        mirrorBody = body;
+    }
 }

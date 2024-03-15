@@ -18,7 +18,7 @@ import org.andengine.entity.particle.modifier.ScaleParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FluxParticleWrapperWithPolygonEmitter {
+public class FluxParticleWrapper {
     private static final float RATE_MIN = 30 * 100;
     private static final float RATE_MAX = 50 * 100;
     private static final int PARTICLES_MAX = 750 * 100;
@@ -30,7 +30,7 @@ public class FluxParticleWrapperWithPolygonEmitter {
     private final GameEntity target;
 
 
-    public FluxParticleWrapperWithPolygonEmitter(GameEntity source, GameEntity target) {
+    public FluxParticleWrapper(GameEntity source, GameEntity target) {
         this.startEmitter = new RelativePolygonEmitter(source,  (b) -> b.getParent().getId()==3);
         this.endEmitter = new RelativePolygonEmitter(target, (b) -> true);
         this.source = source;
@@ -45,9 +45,9 @@ public class FluxParticleWrapperWithPolygonEmitter {
         this.energyParticleSystem =
                 new FireParticleSystem(
                         this.startEmitter,
-                        FluxParticleWrapperWithPolygonEmitter.RATE_MIN * ratio,
-                        FluxParticleWrapperWithPolygonEmitter.RATE_MAX * ratio,
-                        (int) (FluxParticleWrapperWithPolygonEmitter.PARTICLES_MAX * ratio + 1),
+                        FluxParticleWrapper.RATE_MIN * ratio,
+                        FluxParticleWrapper.RATE_MAX * ratio,
+                        (int) (FluxParticleWrapper.PARTICLES_MAX * ratio + 1),
                         ResourceManager.getInstance().plasmaParticle);
 
         final float lifespan = 1f;

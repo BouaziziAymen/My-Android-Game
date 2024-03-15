@@ -2,7 +2,6 @@ package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
@@ -33,15 +32,13 @@ public abstract class LiquidParticleWrapper {
 
     public LiquidParticleWrapper(
             GameEntity gameEntity,
-            Color color,
+            float[] data, float[] weights, Color color,
             float flammability,
-            float[] data,
-            float[] weights,
             Vector2 splashVelocity,
             int lowerRate,
             int higherRate) {
         this.splashVelocity = splashVelocity;
-        this.emitter = createEmitter(data, weights);
+        this.emitter = createEmitter(data, weights,gameEntity);
         this.parent = gameEntity;
         this.color = color;
         this.flammability = flammability;
@@ -76,7 +73,7 @@ public abstract class LiquidParticleWrapper {
         this.particleSystem.addParticleInitializer(gravity);
     }
 
-    protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights);
+    protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights, GameEntity gameEntity);
 
     public void update() {
         timer++;
@@ -99,7 +96,7 @@ public abstract class LiquidParticleWrapper {
             if (!this.particleSystem.isParticlesSpawnEnabled()) {
                 this.particleSystem.setParticlesSpawnEnabled(true);
             }
-            updateEmitter();
+            emitter.update();
         }
     }
 
@@ -111,15 +108,6 @@ public abstract class LiquidParticleWrapper {
         return flammability;
     }
 
-    public void updateEmitter() {
-        float x = parent.getMesh().getX();
-        float y = parent.getMesh().getY();
-        float rot = parent.getMesh().getRotation();
-        GeometryUtils.transformation.setToIdentity();
-        GeometryUtils.transformation.preTranslate(x, y);
-        GeometryUtils.transformation.preRotate(-rot);
-        emitter.onStep(GeometryUtils.transformation);
-    }
 
     public BaseParticleSystem getParticleSystem() {
         return particleSystem;
@@ -147,4 +135,6 @@ public abstract class LiquidParticleWrapper {
             this.particleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
         }
     }
+    
+    
 }

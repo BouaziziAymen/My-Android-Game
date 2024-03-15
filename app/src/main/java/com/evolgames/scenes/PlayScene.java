@@ -16,6 +16,7 @@ import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.Plotter;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.commandtemplate.commands.BodyMirrorCommand;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MaterialFactory;
@@ -160,7 +161,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     @Override
     public void populate() {
-        createRagDoll(400, 420);
+       // createRagDoll(400, 420);
+        createItemFromFile("RPG.xml",true,true);
         createTestUnit();
         createGround();
         testMesh();
@@ -314,6 +316,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                                     400 / 32f,
                                     100 / 32f,
                                     (float) (angle + Math.PI),
+                                    false,
                                     bodyInit,
                                     blocks,
                                     BodyDef.BodyType.DynamicBody,
@@ -492,6 +495,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                                 100f / 32f,
                                 200 / 32f,
                                 0f,
+                                false,
                                 bodyInit,
                                 blocks2,
                                 BodyDef.BodyType.DynamicBody,
@@ -697,7 +701,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     public void createLastItem() {
-        createItem(EditorScene.SAVE_MUT, false);
+        createItemFromFile(EditorScene.SAVE_MUT, false,false);
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
@@ -740,6 +744,13 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             }
         }else {
             setSpecialAction(playerSpecialAction);
+        }
+    }
+
+    public void onMirrorButtonClicked() {
+        if(hand!=null&&hand.getGrabbedEntity()!=null) {
+            Invoker.addBodyMirrorCommand(hand.getGrabbedEntity());
+       //  hand.getGrabbedEntity().tryDynamicMirror();
         }
     }
 }

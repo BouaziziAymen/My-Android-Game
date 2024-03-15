@@ -19,17 +19,15 @@ public abstract class Bomb extends Use {
 
     private List<BombInfo> bombInfoList;
     protected boolean alive = true;
-    protected transient GameEntity gameEntity;
-    private String gameEntityUniqueId;
 
     @SuppressWarnings("unused")
     public Bomb() {
     }
-    public Bomb(UsageModel<?> usageModel) {
+    public Bomb(UsageModel<?> usageModel,boolean mirrored) {
         BombUsageProperties properties = (BombUsageProperties) usageModel.getProperties();
         this.bombInfoList =
                 properties.getBombModelList().stream()
-                        .map(BombModel::toBombInfo)
+                        .map(m->m.toBombInfo(mirrored))
                         .collect(Collectors.toList());
     }
 
@@ -39,19 +37,14 @@ public abstract class Bomb extends Use {
 
     private void detonate(WorldFacade worldFacade){
         for (BombInfo bombInfo : bombInfoList) {
-            Body body = gameEntity.getBody();
+            Body body = bombInfo.getCarrierEntity().getBody();
             Vector2 pos =
                     bombInfo
-                            .getBombPosition()
-                            .cpy()
-                            .sub(gameEntity.getCenter())
-                            .mul(1 / 32f);
+                            .getBombPosition();
             Vector2 worldPos = body.getWorldPoint(pos).cpy();
-            if (gameEntity.getScene() instanceof PlayScene) {
-                //((PlayScene) gameEntity.getScene()).lockSaving();
-            }
+
             worldFacade.createExplosion(
-                    gameEntity,
+                    bombInfo.getCarrierEntity(),
                     worldPos.x,
                     worldPos.y,
                     bombInfo.getFireRatio(),
@@ -66,7 +59,7 @@ public abstract class Bomb extends Use {
     }
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
-        if (!this.alive||gameEntity==null||gameEntity.getBody()==null) {
+        if (!this.alive) {
             return;
         }
         if(isBombOn()){
@@ -82,12 +75,7 @@ public abstract class Bomb extends Use {
          return null;
     }
 
-    public void setGameEntity(GameEntity gameEntity) {
-        this.gameEntity = gameEntity;
-        this.gameEntityUniqueId = gameEntity.getUniqueID();
-    }
-
-    public String getGameEntityUniqueId() {
-        return gameEntityUniqueId;
+    public List<BombInfo> getBombInfoList() {
+        return bombInfoList;
     }
 }
