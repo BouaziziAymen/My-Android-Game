@@ -45,8 +45,8 @@ public class PointImage extends SceneImage implements Movable {
 
   @Override
   public void onControllerMoved(float dx, float dy) {
-    float x = point.x + dx * scaleX;
-    float y = point.y + dy * scaleY;
+    float x = point.x + dx;
+    float y = point.y + dy;
     setPosition(x, y);
     setUpdated(true);
   }

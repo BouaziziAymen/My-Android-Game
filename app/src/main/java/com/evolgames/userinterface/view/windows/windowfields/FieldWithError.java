@@ -36,15 +36,18 @@ public class FieldWithError extends LinearLayout implements ErrorDisplay {
   @Override
   public void showError(String error) {
     showError = true;
+    errorText.setGone(false);
     errorText.setVisible(true);
-    if (error != null) errorText.updateText(error);
+    if (error != null) {
+      errorText.updateText(error);
+    }
     setLowerBottomY(getHeight());
   }
 
   @Override
   public void hideError() {
     showError = false;
-    errorText.setVisible(false);
+    errorText.setGone(true);
     setLowerBottomY(getHeight());
   }
 }

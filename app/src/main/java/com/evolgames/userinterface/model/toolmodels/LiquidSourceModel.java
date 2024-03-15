@@ -75,7 +75,7 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
             .cpy()
             .sub(containerEntity.getCenter())
             .mul(1 / 32f);
-    Vector2 direction = this.properties.getLiquidSourceDirection();
+    Vector2 direction = this.properties.getLiquidSourceDirection().cpy();
     if(mirrored){
       centredOrigin = GeometryUtils.mirrorPoint(centredOrigin);
       direction.x = -direction.x;

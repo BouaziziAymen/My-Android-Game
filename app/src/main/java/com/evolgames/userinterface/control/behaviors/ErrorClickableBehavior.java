@@ -15,8 +15,10 @@ public abstract class ErrorClickableBehavior<C extends Controller> extends Advan
 
   public void onStep() {
     if (errorProducer.getErrorDisplay() != null) {
-      if (showError) errorTimer++;
-      if (errorTimer > 120) {
+      if (showError){
+        errorTimer++;
+      }
+      if (errorTimer > 120&&showError) {
         showError = false;
         errorTimer = 0;
         errorProducer.getErrorDisplay().hideError();

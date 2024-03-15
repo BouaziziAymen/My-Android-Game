@@ -203,9 +203,9 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         for (JointModel jointModel : joints) {
             createJointFromModel(jointModel,mirrored);
         }
-            GameEntity gameEntity = gameGroup.getGameEntityByIndex(0);
-            getWorldFacade().applyLiquidStain(gameEntity, 40, -7, gameEntity.getBlocks().get(1), Color.RED, 0f, 0, false);
-            gameEntity.redrawStains();
+         //   GameEntity gameEntity = gameGroup.getGameEntityByIndex(0);
+           // getWorldFacade().applyLiquidStain(gameEntity, 40, -7, gameEntity.getBlocks().get(1), Color.RED, 0f, 0, false);
+            //gameEntity.redrawStains();
 
         return gameGroup;
     }

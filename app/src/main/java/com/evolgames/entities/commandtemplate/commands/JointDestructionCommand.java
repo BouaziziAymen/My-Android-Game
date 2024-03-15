@@ -23,6 +23,7 @@ public class JointDestructionCommand extends Command {
 
     JointBlock jointBlock = (JointBlock) joint.getUserData();
     jointBlock.getEntity().removeJointBlock(jointBlock);
+    jointBlock.getBrother().getEntity().removeJointBlock(jointBlock.getBrother());
     jointBlock.setAborted(true);
     jointBlock.getBrother().setAborted(true);
     if (this.joint instanceof MouseJoint) {

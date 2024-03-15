@@ -43,7 +43,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
@@ -587,7 +586,7 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
-    private BodyInit getBodyInit() {
+    private BodyInit getMirrorBodyInit() {
         return new AngularVelocityInit(new LinearVelocityInit(new BulletInit(new TransformInit(new BodyInitImpl(initInfo.getFilter()), body.getPosition().x, body.getPosition().y, body.getAngle()), body.isBullet()), body.getLinearVelocity()), body.getAngularVelocity());
     }
 
@@ -615,6 +614,9 @@ public class GameEntity extends EntityWithBody {
         }
         if (mirrorCreated) {
             mirrorBody.setActive(true);
+            mirrorBody.setTransform(body.getPosition(),body.getAngle());
+            mirrorBody.setLinearVelocity(body.getLinearVelocity());
+            mirrorBody.setAngularVelocity(body.getAngularVelocity());
             Body joker = body;
             body = mirrorBody;
             mirrorBody = joker;
@@ -623,12 +625,13 @@ public class GameEntity extends EntityWithBody {
             mesh = mirrorMesh;
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
+
             Log.e("Mirror","Swap elements");
         } else {
             mirrorBody = body;
             mirrorMesh = mesh;
             //create new mirrored body and assign it to body
-            Invoker.addBodyCreationCommand(this, bodyType, getBodyInit());
+            Invoker.addBodyCreationCommand(this, bodyType, getMirrorBodyInit());
             //create new mirrored mesh and assign it to mesh
             mesh = MeshFactory.getInstance().createMosaicMesh(mesh.getX(), mesh.getY(), mesh.getRotation(), layerBlocks);
             mesh.setZIndex(mirrorMesh.getZIndex());
@@ -642,6 +645,7 @@ public class GameEntity extends EntityWithBody {
         }
         changed = true;
         redrawStains();
+        mirrored = !mirrored;
 
     }
     public void tryDynamicMirror() {

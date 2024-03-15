@@ -7,6 +7,7 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSourceField;
+import com.evolgames.utilities.GeometryUtils;
 
 public class FireSourceModel extends ProperModel<FireSourceProperties> {
 
@@ -64,7 +65,7 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
   }
 
 
-  public FireSourceInfo toFireSourceInfo() {
+  public FireSourceInfo toFireSourceInfo(boolean mirrored) {
     FireSourceInfo fireSourceInfo = new FireSourceInfo();
 
     Vector2 centredOrigin = this.properties
@@ -72,6 +73,11 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
             .cpy()
             .sub(muzzleEntity.getCenter())
             .mul(1 / 32f);
+    Vector2 direction = this.properties.getFireSourceDirection().cpy();
+    if(mirrored){
+      centredOrigin.set(GeometryUtils.mirrorPoint(centredOrigin));
+      direction.x = -direction.x;
+    }
     fireSourceInfo.setFireSourceOrigin(centredOrigin);
     fireSourceInfo.setFireDirection(this.properties.getFireSourceDirection());
     fireSourceInfo.setFireRatio(this.properties.getFireRatio());

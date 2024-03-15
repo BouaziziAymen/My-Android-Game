@@ -1007,13 +1007,8 @@ public class WorldFacade implements ContactObserver {
                 }
             }
 
-            boolean goThrough = true;
-            for (int k = 0; k < 100; k++) {
-                if (!this.doNotOverlap(penetratorData, environmentData, advance + k * dN)) {
-                    goThrough = false;
-                }
-            }
-            if (goThrough) {
+
+            if (step>100) {
                 break;
             }
             if (step % 100 == 0) {
@@ -1040,7 +1035,7 @@ public class WorldFacade implements ContactObserver {
                 return true;
             }
         }
-        Log.e("Penetration", "-----------$ On free, penetrationEnergy:" + advance);
+        Log.e("Penetration", "-----------$ On free, advance:" + advance);
         penetration.onFree(
                 this,
                 contact,

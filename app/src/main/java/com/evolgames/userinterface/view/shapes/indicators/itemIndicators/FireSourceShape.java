@@ -28,9 +28,9 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
             ResourceManager.getInstance().fireShapeTextureRegion, begin.cpy()) {
           @Override
           protected void performControl(float dx, float dy) {
-            float x = FireSourceShape.this.begin.x;
-            float y = FireSourceShape.this.begin.y;
-            FireSourceShape.this.updateBegin(x + dx, y + dy);
+            float x = getPoint().x;
+            float y = getPoint().y;
+            FireSourceShape.this.updateBegin(x , y );
             FireSourceShape.this.drawSelf();
           }
         };

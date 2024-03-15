@@ -71,7 +71,10 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
     }
     if(step == 10){
       this.flux = new FluxParticleWrapper(jarGroup.getGameEntityByIndex(0), ragdoll.upperTorso);
+      jarGroup.getGameEntityByIndex(0).setZIndex(5);
+      flux.getParticleSystem().setZIndex(4);
       this.attachChild(flux.getParticleSystem());
+      this.sortChildren();
     }
    if(step>10&&Math.random()<0.05f){
      jarGroup.getGameEntityByIndex(0).getBody().setAngularVelocity((Math.random()<0.5f?1:-1)*0.5f);

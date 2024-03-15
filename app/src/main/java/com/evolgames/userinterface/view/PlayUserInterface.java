@@ -50,7 +50,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
                         scene.createLastItem();
                     }
                 });
-        createLastItem.setPosition(0, 480 - 2 * ResourceManager.getInstance().simpleButtonTextureRegion.getHeight());
+        createLastItem.setPosition(0,  ResourceManager.getInstance().simpleButtonTextureRegion.getHeight());
         addElement(createLastItem);
     }
 

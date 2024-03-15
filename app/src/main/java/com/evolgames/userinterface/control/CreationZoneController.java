@@ -282,11 +282,11 @@ public class CreationZoneController extends Controller {
     public void selectPointImage(PointImage pointImage) {
         pointImage.doubleSelect();
         selectedPointImage = pointImage;
-
+        float moveSpeed = 1f/editorUserInterface.getZoomFactor();
         editorUserInterface.setMoveElementController(editorUserInterface.getPanel().allocateController(800 - 64 / 2f - 16f, 64 / 2f + 16f, ControlElement.Type.AnalogController, new ControllerAction() {
             @Override
             public void controlMoved(float pX, float pY) {
-                pointImage.onControllerMoved(pX, pY);
+                pointImage.onControllerMoved(pX*moveSpeed, pY*moveSpeed);
             }
 
             @Override

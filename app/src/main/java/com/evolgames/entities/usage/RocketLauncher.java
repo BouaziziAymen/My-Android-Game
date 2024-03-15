@@ -2,6 +2,9 @@ package com.evolgames.entities.usage;
 
 import static com.evolgames.entities.usage.Rocket.FORCE_FACTOR;
 import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -44,7 +47,6 @@ public class RocketLauncher extends Use {
     private float reloadTime;
     private boolean loading = false;
     private float loadingTimer;
-    transient private List<ToolModel> rocketModels;
     private transient Map<ProjectileInfo, Rocket> rockets;
     private boolean initialized = false;
     private transient Map<ProjectileInfo, ExplosiveParticleWrapper> projInfFireSourceMap;
@@ -59,10 +61,8 @@ public class RocketLauncher extends Use {
                 rocketLauncherProperties.getProjectileModelList().stream()
                         .map(m->m.toProjectileInfo(mirrored))
                         .collect(Collectors.toList());
-        fillMissileModels();
         createFireSources(worldFacade);
         this.reloadTime = rocketLauncherProperties.getReloadTime();
-
     }
 
     public void setRockets(Map<ProjectileInfo, Rocket> rockets) {
@@ -73,18 +73,6 @@ public class RocketLauncher extends Use {
         return projectileInfoList;
     }
 
-    public void fillMissileModels() {
-        this.rocketModels = new ArrayList<>();
-        for (ProjectileInfo projectileInfo : this.projectileInfoList) {
-            try {
-                ToolModel toolModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile());
-                rocketModels.add(toolModel);
-            } catch (PersistenceException | ParserConfigurationException | SAXException |
-                     IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public void onTriggerPulled() {
         if(loading){return;}
@@ -175,7 +163,12 @@ public class RocketLauncher extends Use {
 
     private void createRocket(ProjectileInfo projectileInfo, PhysicsScene<?> physicsScene) {
         int index = projectileInfoList.indexOf(projectileInfo);
-        ToolModel rocketModel = rocketModels.get(index);
+        ToolModel rocketModel;
+        try {
+            rocketModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile());
+        } catch (PersistenceException | IOException | ParserConfigurationException | SAXException e) {
+            return;
+        }
         GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
 
         Vector2 end = projectileInfo.getProjectileEnd();
@@ -191,7 +184,8 @@ public class RocketLauncher extends Use {
         rocketModel.getBodies().forEach(bodyModel -> bodyModel.setBullet(true));
         JointModel jointModel = new JointModel(rocketModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
 
-        GameGroup rocketGroup = physicsScene.createItem(worldEnd.x,worldEnd.y,worldAngle,rocketModel,false);
+        Log.e("Rocket",""+muzzleEntity.isMirrored());
+        GameGroup rocketGroup = physicsScene.createItem(worldEnd.x,worldEnd.y,worldAngle,rocketModel,muzzleEntity.isMirrored());
         GameEntity rocketEntity = rocketGroup.getGameEntityByIndex(0);
         BodyModel bodyModel1 = new BodyModel(0);
         BodyModel bodyModel2 = new BodyModel(1);
@@ -199,7 +193,8 @@ public class RocketLauncher extends Use {
         jointModel.setBodyModel2(bodyModel2);
         jointModel.getLocalAnchorA().set(end.cpy().mul(32f).add(muzzleEntity.getCenter()));
         jointModel.getLocalAnchorB().set(rocketEntity.getCenter());
-        jointModel.setReferenceAngle((float) (GeometryUtils.calculateAngleRadians(-localDir.x, localDir.y) ));
+        float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y)+(!muzzleEntity.isMirrored()?Math.PI:0));
+        jointModel.setReferenceAngle(angle);
 
         bodyModel1.setGameEntity(muzzleEntity);
         bodyModel2.setGameEntity(rocketEntity);
@@ -263,6 +258,9 @@ public class RocketLauncher extends Use {
                 ExplosiveParticleWrapper::detach
         );
         createFireSources(physicsScene.getWorldFacade());
+        rockets.values().forEach(rocket -> {
+            rocket.dynamicMirror(physicsScene);
+        });
     }
 
 

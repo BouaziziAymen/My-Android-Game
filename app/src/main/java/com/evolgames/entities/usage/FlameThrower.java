@@ -8,7 +8,6 @@ import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.entities.hand.PlayerSpecialAction;
-import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 import java.util.Collections;
@@ -25,10 +24,10 @@ public class FlameThrower extends Use {
 
     @SuppressWarnings("unused")
     public FlameThrower() {}
-  public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene) {
+  public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
     this.fireSourceInfoList =
             ((FlameThrowerProperties)usageModel.getProperties()).getFireSources().stream()
-            .map(FireSourceModel::toFireSourceInfo)
+            .map(fireSourceModel -> fireSourceModel.toFireSourceInfo(mirrored))
             .collect(Collectors.toList());
     createFireSources(physicsScene.getWorldFacade());
   }

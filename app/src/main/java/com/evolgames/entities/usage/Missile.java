@@ -12,10 +12,11 @@ public class Missile extends Rocket {
   private float steerValue;
 
   @SuppressWarnings("unused")
-  public Missile() {}
+  public Missile() {
+  }
 
-  public Missile(UsageModel<?> usageModel, PhysicsScene<?> physicsScene) {
-    super(usageModel, physicsScene);
+  public Missile(UsageModel<?> usageModel, PhysicsScene<?> physicsScene,boolean mirrored) {
+    super(usageModel, physicsScene,mirrored);
     MissileProperties missileProperties = ((MissileProperties) usageModel.getProperties());
     this.control = missileProperties.getControl();
   }

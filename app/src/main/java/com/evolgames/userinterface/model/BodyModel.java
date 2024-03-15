@@ -251,16 +251,16 @@ public class BodyModel extends OutlineModel<BodyProperties> {
                                             this.getGameEntity().getUseList().add(throwable);
                                             break;
                                           case FLAME_THROWER:
-                                            FlameThrower flameThrower = new FlameThrower(e, physicsScene);
+                                            FlameThrower flameThrower = new FlameThrower(e, physicsScene,mirrored);
                                             this.getGameEntity().getUseList().add(flameThrower);
                                             break;
                                           case ROCKET:
-                                            Rocket rocket = new Rocket(e, physicsScene);
+                                            Rocket rocket = new Rocket(e, physicsScene,mirrored);
                                             rocket.setRocketBodyGameEntity(this.getGameEntity());
                                             this.getGameEntity().getUseList().add(rocket);
                                             break;
                                           case MISSILE:
-                                            Missile missile = new Missile(e, physicsScene);
+                                            Missile missile = new Missile(e, physicsScene,mirrored);
                                             missile.setRocketBodyGameEntity(this.getGameEntity());
                                             this.getGameEntity().getUseList().add(missile);
                                             break;

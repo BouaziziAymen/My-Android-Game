@@ -35,7 +35,11 @@ public class LimitBehavior extends VisitBehavior {
       }
 
     } else {
-      e.setVisible(true);
+      if(!e.isGone()) {
+        e.setVisible(true);
+      } else {
+        e.setVisible(false);
+      }
       if (e instanceof Limited) {
         Limited limited = (Limited) e;
         limited.setLimited(false);

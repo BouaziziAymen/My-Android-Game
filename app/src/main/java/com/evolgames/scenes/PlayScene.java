@@ -161,8 +161,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     @Override
     public void populate() {
-       // createRagDoll(400, 420);
-        createItemFromFile("RPG.xml",true,true);
+       createRagDoll(400, 420);
+       // createItemFromFile("RPG.xml",true,true);
         createTestUnit();
         createGround();
         testMesh();

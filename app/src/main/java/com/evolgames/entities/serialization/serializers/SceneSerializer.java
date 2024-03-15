@@ -191,7 +191,6 @@ public class SceneSerializer {
         projectileInfo.setMuzzleEntity(
                 GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
       }
-      rocketLauncher.fillMissileModels();
       Map<ProjectileInfo, Rocket> rocketsMap =new HashMap<>();
       rocketLauncher.getProjectileInfoList().forEach(projectileInfo -> {
         GameEntity rocketEntity = GameEntitySerializer.entities.get(projectileInfo.getRocketEntityUniqueId());

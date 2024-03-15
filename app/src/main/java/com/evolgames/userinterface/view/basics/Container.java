@@ -68,4 +68,12 @@ public class Container extends Element {
       e.updateZoom(pZoomFactor);
     }
   }
+
+  @Override
+  public void setGone(boolean gone) {
+    super.setGone(gone);
+    for(Element e:contents){
+      e.setGone(gone);
+    }
+  }
 }

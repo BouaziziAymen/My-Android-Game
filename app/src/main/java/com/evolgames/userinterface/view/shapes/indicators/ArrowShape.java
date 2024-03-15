@@ -40,7 +40,7 @@ public class ArrowShape extends LineShape {
         Vector2Pool.obtain(end)
             .sub(direction.x * getArrowHeadLength, direction.y * getArrowHeadLength);
     Vector2 p1 = Vector2Pool.obtain(p).add(n.x * arrowHeadWidth, n.y * arrowHeadWidth);
-    Vector2 p2 = Vector2Pool.obtain(p).sub(n.x * 6, n.y * arrowHeadWidth);
+    Vector2 p2 = Vector2Pool.obtain(p).sub(n.x * arrowHeadWidth, n.y * arrowHeadWidth);
 
     lineStrip.add(p1.x, p1.y);
     lineStrip.add(p2.x, p2.y);

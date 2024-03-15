@@ -61,7 +61,7 @@ public abstract class QuantityBehavior<C extends AdvancedWindowController<?>>
           }
           return true;
         } else {
-          if (quantity.getErrorDisplay() != null) {
+          if (quantity.getErrorDisplay() != null&&!showError) {
             showError = true;
             quantity.getErrorDisplay().showError(condition.getError());
             updateWindowLayout();
