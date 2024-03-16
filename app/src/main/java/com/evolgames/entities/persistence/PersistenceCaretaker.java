@@ -732,8 +732,7 @@ public class PersistenceCaretaker {
         if (toolFileName.isEmpty()) {
             return new ToolModel(scene, 0);
         }
-        AssetManager assetManager = gameActivity.getAssets();
-        InputStream fis = assets?assetManager.open(String.format("%s/%s", XML_FOLDER, toolFileName)): gameActivity.openFileInput(toolFileName);
+        InputStream fis = assets?gameActivity.getAssets().open(String.format("%s/%s", XML_FOLDER, toolFileName)): gameActivity.openFileInput(toolFileName);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
         Document xml = docBuilder.parse(fis);

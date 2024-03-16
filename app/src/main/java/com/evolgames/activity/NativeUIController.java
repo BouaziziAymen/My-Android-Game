@@ -73,4 +73,9 @@ public class NativeUIController implements INativeUIController{
         PlayScene playScene = ((PlayScene)mainScene.getChildScene());
         playScene.onMirrorButtonClicked();
     }
+
+    @Override
+    public void onEditorClicked() {
+        gameActivity.showCreateItemDialog();
+    }
 }

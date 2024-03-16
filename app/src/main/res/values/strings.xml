@@ -6,4 +6,7 @@
     <string name="validator_float_range">%1$.2f .. %2$.2f</string>
     <string name="validator_invalid_number">Invalid number !</string>
     <string name="validator_field_cannot_be_empty">Field cannot be empty !</string>
+    <string name="go_create">Create New</string>
+    <string name="go_edit">Edit</string>
+    <string name="cancel">Cancel</string>
 </resources>

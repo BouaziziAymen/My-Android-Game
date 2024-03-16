@@ -303,7 +303,7 @@ public class GameEntityFactory {
 
     final float ARM_LENGTH = 32f;
 
-    final float HAND_SIDE = 7f;
+    final float HAND_SIDE = 6f;
 
     final float UPPERLEG_CIR1 = 10f;
     final float UPPERLEG_CIR2 = 8f;
@@ -314,7 +314,7 @@ public class GameEntityFactory {
     final float LOWERLEG_CIR1 = 6f;
     final float LOWERLEG_CIR2 = 8f;
     final float RIGHT = SHOULDER_WIDTH / 2 - UPPERLEG_CIR1;
-    final float FOOT_LENGTH = 16f;
+    final float FOOT_LENGTH = 15f;
 
     float level0 = y - (HEAD_RAY + NECK_LENGTH + TORSO_HEIGHT / 2) / 32f;
 

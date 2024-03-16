@@ -13,10 +13,10 @@ import com.evolgames.utilities.AssetUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,12 +28,37 @@ public class XmlHelper {
         this.activity = activity;
     }
 
-    public Map<ItemCategory, List<ItemMetaData>> fillItemsMap() {
-        Map<ItemCategory, List<ItemMetaData>> map = new HashMap<>();
-        for (ItemCategory cat : ItemCategory.values()) {
-            map.put(cat, new ArrayList<>());
+    private List<String> readInternalStorageFiles(){
+            List<String> fileNames = new ArrayList<>();
+            File directory = activity.getFilesDir();
+            if (directory.exists() && directory.isDirectory()) {
+                File[] files = directory.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isFile()&&file.getName().endsWith(".xml")) {
+                            fileNames.add(file.getName());
+                        }
+                    }
+                }
+            }
+            return fileNames;
         }
 
+    public void fillItemsMapFromInternalStorage(Map<ItemCategory, List<ItemMetaData>> map) {
+        List<String> fileNames = readInternalStorageFiles();
+        for (String file : fileNames) {
+            try {
+                InputStream fis = activity.openFileInput(file);
+                ItemMetaData metaData = parseXML(fis);
+                metaData.setUserCreated(true);
+                metaData.setFileName(file);
+                Objects.requireNonNull(map.get(metaData.getItemCategory())).add(metaData);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public void fillItemsMapFromAssets(Map<ItemCategory, List<ItemMetaData>> map) {
         AssetManager assetManager = activity.getAssets();
         List<String> fileNames = AssetUtils.getAllFileNames(assetManager, XML_FOLDER);
         for (String file : fileNames) {
@@ -46,7 +71,6 @@ public class XmlHelper {
                 throw new RuntimeException(e);
             }
         }
-        return map;
     }
 
     public ItemMetaData parseXML(InputStream inputStream) {

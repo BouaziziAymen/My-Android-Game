@@ -22,9 +22,11 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.FileProvider;
 
+import com.evolgames.activity.components.CreateItemDialog;
+import com.evolgames.activity.components.EditItemDialog;
+import com.evolgames.activity.components.MenuUIFragment;
 import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
@@ -50,7 +52,10 @@ import org.andengine.ui.IGameInterface;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +64,8 @@ public class GameActivity extends BaseGameActivity {
     public static final int CAMERA_WIDTH = 800;
     public static final int CAMERA_HEIGHT = 480;
     private static final int RESULT_LOAD_IMAGE = 1;
+    private static final String DEVELOPER_EMAIL = "aymendotbouazizi@gmail.com";
+    private static final String EMAIL_SUBJECT = "Mutilate : Item";
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
     /**
@@ -71,6 +78,9 @@ public class GameActivity extends BaseGameActivity {
     private PlayUIFragment gameUIFragment;
     private NativeUIController uiController;
     private UIType installedUI;
+    private MenuUIFragment menuUIFragment;
+    private CreateItemDialog createItemDialog;
+    private EditItemDialog editItemDialog;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -298,46 +308,81 @@ public class GameActivity extends BaseGameActivity {
         gameContainer.addView(mRenderSurfaceView, 0);
         this.fillItemsMap();
         this.gameUIFragment = new PlayUIFragment();
-        replaceFragment(this.gameUIFragment);
+        this.menuUIFragment = new MenuUIFragment();
+        this.createItemDialog = new CreateItemDialog();
+        this.editItemDialog = new EditItemDialog();
+
     }
 
-    public void replaceFragment(Fragment fragment) {
-        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.hide(fragment);
-        transaction.commit();
+    public void showEditItemDialog() {
+        try {
+            createItemDialog.dismiss();
+        } catch (Throwable t){}
+
+        getSupportFragmentManager().beginTransaction().hide(menuUIFragment).hide(createItemDialog).commit();
+        editItemDialog.show(getSupportFragmentManager(), "editItemDialog");
+    }
+
+    public void showCreateItemDialog() {
+        try {
+            editItemDialog.dismiss();
+        } catch (Throwable t){}
+
+        // Hide the menuUIFragment
+        getSupportFragmentManager().beginTransaction().hide(menuUIFragment).hide(editItemDialog).commit();
+// Show the dialog fragment
+        createItemDialog.show(getSupportFragmentManager(), "createItemDialog");
     }
 
     public void installGameUi() {
-        getSupportFragmentManager().beginTransaction()
-                .show(this.gameUIFragment)
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.gameUIFragment).show(this.gameUIFragment).hide(this.menuUIFragment).commit();
         this.installedUI = UIType.GAME;
     }
 
     public void installEditorUi() {
-        getSupportFragmentManager().beginTransaction()
-                .hide(this.gameUIFragment)
-                .commit();
+        getSupportFragmentManager().beginTransaction().hide(this.gameUIFragment).hide(this.menuUIFragment).commit();
         this.installedUI = UIType.EDITOR;
     }
 
     public void installMenuUi() {
-        getSupportFragmentManager().beginTransaction()
-                .hide(this.gameUIFragment)
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.menuUIFragment).hide(this.gameUIFragment).show(this.menuUIFragment).commit();
         this.installedUI = UIType.MENU;
     }
 
     private void fillItemsMap() {
-        Map<ItemCategory, List<ItemMetaData>> map = new XmlHelper(this).fillItemsMap();
+        Map<ItemCategory, List<ItemMetaData>> map = new HashMap<>();
+        for (ItemCategory cat : ItemCategory.values()) {
+            map.put(cat, new ArrayList<>());
+        }
+        XmlHelper helper = new XmlHelper(this);
+       helper.fillItemsMapFromAssets(map);
+       helper.fillItemsMapFromInternalStorage(map);
         map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
         ResourceManager.getInstance().setItemsMap(map);
     }
 
+    public void sendEmailWithAttachment(String fileName) {
+        // Create a file object representing the XML file
+        File xmlFile = new File(getFilesDir(), fileName);
+
+        // Generate a content URI for the file using FileProvider
+        Uri contentUri = FileProvider.getUriForFile(this, "com.evolgames", xmlFile);
+
+        // Create an email intent with appropriate parameters
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{DEVELOPER_EMAIL});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT);
+        emailIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // Grant read permission to the receiver
+
+        // Start the email activity
+        startActivity(Intent.createChooser(emailIntent, "Send Email"));
+    }
     public PlayUIFragment getGameUIFragment() {
         return gameUIFragment;
     }
+
 
     public enum UIType {
         GAME, EDITOR, MENU

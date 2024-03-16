@@ -19,4 +19,6 @@ public interface INativeUIController {
     void resetUI();
 
     void onMirrorButtonClicked();
+
+    void onEditorClicked();
 }

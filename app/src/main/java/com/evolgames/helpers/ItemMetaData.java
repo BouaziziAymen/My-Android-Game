@@ -6,6 +6,7 @@ public class ItemMetaData {
     private String fileName;
     private String toolName;
     private ItemCategory itemCategory;
+    private boolean userCreated;
 
     public String getFileName() {
         return fileName;
@@ -29,5 +30,13 @@ public class ItemMetaData {
 
     public void setItemCategory(ItemCategory itemCategory) {
         this.itemCategory = itemCategory;
+    }
+
+    public void setUserCreated(boolean userCreated) {
+        this.userCreated = userCreated;
+    }
+
+    public boolean isUserCreated() {
+        return userCreated;
     }
 }

@@ -127,7 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:background="@drawable/rounded_transparent_black_background"
-            android:dividerHeight="0dp"></ExpandableListView>
+            android:dividerHeight="0dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

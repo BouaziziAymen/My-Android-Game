@@ -28,63 +28,6 @@ public class MenuUserInterface extends UserInterface<MenuScene> {
     imaginary.setLowerBottomY(210-40);
     RectangularBounds rectangularBounds = new RectangularBounds(imaginary,240,80);
     createScaleButton(400,210, controller, ResourceManager.getInstance().playTextureRegion,rectangularBounds,()-> scene.goToScene(SceneType.PLAY));
-
-
-    TextureRegion region = ResourceManager.getInstance().labTextureRegion;
-    Element imaginary2 = new Dummy();
-    imaginary2.setLowerBottomX(0);
-    imaginary2.setLowerBottomY(480-region.getHeight()-20);
-    RectangularBounds rectangularBounds2 = new RectangularBounds(imaginary2,region.getWidth(),region.getHeight());
-    createScaleButton(region.getWidth()/2,480-region.getHeight()/2f-20, controller,region,rectangularBounds2,()-> scene.goToScene(SceneType.EDITOR));
-
-
-/*    MainMenuController mainMenuController = new MainMenuController();
-
-    ButtonWithText<MainMenuController> playButton =
-        new ButtonWithText<>(
-            400,
-            240,
-            "Play",
-            1,
-            ResourceManager.getInstance().mainButtonTextureRegion,
-            Button.ButtonType.OneClick,
-            true);
-    ButtonWithText<MainMenuController> editorButton =
-        new ButtonWithText<>(
-            400,
-            200,
-            "Editor",
-            1,
-            ResourceManager.getInstance().mainButtonTextureRegion,
-            Button.ButtonType.OneClick,
-            true);
-
-
-    playButton.setBehavior(new ButtonBehavior<MainMenuController>(mainMenuController,playButton) {
-      @Override
-      public void informControllerButtonClicked() {
-          scene.goToScene(SceneType.PLAY);
-      }
-
-      @Override
-      public void informControllerButtonReleased() {
-
-      }
-    });
-      editorButton.setBehavior(new ButtonBehavior<MainMenuController>(mainMenuController,editorButton) {
-      @Override
-      public void informControllerButtonClicked() {
-        scene.goToScene(SceneType.EDITOR);
-      }
-
-      @Override
-      public void informControllerButtonReleased() {
-
-      }
-    });
-
-    addElement(playButton);
-    addElement(editorButton);*/
 setUpdated(true);
 
   }
