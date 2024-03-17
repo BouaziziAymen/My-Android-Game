@@ -6,9 +6,9 @@ import com.evolgames.userinterface.view.inputs.controllers.Movable;
 
 public abstract class TurnAroundIndicator extends FixedLengthArrowShape implements Movable {
 
-  protected TurnAroundIndicator(Vector2 begin, EditorScene scene, float length, int size) {
-    super(begin, scene, length, size);
-  }
+    protected TurnAroundIndicator(Vector2 begin, EditorScene scene, float length, int size) {
+        super(begin, scene, length, size);
+    }
 
-  public abstract void onTurnAroundCommand(float dA);
+    public abstract void onTurnAroundCommand(float dA);
 }

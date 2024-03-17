@@ -1,13 +1,14 @@
 package com.evolgames.activity;
 
 import com.evolgames.activity.components.PlayUIFragment;
-import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.helpers.ItemMetaData;
 
 import java.util.List;
 
 public interface INativeUIController {
     void onItemButtonPressed(ItemMetaData itemMetaData);
+
     void onHomeButtonPressed();
 
     void onTouchHoldButtonSwitched(PlayUIFragment.TouchHoldState touchHoldState);
@@ -21,4 +22,8 @@ public interface INativeUIController {
     void onMirrorButtonClicked();
 
     void onEditorClicked();
+
+    void onProceedToEdit(String itemNameText);
+
+    void onProceedToCreate(String itemNameText, String itemTypeText, String itemTemplateText);
 }

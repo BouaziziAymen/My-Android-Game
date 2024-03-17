@@ -1,10 +1,9 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.Liquid;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.LiquidSourceProperties;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ProperModel;
@@ -50,7 +49,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
                         2, "Seal", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(liquidSealSection);
         ToolModel toolModel = this.editorUserInterface.getToolModel();
-        if(toolModel==null)return;
+        if (toolModel == null) return;
         LiquidSourceModel liquidSourceModel = (LiquidSourceModel) model;
         for (int i = 0; i < toolModel.getBodies().size(); i++) {
             BodyModel bodyModel = toolModel.getBodies().get(i);
@@ -67,7 +66,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
 
             SimpleSecondary<ButtonWithText<?>> bodyField = new SimpleSecondary<>(2, i, bodyButton);
             window.addSecondary(bodyField);
-            if(liquidSourceProperties.getSealBodyId()==bodyModel.getBodyId()){
+            if (liquidSourceProperties.getSealBodyId() == bodyModel.getBodyId()) {
                 bodyButton.click();
             } else {
                 bodyButton.release();
@@ -99,7 +98,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
         liquidField.getMain().click();
         int size = window.getLayout().getSecondariesSize(2);
         for (int i = 0; i < size; i++) {
-            SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(2  , i);
+            SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(2, i);
             if (liquidField != other) {
                 Element main = other.getMain();
                 if (main instanceof ButtonWithText) {
@@ -190,6 +189,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
                 window.getLayout().removePrimary(simplePrimary.getPrimaryKey());
         }
     }
+
     @Override
     public void onSubmitSettings() {
         super.onSubmitSettings();

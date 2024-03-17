@@ -2,16 +2,16 @@ package com.evolgames.activity.components;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -36,6 +36,18 @@ import java.util.stream.Collectors;
 
 public class CreateItemDialog extends DialogFragment {
 
+    private AutoCompleteTextView itemTemplateAutoComplete;
+    private String[] itemNames;
+
+    private void setupTemplatesAutoComplete(ItemCategory category) {
+        Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
+        List<ItemMetaData> items = map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        itemNames = items.stream().filter(e -> e.getItemCategory() == category).map(ItemMetaData::getName).toArray(String[]::new);
+        ArrayAdapter<String> userItemNamesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, itemNames);
+        itemTemplateAutoComplete.setAdapter(userItemNamesAdapter);
+        itemTemplateAutoComplete.setEnabled(true);
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -45,23 +57,40 @@ public class CreateItemDialog extends DialogFragment {
         // Inflate and set the layout for the dialog.
         // Pass null as the parent view because it's going in the dialog layout.
         View dialogLayout = inflater.inflate(R.layout.new_item_dialog, null);
-
+        itemNames = new String[0];
 
 
         AutoCompleteTextView itemTypeAutoComplete = dialogLayout.findViewById(R.id.itemTypeAutoComplete);
         String[] types = Arrays.stream(ItemCategory.values()).map(Enum::name).toArray(String[]::new);
-        ArrayAdapter<String> itemTypesAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_dropdown_item_1line, types);
+        ArrayAdapter<String> itemTypesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, types);
         itemTypeAutoComplete.setAdapter(itemTypesAdapter);
+        itemTypeAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
+            String type = (String) parent.getItemAtPosition(position);
+            ItemCategory category = ItemCategory.fromName(type);
+            setupTemplatesAutoComplete(category);
+        });
 
-        AutoCompleteTextView itemTemplateAutoComplete = dialogLayout.findViewById(R.id.itemTemplateAutoComplete);
-        Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
-        List<ItemMetaData> items = map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-        String[] itemNames = items.stream().map(ItemMetaData::getName).toArray(String[]::new);
-        ArrayAdapter<String> userItemNamesAdapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_dropdown_item_1line, itemNames);
-        itemTemplateAutoComplete.setAdapter(userItemNamesAdapter);
+        itemTemplateAutoComplete = dialogLayout.findViewById(R.id.itemTemplateAutoComplete);
+        itemTemplateAutoComplete.setEnabled(false);
+        itemTypeAutoComplete.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // This method is called before the text is changed
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                itemTemplateAutoComplete.setEnabled(false);
+                itemTemplateAutoComplete.setText("");
+            }
 
-
+            @Override
+            public void afterTextChanged(Editable s) {
+                // This method is called after the text is changed
+                // You can perform your desired action here
+                // For example, filter the suggestions based on the new text
+            }
+        });
 
         TextView linkTextView = dialogLayout.findViewById(R.id.linkTextView);
         String linkText = "Or edit existing";
@@ -88,7 +117,8 @@ public class CreateItemDialog extends DialogFragment {
         EditText itemNameEditText = dialogLayout.findViewById(R.id.itemName);
         builder.setView(dialogLayout)
                 // Add action buttons
-                .setPositiveButton(R.string.go_create,(d,id)->{})
+                .setPositiveButton(R.string.go_create, (d, id) -> {
+                })
                 .setNegativeButton(R.string.cancel, (d, id) -> {
                     CreateItemDialog.this.getDialog().cancel();
                     ((GameActivity) getActivity()).installMenuUi();
@@ -101,26 +131,33 @@ public class CreateItemDialog extends DialogFragment {
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             // Perform input validation
             String itemTypeText = itemTypeAutoComplete.getText().toString().trim();
-            String itemNameText = itemNameEditText.getText().toString();
-           boolean isTypeInvalid = (itemTypeText.isEmpty()|| Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e-> e.equals(itemTypeText)));
+            String itemNameText = itemNameEditText.getText().toString().trim();
+            String itemTemplateText = itemTemplateAutoComplete.getText().toString().trim();
 
-           boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e->e.equals(itemNameText.toLowerCase()));
+            boolean isTypeInvalid = (itemTypeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(itemTypeText)));
+            boolean isTemplateInvalid = Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
+            boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
-            if (isTypeInvalid||isNameEmpty||nameExists) {
+            if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {
                 // Show error message if any field is empty
                 List<String> list = new ArrayList<>();
-                if(isNameEmpty){
+                if (isNameEmpty) {
                     list.add("Choose a name.");
-                }
-                else if(nameExists){
+                } else if (nameExists) {
                     list.add("Name already exists.");
                 }
-                if(isTypeInvalid){list.add("Choose a valid type");}
+                if (isTypeInvalid) {
+                    list.add("Choose a valid type");
+                }
+                if (isTemplateInvalid) {
+                    list.add("Choose a valid template.");
+                }
                 String msg = String.join(" ", list);
                 Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
+                ((GameActivity) getActivity()).getUiController().onProceedToCreate(itemNameText, itemTypeText, itemTemplateText);
                 // Or perform other actions here
             }
         });

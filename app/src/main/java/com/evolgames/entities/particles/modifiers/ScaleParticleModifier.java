@@ -13,89 +13,89 @@ import org.andengine.util.modifier.ease.IEaseFunction;
  * @since 20:37:27 - 04.05.2010
  */
 public class ScaleParticleModifier<T extends IEntity>
-    extends BaseDoubleValueSpanParticleModifier<T> {
-  // ===========================================================
-  // PhysicsConstants
-  // ===========================================================
+        extends BaseDoubleValueSpanParticleModifier<T> {
+    // ===========================================================
+    // PhysicsConstants
+    // ===========================================================
 
-  // ===========================================================
-  // Fields
-  // ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-  // ===========================================================
-  // Constructors
-  // ===========================================================
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
-  public ScaleParticleModifier(
-      final float pFromTime, final float pToTime, final float pFromScale, final float pToScale) {
-    this(pFromTime, pToTime, pFromScale, pToScale, EaseLinear.getInstance());
-  }
+    public ScaleParticleModifier(
+            final float pFromTime, final float pToTime, final float pFromScale, final float pToScale) {
+        this(pFromTime, pToTime, pFromScale, pToScale, EaseLinear.getInstance());
+    }
 
-  public ScaleParticleModifier(
-      final float pFromTime,
-      final float pToTime,
-      final float pFromScale,
-      final float pToScale,
-      final IEaseFunction pEaseFunction) {
-    this(pFromTime, pToTime, pFromScale, pToScale, pFromScale, pToScale, pEaseFunction);
-  }
+    public ScaleParticleModifier(
+            final float pFromTime,
+            final float pToTime,
+            final float pFromScale,
+            final float pToScale,
+            final IEaseFunction pEaseFunction) {
+        this(pFromTime, pToTime, pFromScale, pToScale, pFromScale, pToScale, pEaseFunction);
+    }
 
-  public ScaleParticleModifier(
-      final float pFromTime,
-      final float pToTime,
-      final float pFromScaleX,
-      final float pToScaleX,
-      final float pFromScaleY,
-      final float pToScaleY) {
-    this(
-        pFromTime,
-        pToTime,
-        pFromScaleX,
-        pToScaleX,
-        pFromScaleY,
-        pToScaleY,
-        EaseLinear.getInstance());
-  }
+    public ScaleParticleModifier(
+            final float pFromTime,
+            final float pToTime,
+            final float pFromScaleX,
+            final float pToScaleX,
+            final float pFromScaleY,
+            final float pToScaleY) {
+        this(
+                pFromTime,
+                pToTime,
+                pFromScaleX,
+                pToScaleX,
+                pFromScaleY,
+                pToScaleY,
+                EaseLinear.getInstance());
+    }
 
-  public ScaleParticleModifier(
-      final float pFromTime,
-      final float pToTime,
-      final float pFromScaleX,
-      final float pToScaleX,
-      final float pFromScaleY,
-      final float pToScaleY,
-      final IEaseFunction pEaseFunction) {
-    super(pFromTime, pToTime, pFromScaleX, pToScaleX, pFromScaleY, pToScaleY, pEaseFunction);
-  }
+    public ScaleParticleModifier(
+            final float pFromTime,
+            final float pToTime,
+            final float pFromScaleX,
+            final float pToScaleX,
+            final float pFromScaleY,
+            final float pToScaleY,
+            final IEaseFunction pEaseFunction) {
+        super(pFromTime, pToTime, pFromScaleX, pToScaleX, pFromScaleY, pToScaleY, pEaseFunction);
+    }
 
-  // ===========================================================
-  // Getter & Setter
-  // ===========================================================
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
 
-  // ===========================================================
-  // Methods for/from SuperClass/Interfaces
-  // ===========================================================
+    // ===========================================================
+    // Methods for/from SuperClass/Interfaces
+    // ===========================================================
 
-  @Override
-  protected void onSetInitialValues(
-      final Particle<T> pParticle, final float pScaleX, final float pScaleY) {
-    pParticle.getEntity().setScale(pScaleX, pScaleY);
-  }
+    @Override
+    protected void onSetInitialValues(
+            final Particle<T> pParticle, final float pScaleX, final float pScaleY) {
+        pParticle.getEntity().setScale(pScaleX, pScaleY);
+    }
 
-  @Override
-  protected void onSetValues(
-      final Particle<T> pParticle,
-      final float pPercentageDone,
-      final float pScaleX,
-      final float pScaleY) {
-    pParticle.getEntity().setScale(pScaleX, pScaleY);
-  }
+    @Override
+    protected void onSetValues(
+            final Particle<T> pParticle,
+            final float pPercentageDone,
+            final float pScaleX,
+            final float pScaleY) {
+        pParticle.getEntity().setScale(pScaleX, pScaleY);
+    }
 
-  // ===========================================================
-  // Methods
-  // ===========================================================
+    // ===========================================================
+    // Methods
+    // ===========================================================
 
-  // ===========================================================
-  // Inner and Anonymous Classes
-  // ===========================================================
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
 }

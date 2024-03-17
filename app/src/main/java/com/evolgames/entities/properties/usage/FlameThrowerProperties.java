@@ -11,7 +11,7 @@ public class FlameThrowerProperties extends Properties {
     private final List<FireSourceModel> fireSources;
     private List<Integer> fireSourceIds;
 
-    public FlameThrowerProperties(){
+    public FlameThrowerProperties() {
         fireSources = new ArrayList<>();
     }
 

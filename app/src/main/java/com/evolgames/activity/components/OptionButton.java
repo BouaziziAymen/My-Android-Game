@@ -1,7 +1,6 @@
 package com.evolgames.activity.components;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,6 +15,7 @@ public class OptionButton extends FrameLayout {
     private ImageView button;
     private ImageView icon;
     private Button.State state;
+
     public OptionButton(Context context) {
         super(context);
         init();
@@ -43,21 +43,21 @@ public class OptionButton extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if (state == Button.State.NORMAL){
-                        button.setImageResource(R.drawable.warp_selected);
-                        this.state = Button.State.PRESSED;
-                    }
-                    performClick(); // Handle click event
-                    return true;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_MOVE:
-                    // Handle touch move event
-                    return true; // Consume the event
-                default:
-                    return super.onTouchEvent(event);
-            }
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (state == Button.State.NORMAL) {
+                    button.setImageResource(R.drawable.warp_selected);
+                    this.state = Button.State.PRESSED;
+                }
+                performClick(); // Handle click event
+                return true;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_MOVE:
+                // Handle touch move event
+                return true; // Consume the event
+            default:
+                return super.onTouchEvent(event);
+        }
     }
 
     @Override
@@ -72,7 +72,7 @@ public class OptionButton extends FrameLayout {
 
     public void setState(Button.State state) {
         this.state = state;
-        if(this.state == Button.State.PRESSED){
+        if (this.state == Button.State.PRESSED) {
             button.setImageResource(R.drawable.warp_selected);
         } else {
             button.setImageResource(R.drawable.warp);

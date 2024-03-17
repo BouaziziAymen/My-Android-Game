@@ -561,7 +561,7 @@ public class GameEntity extends EntityWithBody {
         }
         final List<GameEntity> attachedEntities = new ArrayList<>();
         body.getJointList().forEach(jointEdge -> {
-            if(jointEdge.joint.getType()!= JointDef.JointType.MouseJoint) {
+            if (jointEdge.joint.getType() != JointDef.JointType.MouseJoint) {
                 GameEntity other = (GameEntity) jointEdge.other.getUserData();
                 attachedEntities.add(other);
             }
@@ -570,18 +570,17 @@ public class GameEntity extends EntityWithBody {
     }
 
 
-
     private void destroyJoints() {
         ArrayList<Joint> jointsToDestroy = new ArrayList<>();
-        for (JointEdge je: body.getJointList()) {
+        for (JointEdge je : body.getJointList()) {
             Joint joint = je.joint;
-                jointsToDestroy.add(joint);
+            jointsToDestroy.add(joint);
         }
         for (Joint joint : jointsToDestroy) {
             scene.getPhysicsWorld().destroyJoint(joint);
-            Log.e("Mirror","Destroy :"+joint.getType());
+            Log.e("Mirror", "Destroy :" + joint.getType());
             if (joint.getType() == JointDef.JointType.MouseJoint) {
-               scene.onDestroyMouseJoint((MouseJoint) joint);
+                scene.onDestroyMouseJoint((MouseJoint) joint);
             }
         }
     }
@@ -591,7 +590,7 @@ public class GameEntity extends EntityWithBody {
     }
 
     private void mirror() {
-        Log.e("Mirror","Begin Mirror---------------------------"+this.getName());
+        Log.e("Mirror", "Begin Mirror---------------------------" + this.getName());
         if (body == null) {
             return;
         }
@@ -604,7 +603,7 @@ public class GameEntity extends EntityWithBody {
         }
 
         // Iterate over the joints attached to the body and collect them
-        Log.e("Mirror","Begin Destroy Joints");
+        Log.e("Mirror", "Begin Destroy Joints");
         destroyJoints();
 
         body.setActive(false);
@@ -614,7 +613,7 @@ public class GameEntity extends EntityWithBody {
         }
         if (mirrorCreated) {
             mirrorBody.setActive(true);
-            mirrorBody.setTransform(body.getPosition(),body.getAngle());
+            mirrorBody.setTransform(body.getPosition(), body.getAngle());
             mirrorBody.setLinearVelocity(body.getLinearVelocity());
             mirrorBody.setAngularVelocity(body.getAngularVelocity());
             Body joker = body;
@@ -626,7 +625,7 @@ public class GameEntity extends EntityWithBody {
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
 
-            Log.e("Mirror","Swap elements");
+            Log.e("Mirror", "Swap elements");
         } else {
             mirrorBody = body;
             mirrorMesh = mesh;
@@ -637,7 +636,7 @@ public class GameEntity extends EntityWithBody {
             mesh.setZIndex(mirrorMesh.getZIndex());
             scene.attachChild(mesh);
             mirrorCreated = true;
-            Log.e("Mirror",this+"Entered into creating a new body");
+            Log.e("Mirror", this + "Entered into creating a new body");
         }
         scene.sortChildren();
         if (isBatcherSetup) {
@@ -648,8 +647,9 @@ public class GameEntity extends EntityWithBody {
         mirrored = !mirrored;
 
     }
+
     public void tryDynamicMirror() {
-        Log.e("Mirror",this+"---------------------------Begin Try Dynamic Mirror---------------------------");
+        Log.e("Mirror", this + "---------------------------Begin Try Dynamic Mirror---------------------------");
         Queue<GameEntity> deque = new ArrayDeque<>();
         deque.add(this);
         HashSet<GameEntity> visited = new HashSet<>();
@@ -672,7 +672,7 @@ public class GameEntity extends EntityWithBody {
             if (used.contains(jointBlock)) {
                 continue;
             }
-            Log.e("Mirror","Schedule recreate:"+jointBlock.getJointType()+" /"+jointBlock);
+            Log.e("Mirror", "Schedule recreate:" + jointBlock.getJointType() + " /" + jointBlock);
             scene.getWorldFacade().recreateJoint(jointBlock, jointBlock.getEntity());
             used.add(jointBlock);
             used.add(jointBlock.getBrother());
@@ -681,8 +681,8 @@ public class GameEntity extends EntityWithBody {
         // mirror each entity and mirror their joints
     }
 
-    public void removeJointBlock(JointBlock jointBlock){
-        for(LayerBlock layerBlock:layerBlocks){
+    public void removeJointBlock(JointBlock jointBlock) {
+        for (LayerBlock layerBlock : layerBlocks) {
             layerBlock.getAssociatedBlocks().remove(jointBlock);
         }
     }

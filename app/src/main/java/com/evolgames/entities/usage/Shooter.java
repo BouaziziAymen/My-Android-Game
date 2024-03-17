@@ -334,7 +334,6 @@ public class Shooter extends Use {
                                 fireSource.setSpawnEnabled(false);
                                 this.projInfFireSourceMap.put(p, fireSource);
                             }
-                            ;
                         });
     }
 

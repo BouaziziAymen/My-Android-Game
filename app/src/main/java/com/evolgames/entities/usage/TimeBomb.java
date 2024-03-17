@@ -6,44 +6,45 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 public class TimeBomb extends Bomb {
-  
-  private float countDown;
-  private boolean count;
 
-  @SuppressWarnings("unused")
-  public TimeBomb(UsageModel<?> e) {
-  }
-  public TimeBomb(UsageModel<?> usageModel, boolean mirrored) {
-    super(usageModel,mirrored);
-    TimeBombUsageProperties properties = (TimeBombUsageProperties) usageModel.getProperties();
-    this.countDown = properties.getDelay();
-  }
+    private float countDown;
+    private boolean count;
 
-  @Override
-  protected boolean isBombOn() {
-    return countDown<0;
-  }
-
-  @Override
-  protected boolean isActivated() {
-    return count;
-  }
-
-  @Override
-  public void onStep(float deltaTime, WorldFacade worldFacade) {
-    super.onStep(deltaTime,worldFacade);
-    if (count&&alive) {
-      countDown -= deltaTime;
+    @SuppressWarnings("unused")
+    public TimeBomb(UsageModel<?> e) {
     }
-  }
 
-  @Override
-  public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public TimeBomb(UsageModel<?> usageModel, boolean mirrored) {
+        super(usageModel, mirrored);
+        TimeBombUsageProperties properties = (TimeBombUsageProperties) usageModel.getProperties();
+        this.countDown = properties.getDelay();
+    }
 
-  }
+    @Override
+    protected boolean isBombOn() {
+        return countDown < 0;
+    }
 
-  public void onTriggerReleased() {
-    count = true;
-  }
+    @Override
+    protected boolean isActivated() {
+        return count;
+    }
+
+    @Override
+    public void onStep(float deltaTime, WorldFacade worldFacade) {
+        super.onStep(deltaTime, worldFacade);
+        if (count && alive) {
+            countDown -= deltaTime;
+        }
+    }
+
+    @Override
+    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+
+    }
+
+    public void onTriggerReleased() {
+        count = true;
+    }
 
 }

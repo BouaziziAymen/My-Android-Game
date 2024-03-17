@@ -7,57 +7,59 @@ import com.evolgames.userinterface.view.inputs.Button;
 
 public class DragField extends ItemField {
 
-  private final Button<ItemWindowController> dragOptionsButton;
-  private final Button<ItemWindowController> itemRemoveButton;
+    private final Button<ItemWindowController> dragOptionsButton;
+    private final Button<ItemWindowController> itemRemoveButton;
 
-  public DragField(int primaryKey, int modelId, ItemWindowController controller) {
-    super(primaryKey, modelId, controller);
-    itemRemoveButton =
-        new Button<>(
-            ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
+    public DragField(int primaryKey, int modelId, ItemWindowController controller) {
+        super(primaryKey, modelId, controller);
+        itemRemoveButton =
+                new Button<>(
+                        ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
-    itemRemoveButton.setBehavior(
-        new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
-          @Override
-          public void informControllerButtonClicked() {}
+        itemRemoveButton.setBehavior(
+                new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                    }
 
-          @Override
-          public void informControllerButtonReleased() {
-            controller.onDragRemoveButtonClicked(DragField.this);
-          }
-        });
-    this.setHeight(itemRemoveButton.getHeight());
+                    @Override
+                    public void informControllerButtonReleased() {
+                        controller.onDragRemoveButtonClicked(DragField.this);
+                    }
+                });
+        this.setHeight(itemRemoveButton.getHeight());
 
-    dragOptionsButton =
-        new Button<>(
-            ResourceManager.getInstance().smallOptionsTextureRegion,
-            Button.ButtonType.OneClick,
-            true);
-    addToLayout(dragOptionsButton);
-    addToLayout(itemRemoveButton);
-    dragOptionsButton.setBehavior(
-        new ButtonBehavior<ItemWindowController>(controller, dragOptionsButton) {
-          @Override
-          public void informControllerButtonClicked() {}
+        dragOptionsButton =
+                new Button<>(
+                        ResourceManager.getInstance().smallOptionsTextureRegion,
+                        Button.ButtonType.OneClick,
+                        true);
+        addToLayout(dragOptionsButton);
+        addToLayout(itemRemoveButton);
+        dragOptionsButton.setBehavior(
+                new ButtonBehavior<ItemWindowController>(controller, dragOptionsButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                    }
 
-          @Override
-          public void informControllerButtonReleased() {
-            controller.onDragOptionClicked(DragField.this);
-          }
-        });
-  }
+                    @Override
+                    public void informControllerButtonReleased() {
+                        controller.onDragOptionClicked(DragField.this);
+                    }
+                });
+    }
 
-  @Override
-  public void showFields() {
-    super.showFields();
-    this.itemRemoveButton.setVisible(true);
-    this.dragOptionsButton.setVisible(true);
-  }
+    @Override
+    public void showFields() {
+        super.showFields();
+        this.itemRemoveButton.setVisible(true);
+        this.dragOptionsButton.setVisible(true);
+    }
 
-  @Override
-  public void hideFields() {
-    super.hideFields();
-    this.itemRemoveButton.setVisible(false);
-    this.dragOptionsButton.setVisible(false);
-  }
+    @Override
+    public void hideFields() {
+        super.hideFields();
+        this.itemRemoveButton.setVisible(false);
+        this.dragOptionsButton.setVisible(false);
+    }
 }

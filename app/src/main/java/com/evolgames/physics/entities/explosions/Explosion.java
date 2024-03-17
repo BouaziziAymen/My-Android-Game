@@ -9,7 +9,7 @@ import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
 
-  private final PhysicsScene<?> scene;
+    private final PhysicsScene<?> scene;
     private final Vector2 center;
     private final float heat;
     private final float velocity;
@@ -54,14 +54,14 @@ public class Explosion {
                     vector.set(p.x - center.x, p.y - center.y);
                     float d = Math.max(0.05f, vector.len());
                     i.setImpactImpulse(1000f * delta / (d * d));
-                    vector.mul(i.getImpactImpulse() / 1000f);
+                    vector.mul(i.getImpactImpulse() / 10000f);
                     gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                 });
                 scene.getWorldFacade().applyImpacts(gameEntity, impacts);
                 scene.getWorldFacade().applyImpactHeat(heat, impacts);
             }, source);
         }
-        if (time> PhysicsConstants.EXPLOSION_LIFESPAN) {
+        if (time > PhysicsConstants.EXPLOSION_LIFESPAN) {
             this.explosionParticleWrapper.stopFinal();
             if (scene instanceof PlayScene) {
                 ((PlayScene) scene).unlockSaving();

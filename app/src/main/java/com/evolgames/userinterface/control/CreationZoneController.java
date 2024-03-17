@@ -282,11 +282,11 @@ public class CreationZoneController extends Controller {
     public void selectPointImage(PointImage pointImage) {
         pointImage.doubleSelect();
         selectedPointImage = pointImage;
-        float moveSpeed = 1f/editorUserInterface.getZoomFactor();
+        float moveSpeed = 1f / editorUserInterface.getZoomFactor();
         editorUserInterface.setMoveElementController(editorUserInterface.getPanel().allocateController(800 - 64 / 2f - 16f, 64 / 2f + 16f, ControlElement.Type.AnalogController, new ControllerAction() {
             @Override
             public void controlMoved(float pX, float pY) {
-                pointImage.onControllerMoved(pX*moveSpeed, pY*moveSpeed);
+                pointImage.onControllerMoved(pX * moveSpeed, pY * moveSpeed);
             }
 
             @Override
@@ -496,7 +496,7 @@ public class CreationZoneController extends Controller {
 
             shapePointsModel.setPoints(selectedLayerPointsModel.getPoints().stream().map(Vector2::new).collect(Collectors.toList()));
             shapePointsModel.setReferencePoints(selectedLayerPointsModel.getReferencePoints().stream().map(Vector2::new).collect(Collectors.toList()));
-            indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene, isSameShape(),isInvertShape());
+            indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene, isSameShape(), isInvertShape());
             creationZone.setTouchLocked(true);
         }
     }
@@ -598,28 +598,28 @@ public class CreationZoneController extends Controller {
     public void setDirection(OptionsWindowController.Direction direction) {
     }
 
-    public void setSameShape(boolean sameShape) {
-        this.sameShape = sameShape;
-    }
-
     public boolean isSameShape() {
         return sameShape;
     }
 
-    public void setInvertShape(boolean invertShape) {
-        this.invertShape = invertShape;
+    public void setSameShape(boolean sameShape) {
+        this.sameShape = sameShape;
     }
 
     public boolean isInvertShape() {
         return invertShape;
     }
 
-    public void setImageFixedRatio(boolean imageFixedRatio) {
-        this.imageFixedRatio = imageFixedRatio;
+    public void setInvertShape(boolean invertShape) {
+        this.invertShape = invertShape;
     }
 
     public boolean isImageFixedRatio() {
         return imageFixedRatio;
+    }
+
+    public void setImageFixedRatio(boolean imageFixedRatio) {
+        this.imageFixedRatio = imageFixedRatio;
     }
 
     public enum CreationAction {

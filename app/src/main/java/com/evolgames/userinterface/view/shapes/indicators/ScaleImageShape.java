@@ -22,7 +22,7 @@ public class ScaleImageShape extends ArrowShape {
 
         float disX = post[0] > 0 ? post[0] : 0;
         float disY = post[1] > 0 ? post[1] : 1;
-        if(!fixedRatio) {
+        if (!fixedRatio) {
             imageShape.updateWidth(disX);
             imageShape.updateHeight(disY);
         } else {

@@ -79,15 +79,15 @@ public class BombInfo {
         this.speed = speed;
     }
 
+    public GameEntity getCarrierEntity() {
+        return carrierEntity;
+    }
+
     public void setCarrierEntity(GameEntity carrierEntity) {
         this.carrierEntity = carrierEntity;
         if (this.carrierEntity != null) {
             this.carrierEntityUniqueId = carrierEntity.getUniqueID();
         }
-    }
-
-    public GameEntity getCarrierEntity() {
-        return carrierEntity;
     }
 
     public String getCarrierEntityUniqueId() {

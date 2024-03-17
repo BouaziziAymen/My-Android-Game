@@ -15,34 +15,35 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 public class JointCreationCommand extends Command {
 
-  private final JointDef jointDef;
-  private final GameEntity entity1;
-  private final GameEntity entity2;
-  private final JointBlock mainBlock;
+    private final JointDef jointDef;
+    private final GameEntity entity1;
+    private final GameEntity entity2;
+    private final JointBlock mainBlock;
 
-  public JointCreationCommand(
-          JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock main) {
-    this.jointDef = jointDef;
-    this.entity1 = entity1;
-    this.entity2 = entity2;
-    this.mainBlock = main;
-  }
-  @Override
-  protected void run() {
-    PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
-    Joint joint = physicsWorld.createJoint(jointDef);
-    joint.setUserData(this.mainBlock);
-    Log.e("Mirror","Creating :"+joint.getType()+" on:"+entity2.getName());
-    if (joint instanceof MouseJoint) {
-      Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
+    public JointCreationCommand(
+            JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock main) {
+        this.jointDef = jointDef;
+        this.entity1 = entity1;
+        this.entity2 = entity2;
+        this.mainBlock = main;
     }
-  }
 
-  @Override
-  protected boolean isReady() {
-    jointDef.bodyA = entity1.getBody();
-    jointDef.bodyB = entity2.getBody();
-    return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
-  }
+    @Override
+    protected void run() {
+        PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
+        Joint joint = physicsWorld.createJoint(jointDef);
+        joint.setUserData(this.mainBlock);
+        Log.e("Mirror", "Creating :" + joint.getType() + " on:" + entity2.getName());
+        if (joint instanceof MouseJoint) {
+            Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
+        }
+    }
+
+    @Override
+    protected boolean isReady() {
+        jointDef.bodyA = entity1.getBody();
+        jointDef.bodyB = entity2.getBody();
+        return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
+    }
 
 }

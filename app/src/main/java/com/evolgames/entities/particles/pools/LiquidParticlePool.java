@@ -1,47 +1,48 @@
 package com.evolgames.entities.particles.pools;
 
 import com.evolgames.activity.ResourceManager;
+
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.pool.GenericPool;
 
 public class LiquidParticlePool {
-  // ===========================================================
-  // PhysicsConstants
-  // ===========================================================
+    // ===========================================================
+    // PhysicsConstants
+    // ===========================================================
 
-  // ===========================================================
-  // Fields
-  // ===========================================================
+    // ===========================================================
+    // Fields
+    // ===========================================================
 
-  private static final GenericPool<UncoloredSprite> POOL =
-      new GenericPool<UncoloredSprite>() {
+    private static final GenericPool<UncoloredSprite> POOL =
+            new GenericPool<UncoloredSprite>() {
 
-        @Override
-        protected UncoloredSprite onAllocatePoolItem() {
-          return new UncoloredSprite(
-              0,
-              0,
-              ResourceManager.getInstance().liquidParticle,
-              ResourceManager.getInstance().vbom);
-        }
-      };
+                @Override
+                protected UncoloredSprite onAllocatePoolItem() {
+                    return new UncoloredSprite(
+                            0,
+                            0,
+                            ResourceManager.getInstance().liquidParticle,
+                            ResourceManager.getInstance().vbom);
+                }
+            };
 
-  public static UncoloredSprite obtain(float pX, float pY) {
-    UncoloredSprite uncoloredSprite = LiquidParticlePool.POOL.obtainPoolItem();
-    uncoloredSprite.setPosition(pX, pY);
-    return uncoloredSprite;
-  }
+    public static UncoloredSprite obtain(float pX, float pY) {
+        UncoloredSprite uncoloredSprite = LiquidParticlePool.POOL.obtainPoolItem();
+        uncoloredSprite.setPosition(pX, pY);
+        return uncoloredSprite;
+    }
 
-  public static void recycle(UncoloredSprite uncoloredSprite) {
-    LiquidParticlePool.POOL.recyclePoolItem(uncoloredSprite);
-  }
+    public static void recycle(UncoloredSprite uncoloredSprite) {
+        LiquidParticlePool.POOL.recyclePoolItem(uncoloredSprite);
+    }
 
-  // ===========================================================
-  // Methods
-  // ===========================================================
+    // ===========================================================
+    // Methods
+    // ===========================================================
 
-  // ===========================================================
-  // Inner and Anonymous Classes
-  // ===========================================================
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
 
 }

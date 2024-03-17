@@ -23,8 +23,8 @@ public class MenuUIFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragment = inflater.inflate(R.layout.menu_ui_fragment, container, false);
         GameImageButton editorButton = fragment.findViewById(R.id.editor_button);
-        editorButton.setOnReleased(()->{
-            ((GameActivity)getActivity()).getUiController().onEditorClicked();
+        editorButton.setOnReleased(() -> {
+            ((GameActivity) getActivity()).getUiController().onEditorClicked();
         });
         return fragment;
     }

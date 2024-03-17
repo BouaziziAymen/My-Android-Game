@@ -23,9 +23,9 @@ public class ScaleClickableBehavior<C extends Controller> extends ClickableBehav
         if (isInBounds) {
             if (touchEvent.isActionDown()) {
                 image.setImageScale(1.2f, 1.2f);
-            } else if (touchEvent.isActionUp()||touchEvent.isActionCancel()||touchEvent.isActionOutside()) {
+            } else if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
                 image.setImageScale(1f, 1f);
-                if(clickAction!=null){
+                if (clickAction != null) {
                     clickAction.performAction();
                 }
             }

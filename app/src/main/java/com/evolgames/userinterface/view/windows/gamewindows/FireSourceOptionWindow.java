@@ -6,7 +6,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.windows.windowfields.SimpleTitleField;
 
-public class FireSourceOptionWindow  extends SettingsWindow {
+public class FireSourceOptionWindow extends SettingsWindow {
 
     public FireSourceOptionWindow(float pX, float pY, FireSourceOptionController controller) {
         super(pX, pY, 6, 8, controller);
@@ -22,7 +22,8 @@ public class FireSourceOptionWindow  extends SettingsWindow {
                 .setBehavior(
                         new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getCloseButton()) {
                             @Override
-                            public void informControllerButtonClicked() {}
+                            public void informControllerButtonClicked() {
+                            }
 
                             @Override
                             public void informControllerButtonReleased() {
@@ -35,7 +36,8 @@ public class FireSourceOptionWindow  extends SettingsWindow {
                 .setBehavior(
                         new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getAcceptButton()) {
                             @Override
-                            public void informControllerButtonClicked() {}
+                            public void informControllerButtonClicked() {
+                            }
 
                             @Override
                             public void informControllerButtonReleased() {

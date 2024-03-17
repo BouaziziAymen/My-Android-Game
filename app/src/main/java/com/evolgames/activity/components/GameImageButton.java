@@ -75,7 +75,7 @@ public class GameImageButton extends FrameLayout {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     button.setImageResource(R.drawable.button_clicked_two);
-                    if(onPressed!=null) {
+                    if (onPressed != null) {
                         onPressed.run();
                     }
                     ResourceManager.getInstance().onSound.play();
@@ -84,7 +84,7 @@ public class GameImageButton extends FrameLayout {
                 case MotionEvent.ACTION_UP:
                     // Handle touch up event
                     button.setImageResource(R.drawable.button_released);
-                    if(onReleased!=null) {
+                    if (onReleased != null) {
                         onReleased.run();
                     }
                     performClick(); // Handle click event
@@ -135,17 +135,17 @@ public class GameImageButton extends FrameLayout {
         return handled;
     }
 
-    public enum ButtonType {
-        CLICK,
-        SELECT
-    }
-
     public void setState(Button.State state) {
         this.state = state;
-        if(this.state == Button.State.PRESSED){
+        if (this.state == Button.State.PRESSED) {
             button.setImageResource(R.drawable.button_clicked_two);
         } else {
             button.setImageResource(R.drawable.button_released);
         }
+    }
+
+    public enum ButtonType {
+        CLICK,
+        SELECT
     }
 }

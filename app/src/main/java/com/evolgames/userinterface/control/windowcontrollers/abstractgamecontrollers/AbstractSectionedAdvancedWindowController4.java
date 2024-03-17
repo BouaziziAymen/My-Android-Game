@@ -9,11 +9,11 @@ public abstract class AbstractSectionedAdvancedWindowController4<
         Secondary extends Element,
         Tertiary extends Element,
         Quaternary extends Element>
-    extends AbstractSectionedAdvancedWindowController3<W, Primary, Secondary, Tertiary> {
+        extends AbstractSectionedAdvancedWindowController3<W, Primary, Secondary, Tertiary> {
 
-  public abstract void onQuaternaryButtonClicked(Quaternary tertiary);
+    public abstract void onQuaternaryButtonClicked(Quaternary tertiary);
 
-  public abstract void onQuaternaryButtonReleased(Quaternary tertiary);
+    public abstract void onQuaternaryButtonReleased(Quaternary tertiary);
 
-  public abstract void onQuaternaryAdded(Quaternary tertiary);
+    public abstract void onQuaternaryAdded(Quaternary tertiary);
 }

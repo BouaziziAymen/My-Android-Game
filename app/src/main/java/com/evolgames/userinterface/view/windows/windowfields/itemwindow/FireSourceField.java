@@ -19,7 +19,8 @@ public class FireSourceField extends ItemField {
         itemRemoveButton.setBehavior(
                 new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
                     @Override
-                    public void informControllerButtonClicked() {}
+                    public void informControllerButtonClicked() {
+                    }
 
                     @Override
                     public void informControllerButtonReleased() {
@@ -38,7 +39,8 @@ public class FireSourceField extends ItemField {
         fireSourceOptionsButton.setBehavior(
                 new ButtonBehavior<ItemWindowController>(controller, fireSourceOptionsButton) {
                     @Override
-                    public void informControllerButtonClicked() {}
+                    public void informControllerButtonClicked() {
+                    }
 
                     @Override
                     public void informControllerButtonReleased() {

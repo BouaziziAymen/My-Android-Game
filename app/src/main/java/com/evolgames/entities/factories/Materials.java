@@ -1,7 +1,6 @@
 package com.evolgames.entities.factories;
 
 import com.evolgames.entities.basics.Liquid;
-import com.evolgames.entities.basics.Material;
 import com.evolgames.utilities.MyColorUtils;
 
 import org.andengine.util.adt.color.Color;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 
 public class Materials {
     public static ArrayList<Liquid> liquids;
+
     static {
         liquids = new ArrayList<>();
         liquids.add(new Liquid(0, "Blood", 0f, MyColorUtils.bloodColor));

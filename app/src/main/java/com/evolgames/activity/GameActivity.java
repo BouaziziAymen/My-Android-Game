@@ -317,7 +317,8 @@ public class GameActivity extends BaseGameActivity {
     public void showEditItemDialog() {
         try {
             createItemDialog.dismiss();
-        } catch (Throwable t){}
+        } catch (Throwable t) {
+        }
 
         getSupportFragmentManager().beginTransaction().hide(menuUIFragment).hide(createItemDialog).commit();
         editItemDialog.show(getSupportFragmentManager(), "editItemDialog");
@@ -326,7 +327,8 @@ public class GameActivity extends BaseGameActivity {
     public void showCreateItemDialog() {
         try {
             editItemDialog.dismiss();
-        } catch (Throwable t){}
+        } catch (Throwable t) {
+        }
 
         // Hide the menuUIFragment
         getSupportFragmentManager().beginTransaction().hide(menuUIFragment).hide(editItemDialog).commit();
@@ -355,8 +357,8 @@ public class GameActivity extends BaseGameActivity {
             map.put(cat, new ArrayList<>());
         }
         XmlHelper helper = new XmlHelper(this);
-       helper.fillItemsMapFromAssets(map);
-       helper.fillItemsMapFromInternalStorage(map);
+        helper.fillItemsMapFromAssets(map);
+        helper.fillItemsMapFromInternalStorage(map);
         map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
         ResourceManager.getInstance().setItemsMap(map);
     }
@@ -379,6 +381,7 @@ public class GameActivity extends BaseGameActivity {
         // Start the email activity
         startActivity(Intent.createChooser(emailIntent, "Send Email"));
     }
+
     public PlayUIFragment getGameUIFragment() {
         return gameUIFragment;
     }

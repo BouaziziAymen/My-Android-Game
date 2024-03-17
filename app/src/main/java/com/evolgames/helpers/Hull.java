@@ -1,16 +1,18 @@
 package com.evolgames.helpers;
 
 import com.badlogic.gdx.math.Vector2;
-import java.util.Arrays;
+
 import org.andengine.extension.physics.box2d.util.hull.QuickHull;
 
-public class Hull extends QuickHull {
-  public Vector2[] findConvexHull(Vector2[] vertices) {
-    computeHull(vertices);
-    return Arrays.copyOfRange(mVertices, 0, getHullPointsNumber());
-  }
+import java.util.Arrays;
 
-  private int getHullPointsNumber() {
-    return mHullVertexCount;
-  }
+public class Hull extends QuickHull {
+    public Vector2[] findConvexHull(Vector2[] vertices) {
+        computeHull(vertices);
+        return Arrays.copyOfRange(mVertices, 0, getHullPointsNumber());
+    }
+
+    private int getHullPointsNumber() {
+        return mHullVertexCount;
+    }
 }

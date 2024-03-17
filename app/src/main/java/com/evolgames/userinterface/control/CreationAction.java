@@ -1,2 +1,4 @@
-package com.evolgames.userinterface.control;public class CreationAction {
+package com.evolgames.userinterface.control;
+
+public class CreationAction {
 }

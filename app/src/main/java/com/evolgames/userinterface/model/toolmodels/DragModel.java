@@ -10,74 +10,74 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragFiel
 
 public class DragModel extends ProperModel<DragProperties> {
 
-  private final int bodyId;
-  private final int dragId;
-  private DragShape dragShape;
-  private DragField dragField;
-  private GameEntity draggedEntity;
+    private final int bodyId;
+    private final int dragId;
+    private DragShape dragShape;
+    private DragField dragField;
+    private GameEntity draggedEntity;
 
-  public DragModel(int bodyId, int dragId) {
-    super("Drag " + dragId);
-    this.bodyId = bodyId;
-    this.dragId = dragId;
-  }
+    public DragModel(int bodyId, int dragId) {
+        super("Drag " + dragId);
+        this.bodyId = bodyId;
+        this.dragId = dragId;
+    }
 
-  public DragModel(int bodyId, int dragId, DragShape dragShape) {
-    super("Drag " + dragId);
-    this.properties = new DragProperties(dragShape.getBegin(), dragShape.getDirection());
-    this.dragShape = dragShape;
-    this.bodyId = bodyId;
-    this.dragId = dragId;
-  }
+    public DragModel(int bodyId, int dragId, DragShape dragShape) {
+        super("Drag " + dragId);
+        this.properties = new DragProperties(dragShape.getBegin(), dragShape.getDirection());
+        this.dragShape = dragShape;
+        this.bodyId = bodyId;
+        this.dragId = dragId;
+    }
 
-  public int getBodyId() {
-    return bodyId;
-  }
+    public int getBodyId() {
+        return bodyId;
+    }
 
-  public int getDragId() {
-    return dragId;
-  }
+    public int getDragId() {
+        return dragId;
+    }
 
-  public DragShape getDragShape() {
-    return dragShape;
-  }
+    public DragShape getDragShape() {
+        return dragShape;
+    }
 
-  public void setDragShape(DragShape dragShape) {
-    this.dragShape = dragShape;
-  }
+    public void setDragShape(DragShape dragShape) {
+        this.dragShape = dragShape;
+    }
 
-  public DragField getDragField() {
-    return dragField;
-  }
+    public DragField getDragField() {
+        return dragField;
+    }
 
-  public void setDragField(DragField dragField) {
-    this.dragField = dragField;
-  }
+    public void setDragField(DragField dragField) {
+        this.dragField = dragField;
+    }
 
-  public GameEntity getDraggedEntity() {
-    return draggedEntity;
-  }
+    public GameEntity getDraggedEntity() {
+        return draggedEntity;
+    }
 
-  public void setDraggedEntity(GameEntity draggedEntity) {
-    this.draggedEntity = draggedEntity;
-  }
+    public void setDraggedEntity(GameEntity draggedEntity) {
+        this.draggedEntity = draggedEntity;
+    }
 
-  public DragProperties getDragProperties() {
-    return properties;
-  }
+    public DragProperties getDragProperties() {
+        return properties;
+    }
 
-  public DragInfo toDragInfo() {
-    DragInfo dragInfo = new DragInfo();
-    Vector2 centredOrigin = this.properties
-            .getDragOrigin()
-            .cpy()
-            .sub(draggedEntity.getCenter())
-            .mul(1 / 32f);
-    dragInfo.setDragOrigin(centredOrigin);
-    dragInfo.setDragNormal(this.properties.getDragNormal());
-    dragInfo.setExtent(Math.abs(this.properties.getExtent1())+Math.abs(this.properties.getExtent2()));
-    dragInfo.setSymmetrical(this.properties.isSymmetrical());
-    dragInfo.setMagnitude(this.properties.getMagnitude());
-    return dragInfo;
-  }
+    public DragInfo toDragInfo() {
+        DragInfo dragInfo = new DragInfo();
+        Vector2 centredOrigin = this.properties
+                .getDragOrigin()
+                .cpy()
+                .sub(draggedEntity.getCenter())
+                .mul(1 / 32f);
+        dragInfo.setDragOrigin(centredOrigin);
+        dragInfo.setDragNormal(this.properties.getDragNormal());
+        dragInfo.setExtent(Math.abs(this.properties.getExtent1()) + Math.abs(this.properties.getExtent2()));
+        dragInfo.setSymmetrical(this.properties.isSymmetrical());
+        dragInfo.setMagnitude(this.properties.getMagnitude());
+        return dragInfo;
+    }
 }

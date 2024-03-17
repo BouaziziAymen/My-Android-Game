@@ -1,9 +1,9 @@
 package com.evolgames.userinterface.model;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
+import com.evolgames.utilities.GeometryUtils;
 
 import org.andengine.util.adt.color.Color;
 
@@ -25,6 +25,7 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
         this.properties = properties;
         this.layerModel = layerModel;
     }
+
     public DecorationModel(int bodyId, int layerId, int decorationId, LayerModel layerModel) {
         super("Decoration" + decorationId);
         this.bodyId = bodyId;

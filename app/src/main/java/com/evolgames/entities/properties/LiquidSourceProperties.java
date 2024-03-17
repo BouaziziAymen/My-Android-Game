@@ -23,6 +23,7 @@ public class LiquidSourceProperties extends Properties {
     public Vector2 getLiquidSourceOrigin() {
         return liquidSourceOrigin;
     }
+
     @SuppressWarnings("unused")
     public void setLiquidSourceOrigin(Vector2 liquidSourceOrigin) {
         this.liquidSourceOrigin = liquidSourceOrigin;

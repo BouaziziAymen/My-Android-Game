@@ -4,6 +4,8 @@ import org.andengine.util.adt.color.Color;
 
 public class SquareProperties {
     int squareId;
+    private final Color color;
+
     public SquareProperties(int id, Color color) {
         this.squareId = id;
         this.color = color;
@@ -12,8 +14,6 @@ public class SquareProperties {
     public Color getColor() {
         return color;
     }
-
-    private Color color;
 
     public int getSquareId() {
         return squareId;

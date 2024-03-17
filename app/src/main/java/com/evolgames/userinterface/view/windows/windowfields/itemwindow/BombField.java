@@ -6,57 +6,59 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.view.inputs.Button;
 
 public class BombField extends ItemField {
-  private final Button<ItemWindowController> itemRemoveButton;
-  private final Button<ItemWindowController> bombOptionsButton;
+    private final Button<ItemWindowController> itemRemoveButton;
+    private final Button<ItemWindowController> bombOptionsButton;
 
-  public BombField(int primaryKey, int modelId, ItemWindowController controller) {
-    super(primaryKey, modelId, controller);
-    itemRemoveButton =
-        new Button<>(
-            ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
+    public BombField(int primaryKey, int modelId, ItemWindowController controller) {
+        super(primaryKey, modelId, controller);
+        itemRemoveButton =
+                new Button<>(
+                        ResourceManager.getInstance().removeTextureRegion, Button.ButtonType.OneClick, true);
 
-    itemRemoveButton.setBehavior(
-        new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
-          @Override
-          public void informControllerButtonClicked() {}
+        itemRemoveButton.setBehavior(
+                new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                    }
 
-          @Override
-          public void informControllerButtonReleased() {
-            controller.onBombRemoveButtonReleased(BombField.this);
-          }
-        });
-    this.setHeight(itemRemoveButton.getHeight());
+                    @Override
+                    public void informControllerButtonReleased() {
+                        controller.onBombRemoveButtonReleased(BombField.this);
+                    }
+                });
+        this.setHeight(itemRemoveButton.getHeight());
 
-    bombOptionsButton =
-        new Button<>(
-            ResourceManager.getInstance().smallOptionsTextureRegion,
-            Button.ButtonType.OneClick,
-            true);
-    addToLayout(bombOptionsButton);
-    addToLayout(itemRemoveButton);
-    bombOptionsButton.setBehavior(
-        new ButtonBehavior<ItemWindowController>(controller, bombOptionsButton) {
-          @Override
-          public void informControllerButtonClicked() {}
+        bombOptionsButton =
+                new Button<>(
+                        ResourceManager.getInstance().smallOptionsTextureRegion,
+                        Button.ButtonType.OneClick,
+                        true);
+        addToLayout(bombOptionsButton);
+        addToLayout(itemRemoveButton);
+        bombOptionsButton.setBehavior(
+                new ButtonBehavior<ItemWindowController>(controller, bombOptionsButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                    }
 
-          @Override
-          public void informControllerButtonReleased() {
-            controller.onBombOptionsButtonReleased(BombField.this);
-          }
-        });
-  }
+                    @Override
+                    public void informControllerButtonReleased() {
+                        controller.onBombOptionsButtonReleased(BombField.this);
+                    }
+                });
+    }
 
-  @Override
-  public void showFields() {
-    super.showFields();
-    this.itemRemoveButton.setVisible(true);
-    this.bombOptionsButton.setVisible(true);
-  }
+    @Override
+    public void showFields() {
+        super.showFields();
+        this.itemRemoveButton.setVisible(true);
+        this.bombOptionsButton.setVisible(true);
+    }
 
-  @Override
-  public void hideFields() {
-    super.hideFields();
-    this.itemRemoveButton.setVisible(false);
-    this.bombOptionsButton.setVisible(false);
-  }
+    @Override
+    public void hideFields() {
+        super.hideFields();
+        this.itemRemoveButton.setVisible(false);
+        this.bombOptionsButton.setVisible(false);
+    }
 }

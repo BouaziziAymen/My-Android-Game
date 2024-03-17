@@ -1,8 +1,6 @@
 package com.evolgames.entities.factories;
 
 import com.evolgames.entities.basics.Material;
-import com.evolgames.utilities.MyColorUtils;
-import com.evolgames.entities.basics.Liquid;
 
 import org.andengine.util.adt.color.Color;
 
@@ -11,6 +9,7 @@ import java.util.ArrayList;
 public class MaterialFactory {
     private static final MaterialFactory INSTANCE = new MaterialFactory();
     public ArrayList<Material> materials;
+
     private MaterialFactory() {
 
         this.materials = new ArrayList<>();
@@ -254,7 +253,7 @@ public class MaterialFactory {
                         "Plastic",
                         15,
                         new Color(200 / 255f, 200 / 255f, 200 / 255f),
-                        4f * 1f,
+                        4f,
                         1,
                         0.3f,
                         0.6f,

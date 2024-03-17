@@ -6,33 +6,33 @@ import com.evolgames.entities.serialization.infos.InitInfo;
 
 public class RecoilInit extends BodyInitDecorator {
 
-  private final Body muzzleBody;
-  private final Vector2 muzzleVelocity;
-  private final Vector2 point;
-  private final float recoil;
+    private final Body muzzleBody;
+    private final Vector2 muzzleVelocity;
+    private final Vector2 point;
+    private final float recoil;
 
-  public RecoilInit(
-      BodyInit bodyInit, Body muzzleBody, float recoil, Vector2 muzzleVelocity, Vector2 point) {
-    super(bodyInit);
-    this.muzzleBody = muzzleBody;
-    this.muzzleVelocity = muzzleVelocity;
-    this.point = point;
-    this.recoil = recoil;
-  }
+    public RecoilInit(
+            BodyInit bodyInit, Body muzzleBody, float recoil, Vector2 muzzleVelocity, Vector2 point) {
+        super(bodyInit);
+        this.muzzleBody = muzzleBody;
+        this.muzzleVelocity = muzzleVelocity;
+        this.point = point;
+        this.recoil = recoil;
+    }
 
-  @Override
-  public void initialize(Body body) {
-    super.initialize(body);
-    Vector2 impulse =
-        muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil * 10f * muzzleVelocity.len());
-    muzzleBody.applyLinearImpulse(impulse, point);
-  }
+    @Override
+    public void initialize(Body body) {
+        super.initialize(body);
+        Vector2 impulse =
+                muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil * 10f * muzzleVelocity.len());
+        muzzleBody.applyLinearImpulse(impulse, point);
+    }
 
-  @Override
-  public InitInfo getInitInfo(InitInfo initInfo) {
-    initInfo.setMuzzleVelocity(muzzleVelocity);
-    initInfo.setRecoil(recoil);
-    initInfo.setPoint(point);
-    return this.getBodyInit().getInitInfo(initInfo);
-  }
+    @Override
+    public InitInfo getInitInfo(InitInfo initInfo) {
+        initInfo.setMuzzleVelocity(muzzleVelocity);
+        initInfo.setRecoil(recoil);
+        initInfo.setPoint(point);
+        return this.getBodyInit().getInitInfo(initInfo);
+    }
 }

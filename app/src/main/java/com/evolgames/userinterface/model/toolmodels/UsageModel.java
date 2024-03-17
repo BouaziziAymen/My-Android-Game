@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
@@ -15,7 +16,6 @@ import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 
 public class UsageModel<T extends Properties> extends ProperModel<T> {

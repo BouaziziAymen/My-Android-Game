@@ -50,8 +50,8 @@ public abstract class Element implements Comparable<Element> {
 
     public void setGone(boolean gone) {
         isGone = gone;
-        if(gone){
-          setVisible(false);
+        if (gone) {
+            setVisible(false);
         }
     }
 

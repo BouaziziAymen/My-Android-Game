@@ -6,10 +6,10 @@ import com.evolgames.userinterface.view.windows.AbstractLinearLayoutAdvancedWind
 
 public abstract class AbstractSectionedAdvancedWindowController1<
         W extends AbstractLinearLayoutAdvancedWindow<?>, Primary extends Element>
-    extends LinearLayoutAdvancedWindowController<W> {
-  public abstract void onPrimaryButtonClicked(Primary primary);
+        extends LinearLayoutAdvancedWindowController<W> {
+    public abstract void onPrimaryButtonClicked(Primary primary);
 
-  public abstract void onPrimaryButtonReleased(Primary primary);
+    public abstract void onPrimaryButtonReleased(Primary primary);
 
-  public abstract void onPrimaryAdded(Primary primaryField);
+    public abstract void onPrimaryAdded(Primary primaryField);
 }

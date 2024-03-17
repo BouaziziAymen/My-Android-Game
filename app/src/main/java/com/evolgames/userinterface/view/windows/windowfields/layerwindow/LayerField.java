@@ -155,6 +155,7 @@ public class LayerField extends SecondaryLinearLayout {
                     public void informControllerButtonClicked() {
                         controller.onLayerShowHideButtonClicked(LayerField.this);
                     }
+
                     @Override
                     public void informControllerButtonReleased() {
                         controller.onLayerShowHideButtonReleased(LayerField.this);

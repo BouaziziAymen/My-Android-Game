@@ -7,6 +7,7 @@ public class ItemMetaData {
     private String toolName;
     private ItemCategory itemCategory;
     private boolean userCreated;
+    private String templateName;
 
     public String getFileName() {
         return fileName;
@@ -32,11 +33,19 @@ public class ItemMetaData {
         this.itemCategory = itemCategory;
     }
 
+    public boolean isUserCreated() {
+        return userCreated;
+    }
+
     public void setUserCreated(boolean userCreated) {
         this.userCreated = userCreated;
     }
 
-    public boolean isUserCreated() {
-        return userCreated;
+    public void setTemplateFilename(String templateName) {
+        this.templateName = templateName;
+    }
+
+    public String getTemplateName() {
+        return templateName;
     }
 }

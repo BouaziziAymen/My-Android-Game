@@ -18,6 +18,7 @@ public class RandomPointPicker {
     private float[] trianglesAccumulatedWeight;
     private float coverageRatio;
     private int selectedTriangle;
+
     RandomPointPicker(List<CoatingBlock> coatingBlockList, Predicate<CoatingBlock> predicate) {
         this.coatingBlocks = coatingBlockList;
         this.coatingBlockPredicate = predicate;

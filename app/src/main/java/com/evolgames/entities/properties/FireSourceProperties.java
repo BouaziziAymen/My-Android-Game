@@ -2,9 +2,9 @@ package com.evolgames.entities.properties;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class FireSourceProperties  extends Properties {
+public class FireSourceProperties extends Properties {
 
-  private Vector2 fireSourceOrigin;
+    private Vector2 fireSourceOrigin;
     private Vector2 fireSourceDirection;
     private float fireRatio = 0.5f;
     private float smokeRatio = 0.2f;
@@ -17,20 +17,22 @@ public class FireSourceProperties  extends Properties {
     private float extent = 0.05f;
 
     @SuppressWarnings("unused")
-    public FireSourceProperties() {}
+    public FireSourceProperties() {
+    }
 
     public FireSourceProperties(Vector2 begin, Vector2 direction) {
         this.fireSourceOrigin = begin.cpy();
         this.fireSourceDirection = direction.cpy();
     }
 
+    public Vector2 getFireSourceOrigin() {
+        return fireSourceOrigin;
+    }
+
     public void setFireSourceOrigin(Vector2 fireSourceOrigin) {
         this.fireSourceOrigin = fireSourceOrigin;
     }
 
-    public Vector2 getFireSourceOrigin() {
-        return fireSourceOrigin;
-    }
     public Vector2 getFireSourceDirection() {
         return fireSourceDirection;
     }
@@ -103,11 +105,11 @@ public class FireSourceProperties  extends Properties {
         this.finFirePartSize = finFirePartSize;
     }
 
-    public void setExtent(float extent) {
-        this.extent = extent;
-    }
-
     public float getExtent() {
         return extent;
+    }
+
+    public void setExtent(float extent) {
+        this.extent = extent;
     }
 }

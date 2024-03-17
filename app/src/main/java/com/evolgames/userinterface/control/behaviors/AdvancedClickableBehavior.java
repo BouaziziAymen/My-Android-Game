@@ -5,21 +5,21 @@ import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvance
 
 public abstract class AdvancedClickableBehavior<C extends Controller> extends ClickableBehavior<C> {
 
-  public AdvancedClickableBehavior(C controller) {
-    super(controller);
-  }
-
-  public void onViewUpdated() {
-    if (getController() instanceof LinearLayoutAdvancedWindowController) {
-      ((LinearLayoutAdvancedWindowController<?>) getController()).onVisibleZoneUpdate();
+    public AdvancedClickableBehavior(C controller) {
+        super(controller);
     }
-  }
 
-  protected void updateWindowLayout() {
-    if (getController() instanceof LinearLayoutAdvancedWindowController) {
-      LinearLayoutAdvancedWindowController<?> linearLayoutAdvancedWindowController =
-          (LinearLayoutAdvancedWindowController<?>) getController();
-      linearLayoutAdvancedWindowController.updateLayout();
+    public void onViewUpdated() {
+        if (getController() instanceof LinearLayoutAdvancedWindowController) {
+            ((LinearLayoutAdvancedWindowController<?>) getController()).onVisibleZoneUpdate();
+        }
     }
-  }
+
+    protected void updateWindowLayout() {
+        if (getController() instanceof LinearLayoutAdvancedWindowController) {
+            LinearLayoutAdvancedWindowController<?> linearLayoutAdvancedWindowController =
+                    (LinearLayoutAdvancedWindowController<?>) getController();
+            linearLayoutAdvancedWindowController.updateLayout();
+        }
+    }
 }

@@ -62,12 +62,12 @@ public class LiquidSourceInfo {
         this.extent = extent;
     }
 
+    public GameEntity getSealEntity() {
+        return sealEntity;
+    }
+
     public void setSealEntity(GameEntity sealEntity) {
         this.sealEntity = sealEntity;
         this.sealEntityUniqueId = sealEntity.getUniqueID();
-    }
-
-    public GameEntity getSealEntity() {
-        return sealEntity;
     }
 }

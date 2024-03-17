@@ -13,7 +13,7 @@ public class EntityDestructionCommand extends TimedCommand {
     }
 
     public EntityDestructionCommand(int timeLimit, GameEntity gameEntity, WorldFacade worldFacade) {
-        super(timeLimit, ()->worldFacade.destroyGameEntity(gameEntity,true,true));
+        super(timeLimit, () -> worldFacade.destroyGameEntity(gameEntity, true, true));
         this.gameEntityUniqueId = gameEntity.getUniqueID();
     }
 

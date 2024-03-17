@@ -1,0 +1,8 @@
+<!-- res/drawable/ic_checkbox_checked.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background rectangle -->
+    <item android:drawable="@drawable/ic_unchecked_checkbox" />
+    <!-- Check sign -->
+    <item android:drawable="@drawable/ic_check_sign"
+        android:gravity="center"/>
+</layer-list>

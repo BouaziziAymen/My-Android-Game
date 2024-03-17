@@ -40,7 +40,6 @@ import com.evolgames.utilities.GeometryUtils;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
-import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -144,7 +143,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                 });
     }
 
-    protected GameGroup createTool(ToolModel toolModel, float x, float y, float angle,final boolean mirrored) {
+    protected GameGroup createTool(ToolModel toolModel, float x, float y, float angle, final boolean mirrored) {
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
@@ -161,8 +160,8 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             if (blocks.size() == 0 || center == null) {
                 continue;
             }
-            if(mirrored){
-                for(LayerBlock layerBlock:blocks){
+            if (mirrored) {
+                for (LayerBlock layerBlock : blocks) {
                     layerBlock.mirror();
                 }
             }
@@ -187,30 +186,30 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                                     bodyInit,
                                     blocks,
                                     BodyDef.BodyType.DynamicBody,
-                                    toolModel.getModelName());
+                                    toolModel.getProperties().getToolName());
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
         }
         // Handle usage
         setupModels(bodies);
-        bodies.forEach(b -> b.setupUsages(this,mirrored));
+        bodies.forEach(b -> b.setupUsages(this, mirrored));
         // Create game group
         GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
         this.addGameGroup(gameGroup);
         this.sortChildren();
         // Create joints
         for (JointModel jointModel : joints) {
-            createJointFromModel(jointModel,mirrored);
+            createJointFromModel(jointModel, mirrored);
         }
-         //   GameEntity gameEntity = gameGroup.getGameEntityByIndex(0);
-           // getWorldFacade().applyLiquidStain(gameEntity, 40, -7, gameEntity.getBlocks().get(1), Color.RED, 0f, 0, false);
-            //gameEntity.redrawStains();
+        //   GameEntity gameEntity = gameGroup.getGameEntityByIndex(0);
+        // getWorldFacade().applyLiquidStain(gameEntity, 40, -7, gameEntity.getBlocks().get(1), Color.RED, 0f, 0, false);
+        //gameEntity.redrawStains();
 
         return gameGroup;
     }
 
-    public void createJointFromModel(JointModel jointModel,boolean mirrored) {
+    public void createJointFromModel(JointModel jointModel, boolean mirrored) {
         BodyModel bodyModel1 = jointModel.getBodyModel1();
         BodyModel bodyModel2 = jointModel.getBodyModel2();
 
@@ -220,7 +219,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         if (entity1 == null || entity2 == null) {
             return;
         }
-        JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter(),mirrored);
+        JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter(), mirrored);
 
         getWorldFacade().addJointToCreate(jointDef, entity1, entity2);
     }
@@ -302,17 +301,19 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     }
 
     public GameGroup createItemFromFile(String name, float x, float y, boolean assets, boolean mirrored) {
-        return createTool(loadToolModel(name, false, assets), x, y, 0,mirrored);
+        return createTool(loadToolModel(name, false, assets), x, y, 0, mirrored);
     }
 
-    public GameGroup createItem(ToolModel toolModel,boolean mirrored) {
-        return createTool(toolModel, 400, 240, 0,mirrored);
+    public GameGroup createItem(ToolModel toolModel, boolean mirrored) {
+        return createTool(toolModel, 400, 240, 0, mirrored);
     }
-    public void createItemFromFile(String name, boolean assets,boolean mirrored) {
-        createItem(loadToolModel(name, false, assets),mirrored);
+
+    public void createItemFromFile(String name, boolean assets, boolean mirrored) {
+        createItem(loadToolModel(name, false, assets), mirrored);
     }
-    public GameGroup createItem(float x, float y, float angle, ToolModel toolModel,boolean mirrored) {
-        return createTool(toolModel, x, y, angle,mirrored);
+
+    public GameGroup createItem(float x, float y, float angle, ToolModel toolModel, boolean mirrored) {
+        return createTool(toolModel, x, y, angle, mirrored);
     }
 
 

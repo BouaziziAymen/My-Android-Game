@@ -1,13 +1,13 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
-import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
@@ -25,10 +25,9 @@ public abstract class LiquidParticleWrapper {
     private final GameEntity parent;
     private final Vector2 splashVelocity;
     private final float flammability;
+    private final Color color;
     private boolean alive = true;
     private int timer = 0;
-
-    private final Color color;
 
     public LiquidParticleWrapper(
             GameEntity gameEntity,
@@ -38,7 +37,7 @@ public abstract class LiquidParticleWrapper {
             int lowerRate,
             int higherRate) {
         this.splashVelocity = splashVelocity;
-        this.emitter = createEmitter(data, weights,gameEntity);
+        this.emitter = createEmitter(data, weights, gameEntity);
         this.parent = gameEntity;
         this.color = color;
         this.flammability = flammability;
@@ -135,6 +134,6 @@ public abstract class LiquidParticleWrapper {
             this.particleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
         }
     }
-    
-    
+
+
 }

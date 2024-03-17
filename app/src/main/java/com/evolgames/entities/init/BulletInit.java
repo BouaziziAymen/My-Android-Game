@@ -5,22 +5,22 @@ import com.evolgames.entities.serialization.infos.InitInfo;
 
 public class BulletInit extends BodyInitDecorator {
 
-  private final boolean isBullet;
+    private final boolean isBullet;
 
-  public BulletInit(BodyInit bodyInit, boolean isBullet) {
-    super(bodyInit);
-    this.isBullet = isBullet;
-  }
+    public BulletInit(BodyInit bodyInit, boolean isBullet) {
+        super(bodyInit);
+        this.isBullet = isBullet;
+    }
 
-  @Override
-  public void initialize(Body body) {
-    super.initialize(body);
-    body.setBullet(isBullet);
-  }
+    @Override
+    public void initialize(Body body) {
+        super.initialize(body);
+        body.setBullet(isBullet);
+    }
 
-  @Override
-  public InitInfo getInitInfo(InitInfo initInfo) {
-    initInfo.setBullet(isBullet);
-    return this.getBodyInit().getInitInfo(initInfo);
-  }
+    @Override
+    public InitInfo getInitInfo(InitInfo initInfo) {
+        initInfo.setBullet(isBullet);
+        return this.getBodyInit().getInitInfo(initInfo);
+    }
 }

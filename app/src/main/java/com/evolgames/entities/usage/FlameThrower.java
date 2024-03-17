@@ -1,13 +1,13 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 
 import java.util.Collections;
@@ -23,14 +23,16 @@ public class FlameThrower extends Use {
 
 
     @SuppressWarnings("unused")
-    public FlameThrower() {}
-  public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
-    this.fireSourceInfoList =
-            ((FlameThrowerProperties)usageModel.getProperties()).getFireSources().stream()
-            .map(fireSourceModel -> fireSourceModel.toFireSourceInfo(mirrored))
-            .collect(Collectors.toList());
-    createFireSources(physicsScene.getWorldFacade());
-  }
+    public FlameThrower() {
+    }
+
+    public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+        this.fireSourceInfoList =
+                ((FlameThrowerProperties) usageModel.getProperties()).getFireSources().stream()
+                        .map(fireSourceModel -> fireSourceModel.toFireSourceInfo(mirrored))
+                        .collect(Collectors.toList());
+        createFireSources(physicsScene.getWorldFacade());
+    }
 
     public List<FireSourceInfo> getFireSourceInfoList() {
         return fireSourceInfoList;
@@ -42,37 +44,39 @@ public class FlameThrower extends Use {
              i < projectileInfoListSize;
              i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
-            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
-            Objects.requireNonNull(flameThrowerInfFireSourceMap.get(fireSourceInfo)).setSpawnEnabled(true);
+            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)) {
+                Objects.requireNonNull(flameThrowerInfFireSourceMap.get(fireSourceInfo)).setSpawnEnabled(true);
             }
         }
     }
+
     public void onTriggerReleased() {
         on = false;
-    for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
-        i < projectileInfoListSize;
-        i++) {
+        for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
+             i < projectileInfoListSize;
+             i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
-            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)){
+            if (flameThrowerInfFireSourceMap.containsKey(fireSourceInfo)) {
                 Objects.requireNonNull(flameThrowerInfFireSourceMap.get(fireSourceInfo)).setSpawnEnabled(false);
             }
         }
     }
-  @Override
-  public void onStep(float deltaTime, WorldFacade worldFacade) {
-  }
 
-  @Override
-  public List<PlayerSpecialAction> getActions() {
-    return Collections.singletonList(PlayerSpecialAction.Fire);
-  }
+    @Override
+    public void onStep(float deltaTime, WorldFacade worldFacade) {
+    }
+
+    @Override
+    public List<PlayerSpecialAction> getActions() {
+        return Collections.singletonList(PlayerSpecialAction.Fire);
+    }
 
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
 
     }
 
-    public void createFireSources(WorldFacade worldFacade){
+    public void createFireSources(WorldFacade worldFacade) {
         this.flameThrowerInfFireSourceMap = new HashMap<>();
         this.fireSourceInfoList
                 .forEach(
@@ -93,13 +97,13 @@ public class FlameThrower extends Use {
                                                         e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                         PhysicsConstants.getParticleVelocity(p.getSpeedRatio()),
                                                         p.getFireRatio(),
-                                                       p.getSmokeRatio(),
+                                                        p.getSmokeRatio(),
                                                         p.getSparkRatio(),
                                                         p.getParticles(),
-                                                        p.getHeat(),p.getInFirePartSize(),p.getFinFirePartSize());
+                                                        p.getHeat(), p.getInFirePartSize(), p.getFinFirePartSize());
                                 fireSource.setSpawnEnabled(this.on);
-                                this.flameThrowerInfFireSourceMap.put(p,fireSource);
-                            };
+                                this.flameThrowerInfFireSourceMap.put(p, fireSource);
+                            }
                         });
     }
 

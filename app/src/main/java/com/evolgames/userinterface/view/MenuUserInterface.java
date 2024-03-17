@@ -14,37 +14,40 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TextureRegion;
 
 public class MenuUserInterface extends UserInterface<MenuScene> {
-  public MenuUserInterface(MenuScene scene) {
-    super(scene);
-    Controller controller = new Controller() {
-      @Override
-      public void init() {
+    public MenuUserInterface(MenuScene scene) {
+        super(scene);
+        Controller controller = new Controller() {
+            @Override
+            public void init() {
 
-      }
-    };
+            }
+        };
 
-    Element imaginary = new Dummy();
-    imaginary.setLowerBottomX(400-120);
-    imaginary.setLowerBottomY(210-40);
-    RectangularBounds rectangularBounds = new RectangularBounds(imaginary,240,80);
-    createScaleButton(400,210, controller, ResourceManager.getInstance().playTextureRegion,rectangularBounds,()-> scene.goToScene(SceneType.PLAY));
-setUpdated(true);
+        Element imaginary = new Dummy();
+        imaginary.setLowerBottomX(400 - 120);
+        imaginary.setLowerBottomY(100 - 40);
+        RectangularBounds rectangularBounds = new RectangularBounds(imaginary, 240, 80);
+        createScaleButton(400, 100, controller, ResourceManager.getInstance().playTextureRegion, rectangularBounds, () -> scene.goToScene(SceneType.PLAY));
 
-  }
 
-  private void createScaleButton(float x, float y, Controller controller, TextureRegion region, RectangularBounds bounds, Action action) {
-    float xl = x-(region.getWidth()/2f);
-    float yl = y-(region.getHeight()/2f);
-    ScaleClickable<Controller> scaleClickable = new ScaleClickable<>(xl,yl,region, controller,bounds
-    ,action);
-    this.addElement(scaleClickable);
-  }
+        setUpdated(true);
 
-  @Override
-  public boolean onTouchHud(TouchEvent pTouchEvent) {
-    return super.onTouchHud(pTouchEvent);
-  }
+    }
 
-  @Override
-  public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {}
+    private void createScaleButton(float x, float y, Controller controller, TextureRegion region, RectangularBounds bounds, Action action) {
+        float xl = x - (region.getWidth() / 2f);
+        float yl = y - (region.getHeight() / 2f);
+        ScaleClickable<Controller> scaleClickable = new ScaleClickable<>(xl, yl, region, controller, bounds
+                , action);
+        this.addElement(scaleClickable);
+    }
+
+    @Override
+    public boolean onTouchHud(TouchEvent pTouchEvent) {
+        return super.onTouchHud(pTouchEvent);
+    }
+
+    @Override
+    public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
+    }
 }

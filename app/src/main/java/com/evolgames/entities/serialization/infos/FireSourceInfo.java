@@ -24,15 +24,15 @@ public class FireSourceInfo {
         return muzzleEntity;
     }
 
-    public String getMuzzleEntityUniqueId() {
-        return muzzleEntityUniqueId;
-    }
-
     public void setMuzzleEntity(@Nullable GameEntity muzzleEntity) {
         this.muzzleEntity = muzzleEntity;
         if (this.muzzleEntity != null) {
             this.muzzleEntityUniqueId = muzzleEntity.getUniqueID();
         }
+    }
+
+    public String getMuzzleEntityUniqueId() {
+        return muzzleEntityUniqueId;
     }
 
     public Vector2 getFireSourceOrigin() {
@@ -50,6 +50,7 @@ public class FireSourceInfo {
     public void setFireDirection(Vector2 fireDirection) {
         this.fireDirection = fireDirection;
     }
+
     public float getFireRatio() {
         return fireRatio;
     }
@@ -91,7 +92,7 @@ public class FireSourceInfo {
     }
 
     public float getParticles() {
-        return particles+0.2f;
+        return particles + 0.2f;
     }
 
     public void setParticles(float particles) {
@@ -115,7 +116,7 @@ public class FireSourceInfo {
     }
 
     public float getExtent() {
-        return extent+1f;
+        return extent + 1f;
     }
 
     public void setExtent(float extent) {

@@ -2,12 +2,13 @@ package com.evolgames.entities.properties.usage;
 
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class LiquidContainerProperties extends Properties {
-    float quantity;
     private final List<LiquidSourceModel> liquidSourceModelList;
+    float quantity;
     private List<Integer> liquidSourceIds;
 
     public LiquidContainerProperties() {

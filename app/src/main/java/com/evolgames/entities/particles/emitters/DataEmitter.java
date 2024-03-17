@@ -7,28 +7,28 @@ import org.andengine.entity.particle.emitter.BaseParticleEmitter;
 
 public abstract class DataEmitter extends BaseParticleEmitter {
 
-  protected final float[] data;
-  private final GameEntity gameEntity;
+    protected final float[] data;
+    private final GameEntity gameEntity;
 
-  DataEmitter(float pCenterX, float pCenterY, float[] data, GameEntity gameEntity) {
-    super(pCenterX, pCenterY);
-    this.data = data;
-    this.gameEntity = gameEntity;
-  }
-
-  protected abstract void prepareData();
-
-  public void update() {
-    if(gameEntity==null){
-      return;
+    DataEmitter(float pCenterX, float pCenterY, float[] data, GameEntity gameEntity) {
+        super(pCenterX, pCenterY);
+        this.data = data;
+        this.gameEntity = gameEntity;
     }
-    float x = gameEntity.getMesh().getX();
-    float y = gameEntity.getMesh().getY();
-    float rot = gameEntity.getMesh().getRotation();
-    GeometryUtils.transformation.setToIdentity();
-    GeometryUtils.transformation.preTranslate(x, y);
-    GeometryUtils.transformation.preRotate(-rot);
-    prepareData();
-    GeometryUtils.transformation.transform(data);
-  }
+
+    protected abstract void prepareData();
+
+    public void update() {
+        if (gameEntity == null) {
+            return;
+        }
+        float x = gameEntity.getMesh().getX();
+        float y = gameEntity.getMesh().getY();
+        float rot = gameEntity.getMesh().getRotation();
+        GeometryUtils.transformation.setToIdentity();
+        GeometryUtils.transformation.preTranslate(x, y);
+        GeometryUtils.transformation.preRotate(-rot);
+        prepareData();
+        GeometryUtils.transformation.transform(data);
+    }
 }

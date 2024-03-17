@@ -1,10 +1,10 @@
 package com.evolgames.entities.hand;
 
 public enum PlayerAction {
-  Drag,
-  Hold,
-  Throw,
-  Slice,
-  Select,
-  Turn
+    Drag,
+    Hold,
+    Throw,
+    Slice,
+    Select,
+    Turn
 }

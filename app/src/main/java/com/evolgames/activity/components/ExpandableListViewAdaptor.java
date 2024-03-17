@@ -1,4 +1,5 @@
 package com.evolgames.activity.components;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ import java.util.Objects;
 public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
 
     private final List<ItemCategory> dataHeader;
-    private final Map<ItemCategory,List<ItemMetaData>> listHashMap;
+    private final Map<ItemCategory, List<ItemMetaData>> listHashMap;
     private final LayoutInflater inflater;
 
     public ExpandableListViewAdaptor(LayoutInflater inflater, List<ItemCategory> dataHeader, Map<ItemCategory, List<ItemMetaData>> listHashMap) {
@@ -24,7 +25,6 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
         this.listHashMap = listHashMap;
         this.inflater = inflater;
     }
-
 
 
     @Override
@@ -105,7 +105,7 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
         return true;
     }
 
-    private static class ViewHolder{
+    private static class ViewHolder {
         TextView textView;
     }
 }

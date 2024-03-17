@@ -1,12 +1,12 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.basics.Liquid;
 import com.evolgames.entities.basics.Material;
 import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
-import com.evolgames.entities.basics.Liquid;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -14,7 +14,6 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.behaviors.actions.Condition;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
-import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.basics.Element;
@@ -368,7 +367,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         "Juicy",
                         ResourceManager.getInstance().onoffTextureRegion,
                         Button.ButtonType.Selector,
-                        5f,true,1);
+                        5f, true, 1);
 
         jucyField = new SimpleSecondary<>(3, secId, juicyButton);
         window.addSecondary(jucyField);
@@ -393,7 +392,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         SimpleTertiary<ButtonWithText<LayerSettingsWindowController>> juiceTypeSection =
                 new SimpleTertiary<>(
                         3, secId, 0, button);
-        button.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this,button) {
+        button.setBehavior(new ButtonBehavior<LayerSettingsWindowController>(this, button) {
             @Override
             public void informControllerButtonClicked() {
                 onTertiaryButtonClicked(juiceTypeSection);
@@ -433,7 +432,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                     });
         }
 
-    Sub2SectionField<LayerSettingsWindowController> juicePropertiesSection =
+        Sub2SectionField<LayerSettingsWindowController> juicePropertiesSection =
                 new Sub2SectionField<>(
                         3, secId, 2, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addTertiary(juicePropertiesSection);
@@ -469,7 +468,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 });
         SimpleQuaternary<TitledField<?>> juiceColorField =
                 new SimpleQuaternary<>(3, secId, 2, -1, juiceColorTitledLayout);
-       window.addQuaternary(juiceColorField);
+        window.addQuaternary(juiceColorField);
 
 
         juicinessQuantity =
@@ -492,7 +491,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 .setChangeAction(
                         () -> layerProperty.setJuicinessDensity(juicinessQuantity.getAttachment().getRatio()));
 
-      juiceLowerRateQuantity =
+        juiceLowerRateQuantity =
                 new TitledQuantity<>("Lower Rate:", 10, "b", 5, 75);
         juiceLowerRateQuantity
                 .getAttachment()
@@ -571,8 +570,6 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
 
-
-
         juiceFlammabilityQuantity =
                 new TitledQuantity<>("Flammability:", 10, "r", 5, 90);
         juiceFlammabilityQuantity
@@ -603,7 +600,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         "Combustible ",
                         ResourceManager.getInstance().onoffTextureRegion,
                         Button.ButtonType.Selector,
-                        5f,true,1);
+                        5f, true, 1);
 
         secId++;
         combustibleField = new SimpleSecondary<>(3, secId, combustibleButton);
@@ -747,7 +744,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         "Flammable:",
                         ResourceManager.getInstance().onoffTextureRegion,
                         Button.ButtonType.Selector,
-                        5f,true,1);
+                        5f, true, 1);
 
         secId++;
         this.flammableField = new SimpleSecondary<>(3, secId, flammableButton);
@@ -842,18 +839,23 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private void setFlammability(float flammability) {
         flammabilityQuantity.updateRatio(flammability);
     }
+
     private void setJuiceFlammability(float flammability) {
         juiceFlammabilityQuantity.getAttachment().updateRatio(flammability);
     }
+
     private void setJuiceLowerRate(float juiceLowerRate) {
         juiceLowerRateQuantity.getAttachment().updateRatio(juiceLowerRate);
     }
+
     private void setJuiceUpperRate(float juiceUpperRate) {
         juiceUpperRateQuantity.getAttachment().updateRatio(juiceUpperRate);
     }
+
     private void setJuiciness(float juiciness) {
         juicinessQuantity.getAttachment().updateRatio(juiciness);
     }
+
     private void setSharpness(float sharpness) {
         sharpnessQuantity.updateRatio(sharpness);
     }
@@ -877,9 +879,10 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
             }
         }
     }
+
     private void setLiquidNumber(int index) {
-        for (int i = 0; i < window.getLayout().getQuaternatiesSize(3,6,0); i++) {
-            SimpleSecondary<?> element = window.getLayout().getQuaternaryByIndex(3,6,0, i);
+        for (int i = 0; i < window.getLayout().getQuaternatiesSize(3, 6, 0); i++) {
+            SimpleSecondary<?> element = window.getLayout().getQuaternaryByIndex(3, 6, 0, i);
             Element main = element.getMain();
             if (element.getSecondaryKey() == index) {
                 if (main instanceof ButtonWithText) {
@@ -944,8 +947,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
     void onJuiceButtonClicked(SimpleQuaternary<?> juiceButton) {
 
-        for (int i = 0; i < window.getLayout().getQuaternatiesSize(juiceButton.getPrimaryKey(),juiceButton.getSecondaryKey(),juiceButton.getTertiaryKey()); i++) {
-            SimpleQuaternary<?> element = window.getLayout().getQuaternaryByIndex(juiceButton.getPrimaryKey(),juiceButton.getSecondaryKey(),juiceButton.getTertiaryKey(), i);
+        for (int i = 0; i < window.getLayout().getQuaternatiesSize(juiceButton.getPrimaryKey(), juiceButton.getSecondaryKey(), juiceButton.getTertiaryKey()); i++) {
+            SimpleQuaternary<?> element = window.getLayout().getQuaternaryByIndex(juiceButton.getPrimaryKey(), juiceButton.getSecondaryKey(), juiceButton.getTertiaryKey(), i);
             if (element.getQuaternaryKey() != juiceButton.getQuaternaryKey()) {
                 Element main = element.getMain();
                 if (main instanceof ButtonWithText) {
@@ -975,7 +978,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         Material material = MaterialFactory.getInstance().getMaterialByIndex(secondaryKey);
         Liquid liquid;
-        if(material.getJuiceIndex()!=-1){
+        if (material.getJuiceIndex() != -1) {
             liquid = Materials.getLiquidByIndex(material.getJuiceIndex());
             layerProperty.setJuiceColor(liquid.getDefaultColor());
         }

@@ -1,13 +1,13 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.RelativePolygonEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.BezierModifier;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
-import com.evolgames.activity.ResourceManager;
 
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
 import org.andengine.entity.particle.ParticleSystem;
@@ -31,8 +31,8 @@ public class FluxParticleWrapper {
 
 
     public FluxParticleWrapper(GameEntity source, GameEntity target) {
-        this.startEmitter = new RelativePolygonEmitter(source,  (b) -> b.getParent().getId()==3);
-        this.endEmitter = new RelativePolygonEmitter(target, (b) -> b.getNx()==2&&b.getNy()==0);
+        this.startEmitter = new RelativePolygonEmitter(source, (b) -> b.getParent().getId() == 3);
+        this.endEmitter = new RelativePolygonEmitter(target, (b) -> b.getNx() == 2 && b.getNy() == 0);
         this.source = source;
         this.target = target;
 
@@ -56,11 +56,12 @@ public class FluxParticleWrapper {
         this.energyParticleSystem.addParticleModifier(this.bezierModifier);
         this.energyParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
         this.energyParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.1f));
-        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan-0.5f,lifespan,0.1f,0f));
+        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan - 0.5f, lifespan, 0.1f, 0f));
         this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan, 0.5f, 0.2f));
         setFluxColor(Color.BLACK, Color.BLACK);
         update();
     }
+
     public ParticleSystem<?> getParticleSystem() {
         return this.energyParticleSystem;
     }
@@ -69,7 +70,7 @@ public class FluxParticleWrapper {
         this.startEmitter.onStep();
         this.endEmitter.onStep();
 
-        bezierModifier.transform(new Vector2(source.getMesh().getX(),source.getMesh().getY()),new Vector2(target.getMesh().getX(),target.getMesh().getY()));
+        bezierModifier.transform(new Vector2(source.getMesh().getX(), source.getMesh().getY()), new Vector2(target.getMesh().getX(), target.getMesh().getY()));
     }
 
     private void setFluxColor(Color color1, Color color2) {

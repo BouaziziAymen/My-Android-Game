@@ -28,21 +28,34 @@ public class XmlHelper {
         this.activity = activity;
     }
 
-    private List<String> readInternalStorageFiles(){
-            List<String> fileNames = new ArrayList<>();
-            File directory = activity.getFilesDir();
-            if (directory.exists() && directory.isDirectory()) {
-                File[] files = directory.listFiles();
-                if (files != null) {
-                    for (File file : files) {
-                        if (file.isFile()&&file.getName().endsWith(".xml")) {
-                            fileNames.add(file.getName());
-                        }
+    public static String convertToXmlFormat(String input) {
+        // Replace spaces with underscores
+        String processedString = input.replaceAll("\\s", "_");
+
+        // Append ".xml" to the end
+        processedString += ".xml";
+
+        // Convert to lowercase
+        processedString = processedString.toLowerCase();
+
+        return processedString;
+    }
+
+    private List<String> readInternalStorageFiles() {
+        List<String> fileNames = new ArrayList<>();
+        File directory = activity.getFilesDir();
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && file.getName().endsWith(".xml")) {
+                        fileNames.add(file.getName());
                     }
                 }
             }
-            return fileNames;
         }
+        return fileNames;
+    }
 
     public void fillItemsMapFromInternalStorage(Map<ItemCategory, List<ItemMetaData>> map) {
         List<String> fileNames = readInternalStorageFiles();
@@ -58,6 +71,7 @@ public class XmlHelper {
             }
         }
     }
+
     public void fillItemsMapFromAssets(Map<ItemCategory, List<ItemMetaData>> map) {
         AssetManager assetManager = activity.getAssets();
         List<String> fileNames = AssetUtils.getAllFileNames(assetManager, XML_FOLDER);

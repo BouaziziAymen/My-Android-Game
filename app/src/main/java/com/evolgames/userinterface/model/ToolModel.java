@@ -3,12 +3,12 @@ package com.evolgames.userinterface.model;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.utilities.BlockUtils;
-import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.ColorPanelProperties;
 import com.evolgames.entities.properties.ToolProperties;
+import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
@@ -24,6 +24,8 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSou
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
+import com.evolgames.utilities.BlockUtils;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,14 +49,20 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     private final ArrayList<JointModel> joints;
     private final ArrayList<MosaicMesh> meshes = new ArrayList<>();
     private final ColorPanelProperties colorPanelProperties = new ColorPanelProperties();
-    private ItemCategory toolCategory;
     private ImageShapeModel imageShapeModel;
+    private ItemCategory category;
 
-    public ToolModel(AbstractScene<?> gameScene, int toolId) {
-        super("Tool" + toolId);
+    public ToolModel(AbstractScene<?> gameScene) {
+        super("");
         scene = gameScene;
         bodies = new ArrayList<>();
         joints = new ArrayList<>();
+        this.properties = new ToolProperties();
+    }
+
+    @Override
+    public String getModelName() {
+        throw new UnsupportedOperationException("This model doesn't have a direct model name");
     }
 
     public ColorPanelProperties getColorPanelProperties() {
@@ -262,11 +270,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     }
 
     public ItemCategory getToolCategory() {
-        return toolCategory;
-    }
-
-    public void setToolCategory(ItemCategory toolCategory) {
-        this.toolCategory = toolCategory;
+        return category;
     }
 
     public AtomicInteger getProjectileCounter() {
@@ -345,5 +349,22 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
 
     public void setImageShapeModel(ImageShapeModel imageShapeModel) {
         this.imageShapeModel = imageShapeModel;
+    }
+
+    public ItemCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ItemCategory category) {
+        this.category = category;
+    }
+
+    public ItemMetaData toMetaData() {
+        ItemMetaData itemMetaData = new ItemMetaData();
+        itemMetaData.setItemCategory(category);
+        itemMetaData.setToolName(this.properties.getToolName());
+        itemMetaData.setFileName(XmlHelper.convertToXmlFormat(this.properties.getToolName()));
+        itemMetaData.setUserCreated(true);
+        return itemMetaData;
     }
 }

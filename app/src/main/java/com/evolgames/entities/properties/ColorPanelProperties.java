@@ -5,7 +5,8 @@ import java.util.List;
 
 public class ColorPanelProperties extends Properties {
     List<SquareProperties> squarePropertiesList;
-    public ColorPanelProperties(){
+
+    public ColorPanelProperties() {
         this.squarePropertiesList = new ArrayList<>();
     }
 

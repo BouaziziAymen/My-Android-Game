@@ -12,12 +12,14 @@ public class DragProperties extends Properties {
     private boolean symmetrical;
 
     @SuppressWarnings("unused")
-    public DragProperties() {}
+    public DragProperties() {
+    }
 
     public DragProperties(Vector2 begin, Vector2 normal) {
         this.dragOrigin = begin.cpy();
         this.dragNormal = normal.cpy();
     }
+
     public Vector2 getDragOrigin() {
         return dragOrigin;
     }
@@ -42,27 +44,27 @@ public class DragProperties extends Properties {
         this.extent1 = extent1;
     }
 
-    public void setExtent2(float extent2) {
-        this.extent2 = extent2;
-    }
-
     public float getExtent2() {
         return extent2;
     }
 
-    public void setMagnitude(float magnitude) {
-        this.magnitude = magnitude;
+    public void setExtent2(float extent2) {
+        this.extent2 = extent2;
     }
 
     public float getMagnitude() {
         return magnitude;
     }
 
-    public void setSymmetrical(boolean symmetrical) {
-        this.symmetrical = symmetrical;
+    public void setMagnitude(float magnitude) {
+        this.magnitude = magnitude;
     }
 
     public boolean isSymmetrical() {
         return symmetrical;
+    }
+
+    public void setSymmetrical(boolean symmetrical) {
+        this.symmetrical = symmetrical;
     }
 }

@@ -1,130 +1,85 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.entities.properties.ToolProperties;
+import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
-import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
-import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
-import com.evolgames.userinterface.view.basics.Element;
-import com.evolgames.userinterface.view.inputs.Button;
-import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.TextField;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.windows.windowfields.FieldWithError;
-import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
 
-  private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
-  private TextField<ItemSaveWindowController> titleTextField;
+    private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
+    private TextField<ItemSaveWindowController> titleTextField;
 
-  @Override
-  public void init() {
-    super.init();
-    window.setVisible(false);
-    TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 15);
-    this.titleTextField = titledTextField.getAttachment();
-    titleTextField.setBehavior(
-        new TextFieldBehavior<ItemSaveWindowController>(
-            this,
-            titledTextField.getAttachment(),
-            Keyboard.KeyboardType.AlphaNumeric,
-            itemNameValidator,
-            true) {
-          @Override
-          protected void informControllerTextFieldTapped() {
-            ItemSaveWindowController.super.onTextFieldTapped(titledTextField.getAttachment());
-          }
+    @Override
+    public void init() {
+        super.init();
+        itemNameValidator.setCondition((input) -> {
+            List<ItemMetaData> items = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+            String[] itemNames = items.stream().map(ItemMetaData::getName).toArray(String[]::new);
+            boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(input.toLowerCase()));
+            return !nameExists;
+        }, "Name already exists.");
+        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 15);
+        this.titleTextField = titledTextField.getAttachment();
+        titleTextField.setBehavior(
+                new TextFieldBehavior<ItemSaveWindowController>(
+                        this,
+                        titledTextField.getAttachment(),
+                        Keyboard.KeyboardType.AlphaNumeric,
+                        itemNameValidator,
+                        true) {
+                    @Override
+                    protected void informControllerTextFieldTapped() {
+                        ItemSaveWindowController.super.onTextFieldTapped(titledTextField.getAttachment());
+                    }
 
-          @Override
-          protected void informControllerTextFieldReleased() {
-            ItemSaveWindowController.super.onTextFieldReleased(titledTextField.getAttachment());
-          }
-        });
-    FieldWithError titleFieldWithError = new FieldWithError(titledTextField);
-    SimplePrimary<FieldWithError> titleField = new SimplePrimary<>(0, titleFieldWithError);
-    window.addPrimary(titleField);
-    titleTextField
-        .getBehavior()
-        .setReleaseAction(() -> model.setModelName(titleTextField.getTextString()));
+                    @Override
+                    protected void informControllerTextFieldReleased() {
+                        ItemSaveWindowController.super.onTextFieldReleased(titledTextField.getAttachment());
+                    }
+                });
+        FieldWithError titleFieldWithError = new FieldWithError(titledTextField);
+        SimplePrimary<FieldWithError> titleField = new SimplePrimary<>(0, titleFieldWithError);
+        window.addPrimary(titleField);
+        titleTextField
+                .getBehavior()
+                .setReleaseAction(() -> model.setModelName(titleTextField.getTextString()));
 
-    SectionField<ItemSaveWindowController> categorySection =
-        new SectionField<>(
-            1, "Category:", ResourceManager.getInstance().mainButtonTextureRegion, this);
-    window.addPrimary(categorySection);
-
-    for (int i = 0; i < ItemCategory.values().length; i++) {
-      ItemCategory itemCategory = ItemCategory.values()[i];
-      ButtonWithText<ItemSaveWindowController> categoryButton =
-          new ButtonWithText<>(
-              itemCategory.name,
-              2,
-              ResourceManager.getInstance().simpleButtonTextureRegion,
-              Button.ButtonType.Selector,
-              true);
-      SimpleSecondary<ButtonWithText<ItemSaveWindowController>> categoryField =
-          new SimpleSecondary<>(1, i, categoryButton);
-      window.addSecondary(categoryField);
-      categoryButton.setBehavior(
-          new ButtonBehavior<ItemSaveWindowController>(this, categoryButton) {
-            @Override
-            public void informControllerButtonClicked() {
-              ItemSaveWindowController.this.onCategoryButtonClicked(categoryField);
-            }
-
-            @Override
-            public void informControllerButtonReleased() {}
-          });
+        updateLayout();
+        window.createScroller();
     }
-    updateLayout();
-    window.createScroller();
-  }
 
-  private void onCategoryButtonClicked(
-      SimpleSecondary<ButtonWithText<ItemSaveWindowController>> categoryField) {
-    super.onSecondaryButtonClicked(categoryField);
-    int size = window.getLayout().getSecondariesSize(1);
-    for (int i = 0; i < size; i++) {
-      SimpleSecondary<?> other = window.getLayout().getSecondaryByIndex(1, i);
-      if (categoryField != other) {
-        Element main = other.getMain();
-        if (main instanceof ButtonWithText) {
-          ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-        }
-      }
+    @Override
+    public void onCancelSettings() {
+        super.onCancelSettings();
     }
-    if (model != null) {
-      ItemCategory category =
-              ItemCategory.values()[categoryField.getSecondaryKey()];
-      ((ToolModel) model).setToolCategory(category);
+
+    @Override
+    public void onModelUpdated(ProperModel<ToolProperties> model) {
+        super.onModelUpdated(model);
+        titleTextField.getBehavior().setTextValidated(model.getProperties().getToolName());
     }
-  }
 
-  @Override
-  public void onCancelSettings() {
-    super.onCancelSettings();
-  }
-
-  @Override
-  public void onModelUpdated(ProperModel<ToolProperties> model) {
-    super.onModelUpdated(model);
-    titleTextField.getBehavior().setTextValidated(model.getModelName());
-  }
-
-  @Override
-  public void onSubmitSettings() {
-    super.onSubmitSettings();
-    ItemCategory toolCategory = ((ToolModel) model).getToolCategory();
-    if (toolCategory == null){
-      return;
+    @Override
+    public void onSubmitSettings() {
+        super.onSubmitSettings();
+        this.editorUserInterface.saveToolModel();
+        ToolModel toolModel = (ToolModel) model;
+        ItemMetaData itemMetaData = toolModel.toMetaData();
+        Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(itemMetaData.getItemCategory())).add(itemMetaData);
     }
-    this.editorUserInterface.saveToolModel();
-
-  }
 }

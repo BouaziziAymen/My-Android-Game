@@ -1,11 +1,10 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import com.evolgames.utilities.ToolUtils;
+import com.evolgames.activity.GameSound;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
-import com.evolgames.activity.GameSound;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -32,6 +31,7 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.userinterface.view.windows.windowfields.projectieoptionwindow.SoundField;
+import com.evolgames.utilities.ToolUtils;
 
 import org.xml.sax.SAXException;
 
@@ -149,10 +149,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
                         true);
-        if(fileName.equals(projectileModel.getMissileFile())){
-          missileButton.updateState(Button.State.PRESSED);
+        if (fileName.equals(projectileModel.getMissileFile())) {
+            missileButton.updateState(Button.State.PRESSED);
         } else {
-          missileButton.updateState(Button.State.NORMAL);
+            missileButton.updateState(Button.State.NORMAL);
         }
         SimpleSecondary<ButtonWithText<ProjectileOptionController>> missileField =
                 new SimpleSecondary<>(0, missileId, missileButton);

@@ -24,96 +24,97 @@ import java.util.List;
 import java.util.Map;
 
 public class GameEntitySerializer {
-  public static transient Map<String, GameEntity> entities = new HashMap<>();
-  private int zIndex;
+    public static Map<String, GameEntity> entities = new HashMap<>();
+    private int zIndex;
 
-  private InitInfo initInfo;
-  private List<LayerBlock> layerBlocks;
-  private List<Use> useList;
-  private BodyDef.BodyType bodyType;
-  private SpecialEntityType specialEntityType;
-  private String name;
-  private Vector2 center;
-  private String uniqueId;
-  private boolean mirrored;
+    private InitInfo initInfo;
+    private List<LayerBlock> layerBlocks;
+    private List<Use> useList;
+    private BodyDef.BodyType bodyType;
+    private SpecialEntityType specialEntityType;
+    private String name;
+    private Vector2 center;
+    private String uniqueId;
+    private boolean mirrored;
 
-  @SuppressWarnings("unused")
-  GameEntitySerializer() {}
-
-  GameEntitySerializer(GameEntity gameEntity) {
-    this.layerBlocks = gameEntity.getBlocks();
-    this.initInfo = gameEntity.getCreationInitInfo();
-    this.bodyType = gameEntity.getBodyType();
-    this.name = gameEntity.getName();
-    this.uniqueId = gameEntity.getUniqueID();
-    this.zIndex = gameEntity.getMesh().getZIndex();
-    this.mirrored = gameEntity.isMirrored();
-    this.center = gameEntity.getCenter();
-    this.specialEntityType = gameEntity.getType();
-    this.useList = gameEntity.getUseList();
-    this.useList.stream().filter(e->e instanceof MeleeUse).map(e->(MeleeUse)e).forEach(MeleeUse::prepareToSerialize);
-    this.layerBlocks.forEach(b-> b.getAssociatedBlocks().stream().filter(e->e instanceof JointBlock).map(e->(JointBlock)e).filter(
-            j->j.isNotAborted()&&j.getBrother()!=null
-    ).forEach(
-            JointBlock::generateJointInfo));
-
-  }
-
-  public void afterLoad() {
-    for (LayerBlock layerBlock : this.layerBlocks) {
-      layerBlock.refillGrid();
+    @SuppressWarnings("unused")
+    GameEntitySerializer() {
     }
-  }
 
-  public GameEntity create() {
-    BodyInit bodyInit = getBodyInit();
-    return GameEntityFactory.getInstance()
-        .createGameEntity(
-            initInfo.getX(),
-            initInfo.getY(),
-            initInfo.getAngle(),
-            mirrored,
-            bodyInit,
-            layerBlocks,
-            bodyType,
-            name);
-  }
+    GameEntitySerializer(GameEntity gameEntity) {
+        this.layerBlocks = gameEntity.getBlocks();
+        this.initInfo = gameEntity.getCreationInitInfo();
+        this.bodyType = gameEntity.getBodyType();
+        this.name = gameEntity.getName();
+        this.uniqueId = gameEntity.getUniqueID();
+        this.zIndex = gameEntity.getMesh().getZIndex();
+        this.mirrored = gameEntity.isMirrored();
+        this.center = gameEntity.getCenter();
+        this.specialEntityType = gameEntity.getType();
+        this.useList = gameEntity.getUseList();
+        this.useList.stream().filter(e -> e instanceof MeleeUse).map(e -> (MeleeUse) e).forEach(MeleeUse::prepareToSerialize);
+        this.layerBlocks.forEach(b -> b.getAssociatedBlocks().stream().filter(e -> e instanceof JointBlock).map(e -> (JointBlock) e).filter(
+                j -> j.isNotAborted() && j.getBrother() != null
+        ).forEach(
+                JointBlock::generateJointInfo));
 
-  private BodyInit getBodyInit() {
-    BodyInit bodyInit;
-    BodyInitImpl bodyInitImpl = new BodyInitImpl(initInfo.getFilter());
-    bodyInit = new BulletInit(bodyInitImpl, initInfo.isBullet());
-    bodyInit = new TransformInit(bodyInit, initInfo.getX(), initInfo.getY(), initInfo.getAngle());
-    if (initInfo.getLinearVelocity() != null) {
-      bodyInit = new LinearVelocityInit(bodyInit, initInfo.getLinearVelocity());
     }
-    if (initInfo.getAngularVelocity() != 0) {
-      bodyInit = new AngularVelocityInit(bodyInit, initInfo.getAngularVelocity());
-    }
-    if (initInfo.getMuzzleVelocity() != null) {
-      bodyInit =
-          new RecoilInit(
-              bodyInit,
-              null,
-              initInfo.getRecoil(),
-              initInfo.getMuzzleVelocity(),
-              initInfo.getPoint());
-    }
-    return bodyInit;
-  }
 
-  public void afterCreate(GameEntity gameEntity) {
-    gameEntity.setCenter(this.center);
-    gameEntity.redrawStains();
-    gameEntity.setUniqueId(this.uniqueId);
-    gameEntity.setType(this.specialEntityType);
-    entities.put(gameEntity.getUniqueID(), gameEntity);
-    gameEntity.setUseList(useList);
-    gameEntity.getMesh().setZIndex(this.zIndex);
-  }
+    public void afterLoad() {
+        for (LayerBlock layerBlock : this.layerBlocks) {
+            layerBlock.refillGrid();
+        }
+    }
 
-  @SuppressWarnings("unused")
-  public void setLayerBlocks(ArrayList<LayerBlock> layerBlocks) {
-    this.layerBlocks = layerBlocks;
-  }
+    public GameEntity create() {
+        BodyInit bodyInit = getBodyInit();
+        return GameEntityFactory.getInstance()
+                .createGameEntity(
+                        initInfo.getX(),
+                        initInfo.getY(),
+                        initInfo.getAngle(),
+                        mirrored,
+                        bodyInit,
+                        layerBlocks,
+                        bodyType,
+                        name);
+    }
+
+    private BodyInit getBodyInit() {
+        BodyInit bodyInit;
+        BodyInitImpl bodyInitImpl = new BodyInitImpl(initInfo.getFilter());
+        bodyInit = new BulletInit(bodyInitImpl, initInfo.isBullet());
+        bodyInit = new TransformInit(bodyInit, initInfo.getX(), initInfo.getY(), initInfo.getAngle());
+        if (initInfo.getLinearVelocity() != null) {
+            bodyInit = new LinearVelocityInit(bodyInit, initInfo.getLinearVelocity());
+        }
+        if (initInfo.getAngularVelocity() != 0) {
+            bodyInit = new AngularVelocityInit(bodyInit, initInfo.getAngularVelocity());
+        }
+        if (initInfo.getMuzzleVelocity() != null) {
+            bodyInit =
+                    new RecoilInit(
+                            bodyInit,
+                            null,
+                            initInfo.getRecoil(),
+                            initInfo.getMuzzleVelocity(),
+                            initInfo.getPoint());
+        }
+        return bodyInit;
+    }
+
+    public void afterCreate(GameEntity gameEntity) {
+        gameEntity.setCenter(this.center);
+        gameEntity.redrawStains();
+        gameEntity.setUniqueId(this.uniqueId);
+        gameEntity.setType(this.specialEntityType);
+        entities.put(gameEntity.getUniqueID(), gameEntity);
+        gameEntity.setUseList(useList);
+        gameEntity.getMesh().setZIndex(this.zIndex);
+    }
+
+    @SuppressWarnings("unused")
+    public void setLayerBlocks(ArrayList<LayerBlock> layerBlocks) {
+        this.layerBlocks = layerBlocks;
+    }
 }

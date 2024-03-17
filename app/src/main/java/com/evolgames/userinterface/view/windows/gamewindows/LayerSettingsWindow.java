@@ -8,42 +8,44 @@ import com.evolgames.userinterface.view.windows.windowfields.SimpleTitleField;
 
 public class LayerSettingsWindow extends SettingsWindow {
 
-  public LayerSettingsWindow(float pX, float pY, LayerSettingsWindowController controller) {
-    super(pX, pY, 10, 8, controller);
-    SimpleTitleField titleField = new SimpleTitleField("Layer Settings:");
-    titleField.setPadding(5);
-    addPrimary(titleField);
-    controller.init();
+    public LayerSettingsWindow(float pX, float pY, LayerSettingsWindowController controller) {
+        super(pX, pY, 10, 8, controller);
+        SimpleTitleField titleField = new SimpleTitleField("Layer Settings:");
+        titleField.setPadding(5);
+        addPrimary(titleField);
+        controller.init();
 
-    Panel mPanel = new Panel(0, -64, 4, true, true);
+        Panel mPanel = new Panel(0, -64, 4, true, true);
 
-    mPanel
-        .getCloseButton()
-        .setBehavior(
-            new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getCloseButton()) {
-              @Override
-              public void informControllerButtonClicked() {}
+        mPanel
+                .getCloseButton()
+                .setBehavior(
+                        new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getCloseButton()) {
+                            @Override
+                            public void informControllerButtonClicked() {
+                            }
 
-              @Override
-              public void informControllerButtonReleased() {
-                controller.onCancelSettings();
-              }
-            });
+                            @Override
+                            public void informControllerButtonReleased() {
+                                controller.onCancelSettings();
+                            }
+                        });
 
-    mPanel
-        .getAcceptButton()
-        .setBehavior(
-            new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getAcceptButton()) {
-              @Override
-              public void informControllerButtonClicked() {}
+        mPanel
+                .getAcceptButton()
+                .setBehavior(
+                        new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getAcceptButton()) {
+                            @Override
+                            public void informControllerButtonClicked() {
+                            }
 
-              @Override
-              public void informControllerButtonReleased() {
-                controller.onSubmitSettings();
-              }
-            });
+                            @Override
+                            public void informControllerButtonReleased() {
+                                controller.onSubmitSettings();
+                            }
+                        });
 
-    mPanel.setLowerBottomX(getWidth() / 2 - mPanel.getWidth() / 2);
-    addElement(mPanel);
-  }
+        mPanel.setLowerBottomX(getWidth() / 2 - mPanel.getWidth() / 2);
+        addElement(mPanel);
+    }
 }

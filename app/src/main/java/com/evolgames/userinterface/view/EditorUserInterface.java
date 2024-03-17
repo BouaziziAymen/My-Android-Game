@@ -1,11 +1,10 @@
 package com.evolgames.userinterface.view;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.scenes.EditorScene;
-import com.evolgames.scenes.MainScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationZoneController;
@@ -957,12 +956,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         }
         toolModel.updateMesh();
         for (SquareProperties squareProperties : toolModel.getColorPanelProperties().getSquarePropertiesList()) {
-            colorSelectorWindowController.addColorToPanel(squareProperties.getColor(),false);
+            colorSelectorWindowController.addColorToPanel(squareProperties.getColor(), false);
         }
         layersWindowController.init();
         outlineController.init();
         itemWindowController.init();
         jointsWindowController.init();
+        itemSaveWindowController.onModelUpdated(toolModel);
         addImage();
     }
 
@@ -972,13 +972,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     @Override
     public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
-        if(interactionLocked){
+        if (interactionLocked) {
             return;
         }
         creationZone.onTouchScene(pTouchEvent, scroll);
         if (creationZoneController.getAction() == CreationZoneController.CreationAction.PIPING
                 && imageShape != null) {
-            Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), (int) (10/getZoomFactor()));
+            Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), (int) (10 / getZoomFactor()));
             if (color != null) {
                 optionsWindowController.updatePipeColor(color);
             }
@@ -987,7 +987,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     @Override
     public boolean onTouchHud(TouchEvent pTouchEvent) {
-        if (!creationZone.isTouchLocked()&&!interactionLocked) {
+        if (!creationZone.isTouchLocked() && !interactionLocked) {
             return super.onTouchHud(pTouchEvent);
         }
         return false;
@@ -1022,7 +1022,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
         if (region != null) {
             if (toolModel.getImageShapeModel() == null) {
-                toolModel.setImageShapeModel(new ImageShapeModel(0,400,240,region.getWidth(),region.getHeight()));
+                toolModel.setImageShapeModel(new ImageShapeModel(0, 400, 240, region.getWidth(), region.getHeight()));
             }
             imageShape = new ImageShape(scene, toolModel.getImageShapeModel());
             addElement(imageShape);
@@ -1142,6 +1142,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void lockInteraction() {
         this.interactionLocked = true;
     }
+
     public void unlockInteraction() {
         this.interactionLocked = false;
     }

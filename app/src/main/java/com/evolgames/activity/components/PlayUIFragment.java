@@ -26,7 +26,7 @@ import java.util.Map;
 public class PlayUIFragment extends Fragment {
     private ExpandableListView itemsExpandableListView;
     private TouchHoldState touchHoldState = TouchHoldState.TOUCH;
-    private GameImageButton usesButton,touchHoldButton,weaponsButton,mirrorButton;
+    private GameImageButton usesButton, touchHoldButton, weaponsButton, mirrorButton;
     private RecyclerView optionsRecyclerView;
     private OptionsListAdaptor optionsListAdaptor;
     private ExpandableListViewAdaptor expandableListViewAdaptor;
@@ -40,12 +40,12 @@ public class PlayUIFragment extends Fragment {
         touchHoldState = TouchHoldState.TOUCH;
         touchHoldButton.setIcon(R.drawable.drag_icon);
         usesButton.setState(Button.State.NORMAL);
-        optionsListAdaptor.setPlayerSpecialActionList(new ArrayList<>(),null);
+        optionsListAdaptor.setPlayerSpecialActionList(new ArrayList<>(), null);
         optionsRecyclerView.setVisibility(View.GONE);
         itemsExpandableListView.setVisibility(View.GONE);
         weaponsButton.setState(Button.State.NORMAL);
         for (int i = 0; i < expandableListViewAdaptor.getGroupCount(); i++) {
-            if(itemsExpandableListView.isGroupExpanded(i)) {
+            if (itemsExpandableListView.isGroupExpanded(i)) {
                 itemsExpandableListView.collapseGroup(i);
             }
         }
@@ -88,8 +88,8 @@ public class PlayUIFragment extends Fragment {
     }
 
     private void setupMirrorButton(GameImageButton mirrorButton) {
-        mirrorButton.setOnReleased(()->{
-            ((GameActivity)getActivity()).getUiController().onMirrorButtonClicked();
+        mirrorButton.setOnReleased(() -> {
+            ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked();
         });
     }
 

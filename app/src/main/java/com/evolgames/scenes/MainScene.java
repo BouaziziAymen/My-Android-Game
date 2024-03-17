@@ -103,7 +103,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
     public void goToScene(SceneType sceneType) {
         changeScene(sceneType, true);
         this.saveStringToPreferences("SCENE", "");
-        this.scene.createUserInterface();
+        scene.createUserInterface();
     }
 
 

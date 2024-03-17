@@ -1,6 +1,8 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.BodyProperties;
+import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
@@ -17,14 +19,12 @@ import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
@@ -114,77 +114,77 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         updateScroller();
     }
 
-  private void updateUsageCategoryFields(BodyUsageCategory usageCategory) {
-    switch (usageCategory) {
-      case SHOOTER:
-        UsageModel<ShooterProperties> manualUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        ShooterProperties manualProps = manualUsageModel.getProperties();
-        setReloadTime(manualProps.getReloadTime());
-        setNumberOfRounds(manualProps.getNumberOfRounds());
-        break;
-      case SHOOTER_CONTINUOUS:
-        UsageModel<ContinuousShooterProperties> automaticUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        ContinuousShooterProperties autoProps = automaticUsageModel.getProperties();
-        setFireRate(autoProps.getFireRate());
-        setNumberOfRounds(autoProps.getNumberOfRounds());
-        setReloadTime(autoProps.getReloadTime());
-        break;
-      case TIME_BOMB:
-        UsageModel<TimeBombUsageProperties> timeBombUsagePropertiesUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        TimeBombUsageProperties timeBombUsageProperties =
-            timeBombUsagePropertiesUsageModel.getProperties();
-        setBombDelay(timeBombUsageProperties.getDelay());
-        break;
-      case FUZE_BOMB:
-        UsageModel<FuzeBombUsageProperties> fuzeBombUsagePropertiesUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        FuzeBombUsageProperties fuzeBombUsageProperties =
-            fuzeBombUsagePropertiesUsageModel.getProperties();
-        setBombDelay(fuzeBombUsageProperties.getDelay());
-        break;
-      case IMPACT_BOMB:
-        UsageModel<ImpactBombUsageProperties> impactBombUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        ImpactBombUsageProperties impactBombUsageProperties = impactBombUsageModel.getProperties();
-        setBombDelay(impactBombUsageProperties.getDelay());
-        setBombMinImpact(impactBombUsageProperties.getMinImpact());
-        break;
-      case SLASHER:
-        UsageModel<SlashProperties> slashPropertiesUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
-        // setSlashSpeed(slashUsageProperties.getSpeed());
-        break;
-      case BLUNT:
-        break;
-      case STABBER:
-        break;
-      case THROWING:
-        break;
-      case FLAME_THROWER:
-        break;
-      case ROCKET:
-        UsageModel<RocketProperties> rocketPropertiesUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        RocketProperties rocketProperties = rocketPropertiesUsageModel.getProperties();
-        setRocketPower(rocketProperties.getPower());
-        setFuel(rocketProperties.getFuel());
-        break;
-      case MISSILE:
-        UsageModel<MissileProperties> missilePropertiesUsageModel =
-            this.bodyModel.getUsageModel(usageCategory);
-        MissileProperties missileProperties = missilePropertiesUsageModel.getProperties();
-        setRocketPower(missileProperties.getPower());
-        setFuel(missileProperties.getFuel());
-        setMissileControl(missileProperties.getControl());
-        break;
-      case LIQUID_CONTAINER:
-        UsageModel<LiquidContainerProperties> liquidContainerPropertiesUsageModel =
-                this.bodyModel.getUsageModel(usageCategory);
-        LiquidContainerProperties liquidContainerProperties = liquidContainerPropertiesUsageModel.getProperties();
+    private void updateUsageCategoryFields(BodyUsageCategory usageCategory) {
+        switch (usageCategory) {
+            case SHOOTER:
+                UsageModel<ShooterProperties> manualUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                ShooterProperties manualProps = manualUsageModel.getProperties();
+                setReloadTime(manualProps.getReloadTime());
+                setNumberOfRounds(manualProps.getNumberOfRounds());
+                break;
+            case SHOOTER_CONTINUOUS:
+                UsageModel<ContinuousShooterProperties> automaticUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                ContinuousShooterProperties autoProps = automaticUsageModel.getProperties();
+                setFireRate(autoProps.getFireRate());
+                setNumberOfRounds(autoProps.getNumberOfRounds());
+                setReloadTime(autoProps.getReloadTime());
+                break;
+            case TIME_BOMB:
+                UsageModel<TimeBombUsageProperties> timeBombUsagePropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                TimeBombUsageProperties timeBombUsageProperties =
+                        timeBombUsagePropertiesUsageModel.getProperties();
+                setBombDelay(timeBombUsageProperties.getDelay());
+                break;
+            case FUZE_BOMB:
+                UsageModel<FuzeBombUsageProperties> fuzeBombUsagePropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                FuzeBombUsageProperties fuzeBombUsageProperties =
+                        fuzeBombUsagePropertiesUsageModel.getProperties();
+                setBombDelay(fuzeBombUsageProperties.getDelay());
+                break;
+            case IMPACT_BOMB:
+                UsageModel<ImpactBombUsageProperties> impactBombUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                ImpactBombUsageProperties impactBombUsageProperties = impactBombUsageModel.getProperties();
+                setBombDelay(impactBombUsageProperties.getDelay());
+                setBombMinImpact(impactBombUsageProperties.getMinImpact());
+                break;
+            case SLASHER:
+                UsageModel<SlashProperties> slashPropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
+                // setSlashSpeed(slashUsageProperties.getSpeed());
+                break;
+            case BLUNT:
+                break;
+            case STABBER:
+                break;
+            case THROWING:
+                break;
+            case FLAME_THROWER:
+                break;
+            case ROCKET:
+                UsageModel<RocketProperties> rocketPropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                RocketProperties rocketProperties = rocketPropertiesUsageModel.getProperties();
+                setRocketPower(rocketProperties.getPower());
+                setFuel(rocketProperties.getFuel());
+                break;
+            case MISSILE:
+                UsageModel<MissileProperties> missilePropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                MissileProperties missileProperties = missilePropertiesUsageModel.getProperties();
+                setRocketPower(missileProperties.getPower());
+                setFuel(missileProperties.getFuel());
+                setMissileControl(missileProperties.getControl());
+                break;
+            case LIQUID_CONTAINER:
+                UsageModel<LiquidContainerProperties> liquidContainerPropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                LiquidContainerProperties liquidContainerProperties = liquidContainerPropertiesUsageModel.getProperties();
 
                 break;
             case ROCKET_LAUNCHER:
@@ -254,23 +254,23 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void setReloadTime(float reloadTime) {
         rangedManualReloadTimeTextField
                 .getBehavior()
-                .setTextValidated("" + Float.valueOf(reloadTime).intValue());
+                .setTextValidated(String.valueOf(Float.valueOf(reloadTime).intValue()));
     }
 
     private void setFuel(int fuel) {
-        rocketFuelTextField.getBehavior().setTextValidated("" + fuel);
+        rocketFuelTextField.getBehavior().setTextValidated(String.valueOf(fuel));
     }
 
     private void setBombDelay(float delay) {
-        bombDelayTextField.getBehavior().setTextValidated("" + delay);
+        bombDelayTextField.getBehavior().setTextValidated(String.valueOf(delay));
     }
 
     private void setBombMinImpact(float delay) {
-        bombMinImpactTextField.getBehavior().setTextValidated("" + delay);
+        bombMinImpactTextField.getBehavior().setTextValidated(String.valueOf(delay));
     }
 
     private void setNumberOfRounds(int rounds) {
-        roundsTextField.getBehavior().setTextValidated("" + rounds);
+        roundsTextField.getBehavior().setTextValidated(String.valueOf(rounds));
     }
 
     private void setBodyName(String bodyName) {

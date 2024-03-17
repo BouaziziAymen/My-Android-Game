@@ -4,8 +4,10 @@ import com.evolgames.userinterface.control.Controller;
 
 public class UsageButtonsController extends Controller {
 
-  public UsageButtonsController() {}
+    public UsageButtonsController() {
+    }
 
-  @Override
-  public void init() {}
+    @Override
+    public void init() {
+    }
 }

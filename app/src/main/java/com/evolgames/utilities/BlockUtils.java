@@ -999,12 +999,12 @@ public class BlockUtils {
 
             ArrayList<Vector2> list = Utils.translatedPoints(layerPointsArray, center);
             LayerProperties layerProperties = layerProperty.copy();
-            if(!layerModel.isShow()){
+            if (!layerModel.isShow()) {
                 layerProperties.setDefaultColor(Color.TRANSPARENT);
             }
             LayerBlock block =
                     BlockFactory.createLayerBlock(
-                            list,layerProperties,
+                            list, layerProperties,
                             layerModel.getLayerId(),
                             layerModels.indexOf(layerModel));
             blocks.add(block);

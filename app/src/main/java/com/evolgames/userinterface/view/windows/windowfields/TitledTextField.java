@@ -4,13 +4,13 @@ import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowContr
 import com.evolgames.userinterface.view.inputs.TextField;
 
 public class TitledTextField<C extends AdvancedWindowController<?>>
-    extends TitledField<TextField<C>> {
+        extends TitledField<TextField<C>> {
 
-  public TitledTextField(String titleString, int length) {
-    super(titleString, new TextField<>(length));
-  }
+    public TitledTextField(String titleString, int length) {
+        super(titleString, new TextField<>(length));
+    }
 
-  public TitledTextField(String titleString, int length, float margin, float minX) {
-    super(titleString, new TextField<>(length), margin, minX);
-  }
+    public TitledTextField(String titleString, int length, float margin, float minX) {
+        super(titleString, new TextField<>(length), margin, minX);
+    }
 }

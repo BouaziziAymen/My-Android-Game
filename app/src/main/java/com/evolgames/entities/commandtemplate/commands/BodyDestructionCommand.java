@@ -40,7 +40,7 @@ public class BodyDestructionCommand extends Command {
     @Override
     protected void run() {
         destroy(entity.getBody());
-        if(entity.getMirrorBody()!=null) {
+        if (entity.getMirrorBody() != null) {
             destroy(entity.getMirrorBody());
         }
 

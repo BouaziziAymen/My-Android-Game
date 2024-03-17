@@ -7,61 +7,63 @@ import com.evolgames.userinterface.view.layouts.LinearLayout;
 
 public class TitledField<A extends Element> extends LinearLayout {
 
-  private final A mAttachment;
+    private final A mAttachment;
 
-  public TitledField(String titleString, A attachment) {
-    this(titleString, attachment, 10);
-  }
-  public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst, int fontId) {
-    super(LinearLayout.Direction.Horizontal, margin);
-    this.mAttachment = attachment;
-    Text title = new Text(titleString, fontId);
-    title.setLowerBottomY(attachment.getHeight() / 2);
-    if (attachmentFirst) {
-      addToLayout(attachment);
-      addToLayout(title);
-    } else {
-      addToLayout(title);
-      addToLayout(attachment);
+    public TitledField(String titleString, A attachment) {
+        this(titleString, attachment, 10);
     }
-    float maxY =
-            Math.max(
-                    title.getLowerBottomY() + title.getHeight(),
-                    attachment.getLowerBottomY() + attachment.getHeight());
-    float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
-    setHeight(maxY - minY);
-  }
-  public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst) {
-  this(titleString,attachment,margin,attachmentFirst,2);
-  }
 
-  public TitledField(String titleString, A attachment, float margin) {
-    this(titleString, attachment, margin, false);
-  }
+    public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst, int fontId) {
+        super(LinearLayout.Direction.Horizontal, margin);
+        this.mAttachment = attachment;
+        Text title = new Text(titleString, fontId);
+        title.setLowerBottomY(attachment.getHeight() / 2);
+        if (attachmentFirst) {
+            addToLayout(attachment);
+            addToLayout(title);
+        } else {
+            addToLayout(title);
+            addToLayout(attachment);
+        }
+        float maxY =
+                Math.max(
+                        title.getLowerBottomY() + title.getHeight(),
+                        attachment.getLowerBottomY() + attachment.getHeight());
+        float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
+        setHeight(maxY - minY);
+    }
 
-  TitledField(String titleString, A attachment, float margin, float minX) {
-    super(LinearLayout.Direction.Horizontal, margin);
-    this.mAttachment = attachment;
-    Text title = new Text(titleString, 2);
-    title.setLowerBottomY(attachment.getHeight() / 2);
+    public TitledField(String titleString, A attachment, float margin, boolean attachmentFirst) {
+        this(titleString, attachment, margin, attachmentFirst, 2);
+    }
 
-    addToLayout(title);
-    addToLayout(attachment);
-    float maxY =
-        Math.max(
-            title.getLowerBottomY() + title.getHeight(),
-            attachment.getLowerBottomY() + attachment.getHeight());
-    float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
-    setHeight(maxY - minY);
-    attachment.setLowerBottomX(minX);
-  }
+    public TitledField(String titleString, A attachment, float margin) {
+        this(titleString, attachment, margin, false);
+    }
 
-  public A getAttachment() {
-    return mAttachment;
-  }
+    TitledField(String titleString, A attachment, float margin, float minX) {
+        super(LinearLayout.Direction.Horizontal, margin);
+        this.mAttachment = attachment;
+        Text title = new Text(titleString, 2);
+        title.setLowerBottomY(attachment.getHeight() / 2);
 
-  @Override
-  public void setErrorDisplay(ErrorDisplay errorDisplay) {
-    getAttachment().setErrorDisplay(errorDisplay);
-  }
+        addToLayout(title);
+        addToLayout(attachment);
+        float maxY =
+                Math.max(
+                        title.getLowerBottomY() + title.getHeight(),
+                        attachment.getLowerBottomY() + attachment.getHeight());
+        float minY = Math.min(title.getLowerBottomY(), attachment.getLowerBottomY());
+        setHeight(maxY - minY);
+        attachment.setLowerBottomX(minX);
+    }
+
+    public A getAttachment() {
+        return mAttachment;
+    }
+
+    @Override
+    public void setErrorDisplay(ErrorDisplay errorDisplay) {
+        getAttachment().setErrorDisplay(errorDisplay);
+    }
 }

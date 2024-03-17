@@ -49,15 +49,16 @@ import com.evolgames.entities.cut.Segment;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
+import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -83,7 +84,6 @@ import com.evolgames.physics.entities.explosions.ImpactInterface;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.entities.hand.Hand;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MathUtils;
@@ -319,9 +319,9 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         int lowerRate =
-                (int) (10*layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
+                (int) (10 * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
         int higherRate =
-                (int) (10*layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
+                (int) (10 * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
@@ -358,7 +358,7 @@ public class WorldFacade implements ContactObserver {
                     parentEntity,
                     new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y},
                     sfc.getSplashVelocity(),
-                    color,flammability,
+                    color, flammability,
                     lowerRate,
                     higherRate);
 
@@ -371,7 +371,7 @@ public class WorldFacade implements ContactObserver {
                     Utils.mapWeightsToArray(
                             pfc.getPoints().stream().map(CutPoint::getWeight).collect(Collectors.toList()));
             return new ClusterLiquidParticleWrapper(
-                    parentEntity, color,flammability, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
+                    parentEntity, color, flammability, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
     }
 
@@ -461,11 +461,11 @@ public class WorldFacade implements ContactObserver {
     public LiquidParticleWrapper createLiquidParticleWrapper(
             GameEntity parentEntity,
             final FreshCut freshCut,
-            Color color,float flammability,
+            Color color, float flammability,
             int lowerRate,
             int higherRate) {
         LiquidParticleWrapper liquidSource =
-                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color,flammability, lowerRate, higherRate);
+                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, flammability, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
         scene.attachChild(liquidSource.getParticleSystem());
@@ -704,7 +704,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(10f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(grain.getProperties().getHeatResistance(), PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
@@ -747,6 +747,9 @@ public class WorldFacade implements ContactObserver {
                         Math.sqrt(
                                 normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
 
+        if (entity1.getParentGroup() == entity2.getParentGroup()) {
+            return;
+        }
         computeShatterImpact(contact, impulseValue, entity1, entity2);
     }
 
@@ -774,6 +777,9 @@ public class WorldFacade implements ContactObserver {
             return;
         }
 
+        if (entity1.getParentGroup() == entity2.getParentGroup()) {
+            return;
+        }
         if (entity1.hasActiveUsage(Penetrating.class) == entity2.hasActiveUsage(Penetrating.class)) {
             return;
         }
@@ -1008,7 +1014,7 @@ public class WorldFacade implements ContactObserver {
             }
 
 
-            if (step>100) {
+            if (step > 100) {
                 break;
             }
             if (step % 100 == 0) {
@@ -1483,7 +1489,7 @@ public class WorldFacade implements ContactObserver {
             Color skin = new Color(layerBlock.getProperties().getDefaultColor());
             skin.setAlpha(0.5f);
             MyColorUtils.blendColors(color, color, skin);
-            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 0f,14, false);
+            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 0f, 14, false);
         }
         gameEntity.redrawStains();
     }
@@ -1501,10 +1507,10 @@ public class WorldFacade implements ContactObserver {
             float x,
             float y,
             LayerBlock concernedBlock,
-            Color color,float flammability,
+            Color color, float flammability,
             int index,
             boolean superpose) {
-        return applyStain(gameEntity, x, y, concernedBlock, color,flammability, index, superpose);
+        return applyStain(gameEntity, x, y, concernedBlock, color, flammability, index, superpose);
     }
 
     public boolean applyStain(
@@ -1521,7 +1527,7 @@ public class WorldFacade implements ContactObserver {
         float angle = random.nextInt(360);
         StainBlock stainBlock =
                 BlockFactory.createStainBlock(
-                        localPosition, angle, concernedBlock.getVertices(), index, color,flammability);
+                        localPosition, angle, concernedBlock.getVertices(), index, color, flammability);
 
         if (stainBlock != null
                 && stainBlock.isNotAborted()

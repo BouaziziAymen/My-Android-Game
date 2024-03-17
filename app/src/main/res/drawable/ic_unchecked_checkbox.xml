@@ -1,0 +1,7 @@
+<!-- res/drawable/ic_unchecked_checkbox.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <size android:width="36dp" android:height="36dp"/>
+    <solid android:color="@android:color/transparent"/>
+    <stroke android:width="2dp" android:color="@color/styleRedColor"/>
+    <corners android:radius="4dp"/>
+</shape>

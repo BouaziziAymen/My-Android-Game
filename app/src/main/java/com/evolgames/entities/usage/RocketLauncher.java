@@ -11,10 +11,8 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
-import com.evolgames.scenes.PlayScene;
-import com.evolgames.utilities.GeometryUtils;
-import com.evolgames.utilities.ToolUtils;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.usage.RocketLauncherProperties;
@@ -22,17 +20,17 @@ import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
-import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.ToolUtils;
 
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +57,7 @@ public class RocketLauncher extends Use {
         RocketLauncherProperties rocketLauncherProperties = (RocketLauncherProperties) rangedUsageModel.getProperties();
         this.projectileInfoList =
                 rocketLauncherProperties.getProjectileModelList().stream()
-                        .map(m->m.toProjectileInfo(mirrored))
+                        .map(m -> m.toProjectileInfo(mirrored))
                         .collect(Collectors.toList());
         createFireSources(worldFacade);
         this.reloadTime = rocketLauncherProperties.getReloadTime();
@@ -75,7 +73,9 @@ public class RocketLauncher extends Use {
 
 
     public void onTriggerPulled() {
-        if(loading){return;}
+        if (loading) {
+            return;
+        }
         this.loading = true;
         this.loadingTimer = 0;
         for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
@@ -88,7 +88,7 @@ public class RocketLauncher extends Use {
         if (!initialized) {
             loadRockets(worldFacade);
         }
-        if(this.projInfFireSourceMap!=null) {
+        if (this.projInfFireSourceMap != null) {
             for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
                 explosiveParticleWrapper.setSpawnEnabled(false);
             }
@@ -98,7 +98,7 @@ public class RocketLauncher extends Use {
             if (this.loadingTimer > this.reloadTime) {
                 this.loading = false;
                 loadRockets(worldFacade);
-                ((PlayScene)worldFacade.getPhysicsScene()).onUsagesUpdated();
+                ((PlayScene) worldFacade.getPhysicsScene()).onUsagesUpdated();
                 // Reload finished
             }
         }
@@ -106,7 +106,7 @@ public class RocketLauncher extends Use {
 
     private void loadRockets(WorldFacade worldFacade) {
         this.rockets = new HashMap<>();
-        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).allMatch(entity -> entity!=null&&entity.getBody()!=null);
+        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).allMatch(entity -> entity != null && entity.getBody() != null);
         if (allBodiesReady) {
             initialized = true;
             for (ProjectileInfo projectileInfo : projectileInfoList) {
@@ -122,7 +122,7 @@ public class RocketLauncher extends Use {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
 
         GameEntity rocketEntity = Objects.requireNonNull(rockets.get(projectileInfo)).rocketBodyEntity;
-        if(rocketEntity.getBody()==null){
+        if (rocketEntity.getBody() == null) {
             return;
         }
         GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
@@ -153,7 +153,7 @@ public class RocketLauncher extends Use {
                         .getWorldPoint(projectileInfo.getProjectileOrigin())
                         .cpy();
         Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
-        float muzzleVelocity =  rockets.get(projectileInfo).getPower()*FORCE_FACTOR;
+        float muzzleVelocity = rockets.get(projectileInfo).getPower() * FORCE_FACTOR;
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
 
         Vector2 impulse =
@@ -166,7 +166,8 @@ public class RocketLauncher extends Use {
         ToolModel rocketModel;
         try {
             rocketModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile());
-        } catch (PersistenceException | IOException | ParserConfigurationException | SAXException e) {
+        } catch (PersistenceException | IOException | ParserConfigurationException |
+                 SAXException e) {
             return;
         }
         GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
@@ -174,7 +175,7 @@ public class RocketLauncher extends Use {
         Vector2 end = projectileInfo.getProjectileEnd();
         Vector2 localDir = end.cpy().sub(projectileInfo.getProjectileOrigin()).nor();
         Vector2 worldDir = muzzleEntity.getBody().getWorldVector(localDir);
-        float worldAngle = GeometryUtils.calculateAngleRadians(worldDir.x,worldDir.y);
+        float worldAngle = GeometryUtils.calculateAngleRadians(worldDir.x, worldDir.y);
         Filter projectileFilter = new Filter();
         Vector2 worldEnd = muzzleEntity.getBody().getWorldPoint(end).cpy().mul(32f);
         projectileFilter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
@@ -184,8 +185,8 @@ public class RocketLauncher extends Use {
         rocketModel.getBodies().forEach(bodyModel -> bodyModel.setBullet(true));
         JointModel jointModel = new JointModel(rocketModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
 
-        Log.e("Rocket",""+muzzleEntity.isMirrored());
-        GameGroup rocketGroup = physicsScene.createItem(worldEnd.x,worldEnd.y,worldAngle,rocketModel,muzzleEntity.isMirrored());
+        Log.e("Rocket", String.valueOf(muzzleEntity.isMirrored()));
+        GameGroup rocketGroup = physicsScene.createItem(worldEnd.x, worldEnd.y, worldAngle, rocketModel, muzzleEntity.isMirrored());
         GameEntity rocketEntity = rocketGroup.getGameEntityByIndex(0);
         BodyModel bodyModel1 = new BodyModel(0);
         BodyModel bodyModel2 = new BodyModel(1);
@@ -193,15 +194,15 @@ public class RocketLauncher extends Use {
         jointModel.setBodyModel2(bodyModel2);
         jointModel.getLocalAnchorA().set(end.cpy().mul(32f).add(muzzleEntity.getCenter()));
         jointModel.getLocalAnchorB().set(rocketEntity.getCenter());
-        float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y)+(!muzzleEntity.isMirrored()?Math.PI:0));
+        float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y) + (!muzzleEntity.isMirrored() ? Math.PI : 0));
         jointModel.setReferenceAngle(angle);
 
         bodyModel1.setGameEntity(muzzleEntity);
         bodyModel2.setGameEntity(rocketEntity);
-        physicsScene.createJointFromModel(jointModel,false);
+        physicsScene.createJointFromModel(jointModel, false);
         Rocket rocket = rocketEntity.getUsage(Rocket.class);
         this.rockets.put(projectileInfo, rocket);
-        rocketEntity.setZIndex(muzzleEntity.getMesh().getZIndex()-1);
+        rocketEntity.setZIndex(muzzleEntity.getMesh().getZIndex() - 1);
         physicsScene.getWorldFacade().addNonCollidingPair(rocketEntity, muzzleEntity);
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
         physicsScene.sortChildren();
@@ -209,7 +210,7 @@ public class RocketLauncher extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        if(!loading) {
+        if (!loading) {
             return Collections.singletonList(PlayerSpecialAction.Trigger);
         } else return null;
     }
@@ -235,7 +236,7 @@ public class RocketLauncher extends Use {
                                                         e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                         e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                         PhysicsConstants.getProjectileVelocity(-p.getMuzzleVelocity())
-                                                                /2f,
+                                                                / 2f,
                                                         p.getFireRatio(),
                                                         p.getSmokeRatio(),
                                                         p.getSparkRatio(),
@@ -244,7 +245,6 @@ public class RocketLauncher extends Use {
                                 fireSource.setSpawnEnabled(false);
                                 this.projInfFireSourceMap.put(p, fireSource);
                             }
-                            ;
                         });
     }
 

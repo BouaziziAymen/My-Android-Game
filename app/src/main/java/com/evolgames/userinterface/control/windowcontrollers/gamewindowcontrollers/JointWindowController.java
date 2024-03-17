@@ -10,110 +10,111 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointS
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.JointsWindow;
 import com.evolgames.userinterface.view.windows.windowfields.jointswindow.JointField;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class JointWindowController
-    extends ZeroLevelSectionedAdvancedWindowController<JointsWindow, JointField> {
+        extends ZeroLevelSectionedAdvancedWindowController<JointsWindow, JointField> {
 
-  private OutlineController outlineController;
-  private EditorUserInterface editorUserInterface;
-  private JointModel selectedJointModel;
-  private JointSettingsWindowController jointSettingsWindowController;
+    private OutlineController outlineController;
+    private EditorUserInterface editorUserInterface;
+    private JointModel selectedJointModel;
+    private JointSettingsWindowController jointSettingsWindowController;
 
-  public void setOutlineController(OutlineController outlineController) {
-    this.outlineController = outlineController;
-  }
-
-  public void setJointSettingsWindowController(
-      JointSettingsWindowController jointSettingsWindowController) {
-    this.jointSettingsWindowController = jointSettingsWindowController;
-  }
-
-  @Override
-  public void init() {
-    if (editorUserInterface.getToolModel() == null) {
-      return;
+    public void setOutlineController(OutlineController outlineController) {
+        this.outlineController = outlineController;
     }
-    ArrayList<JointModel> joints = editorUserInterface.getToolModel().getJoints();
-    for (int i = 0; i < joints.size(); i++) {
-      JointModel jointModel = joints.get(i);
-      onJointAdded(jointModel);
+
+    public void setJointSettingsWindowController(
+            JointSettingsWindowController jointSettingsWindowController) {
+        this.jointSettingsWindowController = jointSettingsWindowController;
     }
-  }
 
-  public void onResume() {
-    fold();
-  }
-
-  public void onJointAdded(JointModel jointModel) {
-    JointField jointField = window.addPrimary(jointModel.getJointId(), false);
-    jointField.getJointControl().updateState(Button.State.PRESSED);
-    onPrimaryButtonClicked(jointField);
-    super.onPrimaryAdded(jointField);
-  }
-
-  @Override
-  public void onPrimaryButtonClicked(JointField jointField) {
-    super.onPrimaryButtonClicked(jointField);
-    editorUserInterface.getToolModel().selectJoint(jointField.getPrimaryKey());
-    for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
-      JointField otherJointField = window.getLayout().getPrimaryByIndex(i);
-      if (otherJointField != null)
-        if (otherJointField != jointField) {
-          otherJointField.getJointControl().updateState(Button.State.NORMAL);
-          onPrimaryButtonReleased(otherJointField);
+    @Override
+    public void init() {
+        if (editorUserInterface.getToolModel() == null) {
+            return;
+        }
+        ArrayList<JointModel> joints = editorUserInterface.getToolModel().getJoints();
+        for (int i = 0; i < joints.size(); i++) {
+            JointModel jointModel = joints.get(i);
+            onJointAdded(jointModel);
         }
     }
-    JointModel jointModel =
-        editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
-    this.selectedJointModel = jointModel;
-    jointSettingsWindowController.updateBodySelectionFields();
-    jointSettingsWindowController.updateJointModel(jointModel);
-    jointField.showFields();
-    outlineController.onJointBodySelectionUpdated(
-        jointModel.getBodyModel1(), jointModel.getBodyModel2());
-  }
 
-  @Override
-  public void onPrimaryButtonReleased(JointField jointField) {
-    super.onPrimaryButtonReleased(jointField);
-    editorUserInterface.getToolModel().deselectJoint(jointField.getPrimaryKey());
-    jointField.hideFields();
-    outlineController.onJointBodySelectionUpdated(null, null);
-  }
-
-  public void onOptionButtonReleased(JointField jointField) {
-    jointSettingsWindowController.openWindow();
-    unfold();
-    JointModel jointModel =
-        editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
-    jointSettingsWindowController.updateJointModel(jointModel);
-  }
-
-  public void onRemoveButtonReleased(JointField jointField) {
-    JointModel jointModel =
-        editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
-    editorUserInterface.doWithConfirm(
-        String.format(Strings.JOINT_DELETE_CONFIRM, jointModel.getJointName()),
-        () -> {
-          editorUserInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
-          window.getLayout().removePrimary(jointField.getPrimaryKey());
-          updateLayout();
-          JointShape jointShape = jointModel.getJointShape();
-          jointShape.detach();
-          updateLayout();
-        });
-  }
-
-  public void setUserInterface(EditorUserInterface editorUserInterface) {
-    this.editorUserInterface = editorUserInterface;
-  }
-
-  public List<PointImage> getSelectedModelMovables(boolean moveLimits) {
-    if (selectedJointModel == null) {
-      return null;
+    public void onResume() {
+        fold();
     }
-    return selectedJointModel.getJointShape().getMovables(moveLimits);
-  }
+
+    public void onJointAdded(JointModel jointModel) {
+        JointField jointField = window.addPrimary(jointModel.getJointId(), false);
+        jointField.getJointControl().updateState(Button.State.PRESSED);
+        onPrimaryButtonClicked(jointField);
+        super.onPrimaryAdded(jointField);
+    }
+
+    @Override
+    public void onPrimaryButtonClicked(JointField jointField) {
+        super.onPrimaryButtonClicked(jointField);
+        editorUserInterface.getToolModel().selectJoint(jointField.getPrimaryKey());
+        for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
+            JointField otherJointField = window.getLayout().getPrimaryByIndex(i);
+            if (otherJointField != null)
+                if (otherJointField != jointField) {
+                    otherJointField.getJointControl().updateState(Button.State.NORMAL);
+                    onPrimaryButtonReleased(otherJointField);
+                }
+        }
+        JointModel jointModel =
+                editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
+        this.selectedJointModel = jointModel;
+        jointSettingsWindowController.updateBodySelectionFields();
+        jointSettingsWindowController.updateJointModel(jointModel);
+        jointField.showFields();
+        outlineController.onJointBodySelectionUpdated(
+                jointModel.getBodyModel1(), jointModel.getBodyModel2());
+    }
+
+    @Override
+    public void onPrimaryButtonReleased(JointField jointField) {
+        super.onPrimaryButtonReleased(jointField);
+        editorUserInterface.getToolModel().deselectJoint(jointField.getPrimaryKey());
+        jointField.hideFields();
+        outlineController.onJointBodySelectionUpdated(null, null);
+    }
+
+    public void onOptionButtonReleased(JointField jointField) {
+        jointSettingsWindowController.openWindow();
+        unfold();
+        JointModel jointModel =
+                editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
+        jointSettingsWindowController.updateJointModel(jointModel);
+    }
+
+    public void onRemoveButtonReleased(JointField jointField) {
+        JointModel jointModel =
+                editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
+        editorUserInterface.doWithConfirm(
+                String.format(Strings.JOINT_DELETE_CONFIRM, jointModel.getJointName()),
+                () -> {
+                    editorUserInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
+                    window.getLayout().removePrimary(jointField.getPrimaryKey());
+                    updateLayout();
+                    JointShape jointShape = jointModel.getJointShape();
+                    jointShape.detach();
+                    updateLayout();
+                });
+    }
+
+    public void setUserInterface(EditorUserInterface editorUserInterface) {
+        this.editorUserInterface = editorUserInterface;
+    }
+
+    public List<PointImage> getSelectedModelMovables(boolean moveLimits) {
+        if (selectedJointModel == null) {
+            return null;
+        }
+        return selectedJointModel.getJointShape().getMovables(moveLimits);
+    }
 }

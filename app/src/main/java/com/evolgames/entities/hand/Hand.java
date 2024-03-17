@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.Penetrating;
@@ -146,7 +145,7 @@ public class Hand {
     }
 
     public void releaseGrabbedEntity(boolean updateUsages) {
-        if (grabbedEntity == null||mouseJoint==null) {
+        if (grabbedEntity == null || mouseJoint == null) {
             return;
         }
         if (grabbedEntity.getBody() != null) {
@@ -418,7 +417,7 @@ public class Hand {
     }
 
     private void moveToThrow(Vector2 touch) {
-        if (handControlStack.isEmpty()||!(handControlStack.peek() instanceof HoldHandControl)) {
+        if (handControlStack.isEmpty() || !(handControlStack.peek() instanceof HoldHandControl)) {
             return;
         }
         float touchDistance = touch.cpy().sub(mouseJoint.getTarget()).len();
@@ -491,7 +490,7 @@ public class Hand {
     }
 
     public void onMouseJointDestroyed() {
-        Log.e("Mirror","On Mouse Joint Destroyed:"+mouseJoint);
+        Log.e("Mirror", "On Mouse Joint Destroyed:" + mouseJoint);
         this.mouseJoint = null;
         this.mouseJointDef = null;
         this.grabbedEntity = null;
@@ -513,7 +512,7 @@ public class Hand {
     }
 
     public void setForceFactor(float forceFactor) {
-        if(this.mouseJoint!=null) {
+        if (this.mouseJoint != null) {
             this.mouseJoint.setMaxForce(grabbedEntity.getMassOfGroup() * forceFactor);
         }
     }

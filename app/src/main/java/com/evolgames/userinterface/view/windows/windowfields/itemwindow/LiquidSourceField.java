@@ -19,7 +19,8 @@ public class LiquidSourceField extends ItemField {
         itemRemoveButton.setBehavior(
                 new ButtonBehavior<ItemWindowController>(controller, itemRemoveButton) {
                     @Override
-                    public void informControllerButtonClicked() {}
+                    public void informControllerButtonClicked() {
+                    }
 
                     @Override
                     public void informControllerButtonReleased() {
@@ -38,7 +39,8 @@ public class LiquidSourceField extends ItemField {
         liquidSourceOptionsButton.setBehavior(
                 new ButtonBehavior<ItemWindowController>(controller, liquidSourceOptionsButton) {
                     @Override
-                    public void informControllerButtonClicked() {}
+                    public void informControllerButtonClicked() {
+                    }
 
                     @Override
                     public void informControllerButtonReleased() {

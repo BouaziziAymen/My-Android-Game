@@ -4,7 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.serialization.infos.InitInfo;
 
 public interface BodyInit {
-  void initialize(Body body);
+    void initialize(Body body);
 
-  InitInfo getInitInfo(InitInfo initInfo);
+    InitInfo getInitInfo(InitInfo initInfo);
 }

@@ -4,9 +4,16 @@ import com.evolgames.entities.properties.Properties;
 
 public class ImageShapeModel extends Properties {
 
-    public ImageShapeModel(){
+    private float rotation;
+    private float x;
+    private float y;
+    private float width;
+    private float height;
+
+    public ImageShapeModel() {
 
     }
+
     public ImageShapeModel(float rotation, float x, float y, float width, float height) {
         this.rotation = rotation;
         this.x = x;
@@ -14,14 +21,6 @@ public class ImageShapeModel extends Properties {
         this.width = width;
         this.height = height;
     }
-
-    private float rotation;
-    private float x;
-    private float y;
-
-    private float width;
-
-    private float height;
 
     public float getRotation() {
         return rotation;

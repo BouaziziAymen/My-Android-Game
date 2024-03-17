@@ -46,12 +46,12 @@ public class DragInfo {
         this.symmetrical = symmetrical;
     }
 
-    public void setMagnitude(float magnitude) {
-        this.magnitude = magnitude;
-    }
-
     public float getMagnitude() {
         return magnitude;
+    }
+
+    public void setMagnitude(float magnitude) {
+        this.magnitude = magnitude;
     }
 
     public GameEntity getDraggedEntity() {
@@ -60,7 +60,7 @@ public class DragInfo {
 
     public void setDraggedEntity(GameEntity draggedEntity) {
         this.draggedEntity = draggedEntity;
-        if(draggedEntity!=null) {
+        if (draggedEntity != null) {
             this.draggedEntityUniqueId = draggedEntity.getUniqueID();
         }
     }

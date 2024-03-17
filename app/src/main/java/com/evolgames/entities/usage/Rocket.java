@@ -10,7 +10,6 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 
@@ -30,15 +29,16 @@ public class Rocket extends Use {
     private float fuel;
     private float power;
 
-  @SuppressWarnings("unused")
-  public Rocket() {}
+    @SuppressWarnings("unused")
+    public Rocket() {
+    }
 
     public Rocket(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
         RocketProperties rocketProperties = ((RocketProperties) usageModel.getProperties());
         this.fireSourceInfoList =
                 rocketProperties
                         .getFireSourceModelList().stream()
-                        .map(m->m.toFireSourceInfo(mirrored))
+                        .map(m -> m.toFireSourceInfo(mirrored))
                         .collect(Collectors.toList());
         this.fuel = rocketProperties.getFuel();
         this.power = rocketProperties.getPower();
@@ -92,7 +92,7 @@ public class Rocket extends Use {
                     if (body != null) {
                         if (fuel > 0) {
                             Vector2 worldFireDirection = body.getWorldVector(fireDirection).cpy();
-                            body.applyForce(worldFireDirection.cpy().mul((rocketBodyEntity.isMirrored()?1:-1)*FORCE_FACTOR * power), body.getWorldCenter());
+                            body.applyForce(worldFireDirection.cpy().mul((rocketBodyEntity.isMirrored() ? 1 : -1) * FORCE_FACTOR * power), body.getWorldCenter());
                         } else {
                             this.rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(false);
                         }
