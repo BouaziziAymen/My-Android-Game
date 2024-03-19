@@ -53,12 +53,14 @@ public class CasingField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.ammoOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.ammoOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.ammoOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.ammoOptionsButton.setGone(true);
     }
 }

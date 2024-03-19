@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.basics.Material;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
@@ -55,6 +57,7 @@ import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.Utils;
 import com.evolgames.utilities.XmlUtils;
 
+import org.andengine.BuildConfig;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.adt.color.ColorUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +66,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -134,6 +138,7 @@ public class PersistenceCaretaker {
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private AbstractScene<?> scene;
+    private File versionDir;
 
     private PersistenceCaretaker() {
     }
@@ -166,6 +171,32 @@ public class PersistenceCaretaker {
         this.scene = editorScene;
         this.gameActivity = ResourceManager.getInstance().activity;
         this.docBuilder = docFactory.newDocumentBuilder();
+        if (BuildConfig.DEBUG) {
+            File internalStorageDir = gameActivity.getFilesDir();
+            versionDir = new File(internalStorageDir, "version");
+            if (!versionDir.exists()) {
+                versionDir.mkdir();
+            }
+            runVersionUpdates();
+        }
+    }
+
+    private void runVersionUpdates() {
+        //resetMaterialsBasicValues();
+    }
+
+    private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
+
+        VersioningHelper.applyTreatmentToLayers(layerModel -> {
+            LayerProperties props = layerModel.getProperties();
+            int materialNumber = props.getMaterialNumber();
+            Material material = MaterialFactory.getInstance().getMaterialByIndex(materialNumber);
+            props.setHardness(material.getHardness());
+            props.setTenacity(material.getTenacity());
+            props.setDensity(material.getDensity());
+            props.setRestitution(material.getRestitution());
+            props.setFriction(material.getFriction());
+        });
     }
 
     public void saveToolModel(ToolModel toolModel)
@@ -175,10 +206,20 @@ public class PersistenceCaretaker {
                 XmlHelper.convertToXmlFormat(toolModel.getProperties().getToolName()));
     }
 
-    public void saveToolModel(ToolModel toolModel, String fileName)
+    public void saveToolModel(ToolModel toolModel, String fileName) throws FileNotFoundException, TransformerException {
+        saveToolModel(toolModel, fileName, "");
+    }
+
+    public void saveToolModel(ToolModel toolModel, String fileName, String pathname)
             throws FileNotFoundException, TransformerException {
         Document toolDocument = docBuilder.newDocument();
-        FileOutputStream fos = gameActivity.openFileOutput(fileName, Context.MODE_PRIVATE);
+        FileOutputStream fos;
+        if (pathname == null || pathname.isEmpty()) {
+            fos = gameActivity.openFileOutput(fileName, Context.MODE_PRIVATE);
+        } else {
+            File file = new File(versionDir, fileName);
+            fos = new FileOutputStream(file);
+        }
         Element toolElement = toolDocument.createElement(TOOL_TAG);
         toolElement.setAttribute(NAME, toolModel.getProperties().getToolName());
         toolElement.setAttribute(CATEGORY, toolModel.getCategory().name());

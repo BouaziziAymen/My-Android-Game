@@ -6,23 +6,31 @@ import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.entities.hand.PlayerAction;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.MainScene;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ItemCategory;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class NativeUIController implements INativeUIController {
     public static final String EDITOR_FILE_FROM_ASSETS = "EditorFromAssets";
-    private final MainScene mainScene;
+    private  MainScene mainScene;
     private final GameActivity gameActivity;
 
-    NativeUIController(MainScene menuScene, GameActivity gameActivity) {
-        this.mainScene = menuScene;
+    NativeUIController( GameActivity gameActivity) {
         this.gameActivity = gameActivity;
+    }
+
+    public void setMainScene(MainScene mainScene) {
+        this.mainScene = mainScene;
     }
 
     @Override
@@ -114,5 +122,22 @@ public class NativeUIController implements INativeUIController {
             mainScene.saveStringToPreferences(EDITOR_FILE, newItemMetaData.getFileName());
             mainScene.goToScene(SceneType.EDITOR);
         });
+    }
+
+    void fillItemsMap() {
+        Map<ItemCategory, List<ItemMetaData>> map = new HashMap<>();
+        for (ItemCategory cat : ItemCategory.values()) {
+            map.put(cat, new ArrayList<>());
+        }
+        XmlHelper helper = new XmlHelper(gameActivity);
+        helper.fillItemsMapFromAssets(map);
+        helper.fillItemsMapFromInternalStorage(map);
+        map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
+        ResourceManager.getInstance().setItemsMap(map);
+    }
+
+    @Override
+    public void onItemSaved() {
+     this.fillItemsMap();
     }
 }

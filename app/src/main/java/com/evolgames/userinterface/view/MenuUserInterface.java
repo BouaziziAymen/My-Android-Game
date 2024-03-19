@@ -48,6 +48,6 @@ public class MenuUserInterface extends UserInterface<MenuScene> {
     }
 
     @Override
-    public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
+    public void onTouchScene(TouchEvent pTouchEvent) {
     }
 }

@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.model;
 
 public enum ItemCategory {
-    SWORD("Swords"), JAVELIN("Javelins"), SPEAR("Spears"),
+    SWORD("Swords"),   AXE("Axes") ,JAVELIN("Javelins"), SPEAR("Spears"),
     BULLET("Bullets"), KNIFE("Knives"), OTHER("Other"),
     MACE("Maces"), GRENADE("Grenades"), GUN("Guns"),
     PROJECTILE("Projectiles"), ROCKET("Rockets");

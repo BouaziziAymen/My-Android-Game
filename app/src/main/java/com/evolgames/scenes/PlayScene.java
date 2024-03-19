@@ -527,7 +527,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         gameEntity3.getUseList().add(new Stabber());
         gameEntity3.setCenter(new Vector2());
         gameEntity1.setCenter(new Vector2());
-        if (true) {
+        if (false) {
             for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
                 Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
                 layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(4000));
@@ -576,7 +576,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         if (specialAction == PlayerSpecialAction.Fire) {
             getHand().setHoldingAngle(0);
         }
-        float forceFactor = 3000f;
+
         Missile missile = null;
 
         Hand h = PlayScene.this.getHand();
@@ -614,7 +614,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         }
 
         if (getHand() != null) {
-            getHand().setForceFactor(forceFactor);
+            getHand().setForceFactor(20000f);
         }
     }
 

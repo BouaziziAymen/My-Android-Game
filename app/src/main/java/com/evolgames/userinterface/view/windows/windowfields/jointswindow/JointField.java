@@ -86,12 +86,14 @@ public class JointField extends PrimaryLinearLayout {
         this.visibleFields = true;
         this.jointOptionsButton.setVisible(true);
         this.jointRemoveButton.setVisible(true);
+        this.jointOptionsButton.setGone(false);
+        this.jointRemoveButton.setGone(false);
     }
 
     public void hideFields() {
         this.visibleFields = false;
-        this.jointOptionsButton.setVisible(false);
-        this.jointRemoveButton.setVisible(false);
+        this.jointOptionsButton.setGone(true);
+        this.jointRemoveButton.setGone(true);
     }
 
     @Override

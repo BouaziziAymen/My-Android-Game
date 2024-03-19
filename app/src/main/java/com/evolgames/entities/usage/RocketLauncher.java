@@ -28,6 +28,7 @@ import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.ToolUtils;
 
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -47,6 +48,9 @@ public class RocketLauncher extends Use {
     private float loadingTimer;
     private transient Map<ProjectileInfo, Rocket> rockets;
     private boolean initialized = false;
+
+    private boolean fireOn;
+    private int fireCounter;
     private transient Map<ProjectileInfo, ExplosiveParticleWrapper> projInfFireSourceMap;
 
     @SuppressWarnings("unused")
@@ -88,11 +92,17 @@ public class RocketLauncher extends Use {
         if (!initialized) {
             loadRockets(worldFacade);
         }
-        if (this.projInfFireSourceMap != null) {
-            for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
+        if(this.fireOn){
+            fireCounter++;
+        }
+        if(fireCounter>60){
+            for(ExplosiveParticleWrapper explosiveParticleWrapper:this.projInfFireSourceMap.values()){
                 explosiveParticleWrapper.setSpawnEnabled(false);
             }
+            this.fireOn = false;
+            fireCounter = 0;
         }
+
         if (this.loading) {
             this.loadingTimer += deltaTime;
             if (this.loadingTimer > this.reloadTime) {
@@ -138,6 +148,7 @@ public class RocketLauncher extends Use {
         Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch();
         if (projInfFireSourceMap.containsKey(projectileInfo)) {
             projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
+            fireOn = true;
         }
     }
 
@@ -229,18 +240,18 @@ public class RocketLauncher extends Use {
                                 Vector2 nor = new Vector2(-dir.y, dir.x);
                                 Vector2 e = p.getProjectileOrigin().cpy().mul(32f);
                                 float axisExtent = 0.1f;
+                                AnimatedSprite animatedSprite;
                                 ExplosiveParticleWrapper fireSource =
                                         worldFacade
                                                 .createFireSource(
                                                         p.getMuzzleEntity(),
                                                         e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                         e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
-                                                        PhysicsConstants.getProjectileVelocity(-p.getMuzzleVelocity())
-                                                                / 2f,
+                                                        -100f,
                                                         p.getFireRatio(),
                                                         p.getSmokeRatio(),
                                                         p.getSparkRatio(),
-                                                        10f,
+                                                        1f,
                                                         0.2f, p.getInFirePartSize(), p.getFinFirePartSize());
                                 fireSource.setSpawnEnabled(false);
                                 this.projInfFireSourceMap.put(p, fireSource);

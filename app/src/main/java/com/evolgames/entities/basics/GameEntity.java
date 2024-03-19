@@ -387,7 +387,7 @@ public class GameEntity extends EntityWithBody {
                                         segmentFreshCut.second.y,
                                         2,
                                         ResourceManager.getInstance().vbom);
-                        line.setColor(Color.BLACK);
+                        line.setColor(block.getProperties().getJuiceColor());
                         mesh.attachChild(line);
                     }
                 }
@@ -634,6 +634,7 @@ public class GameEntity extends EntityWithBody {
             //create new mirrored mesh and assign it to mesh
             mesh = MeshFactory.getInstance().createMosaicMesh(mesh.getX(), mesh.getY(), mesh.getRotation(), layerBlocks);
             mesh.setZIndex(mirrorMesh.getZIndex());
+            mesh.setVisible(false);
             scene.attachChild(mesh);
             mirrorCreated = true;
             Log.e("Mirror", this + "Entered into creating a new body");

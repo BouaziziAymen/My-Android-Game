@@ -5,6 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.persistence.VersioningHelper;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.MyLetter;
@@ -130,6 +133,7 @@ public class ResourceManager {
     public ArrayList<GameSound> gunshotSounds;
     public TextureRegion aimCircleTextureRegion;
     public TiledTextureRegion saveBigButton;
+    public TiledTextureRegion homeBigButton;
     public TextureRegion pixelParticle;
     public ArrayList<ITextureRegion> buttonRegionsA;
     public TiledTextureRegion infoBlueButton;
@@ -279,6 +283,12 @@ public class ResourceManager {
         this.saveBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "main_board/saveoption.png", 2, 1);
+
+        this.homeBigButton =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/homeoption.png", 2, 1);
+
+
 
         this.optionsPointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
@@ -686,6 +696,8 @@ public class ResourceManager {
         this.firstCamera = firstCamera;
         this.vbom = vbom;
     }
+
+
 
     public void loadGameAudio() {
         try {

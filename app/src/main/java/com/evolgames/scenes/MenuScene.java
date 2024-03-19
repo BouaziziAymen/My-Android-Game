@@ -15,6 +15,7 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.entities.particles.wrappers.FluxParticleWrapper;
+import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.MenuUserInterface;
@@ -54,10 +55,11 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         gameEntity1.setCenter(new Vector2());
         gameEntity1.setName("Main Button");
 
-        ResourceManager.getInstance().activity.runOnUiThread(() -> Toast.makeText(ResourceManager.getInstance().activity, "This doll represents human ignorance", Toast.LENGTH_SHORT).show());
+        SegmentExplosiveParticleWrapper res = worldFacade.createFireSource(gameEntity1, new Vector2(140, 40), new Vector2(-140, 40), 100f, 0f, 1f, 0f, 0.1f, 0f, 1f, 1f);
 
         createRagDoll(400, 460);
         jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);
+
     }
 
     @Override

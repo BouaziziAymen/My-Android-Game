@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
 
-    private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(12, 3);
+    private final AlphaNumericValidator itemNameValidator = new AlphaNumericValidator(20, 2);
     private TextField<ItemSaveWindowController> titleTextField;
 
     @Override
@@ -33,7 +33,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
             boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(input.toLowerCase()));
             return !nameExists;
         }, "Name already exists.");
-        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 15);
+        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 20);
         this.titleTextField = titledTextField.getAttachment();
         titleTextField.setBehavior(
                 new TextFieldBehavior<ItemSaveWindowController>(
@@ -57,7 +57,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
         window.addPrimary(titleField);
         titleTextField
                 .getBehavior()
-                .setReleaseAction(() -> model.setModelName(titleTextField.getTextString()));
+                .setReleaseAction(() -> ((ToolModel)model).getProperties().setToolName(titleTextField.getTextString()));
 
         updateLayout();
         window.createScroller();
@@ -78,8 +78,6 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
     public void onSubmitSettings() {
         super.onSubmitSettings();
         this.editorUserInterface.saveToolModel();
-        ToolModel toolModel = (ToolModel) model;
-        ItemMetaData itemMetaData = toolModel.toMetaData();
-        Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(itemMetaData.getItemCategory())).add(itemMetaData);
+      ResourceManager.getInstance().activity.getUiController().onItemSaved();
     }
 }

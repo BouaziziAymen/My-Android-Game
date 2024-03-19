@@ -341,6 +341,7 @@ public class LayerWindowController
         int index1 = window.getLayout().getSectionByKey(primaryKey).getIndexOfKey(secondaryKey);
         int index2 = index1 + 1;
         window.getLayout().getSectionByKey(primaryKey).swapSecondaries(index1, index2);
+        editorUserInterface.getToolModel().swapLayers(layerField.getPrimaryKey(), index1, index2);
         resetUpDownArrows(primaryKey);
         updateLayout();
     }

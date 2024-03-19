@@ -53,12 +53,14 @@ public class BombField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.bombOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.bombOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.bombOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.bombOptionsButton.setGone(true);
     }
 }

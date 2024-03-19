@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LayerModel extends PointsModel<LayerProperties> {
-    private static final float MINIMAL_DISTANCE_BETWEEN_VERTICES = 1f;
+    private static final float MINIMAL_DISTANCE_BETWEEN_VERTICES = 0.1f;
     private final BodyModel bodyModel;
     private final AtomicInteger decorationCounter = new AtomicInteger();
     private final ArrayList<DecorationModel> decorations;
@@ -81,13 +81,6 @@ public class LayerModel extends PointsModel<LayerProperties> {
 
     @Override
     public boolean testMove(Vector2 movedPoint, float dx, float dy) {
-        for (Vector2 p : getPoints()) {
-            if (p != movedPoint) {
-                if (p.dst(movedPoint.x + dx, movedPoint.y + dy) < MINIMAL_DISTANCE_BETWEEN_VERTICES) {
-                    return false;
-                }
-            }
-        }
         float x = movedPoint.x;
         float y = movedPoint.y;
         movedPoint.set(x + dx, y + dy);

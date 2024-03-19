@@ -5,8 +5,6 @@ import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.scenes.EditorScene;
-import com.evolgames.scenes.entities.SceneType;
-import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -145,7 +143,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         ResourceManager.getInstance().hudBatcher.setZIndex(1);
         ResourceManager.getInstance().sceneBatcher.setZIndex(1);
 
-        createBackToMenuButton();
 
         Grid grid = new Grid(editorScene);
 
@@ -258,7 +255,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
         ItemSaveWindow itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
         itemSaveWindow.setPosition(
-                800 - itemSaveWindow.getPanel().getWidth(), 480 - itemSaveWindow.getHeight());
+                400-itemSaveWindow.getWidth()/2f, 240);
         itemSaveWindow.setVisible(false);
         addElement(itemSaveWindow);
 
@@ -358,12 +355,27 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                         getController().onSaveOptionReleased(button14);
                     }
                 });
+
+        Button<MainButtonBoardController> button15 =
+                new Button<>(ResourceManager.getInstance().homeBigButton, Button.ButtonType.OneClick, true);
+        button15.setBehavior(
+                new ButtonBehavior<MainButtonBoardController>(controller, button15) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        getController().onHomeButtonClicked(button15);
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        getController().onHomeButtonReleased(button15);
+                    }
+                });
         mainButtonBoard.addToButtonBoard(button10);
         mainButtonBoard.addToButtonBoard(button11);
         mainButtonBoard.addToButtonBoard(button12);
         mainButtonBoard.addToButtonBoard(button13);
         mainButtonBoard.addToButtonBoard(button14);
-
+        mainButtonBoard.addToButtonBoard(button15);
         // boards
         ButtonBoard drawButtonBoard =
                 new ButtonBoard(200, 480 - 41, LinearLayout.Direction.Horizontal, 0);
@@ -822,34 +834,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         setUpdated(true);
     }
 
-    private void createBackToMenuButton() {
-        Button<Controller> backToMenu =
-                new Button<>(
-                        ResourceManager.getInstance().simpleButtonTextureRegion,
-                        Button.ButtonType.OneClick,
-                        true);
-        backToMenu.setBehavior(
-                new ButtonBehavior<Controller>(
-                        new Controller() {
-                            @Override
-                            public void init() {
-                            }
-                        },
-                        backToMenu) {
-                    @Override
-                    public void informControllerButtonClicked() {
-                    }
-
-                    @Override
-                    public void informControllerButtonReleased() {
-                        scene.goToScene(SceneType.MENU);
-                        saveToolModel("editor_auto_save.mut");
-
-                    }
-                });
-        backToMenu.setPosition(0, 480 - backToMenu.getHeight());
-        addElement(backToMenu);
-    }
 
     public void doWithConfirm(String prompt, Action action) {
         confirmWindowController.bindAction(new ConfirmableAction(prompt, action));
@@ -971,11 +955,11 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     }
 
     @Override
-    public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
+    public void onTouchScene(TouchEvent pTouchEvent) {
         if (interactionLocked) {
             return;
         }
-        creationZone.onTouchScene(pTouchEvent, scroll);
+        creationZone.onTouchScene(pTouchEvent);
         if (creationZoneController.getAction() == CreationZoneController.CreationAction.PIPING
                 && imageShape != null) {
             Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), (int) (10 / getZoomFactor()));

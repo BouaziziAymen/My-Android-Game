@@ -54,12 +54,14 @@ public class FireSourceField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.fireSourceOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.fireSourceOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.fireSourceOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.fireSourceOptionsButton.setGone(true);
     }
 }

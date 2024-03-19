@@ -177,10 +177,6 @@ public class Hand {
                     releaseGrabbedEntity(true);
                     this.dragging = false;
                     return true;
-                } else {
-                    if (this.dragging) {
-                        throw new RuntimeException("Issue release entity");
-                    }
                 }
             } else if (touchEvent.isActionDown()) {
                 Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
@@ -337,7 +333,7 @@ public class Hand {
         smasher.setActive(true);
         Vector2 U = target.cpy().sub(mouseJoint.getTarget()).nor();
         SwingHandControl handControl =
-                new SwingHandControl(this, (int) (-Math.signum(U.x) * 60), (0.4f * 600));
+                new SwingHandControl(this, (int) (-Math.signum(U.x) * 200), (600));
         smasher.setHand(this);
         handControlStack.add(handControl);
     }

@@ -23,13 +23,6 @@ public class Polygon {
         calcCenter();
     }
 
-    public void addPoint(Vector2 p) {
-        this.points.add(p);
-    }
-
-    public void removePoint(Vector2 p) {
-        this.points.remove(p);
-    }
 
     public void rotate(float theta) {
         rotate(theta, center);

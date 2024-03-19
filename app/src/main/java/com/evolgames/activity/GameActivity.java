@@ -28,11 +28,16 @@ import com.evolgames.activity.components.CreateItemDialog;
 import com.evolgames.activity.components.EditItemDialog;
 import com.evolgames.activity.components.MenuUIFragment;
 import com.evolgames.activity.components.PlayUIFragment;
+import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.persistence.VersioningHelper;
+import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.MainScene;
+import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ItemCategory;
+import com.evolgames.userinterface.model.LayerModel;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
@@ -103,13 +108,21 @@ public class GameActivity extends BaseGameActivity {
     public static Bitmap decodeSampledBitmapFromResource(String strPath, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
-        // options.inJustDecodeBounds = true;
-        Bitmap bitmap = BitmapFactory.decodeFile(strPath, options);
+        options.inJustDecodeBounds = true; // Set this to true to retrieve the dimensions only
+        BitmapFactory.decodeFile(strPath, options);
+
         // Calculate inSampleSize
-        options.inSampleSize = GameActivity.calculateInSampleSize(options, reqWidth, reqHeight);
-        // Decode bitmap with inSampleSize set
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set to retrieve the resized bitmap
         options.inJustDecodeBounds = false;
-        return bitmap;
+        Bitmap bitmap = BitmapFactory.decodeFile(strPath, options);
+        // Resize the bitmap if needed
+        if (bitmap != null) {
+            return Bitmap.createScaledBitmap(bitmap, reqWidth, reqHeight, true);
+        } else {
+            return null; // Error handling: return null if bitmap decoding fails
+        }
     }
 
     public UIType getInstalledUI() {
@@ -174,7 +187,7 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public void onCreateScene(IGameInterface.OnCreateSceneCallback pOnCreateSceneCallback) {
         this.mainScene = new MainScene(this.camera);
-        uiController = new NativeUIController(mainScene, this);
+        uiController.setMainScene(this.mainScene);
         pOnCreateSceneCallback.onCreateSceneFinished(this.mainScene);
     }
 
@@ -306,7 +319,9 @@ public class GameActivity extends BaseGameActivity {
         setContentView(R.layout.activity_main);
         FrameLayout gameContainer = this.findViewById(R.id.game_container);
         gameContainer.addView(mRenderSurfaceView, 0);
-        this.fillItemsMap();
+        uiController = new NativeUIController(this);
+        uiController.fillItemsMap();
+
         this.gameUIFragment = new PlayUIFragment();
         this.menuUIFragment = new MenuUIFragment();
         this.createItemDialog = new CreateItemDialog();
@@ -351,17 +366,6 @@ public class GameActivity extends BaseGameActivity {
         this.installedUI = UIType.MENU;
     }
 
-    private void fillItemsMap() {
-        Map<ItemCategory, List<ItemMetaData>> map = new HashMap<>();
-        for (ItemCategory cat : ItemCategory.values()) {
-            map.put(cat, new ArrayList<>());
-        }
-        XmlHelper helper = new XmlHelper(this);
-        helper.fillItemsMapFromAssets(map);
-        helper.fillItemsMapFromInternalStorage(map);
-        map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
-        ResourceManager.getInstance().setItemsMap(map);
-    }
 
     public void sendEmailWithAttachment(String fileName) {
         // Create a file object representing the XML file

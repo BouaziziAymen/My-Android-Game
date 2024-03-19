@@ -53,12 +53,14 @@ public class ProjectileField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.projectileOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.projectileOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.projectileOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.projectileOptionsButton.setGone(true);
     }
 }

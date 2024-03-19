@@ -54,12 +54,14 @@ public class LiquidSourceField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.liquidSourceOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.liquidSourceOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.liquidSourceOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.liquidSourceOptionsButton.setGone(true);
     }
 }

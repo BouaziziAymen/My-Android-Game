@@ -54,12 +54,14 @@ public class DragField extends ItemField {
         super.showFields();
         this.itemRemoveButton.setVisible(true);
         this.dragOptionsButton.setVisible(true);
+        this.itemRemoveButton.setGone(false);
+        this.dragOptionsButton.setGone(false);
     }
 
     @Override
     public void hideFields() {
         super.hideFields();
-        this.itemRemoveButton.setVisible(false);
-        this.dragOptionsButton.setVisible(false);
+        this.itemRemoveButton.setGone(true);
+        this.dragOptionsButton.setGone(true);
     }
 }

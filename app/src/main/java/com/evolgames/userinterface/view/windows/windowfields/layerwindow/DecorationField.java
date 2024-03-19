@@ -91,12 +91,14 @@ public class DecorationField extends TertiaryLinearLayout {
         this.visibleFields = true;
         this.decorationOptionsButton.setVisible(true);
         this.decorationRemoveButton.setVisible(true);
+        this.decorationOptionsButton.setGone(false);
+        this.decorationRemoveButton.setGone(false);
     }
 
     public void hideFields() {
         this.visibleFields = false;
-        this.decorationOptionsButton.setVisible(false);
-        this.decorationRemoveButton.setVisible(false);
+        this.decorationOptionsButton.setGone(true);
+        this.decorationRemoveButton.setGone(true);
     }
 
     @Override

@@ -100,6 +100,7 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -112,6 +113,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
+    public static final float EXPLOSION_HEAT_CONSTANT = 1000f;
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final HashSet<PulverizationParticleWrapper> powderParticleWrappers =
             new HashSet<>();
@@ -319,9 +321,9 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         int lowerRate =
-                (int) (10 * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
+                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
         int higherRate =
-                (int) (10 * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
+                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
@@ -653,9 +655,11 @@ public class WorldFacade implements ContactObserver {
         // convection
         Collections.shuffle(flames);
         for (Fire fire : flames) {
-            Particle<UncoloredSprite>[] particles = fire.getFireParticleSystem().getParticles();
+            Particle<UncoloredSprite>[] particles = Arrays.copyOf(fire.getFireParticleSystem().getParticles(),fire.getFireParticleSystem().getParticles().length);
             for (Particle<UncoloredSprite> p : particles) {
-                if (p == null || p.isExpired()) continue;
+                if (p == null || p.isExpired()){
+                    continue;
+                }
 
                 Entity spark = p.getEntity();
 
@@ -689,6 +693,7 @@ public class WorldFacade implements ContactObserver {
                     if (nearestCoatingBlock != null) {
                         double sparkTemperature = fire.getParticleTemperature(p);
                         nearestCoatingBlock.onSpark(sparkTemperature);
+
                         PhysicsUtils.transferHeatByConvection(
                                 nearestCoatingBlock.getProperties().getHeatResistance(),
                                 sparkTemperature,
@@ -704,7 +709,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(grain.getProperties().getHeatResistance(), PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(0.01f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
@@ -1360,7 +1365,7 @@ public class WorldFacade implements ContactObserver {
         float x2 = innerCut.second.x;
         float y2 = innerCut.second.y;
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
-        line.setColor(Color.BLACK);
+        line.setColor(block.getProperties().getJuiceColor());
         gameEntity.getMesh().attachChild(line);
         scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
     }
@@ -1393,9 +1398,7 @@ public class WorldFacade implements ContactObserver {
             Collections.sort(list);
 
             LayerBlock block = blocks.get(i);
-            if (2 * block.getProperties().getTenacity() > hardness) {
-                continue;
-            }
+
             Body body = fixtures.get(i).getBody();
             GameEntity entity = (GameEntity) body.getUserData();
             if (!entities.contains(entity)) {
@@ -1476,7 +1479,7 @@ public class WorldFacade implements ContactObserver {
             float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
         int numberOfPoints =
                 (int)
-                        (impulse
+                        (5*impulse
                                 / (PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity()));
 
         List<Vector2> pts =
@@ -1737,8 +1740,7 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
-        if (block.getProperties().getMaterialNumber() == 11
-                || block.getProperties().getMaterialNumber() == 12) {
+        if (block.getProperties().isJuicy()) {
             this.applyBluntTrauma(
                     localPoint.x, localPoint.y, (float) Math.sqrt(impulse), gameEntity, block);
         }
@@ -1798,17 +1800,13 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public void applyImpactHeat(float heat, List<ImpactData> impactData) {
+    public void applyImpactHeat(float heatRatio, List<ImpactData> impactData) {
         impactData.forEach(
                 impact -> {
-                    CoatingBlock coatingCenter =
-                            impact
-                                    .getImpactedBlock()
-                                    .getBlockGrid()
-                                    .getNearestCoatingBlockSimple(impact.getLocalImpactPoint());
-                    if (coatingCenter != null) {
-                        coatingCenter.applyDeltaTemperature(10 * heat);
-                    }
+                  impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
+                      coatingBlock.onHeatWave(heatRatio);
+
+                  }));
                 });
     }
 
@@ -1822,7 +1820,7 @@ public class WorldFacade implements ContactObserver {
             float area2 = other.getArea();
             float length = (float) (area1 <= area2 ? Math.sqrt(area1) : Math.sqrt(area2));
             PhysicsUtils.transferHeatByConduction(
-                    density, density, length, coatingBlock, other, 0.1f, 0.1f, 10f, 10f);
+                    density, density, length, coatingBlock, other);
         }
     }
 

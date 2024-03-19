@@ -131,7 +131,13 @@ public class CreationZoneController extends Controller {
             case MOVE_POINT:
             case ADD_POINT:
             case BOMB:
+                editorScene.setScrollerEnabled(true);
+                editorScene.setZoomEnabled(true);
+                break;
             case NONE:
+                if(selectedPointImage!=null){
+                  releaseSelectedPointImage();
+                }
                 editorScene.setScrollerEnabled(true);
                 editorScene.setZoomEnabled(true);
                 break;
@@ -188,7 +194,7 @@ public class CreationZoneController extends Controller {
 
     private void processRemovePoint(float x, float y) {
         if (layerWindowController.getSelectedPointsModel() != null) {
-            float distance = 32;
+            float distance = 32 / editorUserInterface.getZoomFactor();
             Vector2 point = null;
             for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
                 float d = p.dst(x, y);
@@ -248,7 +254,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (movablePointImages != null) {
-            float distance = 32;
+            float distance = 32f/editorUserInterface.getZoomFactor();
             PointImage point = null;
             for (PointImage p : movablePointImages) {
                 float d = p.getPoint().dst(x, y);
@@ -280,7 +286,7 @@ public class CreationZoneController extends Controller {
     }
 
     public void selectPointImage(PointImage pointImage) {
-        pointImage.doubleSelect();
+        pointImage.select();
         selectedPointImage = pointImage;
         float moveSpeed = 1f / editorUserInterface.getZoomFactor();
         editorUserInterface.setMoveElementController(editorUserInterface.getPanel().allocateController(800 - 64 / 2f - 16f, 64 / 2f + 16f, ControlElement.Type.AnalogController, new ControllerAction() {
@@ -301,7 +307,6 @@ public class CreationZoneController extends Controller {
 
     public void releaseSelectedPointImage() {
         if (selectedPointImage != null) {
-            selectedPointImage.undoDoubleSelect();
             selectedPointImage.release();
             selectedPointImage = null;
         }
@@ -468,6 +473,7 @@ public class CreationZoneController extends Controller {
 
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon);
             selectedPointsModel.getReferencePoints().add(center);
+
             creationZone.setTouchLocked(true);
             return;
         }

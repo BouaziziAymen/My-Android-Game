@@ -93,7 +93,7 @@ public class CreateItemDialog extends DialogFragment {
         });
 
         TextView linkTextView = dialogLayout.findViewById(R.id.linkTextView);
-        String linkText = "Or edit existing";
+        String linkText = "Or Edit Existing";
         SpannableString spannableString = new SpannableString(linkText);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
@@ -135,7 +135,7 @@ public class CreateItemDialog extends DialogFragment {
             String itemTemplateText = itemTemplateAutoComplete.getText().toString().trim();
 
             boolean isTypeInvalid = (itemTypeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(itemTypeText)));
-            boolean isTemplateInvalid = Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
+            boolean isTemplateInvalid = !itemTemplateText.isEmpty()&&Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
             boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
             if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {
@@ -157,7 +157,7 @@ public class CreateItemDialog extends DialogFragment {
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
-                ((GameActivity) getActivity()).getUiController().onProceedToCreate(itemNameText, itemTypeText, itemTemplateText);
+                ((GameActivity) requireActivity()).getUiController().onProceedToCreate(itemNameText, itemTypeText, itemTemplateText);
                 // Or perform other actions here
             }
         });

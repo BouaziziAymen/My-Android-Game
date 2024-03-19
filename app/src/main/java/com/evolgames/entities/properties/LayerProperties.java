@@ -7,7 +7,7 @@ import org.andengine.util.adt.color.Color;
 public class LayerProperties extends ColoredProperties {
     private String layerName;
     private int order;
-    private int materialNumber;
+    private int materialNumber = -1;
     private boolean combustible;
     private double ignitionTemperature;
     private double chemicalEnergy;
@@ -19,17 +19,17 @@ public class LayerProperties extends ColoredProperties {
     private float friction;
     private float tenacity;
     private float hardness;
-    private float sharpness = 0f;
+    private float sharpness;
     private boolean juicy;
 
-    private Color juiceColor = new Color(Color.WHITE);
+    private Color juiceColor;
     private float juicinessDensity;
     private float juicinessLowerPressure;
     private float juicinessUpperPressure;
     private int juiceIndex;
 
     private float juiceFlammability;
-    private float heatResistance = 10f;
+    private float heatResistance;
 
     public LayerProperties copy() {
         return PropertiesFactory.getInstance().createProperties(this);

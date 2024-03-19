@@ -40,7 +40,7 @@ public class CreationZone {
         return referencePointImageArrayList;
     }
 
-    public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
+    public void onTouchScene(TouchEvent pTouchEvent) {
 
         Vector2 touch =
                 (creationZoneController.isMagnet())

@@ -7,6 +7,7 @@ import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.windows.AdvancedWindow;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
+import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField;
 
 public class AdvancedWindowController<W extends AdvancedWindow<?>> extends Controller {
 

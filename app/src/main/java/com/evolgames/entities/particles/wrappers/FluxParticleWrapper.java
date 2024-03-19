@@ -19,9 +19,9 @@ import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
 public class FluxParticleWrapper {
-    private static final float RATE_MIN = 30 * 100;
-    private static final float RATE_MAX = 50 * 100;
-    private static final int PARTICLES_MAX = 750 * 100;
+    private static final float RATE_MIN = 30 * 30;
+    private static final float RATE_MAX = 50 * 30;
+    private static final int PARTICLES_MAX = 750 * 30;
     private final BatchedSpriteParticleSystem energyParticleSystem;
     private final RelativePolygonEmitter startEmitter;
     private final RelativePolygonEmitter endEmitter;
@@ -32,7 +32,7 @@ public class FluxParticleWrapper {
 
     public FluxParticleWrapper(GameEntity source, GameEntity target) {
         this.startEmitter = new RelativePolygonEmitter(source, (b) -> b.getParent().getId() == 3);
-        this.endEmitter = new RelativePolygonEmitter(target, (b) -> b.getNx() == 2 && b.getNy() == 0);
+        this.endEmitter = new RelativePolygonEmitter(target, (b) -> true);
         this.source = source;
         this.target = target;
 
@@ -56,8 +56,8 @@ public class FluxParticleWrapper {
         this.energyParticleSystem.addParticleModifier(this.bezierModifier);
         this.energyParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
         this.energyParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.1f));
-        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan - 0.5f, lifespan, 0.1f, 0f));
-        this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan, 0.5f, 0.2f));
+        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan - 0.5f, lifespan, 0.1f, 0.05f));
+        this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan, 0.9f, 0.4f));
         setFluxColor(Color.BLACK, Color.BLACK);
         update();
     }

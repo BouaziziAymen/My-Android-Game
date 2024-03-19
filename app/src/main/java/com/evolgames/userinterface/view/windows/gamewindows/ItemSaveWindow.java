@@ -11,7 +11,7 @@ public class ItemSaveWindow extends SettingsWindow {
     private final Panel panel;
 
     public ItemSaveWindow(float pX, float pY, ItemSaveWindowController controller) {
-        super(pX, pY, 6, 6, controller);
+        super(pX, pY, 6, 8, controller);
         SimpleTitleField titleField = new SimpleTitleField("Saving Settings:");
         titleField.setPadding(5);
         addPrimary(titleField);

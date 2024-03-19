@@ -21,7 +21,6 @@ public class PropertiesFactory {
         properties.setFriction(material.getFriction());
         properties.setTenacity(material.getTenacity());
         properties.setHardness(material.getHardness());
-        properties.setSharpness(0f);
         properties.setJuiceIndex(material.getJuiceIndex());
         properties.setJuicinessDensity(material.getJuicinessDensity());
         properties.setJuicinessLowerPressure(material.getJuicinessLowerPressure());
@@ -36,6 +35,7 @@ public class PropertiesFactory {
         properties.setFlammability(material.getFlammability());
         properties.setJuiceColor(material.getJuiceColor());
         properties.setJuiceFlammability(material.getJuiceFlammability());
+        properties.setHeatResistance(material.getHeatResistance());
         return properties;
     }
 
@@ -59,8 +59,11 @@ public class PropertiesFactory {
         properties.setFlameTemperature(original.getFlameTemperature());
         properties.setChemicalEnergy(original.getChemicalEnergy());
         properties.setSharpness(original.getSharpness());
-        properties.setJuiceColor(original.getJuiceColor());
+        if(original.getJuiceColor()!=null) {
+            properties.setJuiceColor(new Color(original.getJuiceColor()));
+        }
         properties.setJuiceFlammability(original.getJuiceFlammability());
+        properties.setHeatResistance(original.getHeatResistance());
         return properties;
     }
 }

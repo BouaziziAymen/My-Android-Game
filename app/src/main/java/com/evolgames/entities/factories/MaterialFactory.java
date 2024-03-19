@@ -1,269 +1,206 @@
 package com.evolgames.entities.factories;
 
+import android.util.Log;
+
 import com.evolgames.entities.basics.Material;
 
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MaterialFactory {
     private static final MaterialFactory INSTANCE = new MaterialFactory();
-    public ArrayList<Material> materials;
 
+
+
+
+
+
+
+
+    public static final int SULFUR = 33;
+
+    public static final int IVORY = 32;
+
+    public static final int SILVER = 31;
+
+    public static final int MARBLE = 30;
+    public static final int ROCK = 29;
+
+    public static final int TUNGSTEN = 28;
+    public static final int SILK = 27;
+    public static final int KEVLAR = 26;
+    public static final int GRANITE = 25;
+    public static final int BONE = 24;
+    public static final int BRICK = 23;
+    public static final int CONCRETE = 22;
+    public static final int GRAPHENE = 21;
+    public static final int DIAMOND = 20;
+    public static final int GLASS = 19;
+    private static final int RUBBER = 18;
+    private static final int HARD_WOOD = 17;
+    private static final int HARD_STEEL = 16;
+    public static final int PLASTIC = 15;
+    public static final int CLAY = 14;
+    public static final int ASPHALT = 13;
+    public static final int HARD_FLESH = 12;
+    public static final int FLESH = 11;
+    public static final int BRONZE = 10;
+    public static final int CERAMIC = 9;
+    public static final int ALUMINIUM = 8;
+    public static final int BRASS = 7;
+    public static final int TIN = 6;
+    public static final int LEAD = 5;
+    public static final int COPPER = 4;
+    public static final int GOLD = 3;
+    public static final int IRON = 2;
+    public static final int STEEL = 1;
+    public static final int WOOD = 0;
+
+
+
+    public static final int COAL = 34;
+    public static final int CHARCOAL = 35;
+    public static final int IGNIUM = 36;
+    public static final int TITANIUM = 37;
+    public static final int LEATHER = 38;
+    public List<Material> materials;
+    public AtomicInteger counter;
+    public static Map<String, float[]> materialProperties;
     private MaterialFactory() {
+        counter = new AtomicInteger();
 
         this.materials = new ArrayList<>();
-        this.materials.add(
-                new Material(
-                        "Wood",
-                        0,
-                        new Color(102 / 255f, 51 / 255f, 0 / 255f),
-                        4f * 0.5f,
-                        1,
-                        0.5f,
-                        0.5f,
-                        2.5f,
-                        true,
-                        573,
-                        2000,
-                        false,
-                        0,
-                        6000));
-        this.materials.add(
-                new Material(
-                        "Steel",
-                        1,
-                        new Color(202 / 255f, 204 / 255f, 206 / 255f),
-                        4f * 8f,
-                        1,
-                        0.2f,
-                        4f,
-                        4.25f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Iron",
-                        2,
-                        new Color(161 / 255f, 157 / 255f, 148 / 255f),
-                        4f * 7f,
-                        1,
-                        0.25f,
-                        3.8f,
-                        4f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Gold",
-                        3,
-                        new Color(212 / 255f, 175 / 255f, 55 / 255f),
-                        4f * 10f,
-                        1,
-                        0.3f,
-                        4f,
-                        2.75f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Copper",
-                        4,
-                        new Color(200 / 255f, 117 / 255f, 51 / 255f),
-                        4f * 12.9f,
-                        1,
-                        0.08f,
-                        2.2f,
-                        2.75f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Lead",
-                        5,
-                        new Color(127 / 255f, 127 / 255f, 127 / 255f),
-                        4f * 11.3f,
-                        1,
-                        0.05f,
-                        1.8f,
-                        1.5f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0)); // CHECK
-        this.materials.add(
-                new Material(
-                        "Tin",
-                        6,
-                        new Color(127 / 255f, 127 / 255f, 127 / 255f),
-                        4f * 7.3f,
-                        1,
-                        0.35f,
-                        1.8f,
-                        1.75f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Brass",
-                        7,
-                        new Color(181 / 255f, 166 / 255f, 66 / 255f),
-                        4f * 8.55f,
-                        1,
-                        0.26f,
-                        1.6f,
-                        3f,
-                        false,
-                        0,
-                        0, false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Aluminium",
-                        8,
-                        new Color(173 / 255f, 178 / 255f, 189 / 255f),
-                        4f * 2.7f,
-                        1,
-                        0.32f,
-                        1.9f,
-                        2.75f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Ceramic",
-                        9,
-                        new Color(254 / 255f, 255 / 255f, 253 / 255f),
-                        4f * 3.21f,
-                        1,
-                        0.3f,
-                        0.2f,
-                        7f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Bronze",
-                        10,
-                        new Color(205 / 255f, 127 / 255f, 50 / 255f),
-                        4f * 8.15f,
-                        1,
-                        0.29f,
-                        3f,
-                        3f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Flesh",
-                        11,
-                        new Color(255 / 255f, 204f / 255f, 153f / 255f),
-                        4f * 1.01f,
-                        1,
-                        0f,
-                        0.5f,
-                        1f,
-                        0,
-                        0.3f,
-                        0.2f,
-                        0.3f,
-                        true,
-                        200 + 273,
-                        700,
-                        false,
-                        0,
-                        300));
-        this.materials.add(
-                new Material(
-                        "Hard Flesh",
-                        12,
-                        new Color(255 / 255f, 204f / 255f, 153f / 255f),
-                        4f * 1.8f,
-                        1,
-                        0.05f,
-                        0.3f,
-                        1.2f,
-                        0,
-                        0.5f,
-                        0.2f,
-                        0.25f,
-                        true,
-                        220 + 273,
-                        650,
-                        false,
-                        0,
-                        300));
-        this.materials.add(
-                new Material(
-                        "Asphalt", 13, new Color(0.5f, 0.6f, 0.5f), 1000f, 1f, 0f, 1f, 2f, false, 0, 0, false,
-                        0, 0));
-        this.materials.add(
-                new Material(
-                        "Clay",
-                        14,
-                        new Color(132 / 255f, 92 / 255f, 64 / 255f),
-                        4f * 1.6f,
-                        1,
-                        0.3f,
-                        0.1f,
-                        2.25f,
-                        false,
-                        0,
-                        0,
-                        false,
-                        0,
-                        0));
-        this.materials.add(
-                new Material(
-                        "Plastic",
-                        15,
-                        new Color(200 / 255f, 200 / 255f, 200 / 255f),
-                        4f,
-                        1,
-                        0.3f,
-                        0.6f,
-                        2f,
-                        true,
-                        600f,
-                        800f,
-                        false,
-                        0,
-                        2000f));
+        materialProperties = new HashMap<>();
+        //  density, restitution, friction, tenacity, hardness
+        materialProperties.put("Rubber", new float[]{1.1f, 0.75f, 0.6f, 5f, 3f});
+        materialProperties.put("Plastic", new float[]{1.2f, 0.5f, 0.5f, 6f, 4f});
+        materialProperties.put("Wood", new float[]{0.6f, 0.35f, 0.4f, 4f, 2f});
+        materialProperties.put("Hard Wood", new float[]{0.8f, 0.35f, 0.4f, 4f, 3f});
+        materialProperties.put("Glass", new float[]{2.5f, 0.2f, 0.3f, 2f, 5f});
+        materialProperties.put("Copper", new float[]{8.96f, 0.25f, 0.4f, 8f, 6f});
+        materialProperties.put("Steel", new float[]{7.85f, 0.25f, 0.4f, 7f, 7f});
+        materialProperties.put("Hard Steel", new float[]{7.85f, 0.25f, 0.4f, 7f, 8f});
+        materialProperties.put("Iron", new float[]{7.87f, 0.25f, 0.4f, 6f, 6f});
+        materialProperties.put("Diamond", new float[]{3.5f, 0.075f, 0.05f, 10f, 10f});
+        materialProperties.put("Graphene", new float[]{1f, 0.975f, 0.05f, 10f, 10f});
+        materialProperties.put("Flesh", new float[]{1f, 0.15f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
+        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.65f, 0.4f, 2f, 3f}); // Adjusted hardness value
+        materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.05f, 4.75f, 7f});
+        materialProperties.put("Aluminum", new float[]{2.7f, 0.25f, 0.1f, 3.75f, 7.5f});
+        materialProperties.put("Brick", new float[]{1.6f, 0.25f, 0.05f, 4.5f, 6f});
+        materialProperties.put("Bone", new float[]{1.7f, 0.25f, 0.05f, 5f, 5f});
+        materialProperties.put("Granite", new float[]{2.75f, 0.25f, 0.05f, 6.5f, 6.5f});
+        materialProperties.put("Kevlar", new float[]{1.44f, 0.25f, 0.1f, 3.75f, 8f});
+        materialProperties.put("Silk", new float[]{1.3f, 0.25f, 0.05f, 3.25f, 7f});
+        materialProperties.put("Tungsten", new float[]{19.25f, 0.25f, 0.1f, 7.5f, 7.5f});
+        materialProperties.put("Lead", new float[]{11.34f, 0.25f, 0.05f, 1.5f, 3f});
+        materialProperties.put("Tin", new float[]{7.29f, 0.25f, 0.05f, 1.5f, 4f});
+        materialProperties.put("Brass", new float[]{8.4f, 0.25f, 0.05f, 3.5f, 3.5f});
+        materialProperties.put("Ceramic", new float[]{2.5f, 0.25f, 0.05f, 6.5f, 6.5f});
+        materialProperties.put("Asphalt", new float[]{2.5f, 0.25f, 0.05f, 2f, 4f});
+        materialProperties.put("Rock", new float[]{2.7f, 0.25f, 0.05f, 6f, 6f});
+        materialProperties.put("Marble", new float[]{2.7f, 0.25f, 0.05f, 3.75f, 3.75f});
+        materialProperties.put("Gold", new float[]{19.32f, 0.25f, 0.05f, 2.75f, 2.75f});
+        materialProperties.put("Silver", new float[]{10.49f, 0.25f, 0.05f, 2.75f, 2.75f});
+        materialProperties.put("Ivory", new float[]{1.8f, 0.25f, 0.05f, 3.25f, 3.25f});
+        materialProperties.put("Sulfur", new float[]{2.07f, 0.25f, 0.05f, 2f, 2f});
+        materialProperties.put("Coal", new float[]{1.1f, 0.25f, 0.05f, 2f, 2f});
+        materialProperties.put("Charcoal", new float[]{0.22f, 0.25f, 0.05f, 1f, 1f});
+        materialProperties.put("Clay", new float[]{2f, 0.25f, 0.05f, 2f, 2f});
+        materialProperties.put("Bronze", new float[]{8.7f, 0.25f, 0.05f, 3.5f, 3.5f});
+        materialProperties.put("Ignium", new float[]{6f, 0.075f, 0.1f, 8.5f, 8f});
+        materialProperties.put("Titanium", new float[]{4.5f, 0.25f, 0.1f, 6.5f, 6.5f});
+        materialProperties.put("Leather", new float[]{1.05f, 0.35f, 0.6f, 6f, 2f});
+
+
+
+        Material rubber = new Material("Rubber", RUBBER, new Color(0.4f, 0.4f, 0.4f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material plastic = new Material("Plastic", PLASTIC, new Color(1.0f, 0.0f, 0.0f), 0.5f, 0, 0.0f, 0.0f, 0.0f,  true, 600, 600, false, 0f,300);
+        Material wood = new Material("Wood", WOOD, new Color(0.545f, 0.271f, 0.075f),  0.6f, 0, 0.0f, 0.0f, 0.0f,  true, 500, 700, false, 0f,500);
+        Material hardWood = new Material("Hard Wood", HARD_WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f,  true, 600, 700, false, 0f,400);
+        Material glass = new Material("Glass", GLASS, new Color(1.0f, 1.0f, 1.0f),  0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material copper = new Material("Copper", COPPER, new Color(0.722f, 0.451f, 0.2f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material steel = new Material("Steel", STEEL, new Color(0.7f, 0.7f, 0.7f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material hardSteel = new Material("Hard Steel", HARD_STEEL, new Color(0.75f, 0.75f, 0.75f),0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material iron = new Material("Iron", IRON, new Color(0.878f, 0.878f, 0.878f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material diamond = new Material("Diamond", DIAMOND, new Color(0.0f, 0.0f, 0.0f,0.1f),  1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material graphene = new Material("Graphene", GRAPHENE, new Color(1.0f, 1.0f, 1.0f), 1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material flesh = new Material("Flesh", FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f), 0.7f, 0, 0.8f, 0.2f, 0.3f, true, 600, 650, false, 0.0f, 300.0);
+        Material hardFlesh = new Material("Hard Flesh", HARD_FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f),  0.7f, 0, 0.6f, 0.1f, 0.4f, true, 600, 650, false, 0.0f, 300.0);
+        Material concrete = new Material("Concrete", CONCRETE, new Color(0.663f, 0.663f, 0.663f),  0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material aluminum = new Material("Aluminum", ALUMINIUM, new Color(0.753f, 0.753f, 0.753f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material brick = new Material("Brick", BRICK, new Color(0.698f, 0.133f, 0.133f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material bone = new Material("Bone", BONE, new Color(1.0f, 0.98f, 0.94f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material granite = new Material("Granite", GRANITE, new Color(0.502f, 0.502f, 0.502f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material kevlar = new Material("Kevlar", KEVLAR, new Color(1.0f, 1.0f, 1.0f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material silk = new Material("Silk", SILK, new Color(1.0f, 1.0f, 1.0f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material tungsten = new Material("Tungsten", TUNGSTEN, new Color(0.753f, 0.753f, 0.753f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material lead = new Material("Lead", LEAD, new Color(0.663f, 0.663f, 0.663f),  0.5f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material tin = new Material("Tin", TIN, new Color(0.663f, 0.663f, 0.663f), 0.4f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material brass = new Material("Brass", BRASS, new Color(225f/255f, 193/255f, 110/255f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material ceramic = new Material("Ceramic", CERAMIC, new Color(1.0f, 1.0f, 1.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material asphalt = new Material("Asphalt", ASPHALT, new Color(0.412f, 0.412f, 0.412f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material rock = new Material("Rock", ROCK, new Color(0.502f, 0.502f, 0.502f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material marble = new Material("Marble", MARBLE, new Color(1.0f, 1.0f, 1.0f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material gold = new Material("Gold", GOLD, new Color(1.0f, 0.843f, 0.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material silver = new Material("Silver", SILVER, new Color(0.753f, 0.753f, 0.753f),  0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material ivory = new Material("Ivory", IVORY, new Color(1.0f, 1.0f, 0.941f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material sulfur = new Material("Sulfur", SULFUR, new Color(1.0f, 1.0f, 0.0f), 0.4f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material coal = new Material("Coal", COAL, new Color(0.078f, 0.078f, 0.078f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material charcoal = new Material("Charcoal", CHARCOAL, new Color(0.133f, 0.133f, 0.133f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material clay = new Material("Clay", CLAY, new Color(1.0f, 0.0f, 0.0f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material bronze = new Material("Bronze", BRONZE, new Color(0.803f, 0.584f, 0.459f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material ignium = new Material("Ignium", IGNIUM, new Color(1.0f, 0.5f, 0.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, true, 25.0, 10000.0, false, 0f, 1000000.0);
+        Material titanium = new Material("Titanium", TITANIUM, new Color(0.5f, 0.5f, 0.5f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material leather = new Material("Leather", LEATHER, new Color(0.804f, 0.522f, 0.247f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
+
+        materials.add(iron);
+        materials.add(hardWood);
+        materials.add(hardSteel);
+        materials.add(rubber);
+        materials.add(plastic);
+        materials.add(wood);
+        materials.add(glass);
+        materials.add(copper);
+        materials.add(steel);
+        materials.add(diamond);
+        materials.add(graphene);
+        materials.add(flesh);
+        materials.add(hardFlesh);
+        materials.add(concrete);
+        materials.add(aluminum);
+        materials.add(brick);
+        materials.add(bone);
+        materials.add(granite);
+        materials.add(kevlar);
+        materials.add(silk);
+        materials.add(tungsten);
+        materials.add(lead);
+        materials.add(tin);
+        materials.add(brass);
+        materials.add(ceramic);
+        materials.add(asphalt);
+        materials.add(rock);
+        materials.add(marble);
+        materials.add(gold);
+        materials.add(silver);
+        materials.add(ivory);
+        materials.add(sulfur);
+        materials.add(coal);
+        materials.add(charcoal);
+        materials.add(clay);
+        materials.add(bronze);
+        materials.add(ignium);
+        materials.add(titanium);
+        materials.add(leather);
+        materials.sort(Comparator.comparing(Material::getName));
+
     }
 
     public static MaterialFactory getInstance() {
@@ -274,7 +211,12 @@ public class MaterialFactory {
     }
 
     public Material getMaterialByIndex(int index) {
-        return this.materials.get(index);
+        try {
+            return this.materials.stream().filter(e->e.getIndex()==index).findFirst().get();
+        } catch (Throwable t){
+            Log.e("Error loading material",t.toString());
+            return null;
+        }
     }
 
 }

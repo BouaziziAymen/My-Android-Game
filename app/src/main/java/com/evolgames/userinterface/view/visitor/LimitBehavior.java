@@ -18,21 +18,30 @@ public class LimitBehavior extends VisitBehavior {
     @Override
     protected void visitElement(Element e) {
         float y = e.getAbsoluteY();
-        if (y + e.getHeight() > sup) {
+    if (y + e.getHeight() > sup) {
             if (e instanceof Limited) {
                 Limited limited = (Limited) e;
-                limited.setLimited(true);
-                limited.setLimitY0(0);
-                limited.setLimitY1(-y + sup);
+                if(y>sup){
+                  e.setVisible(false);
+                } else {
+                    e.setVisible(!e.isGone());
+                    limited.setLimited(true);
+                    limited.setLimitY0(0);
+                    limited.setLimitY1(-y + sup);
+                }
             }
         } else if (y < inf) {
             if (e instanceof Limited) {
                 Limited limited = (Limited) e;
-                limited.setLimited(true);
-                limited.setLimitY0(inf - y);
-                limited.setLimitY1(e.getHeight());
+                if(y+e.getHeight()<inf){
+                    e.setVisible(false);
+                } else {
+                    e.setVisible(!e.isGone());
+                    limited.setLimited(true);
+                    limited.setLimitY0(inf - y);
+                    limited.setLimitY1(e.getHeight());
+                }
             }
-
         } else {
             e.setVisible(!e.isGone());
             if (e instanceof Limited) {

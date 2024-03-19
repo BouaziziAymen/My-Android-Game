@@ -133,7 +133,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
                         maxParticles,
                         ResourceManager.getInstance().plasmaParticle,
                         ResourceManager.getInstance().vbom);
-        float lifespan = 1f;
+        float lifespan = 1.5f;
         this.smokeParticleSystem.addParticleInitializer(
                 new GameEntityAttachedMinMaxVelocityInitializer(
                         parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));

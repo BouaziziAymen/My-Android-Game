@@ -73,7 +73,7 @@ public class FireParticleWrapper implements Fire {
                                 .flatMapToDouble(
                                         b ->
                                                 b.getBlockGrid().getCoatingBlocks().stream()
-                                                        .mapToDouble(CoatingBlock::getTemperature))
+                                                        .mapToDouble(CoatingBlock::getFlameTemperature))
                                 .sum();
         int count =
                 (int)
@@ -107,6 +107,6 @@ public class FireParticleWrapper implements Fire {
 
     @Override
     public double getParticleTemperature(Particle<?> particle) {
-        return ((CoatingBlock) particle.getEntity().getUserData()).getTemperature();
+        return ((CoatingBlock) particle.getEntity().getUserData()).getFlameTemperature();
     }
 }

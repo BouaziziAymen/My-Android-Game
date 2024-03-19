@@ -321,7 +321,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.HARD_FLESH)),
                         0);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
@@ -333,7 +333,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
 
         points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT, 3, 15, 0, 0);
@@ -343,7 +343,7 @@ public class GameEntityFactory {
 
         points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT - 20, 3, 5, 0, 0);
         DecorationBlock stripBlock2 =
-                BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(0.4f, 0.4f, 0f)), 1);
+                BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(0f, 0f, 0.4f)), 1);
         block.addAssociatedBlock(stripBlock2);
 
         blocks.add(block);
@@ -355,7 +355,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks = new ArrayList<>();
         blocks.add(block);
@@ -373,7 +373,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks = new ArrayList<>();
         blocks.add(block);
@@ -392,7 +392,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
@@ -412,7 +412,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pullColor);
@@ -430,7 +430,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.HARD_FLESH)),
                         0);
         blocks.add(block);
         float v = (SHOULDER_WIDTH / 2
@@ -455,7 +455,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.HARD_FLESH)),
                         0);
         blocks.add(block);
         GameEntity leftHand =
@@ -477,7 +477,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks = new ArrayList<>();
         blocks.add(block);
@@ -499,7 +499,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks = new ArrayList<>();
         blocks.add(block);
@@ -522,7 +522,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
@@ -542,7 +542,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(11)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH)),
                         0);
         blocks.add(block);
         block.getProperties().setDefaultColor(pantColor);
@@ -560,7 +560,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.HARD_FLESH)),
                         0);
         blocks.add(block);
         float v1 = (HEAD_RAY
@@ -584,7 +584,7 @@ public class GameEntityFactory {
                 BlockFactory.createLayerBlock(
                         points,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(12)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.HARD_FLESH)),
                         0);
         blocks.add(block);
         GameEntity rightFoot =

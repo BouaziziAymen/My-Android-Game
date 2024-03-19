@@ -26,4 +26,6 @@ public interface INativeUIController {
     void onProceedToEdit(String itemNameText);
 
     void onProceedToCreate(String itemNameText, String itemTypeText, String itemTemplateText);
+
+    void onItemSaved();
 }

@@ -103,6 +103,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
                         new ModelPointImage(this, ResourceManager.getInstance().diskTextureRegion, point);
                 addElement(pointImage);
                 pointImage.setPointsShape(this);
+                pointImage.setDepth(50);
                 this.pointImages.add(pointImage);
             }
         }
@@ -114,6 +115,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         referencePointImages.add(centerPointImage);
         centerPointImage.setScale(scaleX, scaleY);
         editorUserInterface.addReferencePoint(centerPointImage);
+        centerPointImage.updateZoom(editorUserInterface.getZoomFactor());
     }
 
     private void updateReferencePointImages() {

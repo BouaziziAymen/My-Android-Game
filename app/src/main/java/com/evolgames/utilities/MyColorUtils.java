@@ -33,9 +33,9 @@ public class MyColorUtils {
                     float alpha;
                     color.set(MyColorUtils.getColor(temperature));
                     if (temperature > 1000f) {
-                        alpha = 1f;
+                        alpha = 0.5f;
                     } else if (temperature > 300f) {
-                        alpha = (temperature - 300f) / 700f;
+                        alpha = 0.5f*(temperature - 300f) / 700f;
                     } else {
                         alpha = 0;
                     }
@@ -57,7 +57,7 @@ public class MyColorUtils {
                     @Override
                     public void performAction(Color color, float burnRatio) {
                         result = true;
-                        color.set(0.1f, 0.1f, 0.1f, burnRatio);
+                        color.set(0.1f, 0.1f, 0.1f, burnRatio/2f);
                     }
                 };
         gradient = new ArrayList<>();
@@ -67,14 +67,6 @@ public class MyColorUtils {
         gradient.add(new Color(1, 1, 1));
         gradient.add(new Color(0.5f, 0.5f, 1f));
         gradient.add(new Color(0, 0, 1f));
-
-        ArrayList<Color> flameColors = new ArrayList<>();
-        flameColors.add(Color.RED); // 600K/800K
-        flameColors.add(new Color(1f, 215 / 255f, 0));
-        flameColors.add(Color.YELLOW);
-        flameColors.add(Color.CYAN);
-        flameColors.add(Color.BLUE);
-        flameColors.add(Color.WHITE);
     }
 
     public static float getPreviousTemperature(double temperature) {
@@ -144,22 +136,6 @@ public class MyColorUtils {
 
         float b01 = ((1 - a0) * a1 * b1 + a0 * b0);
         resultColor.set(r01, g01, b01, a01);
-    }
-
-    public static int getTemperatureLevel(float temperature) {
-
-        if (temperature < 600) return 0;
-        else if (temperature < 1000) return 1;
-        else if (temperature < 2000) return 2;
-        else if (temperature < 3000) return 3;
-        else if (temperature < 4000) return 4;
-        else if (temperature < 5000) return 5;
-        else if (temperature < 6000) return 6;
-        else if (temperature < 7000) return 7;
-        else if (temperature < 8000) return 8;
-        else if (temperature < 9000) return 9;
-        else if (temperature < 10000) return 10;
-        else return 11;
     }
 
     public static boolean setRadianceColor(Color color, double temperature) {

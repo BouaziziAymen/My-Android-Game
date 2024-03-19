@@ -76,17 +76,6 @@ public class PointImage extends SceneImage implements Movable {
         setColor(1, 1, 1);
     }
 
-    public void undoDoubleSelect() {
-        Color green = Colors.palette1_light_green;
-        if (selected) setColor(green);
-        else setColor(1, 1, 1);
-    }
-
-    public void doubleSelect() {
-        Color blue = Colors.palette1_blue;
-        setColor(blue);
-    }
-
     @Override
     public void updateZoom(float pZoomFactor) {
         super.updateZoom(pZoomFactor);

@@ -30,7 +30,7 @@ public class BodyFactory {
 
     public Body createBoxBody(float x, float y, float w, float h, BodyDef.BodyType type) {
         FixtureDef fixtureDef = new FixtureDef();
-        Material flesh = MaterialFactory.getInstance().getMaterialByIndex(10);
+        Material flesh = MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.FLESH);
         fixtureDef.density = flesh.getDensity();
         fixtureDef.friction = flesh.getFriction();
         fixtureDef.restitution = flesh.getRestitution();

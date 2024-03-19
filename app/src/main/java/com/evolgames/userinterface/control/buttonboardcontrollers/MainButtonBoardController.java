@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
+import com.evolgames.scenes.entities.SceneType;
+import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
@@ -38,6 +40,7 @@ public class MainButtonBoardController extends ButtonBoardController {
         editorUserInterface.getDrawButtonBoardController().closeBoard();
         editorUserInterface.getLayersWindowController().closeWindow();
 
+        editorUserInterface.getCreationZoneController().setAction(CreationZoneController.CreationAction.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
@@ -62,6 +65,7 @@ public class MainButtonBoardController extends ButtonBoardController {
     public void onImageOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
 
+        editorUserInterface.getCreationZoneController().setAction(CreationZoneController.CreationAction.NONE);
         editorUserInterface.getImageButtonBoardController().closeBoard();
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
@@ -88,6 +92,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
         editorUserInterface.getJointButtonBoardController().closeBoard();
 
+        editorUserInterface.getCreationZoneController().setAction(CreationZoneController.CreationAction.NONE);
         editorUserInterface.getJointsWindowController().closeWindow();
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
@@ -109,6 +114,8 @@ public class MainButtonBoardController extends ButtonBoardController {
 
     public void onToolOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
+
+        editorUserInterface.getCreationZoneController().setAction(CreationZoneController.CreationAction.NONE);
         editorUserInterface.getItemButtonBoardController().closeBoard();
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
@@ -132,7 +139,31 @@ public class MainButtonBoardController extends ButtonBoardController {
 
     public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
+        editorUserInterface.getCreationZoneController().setAction(CreationZoneController.CreationAction.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
-        // userInterface.setItemButtonBoardVisible(false);
+    }
+
+    public void onHomeButtonClicked(Button<MainButtonBoardController> button) {
+        onButtonClicked(button);
+        editorUserInterface.updateOptionsWindow(SettingsType.NONE);
+        editorUserInterface.getDrawButtonBoardController().closeBoard();
+        editorUserInterface.getImageButtonBoardController().closeBoard();
+        editorUserInterface.getJointButtonBoardController().closeBoard();
+        editorUserInterface.getItemButtonBoardController().closeBoard();
+
+        editorUserInterface.getLayersWindowController().closeWindow();
+        editorUserInterface.getJointsWindowController().closeWindow();
+        editorUserInterface.getItemWindowController().closeWindow();
+        editorUserInterface.getItemSaveWindowController().closeWindow();
+        editorUserInterface.getJointSettingsWindowController().closeWindow();
+
+        editorUserInterface.changeSelectedScreen(Screen.NONE);
+    }
+
+    public void onHomeButtonReleased(Button<MainButtonBoardController> button) {
+        onButtonReleased(button);
+        editorUserInterface.doWithConfirm("Are you sure you want to quit?",()->{
+            editorUserInterface.getScene().goToScene(SceneType.MENU);
+        });
     }
 }

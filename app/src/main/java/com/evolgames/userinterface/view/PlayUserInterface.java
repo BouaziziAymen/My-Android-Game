@@ -55,7 +55,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
     }
 
     @Override
-    public void onTouchScene(TouchEvent pTouchEvent, boolean scroll) {
+    public void onTouchScene(TouchEvent pTouchEvent) {
     }
 
     public void updateParticularUsageSwitcher(PlayerSpecialAction[] usages) {

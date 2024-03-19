@@ -48,7 +48,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public static Plotter plotter;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
-    private boolean scroll = false;
     private float mPinchZoomStartedCameraZoomFactor;
     private BodyModel groundModel;
 
@@ -92,8 +91,15 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void createUserInterface() {
         ItemMetaData itemMetaData = ResourceManager.getInstance().getEditorItem();
-        ToolModel toolModel = loadToolModel(itemMetaData.getTemplateName(), true, !itemMetaData.isUserCreated());
-        toolModel.getProperties().setToolName(itemMetaData.getName());
+        ToolModel toolModel = null;
+        if(itemMetaData!=null) {
+            toolModel = loadToolModel(itemMetaData.getTemplateName(), true, !itemMetaData.isUserCreated());
+            toolModel.getProperties().setToolName(itemMetaData.getName());
+            toolModel.setCategory(itemMetaData.getItemCategory());
+        }
+        if(toolModel==null){
+            toolModel = new ToolModel(this);
+        }
         init();
 
         KeyboardController keyboardController = new KeyboardController();
@@ -214,7 +220,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
         boolean hudTouched = userInterface.onTouchHud(hudTouchEvent);
         if (!hudTouched) {
-            userInterface.onTouchScene(touchEvent, scroll);
+            userInterface.onTouchScene(touchEvent);
         }
 
         if (mPinchZoomDetector != null) {
@@ -280,7 +286,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void onScrollStarted(
             ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-        scroll = true;
+       userInterface.getCreationZoneController().setUpLocked(true);
     }
 
     @Override
@@ -301,7 +307,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void onScrollFinished(
             ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-        scroll = false;
+        userInterface.getCreationZoneController().setUpLocked(false);
     }
 
     public void setScrollerEnabled(boolean pScrollerEnabled) {

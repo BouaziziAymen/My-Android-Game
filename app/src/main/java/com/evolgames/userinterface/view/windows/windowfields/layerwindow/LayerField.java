@@ -188,14 +188,18 @@ public class LayerField extends SecondaryLinearLayout {
         this.layerRemoveButton.setVisible(true);
         this.layerAddDecorationButton.setVisible(true);
         this.layerShowHideButton.setVisible(true);
+        this.layerOptionsButton.setGone(false);
+        this.layerRemoveButton.setGone(false);
+        this.layerAddDecorationButton.setGone(false);
+        this.layerShowHideButton.setGone(false);
     }
 
     public void hideFields() {
         this.visibleFields = false;
-        this.layerOptionsButton.setVisible(false);
-        this.layerRemoveButton.setVisible(false);
-        this.layerAddDecorationButton.setVisible(false);
-        this.layerShowHideButton.setVisible(false);
+        this.layerOptionsButton.setGone(true);
+        this.layerRemoveButton.setGone(true);
+        this.layerAddDecorationButton.setGone(true);
+        this.layerShowHideButton.setGone(true);
     }
 
     @Override

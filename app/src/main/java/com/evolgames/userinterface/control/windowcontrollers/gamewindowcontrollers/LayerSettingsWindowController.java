@@ -46,7 +46,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private final NumericValidator flameTemperatureValidator =
             new NumericValidator(false, false, 0, 10000, 4, 1);
     private final NumericValidator energyValidator =
-            new NumericValidator(false, false, 0, 100000, 5, 1);
+            new NumericValidator(false, false, 0, 100000000, 9, 1);
     private final AlphaNumericValidator layerNameValidator = new AlphaNumericValidator(8, 5);
     private LayerWindowController layerWindowController;
     private TextField<LayerSettingsWindowController> flameTemperatureTextField;
@@ -71,6 +71,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private TitledQuantity<LayerSettingsWindowController> juicinessQuantity;
     private TitledQuantity<LayerSettingsWindowController> juiceUpperRateQuantity;
     private TitledQuantity<LayerSettingsWindowController> juiceFlammabilityQuantity;
+    private Quantity<LayerSettingsWindowController> heatResistanceQuantity;
 
     public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
         this.colorSelectorController = colorSelectorController;
@@ -87,7 +88,9 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
     private void setJuiceColorSlot() {
         Color color = layerProperty.getJuiceColor();
-        colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
+        if(color!=null) {
+            colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
+        }
     }
 
     @Override
@@ -107,6 +110,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         setBounciness(layerProperty.getRestitution());
         setFriction(layerProperty.getFriction());
         setTenacity(layerProperty.getTenacity());
+        setHeatResistance(layerProperty.getHeatResistance());
         setSharpness(layerProperty.getSharpness());
         setHardness(layerProperty.getHardness());
         setJuiceIndex(layerProperty.getJuiceIndex());
@@ -193,17 +197,17 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         window.addPrimary(materialsSection);
 
         for (int i = 0; i < MaterialFactory.getInstance().materials.size(); i++) {
-
+            Material material = MaterialFactory.getInstance().materials.get(i);
             ButtonWithText<LayerSettingsWindowController> materialButton =
                     new ButtonWithText<>(
-                            this.getMaterialNameByIndex(i),
+                            material.getName(),
                             2,
                             ResourceManager.getInstance().simpleButtonTextureRegion,
                             Button.ButtonType.Selector,
                             true);
 
             SimpleSecondary<ButtonWithText<?>> materialField =
-                    new SimpleSecondary<>(2, i, materialButton);
+                    new SimpleSecondary<>(2, material.getIndex(), materialButton);
             window.addSecondary(materialField);
             materialButton.setBehavior(
                     new ButtonBehavior<LayerSettingsWindowController>(this, materialButton) {
@@ -360,6 +364,29 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         sharpnessQuantity
                 .getBehavior()
                 .setChangeAction(() -> layerProperty.setSharpness(sharpnessQuantity.getRatio()));
+
+        secId++;
+        TitledQuantity<LayerSettingsWindowController> titledHeatResistanceQuantity =
+                new TitledQuantity<>("Heat Res:", 10, "g", 5, 76);
+        heatResistanceQuantity = titledHeatResistanceQuantity.getAttachment();
+        titledHeatResistanceQuantity
+                .getAttachment()
+                .setBehavior(
+                        new QuantityBehavior<LayerSettingsWindowController>(
+                                this, titledHeatResistanceQuantity.getAttachment()) {
+                            @Override
+                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                            }
+                        });
+        SimpleSecondary<TitledQuantity<?>> heatResistanceElement =
+                new SimpleSecondary<>(3, secId, titledHeatResistanceQuantity);
+        window.addSecondary(heatResistanceElement);
+        heatResistanceQuantity
+                .getBehavior()
+                .setChangeAction(() -> layerProperty.setHeatResistance(heatResistanceQuantity.getRatio()));
+
+
+
 
         secId++;
         TitledButton<LayerSettingsWindowController> juicyButton =
@@ -665,7 +692,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
         TitledTextField<LayerSettingsWindowController> energyField =
-                new TitledTextField<>("Energy:", 6, 5, 50);
+                new TitledTextField<>("Energy:", 8, 5, 50);
         energyTextField = energyField.getAttachment();
 
         energyField
@@ -835,6 +862,9 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private void setTenacity(float tenacity) {
         tenacityQuantity.updateRatio(PhysicsConstants.getTenacityRatio(tenacity));
     }
+    private void setHeatResistance(float heatResistance) {
+        heatResistanceQuantity.updateRatio(heatResistance<=1.0?heatResistance:0);
+    }
 
     private void setFlammability(float flammability) {
         flammabilityQuantity.updateRatio(flammability);
@@ -900,8 +930,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         if (index == -1) {
             return;
         }
-        for (int i = 0; i < window.getLayout().getQuaternatiesSize(3, 6, 0); i++) {
-            SimpleQuaternary<?> element = window.getLayout().getQuaternaryByIndex(3, 6, 0, i);
+        for (int i = 0; i < window.getLayout().getQuaternatiesSize(3, 7, 0); i++) {
+            SimpleQuaternary<?> element = window.getLayout().getQuaternaryByIndex(3, 7, 0, i);
             Element main = element.getMain();
             if (element.getQuaternaryKey() == index) {
                 if (main instanceof ButtonWithText) {
@@ -988,6 +1018,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         layerProperty.setRestitution(material.getRestitution());
         layerProperty.setFriction(material.getFriction());
         layerProperty.setTenacity(material.getTenacity());
+        layerProperty.setHeatResistance(material.getHeatResistance());
         layerProperty.setHardness(material.getHardness());
         layerProperty.setJuicy(material.isJuicy());
         layerProperty.setJuiceIndex(material.getJuiceIndex());
@@ -1007,6 +1038,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         setBounciness(layerProperty.getRestitution());
         setFriction(layerProperty.getFriction());
         setTenacity(layerProperty.getTenacity());
+        setHeatResistance(layerProperty.getHeatResistance());
         setHardness(layerProperty.getHardness());
         setJuicy(layerProperty.isJuicy());
         setJuiceIndex(layerProperty.getJuiceIndex());

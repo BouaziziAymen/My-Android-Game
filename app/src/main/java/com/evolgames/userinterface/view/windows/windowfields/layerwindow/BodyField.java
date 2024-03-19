@@ -112,13 +112,16 @@ public class BodyField extends PrimaryLinearLayout {
         this.bodyOptionsButton.setVisible(true);
         this.bodyRemoveButton.setVisible(true);
         this.addLayerButton.setVisible(true);
+        this.bodyOptionsButton.setGone(false);
+        this.bodyRemoveButton.setGone(false);
+        this.addLayerButton.setGone(false);
     }
 
     public void hideFields() {
         this.visibleFields = false;
-        this.bodyOptionsButton.setVisible(false);
-        this.bodyRemoveButton.setVisible(false);
-        this.addLayerButton.setVisible(false);
+        this.bodyOptionsButton.setGone(true);
+        this.bodyRemoveButton.setGone(true);
+        this.addLayerButton.setGone(true);
     }
 
     @Override

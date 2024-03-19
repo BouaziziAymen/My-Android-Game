@@ -16,14 +16,16 @@ public class ModelPointImage extends PointImage {
 
     @Override
     public void onControllerMoved(float dx, float dy) {
-        Vector2 d = new Vector2(dx, dy);
-        if (pointsShape.getOutlineModel().testMove(point, d.x, d.y)) {
-            super.onControllerMoved(d.x, d.y);
+        if (pointsShape.getOutlineModel().testMove(point, dx, dy)) {
+            super.onControllerMoved(dx, dy);
             pointsShape.getOutlineModel().updateOutlinePoints();
             pointsShape.onModelUpdated();
         } else {
+            Vector2 d = new Vector2(dx, dy);
+            float len = d.len();
+            d.nor().mul(len/2);
             if (d.len() > 0.02f) {
-                this.onControllerMoved(d.x / 2, d.y / 2);
+                this.onControllerMoved(d.x, d.y);
             }
         }
     }

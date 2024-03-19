@@ -49,7 +49,7 @@ public class EditItemDialog extends DialogFragment {
 
 
         TextView linkTextView = dialogLayout.findViewById(R.id.linkTextView);
-        String linkText = "Or create New";
+        String linkText = "Or Create New";
         SpannableString spannableString = new SpannableString(linkText);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
