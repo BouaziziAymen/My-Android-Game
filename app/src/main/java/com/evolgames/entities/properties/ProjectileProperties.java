@@ -18,6 +18,9 @@ public class ProjectileProperties extends Properties {
     private float particles;
     private float inFirePartSize;
     private float finFirePartSize;
+    private String missileFile = "";
+
+    private boolean assetsMissile;
 
     public ProjectileProperties(Vector2 begin, Vector2 end) {
         this.projectileOrigin = begin.cpy();
@@ -131,5 +134,21 @@ public class ProjectileProperties extends Properties {
 
     public void setFinFirePartSize(float finFirePartSize) {
         this.finFirePartSize = finFirePartSize;
+    }
+
+    public String getMissileFile() {
+        return missileFile;
+    }
+
+    public void setMissileFile(String missileFile) {
+        this.missileFile = missileFile;
+    }
+
+    public boolean isAssetsMissile() {
+        return assetsMissile;
+    }
+
+    public void setAssetsMissile(boolean assetsMissile) {
+        this.assetsMissile = assetsMissile;
     }
 }

@@ -359,12 +359,4 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         this.category = category;
     }
 
-    public ItemMetaData toMetaData() {
-        ItemMetaData itemMetaData = new ItemMetaData();
-        itemMetaData.setItemCategory(category);
-        itemMetaData.setToolName(this.properties.getToolName());
-        itemMetaData.setFileName(XmlHelper.convertToXmlFormat(this.properties.getToolName()));
-        itemMetaData.setUserCreated(true);
-        return itemMetaData;
-    }
 }

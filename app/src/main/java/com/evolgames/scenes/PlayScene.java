@@ -416,7 +416,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 BlockFactory.createLayerBlock(
                         vertices1,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(13)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.CONCRETE)),
                         0,
                         0,
                         false));
@@ -701,7 +701,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     public void createLastItem() {
-        createItemFromFile(EditorScene.SAVE_MUT, false, false);
+        createItemFromFile("editor_auto_save.mut", false, false);
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {

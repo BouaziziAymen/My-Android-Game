@@ -27,12 +27,12 @@ public class StainProperties extends ColoredProperties {
 
     @NonNull
     @Override
-    public Object clone() {
+    public StainProperties clone() {
         StainProperties clone = (StainProperties) super.clone();
         clone.setTextureRegionIndex(textureRegionIndex);
         clone.setLocalCenter(localCenter.cpy());
         clone.setRotation(rotation);
-        clone.setDefaultColor(color);
+        clone.setDefaultColor(new Color(color));
         clone.setFlammability(flammability);
         return clone;
     }

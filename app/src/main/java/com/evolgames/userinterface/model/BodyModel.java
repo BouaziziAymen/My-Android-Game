@@ -5,6 +5,7 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
@@ -220,6 +221,10 @@ public class BodyModel extends OutlineModel<BodyProperties> {
                                 case SHOOTER_CONTINUOUS:
                                     Shooter shooter = new Shooter(e, physicsScene, mirrored);
                                     this.getGameEntity().getUseList().add(shooter);
+                                    break;
+                                case BOW:
+                                    Bow bow = new Bow(e, mirrored);
+                                    this.getGameEntity().getUseList().add(bow);
                                     break;
                                 case TIME_BOMB:
                                     TimeBomb timeBomb = new TimeBomb(e, mirrored);

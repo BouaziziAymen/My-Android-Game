@@ -3,6 +3,7 @@ package com.evolgames.entities.hand;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.usage.Slasher;
 
 public class MoveToSlashHandControl extends HandControl {
 
@@ -35,10 +36,11 @@ public class MoveToSlashHandControl extends HandControl {
             return;
         }
         MouseJoint mouseJoint = this.hand.getMouseJoint();
-        if (mouseJoint == null || !this.hand.getGrabbedEntity().isAlive()) {
+        if (mouseJoint == null ||this.hand.getGrabbedEntity()==null||!this.hand.getGrabbedEntity().hasActiveUsage(Slasher.class)) {
             return;
         }
-        this.hand.doSash();
+
+        this.hand.doSlash();
         if (!isDead()) {
             position.set(getGrabbedEntity().getBody().getWorldPoint(localPoint));
             target.set(this.hand.getMouseJoint().getTarget());

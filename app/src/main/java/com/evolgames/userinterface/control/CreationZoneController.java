@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.control;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.scenes.EditorScene;
@@ -155,7 +153,6 @@ public class CreationZoneController extends Controller {
         processAbortedIndicators();
         if (action == CreationAction.ADD_POINT) {
             processAddPoint(x, y);
-            this.editorUserInterface.saveToolModel("editor_auto_save.mut");
         }
         if (action == CreationAction.REMOVE_POINT) {
             processRemovePoint(x, y);
@@ -174,21 +171,25 @@ public class CreationZoneController extends Controller {
     }
 
     private void releaseBoardsButtons() {
+        if (action == CreationAction.ROTATE_IMAGE || action == CreationAction.SCALE_IMAGE|| action == CreationAction.MOVE_IMAGE) {
+            editorUserInterface.getImageButtonBoardController().releaseButtons();
+            setAction(CreationAction.NONE);
+        }
         if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
             editorUserInterface.getDrawButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
+            setAction(CreationAction.NONE);
         }
         if (action == CreationAction.REVOLUTE || action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
             editorUserInterface.getJointButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
+            setAction(CreationAction.NONE);
         }
         if (action == CreationAction.PIPING) {
             editorUserInterface.getImageButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
+            setAction(CreationAction.NONE);
         }
         if (action == CreationAction.BOMB || action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
             editorUserInterface.getItemButtonBoardController().releaseButtons();
-            action = CreationAction.NONE;
+            setAction(CreationAction.NONE);
         }
     }
 
@@ -457,7 +458,6 @@ public class CreationZoneController extends Controller {
             return;
         }
         if (action == CreationAction.ROTATE && layerWindowController.getSelectedPointsModel() != null) {
-            Log.e("indicator", "rotate");
             indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene, 64);
             creationZone.setTouchLocked(true);
             return;
@@ -628,7 +628,4 @@ public class CreationZoneController extends Controller {
         this.imageFixedRatio = imageFixedRatio;
     }
 
-    public enum CreationAction {
-        ADD_POINT, MOVE_POINT, REMOVE_POINT, ADD_POLYGON, NONE, MIRROR, ROTATE, SHIFT, REVOLUTE, PRISMATIC, WELD, DISTANCE, MOVE_JOINT_POINT, MOVE_IMAGE, ROTATE_IMAGE, SCALE_IMAGE, PIPING, PROJECTILE, MOVE_TOOL_POINT, AMMO, FIRE_SOURCE, BOMB, LIQUID_SOURCE, DRAG
-    }
 }

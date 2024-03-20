@@ -22,6 +22,7 @@ import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
+import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
@@ -122,7 +123,6 @@ public class PersistenceCaretaker {
     public static final String PROJECTILE_TAG = "projectile";
     public static final String FIRE_SOURCE_TAG = "fireSource";
     public static final String LIQUID_SOURCE_TAG = "liquidSource";
-    public static final String PROJECTILE_FILE_TAG = "missileFile";
     public static final String JOINT_COLLIDE_CONNECTED_ATTRIBUTE = "collideConnected";
     public static final String JOINT_TYPE_ATTRIBUTE = "type";
     public static final String BODY_A_ID_JOINT_ATTRIBUTE = "bodyAId";
@@ -183,6 +183,7 @@ public class PersistenceCaretaker {
 
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
+        //addSymbolToTheEndOfItems();
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -196,6 +197,12 @@ public class PersistenceCaretaker {
             props.setDensity(material.getDensity());
             props.setRestitution(material.getRestitution());
             props.setFriction(material.getFriction());
+        });
+    }
+    private void addSymbolToTheEndOfItems() {
+        VersioningHelper.applyTreatment(toolModel -> {
+            String name = toolModel.getProperties().getToolName();
+            toolModel.getProperties().setToolName(name+"#");
         });
     }
 
@@ -391,7 +398,7 @@ public class PersistenceCaretaker {
             Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
             Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
             if (usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS
-                    || usageModel.getType() == BodyUsageCategory.SHOOTER || usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
+                    || usageModel.getType() == BodyUsageCategory.SHOOTER||usageModel.getType() == BodyUsageCategory.BOW || usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
                 RangedProperties rangedProperties = bodyModel.getUsageModelProperties(usageModel.getType());
                 propertiesElement.setAttribute(
                         USAGE_PROPERTIES_PROJECTILES_TAG,
@@ -525,8 +532,6 @@ public class PersistenceCaretaker {
         projectileElement.setAttribute(NAME, String.valueOf(projectileModel.getModelName()));
         Element propertiesElement = createPropertiesElement(document, projectileModel.getProperties());
         projectileElement.appendChild(propertiesElement);
-        projectileElement.setAttribute(
-                PROJECTILE_FILE_TAG, projectileModel.getMissileFile());
         if (projectileModel.getCasingModel() != null) {
             projectileElement.setAttribute(
                     AMMO_ID_TAG, String.valueOf(projectileModel.getCasingModel().getCasingId()));
@@ -626,7 +631,12 @@ public class PersistenceCaretaker {
                                         }
                                         assert (value != null) : "conversion failed";
                                         method.invoke(properties, value);
-                                    } else if (field.getType() == Color.class) {
+                                    }
+                                    else if (field.getType() == String.class) {
+                                        String stringValue = propertiesElement.getAttribute(field.getName());
+                                        method.invoke(properties, stringValue);
+                                    }
+                                    else if (field.getType() == Color.class) {
                                         int packedColor =
                                                 Integer.parseInt(propertiesElement.getAttribute(field.getName()));
                                         Color color = ColorUtils.convertARGBPackedIntToColor(packedColor);
@@ -840,7 +850,7 @@ public class PersistenceCaretaker {
                                                                     .getFireSourceIds()
                                                                     .contains(p.getFireSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Shooter") || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
+                } else if (e.getType().toString().startsWith("Shooter") || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER||e.getType()==BodyUsageCategory.BOW) {
                     RangedProperties rangedProperties = (RangedProperties) e.getProperties();
                     rangedProperties
                             .getProjectileModelList()
@@ -1250,6 +1260,15 @@ public class PersistenceCaretaker {
                 rangedAutomaticProperties.setProjectileIds(usageProjectileIds);
                 usageModel.setProperties(rangedAutomaticProperties);
                 break;
+            case BOW:
+                usageProjectileIds =
+                        convertStringToIntList(
+                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                BowProperties bowProperties =
+                        loadProperties(propertiesElement, BowProperties.class);
+                bowProperties.setProjectileIds(usageProjectileIds);
+                usageModel.setProperties(bowProperties);
+                break;
             case TIME_BOMB:
                 TimeBombUsageProperties timeBombUsageProperties =
                         loadProperties(propertiesElement, TimeBombUsageProperties.class);
@@ -1399,8 +1418,6 @@ public class PersistenceCaretaker {
         ProjectileProperties projectileProperties =
                 loadProperties(propertiesElement, ProjectileProperties.class);
         projectileModel.setProperties(projectileProperties);
-        String fileName = projectileElement.getAttribute(PROJECTILE_FILE_TAG);
-        projectileModel.setMissileFile(fileName);
         return projectileModel;
     }
 

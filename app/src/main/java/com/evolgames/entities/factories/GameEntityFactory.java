@@ -342,8 +342,9 @@ public class GameEntityFactory {
         block.addAssociatedBlock(stripBlock);
 
         points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT - 20, 3, 5, 0, 0);
+       Color beltColor = MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.LEATHER).getColor();
         DecorationBlock stripBlock2 =
-                BlockFactory.createDecorationBlock(points, new DecorationProperties(new Color(0f, 0f, 0.4f)), 1);
+                BlockFactory.createDecorationBlock(points, new DecorationProperties(beltColor), 1);
         block.addAssociatedBlock(stripBlock2);
 
         blocks.add(block);

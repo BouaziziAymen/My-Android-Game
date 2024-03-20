@@ -1,6 +1,6 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
-import com.evolgames.userinterface.control.CreationZoneController;
+import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -36,7 +36,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         onButtonClicked(button);
         editorUserInterface
                 .getCreationZoneController()
-                .setAction(CreationZoneController.CreationAction.MOVE_IMAGE);
+                .setAction(CreationAction.MOVE_IMAGE);
         editorUserInterface.updateOptionsWindow(SettingsType.NONE);
     }
 
@@ -48,7 +48,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         onButtonClicked(button);
         editorUserInterface
                 .getCreationZoneController()
-                .setAction(CreationZoneController.CreationAction.SCALE_IMAGE);
+                .setAction(CreationAction.SCALE_IMAGE);
         editorUserInterface.updateOptionsWindow(SettingsType.SCALE_IMAGE_SETTINGS);
     }
 
@@ -60,7 +60,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         onButtonClicked(button);
         editorUserInterface
                 .getCreationZoneController()
-                .setAction(CreationZoneController.CreationAction.ROTATE_IMAGE);
+                .setAction(CreationAction.ROTATE_IMAGE);
         editorUserInterface.updateOptionsWindow(SettingsType.NONE);
     }
 
@@ -72,7 +72,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         onButtonClicked(button);
         editorUserInterface
                 .getCreationZoneController()
-                .setAction(CreationZoneController.CreationAction.PIPING);
+                .setAction(CreationAction.PIPING);
         editorUserInterface.updateOptionsWindow(SettingsType.PIPE_SETTINGS);
     }
 
@@ -84,7 +84,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         onButtonReleased(button);
         editorUserInterface
                 .getCreationZoneController()
-                .setAction(CreationZoneController.CreationAction.NONE);
+                .setAction(CreationAction.NONE);
         editorUserInterface.updateOptionsWindow(SettingsType.IMAGE_SETTINGS);
     }
 }

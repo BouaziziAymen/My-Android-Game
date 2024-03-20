@@ -15,7 +15,7 @@ public class DecorationProperties extends ColoredProperties {
 
     @NonNull
     @Override
-    public Object clone() {
+    public DecorationProperties clone() {
         DecorationProperties clone = (DecorationProperties) super.clone();
         clone.setDefaultColor(new Color(getDefaultColor()));
         return clone;

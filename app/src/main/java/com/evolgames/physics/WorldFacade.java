@@ -152,8 +152,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8);
-        physicsWorld.setPositionIterations(3);
+        physicsWorld.setVelocityIterations(12);
+        physicsWorld.setPositionIterations(5);
         physicsWorld.setContinuousPhysics(true);
     }
 

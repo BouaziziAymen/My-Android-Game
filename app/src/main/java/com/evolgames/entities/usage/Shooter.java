@@ -104,7 +104,7 @@ public class Shooter extends Use {
         this.missileModels = new ArrayList<>();
         for (ProjectileInfo projectileInfo : this.projectileInfoList) {
             try {
-                ToolModel toolModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile());
+                ToolModel toolModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile(),projectileInfo.isAssetsMissile());
                 missileModels.add(toolModel);
             } catch (PersistenceException | ParserConfigurationException | SAXException |
                      IOException e) {

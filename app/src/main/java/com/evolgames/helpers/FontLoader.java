@@ -24,7 +24,7 @@ public class FontLoader {
     // PhysicsConstants
     // ===========================================================
     private static final String LOADING_LETTERS_LIST =
-            "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?+-:èé";
+            "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?+-#:èé";
     // ===========================================================
     // Fields
     // ===========================================================

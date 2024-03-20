@@ -181,7 +181,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         ColoredProperties props = ((ColoredProperties) model.getProperties());
                         if (colorSelectorController != null) {
                             colorSelectorController.bindProperties(
-                                    props.getDefaultColor(), props.getColorSquareId());
+                                    props);
                             colorSelectorController.setAcceptAction(() -> setLayerColorSlot());
                             colorSelectorController.openWindow();
                         }
@@ -486,8 +486,13 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                     public void informControllerButtonReleased() {
                         if (colorSelectorController != null) {
                             Color juiceColor = ((LayerProperties) model.getProperties()).getJuiceColor();
-                            colorSelectorController.bindProperties(
-                                    juiceColor, -1);
+                            ColoredProperties juiceProps = new ColoredProperties() {
+                                @Override
+                                public Color getDefaultColor() {
+                                    return juiceColor;
+                                }
+                            };
+                            colorSelectorController.bindProperties(juiceProps);
                             colorSelectorController.setAcceptAction(() -> setJuiceColorSlot());
                             colorSelectorController.openWindow();
                         }

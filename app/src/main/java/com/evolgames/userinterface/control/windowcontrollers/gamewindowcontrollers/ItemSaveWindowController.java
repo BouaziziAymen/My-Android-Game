@@ -41,7 +41,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
                         titledTextField.getAttachment(),
                         Keyboard.KeyboardType.AlphaNumeric,
                         itemNameValidator,
-                        true) {
+                        false) {
                     @Override
                     protected void informControllerTextFieldTapped() {
                         ItemSaveWindowController.super.onTextFieldTapped(titledTextField.getAttachment());

@@ -3,7 +3,9 @@ package com.evolgames.scenes;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.Plotter;
 import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.entities.SceneType;
+import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -25,6 +27,7 @@ import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrolle
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
+import com.evolgames.userinterface.view.Screen;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
@@ -42,8 +45,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         ScrollDetector.IScrollDetectorListener,
         PinchZoomDetector.IPinchZoomDetectorListener {
 
-    public static final String EDITOR_FILE = "editor_file";
-    public static final String SAVE_MUT = "editor_auto_save.mut";
     public static int step;
     public static Plotter plotter;
     private final SurfaceScrollDetector mScrollDetector;
@@ -91,14 +92,18 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void createUserInterface() {
         ItemMetaData itemMetaData = ResourceManager.getInstance().getEditorItem();
-        ToolModel toolModel = null;
-        if(itemMetaData!=null) {
-            toolModel = loadToolModel(itemMetaData.getTemplateName(), true, !itemMetaData.isUserCreated());
-            toolModel.getProperties().setToolName(itemMetaData.getName());
-            toolModel.setCategory(itemMetaData.getItemCategory());
+        ToolModel toolModel;
+        if(itemMetaData==null){
+            throw new IllegalStateException("Entered into editor without a name");
         }
+        toolModel = loadToolModel(itemMetaData.getTemplateName()!=null?itemMetaData.getTemplateName():itemMetaData.getFileName(), true, !itemMetaData.isUserCreated());
+
         if(toolModel==null){
             toolModel = new ToolModel(this);
+            toolModel.getProperties().setToolName(itemMetaData.getName());
+            toolModel.setCategory(itemMetaData.getItemCategory());
+        } else {
+            toolModel.setModelName(itemMetaData.getName());
         }
         init();
 
@@ -201,13 +206,22 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
     @Override
     public void onPause() {
-        this.saveStringToPreferences(EDITOR_FILE, SAVE_MUT);
-        this.getUserInterface().saveToolModel(SAVE_MUT);
+        CreationAction creationAction = this.getUserInterface().getCreationZoneController().getAction();
+        Screen screen = this.getUserInterface().getSelectedScreen();
+        saveStringToPreferences("editor_creation_action",creationAction.name());
+        saveStringToPreferences("editor_screen",screen.name());
+        saveStringToPreferences("saved_tool_filename",XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
+        this.getUserInterface().saveToolModel();
     }
 
     @Override
     public void onResume() {
+        String actionString = loadStringFromPreferences("editor_creation_action");
+        String screenString = loadStringFromPreferences("editor_screen");
+        CreationAction creationAction = CreationAction.fromName(actionString);
+        Screen screen = Screen.fromName(screenString);
         createUserInterface();
+        userInterface.setBoardsState(screen,creationAction);
     }
 
     @Override

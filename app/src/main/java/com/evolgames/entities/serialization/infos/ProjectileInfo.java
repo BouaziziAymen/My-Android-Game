@@ -23,6 +23,7 @@ public class ProjectileInfo {
     private int id;
 
     private String rocketEntityUniqueId;
+    private boolean assetsMissile;
 
     public CasingInfo getCasingInfo() {
         return casingInfo;
@@ -166,5 +167,13 @@ public class ProjectileInfo {
             return false;
         }
         return id == ((ProjectileInfo) obj).id;
+    }
+
+    public void setAssetsMissile(boolean assetsMissile) {
+        this.assetsMissile = assetsMissile;
+    }
+
+    public boolean isAssetsMissile() {
+        return assetsMissile;
     }
 }/**/

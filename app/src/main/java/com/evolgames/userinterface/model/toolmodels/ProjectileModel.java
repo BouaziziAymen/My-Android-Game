@@ -14,7 +14,6 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
     private final int projectileId;
     private final int bodyId;
     private ProjectileShape projectileShape;
-    private String missileFile;
     private CasingModel casingModel;
     private GameEntity muzzleEntity;
     private ProjectileField projectileField;
@@ -48,14 +47,6 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
     public void setProjectileShape(ProjectileShape projectileShape) {
         this.projectileShape = projectileShape;
-    }
-
-    public String getMissileFile() {
-        return missileFile;
-    }
-
-    public void setMissileFile(String missileFile) {
-        this.missileFile = missileFile;
     }
 
     public CasingModel getCasingModel() {
@@ -98,9 +89,10 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         if (casingModel != null) {
             pi.setCasingInfo(this.casingModel.toCasingInfo());
         }
-        pi.setMissileFile(this.missileFile);
+        pi.setMissileFile(this.properties.getMissileFile());
         pi.setInFirePartSize(this.properties.getInFirePartSize());
         pi.setFinFirePartSize(this.properties.getFinFirePartSize());
+        pi.setAssetsMissile(this.properties.isAssetsMissile());
         pi.setId(this.projectileId);
         return pi;
     }

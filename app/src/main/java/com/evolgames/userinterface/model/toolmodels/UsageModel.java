@@ -2,6 +2,7 @@ package com.evolgames.userinterface.model.toolmodels;
 
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
@@ -30,6 +31,9 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
                 break;
             case SHOOTER_CONTINUOUS:
                 this.properties = (T) new ContinuousShooterProperties();
+                break;
+            case BOW:
+                this.properties = (T) new BowProperties();
                 break;
             case TIME_BOMB:
                 this.properties = (T) new TimeBombUsageProperties();

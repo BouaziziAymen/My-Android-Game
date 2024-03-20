@@ -3,6 +3,7 @@ package com.evolgames.entities.properties;
 public enum BodyUsageCategory {
     SHOOTER("Shooter", "Ranged Options", 1),
     SHOOTER_CONTINUOUS("Shooter continuous", "Ranged Options", 1),
+    BOW("Bow", "Bow Options", 1),
     TIME_BOMB("Time Bomb", "Bomb Options", 2),
     FUZE_BOMB("Fuze Bomb", "Bomb Options", 2),
     IMPACT_BOMB("Impact Bomb", "Bomb Options", 2),

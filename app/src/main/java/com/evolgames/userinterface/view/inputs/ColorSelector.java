@@ -54,7 +54,7 @@ public class ColorSelector
                 new ButtonBehavior<LinearLayoutAdvancedWindowController<?>>(controller, addColorButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        controller.addColorToPanel();
+                        controller.addSelectorColorToPanel();
                     }
 
                     @Override
@@ -80,6 +80,7 @@ public class ColorSelector
                 });
         addElement(removeColorButton);
         removeColorButton.updateState(Button.State.DISABLED);
+        mesh.setVisible(false);
     }
 
     public Button<ColorSelectorWindowController> getRemoveColorButton() {
@@ -134,10 +135,13 @@ public class ColorSelector
     }
 
     public void updateColorHSV() {
+
         int color = Color.HSVToColor(new float[]{this.hue, this.saturation, this.value});
         red = Color.red(color) / (float) 255;
         green = Color.green(color) / (float) 255;
         blue = Color.blue(color) / (float) 255;
+
+
         controller.updateMeshColor(red, green, blue, alpha);
     }
 

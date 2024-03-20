@@ -28,16 +28,9 @@ import com.evolgames.activity.components.CreateItemDialog;
 import com.evolgames.activity.components.EditItemDialog;
 import com.evolgames.activity.components.MenuUIFragment;
 import com.evolgames.activity.components.PlayUIFragment;
-import com.evolgames.entities.factories.MaterialFactory;
-import com.evolgames.entities.persistence.VersioningHelper;
-import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
-import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.MainScene;
-import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.ItemCategory;
-import com.evolgames.userinterface.model.LayerModel;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
@@ -58,11 +51,7 @@ import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GameActivity extends BaseGameActivity {
 
@@ -187,7 +176,14 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public void onCreateScene(IGameInterface.OnCreateSceneCallback pOnCreateSceneCallback) {
         this.mainScene = new MainScene(this.camera);
-        uiController.setMainScene(this.mainScene);
+        this.uiController.setMainScene(this.mainScene);
+        String saved = this.mainScene.loadStringFromPreferences("saved_tool_filename");
+        this.mainScene.saveStringToPreferences("SCENE","MENU");
+        if(!saved.isEmpty()) {
+            ItemMetaData item = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
+                    .filter(e -> e.getFileName().equals(saved)).findFirst().orElse(null);
+            ResourceManager.getInstance().setEditorItem(item);
+        }
         pOnCreateSceneCallback.onCreateSceneFinished(this.mainScene);
     }
 

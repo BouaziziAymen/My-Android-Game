@@ -108,7 +108,7 @@ public class Hand {
         }
         if (onAction) {
             if (grabbedEntity != null && !grabbedEntity.hasActiveUsage(Penetrating.class)) {
-                if (grabbedEntity.getBody().getLinearVelocity().len() < 0.1f
+                if (Math.abs(grabbedEntity.getBody().getLinearVelocity().x) < 0.1f
                         && !this.handControlStack.isEmpty()
                         && handControlStack.peek() instanceof HoldHandControl) {
                     grabbedEntity.setZIndex(0);
@@ -407,7 +407,7 @@ public class Hand {
         handControlStack.add(new ParallelHandControl(handControl2, handControl1));
     }
 
-    public void doSash() {
+    public void doSlash() {
         Slasher slasher = grabbedEntity.getUsage(Slasher.class);
         slasher.doSlash(this);
     }

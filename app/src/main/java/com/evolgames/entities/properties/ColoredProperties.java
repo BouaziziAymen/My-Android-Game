@@ -21,4 +21,11 @@ public abstract class ColoredProperties extends Properties {
     public void setColorSquareId(int colorSquareId) {
         this.colorSquareId = colorSquareId;
     }
+
+    @Override
+    public ColoredProperties clone() {
+        ColoredProperties cloned = (ColoredProperties) super.clone();
+        cloned.defaultColor = this.defaultColor;
+        return cloned;
+    }
 }

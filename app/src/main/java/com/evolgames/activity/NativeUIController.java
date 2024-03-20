@@ -1,10 +1,9 @@
 package com.evolgames.activity;
 
-import static com.evolgames.scenes.EditorScene.EDITOR_FILE;
-
 import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.entities.hand.PlayerAction;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.gameengine.BuildConfig;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class NativeUIController implements INativeUIController {
-    public static final String EDITOR_FILE_FROM_ASSETS = "EditorFromAssets";
     private  MainScene mainScene;
     private final GameActivity gameActivity;
 
@@ -98,12 +96,14 @@ public class NativeUIController implements INativeUIController {
         gameActivity.runOnUpdateThread(() -> {
             Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
                     .filter(e -> e.getName().equalsIgnoreCase(itemNameText)).findFirst();
-
             if (res.isPresent()) {
-                ResourceManager.getInstance().setEditorItem(res.get());
-                ItemMetaData itemMetaData = res.get();
-                itemMetaData.setTemplateFilename(itemMetaData.getFileName());
-                mainScene.saveStringToPreferences(EDITOR_FILE, itemMetaData.getFileName());
+                ItemMetaData itemMetaData = new ItemMetaData();
+                itemMetaData.setFileName(res.get().getFileName());
+                itemMetaData.setUserCreated(res.get().isUserCreated());
+                itemMetaData.setToolName(BuildConfig.DEBUG?res.get().getName():"Anonymous");
+                itemMetaData.setItemCategory(res.get().getItemCategory());
+                ResourceManager.getInstance().setEditorItem(itemMetaData);
+                mainScene.saveStringToPreferences("saved_tool_filename",XmlHelper.convertToXmlFormat(itemMetaData.getName()));
                 mainScene.goToScene(SceneType.EDITOR);
             }
         });
@@ -115,11 +115,14 @@ public class NativeUIController implements INativeUIController {
             ItemMetaData newItemMetaData = new ItemMetaData();
             newItemMetaData.setToolName(itemNameText);
             newItemMetaData.setItemCategory(ItemCategory.fromName(itemTypeText));
-            Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
-                    .filter(e -> e.getName().equalsIgnoreCase(itemTemplateText)).findFirst();
-            res.ifPresent(itemMetaData -> newItemMetaData.setTemplateFilename(itemMetaData.getFileName()));
+            if(!itemTemplateText.isEmpty()) {
+                Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
+                        .filter(e -> e.getName().equalsIgnoreCase(itemTemplateText)).findFirst();
+                res.ifPresent(itemMetaData -> newItemMetaData.setTemplateFilename(res.get().getFileName()));
+                newItemMetaData.setUserCreated(res.get().isUserCreated());
+            }
             ResourceManager.getInstance().setEditorItem(newItemMetaData);
-            mainScene.saveStringToPreferences(EDITOR_FILE, newItemMetaData.getFileName());
+            mainScene.saveStringToPreferences("saved_tool_filename",  XmlHelper.convertToXmlFormat(newItemMetaData.getName()) );
             mainScene.goToScene(SceneType.EDITOR);
         });
     }

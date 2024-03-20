@@ -2,9 +2,11 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.GameSound;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -41,7 +43,9 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -82,11 +86,15 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                         0, "Projectile:", ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(bodyASection);
 
-        List<String> files = new ArrayList<>();
-        files.addAll(ToolUtils.getToolNamesByCategory(ResourceManager.getInstance().activity, ItemCategory.PROJECTILE.name.toLowerCase(Locale.ROOT)));
-        files.addAll(ToolUtils.getToolNamesByCategory(ResourceManager.getInstance().activity, ItemCategory.ROCKET.name.toLowerCase(Locale.ROOT)));
+        List<ItemMetaData> files = new ArrayList<>();
+        List<ItemMetaData> bullets = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.BULLET)).stream().collect(Collectors.toList());
+        List<ItemMetaData> rockets = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ROCKET)).stream().collect(Collectors.toList());
+        List<ItemMetaData> arrows = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ARROW)).stream().collect(Collectors.toList());
+        files.addAll(bullets);
+        files.addAll(rockets);
+        files.addAll(arrows);
         AtomicInteger missileCounter = new AtomicInteger();
-        files.forEach(f -> createProjectileToolButton(f, missileCounter.getAndIncrement()));
+        files.forEach(itemMetaData-> createProjectileToolButton(itemMetaData, missileCounter.getAndIncrement()));
         this.onUpdated();
     }
 
@@ -141,15 +149,15 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
     }
 
-    private void createProjectileToolButton(String fileName, int missileId) {
+    private void createProjectileToolButton(ItemMetaData itemMetaData, int missileId) {
         ButtonWithText<ProjectileOptionController> missileButton =
                 new ButtonWithText<>(
-                        fileName.split("\\$")[1],
+                      itemMetaData.getName(),
                         2,
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
                         true);
-        if (fileName.equals(projectileModel.getMissileFile())) {
+        if (itemMetaData.getFileName().equals(projectileModel.getProperties().getMissileFile())) {
             missileButton.updateState(Button.State.PRESSED);
         } else {
             missileButton.updateState(Button.State.NORMAL);
@@ -157,26 +165,28 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         SimpleSecondary<ButtonWithText<ProjectileOptionController>> missileField =
                 new SimpleSecondary<>(0, missileId, missileButton);
         window.addSecondary(missileField);
-        missileButtonsTable.put(fileName, missileButton);
+        missileButtonsTable.put(itemMetaData.getFileName(), missileButton);
         missileButton.setBehavior(
                 new ButtonBehavior<ProjectileOptionController>(this, missileButton) {
                     @Override
                     public void informControllerButtonClicked() {
                         ToolModel missileModel;
-                        if (!missileTable.containsKey(fileName)) {
+                        if (!missileTable.containsKey(itemMetaData.getFileName())) {
                             try {
-                                missileModel = ToolUtils.getProjectileModel(fileName);
-                                missileTable.put(fileName, missileModel);
-                                projectileModel.setMissileFile(fileName);
+                                missileModel = PersistenceCaretaker.getInstance().loadToolModel(itemMetaData.getFileName(),false,!itemMetaData.isUserCreated());
+                                missileTable.put(itemMetaData.getFileName(), missileModel);
+                                projectileModel.getProperties().setMissileFile(itemMetaData.getFileName());
+                           projectileModel.getProperties().setAssetsMissile(!itemMetaData.isUserCreated());
                             } catch (PersistenceException
                                      | SAXException
                                      | ParserConfigurationException
                                      | IOException e) {
                                 e.printStackTrace();
+                                projectileModel.getProperties().setMissileFile("");
                             }
                         } else {
-                            missileModel = missileTable.get(fileName);
-                            projectileModel.setMissileFile(fileName);
+                            projectileModel.getProperties().setMissileFile(itemMetaData.getFileName());
+                            projectileModel.getProperties().setAssetsMissile(!itemMetaData.isUserCreated());
                         }
 
                         onProjectileBodyButtonClicked(missileField);
@@ -222,8 +232,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
         setProjectileName(projectileModel.getModelName());
-        if (projectileModel.getMissileFile() != null) {
-            setMissileName(projectileModel.getMissileFile());
+        if (projectileModel.getProperties().getMissileFile() != null) {
+            setMissileName(projectileModel.getProperties().getMissileFile());
         }
         setIntensity(this.projectileProperties.getParticles());
         setFireRatio(this.projectileProperties.getFireRatio());

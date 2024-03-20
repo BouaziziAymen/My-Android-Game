@@ -5,6 +5,7 @@ import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.scenes.EditorScene;
+import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.KeyboardController;
 import com.evolgames.userinterface.control.OutlineController;
@@ -91,6 +92,7 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.color.Color;
 
 import java.io.FileNotFoundException;
+import java.util.Comparator;
 
 import javax.xml.transform.TransformerException;
 
@@ -114,10 +116,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     private final CreationZoneController creationZoneController;
     private final ItemSaveWindowController itemSaveWindowController;
     private final ColorSelectorWindowController colorSelectorWindowController;
+    private final ButtonBoard mainButtonBoard;
+    private final MainButtonBoardController mainButtonBoardController;
     private ControlElement moveElementController;
     private ImageShape imageShape;
     private ToolModel toolModel;
     private boolean interactionLocked;
+    private Screen selectedScreen;
 
     public EditorUserInterface(
             EditorScene editorScene,
@@ -255,14 +260,16 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
         ItemSaveWindow itemSaveWindow = new ItemSaveWindow(0, 0, itemSaveWindowController);
         itemSaveWindow.setPosition(
-                400-itemSaveWindow.getWidth()/2f, 240);
+                400 - itemSaveWindow.getWidth() / 2f, 240);
         itemSaveWindow.setVisible(false);
         addElement(itemSaveWindow);
 
         colorSelectorWindowController =
                 new ColorSelectorWindowController(this);
         ColorSelectorWindow colorSelector =
-                new ColorSelectorWindow(400, 0, colorSelectorWindowController);
+                new ColorSelectorWindow(0, 0, colorSelectorWindowController);
+        colorSelector.setLowerBottomX(400 - colorSelector.getWidth());
+        colorSelector.setLowerBottomY(240);
         colorSelector.setVisible(false);
         addElement(colorSelector);
         ColorSelector selector = colorSelector.getSelector();
@@ -275,13 +282,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
         ResourceManager.getInstance().hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
-        ButtonBoard mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
-        MainButtonBoardController controller = new MainButtonBoardController(mainButtonBoard, this);
+        mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
+        mainButtonBoardController = new MainButtonBoardController(mainButtonBoard, this);
         addElement(mainButtonBoard);
         Button<MainButtonBoardController> button10 =
                 new Button<>(ResourceManager.getInstance().drawBigButton, Button.ButtonType.Selector, true);
         button10.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button10) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button10) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onDrawOptionClicked(button10);
@@ -297,7 +304,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                 new Button<>(
                         ResourceManager.getInstance().jointBigButton, Button.ButtonType.Selector, true);
         button11.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button11) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button11) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onJointOptionClicked(button11);
@@ -313,7 +320,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                 new Button<>(
                         ResourceManager.getInstance().collisionBigButton, Button.ButtonType.Selector, true);
         button12.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button12) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button12) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onToolOptionClicked(button12);
@@ -329,7 +336,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                 new Button<>(
                         ResourceManager.getInstance().imageBigButton, Button.ButtonType.Selector, true);
         button13.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button13) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button13) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onImageOptionClicked(button13);
@@ -344,7 +351,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         Button<MainButtonBoardController> button14 =
                 new Button<>(ResourceManager.getInstance().saveBigButton, Button.ButtonType.Selector, true);
         button14.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button14) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button14) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onSaveOptionClicked(button14);
@@ -359,7 +366,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         Button<MainButtonBoardController> button15 =
                 new Button<>(ResourceManager.getInstance().homeBigButton, Button.ButtonType.OneClick, true);
         button15.setBehavior(
-                new ButtonBehavior<MainButtonBoardController>(controller, button15) {
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button15) {
                     @Override
                     public void informControllerButtonClicked() {
                         getController().onHomeButtonClicked(button15);
@@ -834,6 +841,9 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         setUpdated(true);
     }
 
+    public Screen getSelectedScreen() {
+        return selectedScreen;
+    }
 
     public void doWithConfirm(String prompt, Action action) {
         confirmWindowController.bindAction(new ConfirmableAction(prompt, action));
@@ -940,8 +950,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         }
         toolModel.updateMesh();
         for (SquareProperties squareProperties : toolModel.getColorPanelProperties().getSquarePropertiesList()) {
-            colorSelectorWindowController.addColorToPanel(squareProperties.getColor(), false);
+            colorSelectorWindowController.addColorToPanel(squareProperties.getColor(), squareProperties.getSquareId(), false);
         }
+        Integer maxId = toolModel.getColorPanelProperties().getSquarePropertiesList().stream().map(SquareProperties::getSquareId).max(Comparator.naturalOrder()).orElse(0);
+        colorSelectorWindowController.getColorSlotCounter().set(maxId + 1);
         layersWindowController.init();
         outlineController.init();
         itemWindowController.init();
@@ -960,7 +972,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             return;
         }
         creationZone.onTouchScene(pTouchEvent);
-        if (creationZoneController.getAction() == CreationZoneController.CreationAction.PIPING
+        if (creationZoneController.getAction() == CreationAction.PIPING
                 && imageShape != null) {
             Color color = imageShape.getColorAt(pTouchEvent.getX(), pTouchEvent.getY(), (int) (10 / getZoomFactor()));
             if (color != null) {
@@ -999,7 +1011,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     public void onAddImageButtonClicked() {
         ResourceManager.getInstance().activity.requestImagePermission();
-
     }
 
     public void addImage() {
@@ -1028,7 +1039,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         return panel;
     }
 
-    public void onActionChanged(CreationZoneController.CreationAction action) {
+    public void onActionChanged(CreationAction action) {
         if (panel != null) {
             switch (action) {
                 case ADD_POINT:
@@ -1096,6 +1107,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     }
 
     public void changeSelectedScreen(Screen selectedScreen) {
+        this.selectedScreen = selectedScreen;
         outlineController.onScreenChanged(selectedScreen);
     }
 
@@ -1106,14 +1118,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void saveToolModel() {
         try {
             PersistenceCaretaker.getInstance().saveToolModel(this.toolModel);
-        } catch (FileNotFoundException | TransformerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveToolModel(String file) {
-        try {
-            PersistenceCaretaker.getInstance().saveToolModel(this.toolModel, file);
         } catch (FileNotFoundException | TransformerException e) {
             e.printStackTrace();
         }
@@ -1130,4 +1134,29 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void unlockInteraction() {
         this.interactionLocked = false;
     }
+
+    public void setBoardsState(Screen screen, CreationAction creationAction) {
+      if(screen!=Screen.NONE) {
+          mainButtonBoard.getButtonAtIndex(screen.ordinal()).updateState(Button.State.PRESSED);
+
+          switch (screen){
+              case DRAW_SCREEN:
+                  mainButtonBoardController.onDrawOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                  break;
+              case JOINTS_SCREEN:
+                  mainButtonBoardController.onJointOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                  break;
+              case ITEMS_SCREEN:
+                  mainButtonBoardController.onToolOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                  break;
+              case IMAGE_SCREEN:
+                  mainButtonBoardController.onImageOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                  break;
+              case SAVE_SCREEN:
+                  mainButtonBoardController.onSaveOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                  break;
+          }
+      }
+        }
+
 }

@@ -91,16 +91,9 @@ public class DecorationSettingsWindowController
                     public void informControllerButtonReleased() {
                         ColoredProperties props = (ColoredProperties) model.getProperties();
                         if (colorSelectorController != null) {
-                            colorSelectorController.bindProperties(
-                                    props.getDefaultColor(), props.getColorSquareId());
+                            colorSelectorController.bindProperties(props);
                             colorSelectorController.setAcceptAction(
-                                    new Action() {
-                                        @Override
-                                        public void performAction() {
-                                            setDecorationColorSlot();
-                                        }
-                                    });
-                            Log.e("testing", "open Window");
+                                    () -> setDecorationColorSlot());
                             colorSelectorController.openWindow();
                         }
                     }

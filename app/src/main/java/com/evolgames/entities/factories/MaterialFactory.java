@@ -91,7 +91,7 @@ public class MaterialFactory {
         materialProperties.put("Graphene", new float[]{1f, 0.975f, 0.05f, 10f, 10f});
         materialProperties.put("Flesh", new float[]{1f, 0.15f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
         materialProperties.put("Hard Flesh", new float[]{1.5f, 0.65f, 0.4f, 2f, 3f}); // Adjusted hardness value
-        materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.05f, 4.75f, 7f});
+        materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.8f, 4.75f, 7f});
         materialProperties.put("Aluminum", new float[]{2.7f, 0.25f, 0.1f, 3.75f, 7.5f});
         materialProperties.put("Brick", new float[]{1.6f, 0.25f, 0.05f, 4.5f, 6f});
         materialProperties.put("Bone", new float[]{1.7f, 0.25f, 0.05f, 5f, 5f});

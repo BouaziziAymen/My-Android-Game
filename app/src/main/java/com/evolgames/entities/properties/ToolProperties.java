@@ -3,6 +3,7 @@ package com.evolgames.entities.properties;
 public class ToolProperties extends Properties {
     private String toolName;
     private boolean published;
+    private String filename;
 
     public String getToolName() {
         return toolName;
@@ -19,4 +20,5 @@ public class ToolProperties extends Properties {
     public void setPublished(boolean published) {
         this.published = published;
     }
+
 }

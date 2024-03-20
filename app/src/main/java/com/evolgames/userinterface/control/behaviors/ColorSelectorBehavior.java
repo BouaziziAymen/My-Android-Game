@@ -35,6 +35,7 @@ public class ColorSelectorBehavior extends AdvancedClickableBehavior<ColorSelect
             mSelector.setAlpha(1f);
 
             getController().onHueAndSaturationUpdated();
+            getController().resetSlots();
 
             return true;
         }

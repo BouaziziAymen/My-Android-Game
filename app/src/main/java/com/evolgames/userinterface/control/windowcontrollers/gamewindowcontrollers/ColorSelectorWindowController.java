@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.ColorPanelProperties;
+import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.userinterface.control.behaviors.actions.Action;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
@@ -14,14 +15,22 @@ import com.evolgames.userinterface.view.windows.gamewindows.ColorSelectorWindow;
 import org.andengine.entity.primitive.Mesh;
 import org.andengine.util.adt.color.Color;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ColorSelectorWindowController
         extends LinearLayoutAdvancedWindowController<ColorSelectorWindow> {
     private final EditorUserInterface editorUserInterface;
-    private Color copy;
-    private Button selectedSlot;
-    private Color boundColor;
+    private ColoredProperties copy;
+    private Button<ColorSelectorWindowController> selectedSlot;
+    private ColoredProperties coloredProperties;
     private Action acceptAction;
     private ColorPanelProperties colorPanelProperties;
+
+    private final List<Button<?>> squareList = new ArrayList<>();
+
+    private final AtomicInteger colorSlotCounter = new AtomicInteger();
 
     public ColorSelectorWindowController(EditorUserInterface editorUserInterface) {
         this.editorUserInterface = editorUserInterface;
@@ -38,6 +47,7 @@ public class ColorSelectorWindowController
     @Override
     public void closeWindow() {
         super.closeWindow();
+        this.editorUserInterface.undoShade();
         window.getSelector().getMesh().setVisible(false);
     }
 
@@ -48,13 +58,13 @@ public class ColorSelectorWindowController
     }
 
     public void onColorSlotClicked(Button<?> slot) {
-        this.selectedSlot = slot;
         ColorSelector colorSelector = window.getSelector();
         colorSelector.getRemoveColorButton().updateState(Button.State.NORMAL);
         ColorPanel panel = window.getPanel();
         for (Element square : panel.getColorsLayout().getContents()) {
             if (square != slot) ((Button<?>) square).updateState(Button.State.NORMAL);
         }
+        coloredProperties.setColorSquareId(slot.getId());
         colorSelector.setRed(slot.getRed());
         colorSelector.setGreen(slot.getGreen());
         colorSelector.setBlue(slot.getBlue());
@@ -81,8 +91,8 @@ public class ColorSelectorWindowController
         Color color = window.getSelector().getMesh().getColor();
         updateMeshColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         // update the selected color
-        if (boundColor != null) {
-            boundColor.set(window.getSelector().getMesh().getColor());
+        if (coloredProperties != null) {
+            coloredProperties.getDefaultColor().set(window.getSelector().getMesh().getColor());
         }
         // update the scene mesh color
         editorUserInterface.getToolModel().updateMesh();
@@ -100,24 +110,25 @@ public class ColorSelectorWindowController
         colorSelector.updateColorHSV();
         onColorUpdated();
     }
-
-    public void addColorToPanel(Color color, boolean addToProperties) {
-        window
+    public void addColorToPanel(Color color,int id, boolean addToProperties) {
+        Button<ColorSelectorWindowController> square = window
                 .getPanel()
                 .addColor(color.getRed(), color.getGreen(), color.getBlue());
-        int id = window
-                .getPanel().getSquareCounter().getAndIncrement();
+        square.setId(id);
+        squareList.add(square);
         if (addToProperties) {
             colorPanelProperties.getSquarePropertiesList().add(new SquareProperties(id, new Color(color.getRed(), color.getGreen(), color.getBlue())));
         }
     }
 
-    public void addColorToPanel() {
+    public void addColorToPanel(Color color, boolean addToProperties) {
+        int id = colorSlotCounter.getAndIncrement();
+      addColorToPanel(color,id,addToProperties);
+    }
+
+    public void addSelectorColorToPanel() {
         ColorSelector colorSelector = window.getSelector();
-        Button<ColorSelectorWindowController> square = window
-                .getPanel()
-                .addColor(colorSelector.getRed(), colorSelector.getGreen(), colorSelector.getBlue());
-        colorPanelProperties.getSquarePropertiesList().add(new SquareProperties(square.getId(), new Color(colorSelector.getRed(), colorSelector.getGreen(), colorSelector.getBlue())));
+        addColorToPanel(new Color(colorSelector.getRed(), colorSelector.getGreen(), colorSelector.getBlue()),true);
     }
 
     public void updateMeshColor(float red, float green, float blue, float alpha) {
@@ -131,9 +142,10 @@ public class ColorSelectorWindowController
         onColorSlotReleased(selectedSlot);
     }
 
-    public void onColorSlotReleased(Button square) {
+    public void onColorSlotReleased(Button<?> square) {
         selectedSlot = null;
         this.colorPanelProperties.getSquarePropertiesList().removeIf(e -> e.getSquareId() == square.getId());
+        this.squareList.removeIf(e -> e.getId() == square.getId());
         window.getSelector().getRemoveColorButton().updateState(Button.State.DISABLED);
         ColorSelector colorSelector = window.getSelector();
         colorSelector.setRed(1f);
@@ -145,17 +157,26 @@ public class ColorSelectorWindowController
         onColorUpdated();
     }
 
-    public void bindProperties(Color color, int colorSquareId) {
-        this.boundColor = color;
-        copy = new Color(color);
-        window.getSelector().getMesh().setColor(color);
-        if (colorSquareId != -1) {
-            Button<?> slot = window.getPanel().getColorSlotById(colorSquareId);
+    public void bindProperties(ColoredProperties coloredProperties) {
+        this.editorUserInterface.shade(window);
+        this.coloredProperties = coloredProperties;
+        copy = coloredProperties.clone();
+        window.getSelector().getMesh().setColor(coloredProperties.getDefaultColor());
+        if (coloredProperties.getColorSquareId() != -1) {
+            Button<?> slot = window.getPanel().getColorSlotById(coloredProperties.getColorSquareId());
             if (slot != null) {
                 onColorSlotClicked(slot);
                 slot.updateState(Button.State.PRESSED);
             }
+        } else {
+           resetSlots();
         }
+    }
+
+    public void resetSlots() {
+     squareList.forEach(square->{
+         square.updateState(Button.State.NORMAL);
+     });
     }
 
     public void onAccept() {
@@ -166,10 +187,15 @@ public class ColorSelectorWindowController
     }
 
     public void onRefuse() {
-        boundColor.set(copy);
+        coloredProperties.getDefaultColor().set(copy.getDefaultColor());
+        coloredProperties.setColorSquareId(copy.getColorSquareId());
         if (editorUserInterface.getToolModel() != null) {
             editorUserInterface.getToolModel().updateMesh();
         }
         closeWindow();
+    }
+
+    public AtomicInteger getColorSlotCounter() {
+        return colorSlotCounter;
     }
 }

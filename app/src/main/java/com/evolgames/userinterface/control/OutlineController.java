@@ -164,6 +164,7 @@ public class OutlineController extends Controller {
         if (selectedDecorationModel != null) {
             selectedDecorationModel.getField().showFields();
         }
+        editorUserInterface.getLayersWindowController().onLayoutChanged();
     }
 
     private void deselectBodyModels() {

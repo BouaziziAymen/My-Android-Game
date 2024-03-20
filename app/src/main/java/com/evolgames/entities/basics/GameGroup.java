@@ -62,4 +62,13 @@ public class GameGroup {
         return entities;
     }
 
+    public float getMass() {
+        float result = 0;
+        for(GameEntity gameEntity:entities){
+            if(gameEntity.isAlive()&&gameEntity.getBody()!=null){
+                result += gameEntity.getBody().getMass();
+            }
+        }
+        return result;
+    }
 }
