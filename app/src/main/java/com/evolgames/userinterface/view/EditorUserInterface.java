@@ -47,6 +47,7 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ColorSelector;
 import com.evolgames.userinterface.view.inputs.Keyboard;
@@ -64,6 +65,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.SpecialPointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.RevoluteJointShape;
@@ -281,6 +283,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         decorationSettingsWindowController.setColorSelectorController(colorSelectorWindowController);
 
         ResourceManager.getInstance().hudBatcher.attachChild(colorSelector.getSelector().getMesh());
+
+     EditorScene.plotter.drawPoint(new Vector2(415.41113f,225.03995f),Color.RED,3);
 
         mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
         mainButtonBoardController = new MainButtonBoardController(mainButtonBoard, this);
@@ -521,7 +525,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         jointButtonBoardController =
                 new JointButtonBoardController(
                         jointButtonBoard, creationZoneController, optionsWindowController);
-
+        jointButtonBoardController.setActive(true);
         addElement(jointButtonBoard);
         Button<JointButtonBoardController> button20 =
                 new Button<>(
@@ -693,7 +697,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         imageButtonBoard.addToButtonBoard(button31);
         imageButtonBoard.addToButtonBoard(button32);
         imageButtonBoard.addToButtonBoard(button33);
-        imageButtonBoardController.disableButtons();
+        imageButtonBoardController.setActive(false);
         imageButtonBoard.setLowerBottomX(400 - imageButtonBoard.getWidth() / 2);
 
         ButtonBoard toolButtonBoard =
@@ -820,12 +824,29 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                         getController().onLiquidButtonReleased(button46);
                     }
                 });
+
+        Button<ToolButtonBoardController> button47 =
+                new Button<>(
+                        ResourceManager.getInstance().specialPointTextureRegion, Button.ButtonType.Selector, true);
+        button47.setBehavior(
+                new ButtonBehavior<ToolButtonBoardController>(toolButtonBoardController, button47) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        getController().onSpecialPointClicked(button47);
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        getController().onSpecialPointReleased(button47);
+                    }
+                });
         toolButtonBoard.addToButtonBoard(button40);
         toolButtonBoard.addToButtonBoard(button41);
         toolButtonBoard.addToButtonBoard(button42);
         toolButtonBoard.addToButtonBoard(button43);
         toolButtonBoard.addToButtonBoard(button46);
         toolButtonBoard.addToButtonBoard(button45);
+        toolButtonBoard.addToButtonBoard(button47);
         toolButtonBoard.addToButtonBoard(button44);
         toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
 
@@ -904,6 +925,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             for (BombModel bombModel : bodyModel.getBombModels()) {
                 BombShape bombShape = new BombShape(bombModel.getProperties().getBombPosition(), scene);
                 bombShape.bindModel(bombModel);
+            }
+            for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
+                SpecialPointShape specialPointShape = new SpecialPointShape(specialPointModel.getProperties().getPosition(), scene);
+                specialPointShape.bindModel(specialPointModel);
             }
             for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
                 FireSourceShape fireSourceShape =
@@ -1012,6 +1037,17 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void onAddImageButtonClicked() {
         ResourceManager.getInstance().activity.requestImagePermission();
     }
+    public void onMirrorImageButtonClicked(){
+        ResourceManager.getInstance().mirrorSketch();
+        if(imageShape!=null) {
+            imageShape.updateSprite();
+            ImageShapeModel model = toolModel.getImageShapeModel();
+            imageShape.updateWidth(model.getWidth());
+            imageShape.updateHeight(model.getHeight());
+            imageShape.updatePosition(model.getX(), model.getY());
+            imageShape.updateRotation(model.getRotation());
+        }
+    }
 
     public void addImage() {
         TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
@@ -1021,7 +1057,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             }
             imageShape = new ImageShape(scene, toolModel.getImageShapeModel());
             addElement(imageShape);
-            imageButtonBoardController.enableButtons();
+            imageButtonBoardController.setActive(true);
             ImageShapeModel model = toolModel.getImageShapeModel();
             imageShape.updateWidth(model.getWidth());
             imageShape.updateHeight(model.getHeight());
@@ -1159,4 +1195,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
       }
         }
 
+    public void setBoardsActive(boolean b){
+        drawButtonBoardController.setTemporarilyActive(b);
+        toolButtonBoardController.setTemporarilyActive(b);
+        imageButtonBoardController.setTemporarilyActive(b);
+        jointButtonBoardController.setTemporarilyActive(b);
+    }
 }

@@ -69,6 +69,7 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         this.projectileField = projectileField;
     }
 
+
     public ProjectileInfo toProjectileInfo(boolean mirrored) {
         ProjectileInfo pi = new ProjectileInfo();
         Vector2 originProjected = this.properties.getProjectileOrigin().cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f);
@@ -87,7 +88,7 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         pi.setSmokeRatio(this.properties.getSmokeRatio());
         pi.setSparkRatio(this.properties.getSparkRatio());
         if (casingModel != null) {
-            pi.setCasingInfo(this.casingModel.toCasingInfo());
+            pi.setCasingInfo(this.casingModel.toCasingInfo(mirrored,this.muzzleEntity));
         }
         pi.setMissileFile(this.properties.getMissileFile());
         pi.setInFirePartSize(this.properties.getInFirePartSize());

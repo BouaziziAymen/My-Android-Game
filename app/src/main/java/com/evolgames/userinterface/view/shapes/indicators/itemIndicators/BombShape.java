@@ -20,6 +20,7 @@ public class BombShape extends ControllerPointImage implements MovablesContainer
         super(ResourceManager.getInstance().bombShapeTextureRegion, point);
         this.editorUserInterface = scene.getUserInterface();
         this.editorUserInterface.addElement(this);
+        this.updateZoom(scene.getUserInterface().getZoomFactor());
     }
 
     @Override

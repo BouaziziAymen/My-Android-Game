@@ -4,9 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.DragProperties;
 import com.evolgames.entities.serialization.infos.DragInfo;
+import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.DragField;
+import com.evolgames.utilities.GeometryUtils;
 
 public class DragModel extends ProperModel<DragProperties> {
 
@@ -66,18 +68,23 @@ public class DragModel extends ProperModel<DragProperties> {
         return properties;
     }
 
-    public DragInfo toDragInfo() {
+    public DragInfo toDragInfo(boolean mirrored) {
+
+        Vector2 normal = this.properties.getDragNormal().cpy();
+        Vector2 originProjected = this.properties.getDragOrigin().cpy().sub(draggedEntity.getCenter()).mul(1 / 32f);
+        if (mirrored) {
+            originProjected = GeometryUtils.mirrorPoint(originProjected);
+            normal.x = -normal.x;
+        }
+
         DragInfo dragInfo = new DragInfo();
-        Vector2 centredOrigin = this.properties
-                .getDragOrigin()
-                .cpy()
-                .sub(draggedEntity.getCenter())
-                .mul(1 / 32f);
-        dragInfo.setDragOrigin(centredOrigin);
-        dragInfo.setDragNormal(this.properties.getDragNormal());
+
+        dragInfo.setDragOrigin(originProjected);
+        dragInfo.setDragNormal(normal);
         dragInfo.setExtent(Math.abs(this.properties.getExtent1()) + Math.abs(this.properties.getExtent2()));
         dragInfo.setSymmetrical(this.properties.isSymmetrical());
         dragInfo.setMagnitude(this.properties.getMagnitude());
+        dragInfo.setDraggedEntity(this.draggedEntity);
         return dragInfo;
     }
 }

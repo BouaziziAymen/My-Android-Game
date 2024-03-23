@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,10 +30,10 @@ public class VersioningHelper {
 
         void transform(ToolModel toolModel);
     }
-    public static void applyTreatment(ToolTransform transform){
+    public static void applyTreatment(ToolTransform transform, Predicate<ItemMetaData> condition){
         PersistenceCaretaker persistenceCaretaker = PersistenceCaretaker.getInstance();
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
-        List<ItemMetaData> items = map.values().stream().flatMap(List::stream).collect(Collectors.toList());
+        List<ItemMetaData> items = map.values().stream().flatMap(List::stream).filter(condition).collect(Collectors.toList());
        for(ItemMetaData item:items) {
            try {
                ToolModel toolModel = persistenceCaretaker.loadToolModel(item.getFileName(),false,!item.isUserCreated());
@@ -48,14 +49,14 @@ public class VersioningHelper {
     }
 
 
-    public static void applyTreatmentToLayers(LayerTransform layerTransform){
+    public static void applyTreatmentToLayers(LayerTransform layerTransform, Predicate<ItemMetaData> condition){
         VersioningHelper.applyTreatment((toolModel) -> {
             for(BodyModel bodyModel:toolModel.getBodies()){
                 for(LayerModel layerModel:bodyModel.getLayers()){
                    layerTransform.transform(layerModel);
                 }
             }
-        });
+        },condition);
     }
 
 

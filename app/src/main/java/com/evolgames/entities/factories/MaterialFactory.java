@@ -16,13 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MaterialFactory {
     private static final MaterialFactory INSTANCE = new MaterialFactory();
 
-
-
-
-
-
-
-
     public static final int SULFUR = 33;
 
     public static final int IVORY = 32;
@@ -69,6 +62,9 @@ public class MaterialFactory {
     public static final int IGNIUM = 36;
     public static final int TITANIUM = 37;
     public static final int LEATHER = 38;
+    public static final int  CARBON_FIBER = 39;
+    public static final int FIBER_GLASS = 40;
+    public static final int FEATHER = 41;
     public List<Material> materials;
     public AtomicInteger counter;
     public static Map<String, float[]> materialProperties;
@@ -90,7 +86,7 @@ public class MaterialFactory {
         materialProperties.put("Diamond", new float[]{3.5f, 0.075f, 0.05f, 10f, 10f});
         materialProperties.put("Graphene", new float[]{1f, 0.975f, 0.05f, 10f, 10f});
         materialProperties.put("Flesh", new float[]{1f, 0.15f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
-        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.65f, 0.4f, 2f, 3f}); // Adjusted hardness value
+        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.65f, 0.4f, 2f, 2f}); // Adjusted hardness value
         materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.8f, 4.75f, 7f});
         materialProperties.put("Aluminum", new float[]{2.7f, 0.25f, 0.1f, 3.75f, 7.5f});
         materialProperties.put("Brick", new float[]{1.6f, 0.25f, 0.05f, 4.5f, 6f});
@@ -117,7 +113,9 @@ public class MaterialFactory {
         materialProperties.put("Ignium", new float[]{6f, 0.075f, 0.1f, 8.5f, 8f});
         materialProperties.put("Titanium", new float[]{4.5f, 0.25f, 0.1f, 6.5f, 6.5f});
         materialProperties.put("Leather", new float[]{1.05f, 0.35f, 0.6f, 6f, 2f});
-
+        materialProperties.put("Carbon Fiber", new float[]{1.75f, 0.4f, 0.8f, 8f, 7f});
+        materialProperties.put("Fiber Glass", new float[]{2.5f, 0.5f, 0.6f, 7f, 5f});
+        materialProperties.put("Feather", new float[]{0.04f, 0.25f, 0.35f, 3f, 1.5f});
 
 
         Material rubber = new Material("Rubber", RUBBER, new Color(0.4f, 0.4f, 0.4f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
@@ -131,8 +129,8 @@ public class MaterialFactory {
         Material iron = new Material("Iron", IRON, new Color(0.878f, 0.878f, 0.878f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material diamond = new Material("Diamond", DIAMOND, new Color(0.0f, 0.0f, 0.0f,0.1f),  1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material graphene = new Material("Graphene", GRAPHENE, new Color(1.0f, 1.0f, 1.0f), 1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material flesh = new Material("Flesh", FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f), 0.7f, 0, 0.8f, 0.2f, 0.3f, true, 600, 650, false, 0.0f, 300.0);
-        Material hardFlesh = new Material("Hard Flesh", HARD_FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f),  0.7f, 0, 0.6f, 0.1f, 0.4f, true, 600, 650, false, 0.0f, 300.0);
+        Material flesh = new Material("Flesh", FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f), 0.7f, 0, 0.8f, 0.3f, 0.4f, true, 600, 650, false, 0.0f, 300.0);
+        Material hardFlesh = new Material("Hard Flesh", HARD_FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f),  0.7f, 0, 0.8f, 0.2f, 0.5f, true, 600, 650, false, 0.0f, 300.0);
         Material concrete = new Material("Concrete", CONCRETE, new Color(0.663f, 0.663f, 0.663f),  0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material aluminum = new Material("Aluminum", ALUMINIUM, new Color(0.753f, 0.753f, 0.753f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material brick = new Material("Brick", BRICK, new Color(0.698f, 0.133f, 0.133f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
@@ -159,7 +157,13 @@ public class MaterialFactory {
         Material ignium = new Material("Ignium", IGNIUM, new Color(1.0f, 0.5f, 0.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, true, 25.0, 10000.0, false, 0f, 1000000.0);
         Material titanium = new Material("Titanium", TITANIUM, new Color(0.5f, 0.5f, 0.5f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material leather = new Material("Leather", LEATHER, new Color(0.804f, 0.522f, 0.247f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
+        Material carbonFiber = new Material("Carbon Fiber", CARBON_FIBER, new Color(0.235f, 0.235f, 0.235f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 600, 600, false, 0.0f, 0f);
+        Material fiberGlass = new Material("Fiber Glass", FIBER_GLASS, new Color(1f,1f,1f,0.5f), 0.83f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0.0f, 200.0f);
+        Material feather = new Material("Feather", FEATHER, new Color(0.9f,0.9f,0.9f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 500, 500, false, 0.0f, 200.0f);
 
+        materials.add(carbonFiber);
+        materials.add(fiberGlass);
+        materials.add(feather);
         materials.add(iron);
         materials.add(hardWood);
         materials.add(hardSteel);

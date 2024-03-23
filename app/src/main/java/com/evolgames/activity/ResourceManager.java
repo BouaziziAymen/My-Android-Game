@@ -2,6 +2,7 @@ package com.evolgames.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
@@ -143,8 +144,11 @@ public class ResourceManager {
     public TiledTextureRegion checkBoxTextureRegion;
     public TiledTextureRegion arcadeRedTextureRegion;
     public TiledTextureRegion bombTextureRegion;
+    public TiledTextureRegion specialPointTextureRegion;
     public TextureRegion targetShapeTextureRegion;
     public TextureRegion bombShapeTextureRegion;
+
+    public TextureRegion specialPointShapeTextureRegion;
     public TextureRegion casingShapeTextureRegion;
     public TextureRegion switcher, switcherBackground;
     public List<TextureRegion> particularUsages;
@@ -500,6 +504,9 @@ public class ResourceManager {
         this.bombShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/bomb.png");
+        this.specialPointShapeTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/specialpoint.png");
         this.casingShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
@@ -610,6 +617,9 @@ public class ResourceManager {
         this.bombTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "boards/bomb.png", 1, 3);
+        this.specialPointTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "boards/specialpoint.png", 1, 3);
         this.fireSourceTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
@@ -768,6 +778,7 @@ public class ResourceManager {
         sketchBitmap = bitmap;
     }
 
+
     public String getString(int id) {
         return activity.getString(id);
     }
@@ -786,5 +797,27 @@ public class ResourceManager {
 
     public void setEditorItem(ItemMetaData editorItem) {
         this.editorItem = editorItem;
+    }
+
+    public static Bitmap createMirroredBitmap(Bitmap srcBitmap) {
+        // Create a new bitmap with the same width and height as the source bitmap
+        Bitmap mirroredBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), srcBitmap.getConfig());
+
+        // Create a canvas with the mirrored bitmap
+        Canvas canvas = new Canvas(mirroredBitmap);
+
+        // Create a matrix for mirroring
+        Matrix matrix = new Matrix();
+        matrix.setScale(-1, 1, srcBitmap.getWidth() / 2f, srcBitmap.getHeight() / 2f); // Horizontal mirroring
+
+        // Apply the matrix to the canvas
+        canvas.drawBitmap(srcBitmap, matrix, null);
+
+        return mirroredBitmap;
+    }
+    public void mirrorSketch(){
+        if(sketchBitmap!=null) {
+            loadImage(createMirroredBitmap(sketchBitmap));
+        }
     }
 }

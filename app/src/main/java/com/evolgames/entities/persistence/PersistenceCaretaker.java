@@ -20,6 +20,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.LiquidSourceProperties;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.properties.SpecialPointProperties;
 import com.evolgames.entities.properties.SquareProperties;
 import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.BowProperties;
@@ -37,6 +38,7 @@ import com.evolgames.entities.properties.usage.SlashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
+import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
 import com.evolgames.userinterface.model.BodyModel;
@@ -54,7 +56,9 @@ import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileTriggerType;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 import com.evolgames.utilities.XmlUtils;
 
@@ -133,8 +137,10 @@ public class PersistenceCaretaker {
     private static final String IMAGE_SHAPE_TAG = "imageShape";
     private static final String JOINTS_TAG = "joints";
     private static final String BOMB_LIST_TAG = "bombList";
+    private static final String SPECIAL_POINTS_LIST_TAG = "specialPointsList";
     private static final String BOMB_TAG = "bomb";
     private static final String CATEGORY = "category";
+    public static final String SPACIAL_POINT_TAG = "spacialPoint";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private AbstractScene<?> scene;
@@ -184,6 +190,7 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
+scaleTool("Pistol 3#",0.85f);
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -197,13 +204,52 @@ public class PersistenceCaretaker {
             props.setDensity(material.getDensity());
             props.setRestitution(material.getRestitution());
             props.setFriction(material.getFriction());
-        });
+        },e->true);
     }
     private void addSymbolToTheEndOfItems() {
         VersioningHelper.applyTreatment(toolModel -> {
             String name = toolModel.getProperties().getToolName();
             toolModel.getProperties().setToolName(name+"#");
-        });
+        },(e)->true);
+    }
+
+    private void scaleBodyModel(BodyModel bodyModel, float scale){
+        List<List<Vector2>> list = new ArrayList<>();
+        for (LayerModel layerModel : bodyModel.getLayers()) {
+            list.add(layerModel.getPoints());
+        }
+        Vector2 center = GeometryUtils.calculateCenter(list);
+           for(LayerModel layerModel:bodyModel.getLayers()){
+               scalePoints(center, layerModel.getPoints(),scale);
+               scalePoints(center, layerModel.getReferencePoints(),scale);
+               for(DecorationModel decorationModel:layerModel.getDecorations()){
+                   scalePoints(center,decorationModel.getPoints(),scale);
+                   scalePoints(center, decorationModel.getReferencePoints(),scale);
+               }
+           }
+    }
+
+    private static void scalePoints(Vector2 center,  List<Vector2> vertices,float scale) {
+        for (int i = 0; i < vertices.size(); i ++) {
+            float originalX = vertices.get(i).x;
+            float originalY = vertices.get(i).y;
+
+            float scaledX = center.x + (originalX - center.x) * scale;
+            float scaledY = center.y + (originalY - center.y) * scale;
+            // Update vertex positions
+            vertices.get(i).set(scaledX,scaledY);
+        }
+    }
+
+    private void scaleTool(String toolName, float scale) {
+        VersioningHelper.applyTreatment(toolModel -> {
+            String name = toolModel.getProperties().getToolName();
+           if(name.equals(toolName)){
+              for(BodyModel bodyModel:toolModel.getBodies()){
+                  scaleBodyModel(bodyModel,scale);
+              }
+           }
+        },(ItemMetaData e)-> e.getName().equals(toolName));
     }
 
     public void saveToolModel(ToolModel toolModel)
@@ -386,6 +432,13 @@ public class PersistenceCaretaker {
         }
         bodyElement.appendChild(bombListElement);
 
+
+        Element specialPointsListElement = document.createElement(SPECIAL_POINTS_LIST_TAG);
+        for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
+            specialPointsListElement.appendChild(createSpecialPointElement(document, specialPointModel));
+        }
+        bodyElement.appendChild(specialPointsListElement);
+
         Element dragListElement = document.createElement(DRAG_LIST_TAG);
         for (DragModel dragModel : bodyModel.getDragModels()) {
             dragListElement.appendChild(createDragElement(document, dragModel));
@@ -396,6 +449,15 @@ public class PersistenceCaretaker {
         for (UsageModel<?> usageModel : bodyModel.getUsageModels()) {
             Element usageElement = document.createElement(USAGE_TAG);
             Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
+            if(usageModel.getType()==BodyUsageCategory.BOW) {
+                BowProperties bowProperties = (BowProperties) props;
+                if (bodyModel.getSpecialPointModels().size() == 3) {
+                    List<SpecialPointModel> sp = bodyModel.getSpecialPointModels();
+                    bowProperties.setUpper(sp.get(0).getProperties().getPosition());
+                    bowProperties.setMiddle(sp.get(1).getProperties().getPosition());
+                    bowProperties.setLower(sp.get(2).getProperties().getPosition());
+                }
+            }
             Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
             if (usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS
                     || usageModel.getType() == BodyUsageCategory.SHOOTER||usageModel.getType() == BodyUsageCategory.BOW || usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
@@ -481,6 +543,15 @@ public class PersistenceCaretaker {
         Element propertiesElement = createPropertiesElement(document, dragModel.getProperties());
         dragElement.appendChild(propertiesElement);
         return dragElement;
+    }
+
+    private Element createSpecialPointElement(Document document, SpecialPointModel specialPointModel) {
+        Element element = document.createElement(SPACIAL_POINT_TAG);
+        element.setAttribute(ID, String.valueOf(specialPointModel.getPointId()));
+        element.setIdAttribute(ID, true);
+        Element propertiesElement = createPropertiesElement(document, specialPointModel.getProperties());
+        element.appendChild(propertiesElement);
+        return element;
     }
 
     private Element createBombElement(Document document, BombModel bombModel) {
@@ -1202,6 +1273,23 @@ public class PersistenceCaretaker {
             }
         }
 
+        Element specialPointsElement = (Element) element.getElementsByTagName(SPECIAL_POINTS_LIST_TAG).item(0);
+        if (specialPointsElement != null) {
+            List<SpecialPointModel> specialPointModels = bodyModel.getSpecialPointModels();
+            for (int i = 0; i < specialPointsElement.getChildNodes().getLength(); i++) {
+                Element specialPointElement = (Element) specialPointsElement.getChildNodes().item(i);
+                SpecialPointModel specialPointModel;
+                try {
+                    specialPointModel =
+                            readSpecialPointModel(specialPointElement, bodyId, Integer.parseInt(specialPointElement.getAttribute(ID)));
+                    specialPointModels.add(specialPointModel);
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading special point model", e);
+                }
+            }
+        }
+
+
         Element dragListElement = (Element) element.getElementsByTagName(DRAG_LIST_TAG).item(0);
         if (dragListElement != null) {
             List<DragModel> dragModels = bodyModel.getDragModels();
@@ -1407,6 +1495,14 @@ public class PersistenceCaretaker {
         BombProperties bombProperties = loadProperties(propertiesElement, BombProperties.class);
         bombModel.setProperties(bombProperties);
         return bombModel;
+    }
+    private SpecialPointModel readSpecialPointModel(Element specialPointElement, int bodyId, int id)
+            throws PersistenceException {
+        Element propertiesElement = (Element) specialPointElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+        SpecialPointModel specialPointModel = new SpecialPointModel(bodyId, id);
+        SpecialPointProperties specialPointProperties = loadProperties(propertiesElement, SpecialPointProperties.class);
+        specialPointModel.setProperties(specialPointProperties);
+        return specialPointModel;
     }
 
     private ProjectileModel readProjectileModel(

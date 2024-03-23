@@ -8,6 +8,7 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Strings;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -17,6 +18,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.SpecialPointShape;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
 import com.evolgames.userinterface.view.windows.gamewindows.ItemWindow;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.BodyField;
@@ -27,6 +29,7 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSour
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.SpecialPointField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +121,15 @@ public class ItemWindowController
                                     selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
             return model.getDragShape().getMovables(moveLimits);
         }
+
+        if (selectedSecondaryField instanceof SpecialPointField) {
+            SpecialPointModel model =
+                    editorUserInterface
+                            .getToolModel()
+                            .getSpecialPointById(
+                                    selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getModelId());
+            return model.getSpecialPointShape().getMovables(moveLimits);
+        }
         return null;
     }
 
@@ -144,7 +156,15 @@ public class ItemWindowController
                             .getToolModel()
                             .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
             outlineController.onItemSelectionUpdated(model);
-        } else if (itemField instanceof FireSourceField) {
+        }
+        else if (itemField instanceof SpecialPointField) {
+            SpecialPointModel model =
+                    editorUserInterface
+                            .getToolModel()
+                            .getSpecialPointById(itemField.getPrimaryKey(), itemField.getModelId());
+            outlineController.onItemSelectionUpdated(model);
+        }
+        else if (itemField instanceof FireSourceField) {
             FireSourceModel model =
                     editorUserInterface
                             .getToolModel()
@@ -225,6 +245,13 @@ public class ItemWindowController
                             .getDragModelById(itemField.getPrimaryKey(), itemField.getModelId());
             outlineController.onItemSelectionUpdated(model);
         }
+        if (itemField instanceof SpecialPointField) {
+            SpecialPointModel model =
+                    editorUserInterface
+                            .getToolModel()
+                            .getSpecialPointById(itemField.getPrimaryKey(), itemField.getModelId());
+            outlineController.onItemSelectionUpdated(model);
+        }
         selectedSecondaryField = itemField;
     }
 
@@ -283,6 +310,9 @@ public class ItemWindowController
             }
             for (DragModel dragModel : bodyModel.getDragModels()) {
                 onDragCreated(dragModel);
+            }
+            for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
+                onSpecialPointCreated(specialPointModel);
             }
         }
         BodyModel selectedBody = getSelectedBody();
@@ -367,6 +397,10 @@ public class ItemWindowController
     private void detachBombModelShape(BombModel bombModel) {
         BombShape bombShape = bombModel.getBombShape();
         bombShape.detach();
+    }
+    private void detachSpecialPointModelShape(SpecialPointModel specialPointModel) {
+        SpecialPointShape specialPointShape = specialPointModel.getSpecialPointShape();
+        specialPointShape.detach();
     }
 
     public void onAmmoRemoveButtonReleased(CasingField casingField) {
@@ -502,7 +536,7 @@ public class ItemWindowController
 
     public void onAmmoOptionButtonReleased(CasingField casingField) {
         this.ammoOptionController.onModelUpdated(
-                selectedBodyModel.getCasingModelById(casingField.getSecondaryKey()));
+                selectedBodyModel.getCasingModelById(casingField.getModelId()));
         this.ammoOptionController.openWindow();
         unfold();
     }
@@ -521,6 +555,15 @@ public class ItemWindowController
         bombOptionController.onModelUpdated(bombModel);
     }
 
+    public void onSpecialPointCreated(SpecialPointModel specialPointModel) {
+        SpecialPointField specialPointField =
+                window.addSpecialPointField(specialPointModel.getModelName(), specialPointModel.getBodyId(), specialPointModel.getPointId());
+        specialPointModel.setSpecialPointField(specialPointField);
+        updateLayout();
+        onSecondaryButtonClicked(specialPointField);
+        specialPointField.getControl().updateState(Button.State.PRESSED);
+    }
+
     public void onDragCreated(DragModel dragModel) {
         DragField dragField =
                 window.addDragField(dragModel.getModelName(), dragModel.getBodyId(), dragModel.getDragId());
@@ -533,7 +576,7 @@ public class ItemWindowController
 
     public void onBombOptionsButtonReleased(BombField bombField) {
         this.bombOptionController.onModelUpdated(
-                selectedBodyModel.getBombModelById(bombField.getSecondaryKey()));
+                selectedBodyModel.getBombModelById(bombField.getModelId()));
         this.bombOptionController.openWindow();
         unfold();
     }
@@ -677,6 +720,29 @@ public class ItemWindowController
 
     public void setLiquidSourceOptionController(LiquidSourceOptionController liquidSourceOptionController) {
         this.liquidSourceOptionController = liquidSourceOptionController;
+    }
+
+    public void onSpecialPointRemoveButtonReleased(SpecialPointField specialPointField) {
+        SpecialPointModel specialPointModel =
+                editorUserInterface
+                        .getToolModel()
+                        .getSpecialPointById(specialPointField.getPrimaryKey(), specialPointField.getModelId());
+        editorUserInterface.doWithConfirm(
+                String.format(Strings.ITEM_DELETE_CONFIRM, specialPointModel.getModelName()),
+                () -> {
+                    if (specialPointField == selectedSecondaryField) {
+                        selectedSecondaryField = null;
+                    }
+                    window
+                            .getLayout()
+                            .removeSecondary(specialPointField.getPrimaryKey(), specialPointField.getSecondaryKey());
+                    detachSpecialPointModelShape(specialPointModel);
+
+                    editorUserInterface
+                            .getToolModel()
+                            .removeSpecialPoint(specialPointModel.getBodyId(), specialPointModel.getPointId());
+                    updateLayout();
+                });
     }
 
 }

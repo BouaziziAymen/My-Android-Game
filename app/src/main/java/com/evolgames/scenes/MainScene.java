@@ -26,8 +26,9 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
             throw new UnsupportedOperationException("Cannot load main scene here");
         }
         SmoothCamera cam = (SmoothCamera) this.mCamera;
-        cam.setZoomFactor(1f);
-        cam.setCenter(400, 240);
+        cam.setZoomFactorDirect(1f);
+        cam.setCenterDirect(400, 240);
+        cam.setChaseEntity(null);
         this.clearChildScene();
         if (this.scene != null) {
             this.scene.detach();

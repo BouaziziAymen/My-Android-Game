@@ -381,16 +381,20 @@ public class GeometryUtils {
         for (List<Vector2> vector2List : lists) {
             list.addAll(vector2List);
         }
-        if (list.size() < 3) {
-            return null;
-        }
-        Vector2[] vertices = GeometryUtils.hullFinder.findConvexHull(list.toArray(new Vector2[0]));
-        if (vertices.length < 3) {
-            return null;
-        }
-        Polygon polygon = new Polygon(Arrays.asList(vertices));
-        Rectangle rectangle = Caliper.minimumBox(polygon);
-        return rectangle.getCenter();
+            float totalX = 0;
+            float totalY = 0;
+
+            // Calculate the total sum of X and Y coordinates
+            for (Vector2 point : list) {
+                totalX += point.x;
+                totalY += point.y;
+            }
+            // Calculate the average X and Y coordinates
+            float centerX = totalX / list.size();
+            float centerY = totalY / list.size();
+
+            // Return the center point
+            return new Vector2(centerX, centerY);
     }
 
     public static float calculateShortestDirectedDistance(float angle1, float angle2) {

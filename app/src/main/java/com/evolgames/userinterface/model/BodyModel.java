@@ -5,7 +5,9 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.Properties;
+import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.usage.Bow;
+import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
@@ -18,6 +20,7 @@ import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
+import com.evolgames.scenes.Init;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -25,9 +28,9 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
-import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,9 +52,11 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private final ArrayList<LiquidSourceModel> liquidSourceModels;
     private final List<UsageModel<?>> usageModels;
     private final List<BombModel> bombModels;
+    private final List<SpecialPointModel> specialPointModels;
     private GameEntity gameEntity;
     private BodyField field;
     private boolean bullet;
+    private Init init;
 
     public BodyModel(int bodyId) {
         super("Body" + bodyId);
@@ -65,6 +70,15 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         dragModels = new ArrayList<>();
         fireSourceModels = new ArrayList<>();
         liquidSourceModels = new ArrayList<>();
+        specialPointModels = new ArrayList<>();
+    }
+
+    public Init getInit() {
+        return init;
+    }
+
+    public void setInit(Init init) {
+        this.init = init;
     }
 
     @SuppressWarnings("unchecked")
@@ -147,14 +161,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return layerCounter;
     }
 
-    public Vector2 getCenter() {
-        List<List<Vector2>> list = new ArrayList<>();
-        for (LayerModel layerModel : layers) {
-            list.add(layerModel.getPoints());
-        }
-        return GeometryUtils.calculateCenter(list);
-    }
-
     @Override
     public void updateOutlinePoints() {
         throw new UnsupportedOperationException();
@@ -203,16 +209,11 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return liquidSourceModels;
     }
 
-    public boolean isBullet() {
-        return bullet;
-    }
-
-    public void setBullet(boolean bullet) {
-        this.bullet = bullet;
-    }
-
-
-    public void setupUsages(PhysicsScene<?> physicsScene, boolean mirrored) {
+    public void setupUsages(PhysicsScene<?> physicsScene, Vector2 center, boolean mirrored) {
+        this.getDragModels().forEach(dragModel -> {
+            Drag drag = new Drag(dragModel, mirrored);
+            this.getGameEntity().getUseList().add(drag);
+        });
         this.getUsageModels()
                 .forEach(
                         e -> {
@@ -223,6 +224,12 @@ public class BodyModel extends OutlineModel<BodyProperties> {
                                     this.getGameEntity().getUseList().add(shooter);
                                     break;
                                 case BOW:
+                                    BowProperties bowProperties = (BowProperties) e.getProperties();
+                                    if (bowProperties.getUpper() != null && bowProperties.getMiddle() != null && bowProperties.getLower() != null) {
+                                        bowProperties.getUpper().sub(center);
+                                        bowProperties.getMiddle().sub(center);
+                                        bowProperties.getLower().sub(center);
+                                    }
                                     Bow bow = new Bow(e, mirrored);
                                     this.getGameEntity().getUseList().add(bow);
                                     break;
@@ -281,5 +288,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
     }
 
+
+    public List<SpecialPointModel> getSpecialPointModels() {
+        return specialPointModels;
+    }
 
 }

@@ -13,6 +13,7 @@ import com.evolgames.userinterface.view.windows.windowfields.itemwindow.FireSour
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ItemField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
+import com.evolgames.userinterface.view.windows.windowfields.itemwindow.SpecialPointField;
 
 public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyField, ItemField> {
     private final ItemWindowController itemWindowController;
@@ -76,6 +77,14 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
         dragField.setText(name);
         return dragField;
     }
+
+    public SpecialPointField addSpecialPointField(String name, int primaryKey, int modelId) {
+        SpecialPointField specialPointField = new SpecialPointField(primaryKey, modelId, itemWindowController);
+        addSecondary(specialPointField, primaryKey, specialPointField.getSecondaryKey());
+        specialPointField.setText(name);
+        return specialPointField;
+    }
+
 
     @Override
     public BodyField createPrimary(int primaryKey) {

@@ -1019,9 +1019,10 @@ public class WorldFacade implements ContactObserver {
             }
 
 
-            if (step > 100) {
+            if (step>100) {
                 break;
             }
+
             if (step % 100 == 0) {
                 Log.e("Penetration", "-----------Step:" + step);
             }
@@ -1979,7 +1980,6 @@ public class WorldFacade implements ContactObserver {
                             List<TopographyData.Overlap> ovl = e.getValue();
                             float ovlValue =
                                     (float) ovl.stream().mapToDouble(TopographyData.Overlap::getValue).sum();
-                            System.out.println(e.getKey().getName() + "---------  density:" + ovlValue);
                             e.getKey().setSortingValue(ovlValue);
                             return ovlValue > finalPenetratorValue / 5f;
                         })

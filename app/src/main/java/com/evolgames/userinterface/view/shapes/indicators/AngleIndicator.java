@@ -27,6 +27,10 @@ public abstract class AngleIndicator extends TurnAroundIndicator {
         scene.getUserInterface().addElement(limit);
     }
 
+    public void updateZoom(float zoom){
+        this.limit.updateZoom(zoom);
+    }
+
     public ControllerPointImage getLimit() {
         return limit;
     }

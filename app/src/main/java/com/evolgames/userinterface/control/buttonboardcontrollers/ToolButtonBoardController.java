@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
+import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
@@ -98,6 +99,17 @@ public class ToolButtonBoardController extends ButtonBoardController {
     }
 
     public void onLiquidButtonReleased(Button<ToolButtonBoardController> button) {
+        onButtonReleased(button);
+        creationZoneController.setAction(CreationAction.NONE);
+        optionsWindowController.selectSettingsType(SettingsType.NONE);
+    }
+
+    public void onSpecialPointClicked(Button<ToolButtonBoardController> button) {
+        onButtonClicked(button);
+        creationZoneController.setAction(CreationAction.SPECIAL_POINT);
+    }
+
+    public void onSpecialPointReleased(Button<ToolButtonBoardController> button) {
         onButtonReleased(button);
         creationZoneController.setAction(CreationAction.NONE);
         optionsWindowController.selectSettingsType(SettingsType.NONE);

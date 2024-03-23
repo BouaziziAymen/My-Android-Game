@@ -71,17 +71,21 @@ public class Projectile extends Use implements Penetrating {
                         .map(e -> e.stream().findFirst().get())
                         .distinct()
                         .collect(Collectors.toList());
-
+        if (list.isEmpty()) {
+            list.add(penetrated);
+        }
         for (GameEntity overlappedEntity : list) {
             overlappedEntity
                     .getParentGroup()
                     .getGameEntities()
                     .forEach(t -> worldFacade.addNonCollidingPair(penetrator, t));
-
+            if (projectileType == ProjectileType.SHARP_WEAPON) {
             worldFacade.mergeEntities(
                     overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            if (projectileType != ProjectileType.SHARP_WEAPON) {
-                worldFacade.scheduleGameEntityToDestroy(penetrator, 10);
+            } else {
+                penetrator.setAlive(false);
+                penetrator.getMesh().setVisible(false);
+                worldFacade.scheduleGameEntityToDestroy(penetrator,1);
             }
 
             worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);

@@ -268,6 +268,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
         userInterface.lockInteraction();
         userInterface.getCreationZoneController().setUpLocked(true);
+        userInterface.setBoardsActive(false);
     }
 
     @Override
@@ -294,6 +295,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         }
         userInterface.getCreationZoneController().resetScrollAndZoom();
         userInterface.getCreationZoneController().setUpLocked(false);
+        userInterface.setBoardsActive(true);
         userInterface.unlockInteraction();
     }
 

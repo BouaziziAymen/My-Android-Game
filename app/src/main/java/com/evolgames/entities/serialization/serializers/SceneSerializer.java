@@ -17,6 +17,7 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.entities.usage.Bomb;
+import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.LiquidContainer;
@@ -210,6 +211,26 @@ public class SceneSerializer {
             rocketLauncher.setRockets(rocketsMap);
             rocketLauncher.createFireSources(scene.getWorldFacade());
         }
+
+        if (gameEntity.hasUsage(Bow.class)) {
+            Bow bow = gameEntity.getUsage(Bow.class);
+            for (ProjectileInfo projectileInfo :  bow.getProjectileInfoList()) {
+                projectileInfo.setMuzzleEntity(
+                        GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
+            }
+            Map<ProjectileInfo, GameGroup> arrowsMap = new HashMap<>();
+            bow.getProjectileInfoList().forEach(projectileInfo -> {
+                GameGroup arrowGroup = GameGroupSerializer.groups.get(projectileInfo.getArrowGroupUniqueId());
+                if (arrowGroup != null) {
+                    arrowsMap.put(projectileInfo, arrowGroup);
+                }
+            });
+            bow.setArrows(arrowsMap);
+            bow.drawBowstring();
+        }
+
+
+
         if (gameEntity.hasUsage(LiquidContainer.class)) {
             LiquidContainer liquidContainer = gameEntity.getUsage(LiquidContainer.class);
             liquidContainer.getLiquidSourceInfoList().forEach(

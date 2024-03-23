@@ -136,7 +136,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 UsageModel<BowProperties> bowUsageModel =
                         this.bodyModel.getUsageModel(usageCategory);
                 BowProperties bowProps = bowUsageModel.getProperties();
-                setNumberOfRounds(bowProps.getNumberOfRounds());
                 setReloadTime(bowProps.getReloadTime());
                 break;
             case TIME_BOMB:
@@ -384,8 +383,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             BowProperties bowProperties =
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.BOW);
                             createReloadTimeField(primaryId, 1, bowProperties);
-                            createNumberOfRoundsTextField("Capacity",primaryId, 2, bowProperties);
-                            createProjectilesField(primaryId, 3, bowProperties);
+                            createProjectilesField(primaryId, 2, bowProperties);
                             break;
                         case TIME_BOMB:
                             TimeBombUsageProperties timeBombProperties =

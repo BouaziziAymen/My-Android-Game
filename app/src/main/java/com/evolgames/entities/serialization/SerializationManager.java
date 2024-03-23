@@ -82,6 +82,7 @@ public class SerializationManager {
         kryo.register(com.evolgames.entities.usage.Missile.class);
         kryo.register(com.evolgames.entities.usage.LiquidContainer.class);
         kryo.register(com.evolgames.entities.usage.RocketLauncher.class);
+        kryo.register(com.evolgames.entities.usage.Bow.class);
 
         kryo.register(com.evolgames.entities.properties.BodyUsageCategory.class, new EnumSerializer<BodyUsageCategory>());
         kryo.register(com.evolgames.entities.properties.LayerProperties.class);

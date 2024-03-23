@@ -10,6 +10,7 @@ import com.evolgames.entities.properties.ToolProperties;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
+import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -17,15 +18,19 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.BombShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.SpecialPointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
+
+import org.andengine.util.adt.color.Color;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,6 +48,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     private final AtomicInteger ammoCounter = new AtomicInteger();
     private final AtomicInteger bombCounter = new AtomicInteger();
     private final AtomicInteger dragCounter = new AtomicInteger();
+    private final AtomicInteger specialPointCounter = new AtomicInteger();
     private final AtomicInteger fireSourceCounter = new AtomicInteger();
     private final AtomicInteger liquidSourceCounter = new AtomicInteger();
     private final ArrayList<BodyModel> bodies;
@@ -260,6 +266,10 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public void removeLiquidSource(int primaryKey, int secondaryKey) {
         getBodyModelById(primaryKey).getLiquidSourceModels().removeIf(e -> e.getLiquidSourceId() == secondaryKey);
     }
+    public void removeSpecialPoint(int primaryKey, int secondaryKey) {
+        getBodyModelById(primaryKey).getSpecialPointModels().removeIf(e -> e.getPointId() == secondaryKey);
+    }
+
 
     public void removeBomb(int primaryKey, int secondaryKey) {
         getBodyModelById(primaryKey).getBombModels().removeIf(e -> e.getBombId() == secondaryKey);
@@ -359,4 +369,17 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         this.category = category;
     }
 
+    public SpecialPointModel createNewSpecialPoint(SpecialPointShape specialPointShape, int selectedBodyId) {
+        int pointId = specialPointCounter.getAndIncrement();
+        SpecialPointModel specialPointModel = new SpecialPointModel(selectedBodyId, pointId, specialPointShape);
+        getBodyModelById(selectedBodyId).getSpecialPointModels().add(specialPointModel);
+        return specialPointModel;
+    }
+
+    public SpecialPointModel getSpecialPointById(int primaryKey, int modelId) {
+        return getBodyModelById(primaryKey).getSpecialPointModels().stream()
+                .filter(e -> e.getPointId() == modelId)
+                .findAny()
+                .orElse(null);
+    }
 }

@@ -18,6 +18,7 @@ public class DrawButtonBoardController extends ButtonBoardController {
         super(buttonBoard);
         this.creationZoneController = creationZoneController;
         this.optionsWindowController = optionsWindowController;
+        this.setActive(false);
     }
 
     public void onPolygonCreationButtonClicked(Button button) {

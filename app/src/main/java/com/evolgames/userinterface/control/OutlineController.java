@@ -12,6 +12,7 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
@@ -53,6 +54,12 @@ public class OutlineController extends Controller {
                 dragModel.getDragShape().release();
                 if (dragModel.getDragField() != null) {
                     dragModel.getDragField().hideFields();
+                }
+            }
+            for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
+                specialPointModel.getSpecialPointShape().release();
+                if (specialPointModel.getSpecialPointField() != null) {
+                    specialPointModel.getSpecialPointField().hideFields();
                 }
             }
 
@@ -115,6 +122,11 @@ public class OutlineController extends Controller {
             BombModel bombModel = (BombModel) selectedItemModel;
             bombModel.getBombShape().select();
             bombModel.getBombField().showFields();
+        }
+        else if (selectedItemModel instanceof SpecialPointModel) {
+            SpecialPointModel specialPointModel = (SpecialPointModel) selectedItemModel;
+            specialPointModel.getSpecialPointShape().select();
+            specialPointModel.getSpecialPointField().showFields();
         } else if (selectedItemModel instanceof FireSourceModel) {
             FireSourceModel fireSourceModel = (FireSourceModel) selectedItemModel;
             fireSourceModel.getFireSourceShape().select();
@@ -138,6 +150,8 @@ public class OutlineController extends Controller {
         this.selectedBodyModel = selectedBodyModel;
         this.selectedLayerModel = selectedLayerModel;
         this.selectedDecorationModel = selectedDecorationModel;
+        editorUserInterface.getItemButtonBoardController().setActive(this.selectedBodyModel!=null);
+        editorUserInterface.getDrawButtonBoardController().setActive(this.selectedLayerModel != null || this.selectedDecorationModel != null);
         if (selectedDecorationModel != null) {
             selectBodyModel(selectedBodyModel, Colors.white);
             selectedDecorationModel.getPointsShape().setPointsVisible(true);

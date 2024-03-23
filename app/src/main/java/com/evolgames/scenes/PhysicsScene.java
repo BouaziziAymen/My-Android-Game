@@ -1,12 +1,12 @@
 package com.evolgames.scenes;
 
-import static com.evolgames.physics.CollisionConstants.OBJECTS_BACK_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.OBJECTS_FRONT_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+
+import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.scenes.PlayScene.pause;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
@@ -19,9 +19,6 @@ import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.init.BodyInit;
-import com.evolgames.entities.init.BodyInitImpl;
-import com.evolgames.entities.init.BulletInit;
-import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.SceneType;
@@ -143,7 +140,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                 });
     }
 
-    protected GameGroup createTool(ToolModel toolModel, float x, float y, float angle, final boolean mirrored) {
+    public GameGroup createTool(ToolModel toolModel, final boolean mirrored) {
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
@@ -157,31 +154,23 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             }
             Vector2 center = GeometryUtils.calculateCenter(list);
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel.getLayers(), center);
-            if (blocks.size() == 0 || center == null) {
+            if (blocks.size() == 0) {
                 continue;
             }
+
             if (mirrored) {
                 for (LayerBlock layerBlock : blocks) {
                     layerBlock.mirror();
                 }
             }
-            BodyInit bodyInit = new BulletInit(
-                    new TransformInit(
-                            new BodyInitImpl(
-                                    (short)
-                                            (OBJECTS_MIDDLE_CATEGORY
-                                                    | OBJECTS_BACK_CATEGORY
-                                                    | OBJECTS_FRONT_CATEGORY)),
-                            (x + center.x - 400) / 32F,
-                            (y + center.y - 240) / 32F,
-                            angle),
-                    bodyModel.isBullet());
+            Init _init = bodyModel.getInit();
+            BodyInit bodyInit = _init.getBodyInit();
             GameEntity gameEntity =
                     GameEntityFactory.getInstance()
                             .createGameEntity(
-                                    (x + center.x - 400) / 32F,
-                                    (y + center.y - 240) / 32F,
-                                    angle,
+                                    (_init.getX() + center.x - 400) / 32F,
+                                    (_init.getY() + center.y - 240) / 32F,
+                                   0,
                                     mirrored,
                                     bodyInit,
                                     blocks,
@@ -193,7 +182,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         }
         // Handle usage
         setupModels(bodies);
-        bodies.forEach(b -> b.setupUsages(this, mirrored));
+        bodies.forEach(b -> b.setupUsages(this,b.getGameEntity().getCenter(), mirrored));
         // Create game group
         GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
         this.addGameGroup(gameGroup);
@@ -301,11 +290,14 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     }
 
     public GameGroup createItemFromFile(String name, float x, float y, boolean assets, boolean mirrored) {
-        return createTool(loadToolModel(name, false, assets), x, y, 0, mirrored);
+       ToolModel toolModel = loadToolModel(name, false, assets);
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x,y).filter(OBJECT,OBJECT).build()));
+        return createTool(toolModel, mirrored);
     }
 
     public GameGroup createItem(ToolModel toolModel, boolean mirrored) {
-        return createTool(toolModel, 400, 240, 0, mirrored);
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(400f,240f).filter(OBJECT,OBJECT).build()));
+        return createTool(toolModel, mirrored);
     }
 
     public void createItemFromFile(String name, boolean assets, boolean mirrored) {
@@ -313,7 +305,8 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     }
 
     public GameGroup createItem(float x, float y, float angle, ToolModel toolModel, boolean mirrored) {
-        return createTool(toolModel, x, y, angle, mirrored);
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit( new Init.Builder(x,y).angle(angle).filter(OBJECT,OBJECT).build()));
+        return createTool(toolModel, mirrored);
     }
 
 

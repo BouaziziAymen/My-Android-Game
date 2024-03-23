@@ -4,6 +4,7 @@ import com.evolgames.entities.commandtemplate.commands.Command;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameGroup {
@@ -11,6 +12,15 @@ public class GameGroup {
     private final List<GameEntity> entities;
     private final List<Command> commands;
     private final GroupType groupType;
+    private String uniqueID = UUID.randomUUID().toString();
+
+    public String getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueID(String uniqueID) {
+        this.uniqueID = uniqueID;
+    }
 
     public GameGroup(GroupType groupType, GameEntity... groupOfEntities) {
         this.groupType = groupType;

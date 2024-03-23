@@ -47,7 +47,7 @@ public class Plotter extends Entity {
         e.attachChild(rect);
     }
 
-    public void drawPoint(Vector2 v, Color color, Mesh mesh) {
+    public void drawPoint(Vector2 v, Color color, Entity mesh) {
 
         Rectangle rect = new Rectangle(v.x, v.y, 1f, 1f, this.vbom);
         rect.setColor(color);

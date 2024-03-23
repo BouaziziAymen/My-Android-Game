@@ -1,6 +1,6 @@
 package com.evolgames.scenes;
 
-import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
 import android.util.Pair;
@@ -32,6 +32,7 @@ import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
+import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
@@ -705,7 +706,16 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
-        if (playerSpecialAction == PlayerSpecialAction.Trigger) {
+        if (playerSpecialAction == PlayerSpecialAction.Shoot_Arrow) {
+            if (this.hand != null) {
+                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(Bow.class)) {
+                    Bow bow = hand.getGrabbedEntity().getUsage(Bow.class);
+                    bow.onArrowsReleased();
+                    onUsagesUpdated();
+                }
+            }
+        }
+        else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
                 if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(TimeBomb.class)) {
                     TimeBomb timeBomb = hand.getGrabbedEntity().getUsage(TimeBomb.class);

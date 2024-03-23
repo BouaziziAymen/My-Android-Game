@@ -1,8 +1,8 @@
 package com.evolgames.entities.factories;
 
-import static com.evolgames.physics.CollisionConstants.OBJECTS_BACK_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.OBJECTS_FRONT_CATEGORY;
-import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
+import static com.evolgames.physics.CollisionUtils.OBJECTS_BACK_CATEGORY;
+import static com.evolgames.physics.CollisionUtils.OBJECTS_FRONT_CATEGORY;
+import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;

@@ -3,7 +3,7 @@ package com.evolgames.entities.properties;
 import org.andengine.util.adt.color.Color;
 
 public abstract class ColoredProperties extends Properties {
-    private Color defaultColor;
+    Color defaultColor;
     private int colorSquareId = -1;
 
     public Color getDefaultColor() {

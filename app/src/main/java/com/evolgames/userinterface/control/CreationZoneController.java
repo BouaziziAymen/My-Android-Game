@@ -17,6 +17,7 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
+import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
 import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
@@ -35,6 +36,7 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.DragSha
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.FireSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
+import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.SpecialPointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.DistanceJointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.PrismaticJointShape;
@@ -103,7 +105,6 @@ public class CreationZoneController extends Controller {
             editorUserInterface.getImageShape().setPipeCircleVisibility(action == CreationAction.PIPING);
         editorUserInterface.onActionChanged(action);
         switch (action) {
-            case MOVE_TOOL_POINT:
             case AMMO:
             case DISTANCE:
             case WELD:
@@ -127,8 +128,10 @@ public class CreationZoneController extends Controller {
             case PIPING:
             case REMOVE_POINT:
             case MOVE_POINT:
+            case MOVE_TOOL_POINT:
             case ADD_POINT:
             case BOMB:
+            case SPECIAL_POINT:
                 editorScene.setScrollerEnabled(true);
                 editorScene.setZoomEnabled(true);
                 break;
@@ -187,10 +190,11 @@ public class CreationZoneController extends Controller {
             editorUserInterface.getImageButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
-        if (action == CreationAction.BOMB || action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
+        if (action == CreationAction.BOMB ||action==CreationAction.SPECIAL_POINT|| action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
             editorUserInterface.getItemButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
+
     }
 
     private void processRemovePoint(float x, float y) {
@@ -287,7 +291,7 @@ public class CreationZoneController extends Controller {
     }
 
     public void selectPointImage(PointImage pointImage) {
-        pointImage.select();
+        pointImage.doubleSelect();
         selectedPointImage = pointImage;
         float moveSpeed = 1f / editorUserInterface.getZoomFactor();
         editorUserInterface.setMoveElementController(editorUserInterface.getPanel().allocateController(800 - 64 / 2f - 16f, 64 / 2f + 16f, ControlElement.Type.AnalogController, new ControllerAction() {
@@ -432,6 +436,14 @@ public class CreationZoneController extends Controller {
                 bombShape.bindModel(bombModel);
             }
         }
+        if (action == CreationAction.SPECIAL_POINT) {
+            if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
+                SpecialPointShape specialPointShape = new SpecialPointShape(new Vector2(x, y), editorScene);
+                SpecialPointModel specialPointModel = editorUserInterface.getToolModel().createNewSpecialPoint(specialPointShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
+                itemWindowController.onSpecialPointCreated(specialPointModel);
+                specialPointShape.bindModel(specialPointModel);
+            }
+        }
         if (action == CreationAction.AMMO) {
             if (editorUserInterface.getItemWindowController().getSelectedBodyId() != -1) {
                 CasingShape casingShape = new CasingShape(new Vector2(x, y), editorScene);
@@ -518,7 +530,7 @@ public class CreationZoneController extends Controller {
     }
 
     public void setUpLocked(boolean b) {
-        upLocked = true;
+        upLocked = b;
     }
 
     public void resetScrollAndZoom() {

@@ -23,6 +23,7 @@ import com.evolgames.userinterface.view.inputs.Keyboard;
 import com.evolgames.userinterface.view.inputs.Quantity;
 import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
+import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
@@ -98,6 +99,16 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         super.onModelUpdated(model);
 
         this.layerProperty = model.getProperties();
+
+        for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
+            SimplePrimary<?> element = window.getLayout().getPrimaryByIndex(i);
+            if(element.getPrimaryKey()!=2) {
+                element.getSection().setActive(false);
+                if(element.getMain() instanceof ButtonWithText<?>) {
+                    ((ButtonWithText<?>) element.getMain()).updateState(Button.State.NORMAL);
+                }
+            }
+        }
 
         setMaterialNumber(layerProperty.getMaterialNumber());
         setLayerColorSlot();

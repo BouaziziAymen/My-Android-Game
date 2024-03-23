@@ -16,22 +16,6 @@ public class ImageButtonBoardController extends ButtonBoardController {
         this.editorUserInterface = editorUserInterface;
     }
 
-    public void disableButtons() {
-        if (buttonBoard.getSize() < 3) return;
-        buttonBoard.getButtonAtIndex(0).updateState(Button.State.DISABLED);
-        buttonBoard.getButtonAtIndex(1).updateState(Button.State.DISABLED);
-        buttonBoard.getButtonAtIndex(2).updateState(Button.State.DISABLED);
-        buttonBoard.getButtonAtIndex(3).updateState(Button.State.DISABLED);
-    }
-
-    public void enableButtons() {
-        if (buttonBoard.getSize() < 3) return;
-        buttonBoard.getButtonAtIndex(0).updateState(Button.State.NORMAL);
-        buttonBoard.getButtonAtIndex(1).updateState(Button.State.NORMAL);
-        buttonBoard.getButtonAtIndex(2).updateState(Button.State.NORMAL);
-        buttonBoard.getButtonAtIndex(3).updateState(Button.State.NORMAL);
-    }
-
     public void onMoveImageButtonClicked(Button button) {
         onButtonClicked(button);
         editorUserInterface

@@ -5,10 +5,10 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.evolgames.entities.basics.EntityWithBody;
 import com.evolgames.entities.serialization.infos.InitInfo;
+import com.evolgames.physics.CollisionUtils;
 
 public class BodyInitImpl implements BodyInit {
 
-    private static short groupNumber;
     private Filter filter;
 
     @SuppressWarnings("unused")
@@ -19,7 +19,7 @@ public class BodyInitImpl implements BodyInit {
         this.filter = new Filter();
         this.filter.categoryBits = category;
         this.filter.maskBits = category;
-        this.filter.groupIndex = (short) -(groupNumber++);
+        this.filter.groupIndex = CollisionUtils.groupIndex();
     }
 
     public BodyInitImpl(Filter filter) {

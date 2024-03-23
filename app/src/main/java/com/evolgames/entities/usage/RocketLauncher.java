@@ -1,9 +1,8 @@
 package com.evolgames.entities.usage;
 
 import static com.evolgames.entities.usage.Rocket.FORCE_FACTOR;
-import static com.evolgames.physics.CollisionConstants.OBJECTS_MIDDLE_CATEGORY;
-
-import android.util.Log;
+import static com.evolgames.physics.CollisionUtils.OBJECT;
+import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -17,8 +16,8 @@ import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.usage.RocketLauncherProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
-import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
+import com.evolgames.scenes.Init;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.BodyModel;
@@ -92,11 +91,11 @@ public class RocketLauncher extends Use {
         if (!initialized) {
             loadRockets(worldFacade);
         }
-        if(this.fireOn){
+        if (this.fireOn) {
             fireCounter++;
         }
-        if(fireCounter>60){
-            for(ExplosiveParticleWrapper explosiveParticleWrapper:this.projInfFireSourceMap.values()){
+        if (fireCounter > 60) {
+            for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
                 explosiveParticleWrapper.setSpawnEnabled(false);
             }
             this.fireOn = false;
@@ -130,8 +129,11 @@ public class RocketLauncher extends Use {
 
     private void fire(int index) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
-
-        GameEntity rocketEntity = Objects.requireNonNull(rockets.get(projectileInfo)).rocketBodyEntity;
+        Rocket rocket = rockets.get(projectileInfo);
+        if (rocket == null) {
+            return;
+        }
+        GameEntity rocketEntity = rocket.rocketBodyEntity;
         if (rocketEntity.getBody() == null) {
             return;
         }
@@ -173,10 +175,9 @@ public class RocketLauncher extends Use {
     }
 
     private void createRocket(ProjectileInfo projectileInfo, PhysicsScene<?> physicsScene) {
-        int index = projectileInfoList.indexOf(projectileInfo);
         ToolModel rocketModel;
         try {
-            rocketModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile(),projectileInfo.isAssetsMissile());
+            rocketModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile(), projectileInfo.isAssetsMissile());
         } catch (PersistenceException | IOException | ParserConfigurationException |
                  SAXException e) {
             return;
@@ -193,10 +194,18 @@ public class RocketLauncher extends Use {
         projectileFilter.maskBits = OBJECTS_MIDDLE_CATEGORY;
         projectileFilter.groupIndex = muzzleEntity.getGroupIndex();
 
-        rocketModel.getBodies().forEach(bodyModel -> bodyModel.setBullet(true));
+        for(int i=0;i<rocketModel.getBodies().size();i++){
+            BodyModel bodyModel = rocketModel.getBodies().get(i);
+            if(i==0){
+                //this is the main arrow body
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT,OBJECT).angle(worldAngle).isBullet(true).build());
+            } else {
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT,OBJECT).angle(worldAngle).build());
+            }
+        }
         JointModel jointModel = new JointModel(rocketModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
 
-        GameGroup rocketGroup = physicsScene.createItem(worldEnd.x, worldEnd.y, worldAngle, rocketModel, muzzleEntity.isMirrored());
+        GameGroup rocketGroup = physicsScene.createTool(rocketModel, muzzleEntity.isMirrored());
         GameEntity rocketEntity = rocketGroup.getGameEntityByIndex(0);
         BodyModel bodyModel1 = new BodyModel(0);
         BodyModel bodyModel2 = new BodyModel(1);
@@ -209,7 +218,9 @@ public class RocketLauncher extends Use {
 
         bodyModel1.setGameEntity(muzzleEntity);
         bodyModel2.setGameEntity(rocketEntity);
-        physicsScene.createJointFromModel(jointModel, false);
+        physicsScene.createJointFromModel(jointModel,false);
+
+
         Rocket rocket = rocketEntity.getUsage(Rocket.class);
         this.rockets.put(projectileInfo, rocket);
         rocketEntity.setZIndex(muzzleEntity.getMesh().getZIndex() - 1);

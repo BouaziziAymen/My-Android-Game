@@ -18,8 +18,8 @@ public class Drag extends Use {
     public Drag() {
     }
 
-    public Drag(DragModel dragModel) {
-        this.dragInfo = dragModel.toDragInfo();
+    public Drag(DragModel dragModel,boolean mirrored) {
+        this.dragInfo = dragModel.toDragInfo(mirrored);
     }
 
 

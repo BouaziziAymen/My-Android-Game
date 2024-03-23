@@ -9,6 +9,7 @@ import com.evolgames.userinterface.view.layouts.ButtonBoard;
 
 public class ButtonBoardController extends Controller {
     protected ButtonBoard buttonBoard;
+    private boolean active;
 
     ButtonBoardController(ButtonBoard buttonBoard) {
         this.buttonBoard = buttonBoard;
@@ -24,18 +25,16 @@ public class ButtonBoardController extends Controller {
 
     public void releaseButtons() {
         for (Element e : buttonBoard.getContents()) {
-            Button otherButton = (Button) e;
+            Button<?> otherButton = (Button<?>) e;
             otherButton.updateState(Button.State.NORMAL);
         }
     }
 
     void onButtonClicked(Button button) {
         for (Element e : buttonBoard.getContents()) {
-
             Button otherButton = (Button) e;
             Log.e("onButtonClicked", otherButton.getAbsoluteX() + "/" + otherButton.getAbsoluteY());
             if (button != otherButton) {
-
                 otherButton.updateState(Button.State.NORMAL);
             }
         }
@@ -46,5 +45,37 @@ public class ButtonBoardController extends Controller {
 
     @Override
     public void init() {
+    }
+
+    public void setActive(boolean active){
+        this.active = active;
+        if(!active){
+            for(int i=0;i<buttonBoard.getSize();i++) {
+                Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
+                button.updateState(Button.State.DISABLED);
+            }
+        } else {
+            for(int i=0;i<buttonBoard.getSize();i++) {
+                Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
+                button.updateState(Button.State.NORMAL);
+            }
+        }
+    }
+
+
+    public void setTemporarilyActive(boolean active) {
+        if(!active){
+            for(int i=0;i<buttonBoard.getSize();i++) {
+                Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
+                button.updateState(Button.State.DISABLED);
+            }
+        } else {
+            if(this.active) {
+                for (int i = 0; i < buttonBoard.getSize(); i++) {
+                    Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
+                    button.updateState(Button.State.NORMAL);
+                }
+            }
+        }
     }
 }

@@ -23,4 +23,8 @@ public abstract class Use {
     }
 
     public abstract void dynamicMirror(PhysicsScene<?> physicsScene);
+
+    public void onAfterMirror(PhysicsScene<?> scene) {
+
+    }
 }

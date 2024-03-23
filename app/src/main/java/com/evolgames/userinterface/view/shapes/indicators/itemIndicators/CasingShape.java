@@ -37,7 +37,14 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
 
         this.direction = new Vector2();
         this.editorUserInterface.addElement(originPoint);
+        this.updateZoom(scene.getUserInterface().getZoomFactor());
         editorUserInterface.setUpdated(true);
+    }
+
+    @Override
+    public void updateZoom(float zoom) {
+        super.updateZoom(zoom);
+        this.originPoint.updateZoom(zoom);
     }
 
     public Vector2 getBegin() {

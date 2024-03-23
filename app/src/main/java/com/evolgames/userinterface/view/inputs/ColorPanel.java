@@ -4,6 +4,7 @@ import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ColorSelectorWindowController;
 import com.evolgames.userinterface.view.basics.Panel;
+import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 import com.evolgames.userinterface.view.layouts.BoxLayout;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +35,8 @@ public class ColorPanel extends Panel {
     public Button<ColorSelectorWindowController> addColor(final float pRed, final float pGreen, final float pBlue) {
         Button<ColorSelectorWindowController> square =
                 new Button<>(
-                        ResourceManager.getInstance().squareTextureRegion, Button.ButtonType.Selector, true);
+                        ResourceManager.getInstance().squareTextureRegion, Button.ButtonType.Selector, false);
+        square.setBounds(new RectangularBounds(square,20,20));
         colorsLayout.addToLayout(square);
         square.setColor(pRed, pGreen, pBlue);
         square.setBehavior(

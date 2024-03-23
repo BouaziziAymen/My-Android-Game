@@ -55,7 +55,7 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
                                 this, titledRotationQuantity.getAttachment()) {
                             @Override
                             public void informControllerQuantityUpdated(Quantity<?> quantity) {
-                                float ratio = ((RotationQuantity<?>) quantity).getRatio();
+                                float ratio = quantity.getRatio();
                                 ammoModel.getAmmoProperties().setRotationSpeed(ratio);
                             }
                         });

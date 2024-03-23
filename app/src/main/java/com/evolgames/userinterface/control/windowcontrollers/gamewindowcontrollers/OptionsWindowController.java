@@ -108,7 +108,7 @@ public class OptionsWindowController
                         new ButtonBehavior<OptionsWindowController>(this, colorValidatedButton) {
                             @Override
                             public void informControllerButtonClicked() {
-                                editorUserInterface.getColorSelectorWindowController().addColorToPanel(pipeColorSlot.getColor(), true);
+                                editorUserInterface.getColorSelectorWindowController().addColorToPanel(new Color(pipeColorSlot.getColor()), true);
                             }
 
                             @Override
@@ -292,6 +292,30 @@ public class OptionsWindowController
                             @Override
                             public void informControllerButtonReleased() {
                                 editorUserInterface.onAddImageButtonClicked();
+                            }
+                        });
+
+
+                ButtonWithText<OptionsWindowController> mirrorImageButton =
+                        new ButtonWithText<>(
+                                "Mirror Image",
+                                2,
+                                ResourceManager.getInstance().simpleButtonTextureRegion,
+                                Button.ButtonType.OneClick,
+                                true);
+
+                SimplePrimary<ButtonWithText<?>> mirrorImageField = new SimplePrimary<>(0, mirrorImageButton);
+                window.addPrimary(mirrorImageField);
+
+                mirrorImageButton.setBehavior(
+                        new ButtonBehavior<OptionsWindowController>(this, mirrorImageButton) {
+                            @Override
+                            public void informControllerButtonClicked() {
+                            }
+
+                            @Override
+                            public void informControllerButtonReleased() {
+                                editorUserInterface.onMirrorImageButtonClicked();
                             }
                         });
                 break;

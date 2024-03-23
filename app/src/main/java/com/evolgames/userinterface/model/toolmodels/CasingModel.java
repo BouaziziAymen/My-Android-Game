@@ -1,10 +1,14 @@
 package com.evolgames.userinterface.model.toolmodels;
 
+import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.CasingProperties;
 import com.evolgames.entities.serialization.infos.CasingInfo;
+import com.evolgames.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.CasingShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.CasingField;
+import com.evolgames.utilities.GeometryUtils;
 
 public class CasingModel extends ProperModel<CasingProperties> {
 
@@ -55,12 +59,22 @@ public class CasingModel extends ProperModel<CasingProperties> {
         this.casingField = casingField;
     }
 
-    public CasingInfo toCasingInfo() {
+    public CasingInfo toCasingInfo(boolean mirrored, GameEntity muzzleEntity) {
+
+        Vector2 originProjected = this.properties.getAmmoOrigin().cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f);
+        Vector2 ammoDir = new Vector2(this.properties.getAmmoDirection());
+        boolean orientation = this.properties.isRotationOrientation();
+        if (mirrored) {
+            originProjected = GeometryUtils.mirrorPoint(originProjected);
+            ammoDir.x = -ammoDir.x;
+            orientation = !orientation;
+        }
         CasingInfo casingInfo = new CasingInfo();
-        casingInfo.setAmmoOrigin(this.properties.getAmmoOrigin());
+        casingInfo.setAmmoOrigin(originProjected);
         casingInfo.setLinearSpeed(this.properties.getLinearSpeed());
-        casingInfo.setRotationOrientation(this.properties.isRotationOrientation());
-        casingInfo.setAmmoDirection(this.properties.getAmmoDirection());
+        casingInfo.setRotationOrientation(orientation);
+        casingInfo.setAmmoDirection(ammoDir);
+        casingInfo.setRotationSpeed(this.properties.getRotationSpeed());
         return casingInfo;
     }
 }

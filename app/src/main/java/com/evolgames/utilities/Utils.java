@@ -115,7 +115,9 @@ public class Utils {
 
     public static ArrayList<Vector2> translatedPoints(Vector2[] points, Vector2 center) {
         ArrayList<Vector2> layerPoints = new ArrayList<>();
-        for (Vector2 v : points) layerPoints.add(v.cpy().sub(center));
+        for (Vector2 v : points) {
+            layerPoints.add(v.cpy().sub(center));
+        }
         return layerPoints;
     }
 

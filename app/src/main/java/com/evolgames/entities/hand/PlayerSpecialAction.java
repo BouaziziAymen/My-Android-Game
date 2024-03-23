@@ -12,7 +12,8 @@ public enum PlayerSpecialAction {
     Throw(R.drawable.hatchet_icon, false, true),
     Smash(R.drawable.mace_icon, false, true),
     Fire(R.drawable.shooting_icon, false, true),
-    Guide(R.drawable.home_icon, false, true);
+    Guide(R.drawable.home_icon, false, true),
+    Shoot_Arrow(R.drawable.target_icon, false,true );
 
     public final int iconId;
     public final boolean doubleState;

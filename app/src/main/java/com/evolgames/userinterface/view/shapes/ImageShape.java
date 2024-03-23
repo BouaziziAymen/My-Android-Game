@@ -18,7 +18,7 @@ import org.andengine.util.adt.transformation.Transformation;
 import java.util.ArrayList;
 
 public class ImageShape extends Container {
-    private final Sprite sketchSprite;
+    private Sprite sketchSprite;
     private final CircleShape pipeCircle;
     private final EditorScene creationScene;
     private final ImageShapeModel imageShapeModel;
@@ -46,6 +46,22 @@ public class ImageShape extends Container {
         this.imageShapeModel = imageShapeModel;
         this.pipeCircle.setVisible(false);
         this.ratio = region.getHeight() / region.getWidth();
+    }
+    public void updateSprite(){
+        if(sketchSprite==null){
+            return;
+        }
+        TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
+        sketchSprite.detachSelf();
+        sketchSprite =
+                new Sprite(
+                        region.getWidth(),
+                        region.getHeight(),
+                        ResourceManager.getInstance().sketchTextureRegion,
+                        ResourceManager.getInstance().vbom);
+        creationScene.attachChild(sketchSprite);
+        sketchSprite.setZIndex(-1);
+        creationScene.sortChildren();
     }
 
     public Sprite getSprite() {

@@ -590,7 +590,6 @@ public class GameEntity extends EntityWithBody {
     }
 
     private void mirror() {
-        Log.e("Mirror", "Begin Mirror---------------------------" + this.getName());
         if (body == null) {
             return;
         }
@@ -603,7 +602,6 @@ public class GameEntity extends EntityWithBody {
         }
 
         // Iterate over the joints attached to the body and collect them
-        Log.e("Mirror", "Begin Destroy Joints");
         destroyJoints();
 
         body.setActive(false);
@@ -625,7 +623,6 @@ public class GameEntity extends EntityWithBody {
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
 
-            Log.e("Mirror", "Swap elements");
         } else {
             mirrorBody = body;
             mirrorMesh = mesh;
@@ -637,7 +634,6 @@ public class GameEntity extends EntityWithBody {
             mesh.setVisible(false);
             scene.attachChild(mesh);
             mirrorCreated = true;
-            Log.e("Mirror", this + "Entered into creating a new body");
         }
         scene.sortChildren();
         if (isBatcherSetup) {
@@ -646,7 +642,9 @@ public class GameEntity extends EntityWithBody {
         changed = true;
         redrawStains();
         mirrored = !mirrored;
-
+        for (Use use : useList) {
+            use.onAfterMirror(scene);
+        }
     }
 
     public void tryDynamicMirror() {

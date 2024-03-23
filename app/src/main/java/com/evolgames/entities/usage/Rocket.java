@@ -57,7 +57,7 @@ public class Rocket extends Use {
         this.on = true;
         Body body = rocketBodyEntity.getBody();
         body.setTransform(body.getPosition(), angleRad);
-        //ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
+
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {

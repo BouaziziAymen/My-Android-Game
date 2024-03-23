@@ -70,6 +70,11 @@ public class PointImage extends SceneImage implements Movable {
         setColor(green);
         selected = true;
     }
+    public void doubleSelect(){
+        this.selected = true;
+        Color blue = Colors.palette1_blue;
+        setColor(blue);
+    }
 
     public void release() {
         selected = false;

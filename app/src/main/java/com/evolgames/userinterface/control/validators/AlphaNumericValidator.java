@@ -12,7 +12,7 @@ public class AlphaNumericValidator extends TextFieldValidator {
     public AlphaNumericValidator(int pLength, int minLength) {
         super(pLength);
         this.inputType = Keyboard.KeyboardType.AlphaNumeric;
-        regex = "^[a-zA-z_#]+[a-zA-Z0-9+ ]*";
+        regex = "^[a-zA-Z_]+[a-zA-Z0-9#+ ]*";
         this.minLength = minLength;
     }
 

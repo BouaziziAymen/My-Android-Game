@@ -9,9 +9,13 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameGroupSerializer {
+    public static Map<String, GameGroup> groups = new HashMap<>();
+    String uniqueId;
     List<GameEntitySerializer> gameEntitySerializerList;
     GroupType groupType;
 
@@ -21,9 +25,10 @@ public class GameGroupSerializer {
 
     public GameGroupSerializer(GameGroup gameGroup) {
         this.groupType = gameGroup.getGroupType();
-        gameEntitySerializerList = new ArrayList<>();
+        this.gameEntitySerializerList = new ArrayList<>();
+        this.uniqueId = gameGroup.getUniqueID();
         for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-            gameEntitySerializerList.add(new GameEntitySerializer(gameEntity));
+            this.gameEntitySerializerList.add(new GameEntitySerializer(gameEntity));
         }
     }
 
@@ -47,6 +52,11 @@ public class GameGroupSerializer {
                 break;
         }
 
+        afterCreate(scene, gameGroup);
+        return gameGroup;
+    }
+
+    private void afterCreate(PhysicsScene<?> scene, GameGroup gameGroup) {
         for (GameEntitySerializer gameEntitySerializer : gameEntitySerializerList) {
             GameEntity gameEntity = gameEntitySerializer.create();
             gameEntitySerializer.afterCreate(gameEntity);
@@ -59,7 +69,8 @@ public class GameGroupSerializer {
                 }
             }
         }
-        return gameGroup;
+        gameGroup.setUniqueID(uniqueId);
+        groups.put(uniqueId, gameGroup);
     }
 
     @SuppressWarnings("unused")
