@@ -115,7 +115,9 @@ public abstract class ExplosiveParticleWrapper implements Fire {
     public void stopFollowingParent() {
         followParent = false;
     }
-
+    public void followParent() {
+        followParent = true;
+    }
     public void update() {
         if (parent != null && !parent.isAlive()) {
             stopFinal();

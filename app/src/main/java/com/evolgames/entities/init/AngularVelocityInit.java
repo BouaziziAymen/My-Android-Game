@@ -1,5 +1,7 @@
 package com.evolgames.entities.init;
 
+import android.util.Log;
+
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.serialization.infos.InitInfo;
 
@@ -15,6 +17,7 @@ public class AngularVelocityInit extends BodyInitDecorator {
     @Override
     public void initialize(Body body) {
         super.initialize(body);
+        Log.e("--------------Angular------------",""+angularVelocity);
         body.setAngularVelocity(angularVelocity);
     }
 

@@ -162,11 +162,11 @@ public class CreationZoneController extends Controller {
         }
 
         if (indicatorArrow != null) {
+            editorScene.setHudLocked(false);
             if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof CasingShape || indicatorArrow instanceof FireSourceShape || indicatorArrow instanceof LiquidSourceShape || indicatorArrow instanceof DragShape)) {
                 indicatorArrow.detach();
             }
             indicatorArrow = null;
-            creationZone.setTouchLocked(false);
         }
         processMobilePoints(x, y);
 
@@ -220,6 +220,7 @@ public class CreationZoneController extends Controller {
 
     private void processAbortedIndicators() {
         if (indicatorArrow != null && indicatorArrow.isAborted()) {
+            editorScene.setHudLocked(false);
             if (action == CreationAction.PROJECTILE) {
                 itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
             } else if (action == CreationAction.AMMO) {
@@ -339,6 +340,7 @@ public class CreationZoneController extends Controller {
                 float Y = editorScene.getUserInterface().getImageShape().getY();
 
                 indicatorArrow = new RotateImageShape(new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, 32);
+            editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.SCALE_IMAGE) {
@@ -346,12 +348,14 @@ public class CreationZoneController extends Controller {
                 float X = editorScene.getUserInterface().getImageShape().getX();
                 float Y = editorScene.getUserInterface().getImageShape().getY();
                 indicatorArrow = new ScaleImageShape(new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, imageFixedRatio);
+                editorScene.setHudLocked(true);
             }
         }
 
         if (action == CreationAction.MOVE_IMAGE) {
             if (editorScene.getUserInterface().getImageShape() != null) {
                 indicatorArrow = new ShiftImageShape(new Vector2(x, y), editorScene.getUserInterface().getImageShape(), editorScene);
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.REVOLUTE) {
@@ -363,6 +367,7 @@ public class CreationZoneController extends Controller {
             jointWindowController.onJointAdded(jointModel);
             revoluteJointShape.setCongruentEndpoints(getCongruentAnchors());
             this.indicatorArrow = revoluteJointShape;
+            editorScene.setHudLocked(true);
             return;
         }
         if (action == CreationAction.WELD) {
@@ -374,6 +379,7 @@ public class CreationZoneController extends Controller {
             jointWindowController.onJointAdded(jointModel);
             weldJointShape.setCongruentEndpoints(getCongruentAnchors());
             this.indicatorArrow = weldJointShape;
+            editorScene.setHudLocked(true);
             return;
         }
         if (action == CreationAction.PRISMATIC) {
@@ -385,6 +391,7 @@ public class CreationZoneController extends Controller {
             jointWindowController.onJointAdded(jointModel);
             prismaticJointShape.setCongruentEndpoints(getCongruentAnchors());
             this.indicatorArrow = prismaticJointShape;
+            editorScene.setHudLocked(true);
             return;
         }
         if (action == CreationAction.DISTANCE) {
@@ -396,6 +403,7 @@ public class CreationZoneController extends Controller {
             distanceJointShape.bindModel(jointModel);
             distanceJointShape.setCongruentEndpoints(getCongruentAnchors());
             this.indicatorArrow = distanceJointShape;
+            editorScene.setHudLocked(true);
             return;
         }
         if (action == CreationAction.PROJECTILE) {
@@ -407,6 +415,7 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onProjectileCreated(projectileModel);
                 projectileShape.bindModel(projectileModel);
                 this.indicatorArrow = projectileShape;
+                editorScene.setHudLocked(true);
                 return;
             }
         }
@@ -417,6 +426,7 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onDragCreated(dragModel);
                 dragShape.bindModel(dragModel);
                 this.indicatorArrow = dragShape;
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.LIQUID_SOURCE) {
@@ -426,6 +436,7 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onLiquidSourceCreated(liquidSourceModel);
                 liquidSourceShape.bindModel(liquidSourceModel);
                 this.indicatorArrow = liquidSourceShape;
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.BOMB) {
@@ -434,6 +445,7 @@ public class CreationZoneController extends Controller {
                 BombModel bombModel = editorUserInterface.getToolModel().createNewBomb(bombShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
                 itemWindowController.onBombCreated(bombModel);
                 bombShape.bindModel(bombModel);
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.SPECIAL_POINT) {
@@ -442,6 +454,7 @@ public class CreationZoneController extends Controller {
                 SpecialPointModel specialPointModel = editorUserInterface.getToolModel().createNewSpecialPoint(specialPointShape, editorUserInterface.getItemWindowController().getSelectedBodyId());
                 itemWindowController.onSpecialPointCreated(specialPointModel);
                 specialPointShape.bindModel(specialPointModel);
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.AMMO) {
@@ -451,6 +464,7 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onCasingCreated(ammoModel);
                 casingShape.bindModel(ammoModel);
                 this.indicatorArrow = casingShape;
+                editorScene.setHudLocked(true);
                 return;
             }
         }
@@ -461,17 +475,18 @@ public class CreationZoneController extends Controller {
                 itemWindowController.onFireSourceCreated(fireSourceModel);
                 fireSourceShape.bindModel(fireSourceModel);
                 this.indicatorArrow = fireSourceShape;
+                editorScene.setHudLocked(true);
                 return;
             }
         }
         if (action == CreationAction.SHIFT && layerWindowController.getSelectedPointsModel() != null) {
             indicatorArrow = new ShiftArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene);
-            creationZone.setTouchLocked(true);
+            editorScene.setHudLocked(true);
             return;
         }
         if (action == CreationAction.ROTATE && layerWindowController.getSelectedPointsModel() != null) {
             indicatorArrow = new RotateArrowShape(new Vector2(x, y), layerWindowController.getSelectedPointsModel(), editorScene, 64);
-            creationZone.setTouchLocked(true);
+            editorScene.setHudLocked(true);
             return;
         }
 
@@ -485,8 +500,7 @@ public class CreationZoneController extends Controller {
 
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon);
             selectedPointsModel.getReferencePoints().add(center);
-
-            creationZone.setTouchLocked(true);
+            editorScene.setHudLocked(true);
             return;
         }
 
@@ -515,7 +529,7 @@ public class CreationZoneController extends Controller {
             shapePointsModel.setPoints(selectedLayerPointsModel.getPoints().stream().map(Vector2::new).collect(Collectors.toList()));
             shapePointsModel.setReferencePoints(selectedLayerPointsModel.getReferencePoints().stream().map(Vector2::new).collect(Collectors.toList()));
             indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene, isSameShape(), isInvertShape());
-            creationZone.setTouchLocked(true);
+            editorScene.setHudLocked(true);
         }
     }
 

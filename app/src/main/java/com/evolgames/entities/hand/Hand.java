@@ -185,7 +185,7 @@ public class Hand {
                 if (mouseJoint != null && follow) {
                     moveHand(touchEvent);
                 }
-            } else if (touchEvent.isActionUp()||touchEvent.isActionOutside()||touchEvent.isActionCancel()) {
+            } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
                 if (grabbedEntity != null) {
                     releaseGrabbedEntity(true);
                     this.follow = false;
@@ -209,16 +209,45 @@ public class Hand {
                     if (grabbedEntity != null) {
                         if (this.playScene.getSpecialAction() == PlayerSpecialAction.Fire) {
                             if ((this.grabbedEntity.hasUsage(Shooter.class) && (touchData == null || touchData.first != grabbedEntity))) {
-                                doAim(touchEvent,grabbedEntity.isMirrored());
+                                doAim(touchEvent, grabbedEntity.isMirrored());
                             }
                         }
                         if (this.grabbedEntity.hasUsage(RocketLauncher.class) || this.grabbedEntity.hasUsage(Bow.class)) {
-                            doAim(touchEvent,grabbedEntity.isMirrored());
+                            doAim(touchEvent, grabbedEntity.isMirrored());
                         }
                     }
                 }
             } else if (touchEvent.isActionUp()) {
                 this.follow = false;
+                switch (this.playScene.getSpecialAction()) {
+
+                    case None:
+                        break;
+                    case Trigger:
+                        break;
+                    case SwitchOn:
+                        break;
+                    case SwitchOff:
+                        break;
+                    case Slash:
+                        break;
+                    case Stab:
+                        break;
+                    case Throw:
+                        break;
+                    case Smash:
+                        break;
+                    case Fire:
+                        if (grabbedEntity.hasUsage(Shooter.class)) {
+                            Shooter shooter = grabbedEntity.getUsage(Shooter.class);
+                            shooter.onTriggerReleased();
+                        }
+                        break;
+                    case Guide:
+                        break;
+                    case Shoot_Arrow:
+                        break;
+                }
             } else if (touchEvent.isActionDown()) {
                 if (touchData != null && (grabbedEntity == touchData.first || grabbedEntity == null)) {
                     grab(touchData.first, touchEvent, touchData.second);
@@ -297,13 +326,14 @@ public class Hand {
         }
         return false;
     }
+
     private void updateUsagesOnEntityReleased() {
-        if(this.grabbedEntity==null||this.grabbedEntity.getBody()==null){
+        if (this.grabbedEntity == null || this.grabbedEntity.getBody() == null) {
             return;
         }
-        if(this.grabbedEntity.hasUsage(Bow.class)){
-            Bow bow =  this.grabbedEntity.getUsage(Bow.class);
-            if(bow.isLoaded()) {
+        if (this.grabbedEntity.hasUsage(Bow.class)) {
+            Bow bow = this.grabbedEntity.getUsage(Bow.class);
+            if (bow.isLoaded()) {
                 for (GameGroup gameGroup : bow.getArrows().values()) {
                     for (GameEntity gameEntity : gameGroup.getGameEntities()) {
                         playScene.getWorldFacade().destroyGameEntity(gameEntity, true, false);
@@ -313,15 +343,16 @@ public class Hand {
             bow.onBowReleased();
         }
     }
+
     private void onEntityHeld() {
-        if(this.grabbedEntity==null||this.grabbedEntity.getBody()==null){
+        if (this.grabbedEntity == null || this.grabbedEntity.getBody() == null) {
             return;
         }
-        if(this.grabbedEntity.hasUsage(Bow.class)){
-          Bow bow =  this.grabbedEntity.getUsage(Bow.class);
-          if(!bow.isLoaded()&&!bow.isLoading()) {
-              bow.startReloading();
-          }
+        if (this.grabbedEntity.hasUsage(Bow.class)) {
+            Bow bow = this.grabbedEntity.getUsage(Bow.class);
+            if (!bow.isLoaded() && !bow.isLoading()) {
+                bow.startReloading();
+            }
         }
     }
 
@@ -333,7 +364,7 @@ public class Hand {
         Vector2 dir = target.cpy().sub(grabbedEntity.getBody().getPosition());
         if (dir.len() < 8f) {
             Vector2 U = dir.nor();
-            if(!isMirrored){
+            if (!isMirrored) {
                 U.mul(-1f);
             }
             float angle = GeometryUtils.calculateAngle(U.x, U.y);
@@ -529,7 +560,7 @@ public class Hand {
 
     public void onMouseJointDestroyed() {
         Log.e("Mirror", "On Mouse Joint Destroyed:" + mouseJoint);
-        if(this.onAction){
+        if (this.onAction) {
             onGrabbedEntityReleased(true);
         } else {
             this.playScene.onUsagesUpdated();

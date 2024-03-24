@@ -5,7 +5,7 @@ import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
-import com.evolgames.entities.particles.initializers.GameEntityAttachedMinMaxVelocityInitializer;
+import com.evolgames.entities.particles.initializers.IndependentMinMaxVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionBumpModifier;
 import com.evolgames.entities.particles.modifiers.GroundCollisionExpireModifier;
@@ -77,7 +77,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
                         ResourceManager.getInstance().vbom);
         Color fireColor = MyColorUtils.getColor(flameTemperature);
         this.sparkParticleSystem.addParticleInitializer(
-                new GameEntityAttachedMinMaxVelocityInitializer(
+                new IndependentMinMaxVelocityInitializer(
                         parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
         this.sparkParticleSystem.addParticleInitializer(new ColorParticleInitializer<>(fireColor));
         this.sparkParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.9f));
@@ -100,7 +100,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
                         ResourceManager.getInstance().plasmaParticle,
                         ResourceManager.getInstance().vbom);
         this.fireParticleSystem.addParticleInitializer(
-                new GameEntityAttachedMinMaxVelocityInitializer(
+                new IndependentMinMaxVelocityInitializer(
                         parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
         Color fireColor = MyColorUtils.getColor(flameTemperature);
         Color secondColor =
@@ -135,7 +135,7 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
                         ResourceManager.getInstance().vbom);
         float lifespan = 1.5f;
         this.smokeParticleSystem.addParticleInitializer(
-                new GameEntityAttachedMinMaxVelocityInitializer(
+                new IndependentMinMaxVelocityInitializer(
                         parent, normal.cpy().nor(), -horizontalSpeed, horizontalSpeed, 0, verticalSpeed));
         this.smokeParticleSystem.addParticleInitializer(
                 new ColorParticleInitializer<>(0.3f, 0.3f, 0.3f));

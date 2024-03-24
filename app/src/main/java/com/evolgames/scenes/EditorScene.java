@@ -51,6 +51,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     private final PinchZoomDetector mPinchZoomDetector;
     private float mPinchZoomStartedCameraZoomFactor;
     private BodyModel groundModel;
+    private boolean hudLocked;
 
     public EditorScene(Camera camera) {
         super(camera, SceneType.EDITOR);
@@ -75,8 +76,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         this.groundModel.setModelName("Ground");
 
         Entity background = new Entity();
-        this.setBackground(new EntityBackground(0, 0, 0, background));
-
+         this.setBackground(new EntityBackground(1f, 1f, 1f, background));
+        //this.setBackground(new EntityBackground(0, 0, 0, background));
         plotter = new Plotter();
         plotter.setZIndex(200);
         this.attachChild(plotter);
@@ -93,12 +94,12 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public void createUserInterface() {
         ItemMetaData itemMetaData = ResourceManager.getInstance().getEditorItem();
         ToolModel toolModel;
-        if(itemMetaData==null){
+        if (itemMetaData == null) {
             throw new IllegalStateException("Entered into editor without a name");
         }
-        toolModel = loadToolModel(itemMetaData.getTemplateName()!=null?itemMetaData.getTemplateName():itemMetaData.getFileName(), true, !itemMetaData.isUserCreated());
+        toolModel = loadToolModel(itemMetaData.getTemplateName() != null ? itemMetaData.getTemplateName() : itemMetaData.getFileName(), true, !itemMetaData.isUserCreated());
 
-        if(toolModel==null){
+        if (toolModel == null) {
             toolModel = new ToolModel(this);
             toolModel.getProperties().setToolName(itemMetaData.getName());
             toolModel.setCategory(itemMetaData.getItemCategory());
@@ -208,9 +209,9 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public void onPause() {
         CreationAction creationAction = this.getUserInterface().getCreationZoneController().getAction();
         Screen screen = this.getUserInterface().getSelectedScreen();
-        saveStringToPreferences("editor_creation_action",creationAction.name());
-        saveStringToPreferences("editor_screen",screen.name());
-        saveStringToPreferences("saved_tool_filename",XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
+        saveStringToPreferences("editor_creation_action", creationAction.name());
+        saveStringToPreferences("editor_screen", screen.name());
+        saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
         this.getUserInterface().saveToolModel();
     }
 
@@ -221,7 +222,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         CreationAction creationAction = CreationAction.fromName(actionString);
         Screen screen = Screen.fromName(screenString);
         createUserInterface();
-        userInterface.setBoardsState(screen,creationAction);
+        userInterface.setBoardsState(screen, creationAction);
     }
 
     @Override
@@ -232,7 +233,10 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
     @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-        boolean hudTouched = userInterface.onTouchHud(hudTouchEvent);
+        boolean hudTouched = false;
+        if (!hudLocked) {
+            hudTouched = userInterface.onTouchHud(hudTouchEvent);
+        }
         if (!hudTouched) {
             userInterface.onTouchScene(touchEvent);
         }
@@ -302,7 +306,9 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void onScrollStarted(
             ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-       userInterface.getCreationZoneController().setUpLocked(true);
+        userInterface.getCreationZoneController().setUpLocked(true);
+        userInterface.setBoardsActive(false);
+        userInterface.lockInteraction();
     }
 
     @Override
@@ -324,6 +330,8 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public void onScrollFinished(
             ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
         userInterface.getCreationZoneController().setUpLocked(false);
+        userInterface.setBoardsActive(true);
+        userInterface.unlockInteraction();
     }
 
     public void setScrollerEnabled(boolean pScrollerEnabled) {
@@ -340,5 +348,9 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
     public void addImage() {
         userInterface.addImage();
+    }
+
+    public void setHudLocked(boolean hudLocked) {
+        this.hudLocked = hudLocked;
     }
 }

@@ -8,6 +8,7 @@ import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
+import com.evolgames.entities.init.RecoilInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.physics.CollisionUtils;
 
@@ -120,6 +121,10 @@ public class Init {
     }
 
     public BodyInit getBodyInit(){
+        if(recoil>0){
+            return new RecoilInit(new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
+                    new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity),muzzleBody,recoil,muzzleVelocity,point);
+        }
             return new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
                     new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity);
     }

@@ -18,12 +18,11 @@ import org.andengine.util.adt.transformation.Transformation;
 import java.util.ArrayList;
 
 public class ImageShape extends Container {
-    private Sprite sketchSprite;
     private final CircleShape pipeCircle;
     private final EditorScene creationScene;
     private final ImageShapeModel imageShapeModel;
-    private final Bitmap bitmap;
     private final float ratio;
+    private Sprite sketchSprite;
     private LineLoop lineLoop;
     private ArrayList<Vector2> points;
 
@@ -41,14 +40,14 @@ public class ImageShape extends Container {
         creationScene.sortChildren();
         setDepth(-10);
         updateSelf();
-        bitmap = ResourceManager.getInstance().sketchBitmap;
         this.pipeCircle = new CircleShape(sketchSprite);
         this.imageShapeModel = imageShapeModel;
         this.pipeCircle.setVisible(false);
         this.ratio = region.getHeight() / region.getWidth();
     }
-    public void updateSprite(){
-        if(sketchSprite==null){
+
+    public void updateSprite() {
+        if (sketchSprite == null) {
             return;
         }
         TextureRegion region = ResourceManager.getInstance().sketchTextureRegion;
@@ -141,7 +140,7 @@ public class ImageShape extends Container {
     public org.andengine.util.adt.color.Color getColorAt(float touchX, float touchY, int radius) {
         setPipeCircleRadius(radius);
         float[] pos = sketchSprite.convertSceneCoordinatesToLocalCoordinates(touchX, touchY);
-
+        Bitmap bitmap = ResourceManager.getInstance().sketchBitmap;
         if (pos[0] < sketchSprite.getWidth()
                 && pos[0] > 0
                 && pos[1] < sketchSprite.getHeight()

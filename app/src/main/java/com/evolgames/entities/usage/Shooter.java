@@ -6,6 +6,7 @@ import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
 import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
@@ -210,6 +211,7 @@ public class Shooter extends Use {
         float muzzleVelocity = getProjectileVelocity(projectileInfo.getMuzzleVelocity());
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
         Filter projectileFilter = new Filter();
+
         projectileFilter.categoryBits = OBJECTS_MIDDLE_CATEGORY;
         projectileFilter.maskBits = OBJECTS_MIDDLE_CATEGORY;
         projectileFilter.groupIndex = muzzleEntity.getGroupIndex();
@@ -235,7 +237,8 @@ public class Shooter extends Use {
             Vector2 casingDirectionProjected = muzzleEntity.getBody().getWorldVector(casingDirection).cpy();
             boolean clockwise = projectileInfo.getCasingInfo().isRotationOrientation();
             float angularVelocity =
-                    clockwise ? 1 : -1 * projectileInfo.getCasingInfo().getRotationSpeed() * 10;
+                    clockwise ? (float) (projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2):
+                            (float) (-1 * projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2);
             float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 20;
             Vector2 ejectionVelocityVector = casingDirectionProjected.mul(ejectionVelocity);
             Init casingInit = new Init.Builder(casingOriginProjected.x * 32f, casingOriginProjected.y * 32f)
@@ -243,11 +246,10 @@ public class Shooter extends Use {
                     .angularVelocity(angularVelocity)
                     .angle(muzzleEntity.getBody().getAngle())
                     .filter(OBJECTS_MIDDLE_CATEGORY, OBJECTS_MIDDLE_CATEGORY, muzzleEntity.getGroupIndex()).build();
-
             missileModel.getBodies().get(1).setInit(casingInit);
         } else {
-            if(missileModel.getBodies().size()>1) {
-                missileModel.getBodies().remove(1);
+            if(missileModel.getBodies().size()>1){
+            missileModel.getBodies().remove(1);
             }
         }
 
@@ -255,6 +257,11 @@ public class Shooter extends Use {
         GameGroup bulletGroup = physicsScene.createTool(missileModel, muzzleEntity.isMirrored());
 
         GameEntity bullet = bulletGroup.getGameEntityByIndex(0);
+        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(bullet,120);
+        if(bulletGroup.getEntities().size()>1) {
+            GameEntity casing = bulletGroup.getGameEntityByIndex(1);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing,120);
+        }
         Projectile projectile = new Projectile(ProjectileType.BULLET);
         projectile.setActive(true);
         bullet.getUseList().add(projectile);
@@ -327,6 +334,7 @@ public class Shooter extends Use {
                                                         0.2f, 1f, 0f);
                                 fireSource.setSpawnEnabled(false);
                                 this.projInfFireSourceMap.put(p, fireSource);
+
                             }
                         });
     }

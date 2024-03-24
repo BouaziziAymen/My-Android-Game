@@ -87,8 +87,8 @@ public class Projectile extends Use implements Penetrating {
                 penetrator.getMesh().setVisible(false);
                 worldFacade.scheduleGameEntityToDestroy(penetrator,1);
             }
-
-            worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, overlappedEntity);
+            overlappedEntity.getBody().applyLinearImpulse(normal.cpy().mul( 10f*consumedImpulse * massFraction), point);
+            worldFacade.applyPointImpact(obtain(point), 1000f*consumedImpulse * massFraction, overlappedEntity);
         }
 
         if (!list.isEmpty()) {
@@ -116,7 +116,7 @@ public class Projectile extends Use implements Penetrating {
                         / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
         worldFacade.addNonCollidingPair(penetrated, penetrator);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
+        worldFacade.applyPointImpact(obtain(point), 1000f*collisionImpulse * massFraction, penetrated);
         setActive(false);
     }
 

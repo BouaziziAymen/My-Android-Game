@@ -190,7 +190,7 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
-scaleTool("Pistol 3#",0.85f);
+//scaleTool("Rifle 2#",1.1f);
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method

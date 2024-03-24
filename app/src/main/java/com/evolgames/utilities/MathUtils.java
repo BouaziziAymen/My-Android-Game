@@ -240,7 +240,7 @@ public class MathUtils {
         return (int) (x + 0.5f);
     }
 
-    public static float diminishedIncrease(float inputValue, float scaleFactor) {
+    public static float diminishedIncrease(float inputValue) {
         // Adjust these parameters for desired behavior
         float base = 2.0f; // Base of the logarithm
 
@@ -250,7 +250,7 @@ public class MathUtils {
         }
 
         // Calculate the increased value using a logarithmic function
-        return (float) (Math.log(inputValue + 1) / Math.log(base)) * scaleFactor;
+        return (float) (Math.log(inputValue + 1) / Math.log(base));
     }
 
     private static class Sin {

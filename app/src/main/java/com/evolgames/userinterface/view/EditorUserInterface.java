@@ -1008,7 +1008,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
     @Override
     public boolean onTouchHud(TouchEvent pTouchEvent) {
-        if (!creationZone.isTouchLocked() && !interactionLocked) {
+        if (!interactionLocked) {
             return super.onTouchHud(pTouchEvent);
         }
         return false;

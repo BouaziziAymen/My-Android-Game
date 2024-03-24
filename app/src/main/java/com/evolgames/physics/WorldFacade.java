@@ -1676,14 +1676,14 @@ public class WorldFacade implements ContactObserver {
                     float length =
                             (float)
                                     enterBleedingPoints.stream()
-                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight(), 1f))
+                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight()))
                                             .sum();
                     int limit =
                             (int)
                                     Math.ceil(
                                             length
                                                     * layerBlock.getProperties().getJuicinessDensity()
-                                                    * BLEEDING_CONSTANT);
+                                                    * BLEEDING_CONSTANT / 5f);
                     if (limit >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
                                 new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
@@ -1704,14 +1704,14 @@ public class WorldFacade implements ContactObserver {
                     float length =
                             (float)
                                     leavingBleedingPoints.stream()
-                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight(), 1f))
+                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight()))
                                             .sum();
                     int value =
                             (int)
                                     Math.ceil(
                                             length
                                                     * layerBlock.getProperties().getJuicinessDensity()
-                                                    * BLEEDING_CONSTANT);
+                                                    * BLEEDING_CONSTANT / 5f);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
                                 new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());

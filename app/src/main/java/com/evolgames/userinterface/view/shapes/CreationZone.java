@@ -12,20 +12,13 @@ public class CreationZone {
 
     private final CreationZoneController creationZoneController;
     private final ArrayList<ReferencePointImage> referencePointImageArrayList = new ArrayList<>();
-    private boolean touchLocked;
 
     public CreationZone(CreationZoneController controller) {
 
         this.creationZoneController = controller;
     }
 
-    public boolean isTouchLocked() {
-        return touchLocked;
-    }
 
-    public void setTouchLocked(boolean b) {
-        this.touchLocked = b;
-    }
 
     public Vector2 applyMagnet(float x, float y) {
 
