@@ -148,6 +148,7 @@ public class LiquidSourceShape extends AngleIndicator implements MovablesContain
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
         updateExtent();
+        this.angle = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
         this.model.getProperties().setLiquidSourceDirection(direction);
     }
 

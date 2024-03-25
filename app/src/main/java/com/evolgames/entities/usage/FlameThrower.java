@@ -1,6 +1,7 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
@@ -74,6 +75,17 @@ public class FlameThrower extends Use {
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
 
+    }
+
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if(ratio<0.9f){
+            return false;
+        }
+        this.fireSourceInfoList.forEach(fireSourceInfo -> {
+            fireSourceInfo.setMuzzleEntity(heir);
+        });
+        return true;
     }
 
     public void createFireSources(WorldFacade worldFacade) {

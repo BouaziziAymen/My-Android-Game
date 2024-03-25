@@ -168,7 +168,6 @@ public class ImageShape extends Container {
     public void updateWidth(float width) {
         this.sketchSprite.setWidth(width);
         imageShapeModel.setWidth(width);
-
     }
 
     public void updateHeight(float height) {
@@ -190,5 +189,15 @@ public class ImageShape extends Container {
     public void updateWidthWithRatio(float disX) {
         updateWidth(disX);
         updateHeight(disX * ratio);
+    }
+
+    public float getWidth(){
+        return sketchSprite.getWidth();
+    }
+    public float getHeight(){
+        return sketchSprite.getHeight();
+    }
+    public float getRotation() {
+        return this.sketchSprite.getRotation();
     }
 }

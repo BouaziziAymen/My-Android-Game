@@ -3,6 +3,7 @@ package com.evolgames.userinterface.view.shapes.indicators.jointindicators;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
+import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Container;
 import com.evolgames.userinterface.view.shapes.indicators.LineShape;
@@ -21,6 +22,7 @@ public class JointShape extends LineShape implements MovablesContainer {
     private final EditorUserInterface editorUserInterface;
     protected Container container;
     protected JointModel model;
+    protected boolean limitsShown;
 
     public JointShape(
             EditorUserInterface editorUserInterface,
@@ -48,6 +50,8 @@ public class JointShape extends LineShape implements MovablesContainer {
         release();
         this.editorUserInterface = editorUserInterface;
         this.editorUserInterface.addElement(container);
+        beginPoint.updateZoom(this.editorUserInterface.getZoomFactor());
+        endPoint.updateZoom(this.editorUserInterface.getZoomFactor());
     }
 
     @Override
@@ -65,7 +69,7 @@ public class JointShape extends LineShape implements MovablesContainer {
 
     public void release() {
         selected = false;
-        setColor(1, 1, 1);
+        setColor(Colors.palette1_gold);
         container.setUpdated(true);
     }
 
@@ -107,5 +111,13 @@ public class JointShape extends LineShape implements MovablesContainer {
 
     public void onBeginPointMoved(float x, float y) {
         this.model.getLocalAnchorA().set(x, y);
+    }
+
+    public void showLimitsElements() {
+        limitsShown = true;
+    }
+
+    public void hideLimitsElements() {
+        limitsShown = false;
     }
 }

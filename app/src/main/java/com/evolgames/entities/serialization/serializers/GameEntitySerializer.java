@@ -8,6 +8,7 @@ import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.init.AngularVelocityInit;
+import com.evolgames.entities.init.BodyNotActiveInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
@@ -85,6 +86,7 @@ public class GameEntitySerializer {
         BodyInitImpl bodyInitImpl = new BodyInitImpl(initInfo.getFilter());
         bodyInit = new BulletInit(bodyInitImpl, initInfo.isBullet());
         bodyInit = new TransformInit(bodyInit, initInfo.getX(), initInfo.getY(), initInfo.getAngle());
+        bodyInit = new BodyNotActiveInit(bodyInit,initInfo.isNotActive());
         if (initInfo.getLinearVelocity() != null) {
             bodyInit = new LinearVelocityInit(bodyInit, initInfo.getLinearVelocity());
         }

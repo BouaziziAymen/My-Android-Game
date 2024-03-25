@@ -261,7 +261,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
         if(!(getParent().getProperties().isCombustible()||getParent().getProperties().isFlammable())){
             return;
         }
-        if (Math.random() < 0.1f*heatRatio) {
+        if (Math.random() < 0.01f*heatRatio) {
             this.isOnFlame = true;
             this.isOnFire = true;
         }

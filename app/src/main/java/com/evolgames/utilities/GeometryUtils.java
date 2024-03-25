@@ -396,6 +396,23 @@ public class GeometryUtils {
             // Return the center point
             return new Vector2(centerX, centerY);
     }
+    public static Vector2 calculateCenterScatter(List<Vector2> list) {
+        float totalX = 0;
+        float totalY = 0;
+
+        // Calculate the total sum of X and Y coordinates
+        for (Vector2 point : list) {
+            totalX += point.x;
+            totalY += point.y;
+        }
+        // Calculate the average X and Y coordinates
+        float centerX = totalX / list.size();
+        float centerY = totalY / list.size();
+
+        // Return the center point
+        return new Vector2(centerX, centerY);
+    }
+
 
     public static float calculateShortestDirectedDistance(float angle1, float angle2) {
         // Normalize angles to be between 0 and 360 degrees

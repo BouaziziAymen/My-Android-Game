@@ -104,6 +104,7 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
     @Override
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
+        this.angle = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
         model.getProperties().getAmmoDirection().set(direction);
     }
 

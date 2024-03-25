@@ -24,5 +24,6 @@ public class ShiftImageShape extends LineShape {
         imageShape
                 .updatePosition(imagePosition.x + displacement.x, imagePosition.y + displacement.y);
         imageShape.updateSelf();
+        creationScene.getUserInterface().getOptionsWindowController().onUpdatedImageDimensions(imageShape);
     }
 }

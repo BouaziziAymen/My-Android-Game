@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
@@ -238,14 +240,16 @@ public class JointSettingsWindowController
             BodyModel bodyModel,
             SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyField.getMain().release();
-        outlineController.onJointBodySelectionUpdated(null, this.jointModel.getBodyModel2());
+        this.jointModel.setBodyModel1(null);
+        outlineController.onJointBodySelectionUpdated( this.jointModel);
     }
 
     private void onSecondBodyButtonReleased(
             BodyModel bodyModel,
             SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyField.getMain().release();
-        outlineController.onJointBodySelectionUpdated(this.jointModel.getBodyModel1(), null);
+        this.jointModel.setBodyModel2(null);
+        outlineController.onJointBodySelectionUpdated(this.jointModel);
     }
 
     public void onUpdated() {
@@ -271,7 +275,7 @@ public class JointSettingsWindowController
         }
         jointModel.setBodyModel1(bodyModel);
         outlineController.onJointBodySelectionUpdated(
-                this.jointModel.getBodyModel1(), this.jointModel.getBodyModel2());
+                this.jointModel);
     }
 
     private void onSecondBodyButtonClicked(BodyModel bodyModel, SimpleSecondary<?> body2Field) {
@@ -293,7 +297,7 @@ public class JointSettingsWindowController
         }
         jointModel.setBodyModel2(bodyModel);
         outlineController.onJointBodySelectionUpdated(
-                this.jointModel.getBodyModel1(), this.jointModel.getBodyModel2());
+                this.jointModel);
     }
 
     @Override
@@ -904,15 +908,16 @@ public class JointSettingsWindowController
     }
 
     public void setRevoluteLowerAngle(float lowerAngleInRevolutions) {
+        Log.e("lower",""+lowerAngleInRevolutions);
         jointModel.setLowerAngle((float) (lowerAngleInRevolutions * 2 * Math.PI));
         revoluteLowerAngleTextField
                 .getBehavior()
                 .setTextValidated(format.format(lowerAngleInRevolutions));
     }
 
-    public void setRevoluteUpperAngle(float upperAngle) {
-        jointModel.setUpperAngle((float) (upperAngle * 2 * Math.PI));
-        revoluteUpperAngleTextField.getBehavior().setTextValidated(format.format(upperAngle));
+    public void setRevoluteUpperAngle(float upperAngleRevolutions) {
+        jointModel.setUpperAngle((float) (upperAngleRevolutions * 2 * Math.PI));
+        revoluteUpperAngleTextField.getBehavior().setTextValidated(format.format(upperAngleRevolutions));
     }
 
     public void setPrismaticDirectionAngle(float directionAngle) {

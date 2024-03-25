@@ -1,9 +1,11 @@
 package com.evolgames.entities.blockvisitors;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.physics.WorldFacade;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,11 +27,15 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
         Iterator<LayerBlock> iterator = new ArrayList<>(gameEntity.getBlocks()).iterator();
         while (iterator.hasNext()) {
             LayerBlock layerBlock = iterator.next();
-            MultiShatterVisitor blockShatterVisitor =
-                    new MultiShatterVisitor(
-                            impacts.stream()
-                                    .filter(impactData -> impactData.getImpactedBlock() == layerBlock)
-                                    .collect(Collectors.toList()),
+            List<ImpactData> layerImpacts = impacts.stream()
+                    .filter(impactData -> impactData.getImpactedBlock() == layerBlock)
+                    .collect(Collectors.toList());
+            List<Vector2> localCenters = impacts.stream().map(ImpactData::getLocalImpactPoint).collect(Collectors.toList());
+            Vector2 localCenter = GeometryUtils.calculateCenterScatter(localCenters);
+            float impactEnergy = (float) layerImpacts.stream().mapToDouble(ImpactData::getImpactImpulse).sum();
+            ShatterVisitor blockShatterVisitor =
+                    new ShatterVisitor(impactEnergy
+                            ,localCenter,
                             worldFacade,
                             gameEntity);
             blockShatterVisitor.visitTheElement(layerBlock);
@@ -38,19 +44,23 @@ public class GameEntityMultiShatterVisitor extends BreakVisitor<GameEntity> {
                 shatterPerformed = true;
                 iterator.remove();
             } else {
-                float energy =
-                        (float)
-                                impacts.stream()
-                                        .filter(e -> e.getImpactedBlock() == layerBlock)
-                                        .mapToDouble(ImpactData::getImpactImpulse)
-                                        .sum();
-                LayerProperties properties = layerBlock.getProperties();
-                float ratio =
-                        (float) Math.min(0.1f, 0.002f * energy / (Math.pow(properties.getTenacity(), 6)));
-                float newTenacity = properties.getTenacity() * (1f - ratio);
-                properties.setTenacity(newTenacity);
+                applyStrain(layerBlock);
             }
             this.splintersBlocks.addAll(blockShatterVisitor.getSplintersBlocks());
         }
+    }
+
+    private void applyStrain(LayerBlock layerBlock) {
+        float energy =
+                (float)
+                        impacts.stream()
+                                .filter(e -> e.getImpactedBlock() == layerBlock)
+                                .mapToDouble(ImpactData::getImpactImpulse)
+                                .sum();
+        LayerProperties properties = layerBlock.getProperties();
+        float ratio =
+                (float) Math.min(0.1f, 0.002f * energy / (Math.pow(properties.getTenacity(), 6)));
+        float newTenacity = properties.getTenacity() * (1f - ratio);
+        properties.setTenacity(newTenacity);
     }
 }

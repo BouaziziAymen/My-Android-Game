@@ -21,7 +21,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         editorUserInterface
                 .getCreationZoneController()
                 .setAction(CreationAction.MOVE_IMAGE);
-        editorUserInterface.updateOptionsWindow(SettingsType.NONE);
+        editorUserInterface.updateOptionsWindow(SettingsType.MOVE_IMAGE_SETTINGS);
     }
 
     public void onMoveImageButtonReleased(Button button) {
@@ -45,7 +45,7 @@ public class ImageButtonBoardController extends ButtonBoardController {
         editorUserInterface
                 .getCreationZoneController()
                 .setAction(CreationAction.ROTATE_IMAGE);
-        editorUserInterface.updateOptionsWindow(SettingsType.NONE);
+        editorUserInterface.updateOptionsWindow(SettingsType.ROTATE_IMAGE_SETTINGS);
     }
 
     public void onRotateImageButtonReleased(Button<ImageButtonBoardController> button) {

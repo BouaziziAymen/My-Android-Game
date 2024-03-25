@@ -460,7 +460,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     private void createTestUnit() {
-        List<Vector2> vertices1 = VerticesFactory.createRectangle(60, 60);
+/*        List<Vector2> vertices1 = VerticesFactory.createRectangle(60, 60);
         LayerProperties properties1 =
                 PropertiesFactory.getInstance()
                         .createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
@@ -507,9 +507,11 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         revoluteJointDef.localAnchorB.set(0, 2f);
         revoluteJointDef.collideConnected = false;
         this.worldFacade.addJointToCreate(revoluteJointDef, gameEntity1, gameEntity2);
+         gameEntity1.setCenter(new Vector2());
+        */
         // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
 
-        List<Vector2> vertices3 = VerticesFactory.createRectangle(40, 20);
+        List<Vector2> vertices3 = VerticesFactory.createRectangle(80, 80);
         LayerProperties properties3 =
                 PropertiesFactory.getInstance()
                         .createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
@@ -525,9 +527,9 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                                 GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
         gameEntity3.setName("small rectangle");
-        gameEntity3.getUseList().add(new Stabber());
+       // gameEntity3.getUseList().add(new Stabber());
         gameEntity3.setCenter(new Vector2());
-        gameEntity1.setCenter(new Vector2());
+
         if (false) {
             for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
                 Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
@@ -724,7 +726,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 }
                 if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(RocketLauncher.class)) {
                     RocketLauncher rocketLauncher = hand.getGrabbedEntity().getUsage(RocketLauncher.class);
-                    rocketLauncher.onTriggerPulled();
+                    rocketLauncher.onTriggerPulled(this);
                     onUsagesUpdated();
                 }
             }

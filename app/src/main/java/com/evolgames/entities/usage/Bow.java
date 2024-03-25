@@ -309,6 +309,17 @@ public class Bow extends Use {
         drawBowstring();
     }
 
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+       if(ratio<0.9f){
+           return false;
+       }
+       projectileInfoList.forEach(projectileInfo -> {
+           projectileInfo.setMuzzleEntity(heir);
+       });
+       return true;
+    }
+
     public Map<ProjectileInfo, GameGroup> getArrows() {
         return arrows;
     }

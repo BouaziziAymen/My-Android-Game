@@ -1,5 +1,6 @@
 package com.evolgames.entities.usage;
 
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
@@ -27,4 +28,6 @@ public abstract class Use {
     public void onAfterMirror(PhysicsScene<?> scene) {
 
     }
+
+    public abstract boolean inheritedBy(GameEntity biggestSplinter, float ratio);
 }

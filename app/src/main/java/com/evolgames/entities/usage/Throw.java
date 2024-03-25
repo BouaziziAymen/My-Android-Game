@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.PlayerSpecialAction;
@@ -47,5 +48,13 @@ public class Throw extends Use {
     public void reset(float angle, float speed) {
         this.angle = angle;
         this.throwSpeed = speed;
+    }
+
+    @Override
+    public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
+        if (ratio < 0.4f) {
+            return false;
+        }
+    return true;
     }
 }

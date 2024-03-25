@@ -167,4 +167,16 @@ public class Rocket extends Use {
         createFireSources(physicsScene.getWorldFacade());
     }
 
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if (ratio < 0.9f) {
+            return false;
+        }
+        this.fireSourceInfoList.forEach(fireSourceInfo -> {
+            fireSourceInfo.setMuzzleEntity(heir);
+        });
+
+        return true;
+    }
+
 }

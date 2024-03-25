@@ -190,7 +190,7 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
-//scaleTool("Rifle 2#",1.1f);
+  scaleTool("Submachine Gun 2#",1/1.6f);
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -313,10 +313,15 @@ public class PersistenceCaretaker {
                 JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.isCollideConnected()));
         jointElement.setAttribute(
                 JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getJointType().getValue()));
-        int bodyId1 = jointModel.getBodyModel1().getBodyId();
-        int bodyId2 = jointModel.getBodyModel2().getBodyId();
-        jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
-        jointElement.setAttribute(BODY_B_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId2));
+        if(jointModel.getBodyModel1()!=null) {
+            int bodyId1 = jointModel.getBodyModel1().getBodyId();
+            jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
+        }
+        if(jointModel.getBodyModel2()!=null) {
+            int bodyId2 = jointModel.getBodyModel2().getBodyId();
+            jointElement.setAttribute(BODY_B_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId2));
+        }
+
         Element localAnchorAElement;
         Element localAnchorBElement;
         switch (jointModel.getJointType()) {
@@ -1533,14 +1538,16 @@ public class PersistenceCaretaker {
         jointModel
                 .getLocalAnchorB()
                 .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1)));
-        int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
-        int bodyBId = Integer.parseInt(jointElement.getAttribute(BODY_B_ID_JOINT_ATTRIBUTE));
-        BodyModel bodyModelA =
-                bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyAId).findFirst().get();
-        BodyModel bodyModelB =
-                bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyBId).findFirst().get();
-        jointModel.setBodyModel1(bodyModelA);
-        jointModel.setBodyModel2(bodyModelB);
+        try {
+            int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
+            int bodyBId = Integer.parseInt(jointElement.getAttribute(BODY_B_ID_JOINT_ATTRIBUTE));
+            BodyModel bodyModelA =
+                    bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyAId).findFirst().get();
+            BodyModel bodyModelB =
+                    bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyBId).findFirst().get();
+            jointModel.setBodyModel1(bodyModelA);
+            jointModel.setBodyModel2(bodyModelB);
+        } catch (Throwable t){}
         switch (jointType) {
             case WeldJoint:
                 break;
@@ -1563,6 +1570,9 @@ public class PersistenceCaretaker {
                 jointModel.setUpperTranslation(
                         Float.parseFloat(jointElement.getAttribute("upperTranslation")));
                 jointModel.setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
+                jointModel
+                        .getLocalAxis1()
+                        .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(2)));
                 break;
             case DistanceJoint:
                 jointModel.setDampingRatio(Float.parseFloat(jointElement.getAttribute("dampingRatio")));

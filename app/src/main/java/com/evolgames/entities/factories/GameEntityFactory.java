@@ -4,6 +4,8 @@ import static com.evolgames.physics.CollisionUtils.OBJECTS_BACK_CATEGORY;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_FRONT_CATEGORY;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -31,6 +33,7 @@ import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.infos.InitInfo;
+import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
@@ -45,6 +48,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -150,14 +154,14 @@ public class GameEntityFactory {
             float x,
             float y,
             float rot,
-            ArrayList<ArrayList<LayerBlock>> splinters,
+            ArrayList<ArrayList<LayerBlock>> splintersBlocks,
             Vector2 linearVelocity,
             float angularVelocity,
             String name,
             GameEntity parent) {
         ArrayList<GameEntity> entities = new ArrayList<>();
         int splinterId = 0;
-        for (ArrayList<LayerBlock> group : splinters) {
+        for (ArrayList<LayerBlock> group : splintersBlocks) {
             Vector2 newCenter =
                     GeometryUtils.calculateCenter(
                             group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
@@ -190,7 +194,6 @@ public class GameEntityFactory {
                             .orElseThrow(() -> new RuntimeException("Filter should exist"))
                             .getFilterData();
 
-            assert newCenter != null;
             GeometryUtils.rotateVectorRad(newCenter, rot);
             BodyInit bodyInit =
                     new TransformInit(
@@ -200,13 +203,16 @@ public class GameEntityFactory {
                             x + newCenter.x / 32f,
                             y + newCenter.y / 32f,
                             rot);
+            Vector2 c =
+                    GeometryUtils.calculateCenter(
+                            group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
             GameEntity e =
                     GameEntityFactory.getInstance()
                             .createGameEntity(
                                     x + newCenter.x / 32f,
                                     y + newCenter.y / 32f,
                                     rot,
-                                    false,
+                                    parent.isMirrored(),
                                     bodyInit,
                                     group,
                                     BodyDef.BodyType.DynamicBody,
@@ -217,6 +223,15 @@ public class GameEntityFactory {
             scene.sortChildren();
             entities.add(e);
             e.setParentGroup(parent.getParentGroup());
+        }
+        GameEntity biggestSplinter = entities.stream().max(Comparator.comparing(GameEntity::getArea)).get();
+
+        for(Use use:parent.getUseList()){
+            float ratio = biggestSplinter.getArea()/parent.getArea();
+           boolean inherited = use.inheritedBy(biggestSplinter,ratio);
+           if(inherited) {
+               biggestSplinter.getUseList().add(use);
+           }
         }
         return entities;
     }
@@ -235,27 +250,6 @@ public class GameEntityFactory {
         gameGroup.addGameEntity(entity);
         scene.addGameGroup(gameGroup);
         return gameGroup;
-    }
-
-    public GameEntity createIndependentGameEntity(
-            GameGroup parentGroup,
-            ArrayList<LayerBlock> parentBlocks,
-            Vector2 position,
-            float angle,
-            BodyInit bodyInit,
-            String name) {
-        GameEntity entity =
-                createGameEntity(
-                        position.x,
-                        position.y,
-                        angle,
-                        false,
-                        bodyInit,
-                        parentBlocks,
-                        BodyDef.BodyType.DynamicBody,
-                        name);
-        parentGroup.addGameEntity(entity);
-        return entity;
     }
 
     public GameGroup createGameGroupTest(
@@ -342,7 +336,7 @@ public class GameEntityFactory {
         block.addAssociatedBlock(stripBlock);
 
         points = VerticesFactory.createLowerStrip(SHOULDER_WIDTH, TORSO_HEIGHT - 20, 3, 5, 0, 0);
-       Color beltColor = MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.LEATHER).getColor();
+        Color beltColor = MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.LEATHER).getColor();
         DecorationBlock stripBlock2 =
                 BlockFactory.createDecorationBlock(points, new DecorationProperties(beltColor), 1);
         block.addAssociatedBlock(stripBlock2);

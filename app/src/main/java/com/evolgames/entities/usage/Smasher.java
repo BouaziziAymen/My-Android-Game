@@ -99,4 +99,13 @@ public class Smasher extends MeleeUse implements Penetrating {
         this.hand = hand;
         this.handId = hand.getMousePointerId();
     }
+
+    @Override
+    public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
+        if(ratio<0.3f){
+            return false;
+        }
+        return true;
+    }
+
 }

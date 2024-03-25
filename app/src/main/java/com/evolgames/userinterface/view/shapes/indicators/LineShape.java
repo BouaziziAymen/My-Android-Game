@@ -32,14 +32,6 @@ public class LineShape {
         creationScene.sortChildren();
     }
 
-    protected boolean isIndicatorsVisible() {
-        return indicatorsVisible;
-    }
-
-    protected void setIndicatorsVisible(boolean indicatorsVisible) {
-        this.indicatorsVisible = indicatorsVisible;
-    }
-
     public boolean isAborted() {
         return !validated;
     }
@@ -125,11 +117,4 @@ public class LineShape {
         this.visible = b;
     }
 
-    public void showLimitsElements() {
-        setIndicatorsVisible(true);
-    }
-
-    public void hideLimitsElements() {
-        setIndicatorsVisible(false);
-    }
 }

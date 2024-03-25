@@ -357,6 +357,9 @@ public class Hand {
     }
 
     private void doAim(TouchEvent touchEvent, boolean isMirrored) {
+        if(grabbedEntity.getBody()==null){
+            return;
+        }
         Vector2 target =
                 new Vector2(
                         touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,

@@ -62,7 +62,6 @@ public class CreationZoneController extends Controller {
     private LineShape indicatorArrow;
     private CreationZone creationZone;
     private PointImage selectedPointImage = null;
-    private boolean upLocked;
     private float radiusForPolygon = 32;
     private boolean fixedRadiusForPolygon;
     private boolean reference;
@@ -150,9 +149,7 @@ public class CreationZoneController extends Controller {
     }
 
     public void onZoneActionUp(float x, float y) {
-        if (upLocked) {
-            return;
-        }
+        editorScene.setHudLocked(false);
         processAbortedIndicators();
         if (action == CreationAction.ADD_POINT) {
             processAddPoint(x, y);
@@ -162,7 +159,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (indicatorArrow != null) {
-            editorScene.setHudLocked(false);
+
             if (!(indicatorArrow instanceof JointShape || indicatorArrow instanceof ProjectileShape || indicatorArrow instanceof CasingShape || indicatorArrow instanceof FireSourceShape || indicatorArrow instanceof LiquidSourceShape || indicatorArrow instanceof DragShape)) {
                 indicatorArrow.detach();
             }
@@ -327,8 +324,6 @@ public class CreationZoneController extends Controller {
     }
 
     public void onZoneActionDown(float x, float y) {
-
-        upLocked = false;
 
         if (action == CreationAction.NONE) {
             return;
@@ -543,9 +538,6 @@ public class CreationZoneController extends Controller {
         }
     }
 
-    public void setUpLocked(boolean b) {
-        upLocked = b;
-    }
 
     public void resetScrollAndZoom() {
         setAction(action);

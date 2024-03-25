@@ -1,5 +1,6 @@
 package com.evolgames.entities.usage;
 
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
@@ -59,5 +60,17 @@ public class ImpactBomb extends Bomb {
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
 
+    }
+
+
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if(ratio<0.9f){
+            return false;
+        }
+        this.getBombInfoList().forEach( bombInfo -> {
+            bombInfo.setCarrierEntity(heir);
+        });
+        return true;
     }
 }

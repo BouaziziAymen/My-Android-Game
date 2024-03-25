@@ -1,6 +1,7 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.Liquid;
 import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
@@ -144,4 +145,14 @@ public class LiquidContainer extends Use {
         });
     }
 
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if(ratio<0.9f){
+            return false;
+        }
+        this.liquidSourceInfoList.forEach(liquidSourceInfo -> {
+            liquidSourceInfo.setContainerEntity(heir);
+        });
+        return true;
+    }
 }

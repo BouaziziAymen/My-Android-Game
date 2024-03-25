@@ -6,6 +6,7 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
@@ -25,6 +26,7 @@ public class OutlineController extends Controller {
     private BodyModel selectedBodyModel;
     private LayerModel selectedLayerModel;
     private DecorationModel selectedDecorationModel;
+    private JointModel selectedJointModel;
 
     @Override
     public void init() {
@@ -80,6 +82,10 @@ public class OutlineController extends Controller {
     }
 
     private void resetAll() {
+        for(JointModel jointModel:editorUserInterface.getToolModel().getJoints()){
+            jointModel.getJointShape().release();
+            jointModel.getJointShape().hideLimitsElements();
+        }
         for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
             if (bodyModel.getField() != null) {
                 bodyModel.getField().hideFields();
@@ -214,11 +220,8 @@ public class OutlineController extends Controller {
                 this.onSelectionUpdated(selectedBodyModel, selectedLayerModel, selectedDecorationModel);
                 break;
             case JOINTS_SCREEN:
-                JointSettingsWindowController jointSettingsWindowController =
-                        editorUserInterface.getJointSettingsWindowController();
                 this.onJointBodySelectionUpdated(
-                        jointSettingsWindowController.getBodyModelA(),
-                        jointSettingsWindowController.getBodyModelB());
+                      selectedJointModel);
                 break;
             case ITEMS_SCREEN:
                 ItemWindowController itemWindowController = editorUserInterface.getItemWindowController();
@@ -254,13 +257,21 @@ public class OutlineController extends Controller {
         }
     }
 
-    public void onJointBodySelectionUpdated(BodyModel bodyModelA, BodyModel bodyModelB) {
+    public void onJointBodySelectionUpdated(JointModel jointModel) {
         resetAll();
-        if (bodyModelA != null) {
-            selectBodyModel(bodyModelA, Colors.palette1_joint_a_color);
+        if(jointModel!=null) {
+            if (jointModel.getBodyModel1() != null) {
+                selectBodyModel(jointModel.getBodyModel1(), Colors.palette1_joint_a_color);
+            }
+            if (jointModel.getBodyModel2() != null) {
+                selectBodyModel(jointModel.getBodyModel2(), Colors.palette1_joint_b_color);
+            }
+            if(jointModel.isEnableLimit()) {
+                jointModel.getJointShape().showLimitsElements();
+            }
+            jointModel.getJointShape().select();
         }
-        if (bodyModelB != null) {
-            selectBodyModel(bodyModelB, Colors.palette1_joint_b_color);
-        }
+
+        this.selectedJointModel = jointModel;
     }
 }

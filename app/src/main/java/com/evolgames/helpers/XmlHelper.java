@@ -63,9 +63,11 @@ public class XmlHelper {
             try {
                 InputStream fis = activity.openFileInput(file);
                 ItemMetaData metaData = parseXML(fis);
-                metaData.setUserCreated(true);
-                metaData.setFileName(file);
-                Objects.requireNonNull(map.get(metaData.getItemCategory())).add(metaData);
+                if(metaData!=null) {
+                    metaData.setUserCreated(true);
+                    metaData.setFileName(file);
+                    Objects.requireNonNull(map.get(metaData.getItemCategory())).add(metaData);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -39,7 +39,6 @@ public abstract class AngleIndicator extends TurnAroundIndicator {
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
         updateLimit(end.x, end.y);
-        angle = (float) (MathUtils.radiansToDegrees * Math.atan2(direction.y, direction.x));
     }
 
     public void updateDirection(Vector2 direction) {

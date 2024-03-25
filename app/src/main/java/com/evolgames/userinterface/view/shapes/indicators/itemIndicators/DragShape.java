@@ -84,6 +84,8 @@ public class DragShape extends AngleIndicator implements MovablesContainer {
     public void updateZoom(float zoom) {
         super.updateZoom(zoom);
         this.originPoint.updateZoom(zoom);
+        this.extentPoint1.updateZoom(zoom);
+        this.extentPoint2.updateZoom(zoom);
     }
 
     @Override
@@ -169,6 +171,7 @@ public class DragShape extends AngleIndicator implements MovablesContainer {
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
         updateExtent();
+        this.angle = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
         this.model.getProperties().setDragNormal(direction);
     }
 
@@ -196,9 +199,9 @@ public class DragShape extends AngleIndicator implements MovablesContainer {
 
     public void bindModel(DragModel model) {
         this.model = model;
-        updateDirection(model.getProperties().getDragNormal());
         Vector2 begin = model.getProperties().getDragOrigin();
         updateBegin(begin.x, begin.y);
+        updateDirection(model.getProperties().getDragNormal());
         this.extent1 = model.getProperties().getExtent1();
         this.extent2 = model.getProperties().getExtent2();
         model.setDragShape(this);

@@ -57,7 +57,6 @@ public class JointWindowController
     @Override
     public void onPrimaryButtonClicked(JointField jointField) {
         super.onPrimaryButtonClicked(jointField);
-        editorUserInterface.getToolModel().selectJoint(jointField.getPrimaryKey());
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
             JointField otherJointField = window.getLayout().getPrimaryByIndex(i);
             if (otherJointField != null)
@@ -72,16 +71,14 @@ public class JointWindowController
         jointSettingsWindowController.updateBodySelectionFields();
         jointSettingsWindowController.updateJointModel(jointModel);
         jointField.showFields();
-        outlineController.onJointBodySelectionUpdated(
-                jointModel.getBodyModel1(), jointModel.getBodyModel2());
+        outlineController.onJointBodySelectionUpdated(jointModel);
     }
 
     @Override
     public void onPrimaryButtonReleased(JointField jointField) {
         super.onPrimaryButtonReleased(jointField);
-        editorUserInterface.getToolModel().deselectJoint(jointField.getPrimaryKey());
         jointField.hideFields();
-        outlineController.onJointBodySelectionUpdated(null, null);
+        outlineController.onJointBodySelectionUpdated(null);
     }
 
     public void onOptionButtonReleased(JointField jointField) {

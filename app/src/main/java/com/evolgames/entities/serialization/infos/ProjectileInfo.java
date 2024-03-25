@@ -1,5 +1,7 @@
 package com.evolgames.entities.serialization.infos;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.badlogic.gdx.math.Vector2;

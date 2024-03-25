@@ -72,6 +72,14 @@ public class Slasher extends MeleeUse {
 
     }
 
+    @Override
+    public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
+       if(ratio<0.5f){
+           return false;
+       }
+       return true;
+    }
+
     public String getTargetEntityId() {
         return targetEntityId;
     }

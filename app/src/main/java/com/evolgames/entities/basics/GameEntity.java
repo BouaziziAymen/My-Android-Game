@@ -387,7 +387,7 @@ public class GameEntity extends EntityWithBody {
                                         segmentFreshCut.second.y,
                                         2,
                                         ResourceManager.getInstance().vbom);
-                        line.setColor(block.getProperties().getJuiceColor());
+                        line.setColor(block.getProperties().isJuicy()?block.getProperties().getJuiceColor():Color.BLACK);
                         mesh.attachChild(line);
                     }
                 }
@@ -692,5 +692,9 @@ public class GameEntity extends EntityWithBody {
 
     public void setMirrorBody(Body body) {
         mirrorBody = body;
+    }
+
+    public float getMass() {
+        return body.getMass();
     }
 }

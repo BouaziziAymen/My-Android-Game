@@ -6,19 +6,11 @@ import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
 import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
-import com.evolgames.entities.blocks.LayerBlock;
-import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.hand.PlayerSpecialAction;
-import com.evolgames.entities.init.AngularVelocityInit;
-import com.evolgames.entities.init.BodyInit;
-import com.evolgames.entities.init.BodyInitImpl;
-import com.evolgames.entities.init.LinearVelocityInit;
-import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.BodyUsageCategory;
@@ -32,7 +24,6 @@ import com.evolgames.scenes.Init;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
-import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.ToolUtils;
 
@@ -257,10 +248,10 @@ public class Shooter extends Use {
         GameGroup bulletGroup = physicsScene.createTool(missileModel, muzzleEntity.isMirrored());
 
         GameEntity bullet = bulletGroup.getGameEntityByIndex(0);
-        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(bullet,120);
+        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(bullet,300);
         if(bulletGroup.getEntities().size()>1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
-            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing,120);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing,300);
         }
         Projectile projectile = new Projectile(ProjectileType.BULLET);
         projectile.setActive(true);
@@ -353,4 +344,16 @@ public class Shooter extends Use {
             createFireSources(worldFacade);
         }
     }
+
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if (ratio < 0.9f) {
+            return false;
+        }
+        this.projectileInfoList.forEach(fireSourceInfo -> {
+            fireSourceInfo.setMuzzleEntity(heir);
+        });
+        return true;
+    }
+
 }

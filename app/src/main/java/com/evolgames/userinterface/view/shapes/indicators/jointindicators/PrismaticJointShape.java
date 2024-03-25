@@ -31,7 +31,6 @@ public class PrismaticJointShape extends JointShape {
                 begin,
                 scene,
                 ResourceManager.getInstance().doubleSquareTextureRegion);
-        setIndicatorsVisible(true);
         this.editorUserInterface = scene.getUserInterface();
         beginPoint.setMoveAction(
                 () -> {
@@ -102,9 +101,9 @@ public class PrismaticJointShape extends JointShape {
         ArrayList<PointImage> result = new ArrayList<>();
         if (!moveLimits) {
             result.addAll(super.getMovables(false));
-            result.add(directionAngleIndicator.getLimit());
         } else {
-            if (isIndicatorsVisible()) {
+            if(limitsShown) {
+                result.add(directionAngleIndicator.getLimit());
                 result.add(upperLimitPoint);
                 result.add(lowerLimitPoint);
             }
@@ -189,6 +188,7 @@ public class PrismaticJointShape extends JointShape {
         if (limitLine != null) {
             limitLine.setVisible(true);
         }
+        directionAngleIndicator.setVisible(true);
         lowerLimitPoint.setVisible(true);
         upperLimitPoint.setVisible(true);
     }
@@ -199,6 +199,7 @@ public class PrismaticJointShape extends JointShape {
         if (limitLine != null) {
             limitLine.setVisible(false);
         }
+        directionAngleIndicator.setVisible(false);
         lowerLimitPoint.setVisible(false);
         upperLimitPoint.setVisible(false);
         editorUserInterface.getCreationZoneController().releaseSelectedPointImage();
@@ -216,6 +217,7 @@ public class PrismaticJointShape extends JointShape {
         }
         this.updateLowerLimit(model.getLowerTranslation());
         this.updateUpperLimit(model.getUpperTranslation());
-        this.updateDirectionAngleIndicator((float) (model.getReferenceAngle() / (2 * Math.PI) * 360));
+        float angle = (float) Math.toDegrees(Math.atan2(model.getLocalAxis1().y,model.getLocalAxis1().x));
+        this.updateDirectionAngleIndicator(angle);
     }
 }

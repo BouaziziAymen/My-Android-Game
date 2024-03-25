@@ -15,6 +15,7 @@ public class InitInfo {
     private float y;
     private float angle;
     private boolean isBullet;
+    private boolean notActive;
 
     public Filter getFilter() {
         return filter;
@@ -94,5 +95,13 @@ public class InitInfo {
 
     public void setBullet(boolean bullet) {
         isBullet = bullet;
+    }
+
+    public void setNotActive(boolean notActive) {
+        this.notActive = notActive;
+    }
+
+    public boolean isNotActive() {
+        return notActive;
     }
 }

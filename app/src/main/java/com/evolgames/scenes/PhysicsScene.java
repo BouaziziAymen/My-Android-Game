@@ -201,7 +201,9 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     public void createJointFromModel(JointModel jointModel, boolean mirrored) {
         BodyModel bodyModel1 = jointModel.getBodyModel1();
         BodyModel bodyModel2 = jointModel.getBodyModel2();
-
+        if(bodyModel1==null||bodyModel2==null){
+            return;
+        }
         GameEntity entity1 = bodyModel1.getGameEntity();
         GameEntity entity2 = bodyModel2.getGameEntity();
 

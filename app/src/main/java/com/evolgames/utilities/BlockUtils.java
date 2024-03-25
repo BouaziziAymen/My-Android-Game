@@ -642,6 +642,7 @@ public class BlockUtils {
 
         Pair<ArrayList<Vector2>, ArrayList<Vector2>> result =
                 splitVerticesSimple(cut, block.getVertices());
+
         float density = block.getProperties().getJuicinessDensity();
         SegmentFreshCut pair1 = new SegmentFreshCut(cut.getP2(), cut.getP1(), false, density);
         SegmentFreshCut pair2 =
@@ -703,7 +704,9 @@ public class BlockUtils {
 
             Cut cut =
                     BlockUtils.generateCutCorrected(block.getVertices(), center, extremity1, extremity2);
-            if (cut != null && cut.isValid(block.getVertices())) candidates.add(cut);
+            if (cut != null && cut.isValid(block.getVertices())){
+                candidates.add(cut);
+            }
         }
         if (candidates.size() == 0) {
             return new ShatterData();

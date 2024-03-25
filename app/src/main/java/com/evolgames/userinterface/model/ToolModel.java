@@ -131,16 +131,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public ArrayList<BodyModel> getBodies() {
         return bodies;
     }
-
-    public void selectJoint(int jointId) {
-        getJointById(jointId).selectJoint();
-        for (JointModel jointModel : joints) {
-            if (jointId != jointModel.getJointId()) {
-                jointModel.deselect();
-            }
-        }
-    }
-
+    
     public JointModel getJointById(int jointId) {
         for (JointModel jointModel : joints) {
             if (jointModel.getJointId() == jointId) {
@@ -194,9 +185,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         scene.sortChildren();
     }
 
-    public void deselectJoint(int jointId) {
-        Objects.requireNonNull(getJointById(jointId)).deselect();
-    }
 
     public ArrayList<JointModel> getJoints() {
         return joints;

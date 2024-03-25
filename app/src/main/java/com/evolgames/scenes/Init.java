@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BodyNotActiveInit;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.RecoilInit;
@@ -24,6 +25,7 @@ public class Init {
     private final Vector2 point;
     private final float recoil;
     private final Filter filter;
+    private final boolean bodyNotActive;
 
     public static class Builder {
         // Required parameters
@@ -42,9 +44,15 @@ public class Init {
         private float recoil = 0;
         private Filter filter = null;
 
+        private boolean bodyNotActive = false;
+
         public Builder(float x, float y) {
             this.x = x;
             this.y = y;
+        }
+        public Builder bodyIsNotActive(boolean bodyNotActive){
+            this.bodyNotActive = bodyNotActive;
+            return this;
         }
 
         public Builder angle(float angle) {
@@ -118,15 +126,16 @@ public class Init {
         this.point = builder.point;
         this.recoil = builder.recoil;
         this.filter = builder.filter;
+        this.bodyNotActive = builder.bodyNotActive;
     }
 
     public BodyInit getBodyInit(){
         if(recoil>0){
-            return new RecoilInit(new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
-                    new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity),muzzleBody,recoil,muzzleVelocity,point);
+            return new BodyNotActiveInit(new RecoilInit(new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
+                    new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity),muzzleBody,recoil,muzzleVelocity,point),bodyNotActive);
         }
-            return new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
-                    new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity);
+            return new BodyNotActiveInit(new AngularVelocityInit(new LinearVelocityInit(new BulletInit(
+                    new TransformInit(new BodyInitImpl(this.filter), x / 32f, y / 32f, angle), isBullet), linearVelocity), this.angularVelocity),bodyNotActive);
     }
 
     public float getX() {

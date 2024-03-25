@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.model.jointmodels;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
@@ -260,9 +262,10 @@ public class JointModel {
         Vector2 u1 = this.localAnchorA.cpy().sub(center1).mul(1 / 32f);
         Vector2 u2 = this.localAnchorB.cpy().sub(center2).mul(1 / 32f);
         if (mirrored) {
-            u1 = GeometryUtils.mirrorPoint(u1);
-            u2 = GeometryUtils.mirrorPoint(u2);
+           u1 = GeometryUtils.mirrorPoint(u1);
+           u2 = GeometryUtils.mirrorPoint(u2);
         }
+        Log.e("rocket",jointType+""+u1+"/"+u2);
         switch (jointType) {
             case Unknown:
                 break;
@@ -271,10 +274,20 @@ public class JointModel {
                 revoluteJointDef.localAnchorA.set(u1);
                 revoluteJointDef.localAnchorB.set(u2);
                 revoluteJointDef.collideConnected = collideConnected;
-                revoluteJointDef.upperAngle = upperAngle;
-                revoluteJointDef.lowerAngle = lowerAngle;
+                if (mirrored) {
+                    revoluteJointDef.lowerAngle = -upperAngle;
+                    revoluteJointDef.upperAngle = -lowerAngle;
+                } else {
+                    revoluteJointDef.upperAngle = upperAngle;
+                    revoluteJointDef.lowerAngle = lowerAngle;
+                }
+
                 revoluteJointDef.enableLimit = enableLimit;
-                revoluteJointDef.motorSpeed = motorSpeed;
+                if(mirrored) {
+                    revoluteJointDef.motorSpeed = -motorSpeed;
+                } else {
+                    revoluteJointDef.motorSpeed = motorSpeed;
+                }
                 revoluteJointDef.maxMotorTorque = maxMotorTorque;
                 revoluteJointDef.enableMotor = enableMotor;
                 revoluteJointDef.referenceAngle = referenceAngle;
@@ -286,6 +299,11 @@ public class JointModel {
                 prismaticJointDef.collideConnected = collideConnected;
                 prismaticJointDef.lowerTranslation = lowerTranslation;
                 prismaticJointDef.upperTranslation = upperTranslation;
+                if(mirrored){
+                    prismaticJointDef.localAxis1.set(-this.localAxis1.x,this.localAxis1.y);
+                } else {
+                    prismaticJointDef.localAxis1.set(this.localAxis1.x,this.localAxis1.y);
+                }
                 prismaticJointDef.enableLimit = enableLimit;
                 prismaticJointDef.motorSpeed = motorSpeed;
                 prismaticJointDef.maxMotorForce = maxMotorForce;

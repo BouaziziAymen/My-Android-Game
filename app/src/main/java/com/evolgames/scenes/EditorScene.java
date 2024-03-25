@@ -271,8 +271,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
         userInterface.lockInteraction();
-        userInterface.getCreationZoneController().setUpLocked(true);
-        userInterface.setBoardsActive(false);
     }
 
     @Override
@@ -298,16 +296,12 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
             userInterface.updateZoom(zf);
         }
         userInterface.getCreationZoneController().resetScrollAndZoom();
-        userInterface.getCreationZoneController().setUpLocked(false);
-        userInterface.setBoardsActive(true);
         userInterface.unlockInteraction();
     }
 
     @Override
     public void onScrollStarted(
             ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-        userInterface.getCreationZoneController().setUpLocked(true);
-        userInterface.setBoardsActive(false);
         userInterface.lockInteraction();
     }
 
@@ -329,8 +323,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     public void onScrollFinished(
             ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-        userInterface.getCreationZoneController().setUpLocked(false);
-        userInterface.setBoardsActive(true);
         userInterface.unlockInteraction();
     }
 

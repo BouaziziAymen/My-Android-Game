@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.contact.Pair;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
@@ -44,6 +45,14 @@ public class Projectile extends Use implements Penetrating {
     }
 
     @Override
+    public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
+        if(ratio<0.1f){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public void onImpulseConsumed(
             WorldFacade worldFacade,
             Contact contact,
@@ -60,7 +69,7 @@ public class Projectile extends Use implements Penetrating {
                         / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
 
         List<GameEntity> overlappedEntities =
-                worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
+                worldFacade.findOverlappingEntities(penData, envData, actualAdvance).second;
 
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
 

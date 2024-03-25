@@ -148,4 +148,13 @@ public class Stabber extends MeleeUse implements Penetrating {
         this.hand = hand;
         this.handId = hand != null ? hand.getMousePointerId() : -1;
     }
+    @Override
+    public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
+        if(ratio<0.5f){
+            return false;
+        }
+        return true;
+    }
+
+
 }

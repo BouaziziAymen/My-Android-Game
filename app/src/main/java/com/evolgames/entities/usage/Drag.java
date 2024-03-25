@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.serialization.infos.DragInfo;
 import com.evolgames.physics.WorldFacade;
@@ -57,6 +58,15 @@ public class Drag extends Use {
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
 
+    }
+
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if(ratio<0.8f){
+            return false;
+        }
+        dragInfo.setDraggedEntity(heir);
+        return true;
     }
 
     public DragInfo getDragInfo() {

@@ -1,5 +1,6 @@
 package com.evolgames.entities.usage;
 
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
@@ -45,6 +46,17 @@ public class TimeBomb extends Bomb {
 
     public void onTriggerReleased() {
         count = true;
+    }
+
+    @Override
+    public boolean inheritedBy(GameEntity heir, float ratio) {
+        if(ratio<0.9f){
+            return false;
+        }
+        this.getBombInfoList().forEach( bombInfo -> {
+            bombInfo.setCarrierEntity(heir);
+        });
+        return true;
     }
 
 }

@@ -109,14 +109,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
-    public static final float EXPLOSION_HEAT_CONSTANT = 1000f;
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
-    private final HashSet<PulverizationParticleWrapper> powderParticleWrappers =
-            new HashSet<>();
+    private final HashSet<PulverizationParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final ArrayList<Fire> flames = new ArrayList<>();
     private final HashSet<ExplosiveParticleWrapper> explosives = new HashSet<>();
 
@@ -1124,6 +1123,8 @@ public class WorldFacade implements ContactObserver {
         addJointToCreate(jointDef, receiver, traveler);
 
         scheduleGameEntityToDestroy(traveler, 1200);
+        traveler.setZIndex(receiver.getMesh().getZIndex()-1);
+        scene.sortChildren();
     }
 
     private void computeShatterImpact(
@@ -1366,9 +1367,11 @@ public class WorldFacade implements ContactObserver {
         float x2 = innerCut.second.x;
         float y2 = innerCut.second.y;
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
-        line.setColor(block.getProperties().getJuiceColor());
+        line.setColor(block.getProperties().isJuicy()?block.getProperties().getJuiceColor():Color.BLACK);
         gameEntity.getMesh().attachChild(line);
-        scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
+        if(block.getProperties().isJuicy()) {
+            scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
+        }
     }
 
     public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2) {
@@ -1673,18 +1676,13 @@ public class WorldFacade implements ContactObserver {
                                                         p.getWeight()))
                                 .collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length =
-                            (float)
-                                    enterBleedingPoints.stream()
-                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight()))
-                                            .sum();
+                    float length = enterBleedingPoints.size();
                     int limit =
                             (int)
                                     Math.ceil(
                                             length
-                                                    * layerBlock.getProperties().getJuicinessDensity()
-                                                    * BLEEDING_CONSTANT / 5f);
-                    if (limit >= 1 && layerBlock.getProperties().isJuicy()) {
+                                                    * layerBlock.getProperties().getJuicinessDensity());
+                    if (limit > 0 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
                                 new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
@@ -1701,17 +1699,13 @@ public class WorldFacade implements ContactObserver {
                                                         p.getWeight()))
                                 .collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length =
-                            (float)
-                                    leavingBleedingPoints.stream()
-                                            .mapToDouble(e -> MathUtils.diminishedIncrease(e.getWeight()))
-                                            .sum();
+                    float length = (float) leavingBleedingPoints.size();
                     int value =
                             (int)
                                     Math.ceil(
                                             length
                                                     * layerBlock.getProperties().getJuicinessDensity()
-                                                    * BLEEDING_CONSTANT / 5f);
+                                                    * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
                                 new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
@@ -1747,7 +1741,7 @@ public class WorldFacade implements ContactObserver {
         }
         if (gameEntity.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
-            if (impulse > impactBomb.getMinImpact()) {
+            if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR *impactBomb.getMinImpact()) {
                 impactBomb.setImpacted(true);
             }
         }
@@ -1958,20 +1952,22 @@ public class WorldFacade implements ContactObserver {
         return true;
     }
 
-    public List<GameEntity> findOverlappingEntities(
+    public Pair<List<GameEntity>> findOverlappingEntities(
             List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
         float penetratorValue = 0;
         for (TopographyData topographyData : penData) {
             penetratorValue += topographyData.getDensityValue();
         }
-        System.out.println("--------- Penetrator density:" + penetratorValue);
 
         HashSet<TopographyData.Overlap> overlaps = new HashSet<>();
         for (int i = 0; i < penData.size(); i++) {
             overlaps.addAll(envData.get(i).findOverlaps(penData.get(i), actualAdvance));
         }
+        List<GameEntity> overlappingEntities = new ArrayList<>(overlaps.stream()
+                .collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity))
+                .keySet());
         final float finalPenetratorValue = penetratorValue;
-        return overlaps.stream()
+      return   new Pair<>(overlappingEntities,overlaps.stream()
                 .collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity))
                 .entrySet()
                 .stream()
@@ -1981,12 +1977,12 @@ public class WorldFacade implements ContactObserver {
                             float ovlValue =
                                     (float) ovl.stream().mapToDouble(TopographyData.Overlap::getValue).sum();
                             e.getKey().setSortingValue(ovlValue);
-                            return ovlValue > finalPenetratorValue / 5f;
+                            return ovlValue > finalPenetratorValue / 20f;
                         })
                 .map(Map.Entry::getKey)
                 .sorted(Comparator.comparing(GameEntity::getSortingValue).reversed())
                 .distinct()
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     public List<GameEntity> findReachedEntities(

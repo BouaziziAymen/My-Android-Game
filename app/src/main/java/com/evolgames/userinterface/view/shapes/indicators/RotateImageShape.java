@@ -20,5 +20,6 @@ public class RotateImageShape extends FixedLengthArrowShape {
         float angle = (float) Math.atan2(-direction.y, direction.x) * GeometryUtils.TO_DEGREES;
         imageShape.updateRotation(angle);
         imageShape.updateSelf();
+        creationScene.getUserInterface().getOptionsWindowController().onUpdatedImageDimensions(imageShape);
     }
 }

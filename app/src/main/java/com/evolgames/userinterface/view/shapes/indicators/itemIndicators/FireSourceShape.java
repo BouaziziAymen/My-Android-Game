@@ -148,6 +148,7 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
         updateExtent();
+        this.angle = (float) Math.toDegrees(Math.atan2(direction.y, direction.x));
         this.model.getProperties().setFireSourceDirection(direction);
     }
 

@@ -7,7 +7,9 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.IntegerValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.control.windowcontrollers.TwoLevelSectionedAdvancedWindowController;
+import com.evolgames.userinterface.model.ImageShapeModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
+import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
 import com.evolgames.userinterface.view.inputs.Keyboard;
@@ -17,6 +19,7 @@ import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.shapes.ImageShape;
 import com.evolgames.userinterface.view.windows.gamewindows.OptionsWindow;
 import com.evolgames.userinterface.view.windows.windowfields.ColorSlot;
 import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
@@ -39,6 +42,8 @@ public class OptionsWindowController
     private TextField<OptionsWindowController> polygonRadiusTextField;
     private CreationZoneController creationZoneController;
     private TextField<OptionsWindowController> polygonPointNumberTextField;
+    private Text dimensionsText;
+    private SettingsType settingsType;
 
     public void setCreationZoneController(CreationZoneController creationZoneController) {
         this.creationZoneController = creationZoneController;
@@ -51,6 +56,7 @@ public class OptionsWindowController
 
     public void selectSettingsType(SettingsType settingsType) {
         resetLayout();
+        this.settingsType = settingsType;
         switch (settingsType) {
             case TOOL_SAVE_SETTINGS:
                 ButtonWithText<OptionsWindowController> saveToolButton =
@@ -83,8 +89,15 @@ public class OptionsWindowController
             case MOVE_JOINT_POINT_SETTINGS:
                 window.addPrimary(createMoveLimitsOption(0));
                 break;
+            case ROTATE_IMAGE_SETTINGS:
+            case MOVE_IMAGE_SETTINGS:
+                dimensionsText = new Text("",2);
+                window.addPrimary( new SimplePrimary<>(0,this.dimensionsText));
+                break;
             case SCALE_IMAGE_SETTINGS:
                 window.addPrimary(createOnOffField(0, "Fixed Ratio :", (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
+                dimensionsText = new Text("!!!",2);
+                window.addPrimary( new SimplePrimary<>(1,this.dimensionsText));
                 break;
             case NONE:
                 break;
@@ -623,6 +636,30 @@ public class OptionsWindowController
 
     public void setUserInterface(EditorUserInterface editorUserInterface) {
         this.editorUserInterface = editorUserInterface;
+    }
+
+    public void onUpdatedImageDimensions(ImageShape imageShape) {
+        if(imageShape==null){
+            return;
+        }
+        float x = imageShape.getX();
+        float y = imageShape.getY();
+        float rot = imageShape.getRotation();
+        float width = imageShape.getWidth();
+        float height = imageShape.getHeight();
+        String text = "";
+        if(settingsType==SettingsType.SCALE_IMAGE_SETTINGS) {
+            text = String.format("Width=%.2f, Height=%.2f", width, height);
+        }
+        if(settingsType==SettingsType.ROTATE_IMAGE_SETTINGS) {
+            text = String.format("Rot=%.2f",rot);
+        }
+        if(settingsType==SettingsType.MOVE_IMAGE_SETTINGS) {
+            text = String.format("(X=%.2f, Y=%.2f)", x, y);
+        }
+        if(dimensionsText!=null) {
+            dimensionsText.updateText(text);
+        }
     }
 
     public enum Direction {

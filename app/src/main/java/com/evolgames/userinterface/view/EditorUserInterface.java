@@ -284,7 +284,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
 
         ResourceManager.getInstance().hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
-     EditorScene.plotter.drawPoint(new Vector2(415.41113f,225.03995f),Color.RED,3);
 
         mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
         mainButtonBoardController = new MainButtonBoardController(mainButtonBoard, this);
@@ -1034,6 +1033,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         optionsWindowController.selectSettingsType(settingsType);
     }
 
+    public OptionsWindowController getOptionsWindowController() {
+        return optionsWindowController;
+    }
+
     public void onAddImageButtonClicked() {
         ResourceManager.getInstance().activity.requestImagePermission();
     }
@@ -1046,6 +1049,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             imageShape.updateHeight(model.getHeight());
             imageShape.updatePosition(model.getX(), model.getY());
             imageShape.updateRotation(model.getRotation());
+            getOptionsWindowController().onUpdatedImageDimensions(imageShape);
         }
     }
 
@@ -1064,6 +1068,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             imageShape.updatePosition(model.getX(), model.getY());
             imageShape.updateRotation(model.getRotation());
             imageShape.updateSelf();
+            this.optionsWindowController.onUpdatedImageDimensions(imageShape);
         }
     }
 
