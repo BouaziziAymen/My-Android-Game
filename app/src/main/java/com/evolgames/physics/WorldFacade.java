@@ -56,9 +56,11 @@ import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.ParticleEffect;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
+import com.evolgames.entities.particles.wrappers.Smoke;
 import com.evolgames.entities.pools.ImpactDataPool;
 import com.evolgames.entities.properties.JointProperties;
 import com.evolgames.entities.properties.LayerProperties;
@@ -103,13 +105,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -151,8 +151,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(12);
-        physicsWorld.setPositionIterations(5);
+        physicsWorld.setVelocityIterations(8*3);
+        physicsWorld.setPositionIterations(3*3 );
         physicsWorld.setContinuousPhysics(true);
     }
 
@@ -708,7 +708,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 for (LayerBlock block : gameEntity.getBlocks()) {
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(0.01f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(0.1f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
@@ -777,6 +777,7 @@ public class WorldFacade implements ContactObserver {
             touches.add(newTouch);
         }
 
+
         if (entity1 == null || entity2 == null || !entity1.isAlive() || !entity2.isAlive()) {
             return;
         }
@@ -787,6 +788,15 @@ public class WorldFacade implements ContactObserver {
         if (entity1.hasActiveUsage(Penetrating.class) == entity2.hasActiveUsage(Penetrating.class)) {
             return;
         }
+
+        Vector2 penetrationPoint = contact.getWorldManifold().getPoints()[0];
+        if (Float.isInfinite(penetrationPoint.x)
+                || Float.isInfinite(penetrationPoint.y)
+                || Float.isNaN(penetrationPoint.x)
+                || Float.isNaN(penetrationPoint.y)) {
+           return;
+        }
+
 
         boolean penetrationHappened =
                 computePenetrationImpact(contact, entity1, entity2, block1, block2);
@@ -883,6 +893,7 @@ public class WorldFacade implements ContactObserver {
             LayerBlock block2) {
 
         GameEntity penetrator = entity1.hasActiveUsage(Penetrating.class) ? entity1 : entity2;
+
         Penetrating penetration =
                 penetrator.hasActiveUsage(Stabber.class)
                         ? penetrator.getUsage(Stabber.class)
@@ -905,6 +916,9 @@ public class WorldFacade implements ContactObserver {
         final float collisionImpulse =
                 computeCollisionImpulse(V1, V2, normal, m1, m2);
         final float collisionEnergy = computeCollisionEnergy(V1, V2, normal, m1, m2);
+        if(collisionEnergy<10){
+            return false;
+        }
         Log.e("Penetration",
                 "-----------$ Begin penetration, energy:"
                         + collisionImpulse
@@ -1120,7 +1134,7 @@ public class WorldFacade implements ContactObserver {
         jointDef.localAnchorB.set(localB.cpy());
         jointDef.collideConnected = false;
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
-        addJointToCreate(jointDef, receiver, traveler);
+        addJointToCreate(jointDef, receiver, traveler,-2);
 
         scheduleGameEntityToDestroy(traveler, 1200);
         traveler.setZIndex(receiver.getMesh().getZIndex()-1);
@@ -1224,9 +1238,10 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void destroyGameEntity(GameEntity entity, boolean finalDestruction, boolean recycle) {
-        if (entity == null || !entity.isAlive()) {
+        if (entity == null || !entity.isAlive()||entity.getBody()==null) {
             return;
         }
+        entity.getBody().setActive(false);
         Invoker.addBodyDestructionCommand(entity);
 
         if (finalDestruction) {
@@ -1334,7 +1349,6 @@ public class WorldFacade implements ContactObserver {
     public void performFlux(
             Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
         Vector2 v = new Vector2(1, 0);
-        // GameScene.plotter2.detachChildren();
         List<ImpactData> list = new ArrayList<>();
         float phi = (float) (Math.random() * 360);
         for (int i = 0; i < FLUX_PRECISION; i++) {
@@ -1344,11 +1358,11 @@ public class WorldFacade implements ContactObserver {
             ImpactData dataOuter = this.detectFirstIntersectionData(sourceWorldPoint, end, source);
             if (dataOuter != null) {
                 list.add(dataOuter);
-                //  GameScene.plotter2.drawPoint(dataOuter.getWorldPoint().cpy().mul(32f),Color.RED,2);
             }
             if (source != null) {
                 ImpactData dataInner = this.detectFirstIntersectionDataInner(end, sourceWorldPoint, source);
                 if (dataInner != null) {
+                    dataInner.setInner(true);
                     list.add(dataInner);
                 }
             }
@@ -1718,7 +1732,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
-        if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
+        if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody()==null) {
             return;
         }
         LayerBlock nearest =
@@ -1731,6 +1745,9 @@ public class WorldFacade implements ContactObserver {
 
     private void applyOnePointImpactToEntity(
             LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
+        if(impulse<10){
+            return;
+        }
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
             return;
         }
@@ -1741,8 +1758,12 @@ public class WorldFacade implements ContactObserver {
         }
         if (gameEntity.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
-            if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR *impactBomb.getMinImpact()) {
-                impactBomb.setImpacted(true);
+            if(impactBomb.isActive()) {
+                if (impactBomb.getSensitiveLayers().contains(block.getId())) {
+                    if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * impactBomb.getMinImpact()) {
+                        impactBomb.setImpacted(true);
+                    }
+                }
             }
         }
         if (gameEntity.hasActiveUsage(Smasher.class)) {
@@ -1799,7 +1820,7 @@ public class WorldFacade implements ContactObserver {
         impactData.forEach(
                 impact -> {
                   impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
-                      coatingBlock.onHeatWave(heatRatio);
+                      coatingBlock.onHeatWave(heatRatio/impact.getDistanceFromSource());
 
                   }));
                 });
@@ -1918,8 +1939,8 @@ public class WorldFacade implements ContactObserver {
                 jointBlock);
     }
 
-    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2) {
-        this.addJointToCreate(jointDef, entity1, entity2, new JointBlock(), new JointBlock());
+    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
+        this.addJointToCreate(jointDef, entity1, entity2, new JointBlock(jointId), new JointBlock(jointId));
     }
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {
@@ -1952,37 +1973,16 @@ public class WorldFacade implements ContactObserver {
         return true;
     }
 
-    public Pair<List<GameEntity>> findOverlappingEntities(
+    public List<GameEntity> findOverlappingEntities(
             List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
-        float penetratorValue = 0;
-        for (TopographyData topographyData : penData) {
-            penetratorValue += topographyData.getDensityValue();
-        }
 
         HashSet<TopographyData.Overlap> overlaps = new HashSet<>();
         for (int i = 0; i < penData.size(); i++) {
             overlaps.addAll(envData.get(i).findOverlaps(penData.get(i), actualAdvance));
         }
-        List<GameEntity> overlappingEntities = new ArrayList<>(overlaps.stream()
+        return new ArrayList<>(overlaps.stream()
                 .collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity))
                 .keySet());
-        final float finalPenetratorValue = penetratorValue;
-      return   new Pair<>(overlappingEntities,overlaps.stream()
-                .collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity))
-                .entrySet()
-                .stream()
-                .filter(
-                        e -> {
-                            List<TopographyData.Overlap> ovl = e.getValue();
-                            float ovlValue =
-                                    (float) ovl.stream().mapToDouble(TopographyData.Overlap::getValue).sum();
-                            e.getKey().setSortingValue(ovlValue);
-                            return ovlValue > finalPenetratorValue / 20f;
-                        })
-                .map(Map.Entry::getKey)
-                .sorted(Comparator.comparing(GameEntity::getSortingValue).reversed())
-                .distinct()
-                .collect(Collectors.toList()));
     }
 
     public List<GameEntity> findReachedEntities(

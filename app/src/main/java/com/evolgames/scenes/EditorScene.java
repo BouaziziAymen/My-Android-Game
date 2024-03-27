@@ -76,7 +76,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         this.groundModel.setModelName("Ground");
 
         Entity background = new Entity();
-         this.setBackground(new EntityBackground(1f, 1f, 1f, background));
+         this.setBackground(new EntityBackground(0.3f, 0.3f, 0.3f, background));
         //this.setBackground(new EntityBackground(0, 0, 0, background));
         plotter = new Plotter();
         plotter.setZIndex(200);
@@ -181,6 +181,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         layerSettingsWindowController.setKeyboardController(keyboardController);
         bodySettingsWindowController.setLayerWindowController(layerWindowController);
         bodySettingsWindowController.setKeyboardController(keyboardController);
+        bodySettingsWindowController.setOutlineController(outlineController);
         optionsWindowController.setItemSaveController(itemSaveWindowController);
         creationZoneController.setLayerWindowController(layerWindowController);
         creationZoneController.setJointWindowController(jointWindowController);
@@ -234,13 +235,14 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
         boolean hudTouched = false;
-        if (!hudLocked) {
-            hudTouched = userInterface.onTouchHud(hudTouchEvent);
+        if(touchEvent.getPointerID()==0) {
+            if (!hudLocked) {
+                hudTouched = userInterface.onTouchHud(hudTouchEvent);
+            }
+            if (!hudTouched) {
+                userInterface.onTouchScene(touchEvent);
+            }
         }
-        if (!hudTouched) {
-            userInterface.onTouchScene(touchEvent);
-        }
-
         if (mPinchZoomDetector != null) {
             mPinchZoomDetector.onTouchEvent(touchEvent);
             if (mPinchZoomDetector.isZooming()) {

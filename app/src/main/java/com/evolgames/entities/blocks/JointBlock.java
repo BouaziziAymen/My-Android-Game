@@ -26,6 +26,18 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties> {
     private transient GameEntity entity;
     private JointInfo jointInfo;
 
+    private  int jointId;
+
+    @SuppressWarnings("Unused")
+    public JointBlock(){}
+    public JointBlock(int jointId){
+        this.jointId = jointId;
+    }
+
+    public int getJointId() {
+        return jointId;
+    }
+
     public GameEntity getEntity() {
         return entity;
     }
@@ -120,7 +132,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties> {
 
     @Override
     protected JointBlock createChildBlock() {
-        return new JointBlock();
+        return new JointBlock(jointId);
     }
 
     @Override

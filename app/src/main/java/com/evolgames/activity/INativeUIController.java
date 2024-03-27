@@ -17,6 +17,8 @@ public interface INativeUIController {
 
     void onOptionSelected(PlayerSpecialAction playerSpecialAction);
 
+    void resetTouchHold();
+
     void resetUI();
 
     void onMirrorButtonClicked();

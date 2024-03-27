@@ -10,6 +10,7 @@ import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,7 +75,11 @@ public class FlameThrower extends Use {
 
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
-
+        fireSourceInfoList.forEach(fireSourceInfo -> {
+            fireSourceInfo.getFireSourceOrigin().set(GeometryUtils.mirrorPoint(fireSourceInfo.getFireSourceOrigin()));
+            fireSourceInfo.getFireDirection().x = - fireSourceInfo.getFireDirection().x;
+        });
+        createFireSources(physicsScene.getWorldFacade());
     }
 
     @Override
@@ -112,7 +117,7 @@ public class FlameThrower extends Use {
                                                         p.getSmokeRatio(),
                                                         p.getSparkRatio(),
                                                         p.getParticles(),
-                                                        p.getHeat(), p.getInFirePartSize(), p.getFinFirePartSize());
+                                                        0.5f, p.getInFirePartSize(), p.getFinFirePartSize());
                                 fireSource.setSpawnEnabled(this.on);
                                 this.flameThrowerInfFireSourceMap.put(p, fireSource);
                             }

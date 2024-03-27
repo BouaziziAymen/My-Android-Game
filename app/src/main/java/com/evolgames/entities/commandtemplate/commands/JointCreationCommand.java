@@ -33,7 +33,6 @@ public class JointCreationCommand extends Command {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Joint joint = physicsWorld.createJoint(jointDef);
         joint.setUserData(this.mainBlock);
-        Log.e("Mirror", "Creating :" + joint.getType() + " on:" + entity2.getName());
         if (joint instanceof MouseJoint) {
             Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
         }

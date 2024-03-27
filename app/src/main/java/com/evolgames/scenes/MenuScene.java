@@ -55,7 +55,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         gameEntity1.setCenter(new Vector2());
         gameEntity1.setName("Main Button");
 
-        SegmentExplosiveParticleWrapper res = worldFacade.createFireSource(gameEntity1, new Vector2(140, 40), new Vector2(-140, 40), 100f, 0f, 1f, 0f, 0.1f, 0f, 1f, 1f);
+       worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
 
         createRagDoll(415, 460);
         jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);

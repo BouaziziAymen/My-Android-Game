@@ -94,9 +94,6 @@ public class Invoker {
     }
 
     public static void addBodyDestructionCommand(GameEntity entity) {
-        if (!entity.isAlive()) {
-            return;
-        }
         for (Command command : entity.getCommands()) {
             if (command instanceof BodyDestructionCommand) {
                 return;

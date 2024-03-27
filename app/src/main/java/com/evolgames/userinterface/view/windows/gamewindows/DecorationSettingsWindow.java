@@ -17,36 +17,6 @@ public class DecorationSettingsWindow extends SettingsWindow {
         addPrimary(titleField);
         controller.init();
 
-        Panel mPanel = new Panel(0, -64, 4, true, true);
-
-        mPanel
-                .getCloseButton()
-                .setBehavior(
-                        new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getCloseButton()) {
-                            @Override
-                            public void informControllerButtonClicked() {
-                            }
-
-                            @Override
-                            public void informControllerButtonReleased() {
-                                controller.onCancelSettings();
-                            }
-                        });
-
-        mPanel
-                .getAcceptButton()
-                .setBehavior(
-                        new ButtonBehavior<AdvancedWindowController<?>>(controller, mPanel.getAcceptButton()) {
-                            @Override
-                            public void informControllerButtonClicked() {
-                            }
-
-                            @Override
-                            public void informControllerButtonReleased() {
-                                controller.onSubmitSettings();
-                            }
-                        });
-        mPanel.setLowerBottomX(getWidth() / 2 - mPanel.getWidth() / 2);
-        addElement(mPanel);
+        createPanel(controller);
     }
 }

@@ -38,9 +38,6 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
             case TIME_BOMB:
                 this.properties = (T) new TimeBombUsageProperties();
                 break;
-            case FUZE_BOMB:
-                this.properties = (T) new FuzeBombUsageProperties();
-                break;
             case IMPACT_BOMB:
                 this.properties = (T) new ImpactBombUsageProperties();
                 break;

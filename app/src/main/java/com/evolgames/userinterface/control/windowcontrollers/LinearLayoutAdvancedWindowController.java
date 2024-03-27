@@ -62,6 +62,9 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
             shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Hide);
             contentTraverser.setBehavior(shadeVisitBehavior);
             contentTraverser.traverse(window.getLayout(), false);
+            if(window.getScroller()!=null) {
+                window.getScroller().setVisible(false);
+            }
         }
     }
 
@@ -74,6 +77,9 @@ public class LinearLayoutAdvancedWindowController<W extends AbstractLinearLayout
             shadeVisitBehavior.setShadeAction(ShadeVisitBehavior.ShadeAction.Show);
             contentTraverser.setBehavior(shadeVisitBehavior);
             contentTraverser.traverse(window.getLayout(), false);
+            if(window.getScroller()!=null) {
+               window.getScroller().setVisible(true);
+            }
         }
     }
 }

@@ -31,8 +31,8 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     }
 
     private void processBlock(LayerBlock layerBlock, boolean isFirst) {
-        float pulverizationImpulse = calculatePulverizationImpulse(layerBlock);
-        if (availableImpulse > pulverizationImpulse) {
+        float pulverizationImpulse;
+        if (layerBlock.getBlockArea()< 5 *MINIMUM_STABLE_SPLINTER_AREA&&availableImpulse > (pulverizationImpulse=calculatePulverizationImpulse(layerBlock))) {
             layerBlock.setAborted(true);
             layerBlock
                     .getBlockGrid()
@@ -66,7 +66,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
         }
         totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
         return (float)
-                (1200f
+                (50000f
                         * Math.sqrt(
                         PhysicsConstants.TENACITY_FACTOR
                                 * layerBlock.getProperties().getTenacity()
@@ -107,6 +107,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
             } else {
                 abortedBlocks.add(bl);
             }
+            bl.getChildren().clear();
         }
     }
 

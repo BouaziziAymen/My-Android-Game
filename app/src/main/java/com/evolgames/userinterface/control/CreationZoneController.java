@@ -175,7 +175,7 @@ public class CreationZoneController extends Controller {
             editorUserInterface.getImageButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
-        if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR) {
+        if (action == CreationAction.ADD_POLYGON || action == CreationAction.MIRROR || action == CreationAction.SHIFT || action == CreationAction.ROTATE) {
             editorUserInterface.getDrawButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }

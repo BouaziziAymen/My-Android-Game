@@ -235,6 +235,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (projectileModel.getProperties().getMissileFile() != null) {
             setMissileName(projectileModel.getProperties().getMissileFile());
         }
+        setPartInitSize(this.projectileProperties.getInFirePartSize());
+        setPartFinSize(this.projectileProperties.getFinFirePartSize());
         setIntensity(this.projectileProperties.getParticles());
         setFireRatio(this.projectileProperties.getFireRatio());
         setSmokeRatio(this.projectileProperties.getSmokeRatio());
@@ -590,7 +592,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
         // -----
         TitledQuantity<ProjectileOptionController> titledInitialSizeQuantity =
-                new TitledQuantity<>("In. Part. Size:", 10, "b", 5, 70);
+                new TitledQuantity<>("Init Size:", 10, "b", 5, 70);
         inSizeQuantityField = titledInitialSizeQuantity.getAttachment();
         titledInitialSizeQuantity
                 .getAttachment()
@@ -663,5 +665,13 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     private void setIntensity(float intensity) {
         intensityQuantityField.updateRatio(intensity);
+    }
+
+    private void setPartInitSize(float partInitSize) {
+        inSizeQuantityField.updateRatio(partInitSize);
+    }
+
+    private void setPartFinSize(float partFinSize) {
+        finSizeQuantityField.updateRatio(partFinSize);
     }
 }

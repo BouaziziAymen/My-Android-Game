@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -23,6 +24,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.BuildConfig;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.model.ItemCategory;
@@ -115,6 +117,19 @@ public class CreateItemDialog extends DialogFragment {
 
 
         EditText itemNameEditText = dialogLayout.findViewById(R.id.itemName);
+        itemNameEditText.setFilters(new InputFilter[] {(source, start, end, dest, dstart, dend) -> {
+            StringBuilder filteredStringBuilder = new StringBuilder();
+            for (int i = start; i < end; i++) {
+                char currentChar = source.charAt(i);
+                if (Character.isLetterOrDigit(currentChar) ||(BuildConfig.DEBUG&&currentChar=='#') || currentChar == ' '|| currentChar == '-' || currentChar == '.' || currentChar == '_') {
+                    filteredStringBuilder.append(currentChar);
+                }
+            }
+            return filteredStringBuilder.toString();
+        }});
+
+
+
         builder.setView(dialogLayout)
                 // Add action buttons
                 .setPositiveButton(R.string.go_create, (d, id) -> {

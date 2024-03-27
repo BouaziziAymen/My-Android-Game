@@ -59,52 +59,34 @@ public class OptionsWindowController
         this.settingsType = settingsType;
         switch (settingsType) {
             case TOOL_SAVE_SETTINGS:
-                ButtonWithText<OptionsWindowController> saveToolButton =
-                        new ButtonWithText<>(
-                                "Save Tool",
-                                2,
-                                ResourceManager.getInstance().simpleButtonTextureRegion,
-                                Button.ButtonType.OneClick,
-                                true);
-
-                SimplePrimary<ButtonWithText<?>> saveToolField = new SimplePrimary<>(0, saveToolButton);
-                window.addPrimary(saveToolField);
-
-                saveToolButton.setBehavior(
-                        new ButtonBehavior<OptionsWindowController>(this, saveToolButton) {
-                            @Override
-                            public void informControllerButtonClicked() {
-                            }
-
-                            @Override
-                            public void informControllerButtonReleased() {
-                                itemSaveController.openWindow();
-                            }
-                        });
-
+            case NONE:
+                closeWindow();
                 break;
             case PROJECTILE_SETTINGS:
                 break;
             case MOVE_TOOL_POINT_SETTING:
             case MOVE_JOINT_POINT_SETTINGS:
+                openWindow();
                 window.addPrimary(createMoveLimitsOption(0));
                 break;
             case ROTATE_IMAGE_SETTINGS:
             case MOVE_IMAGE_SETTINGS:
+                openWindow();
                 dimensionsText = new Text("",2);
                 window.addPrimary( new SimplePrimary<>(0,this.dimensionsText));
                 break;
             case SCALE_IMAGE_SETTINGS:
+                openWindow();
                 window.addPrimary(createOnOffField(0, "Fixed Ratio :", (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
                 dimensionsText = new Text("!!!",2);
                 window.addPrimary( new SimplePrimary<>(1,this.dimensionsText));
                 break;
-            case NONE:
-                break;
             case REMOVE_POINT_SETTINGS:
+                openWindow();
                 window.addPrimary(createReferenceOption(0));
                 break;
             case PIPE_SETTINGS:
+                openWindow();
                 pipeColorSlot = new ColorSlot();
                 Button<OptionsWindowController> colorValidatedButton =
                         new Button<>(
@@ -132,11 +114,13 @@ public class OptionsWindowController
                 window.addPrimary(primary);
                 break;
             case INSERT_POINT_SETTINGS:
+                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createReferenceOption(1));
 
                 break;
             case MOVE_POINT_SETTINGS:
+                openWindow();
                 window.addPrimary(createReferenceOption(0));
                 ButtonWithText<OptionsWindowController> createReferenceButton =
                         new ButtonWithText<>(
@@ -161,24 +145,29 @@ public class OptionsWindowController
                 window.addPrimary(referenceElement);
                 break;
             case ROTATE_SETTINGS:
+                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 break;
             case MIRROR_SETTINGS:
+                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createDirectionBoard(1));
                 window.addPrimary(createOnOffField(2, "Same :", (b) -> creationZoneController.setSameShape(b), () -> creationZoneController.isSameShape()));
                 break;
             case SHIFT_SETTINGS:
+                openWindow();
                 window.addPrimary(createDirectionBoard(0));
                 break;
             case DISTANCE_JOINT_SETTINGS:
             case REVOLUTE_JOINT_SETTINGS:
             case PRISMATIC_JOINT_SETTINGS:
             case WELD_JOINT_SETTINGS:
+                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createCongruenceOption(1));
                 break;
             case POLYGON_CREATION_SETTINGS:
+                openWindow();
                 TitledTextField<OptionsWindowController> polygonPointNumberField =
                         new TitledTextField<>("Number Of Points:", 4, 5, 120);
                 polygonPointNumberTextField = polygonPointNumberField.getAttachment();
@@ -285,6 +274,7 @@ public class OptionsWindowController
 
                 break;
             case IMAGE_SETTINGS:
+                openWindow();
                 ButtonWithText<OptionsWindowController> addImageButton =
                         new ButtonWithText<>(
                                 "Add Image",
@@ -332,12 +322,15 @@ public class OptionsWindowController
                             }
                         });
                 break;
-            case HAND_TOOL_POINT_SETTING:
-                break;
             case AMMO_TOOL_POINT_SETTING:
+                openWindow();
+                window.addPrimary(createMagnetBoard(0));
                 break;
             case BOMB_TOOL_POINT_SETTING:
+                openWindow();
+                window.addPrimary(createMagnetBoard(0));
                 break;
+
         }
         updateLayout();
     }

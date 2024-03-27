@@ -137,7 +137,7 @@ public class TopographyData {
                 float sup = penetratorTopographyData.getData()[j][1] + advance;
                 float lowerBoundOfOverlap = Math.max(inf, INF);
                 float upperBoundOfOverlap = Math.min(sup, SUP);
-                if (lowerBoundOfOverlap <= upperBoundOfOverlap) {
+                if (lowerBoundOfOverlap <= upperBoundOfOverlap - 0.05) {
                     // Overlap exists
                     overlaps.add(
                             new Overlap(this.entities[i], density * (upperBoundOfOverlap - lowerBoundOfOverlap)));

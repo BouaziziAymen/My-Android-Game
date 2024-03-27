@@ -65,6 +65,13 @@ public class NativeUIController implements INativeUIController {
     }
 
     @Override
+    public void resetTouchHold() {
+        gameActivity.runOnUiThread(() -> {
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.reset();
+        });
+    }
+    @Override
     public void resetUI() {
         gameActivity.runOnUiThread(() -> {
             switch (gameActivity.getInstalledUI()) {

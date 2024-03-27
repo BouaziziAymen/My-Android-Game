@@ -79,7 +79,7 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
             direction.x = -direction.x;
         }
         fireSourceInfo.setFireSourceOrigin(centredOrigin);
-        fireSourceInfo.setFireDirection(this.properties.getFireSourceDirection());
+        fireSourceInfo.setFireDirection(direction);
         fireSourceInfo.setFireRatio(this.properties.getFireRatio());
         fireSourceInfo.setSmokeRatio(this.properties.getSmokeRatio());
         fireSourceInfo.setSparkRatio(this.properties.getSparkRatio());

@@ -7,7 +7,7 @@ import com.evolgames.entities.particles.systems.BaseParticleSystem;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public abstract class ExplosiveParticleWrapper implements Fire {
+public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
 
     private static final float RATE_MIN = 30 * 4;
     private static final float RATE_MAX = 40 * 4;
@@ -150,6 +150,7 @@ public abstract class ExplosiveParticleWrapper implements Fire {
         return fireParticleSystem;
     }
 
+    @Override
     public BaseParticleSystem getSmokeParticleSystem() {
         return smokeParticleSystem;
     }

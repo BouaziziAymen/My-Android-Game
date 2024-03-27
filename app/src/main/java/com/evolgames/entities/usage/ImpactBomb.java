@@ -1,8 +1,8 @@
 package com.evolgames.entities.usage;
 
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
+import com.evolgames.entities.serialization.infos.BombInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
@@ -11,6 +11,7 @@ import java.util.List;
 
 public class ImpactBomb extends Bomb {
 
+    private List<Integer> sensitiveLayers;
     private float countDown;
     private float minImpact;
     private boolean isImpacted;
@@ -24,6 +25,11 @@ public class ImpactBomb extends Bomb {
         ImpactBombUsageProperties properties = (ImpactBombUsageProperties) usageModel.getProperties();
         this.countDown = properties.getDelay();
         this.minImpact = properties.getMinImpact();
+        this.sensitiveLayers = properties.getSensitiveLayers();
+    }
+
+    public List<Integer> getSensitiveLayers() {
+        return sensitiveLayers;
     }
 
     @Override
@@ -35,13 +41,8 @@ public class ImpactBomb extends Bomb {
     }
 
     @Override
-    protected boolean isBombOn() {
-        return isImpacted && countDown < 0;
-    }
-
-    @Override
-    protected boolean isActivated() {
-        return false;
+    protected boolean isCountDone() {
+        return isImpacted && countDown <= 0;
     }
 
     public void setImpacted(boolean impacted) {
@@ -51,26 +52,25 @@ public class ImpactBomb extends Bomb {
     public float getMinImpact() {
         return minImpact;
     }
-
-    @Override
-    public List<PlayerSpecialAction> getActions() {
-        return null;
-    }
-
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
-
+        super.dynamicMirror(physicsScene);
     }
 
+
+    @Override
+    public boolean isActive() {
+        if(hasSafety()) {
+            return super.isActive();
+        }
+        return true;
+    }
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if(ratio<0.9f){
-            return false;
-        }
-        this.getBombInfoList().forEach( bombInfo -> {
+        for (BombInfo bombInfo : getBombInfoList()) {
             bombInfo.setCarrierEntity(heir);
-        });
-        return true;
+        }
+       return ratio>0.5f;
     }
 }

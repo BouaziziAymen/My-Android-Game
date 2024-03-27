@@ -1,7 +1,7 @@
 package com.evolgames.userinterface.control;
 
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointSettingsWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
@@ -18,18 +18,20 @@ import com.evolgames.userinterface.view.Color;
 import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
+import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.PointsShape;
+import com.evolgames.utilities.Utils;
+
+import java.util.List;
 
 public class OutlineController extends Controller {
     private EditorUserInterface editorUserInterface;
     private ProperModel<?> lastSelectedItem;
-    private BodyModel selectedBodyModel;
-    private LayerModel selectedLayerModel;
-    private DecorationModel selectedDecorationModel;
     private JointModel selectedJointModel;
 
     @Override
     public void init() {
+        onScreenChanged(Screen.DRAW_SCREEN);
     }
 
     private void resetAllItems() {
@@ -88,7 +90,9 @@ public class OutlineController extends Controller {
         }
         for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
             if (bodyModel.getField() != null) {
-                bodyModel.getField().hideFields();
+                if(bodyModel.getField().getBodyControl().getState()== Button.State.NORMAL) {
+                    bodyModel.getField().hideFields();
+                }
             }
             for (LayerModel layerModel : bodyModel.getLayers()) {
                 PointsShape layerShape = layerModel.getPointsShape();
@@ -153,19 +157,19 @@ public class OutlineController extends Controller {
             LayerModel selectedLayerModel,
             DecorationModel selectedDecorationModel) {
         this.resetAll();
-        this.selectedBodyModel = selectedBodyModel;
-        this.selectedLayerModel = selectedLayerModel;
-        this.selectedDecorationModel = selectedDecorationModel;
-        editorUserInterface.getItemButtonBoardController().setActive(this.selectedBodyModel!=null);
-        editorUserInterface.getDrawButtonBoardController().setActive(this.selectedLayerModel != null || this.selectedDecorationModel != null);
+        editorUserInterface.getItemButtonBoardController().setActive(selectedBodyModel!=null);
+        editorUserInterface.getDrawButtonBoardController().setActive(selectedLayerModel != null || selectedDecorationModel != null);
         if (selectedDecorationModel != null) {
+            assert selectedBodyModel != null;
             selectBodyModel(selectedBodyModel, Colors.white);
             selectedDecorationModel.getPointsShape().setPointsVisible(true);
             selectedDecorationModel.getPointsShape().setOutlineVisible(true);
             selectedDecorationModel.getPointsShape().setLineLoopColor(Colors.palette1_green);
+            assert selectedLayerModel != null;
             selectedLayerModel.getPointsShape().setLineLoopColor(Colors.palette1_blue);
             selectedLayerModel.getPointsShape().setOutlineVisible(true);
         } else if (selectedLayerModel != null) {
+            assert selectedBodyModel != null;
             selectBodyModel(selectedBodyModel, Colors.white);
             selectedLayerModel.getPointsShape().setLineLoopColor(Colors.palette1_green);
             selectedLayerModel.getPointsShape().setOutlineVisible(true);
@@ -175,6 +179,7 @@ public class OutlineController extends Controller {
         } else {
             this.deselectBodyModels();
         }
+
         if (selectedBodyModel != null) {
             selectedBodyModel.getField().showFields();
         }
@@ -217,7 +222,8 @@ public class OutlineController extends Controller {
         resetAll();
         switch (selectedScreen) {
             case DRAW_SCREEN:
-                this.onSelectionUpdated(selectedBodyModel, selectedLayerModel, selectedDecorationModel);
+                LayerWindowController layerWindowController = editorUserInterface.getLayersWindowController();
+                this.onSelectionUpdated(layerWindowController.getSelectedBodyModel(), layerWindowController.getSelectedLayerModel(), layerWindowController.getSelectedDecorationModel());
                 break;
             case JOINTS_SCREEN:
                 this.onJointBodySelectionUpdated(
@@ -225,7 +231,7 @@ public class OutlineController extends Controller {
                 break;
             case ITEMS_SCREEN:
                 ItemWindowController itemWindowController = editorUserInterface.getItemWindowController();
-                this.onSelectionUpdated(itemWindowController.getSelectedBodyModel(), null, null);
+                this.onSelectionUpdated(itemWindowController.getSelectedBody(), null, null);
                 for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
                     for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
                         projectileModel.getProjectileShape().setVisible(true);
@@ -259,6 +265,9 @@ public class OutlineController extends Controller {
 
     public void onJointBodySelectionUpdated(JointModel jointModel) {
         resetAll();
+        for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
+          this.selectBodyModel(bodyModel, Colors.white);
+        }
         if(jointModel!=null) {
             if (jointModel.getBodyModel1() != null) {
                 selectBodyModel(jointModel.getBodyModel1(), Colors.palette1_joint_a_color);
@@ -273,5 +282,19 @@ public class OutlineController extends Controller {
         }
 
         this.selectedJointModel = jointModel;
+    }
+
+    public void onSensitiveLayersChanged(BodyModel bodyModel,List<Integer> sensitiveLayers) {
+            for (LayerModel layerModel : bodyModel.getLayers()) {
+                boolean selected =  sensitiveLayers.contains(layerModel.getLayerId());
+                Color color =selected?Colors.palette1_red:Colors.white;
+                PointsShape layerShape = layerModel.getPointsShape();
+                layerShape.setLineLoopColor(color);
+                layerShape.setOutlineVisible(true);
+                for (DecorationModel decorationModel : layerModel.getDecorations()) {
+                    PointsShape decorationShape = decorationModel.getPointsShape();
+                    decorationShape.setVisible(false);
+                }
+            }
     }
 }

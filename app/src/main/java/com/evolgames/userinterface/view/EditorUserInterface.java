@@ -979,9 +979,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         Integer maxId = toolModel.getColorPanelProperties().getSquarePropertiesList().stream().map(SquareProperties::getSquareId).max(Comparator.naturalOrder()).orElse(0);
         colorSelectorWindowController.getColorSlotCounter().set(maxId + 1);
         layersWindowController.init();
-        outlineController.init();
         itemWindowController.init();
         jointsWindowController.init();
+        // Outline call needs to be called last as it sets the outline
+        outlineController.init();
         itemSaveWindowController.onModelUpdated(toolModel);
         addImage();
     }

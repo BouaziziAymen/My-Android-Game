@@ -4,8 +4,8 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.ParticleSystem;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public interface Fire {
+public interface Smoke extends ParticleEffect{
+    ParticleSystem<UncoloredSprite> getSmokeParticleSystem();
+    int getSmokeIndex();
 
-    ParticleSystem<UncoloredSprite> getFireParticleSystem();
-    double getParticleTemperature(Particle<?> particle);
 }

@@ -32,7 +32,7 @@ public class LayerModel extends PointsModel<LayerProperties> {
         this.bodyModel = bodyModel;
     }
 
-    LayerModel(int bodyId, int layerId, BodyModel bodyModel) {
+    public LayerModel(int bodyId, int layerId, BodyModel bodyModel) {
         super("Layer" + layerId);
         this.bodyId = bodyId;
         this.layerId = layerId;

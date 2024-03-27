@@ -212,7 +212,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         }
         JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter(), mirrored);
 
-        getWorldFacade().addJointToCreate(jointDef, entity1, entity2);
+        getWorldFacade().addJointToCreate(jointDef, entity1, entity2,jointModel.getJointId());
     }
 
     public WorldFacade getWorldFacade() {

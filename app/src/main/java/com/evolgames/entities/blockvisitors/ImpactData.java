@@ -10,6 +10,8 @@ public class ImpactData {
     private Vector2 worldPoint;
     private float impactImpulse;
     private LayerBlock impactedBlock;
+    private boolean inner;
+    private float distanceFromSource;
 
     public ImpactData() {
     }
@@ -21,6 +23,14 @@ public class ImpactData {
         this.impactedBlock = impactedBlock;
         this.gameEntity = gameEntity;
         this.impactImpulse = impactImpulse;
+    }
+
+    public void setInner(boolean inner) {
+        this.inner = inner;
+    }
+
+    public boolean isInner() {
+        return inner;
     }
 
     public Vector2 getLocalImpactPoint() {
@@ -61,5 +71,13 @@ public class ImpactData {
 
     public void setGameEntity(GameEntity gameEntity) {
         this.gameEntity = gameEntity;
+    }
+
+    public void setDistanceFromSource(float distanceFromSource) {
+        this.distanceFromSource = distanceFromSource;
+    }
+
+    public float getDistanceFromSource() {
+        return distanceFromSource;
     }
 }

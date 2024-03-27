@@ -57,8 +57,12 @@ public class JointShape extends LineShape implements MovablesContainer {
     @Override
     public void setColor(float r, float g, float b) {
         super.setColor(r, g, b);
-        endPoint.setColor(r, g, b);
-        beginPoint.setColor(r, g, b);
+        if(endPoint!=null){
+            endPoint.setColor(r, g, b);
+        }
+        if(beginPoint!=null){
+            beginPoint.setColor(r, g, b);
+        }
     }
 
     public void select() {

@@ -7,7 +7,6 @@ import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.Plotter;
@@ -32,14 +31,15 @@ import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
+import com.evolgames.entities.usage.Bomb;
 import com.evolgames.entities.usage.Bow;
+import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
-import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
@@ -390,10 +390,10 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     private void createGround() {
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices1 = new ArrayList<>();
-        vertices1.add(obtain(-400, 0));
+        vertices1.add(obtain(-400, -50));
         vertices1.add(obtain(-400, 20));
         vertices1.add(obtain(400, 20));
-        vertices1.add(obtain(400, 0));
+        vertices1.add(obtain(400, -50));
 
    /* List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));
@@ -719,10 +719,12 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         }
         else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(TimeBomb.class)) {
-                    TimeBomb timeBomb = hand.getGrabbedEntity().getUsage(TimeBomb.class);
-                    timeBomb.onTriggerReleased();
-                    hand.releaseGrabbedEntity(true);
+                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(Bomb.class)) {
+                        Bomb bomb = hand.getGrabbedEntity().getUsage(Bomb.class);
+                        bomb.onTriggered(worldFacade);
+                      //  hand.releaseGrabbedEntity(true);
+                    onUsagesUpdated();
+                        resetTouchHold();
                 }
                 if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(RocketLauncher.class)) {
                     RocketLauncher rocketLauncher = hand.getGrabbedEntity().getUsage(RocketLauncher.class);
@@ -756,6 +758,11 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         } else {
             setSpecialAction(playerSpecialAction);
         }
+    }
+
+    private void resetTouchHold() {
+        this.setPlayerAction(PlayerAction.Drag);
+        ResourceManager.getInstance().activity.getUiController().resetTouchHold();
     }
 
     public void onMirrorButtonClicked() {

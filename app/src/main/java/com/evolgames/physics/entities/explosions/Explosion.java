@@ -53,8 +53,9 @@ public class Explosion {
                 impacts.forEach(i -> {
                     Vector2 p = i.getWorldPoint();
                     vector.set(p.x - center.x, p.y - center.y);
-                    float d = Math.max(0.05f, vector.len());
+                    float d = Math.max(i.isInner()?0.01f:3f, vector.len());
                     i.setImpactImpulse(1000f * delta / (d * d));
+                    i.setDistanceFromSource(d);
                     vector.mul(i.getImpactImpulse() / 2000f);
                     gameEntity.getBody().applyLinearImpulse(vector.x, vector.y, p.x, p.y);
                 });

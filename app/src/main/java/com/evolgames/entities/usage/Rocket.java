@@ -86,13 +86,13 @@ public class Rocket extends Use {
             int i = 0, projectileInfoListSize = fireSourceInfoList.size();
             while (i < projectileInfoListSize) {
                 FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
-                Vector2 fireDirection = fireSourceInfo.getFireDirection();
+                Vector2 moveDirection = fireSourceInfo.getFireDirection().cpy().mul(-1);
                 if (rocketBodyEntity != null) {
                     Body body = rocketBodyEntity.getBody();
                     if (body != null) {
                         if (fuel > 0) {
-                            Vector2 worldFireDirection = body.getWorldVector(fireDirection).cpy();
-                            body.applyForce(worldFireDirection.cpy().mul((rocketBodyEntity.isMirrored() ? 1 : -1) * FORCE_FACTOR * power), body.getWorldCenter());
+                            Vector2 worldFireDirection = body.getWorldVector(moveDirection).cpy();
+                            body.applyForce(worldFireDirection.cpy().mul( FORCE_FACTOR * power), body.getWorldCenter());
                         } else {
                             this.rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(false);
                         }

@@ -5,10 +5,13 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.ThreeLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
+import com.evolgames.userinterface.view.inputs.Button;
+import com.evolgames.userinterface.view.inputs.TextField;
 import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
+import com.evolgames.userinterface.view.windows.Window;
 import com.evolgames.userinterface.view.windows.gamewindows.SettingsWindow;
 
 public class SettingsWindowController<P extends Properties>
@@ -19,7 +22,7 @@ public class SettingsWindowController<P extends Properties>
         SimpleTertiary<?>,
         SimpleQuaternary<?>> {
     protected EditorUserInterface editorUserInterface;
-    protected ProperModel model;
+    protected ProperModel<P> model;
     protected P tempProperty;
 
     public void setUserInterface(EditorUserInterface editorUserInterface) {
@@ -41,10 +44,20 @@ public class SettingsWindowController<P extends Properties>
     }
 
     public void onSubmitSettings() {
-        if (getSelectedTextField() != null) {
-            TextFieldBehavior<?> textFieldBehavior = getSelectedTextField().getBehavior();
-            textFieldBehavior.release();
-        }
         closeWindow();
+    }
+
+    @Override
+    protected void onTextFieldTapped(TextField<?> pTextField) {
+        super.onTextFieldTapped(pTextField);
+        window.getPanel().getAcceptButton().updateState(Button.State.DISABLED);
+        window.getPanel().getCloseButton().updateState(Button.State.DISABLED);
+    }
+
+    @Override
+    protected void onTextFieldReleased(TextField<?> textField) {
+        super.onTextFieldReleased(textField);
+        window.getPanel().getAcceptButton().updateState(Button.State.NORMAL);
+        window.getPanel().getCloseButton().updateState(Button.State.NORMAL);
     }
 }

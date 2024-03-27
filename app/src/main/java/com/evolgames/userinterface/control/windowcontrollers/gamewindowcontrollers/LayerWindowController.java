@@ -30,6 +30,41 @@ public class LayerWindowController
     private DecorationSettingsWindowController decorationSettingsWindowController;
     private PointsModel<?> selectedPointsModel;
 
+    public BodyModel getSelectedBodyModel() {
+        for(int i=1;i<window.getLayout().getPrimariesSize();i++){
+            BodyField e = window.getLayout().getPrimaryByIndex(i);
+            if(e.getBodyControl().getState()== Button.State.PRESSED){
+                return getBodyModel(e.getPrimaryKey());
+            }
+        }
+        return null;
+    }
+    public LayerModel getSelectedLayerModel(){
+        BodyModel selectedBodyModel = getSelectedBodyModel();
+        if(selectedBodyModel!=null) {
+            for (int i = 0; i < window.getLayout().getSecondariesSize(selectedBodyModel.getBodyId()); i++) {
+                LayerField e = window.getLayout().getSecondaryByIndex(selectedBodyModel.getBodyId(),i);
+                if (e.getLayerControl().getState() == Button.State.PRESSED) {
+                    return getLayerModel(e.getPrimaryKey(),e.getSecondaryKey());
+                }
+            }
+        }
+        return null;
+    }
+    public DecorationModel getSelectedDecorationModel(){
+        LayerModel selectedLayerModel = getSelectedLayerModel();
+        if(selectedLayerModel!=null) {
+            for (int i = 0; i < window.getLayout().getTertiariesSize(selectedLayerModel.getBodyId(),selectedLayerModel.getLayerId()); i++) {
+                DecorationField e = window.getLayout().getTertiaryByIndex(selectedLayerModel.getBodyId(),selectedLayerModel.getLayerId(),i);
+                if (e.getDecorationControl().getState() == Button.State.PRESSED) {
+                    return getDecorationModel(e.getPrimaryKey(),e.getSecondaryKey(),e.getTertiaryKey());
+                }
+            }
+        }
+        return null;
+
+    }
+
     public void setOutlineController(OutlineController outlineController) {
         this.outlineController = outlineController;
     }
@@ -47,6 +82,10 @@ public class LayerWindowController
         for (int i = 0; i < bodies.size(); i++) {
             BodyModel bodyModel = bodies.get(i);
             BodyField bodyField = window.addBodyField(bodyModel.getBodyId(), i == 0);
+            if(i==0){
+                bodyField.getBodyControl().updateState(Button.State.PRESSED);
+                bodyField.showFields();
+            }
             bodyField.setText(bodyModel.getModelName());
             bodyModel.setField(bodyField);
             ArrayList<LayerModel> layers = bodyModel.getLayers();
@@ -482,7 +521,7 @@ public class LayerWindowController
         return editorUserInterface.getToolModel().getLayerModelById(primaryKey, secondaryKey);
     }
 
-    public PointsModel<?> getDecorationModel(int primaryKey, int secondaryKey, int tertiaryKey) {
+    public DecorationModel getDecorationModel(int primaryKey, int secondaryKey, int tertiaryKey) {
         return editorUserInterface
                 .getToolModel()
                 .getDecorationModelById(primaryKey, secondaryKey, tertiaryKey);

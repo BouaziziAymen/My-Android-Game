@@ -42,7 +42,6 @@ public class ItemWindowController
     private FireSourceOptionController fireSourceOptionController;
     private OutlineController outlineController;
     private EditorUserInterface editorUserInterface;
-    private BodyModel selectedBodyModel;
     private CasingOptionController ammoOptionController;
     private BombOptionController bombOptionController;
     private DragOptionController dragOptionController;
@@ -258,15 +257,16 @@ public class ItemWindowController
     @Override
     public void onPrimaryButtonClicked(BodyField bodyField) {
         super.onPrimaryButtonClicked(bodyField);
-        this.selectedBodyModel =
-                editorUserInterface.getToolModel().getBodyModelById(bodyField.getPrimaryKey());
-        outlineController.onSelectionUpdated(selectedBodyModel, null, null);
+        outlineController.onSelectionUpdated(getSelectedBody(), null, null);
+
+        if(selectedSecondaryField!=null){
+            selectedSecondaryField.showFields();
+        }
     }
 
     @Override
     public void onPrimaryButtonReleased(BodyField bodyField) {
         super.onPrimaryButtonReleased(bodyField);
-        selectedBodyModel = null;
         outlineController.onSelectionUpdated(null, null, null);
     }
 
@@ -315,13 +315,6 @@ public class ItemWindowController
                 onSpecialPointCreated(specialPointModel);
             }
         }
-        BodyModel selectedBody = getSelectedBody();
-        if (selectedBody != null) {
-            BodyField firstBodyButton =
-                    window.getLayout().getSectionByKey(selectedBody.getBodyId()).getPrimary();
-            onPrimaryButtonClicked(firstBodyButton);
-            firstBodyButton.getControl().updateState(Button.State.PRESSED);
-        }
         updateLayout();
     }
 
@@ -333,7 +326,7 @@ public class ItemWindowController
         refresh();
     }
 
-    private BodyModel getSelectedBody() {
+    public BodyModel getSelectedBody() {
         if (selectedPrimaryField == null) {
             return null;
         }
@@ -518,10 +511,6 @@ public class ItemWindowController
         window.getLayout().getSecondary(primaryKey, secondaryKey).getControl().setTitle(title);
     }
 
-    public BodyModel getSelectedBodyModel() {
-        return selectedBodyModel;
-    }
-
     public void onCasingCreated(CasingModel casingModel) {
         CasingField casingField =
                 window.addAmmoField(
@@ -535,10 +524,13 @@ public class ItemWindowController
     }
 
     public void onAmmoOptionButtonReleased(CasingField casingField) {
-        this.ammoOptionController.onModelUpdated(
-                selectedBodyModel.getCasingModelById(casingField.getModelId()));
-        this.ammoOptionController.openWindow();
-        unfold();
+        BodyModel selectedBodyModel = getSelectedBody();
+        if(selectedBodyModel!=null) {
+            this.ammoOptionController.onModelUpdated(
+                   selectedBodyModel.getCasingModelById(casingField.getModelId()));
+            this.ammoOptionController.openWindow();
+            unfold();
+        }
     }
 
     public boolean hasSelectedItem() {
@@ -575,10 +567,13 @@ public class ItemWindowController
     }
 
     public void onBombOptionsButtonReleased(BombField bombField) {
-        this.bombOptionController.onModelUpdated(
-                selectedBodyModel.getBombModelById(bombField.getModelId()));
-        this.bombOptionController.openWindow();
-        unfold();
+       BodyModel bodyModel =  getSelectedBody();
+       if(bodyModel!=null) {
+           this.bombOptionController.onModelUpdated(
+                   getSelectedBody().getBombModelById(bombField.getModelId()));
+           this.bombOptionController.openWindow();
+           unfold();
+       }
     }
 
     public AtomicInteger getItemCounter() {

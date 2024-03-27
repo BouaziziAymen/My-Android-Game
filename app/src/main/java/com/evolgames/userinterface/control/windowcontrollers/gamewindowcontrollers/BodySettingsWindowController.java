@@ -7,7 +7,6 @@ import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
-import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
@@ -20,13 +19,16 @@ import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
+import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.model.BodyModel;
+import com.evolgames.userinterface.model.LayerModel;
 import com.evolgames.userinterface.model.ProperModel;
+import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
@@ -85,6 +87,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private Quantity<BodySettingsWindowController> rocketPowerQuantityField;
     private Quantity<BodySettingsWindowController> missileControlQuantityField;
     private TextField<BodySettingsWindowController> rocketFuelTextField;
+    private OutlineController outlineController;
+    private SecondarySectionField<BodySettingsWindowController> sensitiveLayersField;
 
     public BodySettingsWindowController() {
         this.missileButtonsTable = new Hashtable<>();
@@ -145,13 +149,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         timeBombUsagePropertiesUsageModel.getProperties();
                 setBombDelay(timeBombUsageProperties.getDelay());
                 break;
-            case FUZE_BOMB:
-                UsageModel<FuzeBombUsageProperties> fuzeBombUsagePropertiesUsageModel =
-                        this.bodyModel.getUsageModel(usageCategory);
-                FuzeBombUsageProperties fuzeBombUsageProperties =
-                        fuzeBombUsagePropertiesUsageModel.getProperties();
-                setBombDelay(fuzeBombUsageProperties.getDelay());
-                break;
             case IMPACT_BOMB:
                 UsageModel<ImpactBombUsageProperties> impactBombUsageModel =
                         this.bodyModel.getUsageModel(usageCategory);
@@ -204,7 +201,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     }
 
     private void createNumberOfRoundsTextField(String title,
-            int primaryKey, int secondaryKey, RangedProperties rangedProperties) {
+                                               int primaryKey, int secondaryKey, RangedProperties rangedProperties) {
         TitledTextField<BodySettingsWindowController> roundsField =
                 new TitledTextField<>(title, 5, 5, 76);
         roundsTextField = roundsField.getAttachment();
@@ -368,7 +365,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER);
 
                             createReloadTimeField(primaryId, 1, shooterProperties);
-                            createNumberOfRoundsTextField("Rounds",primaryId, 2, shooterProperties);
+                            createNumberOfRoundsTextField("Rounds", primaryId, 2, shooterProperties);
                             createProjectilesField(primaryId, 3, shooterProperties);
                             break;
                         case SHOOTER_CONTINUOUS:
@@ -376,7 +373,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER_CONTINUOUS);
                             createReloadTimeField(primaryId, 0, automaticProperties);
                             createFireRateField(primaryId, 1, automaticProperties);
-                            createNumberOfRoundsTextField("Rounds:",primaryId, 2, automaticProperties);
+                            createNumberOfRoundsTextField("Rounds:", primaryId, 2, automaticProperties);
                             createProjectilesField(primaryId, 3, automaticProperties);
                             break;
                         case BOW:
@@ -390,12 +387,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.TIME_BOMB);
                             createTimeBombDelayField(primaryId, 1, timeBombProperties);
                             createBombsField(primaryId, 2, timeBombProperties);
-                            break;
-                        case FUZE_BOMB:
-                            FuzeBombUsageProperties fuzeBombProperties =
-                                    bodyModel.getUsageModelProperties(BodyUsageCategory.FUZE_BOMB);
-                            createTimeBombDelayField(primaryId, 1, fuzeBombProperties);
-                            createBombsField(primaryId, 2, fuzeBombProperties);
+                            createSafetyJointField(primaryId, 3, timeBombProperties);
                             break;
                         case IMPACT_BOMB:
                             ImpactBombUsageProperties impactBombProperties =
@@ -403,6 +395,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createTimeBombDelayField(primaryId, 1, impactBombProperties);
                             createBombMinImpactField(primaryId, 2, impactBombProperties);
                             createBombsField(primaryId, 3, impactBombProperties);
+                            createSafetyJointField(primaryId, 4, impactBombProperties);
+                            createSensitiveLayersField(primaryId,5,impactBombProperties);
                             break;
                         case SLASHER:
                             SlashProperties slasherProperties =
@@ -717,7 +711,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SimpleSecondary<>(primaryId, secondaryId, minImpactFieldWithError);
         window.addSecondary(impactElement);
 
-        bombDelayTextField
+        bombMinImpactTextField
                 .getBehavior()
                 .setReleaseAction(
                         () -> {
@@ -744,6 +738,23 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         .collect(Collectors.toList());
         for (ProjectileModel projectileModel : projectiles) {
             createProjectileButton(primaryId, secondaryId, projectileModel, rangedProperties);
+        }
+    }
+
+    private void createSafetyJointField(
+            int primaryId, int secondaryId, BombUsageProperties bombUsageProperties) {
+        SecondarySectionField<BodySettingsWindowController> safetyField =
+                new SecondarySectionField<>(
+                        primaryId,
+                        secondaryId,
+                        "Safety",
+                        ResourceManager.getInstance().mainButtonTextureRegion,
+                        this);
+        window.addSecondary(safetyField);
+        List<JointModel> joints =
+                editorUserInterface.getToolModel().getJoints().stream().filter(j -> j.getBodyModel1() == this.bodyModel || j.getBodyModel2() == this.bodyModel).collect(Collectors.toList());
+        for (JointModel jointModel : joints) {
+            createJointButton(primaryId, secondaryId, jointModel, bombUsageProperties);
         }
     }
 
@@ -889,6 +900,47 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
     }
 
+    private void createJointButton(
+            int primaryKey,
+            int secondaryKey,
+            JointModel jointModel,
+            BombUsageProperties bombUsageProperties) {
+        ButtonWithText<BodySettingsWindowController> projectileButton =
+                new ButtonWithText<>(
+                        jointModel.getJointName(),
+                        2,
+                        ResourceManager.getInstance().simpleButtonTextureRegion,
+                        Button.ButtonType.Selector,
+                        true);
+        SimpleTertiary<ButtonWithText<?>> jointField =
+                new SimpleTertiary<>(
+                        primaryKey, secondaryKey, jointModel.getJointId(), projectileButton);
+        window.addTertiary(jointField);
+        projectileButton.setBehavior(
+                new ButtonBehavior<BodySettingsWindowController>(this, projectileButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        bombUsageProperties.setSafetyJoint(jointModel.getJointId());
+                        int size = window.getLayout().getTertiariesSize(primaryKey, secondaryKey);
+                        for (int i = 0; i < size; i++) {
+
+                            SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
+                            if (other != jointField) {
+                                ((ButtonWithText<?>) other.getMain()).updateState(Button.State.NORMAL);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        bombUsageProperties.setSafetyJoint(-1);
+                    }
+                });
+        if (bombUsageProperties.getSafetyJoint() == jointModel.getJointId()) {
+            projectileButton.updateState(Button.State.PRESSED);
+        }
+    }
+
     private void onCategoryButtonPressed(SimpleSecondary<?> categoryField, BodyUsageCategory e) {
         super.onSecondaryButtonClicked(categoryField);
         int size = window.getLayout().getSecondariesSize(2);
@@ -917,18 +969,24 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     }
 
     public void onUsageAdded(BodyUsageCategory e) {
-        if (e == BodyUsageCategory.SHOOTER_CONTINUOUS || e == BodyUsageCategory.SHOOTER||e == BodyUsageCategory.BOW) {
+        if (e == BodyUsageCategory.SHOOTER_CONTINUOUS || e == BodyUsageCategory.SHOOTER || e == BodyUsageCategory.BOW) {
             UsageModel<RangedProperties> usage = new UsageModel<>("", e);
             RangedProperties properties = usage.getProperties();
             properties.setProjectileIds(new ArrayList<>());
             bodyModel.getUsageModels().add(usage);
         }
-        if (e == BodyUsageCategory.TIME_BOMB
-                || e == BodyUsageCategory.FUZE_BOMB
-                || e == BodyUsageCategory.IMPACT_BOMB) {
+        if (e == BodyUsageCategory.TIME_BOMB) {
             UsageModel<BombUsageProperties> usage = new UsageModel<>("", e);
             BombUsageProperties properties = usage.getProperties();
             properties.setBombIds(new ArrayList<>());
+            bodyModel.getUsageModels().add(usage);
+        }
+        if (e == BodyUsageCategory.TIME_BOMB
+                || e == BodyUsageCategory.IMPACT_BOMB) {
+            UsageModel<ImpactBombUsageProperties> usage = new UsageModel<>("", e);
+            ImpactBombUsageProperties properties = usage.getProperties();
+            properties.setBombIds(new ArrayList<>());
+            properties.setSensitiveLayers(new ArrayList<>());
             bodyModel.getUsageModels().add(usage);
         }
         if (e == BodyUsageCategory.SLASHER) {
@@ -1132,8 +1190,101 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         rocketProperties.getFireSourceModelList().remove(fireSourceModel);
                     }
                 });
-        if (rocketProperties.getFireSourceModelListIds().contains(fireSourceModel.getFireSourceId())) {
+        if (rocketProperties.getFireSourceModelList().contains(fireSourceModel)) {
             fireSourceButton.updateState(Button.State.PRESSED);
         }
+    }
+
+
+    private void createSensitiveLayersField(
+            int primaryId, int secondaryId, ImpactBombUsageProperties bombUsageProperties) {
+      sensitiveLayersField =
+                new SecondarySectionField<>(
+                        primaryId,
+                        secondaryId,
+                        "Sensitive Layers",
+                        ResourceManager.getInstance().mainButtonTextureRegion,
+                        this);
+        window.addSecondary(sensitiveLayersField);
+        List<LayerModel> layers = new ArrayList<>(bodyModel.getLayers());
+        LayerModel allPlaceholder = new LayerModel(bodyModel.getBodyId(), -1, bodyModel);
+        allPlaceholder.setModelName("All");
+        layers.add(0, allPlaceholder);
+
+        for (LayerModel layerModel : layers) {
+            createSensitiveLayerButton(primaryId, secondaryId, layerModel, bombUsageProperties);
+        }
+    }
+
+
+    @Override
+    public void onSecondaryButtonReleased(SimpleSecondary<?> simpleSecondary) {
+        super.onSecondaryButtonReleased(simpleSecondary);
+        if(simpleSecondary==sensitiveLayersField){
+         outlineController.onSelectionUpdated(layerWindowController.getSelectedBodyModel(),layerWindowController.getSelectedLayerModel(),layerWindowController.getSelectedDecorationModel());
+        }
+    }
+
+    private void createSensitiveLayerButton(
+            int primaryKey,
+            int secondaryKey,
+            LayerModel layerModel,
+            ImpactBombUsageProperties impactBombUsageProperties) {
+        ButtonWithText<BodySettingsWindowController> layerButton =
+                new ButtonWithText<>(
+                        layerModel.getModelName(),
+                        2,
+                        ResourceManager.getInstance().simpleButtonTextureRegion,
+                        Button.ButtonType.Selector,
+                        true);
+        SimpleTertiary<ButtonWithText<?>> layerField =
+                new SimpleTertiary<>(primaryKey, secondaryKey, layerModel.getLayerId(), layerButton);
+        window.addTertiary(layerField);
+        layerButton.setBehavior(
+                new ButtonBehavior<BodySettingsWindowController>(this, layerButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        if(layerModel.getLayerId()!=-1) {
+                            impactBombUsageProperties.getSensitiveLayers().add(layerModel.getLayerId());
+                        }
+
+                        if (layerModel.getLayerId() == -1) {
+                            impactBombUsageProperties.setSensitiveLayers(bodyModel.getLayers().stream().map(LayerModel::getLayerId).collect(Collectors.toList()));
+                            for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
+                                SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
+                                ((ButtonWithText<?>) other.getMain()).updateState(Button.State.PRESSED);
+                            }
+                        }
+                        outlineController.onSensitiveLayersChanged(bodyModel,impactBombUsageProperties.getSensitiveLayers());
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        if(layerModel.getLayerId()==-1){
+                            impactBombUsageProperties.getSensitiveLayers().clear();
+                            for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
+                                SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
+                                if(other.getSecondaryKey()!=-1) {
+                                    ((ButtonWithText<?>) other.getMain()).updateState(Button.State.NORMAL);
+                                }
+                            }
+                        }
+                        else if(impactBombUsageProperties.getSensitiveLayers().contains(layerModel.getLayerId())) {
+                            impactBombUsageProperties.getSensitiveLayers().removeIf(e -> e == layerModel.getLayerId());
+                        }
+                        outlineController.onSensitiveLayersChanged(bodyModel,impactBombUsageProperties.getSensitiveLayers());
+                    }
+                });
+        if (impactBombUsageProperties.getSensitiveLayers().contains(layerModel.getLayerId())) {
+            layerButton.updateState(Button.State.PRESSED);
+        }
+    }
+
+    public void setOutlineController(OutlineController outlineController) {
+        this.outlineController = outlineController;
+    }
+
+    public OutlineController getOutlineController() {
+        return outlineController;
     }
 }

@@ -35,6 +35,12 @@ public class PlayUIFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public void resetTouchHold() {
+        touchHoldButton.setState(Button.State.NORMAL);
+        touchHoldState = TouchHoldState.TOUCH;
+        touchHoldButton.setIcon(R.drawable.drag_icon);
+        usesButton.setState(Button.State.NORMAL);
+    }
     public void reset() {
         touchHoldButton.setState(Button.State.NORMAL);
         touchHoldState = TouchHoldState.TOUCH;

@@ -4,8 +4,6 @@ import static com.evolgames.entities.usage.Rocket.FORCE_FACTOR;
 import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -29,7 +27,6 @@ import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.ToolUtils;
 
-import org.andengine.entity.sprite.AnimatedSprite;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -84,7 +81,7 @@ public class RocketLauncher extends Use {
         this.loading = true;
         this.loadingTimer = 0;
         for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
-            fire(i, playScene);
+            fire(i);
 
         }
     }
@@ -130,7 +127,7 @@ public class RocketLauncher extends Use {
     }
 
 
-    private void fire(int index, PlayScene playScene) {
+    private void fire(int index) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
         Rocket rocket = rockets.get(projectileInfo);
         if (rocket == null) {
@@ -139,6 +136,10 @@ public class RocketLauncher extends Use {
         GameEntity rocketEntity = rocket.rocketBodyEntity;
         if (rocketEntity.getBody() == null) {
             return;
+        }
+        if(rocketEntity.hasUsage(Bomb.class)){
+            Bomb bomb = rocketEntity.getUsage(Bomb.class);
+            bomb.setHasSafety(false);
         }
         rocketEntity.getParentGroup().getEntities().forEach(entity -> {
             if (entity != rocketEntity) {
@@ -245,6 +246,11 @@ public class RocketLauncher extends Use {
 
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
         physicsScene.sortChildren();
+
+        if(rocketEntity.hasUsage(Bomb.class)){
+            Bomb bomb = rocketEntity.getUsage(Bomb.class);
+            bomb.setHasSafety(true);
+        }
     }
 
     @Override
@@ -295,10 +301,8 @@ public class RocketLauncher extends Use {
         this.projInfFireSourceMap.values().forEach(
                 ExplosiveParticleWrapper::detach
         );
+
         createFireSources(physicsScene.getWorldFacade());
-        rockets.values().forEach(rocket -> {
-            rocket.dynamicMirror(physicsScene);
-        });
     }
 
     @Override

@@ -17,7 +17,7 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
 public class BombOptionController extends SettingsWindowController<BombProperties> {
 
-    private final NumericValidator forceValidator = new NumericValidator(false, true, 0, 100000, 5, 1);
+    private final NumericValidator forceValidator = new NumericValidator(false, true, 0, 100000, 5, 2);
     private ItemWindowController itemWindowController;
     private BombProperties bombProperties;
     private Quantity<BombOptionController> fireRatioQuantityField;

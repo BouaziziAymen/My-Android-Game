@@ -32,9 +32,7 @@ public class PhysicsUtils {
     public static void transferHeatByConvection(
             float specificHeat, double gas_temperature, CoatingBlock solidCoatingBlock) {
         double tempDifference = gas_temperature - solidCoatingBlock.getTemperature();
-        if(specificHeat<0.01f){
-            System.out.println("");
-        }
+
         double deltaTemperature = tempDifference / (PhysicsConstants.HEAT_CONSTANT *specificHeat);
 
         solidCoatingBlock.applyDeltaTemperature(deltaTemperature);

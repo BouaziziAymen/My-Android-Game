@@ -145,4 +145,9 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.smokeParticleSystem.addParticleModifier(new GroundCollisionBumpModifier(20));
         return smokeParticleSystem;
     }
+
+    @Override
+    public int getSmokeIndex() {
+        return 0;
+    }
 }

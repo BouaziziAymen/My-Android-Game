@@ -117,6 +117,7 @@ public class PersistenceCaretaker {
     public static final String USAGE_PROPERTIES_FIRE_SOURCES_TAG = "fireSources";
     public static final String USAGE_PROPERTIES_LIQUID_SOURCES_TAG = "liquidSources";
     public static final String USAGE_PROPERTIES_BOMBS_TAG = "bombs";
+    public static final String USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG = "sensitiveLayers";
     public static final String USAGE_TYPE_TAG = "type";
     public static final String AMMO_TAG = "ammo";
     public static final String AMMO_ID_TAG = "ammoId";
@@ -190,7 +191,8 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
-  scaleTool("Submachine Gun 2#",1/1.6f);
+  scaleTool("fra",12f/34f);
+       // moveLayersTransformation();
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -206,10 +208,14 @@ public class PersistenceCaretaker {
             props.setFriction(material.getFriction());
         },e->true);
     }
-    private void addSymbolToTheEndOfItems() {
+    private void moveLayersTransformation() {
         VersioningHelper.applyTreatment(toolModel -> {
             String name = toolModel.getProperties().getToolName();
-            toolModel.getProperties().setToolName(name+"#");
+         if(name.equals("fra")){
+             toolModel.getBodies().get(1).getLayers().addAll(toolModel.getBodies().get(0).getLayers().stream().filter(l->l.getLayerId()>=7).collect(Collectors.toList()));
+             toolModel.getBodies().get(1).getLayerCounter().set(toolModel.getBodies().get(0).getLayerCounter().get());
+             toolModel.getBodies().get(0).getLayers().removeIf(e->e.getLayerId()>=7);
+         }
         },(e)->true);
     }
 
@@ -493,6 +499,9 @@ public class PersistenceCaretaker {
                                 impactBombUsageProperties.getBombModelList().stream()
                                         .map(BombModel::getBombId)
                                         .collect(Collectors.toList())));
+                propertiesElement.setAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG,convertIntListToString(
+                        impactBombUsageProperties.getSensitiveLayers()
+                ));
             }
             if (usageModel.getType() == BodyUsageCategory.FLAME_THROWER) {
                 FlameThrowerProperties flameThrowerProperties =
@@ -1332,6 +1341,7 @@ public class PersistenceCaretaker {
         UsageModel<Properties> usageModel = new UsageModel<>("", bodyUsageCategory);
         List<Integer> usageProjectileIds;
         List<Integer> usageBombIds;
+        List<Integer> usageSensitiveLayersIds;
         List<Integer> usageFireSourceIds;
         List<Integer> usageLiquidSourceIds;
         switch (bodyUsageCategory) {
@@ -1370,21 +1380,16 @@ public class PersistenceCaretaker {
                         convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
                 timeBombUsageProperties.setBombIds(usageBombIds);
                 break;
-            case FUZE_BOMB:
-                FuzeBombUsageProperties fuzeBombUsageProperties =
-                        loadProperties(propertiesElement, FuzeBombUsageProperties.class);
-                usageModel.setProperties(fuzeBombUsageProperties);
-                usageBombIds =
-                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
-                fuzeBombUsageProperties.setBombIds(usageBombIds);
-                break;
             case IMPACT_BOMB:
                 ImpactBombUsageProperties impactBombUsageProperties =
                         loadProperties(propertiesElement, ImpactBombUsageProperties.class);
                 usageModel.setProperties(impactBombUsageProperties);
                 usageBombIds =
                         convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
+                usageSensitiveLayersIds =
+                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG));
                 impactBombUsageProperties.setBombIds(usageBombIds);
+                impactBombUsageProperties.setSensitiveLayers(usageSensitiveLayersIds);
                 break;
             case SLASHER:
                 SlashProperties slashProperties = loadProperties(propertiesElement, SlashProperties.class);

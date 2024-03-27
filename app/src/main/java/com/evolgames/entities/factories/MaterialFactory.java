@@ -65,6 +65,7 @@ public class MaterialFactory {
     public static final int  CARBON_FIBER = 39;
     public static final int FIBER_GLASS = 40;
     public static final int FEATHER = 41;
+    public static final int TISSUE = 42;
     public List<Material> materials;
     public AtomicInteger counter;
     public static Map<String, float[]> materialProperties;
@@ -116,6 +117,7 @@ public class MaterialFactory {
         materialProperties.put("Carbon Fiber", new float[]{1.75f, 0.4f, 0.8f, 8f, 7f});
         materialProperties.put("Fiber Glass", new float[]{2.5f, 0.5f, 0.6f, 7f, 5f});
         materialProperties.put("Feather", new float[]{0.04f, 0.25f, 0.35f, 3f, 1.5f});
+        materialProperties.put("Tissue", new float[]{0.5f, 0.1f, 0.8f, 5f, 1.5f});
 
 
         Material rubber = new Material("Rubber", RUBBER, new Color(0.4f, 0.4f, 0.4f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
@@ -160,7 +162,9 @@ public class MaterialFactory {
         Material carbonFiber = new Material("Carbon Fiber", CARBON_FIBER, new Color(0.235f, 0.235f, 0.235f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 600, 600, false, 0.0f, 0f);
         Material fiberGlass = new Material("Fiber Glass", FIBER_GLASS, new Color(1f,1f,1f,0.5f), 0.83f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0.0f, 200.0f);
         Material feather = new Material("Feather", FEATHER, new Color(0.9f,0.9f,0.9f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 500, 500, false, 0.0f, 200.0f);
+        Material tissue = new Material("Tissue", TISSUE, new Color(0.9f,0.9f,0.9f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
 
+        materials.add(tissue);
         materials.add(carbonFiber);
         materials.add(fiberGlass);
         materials.add(feather);

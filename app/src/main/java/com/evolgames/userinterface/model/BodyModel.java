@@ -237,8 +237,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
                                     TimeBomb timeBomb = new TimeBomb(e, mirrored);
                                     this.getGameEntity().getUseList().add(timeBomb);
                                     break;
-                                case FUZE_BOMB:
-                                    break;
                                 case IMPACT_BOMB:
                                     ImpactBomb impactBomb = new ImpactBomb(e, mirrored);
                                     this.getGameEntity().getUseList().add(impactBomb);

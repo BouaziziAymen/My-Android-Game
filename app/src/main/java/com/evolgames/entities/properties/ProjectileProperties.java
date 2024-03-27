@@ -16,8 +16,8 @@ public class ProjectileProperties extends Properties {
     private float fireRatio;
     private float sparkRatio;
     private float particles;
-    private float inFirePartSize;
-    private float finFirePartSize;
+    private float inFirePartSize = 0.5f;
+    private float finFirePartSize = 0.2f;
     private String missileFile = "";
 
     private boolean assetsMissile;

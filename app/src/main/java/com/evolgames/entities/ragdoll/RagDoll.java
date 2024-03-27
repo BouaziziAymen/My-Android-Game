@@ -31,7 +31,7 @@ public class RagDoll extends GameGroup {
     transient GameEntity rightHand;
     transient GameEntity leftHand;
     boolean alive = true;
-    transient Balancer[] balancers = new Balancer[6];
+    transient Balancer[] balancers = new Balancer[8];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
 
@@ -86,7 +86,7 @@ public class RagDoll extends GameGroup {
                             .detectFirstIntersectionPointWithExceptions(
                                     tip1, tip1.cpy().add(0, -10f), getGameEntities());
             if (projection1 != null) {
-                leftLegReadyToStand = tip1.dst(projection1) < 1f;
+                leftLegReadyToStand = tip1.dst(projection1) < 3f;
             }
         }
         if (rightFoot != null && rightFoot.getBody() != null) {
@@ -98,7 +98,7 @@ public class RagDoll extends GameGroup {
                             .detectFirstIntersectionPointWithExceptions(
                                     tip2, tip2.cpy().add(0, -10f), getGameEntities());
             if (projection2 != null) {
-                rightLegReadyToStand = tip2.dst(projection2) < 1f;
+                rightLegReadyToStand = tip2.dst(projection2) < 3f;
             }
         }
     }
@@ -186,32 +186,38 @@ public class RagDoll extends GameGroup {
                 case UpperLegRight:
                     upperLegR = e;
                     if (balancers[2] == null) {
-                        balancers[2] = new Balancer(upperLegR, (float) (Math.PI / 4), 0);
+                        balancers[2] = new Balancer(upperLegR, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case UpperLegLeft:
                     upperLegL = e;
                     if (balancers[4] == null) {
-                        balancers[4] = new Balancer(upperLegL, (float) (Math.PI / 4), 0);
+                        balancers[4] = new Balancer(upperLegL, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case LowerLegRight:
                     lowerLegR = e;
                     if (balancers[3] == null) {
-                        balancers[3] = new Balancer(lowerLegR, (float) (Math.PI / 6), 0);
+                        balancers[3] = new Balancer(lowerLegR, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case LowerLegLeft:
                     lowerLegL = e;
                     if (balancers[5] == null) {
-                        balancers[5] = new Balancer(lowerLegL, (float) (Math.PI / 6), 0);
+                        balancers[5] = new Balancer(lowerLegL, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case RightFoot:
                     rightFoot = e;
+                    if (balancers[6] == null) {
+                        balancers[6] = new Balancer(rightFoot, 0, 0);
+                    }
                     break;
                 case LeftFoot:
                     leftFoot = e;
+                    if (balancers[7] == null) {
+                        balancers[7] = new Balancer(leftFoot, 0, 0);
+                    }
                     break;
             }
         }

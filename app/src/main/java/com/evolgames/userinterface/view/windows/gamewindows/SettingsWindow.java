@@ -1,6 +1,11 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
+import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
+import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsWindowController;
+import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.ThreeLevelSectionLayout;
 import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
@@ -12,6 +17,8 @@ import com.evolgames.userinterface.view.windows.AbstractThreeLevelSectionedAdvan
 public abstract class SettingsWindow
         extends AbstractThreeLevelSectionedAdvancedWindow<
         SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>, SimpleQuaternary<?>> {
+
+    private Panel panel;
 
     public SettingsWindow(
             float pX,
@@ -78,5 +85,44 @@ public abstract class SettingsWindow
     public SimpleQuaternary<?> createQuaternary(
             int primaryKey, int secondaryKey, int tertiaryKey, int quaternaryKey) {
         throw new UnsupportedOperationException();
+    }
+
+    protected void createPanel(SettingsWindowController<?> controller) {
+        this.panel = new Panel(0, -64, 4, true, true);
+
+        panel
+                .getCloseButton()
+                .setBehavior(
+                        new ButtonBehavior<AdvancedWindowController<?>>(controller, panel.getCloseButton()) {
+                            @Override
+                            public void informControllerButtonClicked() {
+                            }
+
+                            @Override
+                            public void informControllerButtonReleased() {
+                                controller.onCancelSettings();
+                            }
+                        });
+
+        panel
+                .getAcceptButton()
+                .setBehavior(
+                        new ButtonBehavior<AdvancedWindowController<?>>(controller, panel.getAcceptButton()) {
+                            @Override
+                            public void informControllerButtonClicked() {
+                            }
+
+                            @Override
+                            public void informControllerButtonReleased() {
+                                controller.onSubmitSettings();
+                            }
+                        });
+
+        panel.setLowerBottomX(getWidth() / 2 - panel.getWidth() / 2);
+        addElement(panel);
+    }
+
+    public Panel getPanel() {
+        return panel;
     }
 }

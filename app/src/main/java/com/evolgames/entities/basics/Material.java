@@ -71,7 +71,7 @@ public class Material {
         this.combustible = combustible;
         this.ignitionTemperature = ignitionTemperature;
         this.flameTemperature = flameTemperature;
-        this.energy = energy;
+        this.energy = 3f*energy;
         this.flammable = flammable;
         this.flammability = flammability;
     }

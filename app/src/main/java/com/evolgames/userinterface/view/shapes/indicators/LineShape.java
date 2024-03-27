@@ -30,6 +30,7 @@ public class LineShape {
         creationScene.attachChild(lineStrip);
         lineStrip.setZIndex(2);
         creationScene.sortChildren();
+        setColor(Colors.palette1_gold);
     }
 
     public boolean isAborted() {
@@ -56,7 +57,7 @@ public class LineShape {
 
     public void release() {
         selected = false;
-        setColor(1, 1, 1);
+        setColor(Colors.palette1_gold);
     }
 
     public void setColor(Color color) {

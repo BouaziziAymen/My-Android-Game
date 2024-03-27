@@ -9,7 +9,10 @@ import java.util.List;
 public class BombUsageProperties extends Properties {
 
     private final List<BombModel> bombModelList;
+
     protected float delay = 5f;
+
+    private int safetyJoint = -1;
     private List<Integer> bombIds;
 
     public BombUsageProperties() {
@@ -34,5 +37,13 @@ public class BombUsageProperties extends Properties {
 
     public void setDelay(float delay) {
         this.delay = delay;
+    }
+
+    public int getSafetyJoint() {
+        return safetyJoint;
+    }
+
+    public void setSafetyJoint(int safetyJoint) {
+        this.safetyJoint = safetyJoint;
     }
 }

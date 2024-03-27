@@ -14,6 +14,7 @@ import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.Penetrating;
+import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
@@ -86,7 +87,7 @@ public class Hand {
         this.playScene
                 .getWorldFacade()
                 .addJointToCreate(
-                        mouseJointDef, playScene.getWorldFacade().getGround().getGameEntityByIndex(0), entity);
+                        mouseJointDef, playScene.getWorldFacade().getGround().getGameEntityByIndex(0), entity,-1);
         this.grabbedEntity.getBody().setBullet(true);
         this.holding = playScene.getPlayerAction() == PlayerAction.Hold;
     }
@@ -158,7 +159,14 @@ public class Hand {
         if (grabbedEntity.getBody() != null) {
             grabbedEntity.getBody().setBullet(false);
         }
-        grabbedEntity.getUseList().forEach(u -> u.setActive(false));
+        grabbedEntity.getUseList().forEach(u ->
+                {
+                  if(u instanceof Projectile || u instanceof Stabber){
+                      u.setActive(false);
+                  }
+
+                }
+                );
 
 
         if (!handControlStack.isEmpty()) {
@@ -306,7 +314,7 @@ public class Hand {
                             }
                         }
                         if (grabbedEntity.hasUsage(FlameThrower.class)) {
-                            if (touchData != null && grabbedEntity == touchData.first) {
+                            if (touchData != null && grabbedEntity != touchData.first) {
                                 FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
                                 if (!flameThrower.isOn()) {
                                     flameThrower.onTriggerPulled();
@@ -490,7 +498,7 @@ public class Hand {
             return;
         }
         float touchDistance = touch.cpy().sub(mouseJoint.getTarget()).len();
-        if (touchDistance > 5f) {
+        if (touchDistance > 7f) {
             return;
         }
         Throw throwable = grabbedEntity.getUsage(Throw.class);
@@ -500,7 +508,7 @@ public class Hand {
         Vector2 handTarget = initialPoint.cpy().add(u.x * HAND_EXTENT, u.y * HAND_EXTENT);
         HandControl handControl2 = new ThrowHandControl(this, angle);
         HandControl handControl1 = new MoveHandControl(this, handTarget);
-        throwable.reset(angle, 100f * touchDistance / 5f);
+        throwable.reset(angle, 100f * touchDistance / 7f);
         ParallelHandControl throwHandControl = new ParallelHandControl(handControl1, handControl2);
         handControlStack.push(throwHandControl);
     }

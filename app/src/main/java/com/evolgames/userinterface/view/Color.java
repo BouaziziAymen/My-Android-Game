@@ -32,4 +32,8 @@ public class Color {
     public float getOpacity() {
         return opacity;
     }
+
+    public static Color from(org.andengine.util.adt.color.Color color){
+        return new Color(color.getRed(),color.getGreen(),color.getBlue(),color.getAlpha());
+    }
 }

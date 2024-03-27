@@ -41,6 +41,7 @@ public class MainButtonBoardController extends ButtonBoardController {
         editorUserInterface.getLayersWindowController().closeWindow();
 
         editorUserInterface.getCreationZoneController().setAction(CreationAction.NONE);
+        editorUserInterface.getOptionsWindowController().selectSettingsType(SettingsType.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
@@ -67,6 +68,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
         editorUserInterface.getCreationZoneController().setAction(CreationAction.NONE);
         editorUserInterface.getImageButtonBoardController().closeBoard();
+        editorUserInterface.getOptionsWindowController().selectSettingsType(SettingsType.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
@@ -94,6 +96,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
         editorUserInterface.getCreationZoneController().setAction(CreationAction.NONE);
         editorUserInterface.getJointsWindowController().closeWindow();
+        editorUserInterface.getOptionsWindowController().selectSettingsType(SettingsType.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
@@ -117,6 +120,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
         editorUserInterface.getCreationZoneController().setAction(CreationAction.NONE);
         editorUserInterface.getItemButtonBoardController().closeBoard();
+        editorUserInterface.getOptionsWindowController().selectSettingsType(SettingsType.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
@@ -140,6 +144,7 @@ public class MainButtonBoardController extends ButtonBoardController {
     public void onSaveOptionReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         editorUserInterface.getCreationZoneController().setAction(CreationAction.NONE);
+        editorUserInterface.getOptionsWindowController().selectSettingsType(SettingsType.NONE);
         editorUserInterface.changeSelectedScreen(Screen.NONE);
     }
 
