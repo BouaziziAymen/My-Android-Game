@@ -1,9 +1,6 @@
 package com.evolgames.utilities;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.caliper.Caliper;
-import com.evolgames.entities.caliper.Polygon;
-import com.evolgames.entities.caliper.Rectangle;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.Hull;
 import com.evolgames.helpers.VectorComparator;
@@ -12,7 +9,6 @@ import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.util.adt.transformation.Transformation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -439,22 +435,9 @@ public class GeometryUtils {
         return (float) Math.atan2(y, x);
     }
 
+
+
     public static float calculateAngleDegrees(float x, float y) {
-        // Calculate the angle in radians
-        float angleRadians = (float) Math.atan2(y, x);
-
-        // Convert the angle from radians to degrees
-        float angleDegrees = (float) Math.toDegrees(angleRadians);
-
-        // Ensure the angle is positive and within the range [0, 360)
-        if (angleDegrees < 0) {
-            angleDegrees += 360.0;
-        }
-
-        return angleDegrees;
-    }
-
-    public static float calculateAngle(float x, float y) {
         // Calculate the angle in radians
         float angleRadians = (float) Math.atan2(y, x);
 

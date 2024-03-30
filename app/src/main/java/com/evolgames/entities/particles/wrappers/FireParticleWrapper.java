@@ -46,7 +46,7 @@ public class FireParticleWrapper implements Fire {
                         (int) (FireParticleWrapper.PARTICLES_MAX * ratio + 1),
                         ResourceManager.getInstance().plasmaParticle);
 
-        particleSystem.setZIndex(entity.getMesh().getZIndex() + 1);
+        particleSystem.setZIndex(entity.getZIndex() + 1);
 
         VelocityParticleInitializer<UncoloredSprite> velocityInitializer =
                 new VelocityParticleInitializer<>(0, 0, 120, 140);

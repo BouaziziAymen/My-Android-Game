@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WeldJointDef;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.cut.Cut;
-import com.evolgames.entities.properties.JointProperties;
+import com.evolgames.entities.properties.JointBlockProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.serialization.infos.JointInfo;
 import com.evolgames.utilities.GeometryUtils;
@@ -17,7 +17,7 @@ import com.evolgames.utilities.Utils;
 
 import java.util.ArrayList;
 
-public class JointBlock extends AssociatedBlock<JointBlock, JointProperties> {
+public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties> {
 
     private JointDef.JointType jointType;
     private Position position;
@@ -236,41 +236,29 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointProperties> {
     @Override
     public void mirror() {
         super.mirror();
-        JointDef jointDef = getProperties().getJointDef();
-        switch (jointType) {
-            case Unknown:
-                break;
-            case RevoluteJoint:
-                RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
-                revoluteJointDef.localAnchorA.set(GeometryUtils.mirrorPoint(revoluteJointDef.localAnchorA));
-                revoluteJointDef.localAnchorB.set(GeometryUtils.mirrorPoint(revoluteJointDef.localAnchorB));
-                break;
-            case PrismaticJoint:
-                PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
-                prismaticJointDef.localAnchorA.set(GeometryUtils.mirrorPoint(prismaticJointDef.localAnchorA));
-                prismaticJointDef.localAnchorB.set(GeometryUtils.mirrorPoint(prismaticJointDef.localAnchorB));
-                break;
-            case DistanceJoint:
-                DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
-                distanceJointDef.localAnchorA.set(GeometryUtils.mirrorPoint(distanceJointDef.localAnchorA));
-                distanceJointDef.localAnchorB.set(GeometryUtils.mirrorPoint(distanceJointDef.localAnchorB));
-                break;
-            case PulleyJoint:
-                break;
-            case MouseJoint:
-
-                break;
-            case GearJoint:
-                break;
-            case LineJoint:
-                break;
-            case WeldJoint:
-                WeldJointDef weldJointDef = (WeldJointDef) jointDef;
-                weldJointDef.localAnchorA.set(GeometryUtils.mirrorPoint(weldJointDef.localAnchorA));
-                weldJointDef.localAnchorB.set(GeometryUtils.mirrorPoint(weldJointDef.localAnchorB));
-                break;
-            case FrictionJoint:
-                break;
+        if(this.position==Position.A) {
+            JointDef jointDef = getProperties().getJointDef();
+            switch (jointType) {
+                case Unknown:
+                case WeldJoint:
+                case LineJoint:
+                case GearJoint:
+                case MouseJoint:
+                case PulleyJoint:
+                case DistanceJoint:
+                case FrictionJoint:
+                    break;
+                case RevoluteJoint:
+                    RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointDef;
+                    float upper = revoluteJointDef.upperAngle;
+                    revoluteJointDef.upperAngle = -revoluteJointDef.lowerAngle;
+                    revoluteJointDef.lowerAngle = -upper;
+                    break;
+                case PrismaticJoint:
+                    PrismaticJointDef prismaticJointDef = (PrismaticJointDef) jointDef;
+                    prismaticJointDef.localAxis1.x = -prismaticJointDef.localAxis1.x;
+                    break;
+            }
         }
     }
 

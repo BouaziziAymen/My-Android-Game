@@ -19,6 +19,8 @@ public interface INativeUIController {
 
     void resetTouchHold();
 
+    void resetSelectButton();
+
     void resetUI();
 
     void onMirrorButtonClicked();

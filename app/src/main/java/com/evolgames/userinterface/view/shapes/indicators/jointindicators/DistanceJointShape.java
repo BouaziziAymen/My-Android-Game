@@ -16,7 +16,7 @@ public class DistanceJointShape extends JointShape {
 
     public void bindModel(JointModel model) {
         this.model = model;
-        Vector2 modelEnd = model.getLocalAnchorB();
+        Vector2 modelEnd = model.getProperties().getLocalAnchorB();
         model.setJointShape(this);
         this.updateEnd(modelEnd.x, modelEnd.y);
     }

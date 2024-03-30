@@ -10,14 +10,30 @@ import org.andengine.util.adt.color.Color;
 public class MosaicMesh extends ModifiedMesh {
     private final Color[] colors;
     private final int[] layersVertexCount;
+    private final Color singleColor;
 
     public MosaicMesh(
             float x, float y, float rot, float[] data, Color[] colors, int[] layersVertexCount) {
         super(x, y, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
         this.layersVertexCount = layersVertexCount;
         this.colors = colors;
+        this.singleColor = null;
         setRotation((float) Math.toDegrees(rot));
         onUpdateColor();
+    }
+
+    public MosaicMesh(
+            float x, float y, float rot, float[] data, Color singleColor, int[] layersVertexCount) {
+        super(x, y, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
+        this.layersVertexCount = layersVertexCount;
+        this.singleColor = singleColor;
+        this.colors = null;
+        setRotation((float) Math.toDegrees(rot));
+        onUpdateColor();
+    }
+
+    public Color getSingleColor() {
+        return singleColor;
     }
 
     @Override

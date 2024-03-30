@@ -51,7 +51,7 @@ public class FluxParticleWrapper {
                         ResourceManager.getInstance().plasmaParticle);
 
         final float lifespan = 1f;
-        this.energyParticleSystem.setZIndex(source.getMesh().getZIndex() - 1);
+        this.energyParticleSystem.setZIndex(source.getZIndex() - 1);
         this.bezierModifier = new BezierModifier(this.endEmitter, lifespan);
         this.energyParticleSystem.addParticleModifier(this.bezierModifier);
         this.energyParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
@@ -70,7 +70,7 @@ public class FluxParticleWrapper {
         this.startEmitter.onStep();
         this.endEmitter.onStep();
 
-        bezierModifier.transform(new Vector2(source.getMesh().getX(), source.getMesh().getY()), new Vector2(target.getMesh().getX(), target.getMesh().getY()));
+        bezierModifier.transform(new Vector2(source.getX(), source.getY()), new Vector2(target.getX(), target.getY()));
     }
 
     private void setFluxColor(Color color1, Color color2) {

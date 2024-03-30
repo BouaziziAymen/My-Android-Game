@@ -26,9 +26,9 @@ public class RelativePolygonEmitter extends PolygonEmitter {
 
     public void onStep() {
         this.randomPointPicker.calculateWeights();
-        if (Math.abs(positionX - gameEntity.getMesh().getX()) > 1
-                || Math.abs(positionY - gameEntity.getMesh().getY()) > 1
-                || Math.abs(rotation - gameEntity.getMesh().getRotation()) > 1) {
+        if (Math.abs(positionX - gameEntity.getX()) > 1
+                || Math.abs(positionY - gameEntity.getY()) > 1
+                || Math.abs(rotation - gameEntity.getRotation()) > 1) {
             this.randomPointPicker.computeTrianglesData();
             transformData();
         }
@@ -40,8 +40,8 @@ public class RelativePolygonEmitter extends PolygonEmitter {
         }
         Transformation transformation = gameEntity.getMesh().getLocalToSceneTransformation();
         this.randomPointPicker.transformData(transformation);
-        positionX = gameEntity.getMesh().getX();
-        positionY = gameEntity.getMesh().getY();
-        rotation = gameEntity.getMesh().getRotation();
+        positionX = gameEntity.getX();
+        positionY = gameEntity.getY();
+        rotation = gameEntity.getRotation();
     }
 }

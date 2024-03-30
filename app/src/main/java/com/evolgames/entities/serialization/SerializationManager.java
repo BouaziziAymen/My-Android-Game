@@ -15,6 +15,7 @@ import com.evolgames.entities.blocks.Polarity;
 import com.evolgames.entities.hand.PlayerAction;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.properties.BodyUsageCategory;
+import com.evolgames.entities.properties.JointBlockProperties;
 import com.evolgames.entities.serialization.serializers.EnumSerializer;
 import com.evolgames.entities.serialization.serializers.FloatArraySerializer;
 import com.evolgames.entities.serialization.serializers.SceneSerializer;
@@ -69,6 +70,7 @@ public class SerializationManager {
         kryo.register(com.evolgames.entities.cut.SegmentFreshCut.class);
         kryo.register(com.evolgames.entities.usage.Slasher.class);
         kryo.register(com.evolgames.entities.usage.Smasher.class);
+        kryo.register(com.evolgames.entities.usage.Heavy.class);
         kryo.register(com.evolgames.entities.usage.Shooter.class);
         kryo.register(com.evolgames.entities.usage.Stabber.class);
         kryo.register(com.evolgames.entities.usage.Throw.class);
@@ -88,7 +90,7 @@ public class SerializationManager {
         kryo.register(com.evolgames.entities.properties.LayerProperties.class);
         kryo.register(com.evolgames.entities.properties.CoatingProperties.class);
         kryo.register(com.evolgames.entities.properties.StainProperties.class);
-        kryo.register(com.evolgames.entities.properties.JointProperties.class);
+        kryo.register(JointBlockProperties.class);
         kryo.register(com.evolgames.entities.properties.DecorationProperties.class);
 
         kryo.register(com.evolgames.entities.hand.Hand.class);

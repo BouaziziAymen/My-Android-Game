@@ -29,6 +29,7 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Bomb;
@@ -40,6 +41,7 @@ import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
+import com.evolgames.entities.usage.Shooter;
 import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
@@ -145,12 +147,13 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             explosionTest(touchEvent);
         }
 
+
         if (playerAction == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
         if (!hudTouched) {
-            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold) {
+            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold||playerAction==PlayerAction.Select) {
                 processHandling(touchEvent);
             }
         }
@@ -514,7 +517,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         List<Vector2> vertices3 = VerticesFactory.createRectangle(80, 80);
         LayerProperties properties3 =
                 PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(0));
+                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
         LayerBlock block3 = BlockFactory.createLayerBlock(vertices3, properties3, 1, 0);
         List<LayerBlock> blocks3 = new ArrayList<>();
         blocks3.add(block3);
@@ -522,13 +525,34 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 GameEntityFactory.getInstance()
                         .createGameGroupTest(
                                 blocks3,
-                                new Vector2(300f / 32f, 200 / 32f),
+                                new Vector2(600 / 32f, 200 / 32f),
                                 BodyDef.BodyType.DynamicBody,
                                 GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
         gameEntity3.setName("small rectangle");
        // gameEntity3.getUseList().add(new Stabber());
         gameEntity3.setCenter(new Vector2());
+
+
+        List<Vector2> vertices4 = VerticesFactory.createRectangle(80, 80);
+        LayerProperties properties4 =
+                PropertiesFactory.getInstance()
+                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
+        LayerBlock block4 = BlockFactory.createLayerBlock(vertices4, properties4, 1, 0);
+        List<LayerBlock> blocks4 = new ArrayList<>();
+        blocks4.add(block4);
+        GameGroup gameGroup2 =
+                GameEntityFactory.getInstance()
+                        .createGameGroupTest(
+                                blocks4,
+                                new Vector2(100 / 32f, 200 / 32f),
+                                BodyDef.BodyType.DynamicBody,
+                                GroupType.OTHER);
+        GameEntity gameEntity4 = gameGroup2.getGameEntityByIndex(0);
+        gameEntity4.setName("small rectangle");
+        // gameEntity3.getUseList().add(new Stabber());
+        gameEntity4.setCenter(new Vector2());
+
 
         if (false) {
             for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
@@ -580,45 +604,41 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
             getHand().setHoldingAngle(0);
         }
 
-        Missile missile = null;
+//        Missile missile = null;
+//
+//        Hand h = PlayScene.this.getHand();
+//        if (h != null && h.getMouseJoint() != null) {
+//            if (h.getGrabbedEntity().hasUsage(Missile.class)) {
+//                missile = h.getGrabbedEntity().getUsage(Missile.class);
+//            }
+            //Missile finalMissile = missile;
+//            userInterface
+//                    .getPanel()
+//                    .allocateController(
+//                            800 - 64 / 2f,
+//                            64 / 2f,
+//                            ControlElement.Type.AnalogController,
+//                            new ControllerAction() {
+//                                @Override
+//                                public void controlMoved(float pX, float pY) {
+//                                    if (finalMissile != null) {
+//                                        finalMissile.setSteerValue(pY);
+//                                    }
+//                                }
+//
+//                                @Override
+//                                public void controlClicked() {
+//                                }
+//
+//                                @Override
+//                                public void controlReleased() {
+//                                    if (finalMissile != null) {
+//                                        finalMissile.setSteerValue(0);
+//                                    }
+//                                }
+//                            });
+//        }
 
-        Hand h = PlayScene.this.getHand();
-        if (h != null && h.getMouseJoint() != null) {
-            if (h.getGrabbedEntity().hasUsage(Missile.class)) {
-                missile = h.getGrabbedEntity().getUsage(Missile.class);
-            }
-
-            Missile finalMissile = missile;
-            userInterface
-                    .getPanel()
-                    .allocateController(
-                            800 - 64 / 2f,
-                            64 / 2f,
-                            ControlElement.Type.AnalogController,
-                            new ControllerAction() {
-                                @Override
-                                public void controlMoved(float pX, float pY) {
-                                    if (finalMissile != null) {
-                                        finalMissile.setSteerValue(pY);
-                                    }
-                                }
-
-                                @Override
-                                public void controlClicked() {
-                                }
-
-                                @Override
-                                public void controlReleased() {
-                                    if (finalMissile != null) {
-                                        finalMissile.setSteerValue(0);
-                                    }
-                                }
-                            });
-        }
-
-        if (getHand() != null) {
-            getHand().setForceFactor(20000f);
-        }
     }
 
 
@@ -628,26 +648,23 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     public void setPlayerAction(PlayerAction playerAction) {
         this.playerAction = playerAction;
-        if (playerAction == PlayerAction.Drag) {
-            Hand h = getHand();
-            if (h != null && h.getMouseJoint() != null) {
-                h.getMouseJoint().setMaxForce(h.getGrabbedEntity().getMassOfGroup() * 1000);
-            }
-        }
     }
 
     public void onUsagesUpdated() {
         getActivity().runOnUiThread(() -> {
             List<PlayerSpecialAction> usageList = new ArrayList<>();
             Hand h = getHand();
-            if (h != null && h.getGrabbedEntity() != null) {
-                h.getGrabbedEntity()
+            if (h != null && h.getUsableEntity() != null) {
+                h.getUsableEntity()
                         .getUseList()
                         .forEach(
                                 u -> {
-                                    if (this.playerAction == PlayerAction.Hold) {
+                                    if (this.playerAction == PlayerAction.Hold||hand.hasSelectedEntity()) {
                                         if (u.getActions() != null && !u.getActions().isEmpty()) {
                                             usageList.addAll(u.getActions());
+                                            if(this.playerAction == PlayerAction.Select){
+                                                usageList.removeIf(e->!e.fromDistance);
+                                            }
                                         }
                                     }
                                 });
@@ -708,10 +725,18 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
+
+        if (playerSpecialAction == PlayerSpecialAction.FireHeavy||playerSpecialAction == PlayerSpecialAction.AimHeavy) {
+            if (this.hand != null) {
+             hand.holdEntity();
+            }
+        }
+
         if (playerSpecialAction == PlayerSpecialAction.Shoot_Arrow) {
             if (this.hand != null) {
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(Bow.class)) {
-                    Bow bow = hand.getGrabbedEntity().getUsage(Bow.class);
+                GameEntity usableEntity = hand.getUsableEntity();
+                if (usableEntity != null && usableEntity.hasUsage(Bow.class)) {
+                    Bow bow = usableEntity.getUsage(Bow.class);
                     bow.onArrowsReleased();
                     onUsagesUpdated();
                 }
@@ -719,38 +744,49 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         }
         else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(Bomb.class)) {
-                        Bomb bomb = hand.getGrabbedEntity().getUsage(Bomb.class);
+                GameEntity usableEntity = hand.getUsableEntity();
+                if (usableEntity != null && usableEntity.hasUsage(Bomb.class)) {
+                        Bomb bomb = usableEntity.getUsage(Bomb.class);
                         bomb.onTriggered(worldFacade);
                       //  hand.releaseGrabbedEntity(true);
                     onUsagesUpdated();
-                        resetTouchHold();
+                    resetTouchHold();
                 }
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(RocketLauncher.class)) {
-                    RocketLauncher rocketLauncher = hand.getGrabbedEntity().getUsage(RocketLauncher.class);
+                if (usableEntity != null && usableEntity.hasUsage(RocketLauncher.class)) {
+                    RocketLauncher rocketLauncher = usableEntity.getUsage(RocketLauncher.class);
                     rocketLauncher.onTriggerPulled(this);
+                    onUsagesUpdated();
+                }
+                if (usableEntity != null && usableEntity.hasUsage(Shooter.class)) {
+                    Shooter shooter = usableEntity.getUsage(Shooter.class);
+                    shooter.onTriggerPulled(this);
                     onUsagesUpdated();
                 }
             }
         } else if (playerSpecialAction == PlayerSpecialAction.SwitchOn) {
             if (this.hand != null) {
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(LiquidContainer.class)) {
-                    LiquidContainer liquidContainer = hand.getGrabbedEntity().getUsage(LiquidContainer.class);
+                GameEntity usableEntity = hand.getUsableEntity();
+                if (usableEntity != null && usableEntity.hasUsage(LiquidContainer.class)) {
+                    LiquidContainer liquidContainer = usableEntity.getUsage(LiquidContainer.class);
                     liquidContainer.open();
                     onUsagesUpdated();
                 }
-                if (hand.getGrabbedEntity() != null && hand.getGrabbedEntity().hasUsage(Rocket.class)) {
-                    Rocket rocket = hand.getGrabbedEntity().getUsage(Rocket.class);
+                if (usableEntity != null && usableEntity.hasUsage(Rocket.class)) {
+                    Rocket rocket = usableEntity.getUsage(Rocket.class);
                     if (!rocket.isOn()) {
                         hand.launchRocket();
-                        Invoker.addJointDestructionCommand(hand.getGrabbedEntity().getParentGroup(), hand.getMouseJoint());
+                        if(hand.getMouseJoint()!=null) {
+                            Invoker.addJointDestructionCommand(usableEntity.getParentGroup(), hand.getMouseJoint());
+                        }
+                    onUsagesUpdated();
                     }
                 }
             }
         } else if (playerSpecialAction == PlayerSpecialAction.SwitchOff) {
             if (this.hand != null) {
-                if (hand.getGrabbedEntity().hasUsage(LiquidContainer.class)) {
-                    LiquidContainer liquidContainer = hand.getGrabbedEntity().getUsage(LiquidContainer.class);
+                GameEntity usableEntity = hand.getUsableEntity();
+                if (usableEntity!=null&&usableEntity.hasUsage(LiquidContainer.class)) {
+                    LiquidContainer liquidContainer = usableEntity.getUsage(LiquidContainer.class);
                     liquidContainer.close();
                     onUsagesUpdated();
                 }

@@ -7,7 +7,6 @@ import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.IntegerValidator;
 import com.evolgames.userinterface.control.validators.NumericValidator;
 import com.evolgames.userinterface.control.windowcontrollers.TwoLevelSectionedAdvancedWindowController;
-import com.evolgames.userinterface.model.ImageShapeModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -369,46 +368,10 @@ public class OptionsWindowController
                         ResourceManager.getInstance().optionsMagnetTextureRegion,
                         Button.ButtonType.Selector,
                         true);
-        Button<OptionsWindowController> button2 =
-                new Button<>(
-                        ResourceManager.getInstance().optionsLinesTextureRegion,
-                        Button.ButtonType.Selector,
-                        true);
-        Button<OptionsWindowController> button3 =
-                new Button<>(
-                        ResourceManager.getInstance().optionsCenterTextureRegion,
-                        Button.ButtonType.Selector,
-                        true);
         magnetBoard.addToButtonBoard(button1);
-        magnetBoard.addToButtonBoard(button2);
-        magnetBoard.addToButtonBoard(button3);
+
         button1.setBehavior(
                 new ButtonBehavior<OptionsWindowController>(this, button1) {
-                    @Override
-                    public void informControllerButtonClicked() {
-                        editorUserInterface.getCreationZoneController().setMagnet(true);
-                    }
-
-                    @Override
-                    public void informControllerButtonReleased() {
-                        editorUserInterface.getCreationZoneController().setMagnet(false);
-                    }
-                });
-        button2.setBehavior(
-                new ButtonBehavior<OptionsWindowController>(this, button2) {
-                    @Override
-                    public void informControllerButtonClicked() {
-                        editorUserInterface.getCreationZoneController().setMagnetLines(true);
-                    }
-
-                    @Override
-                    public void informControllerButtonReleased() {
-                        editorUserInterface.getCreationZoneController().setMagnetLines(false);
-                    }
-                });
-
-        button3.setBehavior(
-                new ButtonBehavior<OptionsWindowController>(this, button3) {
                     @Override
                     public void informControllerButtonClicked() {
                         editorUserInterface.getCreationZoneController().setMagnetCenters(true);
@@ -419,8 +382,11 @@ public class OptionsWindowController
                         editorUserInterface.getCreationZoneController().setMagnetCenters(false);
                     }
                 });
-        TitledField<ButtonBoard> centerMagnetField = new TitledField<>("Magnet:", magnetBoard, 8);
 
+        TitledField<ButtonBoard> centerMagnetField = new TitledField<>("Magnet:", magnetBoard, 8);
+       if(editorUserInterface.getCreationZoneController().isCenterMagnet()){
+           button1.updateState(Button.State.PRESSED);
+       }
         return new SimplePrimary<>(primaryId, centerMagnetField);
     }
 

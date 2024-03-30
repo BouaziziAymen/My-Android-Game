@@ -22,6 +22,7 @@ import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.Init;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
@@ -56,13 +57,17 @@ public class Shooter extends Use {
     transient private List<ToolModel> missileModels;
     transient private Map<ProjectileInfo, ExplosiveParticleWrapper> projInfFireSourceMap;
 
+    private boolean isHeavy;
+
+    private int fireCountdown = 0;
+
     @SuppressWarnings("unused")
     public Shooter() {
     }
 
-
-    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene,boolean heavy, boolean mirrored) {
         this.type = rangedUsageModel.getType();
+        this.isHeavy = heavy;
         RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
         this.projectileInfoList =
                 rangedProperties.getProjectileModelList().stream()
@@ -109,14 +114,15 @@ public class Shooter extends Use {
     }
 
     public void onTriggerPulled(PhysicsScene<?> physicsScene) {
-        for (int i = 0, projectileInfoListSize = projectileInfoList.size();
-             i < projectileInfoListSize;
-             i++) {
-            fire(i, physicsScene);
+        if(readyToFire) {
+            for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
+                fire(i, physicsScene);
+            }
+
         }
     }
 
-    public void startReload() {
+    private void startReload() {
         this.loadingTimer = 0;
         this.loading = true;
     }
@@ -127,9 +133,12 @@ public class Shooter extends Use {
 
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
+        if(fireCountdown>0){
+            fireCountdown--;
+        }
         if (this.projInfFireSourceMap != null) {
             for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
-                explosiveParticleWrapper.setSpawnEnabled(false);
+                explosiveParticleWrapper.setSpawnEnabled(fireCountdown>0);
             }
         }
         if (this.loading) {
@@ -139,6 +148,11 @@ public class Shooter extends Use {
                 this.rounds = this.maxRounds;
                 this.loading = false;
                 // Reload finished
+                if(isHeavy){
+                    if(type==BodyUsageCategory.SHOOTER){
+                        ((PlayScene)worldFacade.getPhysicsScene()).onUsagesUpdated();
+                    }
+                }
             }
             return;
         }
@@ -169,21 +183,23 @@ public class Shooter extends Use {
     private void fire(int index, PhysicsScene<?> physicsScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
         ToolModel missileModel = this.missileModels.get(index);
-        this.createBullet(projectileInfo, missileModel, physicsScene);
+        this.createProjectile(projectileInfo, missileModel, physicsScene);
         this.decrementRounds();
         this.readyToFire = false;
 
         if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
             this.continueFire = true;
         }
+        fireCountdown = 4;
 
-        if (projInfFireSourceMap.containsKey(projectileInfo)) {
-            projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
+        if(rounds<=0) {
+            startReload();
         }
     }
 
 
-    private void createBullet(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
+
+    private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
         GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
 
         Vector2 begin = projectileInfo.getProjectileOrigin();
@@ -208,13 +224,16 @@ public class Shooter extends Use {
         projectileFilter.groupIndex = muzzleEntity.getGroupIndex();
 
         endProjected.mul(32f);
-        Init bulletInit = new Init.Builder(endProjected.x,endProjected.y)
-                        .angle(GeometryUtils.calculateAngleDegrees(directionProjected.x, directionProjected.y))
-                                .linearVelocity(muzzleVelocityVector)
-                .filter(OBJECT,OBJECT,muzzleEntity.getGroupIndex())
+        Init bulletInit = new Init.Builder(endProjected.x, endProjected.y)
+                .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y))
+                .linearVelocity(muzzleVelocityVector)
+                .filter(OBJECT, OBJECT, muzzleEntity.getGroupIndex())
                 .isBullet(true)
-                .recoil(muzzleEntity.getBody(),muzzleVelocityVector,beginProjected,projectileInfo.getRecoil()).build();
-
+               .recoil(muzzleEntity.getBody(), muzzleVelocityVector, beginProjected, projectileInfo.getRecoil())
+                .build();
+        if (missileModel.getBodies().size() == 0) {
+            return;
+        }
         missileModel.getBodies().get(0).setInit(bulletInit);
 
         if (missileModel.getBodies().size() > 1 && projectileInfo.getCasingInfo() != null) {
@@ -228,9 +247,9 @@ public class Shooter extends Use {
             Vector2 casingDirectionProjected = muzzleEntity.getBody().getWorldVector(casingDirection).cpy();
             boolean clockwise = projectileInfo.getCasingInfo().isRotationOrientation();
             float angularVelocity =
-                    clockwise ? (float) (projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2):
+                    clockwise ? (float) (projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2) :
                             (float) (-1 * projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2);
-            float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 20;
+            float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 10f;
             Vector2 ejectionVelocityVector = casingDirectionProjected.mul(ejectionVelocity);
             Init casingInit = new Init.Builder(casingOriginProjected.x * 32f, casingOriginProjected.y * 32f)
                     .linearVelocity(ejectionVelocityVector)
@@ -239,23 +258,34 @@ public class Shooter extends Use {
                     .filter(OBJECTS_MIDDLE_CATEGORY, OBJECTS_MIDDLE_CATEGORY, muzzleEntity.getGroupIndex()).build();
             missileModel.getBodies().get(1).setInit(casingInit);
         } else {
-            if(missileModel.getBodies().size()>1){
-            missileModel.getBodies().remove(1);
+            if (missileModel.getBodies().size() > 1) {
+                missileModel.getBodies().remove(1);
             }
         }
 
 
         GameGroup bulletGroup = physicsScene.createTool(missileModel, muzzleEntity.isMirrored());
 
-        GameEntity bullet = bulletGroup.getGameEntityByIndex(0);
-        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(bullet,300);
-        if(bulletGroup.getEntities().size()>1) {
+        GameEntity projectile = bulletGroup.getGameEntityByIndex(0);
+        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(projectile, 300);
+        if (bulletGroup.getEntities().size() > 1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
-            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing,300);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 300);
+            for(GameEntity entity:muzzleEntity.getParentGroup().getEntities()){
+                physicsScene.getWorldFacade().addNonCollidingPair(entity,casing);
+            }
         }
-        Projectile projectile = new Projectile(ProjectileType.BULLET);
-        projectile.setActive(true);
-        bullet.getUseList().add(projectile);
+        Projectile projectileUse = new Projectile(ProjectileType.BULLET);
+        projectileUse.setActive(true);
+        projectile.getUseList().add(projectileUse);
+        projectile.getUseList().forEach(
+                use -> {
+                    if(use instanceof TimeBomb){
+                        TimeBomb timeBomb = (TimeBomb) use;
+                        timeBomb.onTriggered(physicsScene.getWorldFacade());
+                    }
+                }
+        );
 
         ResourceManager.getInstance()
                 .gunshotSounds
@@ -267,7 +297,24 @@ public class Shooter extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.Fire);
+        if(!isHeavy) {
+            return Collections.singletonList(PlayerSpecialAction.Fire);
+        } else {
+         List<PlayerSpecialAction> list = new ArrayList<>();
+         if(this.type==BodyUsageCategory.SHOOTER_CONTINUOUS) {
+             list.add(PlayerSpecialAction.FireHeavy);
+         } else {
+             list.add(PlayerSpecialAction.AimHeavy);
+             if(isLoaded()) {
+                 list.add(PlayerSpecialAction.Trigger);
+             }
+         }
+            return list;
+        }
+    }
+
+    public GameEntity getMuzzleEntity(){
+        return projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).findFirst().orElse(null);
     }
 
     @Override
@@ -275,7 +322,7 @@ public class Shooter extends Use {
         projectileInfoList.forEach(projectileInfo -> {
             projectileInfo.getProjectileOrigin().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileOrigin()));
             projectileInfo.getProjectileEnd().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileEnd()));
-            if(projectileInfo.getCasingInfo()!=null) {
+            if (projectileInfo.getCasingInfo() != null) {
                 Vector2 ammoDir = projectileInfo.getCasingInfo().getAmmoDirection();
                 Vector2 origin = projectileInfo.getCasingInfo().getAmmoOrigin();
                 projectileInfo.getCasingInfo().setRotationOrientation(!projectileInfo.getCasingInfo().isRotationOrientation());
@@ -291,10 +338,6 @@ public class Shooter extends Use {
 
     public boolean isLoaded() {
         return loaded;
-    }
-
-    public boolean isLoading() {
-        return loading;
     }
 
     public void createFireSources(WorldFacade worldFacade) {

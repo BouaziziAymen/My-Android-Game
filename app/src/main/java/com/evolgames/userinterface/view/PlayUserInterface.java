@@ -22,36 +22,7 @@ public class PlayUserInterface extends UserInterface<PlayScene> {
 
         this.panel = new ControlPanel(scene);
 
-        createLastItemButton();
-
         setUpdated(true);
-    }
-
-    private void createLastItemButton() {
-        Button<Controller> createLastItem =
-                new Button<>(
-                        ResourceManager.getInstance().simpleButtonTextureRegion,
-                        Button.ButtonType.OneClick,
-                        true);
-        createLastItem.setBehavior(
-                new ButtonBehavior<Controller>(
-                        new Controller() {
-                            @Override
-                            public void init() {
-                            }
-                        },
-                        createLastItem) {
-                    @Override
-                    public void informControllerButtonClicked() {
-                    }
-
-                    @Override
-                    public void informControllerButtonReleased() {
-                        scene.createLastItem();
-                    }
-                });
-        createLastItem.setPosition(0, ResourceManager.getInstance().simpleButtonTextureRegion.getHeight());
-        addElement(createLastItem);
     }
 
     @Override

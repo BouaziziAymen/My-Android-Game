@@ -49,7 +49,17 @@ public class NativeUIController implements INativeUIController {
     @Override
     public void onTouchHoldButtonSwitched(PlayUIFragment.TouchHoldState touchHoldState) {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
-        playScene.setPlayerAction(touchHoldState == PlayUIFragment.TouchHoldState.HOLD ? PlayerAction.Hold : PlayerAction.Drag);
+      switch (touchHoldState){
+          case TOUCH:
+              playScene.setPlayerAction(PlayerAction.Drag);
+              break;
+          case SELECT:
+              playScene.setPlayerAction(PlayerAction.Select);
+              break;
+          case HOLD:
+              playScene.setPlayerAction(PlayerAction.Hold);
+              break;
+      }
     }
 
     @Override
@@ -69,6 +79,13 @@ public class NativeUIController implements INativeUIController {
         gameActivity.runOnUiThread(() -> {
             PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
             gameUIFragment.reset();
+        });
+    }
+    @Override
+    public void resetSelectButton() {
+        gameActivity.runOnUiThread(() -> {
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.resetSelectButton();
         });
     }
     @Override

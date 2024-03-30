@@ -87,12 +87,14 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         window.addPrimary(bodyASection);
 
         List<ItemMetaData> files = new ArrayList<>();
-        List<ItemMetaData> bullets = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.BULLET)).stream().collect(Collectors.toList());
-        List<ItemMetaData> rockets = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ROCKET)).stream().collect(Collectors.toList());
-        List<ItemMetaData> arrows = Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ARROW)).stream().collect(Collectors.toList());
+        List<ItemMetaData> bullets = new ArrayList<>(Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.BULLET)));
+        List<ItemMetaData> rockets = new ArrayList<>(Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ROCKET)));
+        List<ItemMetaData> arrows = new ArrayList<>(Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.ARROW)));
+        List<ItemMetaData> shells = new ArrayList<>(Objects.requireNonNull(ResourceManager.getInstance().getItemsMap().get(ItemCategory.SHELL)));
         files.addAll(bullets);
         files.addAll(rockets);
         files.addAll(arrows);
+        files.addAll(shells);
         AtomicInteger missileCounter = new AtomicInteger();
         files.forEach(itemMetaData-> createProjectileToolButton(itemMetaData, missileCounter.getAndIncrement()));
         this.onUpdated();

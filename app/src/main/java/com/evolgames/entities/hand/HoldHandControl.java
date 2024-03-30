@@ -18,11 +18,11 @@ public class HoldHandControl extends HandControl {
     @Override
     public void run() {
         super.run();
-        GameEntity weapon = hand.getGrabbedEntity();
-        if (weapon == null || weapon.getBody() == null) {
+        GameEntity heldEntity = hand.getHeldEntity();
+        if (heldEntity == null || heldEntity.getBody() == null) {
             return;
         }
-        Body body = weapon.getBody();
+        Body body = heldEntity.getBody();
         if (!isDead()) {
             if (body != null) {
                 float rot = body.getAngle();

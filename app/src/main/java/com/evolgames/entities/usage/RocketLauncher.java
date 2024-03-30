@@ -143,7 +143,7 @@ public class RocketLauncher extends Use {
         }
         rocketEntity.getParentGroup().getEntities().forEach(entity -> {
             if (entity != rocketEntity) {
-                entity.getMesh().setVisible(true);
+                entity.setVisible(true);
                 entity.getBody().getFixtureList().forEach(fixture -> fixture.setSensor(true));
             }
         });
@@ -179,7 +179,7 @@ public class RocketLauncher extends Use {
                         .getWorldPoint(projectileInfo.getProjectileOrigin())
                         .cpy();
         Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
-        float muzzleVelocity = rockets.get(projectileInfo).getPower() * FORCE_FACTOR;
+        float muzzleVelocity = rockets.get(projectileInfo).getPower() * 500;
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
 
         Vector2 impulse =
@@ -223,7 +223,7 @@ public class RocketLauncher extends Use {
         GameGroup rocketGroup = physicsScene.createTool(rocketModel, muzzleEntity.isMirrored());
         rocketGroup.getEntities().forEach(entity -> {
             physicsScene.getWorldFacade().addNonCollidingPair(entity, muzzleEntity);
-            entity.setZIndex(muzzleEntity.getMesh().getZIndex() - 1);
+            entity.setZIndex(muzzleEntity.getZIndex() - 1);
         });
 
         GameEntity rocketEntity = rocketGroup.getGameEntityByIndex(0);
@@ -231,10 +231,10 @@ public class RocketLauncher extends Use {
         BodyModel bodyModel2 = new BodyModel(1);
         jointModel.setBodyModel1(bodyModel1);
         jointModel.setBodyModel2(bodyModel2);
-        jointModel.getLocalAnchorA().set(end.cpy().mul(32f).add(muzzleEntity.getCenter()));
-        jointModel.getLocalAnchorB().set(rocketEntity.getCenter());
+        jointModel.getProperties().getLocalAnchorA().set(end.cpy().mul(32f).add(muzzleEntity.getCenter()));
+        jointModel.getProperties().getLocalAnchorB().set(rocketEntity.getCenter());
         float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y) + (!muzzleEntity.isMirrored() ? Math.PI : 0));
-        jointModel.setReferenceAngle(angle);
+        jointModel.getProperties().setReferenceAngle(angle);
 
         bodyModel1.setGameEntity(muzzleEntity);
         bodyModel2.setGameEntity(rocketEntity);

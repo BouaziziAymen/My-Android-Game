@@ -2,6 +2,8 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
@@ -71,10 +73,11 @@ public class Projectile extends Use implements Penetrating {
 
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
 
-
+        if(projectileType==ProjectileType.SHARP_WEAPON) {
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(consumedImpulse * massFraction), obtain(point));
+        }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                penetrated.getBody().applyLinearImpulse(normal.cpy().mul(10f*impactFactor() * consumedImpulse * massFraction), obtain(point));
                 worldFacade.applyPointImpact(obtain(point), 100f*impactFactor() * consumedImpulse * massFraction, penetrated);
             }
         });
@@ -89,12 +92,12 @@ public class Projectile extends Use implements Penetrating {
             } else {
                 if(penetrator.isAlive()) {
                     penetrator.setAlive(false);
-                    penetrator.getMesh().setVisible(false);
+                    penetrator.setVisible(false);
                     worldFacade.destroyGameEntity(penetrator, false, false);
                 }
             }
         }
-
+        onImpact(consumedImpulse*4,penetrator);
         setActive(false);
     }
 
@@ -117,15 +120,24 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.addNonCollidingPair(gameEntity, penetrator);
         }
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+        if(projectileType==ProjectileType.SHARP_WEAPON) {
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(collisionImpulse * massFraction), obtain(point));
+        }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                penetrated.getBody().applyLinearImpulse(normal.cpy().mul(10*impactFactor() * collisionImpulse * massFraction), obtain(point));
                 worldFacade.applyPointImpact(obtain(point), 100f*impactFactor() * collisionImpulse * massFraction, penetrated);
             }
         });
+        onImpact(collisionImpulse*4,penetrator);
         setActive(false);
         penetrator.setZIndex(-1);
         worldFacade.getPhysicsScene().sortChildren();
+    }
+    private void onImpact(float impulse, GameEntity penetrator){
+        if(penetrator.hasUsage(ImpactBomb.class)){
+            ImpactBomb impactBomb = penetrator.getUsage(ImpactBomb.class);
+         impactBomb.onImpact(impulse);
+        }
     }
 
     @Override

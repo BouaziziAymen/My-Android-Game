@@ -25,7 +25,7 @@ public class RecoilInit extends BodyInitDecorator {
         super.initialize(body);
         if(muzzleBody!=null&&muzzleBody.isActive()) {
             Vector2 impulse =
-                    muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil * 20f * muzzleVelocity.len());
+                    muzzleVelocity.cpy().nor().mul(body.getMass()).mul(-recoil * 10f * muzzleVelocity.len());
             muzzleBody.applyLinearImpulse(impulse, point);
         }
     }

@@ -81,6 +81,8 @@ public class RevoluteJointShape extends JointShape {
     }
 
 
+
+@Override
     public void onBeginPointMoved(float x, float y) {
         super.onBeginPointMoved(x, y);
         referenceAngleIndicator.updateBegin(x, y);
@@ -145,14 +147,6 @@ public class RevoluteJointShape extends JointShape {
         }
     }
 
-    public float getUpperAngleRelative() {
-        return (upperAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
-    }
-
-    public float getLowerAngleRelative() {
-        return (lowerAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
-    }
-
     public float getReferenceAngle() {
         return referenceAngleIndicator.getAngleInDegrees();
     }
@@ -211,17 +205,17 @@ public class RevoluteJointShape extends JointShape {
 
     public void bindModel(JointModel model) {
         this.model = model;
-        Vector2 modelEnd = model.getLocalAnchorB();
+        Vector2 modelEnd = model.getProperties().getLocalAnchorB();
         model.setJointShape(this);
         this.updateEnd(modelEnd.x, modelEnd.y);
-        if (model.isEnableLimit()) {
+        if (model.getProperties().isEnableLimit()) {
             this.showLimitsElements();
         }
         this.updateReferenceAngleIndicator(
-                (float) (model.getReferenceAngle() / (2 * Math.PI) * 360));
+                (float) (model.getProperties().getReferenceAngle() / (2 * Math.PI) * 360));
         this.updateLowerAngleIndicator(
-                (float) (model.getLowerAngle() / (2 * Math.PI) * 360));
+                (float) (model.getProperties().getLowerAngle() / (2 * Math.PI) * 360));
         this.updateUpperAngleIndicator(
-                (float) (model.getUpperAngle() / (2 * Math.PI) * 360));
+                (float) (model.getProperties().getUpperAngle() / (2 * Math.PI) * 360));
     }
 }

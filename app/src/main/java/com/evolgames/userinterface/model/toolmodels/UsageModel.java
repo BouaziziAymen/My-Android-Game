@@ -6,6 +6,7 @@ import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
+import com.evolgames.entities.properties.usage.HeavyProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
@@ -26,6 +27,9 @@ public class UsageModel<T extends Properties> extends ProperModel<T> {
     public UsageModel(String name, BodyUsageCategory type) {
         super(name);
         switch (type) {
+            case HEAVY:
+                this.properties = (T) new HeavyProperties();
+                break;
             case SHOOTER:
                 this.properties = (T) new ShooterProperties();
                 break;

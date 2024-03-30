@@ -93,7 +93,7 @@ public class JointWindowController
         JointModel jointModel =
                 editorUserInterface.getToolModel().getJointById(jointField.getPrimaryKey());
         editorUserInterface.doWithConfirm(
-                String.format(Strings.JOINT_DELETE_CONFIRM, jointModel.getJointName()),
+                String.format(Strings.JOINT_DELETE_CONFIRM, jointModel.getModelName()),
                 () -> {
                     editorUserInterface.getToolModel().removeJoint(jointField.getPrimaryKey());
                     window.getLayout().removePrimary(jointField.getPrimaryKey());

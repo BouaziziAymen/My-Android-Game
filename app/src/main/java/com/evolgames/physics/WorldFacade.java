@@ -56,13 +56,11 @@ import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.ParticleEffect;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.Smoke;
 import com.evolgames.entities.pools.ImpactDataPool;
-import com.evolgames.entities.properties.JointProperties;
+import com.evolgames.entities.properties.JointBlockProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.usage.ImpactBomb;
@@ -111,13 +109,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
     private final HashSet<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final HashSet<PulverizationParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final ArrayList<Fire> flames = new ArrayList<>();
-    private final HashSet<ExplosiveParticleWrapper> explosives = new HashSet<>();
+    private final List<ExplosiveParticleWrapper> explosives = new CopyOnWriteArrayList<>();
 
     private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback =
             new SimpleDetectionRayCastCallback();
@@ -151,8 +150,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8*3);
-        physicsWorld.setPositionIterations(3*3 );
+        physicsWorld.setVelocityIterations(8*2);
+        physicsWorld.setPositionIterations(3*2 );
         physicsWorld.setContinuousPhysics(true);
     }
 
@@ -750,10 +749,14 @@ public class WorldFacade implements ContactObserver {
                 (float)
                         Math.sqrt(
                                 normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
-
+        if(Float.isInfinite(impulseValue)){
+            return;
+        }
         if (entity1.getParentGroup() == entity2.getParentGroup()) {
             return;
         }
+        Log.e("Compare",impulseValue+"/"+this.computeCollisionImpulse(entity1.getBody().getLinearVelocity(),
+                entity2.getBody().getLinearVelocity(),        contact.getWorldManifold().getNormal(),entity1.getMass(),entity2.getMass()));
         computeShatterImpact(contact, impulseValue, entity1, entity2);
     }
 
@@ -916,7 +919,7 @@ public class WorldFacade implements ContactObserver {
         final float collisionImpulse =
                 computeCollisionImpulse(V1, V2, normal, m1, m2);
         final float collisionEnergy = computeCollisionEnergy(V1, V2, normal, m1, m2);
-        if(collisionEnergy<10){
+        if(collisionEnergy<10||Float.isNaN(collisionEnergy)||Float.isInfinite(collisionEnergy)){
             return false;
         }
         Log.e("Penetration",
@@ -1137,18 +1140,19 @@ public class WorldFacade implements ContactObserver {
         addJointToCreate(jointDef, receiver, traveler,-2);
 
         scheduleGameEntityToDestroy(traveler, 1200);
-        traveler.setZIndex(receiver.getMesh().getZIndex()-1);
+        traveler.setZIndex(receiver.getZIndex()-1);
         scene.sortChildren();
     }
 
     private void computeShatterImpact(
             Contact contact, float impulse, GameEntity entity1, GameEntity entity2) {
 
-        Vector2[] points = contact.getWorldManifold().getPoints();
+
         final int numberOfContactPoints = contact.getWorldManifold().getNumberOfContactPoints();
 
         LayerBlock block1 = (LayerBlock) contact.getFixtureA().getUserData();
         LayerBlock block2 = (LayerBlock) contact.getFixtureB().getUserData();
+        Vector2[] points = contact.getWorldManifold().getPoints();
         Vector2 point;
         if (numberOfContactPoints == 1) point = points[0];
         else {
@@ -1241,6 +1245,7 @@ public class WorldFacade implements ContactObserver {
         if (entity == null || !entity.isAlive()||entity.getBody()==null) {
             return;
         }
+        entity.hideOutline();
         entity.getBody().setActive(false);
         Invoker.addBodyDestructionCommand(entity);
 
@@ -1500,6 +1505,7 @@ public class WorldFacade implements ContactObserver {
                         (5*impulse
                                 / (PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity()));
 
+        numberOfPoints = Math.min(10,numberOfPoints);
         List<Vector2> pts =
                 Vector2Utils.generateRandomPointsInsidePolygon(
                         numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
@@ -1698,7 +1704,7 @@ public class WorldFacade implements ContactObserver {
                                                     * layerBlock.getProperties().getJuicinessDensity());
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
-                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-600f));
+                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-2000f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
@@ -1760,9 +1766,7 @@ public class WorldFacade implements ContactObserver {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
             if(impactBomb.isActive()) {
                 if (impactBomb.getSensitiveLayers().contains(block.getId())) {
-                    if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * impactBomb.getMinImpact()) {
-                        impactBomb.setImpacted(true);
-                    }
+                    impactBomb.onImpact(impulse);
                 }
             }
         }
@@ -1896,7 +1900,7 @@ public class WorldFacade implements ContactObserver {
                 jointUniqueId,
                 jointDef.type,
                 new ArrayList<>(Collections.singletonList(anchorA)),
-                new JointProperties(jointDef),
+                new JointBlockProperties(jointDef),
                 0,
                 JointBlock.Position.A,
                 jointBlock2);
@@ -1908,7 +1912,7 @@ public class WorldFacade implements ContactObserver {
                 jointUniqueId,
                 jointDef.type,
                 new ArrayList<>(Collections.singletonList(anchorB)),
-                new JointProperties(jointDef),
+                new JointBlockProperties(jointDef),
                 0,
                 JointBlock.Position.B,
                 jointBlock1);

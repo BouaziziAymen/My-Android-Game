@@ -27,6 +27,7 @@ import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
 import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
+import com.evolgames.entities.properties.usage.HeavyProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
@@ -316,9 +317,9 @@ public class PersistenceCaretaker {
         jointElement.setAttribute(ID, String.valueOf(jointModel.getJointId()));
         jointElement.setIdAttribute(ID, true);
         jointElement.setAttribute(
-                JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.isCollideConnected()));
+                JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.getProperties().isCollideConnected()));
         jointElement.setAttribute(
-                JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getJointType().getValue()));
+                JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getProperties().getJointType().getValue()));
         if(jointModel.getBodyModel1()!=null) {
             int bodyId1 = jointModel.getBodyModel1().getBodyId();
             jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
@@ -330,7 +331,7 @@ public class PersistenceCaretaker {
 
         Element localAnchorAElement;
         Element localAnchorBElement;
-        switch (jointModel.getJointType()) {
+        switch (jointModel.getProperties().getJointType()) {
             case Unknown:
             case FrictionJoint:
             case LineJoint:
@@ -340,60 +341,60 @@ public class PersistenceCaretaker {
                 break;
             case RevoluteJoint:
                 localAnchorAElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorA());
                 localAnchorBElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorB());
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("enableMotor", String.valueOf(jointModel.isEnableMotor()));
-                jointElement.setAttribute("maxMotorTorque", String.valueOf(jointModel.getMaxMotorTorque()));
-                jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getMotorSpeed()));
-                jointElement.setAttribute("enableLimit", String.valueOf(jointModel.isEnableLimit()));
-                jointElement.setAttribute("lowerAngle", String.valueOf(jointModel.getLowerAngle()));
-                jointElement.setAttribute("upperAngle", String.valueOf(jointModel.getUpperAngle()));
-                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
+                jointElement.setAttribute("enableMotor", String.valueOf(jointModel.getProperties().isEnableMotor()));
+                jointElement.setAttribute("maxMotorTorque", String.valueOf(jointModel.getProperties().getMaxMotorTorque()));
+                jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getProperties().getMotorSpeed()));
+                jointElement.setAttribute("enableLimit", String.valueOf(jointModel.getProperties().isEnableLimit()));
+                jointElement.setAttribute("lowerAngle", String.valueOf(jointModel.getProperties().getLowerAngle()));
+                jointElement.setAttribute("upperAngle", String.valueOf(jointModel.getProperties().getUpperAngle()));
+                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getProperties().getReferenceAngle()));
                 break;
             case PrismaticJoint:
                 localAnchorAElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorA());
                 localAnchorBElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorB());
                 Element localAxisElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAxis1());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAxis1());
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
                 jointElement.appendChild(localAxisElement);
-                jointElement.setAttribute("enableMotor", String.valueOf(jointModel.isEnableMotor()));
-                jointElement.setAttribute("maxMotorForce", String.valueOf(jointModel.getMaxMotorForce()));
-                jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getMotorSpeed()));
-                jointElement.setAttribute("enableLimit", String.valueOf(jointModel.isEnableLimit()));
+                jointElement.setAttribute("enableMotor", String.valueOf(jointModel.getProperties().isEnableMotor()));
+                jointElement.setAttribute("maxMotorForce", String.valueOf(jointModel.getProperties().getMaxMotorForce()));
+                jointElement.setAttribute("motorSpeed", String.valueOf(jointModel.getProperties().getMotorSpeed()));
+                jointElement.setAttribute("enableLimit", String.valueOf(jointModel.getProperties().isEnableLimit()));
                 jointElement.setAttribute(
-                        "lowerTranslation", String.valueOf(jointModel.getLowerTranslation()));
+                        "lowerTranslation", String.valueOf(jointModel.getProperties().getLowerTranslation()));
                 jointElement.setAttribute(
-                        "upperTranslation", String.valueOf(jointModel.getUpperTranslation()));
-                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
+                        "upperTranslation", String.valueOf(jointModel.getProperties().getUpperTranslation()));
+                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getProperties().getReferenceAngle()));
                 break;
             case DistanceJoint:
                 localAnchorAElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorA());
                 localAnchorBElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorB());
 
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("dampingRatio", String.valueOf(jointModel.getDampingRatio()));
-                jointElement.setAttribute("length", String.valueOf(jointModel.getLength()));
-                jointElement.setAttribute("frequencyHz", String.valueOf(jointModel.getFrequencyHz()));
+                jointElement.setAttribute("dampingRatio", String.valueOf(jointModel.getProperties().getDampingRatio()));
+                jointElement.setAttribute("length", String.valueOf(jointModel.getProperties().getLength()));
+                jointElement.setAttribute("frequencyHz", String.valueOf(jointModel.getProperties().getFrequencyHz()));
                 break;
             case WeldJoint:
                 localAnchorAElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorA());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorA());
                 localAnchorBElement =
-                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getLocalAnchorB());
+                        XmlUtils.createVectorElement(document, VECTOR_TAG, jointModel.getProperties().getLocalAnchorB());
 
                 jointElement.appendChild(localAnchorAElement);
                 jointElement.appendChild(localAnchorBElement);
-                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getReferenceAngle()));
+                jointElement.setAttribute("referenceAngle", String.valueOf(jointModel.getProperties().getReferenceAngle()));
                 break;
         }
         return jointElement;
@@ -1450,6 +1451,11 @@ public class PersistenceCaretaker {
                 rocketLauncherProperties.setProjectileIds(usageProjectileIds);
                 usageModel.setProperties(rocketLauncherProperties);
                 break;
+            case HEAVY:
+            HeavyProperties heavyProperties =
+                    loadProperties(propertiesElement, HeavyProperties.class);
+                usageModel.setProperties(heavyProperties);
+                break;
             default:
                 throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
         }
@@ -1535,13 +1541,13 @@ public class PersistenceCaretaker {
 
         JointModel jointModel = new JointModel(jointId, jointType);
 
-        jointModel.setCollideConnected(
+        jointModel.getProperties().setCollideConnected(
                 Boolean.parseBoolean(jointElement.getAttribute(JOINT_COLLIDE_CONNECTED_ATTRIBUTE)));
         jointModel
-                .getLocalAnchorA()
+                .getProperties().getLocalAnchorA()
                 .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(0)));
         jointModel
-                .getLocalAnchorB()
+                .getProperties().getLocalAnchorB()
                 .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(1)));
         try {
             int bodyAId = Integer.parseInt(jointElement.getAttribute(BODY_A_ID_JOINT_ATTRIBUTE));
@@ -1557,32 +1563,32 @@ public class PersistenceCaretaker {
             case WeldJoint:
                 break;
             case RevoluteJoint:
-                jointModel.setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
-                jointModel.setMaxMotorTorque(Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
-                jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
-                jointModel.setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
-                jointModel.setLowerAngle(Float.parseFloat(jointElement.getAttribute("lowerAngle")));
-                jointModel.setUpperAngle(Float.parseFloat(jointElement.getAttribute("upperAngle")));
-                jointModel.setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
+                jointModel.getProperties().setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+                jointModel.getProperties().setMaxMotorTorque(Float.parseFloat(jointElement.getAttribute("maxMotorTorque")));
+                jointModel.getProperties().setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
+                jointModel.getProperties().setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+                jointModel.getProperties().setLowerAngle(Float.parseFloat(jointElement.getAttribute("lowerAngle")));
+                jointModel.getProperties().setUpperAngle(Float.parseFloat(jointElement.getAttribute("upperAngle")));
+                jointModel.getProperties().setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
                 break;
             case PrismaticJoint:
-                jointModel.setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
-                jointModel.setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
-                jointModel.setMaxMotorForce(Float.parseFloat(jointElement.getAttribute("maxMotorForce")));
-                jointModel.setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
-                jointModel.setLowerTranslation(
+                jointModel.getProperties().setEnableLimit(Boolean.parseBoolean(jointElement.getAttribute("enableLimit")));
+                jointModel.getProperties().setEnableMotor(Boolean.parseBoolean(jointElement.getAttribute("enableMotor")));
+                jointModel.getProperties().setMaxMotorForce(Float.parseFloat(jointElement.getAttribute("maxMotorForce")));
+                jointModel.getProperties().setMotorSpeed(Float.parseFloat(jointElement.getAttribute("motorSpeed")));
+                jointModel.getProperties().setLowerTranslation(
                         Float.parseFloat(jointElement.getAttribute("lowerTranslation")));
-                jointModel.setUpperTranslation(
+                jointModel.getProperties().setUpperTranslation(
                         Float.parseFloat(jointElement.getAttribute("upperTranslation")));
-                jointModel.setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
+                jointModel.getProperties().setReferenceAngle(Float.parseFloat(jointElement.getAttribute("referenceAngle")));
                 jointModel
-                        .getLocalAxis1()
+                        .getProperties().getLocalAxis1()
                         .set(XmlUtils.readVector((Element) jointElement.getElementsByTagName(VECTOR_TAG).item(2)));
                 break;
             case DistanceJoint:
-                jointModel.setDampingRatio(Float.parseFloat(jointElement.getAttribute("dampingRatio")));
-                jointModel.setLength(Float.parseFloat(jointElement.getAttribute("length")));
-                jointModel.setFrequencyHz(Float.parseFloat(jointElement.getAttribute("frequencyHz")));
+                jointModel.getProperties().setDampingRatio(Float.parseFloat(jointElement.getAttribute("dampingRatio")));
+                jointModel.getProperties().setLength(Float.parseFloat(jointElement.getAttribute("length")));
+                jointModel.getProperties().setFrequencyHz(Float.parseFloat(jointElement.getAttribute("frequencyHz")));
                 break;
             case PulleyJoint:
             case MouseJoint:

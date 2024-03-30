@@ -26,26 +26,26 @@ import java.util.Map;
 public class PlayUIFragment extends Fragment {
     private ExpandableListView itemsExpandableListView;
     private TouchHoldState touchHoldState = TouchHoldState.TOUCH;
-    private GameImageButton usesButton, touchHoldButton, weaponsButton, mirrorButton;
+    private GameImageButton usesButton;
+    private GameImageButton touchHoldButton;
+    private GameImageButton weaponsButton;
     private RecyclerView optionsRecyclerView;
     private OptionsListAdaptor optionsListAdaptor;
     private ExpandableListViewAdaptor expandableListViewAdaptor;
+    private GameImageButton selectButton;
 
     public PlayUIFragment() {
         // Required empty public constructor
     }
 
-    public void resetTouchHold() {
+    private void resetTouchHold() {
         touchHoldButton.setState(Button.State.NORMAL);
         touchHoldState = TouchHoldState.TOUCH;
         touchHoldButton.setIcon(R.drawable.drag_icon);
         usesButton.setState(Button.State.NORMAL);
     }
     public void reset() {
-        touchHoldButton.setState(Button.State.NORMAL);
-        touchHoldState = TouchHoldState.TOUCH;
-        touchHoldButton.setIcon(R.drawable.drag_icon);
-        usesButton.setState(Button.State.NORMAL);
+        resetTouchHold();
         optionsListAdaptor.setPlayerSpecialActionList(new ArrayList<>(), null);
         optionsRecyclerView.setVisibility(View.GONE);
         itemsExpandableListView.setVisibility(View.GONE);
@@ -66,13 +66,19 @@ public class PlayUIFragment extends Fragment {
         View rightLayout = fragment.findViewById(R.id.right_layout);
         weaponsButton = leftLayout.findViewById(R.id.weapons_button);
         setupWeaponsButton(weaponsButton);
-        mirrorButton = leftLayout.findViewById(R.id.mirror_button);
+        GameImageButton mirrorButton = leftLayout.findViewById(R.id.mirror_button);
         setupMirrorButton(mirrorButton);
 
         GameImageButton homeButton = topLayout.findViewById(R.id.home_button);
         setupHomeButton(homeButton);
+
+        selectButton = rightLayout.findViewById(R.id.select_button);
+        setupSelectButton(selectButton);
+
         touchHoldButton = rightLayout.findViewById(R.id.touch_hold_button);
         setupTouchHoldButton(touchHoldButton);
+
+
         usesButton = rightLayout.findViewById(R.id.uses_button);
         setupUsesButton(usesButton);
 
@@ -93,6 +99,8 @@ public class PlayUIFragment extends Fragment {
         return fragment;
     }
 
+
+
     private void setupMirrorButton(GameImageButton mirrorButton) {
         mirrorButton.setOnReleased(() -> {
             ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked();
@@ -104,11 +112,17 @@ public class PlayUIFragment extends Fragment {
     }
 
     private void setupUsesButton(GameImageButton usesButton) {
-        usesButton.setVisibility(View.INVISIBLE);
         usesButton.setOnReleased(() -> optionsRecyclerView.setVisibility(View.GONE));
         usesButton.setOnPressed(() -> optionsRecyclerView.setVisibility(View.VISIBLE));
     }
-
+    private void setupSelectButton(GameImageButton selectButton) {
+        selectButton.setOnPressed(() -> {
+            ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(TouchHoldState.SELECT);
+        });
+        selectButton.setOnReleased(() -> {
+            ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
+        });
+    }
     private void setupTouchHoldButton(GameImageButton touchHoldButton) {
         touchHoldButton.setOnReleased(() -> {
             if (touchHoldState == TouchHoldState.HOLD) {
@@ -119,23 +133,10 @@ public class PlayUIFragment extends Fragment {
                 touchHoldState = TouchHoldState.HOLD;
                 touchHoldButton.setIcon(R.drawable.grab_icon);
             }
-            if (touchHoldState == TouchHoldState.HOLD) {
-                showUsesButton();
-            } else {
-                hideUsesButton();
-            }
             ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
         });
     }
 
-    void showUsesButton() {
-        usesButton.setVisibility(View.VISIBLE);
-    }
-
-    void hideUsesButton() {
-        usesButton.setVisibility(View.INVISIBLE);
-        optionsRecyclerView.setVisibility(View.GONE);
-    }
 
     private void setupWeaponsButton(GameImageButton weaponsButton) {
         weaponsButton.setOnPressed(() -> itemsExpandableListView.setVisibility(View.VISIBLE));
@@ -159,8 +160,13 @@ public class PlayUIFragment extends Fragment {
         });
     }
 
+    public void resetSelectButton() {
+        selectButton.setState(Button.State.NORMAL);
+        ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
+    }
+
     public enum TouchHoldState {
-        TOUCH, HOLD
+        TOUCH, SELECT, HOLD
     }
 
 }

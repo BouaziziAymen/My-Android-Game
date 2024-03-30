@@ -34,10 +34,12 @@ public class MosaicMeshVertexBufferObject extends HighPerformanceMeshVertexBuffe
         int[] layersVertexCount = mosaicMesh.getLayersVertexCount();
         int length = layersVertexCount.length;
         for (int i = 0; i < length; i++) {
-            if (mosaicMesh.getColors()[i] == null) {
+
+            Color color1 = mosaicMesh.getSingleColor()!=null?mosaicMesh.getSingleColor():mosaicMesh.getColors()[i];
+            if (color1 == null) {
                 continue;
             }
-            color.set(mosaicMesh.getColors()[i]);
+            color.set(color1);
             color.setAlpha(color.getAlpha() * mosaicMesh.getAlpha());
             packedColor = color.getABGRPackedFloat();
 

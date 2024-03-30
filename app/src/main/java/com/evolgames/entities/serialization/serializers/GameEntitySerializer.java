@@ -48,7 +48,7 @@ public class GameEntitySerializer {
         this.bodyType = gameEntity.getBodyType();
         this.name = gameEntity.getName();
         this.uniqueId = gameEntity.getUniqueID();
-        this.zIndex = gameEntity.getMesh().getZIndex();
+        this.zIndex = gameEntity.getZIndex();
         this.mirrored = gameEntity.isMirrored();
         this.center = gameEntity.getCenter();
         this.specialEntityType = gameEntity.getType();
@@ -112,7 +112,7 @@ public class GameEntitySerializer {
         gameEntity.setType(this.specialEntityType);
         entities.put(gameEntity.getUniqueID(), gameEntity);
         gameEntity.setUseList(useList);
-        gameEntity.getMesh().setZIndex(this.zIndex);
+        gameEntity.setZIndex(this.zIndex);
     }
 
     @SuppressWarnings("unused")

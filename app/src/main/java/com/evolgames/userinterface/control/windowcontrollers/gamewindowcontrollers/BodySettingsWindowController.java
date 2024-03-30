@@ -7,6 +7,7 @@ import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
+import com.evolgames.entities.properties.usage.HeavyProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
@@ -238,10 +239,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         });
     }
 
-    private void setSlashSpeed(float speed) {
-        slashSpeedQuantityField.updateRatio(speed);
-    }
-
     private void setFireRate(float fireRate) {
         fireRateQuantityField.updateRatio(fireRate);
     }
@@ -466,6 +463,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createReloadTimeField(primaryId, 0, rocketLauncherProperties);
                             createProjectilesField(primaryId, 1, rocketLauncherProperties);
                             break;
+                        case HEAVY:
+                            break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
                     }
@@ -473,26 +472,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             }
         }
         updateLayout();
-    }
-
-    private void createSlashSpeedField(int primaryId, int secondaryId, Runnable action) {
-        TitledQuantity<BodySettingsWindowController> titledSlashSpeedQuantity =
-                new TitledQuantity<>("Speed:", 8, "b", 5, 50);
-        slashSpeedQuantityField = titledSlashSpeedQuantity.getAttachment();
-        titledSlashSpeedQuantity
-                .getAttachment()
-                .setBehavior(
-                        new QuantityBehavior<BodySettingsWindowController>(this, slashSpeedQuantityField) {
-                            @Override
-                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-                            }
-                        });
-
-        FieldWithError slashSpeedFieldWithError = new FieldWithError(titledSlashSpeedQuantity);
-        SimpleSecondary<FieldWithError> slashSpeedElement =
-                new SimpleSecondary<>(primaryId, secondaryId, slashSpeedFieldWithError);
-        window.addSecondary(slashSpeedElement);
-        action.run();
     }
 
     private void createFireRateField(int primaryId, int secondaryId, ContinuousShooterProperties shooterProperties) {
@@ -907,7 +886,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             BombUsageProperties bombUsageProperties) {
         ButtonWithText<BodySettingsWindowController> projectileButton =
                 new ButtonWithText<>(
-                        jointModel.getJointName(),
+                        jointModel.getModelName(),
                         2,
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
@@ -981,8 +960,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             properties.setBombIds(new ArrayList<>());
             bodyModel.getUsageModels().add(usage);
         }
-        if (e == BodyUsageCategory.TIME_BOMB
-                || e == BodyUsageCategory.IMPACT_BOMB) {
+        if (e == BodyUsageCategory.IMPACT_BOMB) {
             UsageModel<ImpactBombUsageProperties> usage = new UsageModel<>("", e);
             ImpactBombUsageProperties properties = usage.getProperties();
             properties.setBombIds(new ArrayList<>());
@@ -1035,6 +1013,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             UsageModel<RocketLauncherProperties> usage = new UsageModel<>("", e);
             RocketLauncherProperties properties = usage.getProperties();
             properties.setProjectileIds(new ArrayList<>());
+            bodyModel.getUsageModels().add(usage);
+        }
+        if (e == BodyUsageCategory.HEAVY) {
+            UsageModel<HeavyProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
         }
     }
@@ -1284,7 +1266,4 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         this.outlineController = outlineController;
     }
 
-    public OutlineController getOutlineController() {
-        return outlineController;
-    }
 }

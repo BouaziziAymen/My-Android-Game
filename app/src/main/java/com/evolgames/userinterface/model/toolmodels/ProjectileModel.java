@@ -69,7 +69,6 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         this.projectileField = projectileField;
     }
 
-
     public ProjectileInfo toProjectileInfo(boolean mirrored) {
         ProjectileInfo pi = new ProjectileInfo();
         Vector2 originProjected = this.properties.getProjectileOrigin().cpy().sub(muzzleEntity.getCenter()).mul(1 / 32f);

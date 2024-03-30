@@ -67,7 +67,7 @@ public class CreationZoneController extends Controller {
     private boolean reference;
     private float movePointSpeed;
     private int numberOfPointsForPolygon = 3;
-    private boolean magnet, magnetLines, magnetCenters;
+    private boolean magnetCenters;
     private boolean moveLimits;
     private boolean congruentAnchors;
     private boolean sameShape;
@@ -281,9 +281,7 @@ public class CreationZoneController extends Controller {
     public void createReferencePoint() {
         if (selectedPointImage != null) {
             if (selectedPointImage.getPointsShape() != null) {
-                if (selectedPointImage.getPointsShape().getReferencePointImage(selectedPointImage.getPoint()) == null) {
                     selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
-                }
             }
         }
     }
@@ -356,8 +354,8 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.REVOLUTE) {
             RevoluteJointShape revoluteJointShape = new RevoluteJointShape(editorScene, new Vector2(x, y));
             JointModel jointModel = editorUserInterface.getToolModel().createJointModel((JointShape) indicatorArrow, JointDef.JointType.RevoluteJoint);
-            jointModel.getLocalAnchorA().set(x, y);
-            jointModel.getLocalAnchorB().set(x, y);
+            jointModel.getProperties().getLocalAnchorA().set(x, y);
+            jointModel.getProperties().getLocalAnchorB().set(x, y);
             revoluteJointShape.bindModel(jointModel);
             jointWindowController.onJointAdded(jointModel);
             revoluteJointShape.setCongruentEndpoints(getCongruentAnchors());
@@ -368,8 +366,8 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.WELD) {
             WeldJointShape weldJointShape = new WeldJointShape(editorScene, new Vector2(x, y));
             JointModel jointModel = editorUserInterface.getToolModel().createJointModel(weldJointShape, JointDef.JointType.WeldJoint);
-            jointModel.getLocalAnchorA().set(x, y);
-            jointModel.getLocalAnchorB().set(x, y);
+            jointModel.getProperties().getLocalAnchorA().set(x, y);
+            jointModel.getProperties().getLocalAnchorB().set(x, y);
             weldJointShape.bindModel(jointModel);
             jointWindowController.onJointAdded(jointModel);
             weldJointShape.setCongruentEndpoints(getCongruentAnchors());
@@ -380,8 +378,8 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.PRISMATIC) {
             PrismaticJointShape prismaticJointShape = new PrismaticJointShape(editorScene, new Vector2(x, y));
             JointModel jointModel = editorUserInterface.getToolModel().createJointModel(prismaticJointShape, JointDef.JointType.PrismaticJoint);
-            jointModel.getLocalAnchorA().set(x, y);
-            jointModel.getLocalAnchorB().set(x, y);
+            jointModel.getProperties().getLocalAnchorA().set(x, y);
+            jointModel.getProperties().getLocalAnchorB().set(x, y);
             prismaticJointShape.bindModel(jointModel);
             jointWindowController.onJointAdded(jointModel);
             prismaticJointShape.setCongruentEndpoints(getCongruentAnchors());
@@ -392,8 +390,8 @@ public class CreationZoneController extends Controller {
         if (action == CreationAction.DISTANCE) {
             DistanceJointShape distanceJointShape = new DistanceJointShape(editorScene, new Vector2(x, y));
             JointModel jointModel = editorUserInterface.getToolModel().createJointModel(distanceJointShape, JointDef.JointType.DistanceJoint);
-            jointModel.getLocalAnchorA().set(x, y);
-            jointModel.getLocalAnchorB().set(x, y);
+            jointModel.getProperties().getLocalAnchorA().set(x, y);
+            jointModel.getProperties().getLocalAnchorB().set(x, y);
             jointWindowController.onJointAdded(jointModel);
             distanceJointShape.bindModel(jointModel);
             distanceJointShape.setCongruentEndpoints(getCongruentAnchors());
@@ -559,25 +557,10 @@ public class CreationZoneController extends Controller {
         return fixedRadiusForPolygon;
     }
 
-    public boolean isMagnet() {
-        return magnet;
-    }
-
-    public void setMagnet(boolean magnet) {
-        this.magnet = magnet;
-    }
-
-    public boolean isMagnetLines() {
-        return magnetLines;
-    }
-
-    public void setMagnetLines(boolean magnetLines) {
-        this.magnetLines = magnetLines;
-    }
-
-    public boolean isMagnetCenters() {
+    public boolean isCenterMagnet() {
         return magnetCenters;
     }
+
 
     public void setMagnetCenters(boolean magnetCenters) {
         this.magnetCenters = magnetCenters;

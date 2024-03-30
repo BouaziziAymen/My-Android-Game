@@ -14,13 +14,13 @@ public class AngleChangerHandControl extends HandControl {
     public AngleChangerHandControl() {
     }
 
-    AngleChangerHandControl(Hand hand, float targetAngle) {
+    AngleChangerHandControl(Hand hand, float targetAngleDegrees) {
         super(hand);
-        this.target = targetAngle;
+        this.target = targetAngleDegrees;
         float rot = this.hand.getGrabbedEntity().getBody().getAngle();
         float dis =
                 GeometryUtils.calculateShortestDirectedDistance(
-                        rot * MathUtils.radiansToDegrees, targetAngle);
+                        rot * MathUtils.radiansToDegrees, targetAngleDegrees);
         this.step = dis * MathUtils.degreesToRadians / 15f;
         this.hand.getGrabbedEntity().getBody().setFixedRotation(true);
     }

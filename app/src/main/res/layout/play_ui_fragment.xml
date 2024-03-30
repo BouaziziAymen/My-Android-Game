@@ -36,7 +36,13 @@
             android:gravity="center"
             android:layout_marginRight="5dp"
             android:orientation="vertical">
-
+            <com.evolgames.activity.components.GameImageButton
+                android:id="@+id/select_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:buttonType="select"
+                app:icon="@drawable/selection_icon"
+                tools:ignore="RtlHardcoded" />
             <com.evolgames.activity.components.GameImageButton
                 android:id="@+id/touch_hold_button"
                 android:layout_width="wrap_content"

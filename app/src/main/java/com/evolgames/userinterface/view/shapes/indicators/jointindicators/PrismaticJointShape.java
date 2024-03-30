@@ -58,7 +58,7 @@ public class PrismaticJointShape extends JointShape {
                         } else {
                             upperLimit = lowerLimit;
                         }
-
+                        PrismaticJointShape.this.onUpperLimitUpdated();
                         updateUpperLimitPosition();
                     }
                 };
@@ -73,7 +73,7 @@ public class PrismaticJointShape extends JointShape {
                         } else {
                             lowerLimit = upperLimit;
                         }
-
+                        PrismaticJointShape.this.onLowerLimitUpdated();
                         updateLowerLimitPosition();
                     }
                 };
@@ -81,15 +81,16 @@ public class PrismaticJointShape extends JointShape {
         hideLimitsElements();
     }
 
-    public float getLowerLimit() {
-        return lowerLimit;
+    private void onLowerLimitUpdated() {
+        model.getProperties().setLowerTranslation(lowerLimit/32f);
+    }
+    private void onUpperLimitUpdated() {
+        model.getProperties().setUpperTranslation(upperLimit/32f);
     }
 
-    public float getUpperLimit() {
-        return upperLimit;
-    }
 
     public void onBeginPointMoved(float x, float y) {
+        super.onBeginPointMoved(x,y);
         directionAngleIndicator.updateBegin(x, y);
         directionAngleIndicator.drawSelf();
         updateLowerLimitPosition();
@@ -208,16 +209,16 @@ public class PrismaticJointShape extends JointShape {
 
     public void bindModel(JointModel model) {
         this.model = model;
-        Vector2 modelEnd = model.getLocalAnchorB();
+        Vector2 modelEnd = model.getProperties().getLocalAnchorB();
         model.setJointShape(this);
         this.updateEnd(modelEnd.x, modelEnd.y);
         this.updateEnd(end.x, end.y);
-        if (model.isEnableLimit()) {
+        if (model.getProperties().isEnableLimit()) {
             this.showLimitsElements();
         }
-        this.updateLowerLimit(model.getLowerTranslation());
-        this.updateUpperLimit(model.getUpperTranslation());
-        float angle = (float) Math.toDegrees(Math.atan2(model.getLocalAxis1().y,model.getLocalAxis1().x));
+        this.updateLowerLimit(model.getProperties().getLowerTranslation()*32f);
+        this.updateUpperLimit(model.getProperties().getUpperTranslation()*32f);
+        float angle = (float) Math.toDegrees(Math.atan2(model.getProperties().getLocalAxis1().y,model.getProperties().getLocalAxis1().x));
         this.updateDirectionAngleIndicator(angle);
     }
 }

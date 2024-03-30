@@ -110,11 +110,11 @@ public class JointShape extends LineShape implements MovablesContainer {
     }
 
     void onEndPointMoved(float x, float y) {
-        this.model.getLocalAnchorB().set(x, y);
+        this.model.getProperties().getLocalAnchorB().set(x, y);
     }
 
     public void onBeginPointMoved(float x, float y) {
-        this.model.getLocalAnchorA().set(x, y);
+        this.model.getProperties().getLocalAnchorA().set(x, y);
     }
 
     public void showLimitsElements() {

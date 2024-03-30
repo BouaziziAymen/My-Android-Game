@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.serialization.infos.BombInfo;
+import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
@@ -45,13 +46,10 @@ public class ImpactBomb extends Bomb {
         return isImpacted && countDown <= 0;
     }
 
-    public void setImpacted(boolean impacted) {
+    private void setImpacted(boolean impacted) {
         isImpacted = impacted;
     }
 
-    public float getMinImpact() {
-        return minImpact;
-    }
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
         super.dynamicMirror(physicsScene);
@@ -72,5 +70,11 @@ public class ImpactBomb extends Bomb {
             bombInfo.setCarrierEntity(heir);
         }
        return ratio>0.5f;
+    }
+
+    public void onImpact(float impulse) {
+        if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * this.minImpact) {
+            this.setImpacted(true);
+        }
     }
 }

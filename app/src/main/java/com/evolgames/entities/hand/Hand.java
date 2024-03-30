@@ -8,11 +8,13 @@ import android.util.Pair;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.Heavy;
 import com.evolgames.entities.usage.Penetrating;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.Rocket;
@@ -28,6 +30,7 @@ import com.evolgames.utilities.MathUtils;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,7 @@ public class Hand {
     Stack<HandControl> handControlStack = new Stack<>();
     private transient PlayScene playScene;
     private transient GameEntity grabbedEntity;
+    private transient GameEntity selectedEntity;
     private transient MouseJoint mouseJoint;
     private int mousePointerId;
     private boolean follow;
@@ -48,6 +52,7 @@ public class Hand {
     private boolean onAction;
 
     private MouseJointDef mouseJointDef;
+    private int zIndex;
 
     public Hand() {
     }
@@ -78,7 +83,7 @@ public class Hand {
         entity.setHangedPointerId(touchEvent.getPointerID());
         mouseJointDef.dampingRatio = 0.5f;
         mouseJointDef.frequencyHz = 10f;
-        mouseJointDef.maxForce = 1000 * entity.getMassOfGroup();
+        mouseJointDef.maxForce = 10000;
         mouseJointDef.target.set(
                 anchor.x / PIXEL_TO_METER_RATIO_DEFAULT, anchor.y / PIXEL_TO_METER_RATIO_DEFAULT);
         mouseJointDef.collideConnected = true;
@@ -87,7 +92,7 @@ public class Hand {
         this.playScene
                 .getWorldFacade()
                 .addJointToCreate(
-                        mouseJointDef, playScene.getWorldFacade().getGround().getGameEntityByIndex(0), entity,-1);
+                        mouseJointDef, playScene.getWorldFacade().getGround().getGameEntityByIndex(0), entity, -1);
         this.grabbedEntity.getBody().setBullet(true);
         this.holding = playScene.getPlayerAction() == PlayerAction.Hold;
     }
@@ -96,7 +101,7 @@ public class Hand {
         return holding;
     }
 
-    private void holdHand() {
+    public void holdEntity() {
         handControlStack.push(new HoldHandControl(this));
     }
 
@@ -113,7 +118,7 @@ public class Hand {
                 if (Math.abs(grabbedEntity.getBody().getLinearVelocity().x) < 0.1f
                         && !this.handControlStack.isEmpty()
                         && handControlStack.peek() instanceof HoldHandControl) {
-                    grabbedEntity.setZIndex(0);
+                    grabbedEntity.setZIndex(zIndex);
                     playScene.sortChildren();
                     if (grabbedEntity.hasUsage(Stabber.class)) {
                         Stabber stabber = grabbedEntity.getUsage(Stabber.class);
@@ -161,12 +166,12 @@ public class Hand {
         }
         grabbedEntity.getUseList().forEach(u ->
                 {
-                  if(u instanceof Projectile || u instanceof Stabber){
-                      u.setActive(false);
-                  }
+                    if (u instanceof Projectile || u instanceof Stabber) {
+                        u.setActive(false);
+                    }
 
                 }
-                );
+        );
 
 
         if (!handControlStack.isEmpty()) {
@@ -188,151 +193,245 @@ public class Hand {
         if (onAction) {
             return false;
         }
-        if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
-            if (touchEvent.isActionMove()) {
-                if (mouseJoint != null && follow) {
-                    moveHand(touchEvent);
-                }
-            } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
-                if (grabbedEntity != null) {
-                    releaseGrabbedEntity(true);
-                    this.follow = false;
-                    return true;
-                }
-            } else if (touchEvent.isActionDown()) {
-                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
-                if (touchData != null && touchData.first != null) {
-                    grab(touchData.first, touchEvent, touchData.second);
-                    this.follow = true;
-                }
-            }
-        } else if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
-            Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, true);
-            if (touchEvent.isActionMove()) {
-                if (follow) {
-                    if (mouseJoint != null) {
+        if(selectedEntity==null) {
+            if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
+                if (touchEvent.isActionMove()) {
+                    if (mouseJoint != null && follow) {
                         moveHand(touchEvent);
                     }
-                } else {
+                } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
                     if (grabbedEntity != null) {
-                        if (this.playScene.getSpecialAction() == PlayerSpecialAction.Fire) {
-                            if ((this.grabbedEntity.hasUsage(Shooter.class) && (touchData == null || touchData.first != grabbedEntity))) {
+                        releaseGrabbedEntity(true);
+                        this.follow = false;
+                        return true;
+                    }
+                } else if (touchEvent.isActionDown()) {
+                    Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
+                    if (touchData != null && touchData.first != null) {
+                        grab(touchData.first, touchEvent, touchData.second);
+                        this.follow = true;
+                    }
+                }
+            } else if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
+                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, true);
+                if (touchEvent.isActionMove()) {
+                    if (follow) {
+                        if (mouseJoint != null) {
+                            moveHand(touchEvent);
+                        }
+                    } else {
+                        if (grabbedEntity != null) {
+                            if (this.playScene.getSpecialAction() == PlayerSpecialAction.Fire) {
+                                if ((this.grabbedEntity.hasUsage(Shooter.class) && (touchData == null || touchData.first != grabbedEntity))) {
+                                    doAim(touchEvent, grabbedEntity.isMirrored());
+                                }
+                            }
+                            if (this.grabbedEntity.hasUsage(RocketLauncher.class) || this.grabbedEntity.hasUsage(Bow.class)) {
                                 doAim(touchEvent, grabbedEntity.isMirrored());
                             }
                         }
-                        if (this.grabbedEntity.hasUsage(RocketLauncher.class) || this.grabbedEntity.hasUsage(Bow.class)) {
-                            doAim(touchEvent, grabbedEntity.isMirrored());
+                    }
+                } else if (touchEvent.isActionUp()) {
+                    this.follow = false;
+                    switch (this.playScene.getSpecialAction()) {
+                        case None:
+                            break;
+                        case Trigger:
+                            break;
+                        case SwitchOn:
+                            break;
+                        case SwitchOff:
+                            break;
+                        case Slash:
+                            break;
+                        case Stab:
+                            break;
+                        case Throw:
+                            break;
+                        case Smash:
+                            break;
+                        case Fire:
+                            if (grabbedEntity.hasUsage(Shooter.class)) {
+                                Shooter shooter = grabbedEntity.getUsage(Shooter.class);
+                                shooter.onTriggerReleased();
+                            }
+                            break;
+                        case Guide:
+                            break;
+                        case Shoot_Arrow:
+                            break;
+                    }
+                } else if (touchEvent.isActionDown()) {
+                    if (touchData != null &&  touchData.first != null) {
+                        if (!touchData.first.hasUsage(Heavy.class)) {
+                            grab(touchData.first, touchEvent, touchData.second);
+                            holdEntity();
+                            onEntityHeld();
+                            return false;
+                        }
+                    }
+                    switch (this.playScene.getSpecialAction()) {
+                        case None:
+                            break;
+                        case Trigger:
+                            //Triggers are handled in the level of action
+                        case SwitchOn:
+                        case SwitchOff:
+                            break;
+                        case Slash:
+                            if (touchData != null && touchData.first != grabbedEntity) {
+                                Vector2 target =
+                                        new Vector2(
+                                                touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
+                                                touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
+                                moveToSlash(target, touchData.first);
+                            }
+                            break;
+                        case Stab:
+                            if (touchData != null && touchData.first != grabbedEntity) {
+                                moveToStab();
+                            }
+                            break;
+                        case Throw:
+                            Vector2 throwTarget =
+                                    new Vector2(
+                                            touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
+                                            touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
+                            moveToThrow(throwTarget);
+
+                            break;
+                        case Smash:
+                            if (touchData != null && touchData.first != grabbedEntity) {
+                                Vector2 smashTarget =
+                                        new Vector2(
+                                                touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
+                                                touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
+                                doSmash(smashTarget);
+                            }
+                            break;
+                        case Fire:
+                            if (grabbedEntity.hasUsage(Shooter.class)) {
+                                Shooter shooter = grabbedEntity.getUsage(Shooter.class);
+                                if (shooter.isLoaded()) {
+                                   shooter.onTriggerPulled(playScene);
+                                }
+                            }
+                            if (grabbedEntity.hasUsage(FlameThrower.class)) {
+                                if (touchData != null && grabbedEntity != touchData.first) {
+                                    FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
+                                    if (!flameThrower.isOn()) {
+                                        flameThrower.onTriggerPulled();
+                                    } else {
+                                        flameThrower.onTriggerReleased();
+                                    }
+                                }
+                            }
+                            break;
+                        case Guide:
+                            break;
+                        case Shoot_Arrow:
+                            break;
+                    }
+
+                }
+            }
+        }
+
+            if (this.playScene.getPlayerAction() == PlayerAction.Select) {
+                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
+                if (touchEvent.isActionMove()) {
+
+                } else if (touchEvent.isActionDown()) {
+
+                } else if (touchEvent.isActionUp()) {
+                    if (touchData != null && touchData.first != null) {
+                        if (selectedEntity != touchData.first) {
+                            if(selectedEntity!=null) {
+                                if(this.isHolding()) {
+                                    this.handControlStack.pop();
+                                    holding = false;
+                                }
+                                deselect(selectedEntity);
+                            }
+                            select(touchData.first);
+                        } else {
+                           deselect(selectedEntity);
+                            if(this.isHolding()) {
+                                this.handControlStack.pop();
+                                holding = false;
+                            }
+                        }
+                        playScene.onUsagesUpdated();
+                        ResourceManager.getInstance().activity.getUiController().resetSelectButton();
+                    }
+                }
+            } else {
+
+                //Handle selection actions
+                if (selectedEntity != null) {
+                    if (touchEvent.isActionDown()) {
+                        if (playScene.getSpecialAction() == PlayerSpecialAction.FireHeavy) {
+                            if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
+                                Shooter shooter = selectedEntity.getUsage(Shooter.class);
+                                if (shooter.isLoaded()) {
+                                    shooter.onTriggerPulled(playScene);
+                                }
+                            }
+                        }
+                    }
+                    if (touchEvent.isActionMove()) {
+                        if (selectedEntity.getBody() == null) {
+                            return false;
+                        }
+                        if (playScene.getSpecialAction() == PlayerSpecialAction.FireHeavy || playScene.getSpecialAction() == PlayerSpecialAction.AimHeavy) {
+                            if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
+                                GameEntity muzzleEntity = getHeldEntity();
+                                Vector2 target =
+                                        new Vector2(
+                                                touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
+                                                touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
+                                if (muzzleEntity.getBody() == null) {
+                                    return false;
+                                }
+                                Vector2 dir = target.cpy().sub(muzzleEntity.getBody().getPosition());
+                                if (dir.len() < 8f) {
+                                    Vector2 U = dir.nor();
+                                    if (!muzzleEntity.isMirrored()) {
+                                        U.mul(-1f);
+                                    }
+                                    float angle = GeometryUtils.calculateAngleDegrees(U.x, U.y);
+                                    setHoldingAngle(angle);
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (touchEvent.isActionUp()) {
+                        if (playScene.getSpecialAction() == PlayerSpecialAction.FireHeavy) {
+                            if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
+                                Shooter shooter = selectedEntity.getUsage(Shooter.class);
+                                shooter.onTriggerReleased();
+                            }
                         }
                     }
                 }
-            } else if (touchEvent.isActionUp()) {
-                this.follow = false;
-                switch (this.playScene.getSpecialAction()) {
-
-                    case None:
-                        break;
-                    case Trigger:
-                        break;
-                    case SwitchOn:
-                        break;
-                    case SwitchOff:
-                        break;
-                    case Slash:
-                        break;
-                    case Stab:
-                        break;
-                    case Throw:
-                        break;
-                    case Smash:
-                        break;
-                    case Fire:
-                        if (grabbedEntity.hasUsage(Shooter.class)) {
-                            Shooter shooter = grabbedEntity.getUsage(Shooter.class);
-                            shooter.onTriggerReleased();
-                        }
-                        break;
-                    case Guide:
-                        break;
-                    case Shoot_Arrow:
-                        break;
-                }
-            } else if (touchEvent.isActionDown()) {
-                if (touchData != null && (grabbedEntity == touchData.first || grabbedEntity == null)) {
-                    grab(touchData.first, touchEvent, touchData.second);
-                    holdHand();
-                    onEntityHeld();
-                    return false;
-                }
-                switch (this.playScene.getSpecialAction()) {
-                    case None:
-                        break;
-                    case Trigger:
-                        //Triggers are handled in the level of action
-                    case SwitchOn:
-                    case SwitchOff:
-                        break;
-                    case Slash:
-                        if (touchData != null && touchData.first != grabbedEntity) {
-                            Vector2 target =
-                                    new Vector2(
-                                            touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
-                                            touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                            moveToSlash(target, touchData.first);
-                        }
-                        break;
-                    case Stab:
-                        if (touchData != null && touchData.first != grabbedEntity) {
-                            moveToStab();
-                        }
-                        break;
-                    case Throw:
-                        Vector2 throwTarget =
-                                new Vector2(
-                                        touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
-                                        touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                        moveToThrow(throwTarget);
-
-                        break;
-                    case Smash:
-                        if (touchData != null && touchData.first != grabbedEntity) {
-                            Vector2 smashTarget =
-                                    new Vector2(
-                                            touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
-                                            touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                            doSmash(smashTarget);
-                        }
-                        break;
-                    case Fire:
-                        if (grabbedEntity.hasUsage(Shooter.class)) {
-                            Shooter shooter = grabbedEntity.getUsage(Shooter.class);
-                            if (!shooter.isLoaded()) {
-                                if (!shooter.isLoading()) {
-                                    shooter.startReload();
-                                }
-                            } else {
-                                doShoot();
-                            }
-                        }
-                        if (grabbedEntity.hasUsage(FlameThrower.class)) {
-                            if (touchData != null && grabbedEntity != touchData.first) {
-                                FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
-                                if (!flameThrower.isOn()) {
-                                    flameThrower.onTriggerPulled();
-                                } else {
-                                    flameThrower.onTriggerReleased();
-                                }
-                            }
-                        }
-                        break;
-                    case Guide:
-                        break;
-                    case Shoot_Arrow:
-                        break;
-                }
-
             }
-        }
         return false;
+    }
+
+    private void deselect(GameEntity entity) {
+        entity.hideOutline();
+        this.selectedEntity = null;
+        if(entity.hasUsage(Shooter.class)){
+            Shooter shooter = entity.getUsage(Shooter.class);
+            shooter.onTriggerReleased();
+        }
+    }
+
+    private void select(GameEntity entity) {
+        entity.outlineEntity();
+        this.selectedEntity = entity;
     }
 
     private void updateUsagesOnEntityReleased() {
@@ -365,7 +464,7 @@ public class Hand {
     }
 
     private void doAim(TouchEvent touchEvent, boolean isMirrored) {
-        if(grabbedEntity.getBody()==null){
+        if (grabbedEntity.getBody() == null) {
             return;
         }
         Vector2 target =
@@ -378,18 +477,15 @@ public class Hand {
             if (!isMirrored) {
                 U.mul(-1f);
             }
-            float angle = GeometryUtils.calculateAngle(U.x, U.y);
-            setHoldingAngle(angle);
+            float angleDegrees = GeometryUtils.calculateAngleDegrees(U.x, U.y);
+            setHoldingAngle(angleDegrees);
         }
     }
 
 
     public void launchRocket() {
-        if (!(handControlStack.peek() instanceof HoldHandControl)) {
-            return;
-        }
-        Rocket rocket = grabbedEntity.getUsage(Rocket.class);
-        rocket.onLaunch(0);
+        Rocket rocket = getUsableEntity().getUsage(Rocket.class);
+        rocket.onLaunch();
     }
 
     public void setHoldingAngle(float angleDeg) {
@@ -398,12 +494,6 @@ public class Hand {
                 .forEach(e -> ((HoldHandControl) e).setAngle(angleDeg * MathUtils.degreesToRadians));
     }
 
-    private void doShoot() {
-        Shooter shooter = this.grabbedEntity.getUsage(Shooter.class);
-        if (shooter.isLoaded()) {
-            shooter.onTriggerPulled(getGameScene());
-        }
-    }
 
     public boolean isFollow() {
         return follow;
@@ -426,6 +516,7 @@ public class Hand {
         Vector2 localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
         Slasher slasher = grabbedEntity.getUsage(Slasher.class);
         slasher.setActive(true);
+        this.zIndex = grabbedEntity.getZIndex();
         grabbedEntity.setZIndex(20);
         this.playScene.sortChildren();
         this.onAction = true;
@@ -503,7 +594,7 @@ public class Hand {
         }
         Throw throwable = grabbedEntity.getUsage(Throw.class);
         Vector2 u = touch.cpy().sub(mouseJoint.getTarget()).nor();
-        float angle = GeometryUtils.calculateAngle(u.y, -u.x);
+        float angle = GeometryUtils.calculateAngleDegrees(u.y, -u.x);
         Vector2 initialPoint = this.mouseJoint.getTarget().cpy();
         Vector2 handTarget = initialPoint.cpy().add(u.x * HAND_EXTENT, u.y * HAND_EXTENT);
         HandControl handControl2 = new ThrowHandControl(this, angle);
@@ -532,6 +623,7 @@ public class Hand {
         Vector2 v = new Vector2(0, 1);
         GeometryUtils.rotateVectorRad(v, grabbedEntityAngle);
         Vector2 localPoint = this.grabbedEntity.getBody().getLocalPoint(mouseJoint.getTarget()).cpy();
+        this.zIndex = grabbedEntity.getZIndex();
         grabbedEntity.setZIndex(-20);
         this.playScene.sortChildren();
         MoveToStabHandControl handControl =
@@ -592,11 +684,6 @@ public class Hand {
         this.handControlStack.clear();
     }
 
-    public void setForceFactor(float forceFactor) {
-        if (this.mouseJoint != null) {
-            this.mouseJoint.setMaxForce(grabbedEntity.getMassOfGroup() * forceFactor);
-        }
-    }
 
     public PlayScene getGameScene() {
         return playScene;
@@ -604,5 +691,30 @@ public class Hand {
 
     public boolean isDragging() {
         return follow;
+    }
+
+    public GameEntity getUsableEntity() {
+        if(selectedEntity!=null){
+            return selectedEntity;
+        }
+        if (playScene.getPlayerAction() == PlayerAction.Hold) {
+            return grabbedEntity;
+        }
+        return null;
+    }
+    public GameEntity getHeldEntity(){
+        if(selectedEntity!=null){
+            if(selectedEntity.hasUsage(Shooter.class)){
+             Shooter shooter = selectedEntity.getUsage(Shooter.class);
+             return shooter.getMuzzleEntity();
+            }
+        } else {
+            return grabbedEntity;
+        }
+        return null;
+    }
+
+    public boolean hasSelectedEntity() {
+        return selectedEntity!=null;
     }
 }

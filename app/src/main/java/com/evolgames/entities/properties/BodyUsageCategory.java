@@ -1,6 +1,8 @@
 package com.evolgames.entities.properties;
 
 public enum BodyUsageCategory {
+
+    HEAVY("Heavy", "Heavy Options", 10),
     SHOOTER("Shooter", "Ranged Options", 1),
     SHOOTER_CONTINUOUS("Shooter continuous", "Ranged Options", 1),
     BOW("Bow", "Bow Options", 1),

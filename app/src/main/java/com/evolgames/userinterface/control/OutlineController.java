@@ -275,7 +275,7 @@ public class OutlineController extends Controller {
             if (jointModel.getBodyModel2() != null) {
                 selectBodyModel(jointModel.getBodyModel2(), Colors.palette1_joint_b_color);
             }
-            if(jointModel.isEnableLimit()) {
+            if(jointModel.getProperties().isEnableLimit()) {
                 jointModel.getJointShape().showLimitsElements();
             }
             jointModel.getJointShape().select();

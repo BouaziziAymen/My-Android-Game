@@ -946,8 +946,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             }
         }
         for (JointModel jointModel : toolModel.getJoints()) {
-            Vector2 begin = jointModel.getLocalAnchorA();
-            switch (jointModel.getJointType()) {
+            Vector2 begin = jointModel.getProperties().getLocalAnchorA();
+            switch (jointModel.getProperties().getJointType()) {
                 case WeldJoint:
                     WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
                     weldJointShape.bindModel(jointModel);

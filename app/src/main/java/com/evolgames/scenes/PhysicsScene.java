@@ -144,6 +144,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
+        int index = 0;
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) {
                 continue;
@@ -179,6 +180,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
+            gameEntity.setZIndex(index++);
         }
         // Handle usage
         setupModels(bodies);
@@ -191,10 +193,6 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         for (JointModel jointModel : joints) {
             createJointFromModel(jointModel, mirrored);
         }
-        //   GameEntity gameEntity = gameGroup.getGameEntityByIndex(0);
-        // getWorldFacade().applyLiquidStain(gameEntity, 40, -7, gameEntity.getBlocks().get(1), Color.RED, 0f, 0, false);
-        //gameEntity.redrawStains();
-
         return gameGroup;
     }
 

@@ -131,7 +131,7 @@ public class LiquidContainer extends Use {
         this.open = true;
         this.liquidSourceInfoList.forEach(t -> {
             if (t.getSealEntity() != null) {
-                t.getSealEntity().getMesh().setVisible(false);
+                t.getSealEntity().setVisible(false);
             }
         });
     }
@@ -140,7 +140,7 @@ public class LiquidContainer extends Use {
         this.open = false;
         this.liquidSourceInfoList.forEach(t -> {
             if (t.getSealEntity() != null) {
-                t.getSealEntity().getMesh().setVisible(true);
+                t.getSealEntity().setVisible(true);
             }
         });
     }

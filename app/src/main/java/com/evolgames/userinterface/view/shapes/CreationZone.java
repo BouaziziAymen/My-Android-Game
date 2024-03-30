@@ -21,10 +21,11 @@ public class CreationZone {
 
 
     public Vector2 applyMagnet(float x, float y) {
-
         for (ReferencePointImage referencePointImage : referencePointImageArrayList) {
             Vector2 v = referencePointImage.getPoint();
-            if (v.dst(x, y) < 32) return v;
+            if (v.dst(x, y) < 32){
+                return v;
+            }
         }
         return new Vector2(x, y);
     }
@@ -36,7 +37,7 @@ public class CreationZone {
     public void onTouchScene(TouchEvent pTouchEvent) {
 
         Vector2 touch =
-                (creationZoneController.isMagnet())
+                (creationZoneController.isCenterMagnet())
                         ? applyMagnet(pTouchEvent.getX(), pTouchEvent.getY())
                         : new Vector2(pTouchEvent.getX(), pTouchEvent.getY());
 

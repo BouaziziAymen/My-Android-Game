@@ -17,7 +17,7 @@ public class BodyNotActiveInit extends BodyInitDecorator {
         super.initialize(body);
         if(notActive){
             GameEntity gameEntity = (GameEntity) body.getUserData();
-            gameEntity.getMesh().setVisible(false);
+            gameEntity.setVisible(false);
             body.getFixtureList().forEach(fixture -> fixture.setSensor(true));
         }
     }

@@ -22,9 +22,9 @@ public abstract class DataEmitter extends BaseParticleEmitter {
         if (gameEntity == null) {
             return;
         }
-        float x = gameEntity.getMesh().getX();
-        float y = gameEntity.getMesh().getY();
-        float rot = gameEntity.getMesh().getRotation();
+        float x = gameEntity.getX();
+        float y = gameEntity.getY();
+        float rot = gameEntity.getRotation();
         GeometryUtils.transformation.setToIdentity();
         GeometryUtils.transformation.preTranslate(x, y);
         GeometryUtils.transformation.preRotate(-rot);

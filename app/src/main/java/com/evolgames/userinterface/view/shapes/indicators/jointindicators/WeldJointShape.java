@@ -16,7 +16,7 @@ public class WeldJointShape extends JointShape {
 
     public void bindModel(JointModel model) {
         this.model = model;
-        Vector2 modelEnd = model.getLocalAnchorB();
+        Vector2 modelEnd = model.getProperties().getLocalAnchorB();
         this.updateEnd(modelEnd.x, modelEnd.y);
         model.setJointShape(this);
     }

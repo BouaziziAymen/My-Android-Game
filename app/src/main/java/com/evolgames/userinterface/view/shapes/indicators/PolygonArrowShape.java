@@ -49,6 +49,7 @@ public class PolygonArrowShape extends ArrowShape {
         if (shapePointsModel.testPoints(newPoints)) {
             shapePointsModel.getPointsShape().detachPointImages();
             super.updateEnd(x, y);
+            shapePointsModel.getPointsShape().createReferencePointImage(begin);
             shapePointsModel.setPoints(newPoints);
             shapePointsModel.getPointsShape().onModelUpdated();
         }

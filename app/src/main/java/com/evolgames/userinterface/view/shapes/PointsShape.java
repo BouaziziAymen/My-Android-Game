@@ -35,14 +35,6 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         return null;
     }
 
-    public ReferencePointImage getReferencePointImage(Vector2 p) {
-        for (ReferencePointImage pointImage : referencePointImages) {
-            if (pointImage.getPoint() == p) {
-                return pointImage;
-            }
-        }
-        return null;
-    }
 
     public ArrayList<PointImage> getMovablePointImages() {
         return new ArrayList<>(pointImages);
@@ -81,7 +73,6 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         editorUserInterface.getScene().sortChildren();
 
         updatePointImages();
-        updateReferencePointImages();
 
         if (points != null) {
             for (Vector2 point : points) {
@@ -111,19 +102,14 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
 
     public void createReferencePointImage(Vector2 center) {
+        if(referencePointImages.stream().map(PointImage::getPoint).anyMatch(e->e==center)){
+            return;
+        }
         ReferencePointImage centerPointImage = new ReferencePointImage(center);
         referencePointImages.add(centerPointImage);
         centerPointImage.setScale(scaleX, scaleY);
         editorUserInterface.addReferencePoint(centerPointImage);
         centerPointImage.updateZoom(editorUserInterface.getZoomFactor());
-    }
-
-    private void updateReferencePointImages() {
-        for (Vector2 point : outlineModel.getReferencePoints()) {
-            if (getReferencePointImage(point) == null) {
-                createReferencePointImage(point);
-            }
-        }
     }
 
     @Override

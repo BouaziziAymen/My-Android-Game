@@ -143,8 +143,6 @@ public class GameEntityFactory {
         MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x, y, rot, blocks);
         GameEntity entity = new GameEntity(mesh, scene, name, blocks);
         Body body = BodyFactory.getInstance().createBody(blocks, bodyType);
-        PhysicsConnector physicsConnector = new PhysicsConnector(mesh, body);
-        physicsWorld.registerPhysicsConnector(physicsConnector);
         entity.setBody(body);
         body.setTransform(x / 32f, y / 32f, rot);
         return entity;

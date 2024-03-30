@@ -35,8 +35,13 @@ import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
 
+import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
+import org.andengine.entity.primitive.LineStrip;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.shader.constants.ShaderProgramConstants;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayDeque;
@@ -53,6 +58,21 @@ public class GameEntity extends EntityWithBody {
 
     private final List<LayerBlock> layerBlocks;
     public boolean changed = true;
+    // Define the vertex shader
+// Define the vertex shader
+    String vertexShader =
+            "uniform mat4 " + ShaderProgramConstants.UNIFORM_MODELVIEWPROJECTIONMATRIX + ";\n" +
+                    "attribute vec4 " + ShaderProgramConstants.ATTRIBUTE_POSITION + ";\n" +
+                    "void main() {\n" +
+                    "    gl_Position = " + ShaderProgramConstants.UNIFORM_MODELVIEWPROJECTIONMATRIX + " * " + ShaderProgramConstants.ATTRIBUTE_POSITION + ";\n" +
+                    "}\n";
+
+    // Define the fragment shader
+    String fragmentShader =
+            "precision mediump float;\n" +
+                    "void main() {\n" +
+                    "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); // Green color\n" +
+                    "}\n";
     private Body mirrorBody;
     private boolean mirrorCreated = false;
     private PhysicsScene<?> scene;
@@ -74,6 +94,9 @@ public class GameEntity extends EntityWithBody {
     private InitInfo initInfo;
     private String uniqueID = UUID.randomUUID().toString();
     private boolean mirrored;
+    private Entity outline;
+    private int zIndex;
+    private boolean outlined;
 
     public GameEntity(
             MosaicMesh mesh, PhysicsScene<?> scene, String entityName, List<LayerBlock> layerBlocks) {
@@ -90,6 +113,49 @@ public class GameEntity extends EntityWithBody {
                 setupBatcher();
             }
         }
+    }
+
+    public boolean isOutlined() {
+        return outlined;
+    }
+
+    public void outlineEntity() {
+        this.outlined = true;
+        if(this.outline==null) {
+            this.outline = new Entity();
+            scene.attachChild(this.outline);
+            PhysicsConnector physicsConnector = new PhysicsConnector(outline, body);
+            scene.getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+        }
+        for(LayerBlock layerBlock:layerBlocks){
+         drawPolygon(layerBlock.getVertices(),Color.WHITE);
+        }
+
+        mesh.setZIndex(10000);
+        outline.setZIndex(mesh.getZIndex() - 1);
+        outline.setVisible(true);
+        scene.sortChildren();
+    }
+
+    public void drawPolygon(List<Vector2> polygon, Color color) {
+        LineStrip lineStrip = new LineStrip(0,0,polygon.size()+1,ResourceManager.getInstance().vbom);
+        lineStrip.setColor(color);
+        lineStrip.setLineWidth(3f);
+       for(Vector2 v:polygon) {
+           lineStrip.add(v.x, v.y);
+       }
+        lineStrip.add(polygon.get(0).x, polygon.get(0).y);
+       outline.attachChild(lineStrip);
+    }
+
+    public void hideOutline() {
+        outlined = false;
+        if (outline == null) {
+            return;
+        }
+        outline.setVisible(false);
+        mesh.setZIndex(zIndex);
+        scene.sortChildren();
     }
 
     public PhysicsScene<?> getScene() {
@@ -387,7 +453,7 @@ public class GameEntity extends EntityWithBody {
                                         segmentFreshCut.second.y,
                                         2,
                                         ResourceManager.getInstance().vbom);
-                        line.setColor(block.getProperties().isJuicy()?block.getProperties().getJuiceColor():Color.BLACK);
+                        line.setColor(block.getProperties().isJuicy() ? block.getProperties().getJuiceColor() : Color.BLACK);
                         mesh.attachChild(line);
                     }
                 }
@@ -543,10 +609,6 @@ public class GameEntity extends EntityWithBody {
         this.uniqueID = uniqueId;
     }
 
-    public void setZIndex(int i) {
-        mesh.setZIndex(i);
-    }
-
     public boolean isMirrored() {
         return mirrored;
     }
@@ -569,7 +631,6 @@ public class GameEntity extends EntityWithBody {
         return new Pair<>(attachedEntities, true);
     }
 
-
     private void destroyJoints() {
         ArrayList<Joint> jointsToDestroy = new ArrayList<>();
         for (JointEdge je : body.getJointList()) {
@@ -589,7 +650,7 @@ public class GameEntity extends EntityWithBody {
         return new AngularVelocityInit(new LinearVelocityInit(new BulletInit(new TransformInit(new BodyInitImpl(initInfo.getFilter()), body.getPosition().x, body.getPosition().y, body.getAngle()), body.isBullet()), body.getLinearVelocity()), body.getAngularVelocity());
     }
 
-    private void mirror() {
+    private synchronized void mirror() {
         if (body == null) {
             return;
         }
@@ -696,5 +757,26 @@ public class GameEntity extends EntityWithBody {
 
     public float getMass() {
         return body.getMass();
+    }
+
+    public float getX() {
+        return this.mesh.getX();
+    }
+
+    public float getY() {
+        return this.mesh.getY();
+    }
+
+    public float getRotation() {
+        return this.mesh.getRotation();
+    }
+
+    public int getZIndex() {
+        return this.mesh.getZIndex();
+    }
+
+    public void setZIndex(int i) {
+        this.mesh.setZIndex(i);
+        this.zIndex = i;
     }
 }

@@ -9,9 +9,11 @@ import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.Heavy;
 import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
+import com.evolgames.entities.usage.Muzzle;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
@@ -218,9 +220,14 @@ public class BodyModel extends OutlineModel<BodyProperties> {
                 .forEach(
                         e -> {
                             switch (e.getType()) {
+                                case HEAVY:
+                                    Heavy heavy = new Heavy();
+                                    this.getGameEntity().getUseList().add(heavy);
+                                    break;
                                 case SHOOTER:
                                 case SHOOTER_CONTINUOUS:
-                                    Shooter shooter = new Shooter(e, physicsScene, mirrored);
+                                    boolean isHeavy = this.getUsageModels().stream().anyMatch(u->u.getType()==BodyUsageCategory.HEAVY);
+                                    Shooter shooter = new Shooter(e, physicsScene, isHeavy, mirrored);
                                     this.getGameEntity().getUseList().add(shooter);
                                     break;
                                 case BOW:
