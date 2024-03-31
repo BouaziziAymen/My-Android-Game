@@ -30,7 +30,7 @@ public abstract class Command {
         return true;
     }
 
-    protected boolean isBodyAlive(Body body) {
+    protected static boolean isBodyAlive(Body body) {
         if (body == null) {
             return false;
         }

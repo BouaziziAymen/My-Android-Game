@@ -17,6 +17,10 @@ public class Color {
         this(red, green, blue, 1);
     }
 
+    public static Color from(org.andengine.util.adt.color.Color color) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+    }
+
     public float getRed() {
         return red / 255f;
     }
@@ -31,9 +35,5 @@ public class Color {
 
     public float getOpacity() {
         return opacity;
-    }
-
-    public static Color from(org.andengine.util.adt.color.Color color){
-        return new Color(color.getRed(),color.getGreen(),color.getBlue(),color.getAlpha());
     }
 }

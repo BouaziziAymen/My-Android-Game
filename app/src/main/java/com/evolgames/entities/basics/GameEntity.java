@@ -39,7 +39,6 @@ import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.LineStrip;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
-import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.shader.constants.ShaderProgramConstants;
 import org.andengine.util.adt.color.Color;
@@ -94,7 +93,7 @@ public class GameEntity extends EntityWithBody {
     private InitInfo initInfo;
     private String uniqueID = UUID.randomUUID().toString();
     private boolean mirrored;
-    private Entity outline;
+    private Entity outline, mirrorOutline;
     private int zIndex;
     private boolean outlined;
 
@@ -121,31 +120,29 @@ public class GameEntity extends EntityWithBody {
 
     public void outlineEntity() {
         this.outlined = true;
-        if(this.outline==null) {
+        if (this.outline == null) {
             this.outline = new Entity();
-            scene.attachChild(this.outline);
             PhysicsConnector physicsConnector = new PhysicsConnector(outline, body);
             scene.getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+            for (LayerBlock layerBlock : layerBlocks) {
+                drawPolygon(layerBlock.getVertices(),outline, Color.WHITE);
+            }
         }
-        for(LayerBlock layerBlock:layerBlocks){
-         drawPolygon(layerBlock.getVertices(),Color.WHITE);
-        }
-
-        mesh.setZIndex(10000);
-        outline.setZIndex(mesh.getZIndex() - 1);
+        scene.attachChild(outline);
+        outline.setZIndex(1000);
         outline.setVisible(true);
         scene.sortChildren();
     }
 
-    public void drawPolygon(List<Vector2> polygon, Color color) {
-        LineStrip lineStrip = new LineStrip(0,0,polygon.size()+1,ResourceManager.getInstance().vbom);
+    public void drawPolygon(List<Vector2> polygon,Entity entity, Color color) {
+        LineStrip lineStrip = new LineStrip(0, 0, polygon.size() + 1, ResourceManager.getInstance().vbom);
         lineStrip.setColor(color);
         lineStrip.setLineWidth(3f);
-       for(Vector2 v:polygon) {
-           lineStrip.add(v.x, v.y);
-       }
+        for (Vector2 v : polygon) {
+            lineStrip.add(v.x, v.y);
+        }
         lineStrip.add(polygon.get(0).x, polygon.get(0).y);
-       outline.attachChild(lineStrip);
+        entity.attachChild(lineStrip);
     }
 
     public void hideOutline() {
@@ -153,9 +150,7 @@ public class GameEntity extends EntityWithBody {
         if (outline == null) {
             return;
         }
-        outline.setVisible(false);
-        mesh.setZIndex(zIndex);
-        scene.sortChildren();
+        outline.detachSelf();
     }
 
     public PhysicsScene<?> getScene() {
@@ -461,10 +456,9 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
-    @SafeVarargs
-    public final <T> boolean hasUsage(Class<T>... targetTypes) {
+    public final boolean hasUsage(Class<?>... targetTypes) {
         for (Use obj : this.useList) {
-            for (Class<T> targetType : targetTypes) {
+            for (Class<?> targetType : targetTypes) {
                 if (targetType.isInstance(obj)) {
                     return true;
                 }
@@ -667,6 +661,9 @@ public class GameEntity extends EntityWithBody {
 
         body.setActive(false);
         mesh.detachSelf();
+        if(outline!=null) {
+            outline.detachSelf();
+        }
         if (isBatcherSetup) {
             batch.detachSelf();
         }
@@ -684,9 +681,18 @@ public class GameEntity extends EntityWithBody {
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
 
+            if(outlined) {
+                Entity jokerOutline = outline;
+                outline = mirrorOutline;
+                mirrorOutline = jokerOutline;
+                scene.attachChild(outline);
+            }
         } else {
             mirrorBody = body;
             mirrorMesh = mesh;
+            Entity joker = outline;
+            outline = mirrorOutline;
+            mirrorOutline = joker;
             //create new mirrored body and assign it to body
             Invoker.addBodyCreationCommand(this, bodyType, getMirrorBodyInit());
             //create new mirrored mesh and assign it to mesh
@@ -709,7 +715,6 @@ public class GameEntity extends EntityWithBody {
     }
 
     public void tryDynamicMirror() {
-        Log.e("Mirror", this + "---------------------------Begin Try Dynamic Mirror---------------------------");
         Queue<GameEntity> deque = new ArrayDeque<>();
         deque.add(this);
         HashSet<GameEntity> visited = new HashSet<>();
@@ -732,7 +737,6 @@ public class GameEntity extends EntityWithBody {
             if (used.contains(jointBlock)) {
                 continue;
             }
-            Log.e("Mirror", "Schedule recreate:" + jointBlock.getJointType() + " /" + jointBlock);
             scene.getWorldFacade().recreateJoint(jointBlock, jointBlock.getEntity());
             used.add(jointBlock);
             used.add(jointBlock.getBrother());

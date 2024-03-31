@@ -65,7 +65,7 @@ public class Shooter extends Use {
     public Shooter() {
     }
 
-    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene,boolean heavy, boolean mirrored) {
+    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene, boolean heavy, boolean mirrored) {
         this.type = rangedUsageModel.getType();
         this.isHeavy = heavy;
         RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
@@ -114,7 +114,7 @@ public class Shooter extends Use {
     }
 
     public void onTriggerPulled(PhysicsScene<?> physicsScene) {
-        if(readyToFire) {
+        if (readyToFire) {
             for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
                 fire(i, physicsScene);
             }
@@ -133,12 +133,12 @@ public class Shooter extends Use {
 
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
-        if(fireCountdown>0){
+        if (fireCountdown > 0) {
             fireCountdown--;
         }
         if (this.projInfFireSourceMap != null) {
             for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
-                explosiveParticleWrapper.setSpawnEnabled(fireCountdown>0);
+                explosiveParticleWrapper.setSpawnEnabled(fireCountdown > 0);
             }
         }
         if (this.loading) {
@@ -148,9 +148,9 @@ public class Shooter extends Use {
                 this.rounds = this.maxRounds;
                 this.loading = false;
                 // Reload finished
-                if(isHeavy){
-                    if(type==BodyUsageCategory.SHOOTER){
-                        ((PlayScene)worldFacade.getPhysicsScene()).onUsagesUpdated();
+                if (isHeavy) {
+                    if (type == BodyUsageCategory.SHOOTER) {
+                        ((PlayScene) worldFacade.getPhysicsScene()).onUsagesUpdated();
                     }
                 }
             }
@@ -182,6 +182,9 @@ public class Shooter extends Use {
 
     private void fire(int index, PhysicsScene<?> physicsScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
+        if (projectileInfo.getMuzzle() != null && !projectileInfo.getMuzzle().isActive()) {
+            return;
+        }
         ToolModel missileModel = this.missileModels.get(index);
         this.createProjectile(projectileInfo, missileModel, physicsScene);
         this.decrementRounds();
@@ -192,15 +195,14 @@ public class Shooter extends Use {
         }
         fireCountdown = 4;
 
-        if(rounds<=0) {
+        if (rounds <= 0) {
             startReload();
         }
     }
 
 
-
     private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
-        GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
 
         Vector2 begin = projectileInfo.getProjectileOrigin();
         Vector2 end = projectileInfo.getProjectileEnd();
@@ -225,11 +227,11 @@ public class Shooter extends Use {
 
         endProjected.mul(32f);
         Init bulletInit = new Init.Builder(endProjected.x, endProjected.y)
-                .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y))
+                .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y)+(float)(muzzleEntity.isMirrored()?0:Math.PI))
                 .linearVelocity(muzzleVelocityVector)
                 .filter(OBJECT, OBJECT, muzzleEntity.getGroupIndex())
                 .isBullet(true)
-               .recoil(muzzleEntity.getBody(), muzzleVelocityVector, beginProjected, projectileInfo.getRecoil())
+                .recoil(muzzleEntity.getBody(), muzzleVelocityVector, beginProjected, projectileInfo.getRecoil())
                 .build();
         if (missileModel.getBodies().size() == 0) {
             return;
@@ -263,7 +265,6 @@ public class Shooter extends Use {
             }
         }
 
-
         GameGroup bulletGroup = physicsScene.createTool(missileModel, muzzleEntity.isMirrored());
 
         GameEntity projectile = bulletGroup.getGameEntityByIndex(0);
@@ -271,8 +272,8 @@ public class Shooter extends Use {
         if (bulletGroup.getEntities().size() > 1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
             physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 300);
-            for(GameEntity entity:muzzleEntity.getParentGroup().getEntities()){
-                physicsScene.getWorldFacade().addNonCollidingPair(entity,casing);
+            for (GameEntity entity : muzzleEntity.getParentGroup().getEntities()) {
+                physicsScene.getWorldFacade().addNonCollidingPair(entity, casing);
             }
         }
         Projectile projectileUse = new Projectile(ProjectileType.BULLET);
@@ -280,7 +281,7 @@ public class Shooter extends Use {
         projectile.getUseList().add(projectileUse);
         projectile.getUseList().forEach(
                 use -> {
-                    if(use instanceof TimeBomb){
+                    if (use instanceof TimeBomb) {
                         TimeBomb timeBomb = (TimeBomb) use;
                         timeBomb.onTriggered(physicsScene.getWorldFacade());
                     }
@@ -297,24 +298,24 @@ public class Shooter extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        if(!isHeavy) {
+        if (!isHeavy) {
             return Collections.singletonList(PlayerSpecialAction.Fire);
         } else {
-         List<PlayerSpecialAction> list = new ArrayList<>();
-         if(this.type==BodyUsageCategory.SHOOTER_CONTINUOUS) {
-             list.add(PlayerSpecialAction.FireHeavy);
-         } else {
-             list.add(PlayerSpecialAction.AimHeavy);
-             if(isLoaded()) {
-                 list.add(PlayerSpecialAction.Trigger);
-             }
-         }
+            List<PlayerSpecialAction> list = new ArrayList<>();
+            if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
+                list.add(PlayerSpecialAction.FireHeavy);
+            } else {
+                list.add(PlayerSpecialAction.AimHeavy);
+                if (isLoaded()) {
+                    list.add(PlayerSpecialAction.Trigger);
+                }
+            }
             return list;
         }
     }
 
-    public GameEntity getMuzzleEntity(){
-        return projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).findFirst().orElse(null);
+    public GameEntity getMuzzleEntity() {
+        return projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst().get().getMuzzleEntity();
     }
 
     @Override
@@ -356,7 +357,7 @@ public class Shooter extends Use {
                                 ExplosiveParticleWrapper fireSource =
                                         worldFacade
                                                 .createFireSource(
-                                                        p.getMuzzleEntity(),
+                                                        p.getMuzzle().getMuzzleEntity(),
                                                         end.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                         end.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                         PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
@@ -373,30 +374,9 @@ public class Shooter extends Use {
                         });
     }
 
-    public void mirror(WorldFacade worldFacade) {
-        for (ProjectileInfo projectileInfo : projectileInfoList) {
-            GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-            Vector2 begin = projectileInfo.getProjectileOrigin();
-            Vector2 end = projectileInfo.getProjectileEnd();
-            Vector2 beginCentered = begin.cpy().sub(muzzleEntity.getCenter());
-            Vector2 endCentered = end.cpy().sub(muzzleEntity.getCenter());
-            Vector2 newBegin = GeometryUtils.mirrorPoint(beginCentered).add(muzzleEntity.getCenter());
-            Vector2 newEnd = GeometryUtils.mirrorPoint(endCentered).add(muzzleEntity.getCenter());
-            projectileInfo.setProjectileOrigin(newBegin);
-            projectileInfo.setProjectileEnd(newEnd);
-            createFireSources(worldFacade);
-        }
-    }
-
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if (ratio < 0.9f) {
-            return false;
-        }
-        this.projectileInfoList.forEach(fireSourceInfo -> {
-            fireSourceInfo.setMuzzleEntity(heir);
-        });
-        return true;
+        return !(ratio < 0.9f);
     }
 
 }

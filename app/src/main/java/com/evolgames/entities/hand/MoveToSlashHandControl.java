@@ -36,7 +36,7 @@ public class MoveToSlashHandControl extends HandControl {
             return;
         }
         MouseJoint mouseJoint = this.hand.getMouseJoint();
-        if (mouseJoint == null ||this.hand.getGrabbedEntity()==null||!this.hand.getGrabbedEntity().hasActiveUsage(Slasher.class)) {
+        if (mouseJoint == null || this.hand.getGrabbedEntity() == null || !this.hand.getGrabbedEntity().hasActiveUsage(Slasher.class)) {
             return;
         }
 

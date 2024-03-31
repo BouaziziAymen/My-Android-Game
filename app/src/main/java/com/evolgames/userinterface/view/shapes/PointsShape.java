@@ -102,7 +102,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
 
     public void createReferencePointImage(Vector2 center) {
-        if(referencePointImages.stream().map(PointImage::getPoint).anyMatch(e->e==center)){
+        if (referencePointImages.stream().map(PointImage::getPoint).anyMatch(e -> e == center)) {
             return;
         }
         ReferencePointImage centerPointImage = new ReferencePointImage(center);

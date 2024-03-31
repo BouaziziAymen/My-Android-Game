@@ -2,7 +2,6 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
@@ -70,7 +69,7 @@ public class Rocket extends Use {
 
     public void onLaunch() {
         this.on = true;
-     //   ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
+        //   ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
@@ -93,7 +92,7 @@ public class Rocket extends Use {
                     if (body != null) {
                         if (fuel > 0) {
                             Vector2 worldFireDirection = body.getWorldVector(moveDirection).cpy();
-                            body.applyForce(worldFireDirection.cpy().mul( FORCE_FACTOR * power), body.getWorldCenter());
+                            body.applyForce(worldFireDirection.cpy().mul(FORCE_FACTOR * power), body.getWorldCenter());
                         } else {
                             this.rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(false);
                         }

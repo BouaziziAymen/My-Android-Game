@@ -17,7 +17,7 @@ public class AngularVelocityInit extends BodyInitDecorator {
     @Override
     public void initialize(Body body) {
         super.initialize(body);
-        Log.e("--------------Angular------------",""+angularVelocity);
+        Log.e("--------------Angular------------", String.valueOf(angularVelocity));
         body.setAngularVelocity(angularVelocity);
     }
 

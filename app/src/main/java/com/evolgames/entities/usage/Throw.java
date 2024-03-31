@@ -52,9 +52,6 @@ public class Throw extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
-        if (ratio < 0.4f) {
-            return false;
-        }
-    return true;
+        return !(ratio < 0.4f);
     }
 }

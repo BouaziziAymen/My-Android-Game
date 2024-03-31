@@ -37,6 +37,7 @@ public class MeshFactory {
         int[] counts = BlockUtils.computeVertexCount(blocks);
         return new MosaicMesh(x, y, rot, data, singleColor, counts);
     }
+
     public float[] computeData(List<Vector2> triangles) {
         float[] meshData = new float[3 * triangles.size()];
         for (int i = 0; i < triangles.size(); i++) {

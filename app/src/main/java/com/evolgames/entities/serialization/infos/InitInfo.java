@@ -97,11 +97,11 @@ public class InitInfo {
         isBullet = bullet;
     }
 
-    public void setNotActive(boolean notActive) {
-        this.notActive = notActive;
-    }
-
     public boolean isNotActive() {
         return notActive;
+    }
+
+    public void setNotActive(boolean notActive) {
+        this.notActive = notActive;
     }
 }

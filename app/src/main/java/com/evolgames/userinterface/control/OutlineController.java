@@ -20,7 +20,6 @@ import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.shapes.PointsShape;
-import com.evolgames.utilities.Utils;
 
 import java.util.List;
 
@@ -84,13 +83,13 @@ public class OutlineController extends Controller {
     }
 
     private void resetAll() {
-        for(JointModel jointModel:editorUserInterface.getToolModel().getJoints()){
+        for (JointModel jointModel : editorUserInterface.getToolModel().getJoints()) {
             jointModel.getJointShape().release();
             jointModel.getJointShape().hideLimitsElements();
         }
         for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
             if (bodyModel.getField() != null) {
-                if(bodyModel.getField().getBodyControl().getState()== Button.State.NORMAL) {
+                if (bodyModel.getField().getBodyControl().getState() == Button.State.NORMAL) {
                     bodyModel.getField().hideFields();
                 }
             }
@@ -132,8 +131,7 @@ public class OutlineController extends Controller {
             BombModel bombModel = (BombModel) selectedItemModel;
             bombModel.getBombShape().select();
             bombModel.getBombField().showFields();
-        }
-        else if (selectedItemModel instanceof SpecialPointModel) {
+        } else if (selectedItemModel instanceof SpecialPointModel) {
             SpecialPointModel specialPointModel = (SpecialPointModel) selectedItemModel;
             specialPointModel.getSpecialPointShape().select();
             specialPointModel.getSpecialPointField().showFields();
@@ -157,7 +155,7 @@ public class OutlineController extends Controller {
             LayerModel selectedLayerModel,
             DecorationModel selectedDecorationModel) {
         this.resetAll();
-        editorUserInterface.getItemButtonBoardController().setActive(selectedBodyModel!=null);
+        editorUserInterface.getItemButtonBoardController().setActive(selectedBodyModel != null);
         editorUserInterface.getDrawButtonBoardController().setActive(selectedLayerModel != null || selectedDecorationModel != null);
         if (selectedDecorationModel != null) {
             assert selectedBodyModel != null;
@@ -227,7 +225,7 @@ public class OutlineController extends Controller {
                 break;
             case JOINTS_SCREEN:
                 this.onJointBodySelectionUpdated(
-                      selectedJointModel);
+                        selectedJointModel);
                 break;
             case ITEMS_SCREEN:
                 ItemWindowController itemWindowController = editorUserInterface.getItemWindowController();
@@ -266,16 +264,16 @@ public class OutlineController extends Controller {
     public void onJointBodySelectionUpdated(JointModel jointModel) {
         resetAll();
         for (BodyModel bodyModel : editorUserInterface.getToolModel().getBodies()) {
-          this.selectBodyModel(bodyModel, Colors.white);
+            this.selectBodyModel(bodyModel, Colors.white);
         }
-        if(jointModel!=null) {
+        if (jointModel != null) {
             if (jointModel.getBodyModel1() != null) {
                 selectBodyModel(jointModel.getBodyModel1(), Colors.palette1_joint_a_color);
             }
             if (jointModel.getBodyModel2() != null) {
                 selectBodyModel(jointModel.getBodyModel2(), Colors.palette1_joint_b_color);
             }
-            if(jointModel.getProperties().isEnableLimit()) {
+            if (jointModel.getProperties().isEnableLimit()) {
                 jointModel.getJointShape().showLimitsElements();
             }
             jointModel.getJointShape().select();
@@ -284,17 +282,17 @@ public class OutlineController extends Controller {
         this.selectedJointModel = jointModel;
     }
 
-    public void onSensitiveLayersChanged(BodyModel bodyModel,List<Integer> sensitiveLayers) {
-            for (LayerModel layerModel : bodyModel.getLayers()) {
-                boolean selected =  sensitiveLayers.contains(layerModel.getLayerId());
-                Color color =selected?Colors.palette1_red:Colors.white;
-                PointsShape layerShape = layerModel.getPointsShape();
-                layerShape.setLineLoopColor(color);
-                layerShape.setOutlineVisible(true);
-                for (DecorationModel decorationModel : layerModel.getDecorations()) {
-                    PointsShape decorationShape = decorationModel.getPointsShape();
-                    decorationShape.setVisible(false);
-                }
+    public void onSensitiveLayersChanged(BodyModel bodyModel, List<Integer> sensitiveLayers) {
+        for (LayerModel layerModel : bodyModel.getLayers()) {
+            boolean selected = sensitiveLayers.contains(layerModel.getLayerId());
+            Color color = selected ? Colors.palette1_red : Colors.white;
+            PointsShape layerShape = layerModel.getPointsShape();
+            layerShape.setLineLoopColor(color);
+            layerShape.setOutlineVisible(true);
+            for (DecorationModel decorationModel : layerModel.getDecorations()) {
+                PointsShape decorationShape = decorationModel.getPointsShape();
+                decorationShape.setVisible(false);
             }
+        }
     }
 }

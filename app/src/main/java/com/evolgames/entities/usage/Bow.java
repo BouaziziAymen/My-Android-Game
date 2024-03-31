@@ -75,13 +75,17 @@ public class Bow extends Use {
     }
 
     public void drawBowstring() {
-        GameEntity bow = projectileInfoList.stream().findFirst().get().getMuzzleEntity();
+        ProjectileInfo first = projectileInfoList.stream().findFirst().orElse(null);
+        if (first == null || first.getMuzzle() == null) {
+            return;
+        }
+        Muzzle muzzle = first.getMuzzle();
         if (bowString.hasParent()) {
             bowString.detachSelf();
         }
-        bow.getMesh().attachChild(bowString);
+        muzzle.getMuzzleEntity().getMesh().attachChild(bowString);
         bowString.detachChildren();
-        if(upper!=null&&lower!=null&&middle!=null) {
+        if (upper != null && lower != null && middle != null) {
             if (loaded) {
                 Line line1 = new Line(upper.x, upper.y, middle.x, middle.y, 1f, ResourceManager.getInstance().vbom);
                 line1.setColor(Color.WHITE);
@@ -105,14 +109,9 @@ public class Bow extends Use {
         }
     }
 
-    public void setArrows(Map<ProjectileInfo, GameGroup> arrows) {
-        this.arrows = arrows;
-    }
-
     public List<ProjectileInfo> getProjectileInfoList() {
         return projectileInfoList;
     }
-
 
     public void onArrowsReleased() {
         for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
@@ -120,10 +119,11 @@ public class Bow extends Use {
         }
         this.loading = true;
         this.loaded = false;
-       startReloading();
+        startReloading();
         drawBowstring();
     }
-    public void startReloading(){
+
+    public void startReloading() {
         this.loading = true;
         this.loadingTimer = 0;
     }
@@ -131,7 +131,6 @@ public class Bow extends Use {
     public boolean isLoaded() {
         return loaded;
     }
-
 
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
@@ -149,10 +148,10 @@ public class Bow extends Use {
 
     private void loadArrows(WorldFacade worldFacade) {
         this.arrows = new HashMap<>();
-        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).allMatch(entity -> entity != null && entity.getBody() != null);
+        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getMuzzleEntity() != null && muzzle.getMuzzleEntity().getBody() != null);
         if (allBodiesReady) {
             for (ProjectileInfo projectileInfo : projectileInfoList) {
-                if (projectileInfo.getMuzzleEntity().getBody() != null) {
+                if (projectileInfo.getMuzzle().getMuzzleEntity().getBody() != null) {
                     this.createArrow(projectileInfo, worldFacade.getPhysicsScene());
                 }
             }
@@ -161,20 +160,19 @@ public class Bow extends Use {
         }
     }
 
-
     private void fire(int index) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
 
         GameGroup arrowGroup = Objects.requireNonNull(arrows.get(projectileInfo));
-        GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
-        if (projectileInfo.getMuzzleEntity().getBody() == null || arrowGroup.getGameEntityByIndex(0).getBody() == null) {
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        if (muzzleEntity.getBody() == null || arrowGroup.getGameEntityByIndex(0).getBody() == null) {
             return;
         }
 
         muzzleEntity.getBody().getJointList().forEach(jointEdge -> {
             Body bodyA = jointEdge.joint.getBodyA();
             Body bodyB = jointEdge.joint.getBodyB();
-            if (bodyA == muzzleEntity.getBody() && arrowGroup.getEntities().stream().map(EntityWithBody::getBody).anyMatch(e -> e == bodyB)) {
+            if (bodyA == muzzleEntity.getBody() && arrowGroup.getEntities().stream().map(GameEntity::getBody).anyMatch(e -> e == bodyB)) {
                 Invoker.addJointDestructionCommand(muzzleEntity.getParentGroup(), jointEdge.joint);
             }
         });
@@ -229,7 +227,7 @@ public class Bow extends Use {
                  SAXException e) {
             return;
         }
-        GameEntity bowBodyEntity = projectileInfo.getMuzzleEntity();
+        GameEntity bowBodyEntity = projectileInfo.getMuzzle().getMuzzleEntity();
         Vector2 begin = projectileInfo.getProjectileOrigin();
         Vector2 end = projectileInfo.getProjectileEnd();
         Vector2 localDir = end.cpy().sub(projectileInfo.getProjectileOrigin()).nor();
@@ -242,13 +240,13 @@ public class Bow extends Use {
         projectileFilter.groupIndex = bowBodyEntity.getGroupIndex();
 
 
-        for(int i=0;i<arrowModel.getBodies().size();i++){
+        for (int i = 0; i < arrowModel.getBodies().size(); i++) {
             BodyModel bodyModel = arrowModel.getBodies().get(i);
-            if(i==0){
+            if (i == 0) {
                 //this is the main arrow body
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT,OBJECT).angle(worldAngle).isBullet(true).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT).angle(worldAngle).isBullet(true).build());
             } else {
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT,OBJECT).angle(worldAngle).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT).angle(worldAngle).build());
             }
         }
         JointModel jointModel = new JointModel(arrowModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
@@ -292,7 +290,6 @@ public class Bow extends Use {
         } else return null;
     }
 
-
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
         projectileInfoList.forEach(projectileInfo -> {
@@ -311,21 +308,19 @@ public class Bow extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-       if(ratio<0.9f){
-           return false;
-       }
-       projectileInfoList.forEach(projectileInfo -> {
-           projectileInfo.setMuzzleEntity(heir);
-       });
-       return true;
+        return !(ratio < 0.9f);
     }
 
     public Map<ProjectileInfo, GameGroup> getArrows() {
         return arrows;
     }
 
+    public void setArrows(Map<ProjectileInfo, GameGroup> arrows) {
+        this.arrows = arrows;
+    }
+
     public void onBowReleased() {
-        if(arrows!=null) {
+        if (arrows != null) {
             this.arrows.clear();
         }
         this.loaded = false;

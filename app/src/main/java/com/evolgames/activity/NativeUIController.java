@@ -20,10 +20,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class NativeUIController implements INativeUIController {
-    private  MainScene mainScene;
     private final GameActivity gameActivity;
+    private MainScene mainScene;
 
-    NativeUIController( GameActivity gameActivity) {
+    NativeUIController(GameActivity gameActivity) {
         this.gameActivity = gameActivity;
     }
 
@@ -49,17 +49,17 @@ public class NativeUIController implements INativeUIController {
     @Override
     public void onTouchHoldButtonSwitched(PlayUIFragment.TouchHoldState touchHoldState) {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
-      switch (touchHoldState){
-          case TOUCH:
-              playScene.setPlayerAction(PlayerAction.Drag);
-              break;
-          case SELECT:
-              playScene.setPlayerAction(PlayerAction.Select);
-              break;
-          case HOLD:
-              playScene.setPlayerAction(PlayerAction.Hold);
-              break;
-      }
+        switch (touchHoldState) {
+            case TOUCH:
+                playScene.setPlayerAction(PlayerAction.Drag);
+                break;
+            case SELECT:
+                playScene.setPlayerAction(PlayerAction.Select);
+                break;
+            case HOLD:
+                playScene.setPlayerAction(PlayerAction.Hold);
+                break;
+        }
     }
 
     @Override
@@ -81,6 +81,7 @@ public class NativeUIController implements INativeUIController {
             gameUIFragment.reset();
         });
     }
+
     @Override
     public void resetSelectButton() {
         gameActivity.runOnUiThread(() -> {
@@ -88,6 +89,7 @@ public class NativeUIController implements INativeUIController {
             gameUIFragment.resetSelectButton();
         });
     }
+
     @Override
     public void resetUI() {
         gameActivity.runOnUiThread(() -> {
@@ -124,10 +126,10 @@ public class NativeUIController implements INativeUIController {
                 ItemMetaData itemMetaData = new ItemMetaData();
                 itemMetaData.setFileName(res.get().getFileName());
                 itemMetaData.setUserCreated(res.get().isUserCreated());
-                itemMetaData.setToolName(BuildConfig.DEBUG?res.get().getName():"Anonymous");
+                itemMetaData.setToolName(BuildConfig.DEBUG ? res.get().getName() : "Anonymous");
                 itemMetaData.setItemCategory(res.get().getItemCategory());
                 ResourceManager.getInstance().setEditorItem(itemMetaData);
-                mainScene.saveStringToPreferences("saved_tool_filename",XmlHelper.convertToXmlFormat(itemMetaData.getName()));
+                mainScene.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(itemMetaData.getName()));
                 mainScene.goToScene(SceneType.EDITOR);
             }
         });
@@ -139,14 +141,14 @@ public class NativeUIController implements INativeUIController {
             ItemMetaData newItemMetaData = new ItemMetaData();
             newItemMetaData.setToolName(itemNameText);
             newItemMetaData.setItemCategory(ItemCategory.fromName(itemTypeText));
-            if(!itemTemplateText.isEmpty()) {
+            if (!itemTemplateText.isEmpty()) {
                 Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
                         .filter(e -> e.getName().equalsIgnoreCase(itemTemplateText)).findFirst();
                 res.ifPresent(itemMetaData -> newItemMetaData.setTemplateFilename(res.get().getFileName()));
                 newItemMetaData.setUserCreated(res.get().isUserCreated());
             }
             ResourceManager.getInstance().setEditorItem(newItemMetaData);
-            mainScene.saveStringToPreferences("saved_tool_filename",  XmlHelper.convertToXmlFormat(newItemMetaData.getName()) );
+            mainScene.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(newItemMetaData.getName()));
             mainScene.goToScene(SceneType.EDITOR);
         });
     }
@@ -165,6 +167,6 @@ public class NativeUIController implements INativeUIController {
 
     @Override
     public void onItemSaved() {
-     this.fillItemsMap();
+        this.fillItemsMap();
     }
 }

@@ -22,6 +22,8 @@ import com.evolgames.entities.usage.Drag;
 import com.evolgames.entities.usage.FlameThrower;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.MeleeUse;
+import com.evolgames.entities.usage.MotorControl;
+import com.evolgames.entities.usage.Muzzle;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
@@ -41,6 +43,7 @@ import java.util.Objects;
 public class SceneSerializer {
 
     private List<GameGroupSerializer> gameGroupSerializers;
+    public static Map<String, JointBlock> mainJointBlocks = new HashMap<>();
     private Hand hand;
     private WorldFacadeSerializer worldFacadeSerializer;
     private PlayerAction playerAction;
@@ -76,6 +79,21 @@ public class SceneSerializer {
         }
         rocket.setRocketBodyGameEntity(GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId()));
         rocket.createFireSources(scene.getWorldFacade());
+    }
+
+    private static void resetMuzzles(List<ProjectileInfo> list) {
+        for (ProjectileInfo projectileInfo : list) {
+            GameEntity muzzleEntity = GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId());
+            if (muzzleEntity != null) {
+                Muzzle muzzle = muzzleEntity.getUseList().stream().filter(e -> e instanceof Muzzle)
+                        .map(e -> (Muzzle) e).filter(e -> Objects.equals(e.getProjectileInfoUniqueId(), projectileInfo.getProjectileInfoUniqueId()))
+                        .findFirst().orElse(null);
+                if (muzzle != null) {
+                    muzzle.setMuzzleEntity(muzzleEntity);
+                    projectileInfo.setMuzzle(muzzle);
+                }
+            }
+        }
     }
 
     public void create(PhysicsScene<?> scene) {
@@ -119,6 +137,7 @@ public class SceneSerializer {
     }
 
     public void afterCreate(PhysicsScene<?> scene) {
+        //reset the non colliding pairs
         this.worldFacadeSerializer
                 .getNonCollidingPairs()
                 .forEach(
@@ -127,7 +146,7 @@ public class SceneSerializer {
                             GameEntity entity2 = GameEntitySerializer.entities.get(p.second);
                             scene.getWorldFacade().addNonCollidingPair(entity1, entity2);
                         });
-
+        //reset the joint blocks
         Map<String, List<JointBlock>> jointBlockMap = new HashMap<>();
         for (GameGroup gameGroup : scene.getGameGroups()) {
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
@@ -143,6 +162,7 @@ public class SceneSerializer {
                                 jointBlockMap.put(jointBlock.getJointUniqueId(), list);
                             } else {
                                 List<JointBlock> list = jointBlockMap.get(jointBlock.getJointUniqueId());
+                                assert list != null;
                                 list.add(jointBlock);
                             }
                         }
@@ -156,6 +176,7 @@ public class SceneSerializer {
                     continue;
                 }
                 JointBlock mainBlock = pair.get(0);
+                mainJointBlocks.put(mainBlock.getJointUniqueId(),mainBlock);
                 mainBlock.setBrother(pair.get(1));
                 mainBlock.getBrother().setBrother(mainBlock);
 
@@ -186,19 +207,13 @@ public class SceneSerializer {
     private void reloadGameEntityUses(PhysicsScene<?> scene, GameEntity gameEntity) {
         if (gameEntity.hasUsage(Shooter.class)) {
             Shooter shooter = gameEntity.getUsage(Shooter.class);
-            for (ProjectileInfo projectileInfo : shooter.getProjectileInfoList()) {
-                projectileInfo.setMuzzleEntity(
-                        GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
-            }
+            resetMuzzles(shooter.getProjectileInfoList());
             shooter.fillMissileModels();
             shooter.createFireSources(scene.getWorldFacade());
         }
         if (gameEntity.hasUsage(RocketLauncher.class)) {
             RocketLauncher rocketLauncher = gameEntity.getUsage(RocketLauncher.class);
-            for (ProjectileInfo projectileInfo : rocketLauncher.getProjectileInfoList()) {
-                projectileInfo.setMuzzleEntity(
-                        GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
-            }
+            resetMuzzles(rocketLauncher.getProjectileInfoList());
             Map<ProjectileInfo, Rocket> rocketsMap = new HashMap<>();
             rocketLauncher.getProjectileInfoList().forEach(projectileInfo -> {
                 GameEntity rocketEntity = GameEntitySerializer.entities.get(projectileInfo.getRocketEntityUniqueId());
@@ -214,10 +229,7 @@ public class SceneSerializer {
 
         if (gameEntity.hasUsage(Bow.class)) {
             Bow bow = gameEntity.getUsage(Bow.class);
-            for (ProjectileInfo projectileInfo :  bow.getProjectileInfoList()) {
-                projectileInfo.setMuzzleEntity(
-                        GameEntitySerializer.entities.get(projectileInfo.getMuzzleEntityUniqueId()));
-            }
+            resetMuzzles(bow.getProjectileInfoList());
             Map<ProjectileInfo, GameGroup> arrowsMap = new HashMap<>();
             bow.getProjectileInfoList().forEach(projectileInfo -> {
                 GameGroup arrowGroup = GameGroupSerializer.groups.get(projectileInfo.getArrowGroupUniqueId());
@@ -228,7 +240,6 @@ public class SceneSerializer {
             bow.setArrows(arrowsMap);
             bow.drawBowstring();
         }
-
 
 
         if (gameEntity.hasUsage(LiquidContainer.class)) {
@@ -267,6 +278,10 @@ public class SceneSerializer {
                 bombInfo.setCarrierEntity(
                         GameEntitySerializer.entities.get(bombInfo.getCarrierEntityUniqueId()));
             }
+        }
+        if (gameEntity.hasUsage(MotorControl.class)) {
+            MotorControl motorControl = gameEntity.getUsage(MotorControl.class);
+           motorControl.setJointBlock(SceneSerializer.mainJointBlocks.get(motorControl.getJointBlockUniqueId()));
         }
     }
 }

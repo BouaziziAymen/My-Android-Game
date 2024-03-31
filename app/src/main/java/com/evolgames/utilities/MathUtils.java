@@ -36,10 +36,10 @@ public class MathUtils {
     private static final int SIN_BITS = 13; // Adjust for accuracy.
     private static final int SIN_MASK = ~(-1 << MathUtils.SIN_BITS);
     private static final int SIN_COUNT = MathUtils.SIN_MASK + 1;
+    private static final float degToIndex = MathUtils.SIN_COUNT / MathUtils.degFull;
     private static final float radFull = MathUtils.PI * 2;
     private static final float radToIndex = MathUtils.SIN_COUNT / MathUtils.radFull;
     private static final float degFull = 360;
-    private static final float degToIndex = MathUtils.SIN_COUNT / MathUtils.degFull;
     private static final int ATAN2_BITS = 7; // Adjust for accuracy.
     private static final int ATAN2_BITS2 = MathUtils.ATAN2_BITS << 1;
     private static final int ATAN2_MASK = ~(-1 << MathUtils.ATAN2_BITS2);

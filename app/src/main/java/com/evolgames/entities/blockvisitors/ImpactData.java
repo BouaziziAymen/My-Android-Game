@@ -25,12 +25,12 @@ public class ImpactData {
         this.impactImpulse = impactImpulse;
     }
 
-    public void setInner(boolean inner) {
-        this.inner = inner;
-    }
-
     public boolean isInner() {
         return inner;
+    }
+
+    public void setInner(boolean inner) {
+        this.inner = inner;
     }
 
     public Vector2 getLocalImpactPoint() {
@@ -73,11 +73,11 @@ public class ImpactData {
         this.gameEntity = gameEntity;
     }
 
-    public void setDistanceFromSource(float distanceFromSource) {
-        this.distanceFromSource = distanceFromSource;
-    }
-
     public float getDistanceFromSource() {
         return distanceFromSource;
+    }
+
+    public void setDistanceFromSource(float distanceFromSource) {
+        this.distanceFromSource = distanceFromSource;
     }
 }

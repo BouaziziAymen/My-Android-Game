@@ -22,7 +22,7 @@ public class JointModel extends ProperModel<JointProperties> {
 
 
     public JointModel(int jointId, JointDef.JointType jointType, JointShape jointShape) {
-        super("Joint"+jointId);
+        super("Joint" + jointId);
         this.jointShape = jointShape;
         this.jointId = jointId;
         this.properties = new JointProperties();
@@ -30,7 +30,7 @@ public class JointModel extends ProperModel<JointProperties> {
     }
 
     public JointModel(int jointId, JointDef.JointType jointType) {
-        super("Joint"+jointId);
+        super("Joint" + jointId);
         this.jointId = jointId;
         this.properties = new JointProperties();
         this.properties.setJointType(jointType);
@@ -68,8 +68,8 @@ public class JointModel extends ProperModel<JointProperties> {
         Vector2 u1 = properties.getLocalAnchorA().cpy().sub(center1).mul(1 / 32f);
         Vector2 u2 = properties.getLocalAnchorB().cpy().sub(center2).mul(1 / 32f);
         if (mirrored) {
-           u1 = GeometryUtils.mirrorPoint(u1);
-           u2 = GeometryUtils.mirrorPoint(u2);
+            u1 = GeometryUtils.mirrorPoint(u1);
+            u2 = GeometryUtils.mirrorPoint(u2);
         }
         switch (properties.getJointType()) {
             case Unknown:
@@ -81,12 +81,11 @@ public class JointModel extends ProperModel<JointProperties> {
                 revoluteJointDef.collideConnected = properties.isCollideConnected();
 
 
-
                 revoluteJointDef.enableLimit = properties.isEnableLimit();
 
                 revoluteJointDef.lowerAngle = properties.getLowerAngle();
                 revoluteJointDef.upperAngle = properties.getUpperAngle();
-                if(mirrored) {
+                if (mirrored) {
                     revoluteJointDef.motorSpeed = -properties.getMotorSpeed();
                 } else {
                     revoluteJointDef.motorSpeed = properties.getMotorSpeed();
@@ -103,10 +102,10 @@ public class JointModel extends ProperModel<JointProperties> {
                 prismaticJointDef.lowerTranslation = properties.getLowerTranslation();
                 prismaticJointDef.upperTranslation = properties.getUpperTranslation();
                 Vector2 localAxis1 = properties.getLocalAxis1();
-                if(mirrored){
-                    prismaticJointDef.localAxis1.set(-localAxis1.x,localAxis1.y);
+                if (mirrored) {
+                    prismaticJointDef.localAxis1.set(-localAxis1.x, localAxis1.y);
                 } else {
-                    prismaticJointDef.localAxis1.set(localAxis1.x,localAxis1.y);
+                    prismaticJointDef.localAxis1.set(localAxis1.x, localAxis1.y);
                 }
                 prismaticJointDef.enableLimit = properties.isEnableLimit();
                 prismaticJointDef.motorSpeed = properties.getMotorSpeed();

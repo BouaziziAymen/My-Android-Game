@@ -191,12 +191,14 @@ public class ImageShape extends Container {
         updateHeight(disX * ratio);
     }
 
-    public float getWidth(){
+    public float getWidth() {
         return sketchSprite.getWidth();
     }
-    public float getHeight(){
+
+    public float getHeight() {
         return sketchSprite.getHeight();
     }
+
     public float getRotation() {
         return this.sketchSprite.getRotation();
     }

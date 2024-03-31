@@ -80,6 +80,7 @@ public class DragShape extends AngleIndicator implements MovablesContainer {
         this.updateZoom(scene.getUserInterface().getZoomFactor());
         editorUserInterface.setUpdated(true);
     }
+
     @Override
     public void updateZoom(float zoom) {
         super.updateZoom(zoom);

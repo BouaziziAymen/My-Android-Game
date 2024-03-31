@@ -8,7 +8,6 @@ import com.evolgames.userinterface.view.Colors;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.shapes.indicators.AngleIndicator;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
-import com.evolgames.utilities.MathUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +80,7 @@ public class RevoluteJointShape extends JointShape {
     }
 
 
-
-@Override
+    @Override
     public void onBeginPointMoved(float x, float y) {
         super.onBeginPointMoved(x, y);
         referenceAngleIndicator.updateBegin(x, y);
@@ -99,7 +97,7 @@ public class RevoluteJointShape extends JointShape {
         if (!moveLimits) {
             result.addAll(super.getMovables(false));
         } else {
-            if(limitsShown) {
+            if (limitsShown) {
                 result.add(upperAngleIndicator.getLimit());
                 result.add(lowerAngleIndicator.getLimit());
                 result.add(referenceAngleIndicator.getLimit());
@@ -113,7 +111,7 @@ public class RevoluteJointShape extends JointShape {
                 (lowerAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
         editorUserInterface
                 .getJointSettingsWindowController()
-                .setRevoluteLowerAngle(angle/360f);
+                .setRevoluteLowerAngle(angle / 360f);
     }
 
     public void onUpperIndicatorTurned() {
@@ -121,7 +119,7 @@ public class RevoluteJointShape extends JointShape {
                 (upperAngleIndicator.getAngleInDegrees() - referenceAngleIndicator.getAngleInDegrees());
         editorUserInterface
                 .getJointSettingsWindowController()
-                .setRevoluteUpperAngle(angle/360f);
+                .setRevoluteUpperAngle(angle / 360f);
     }
 
     public void onReferenceIndicatorTurned(float dA) {

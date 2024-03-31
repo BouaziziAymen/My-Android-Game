@@ -77,14 +77,14 @@ public class FlameThrower extends Use {
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
         fireSourceInfoList.forEach(fireSourceInfo -> {
             fireSourceInfo.getFireSourceOrigin().set(GeometryUtils.mirrorPoint(fireSourceInfo.getFireSourceOrigin()));
-            fireSourceInfo.getFireDirection().x = - fireSourceInfo.getFireDirection().x;
+            fireSourceInfo.getFireDirection().x = -fireSourceInfo.getFireDirection().x;
         });
         createFireSources(physicsScene.getWorldFacade());
     }
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if(ratio<0.9f){
+        if (ratio < 0.9f) {
             return false;
         }
         this.fireSourceInfoList.forEach(fireSourceInfo -> {

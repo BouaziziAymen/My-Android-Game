@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 
 public class JointProperties extends Properties {
+    private final Vector2 localAnchorA = new Vector2();
+    private final Vector2 localAnchorB = new Vector2();
+    private final Vector2 localAxis1 = new Vector2();
     private JointDef.JointType jointType;
     private boolean collideConnected;
     // distance
@@ -26,10 +29,6 @@ public class JointProperties extends Properties {
     private float lowerTranslation;
     private float upperTranslation;
     private float maxMotorForce;
-
-    private final Vector2 localAnchorA = new Vector2();
-    private final Vector2 localAnchorB = new Vector2();
-    private final Vector2 localAxis1 = new Vector2();
 
     public Vector2 getLocalAnchorA() {
         return localAnchorA;

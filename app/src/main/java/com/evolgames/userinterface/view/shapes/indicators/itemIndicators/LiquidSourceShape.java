@@ -20,13 +20,6 @@ public class LiquidSourceShape extends AngleIndicator implements MovablesContain
     private LiquidSourceModel model;
     private float extent;
 
-    @Override
-    public void updateZoom(float zoom) {
-        super.updateZoom(zoom);
-        this.extentPoint.updateZoom(zoom);
-        this.originPoint.updateZoom(zoom);
-    }
-
     public LiquidSourceShape(Vector2 begin, EditorScene scene) {
         super(begin, scene, 32, 1);
 
@@ -68,6 +61,13 @@ public class LiquidSourceShape extends AngleIndicator implements MovablesContain
         this.editorUserInterface.addElement(extentPoint);
         updateZoom(this.editorUserInterface.getZoomFactor());
         editorUserInterface.setUpdated(true);
+    }
+
+    @Override
+    public void updateZoom(float zoom) {
+        super.updateZoom(zoom);
+        this.extentPoint.updateZoom(zoom);
+        this.originPoint.updateZoom(zoom);
     }
 
     @Override

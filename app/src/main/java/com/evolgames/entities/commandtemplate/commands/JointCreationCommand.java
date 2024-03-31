@@ -1,8 +1,7 @@
 package com.evolgames.entities.commandtemplate.commands;
 
 
-import android.util.Log;
-
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
@@ -33,6 +32,8 @@ public class JointCreationCommand extends Command {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Joint joint = physicsWorld.createJoint(jointDef);
         joint.setUserData(this.mainBlock);
+        this.mainBlock.setJoint(joint);
+        this.mainBlock.getBrother().setJoint(joint);
         if (joint instanceof MouseJoint) {
             Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
         }
@@ -42,7 +43,11 @@ public class JointCreationCommand extends Command {
     protected boolean isReady() {
         jointDef.bodyA = entity1.getBody();
         jointDef.bodyB = entity2.getBody();
-        return isBodyAlive(jointDef.bodyA) && isBodyAlive(jointDef.bodyB);
+        return isJointDefReady(jointDef.bodyA,jointDef.bodyB);
+    }
+
+    public static boolean isJointDefReady(Body bodyA, Body bodyB) {
+        return isBodyAlive(bodyA) && isBodyAlive(bodyB);
     }
 
 }

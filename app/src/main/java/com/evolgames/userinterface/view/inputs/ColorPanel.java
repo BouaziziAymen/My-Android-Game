@@ -7,8 +7,6 @@ import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 import com.evolgames.userinterface.view.layouts.BoxLayout;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class ColorPanel extends Panel {
     public static int N = 6;
     public static int NUMBER_SQUARES = 8;
@@ -36,7 +34,7 @@ public class ColorPanel extends Panel {
         Button<ColorSelectorWindowController> square =
                 new Button<>(
                         ResourceManager.getInstance().squareTextureRegion, Button.ButtonType.Selector, false);
-        square.setBounds(new RectangularBounds(square,20,20));
+        square.setBounds(new RectangularBounds(square, 20, 20));
         colorsLayout.addToLayout(square);
         square.setColor(pRed, pGreen, pBlue);
         square.setBehavior(

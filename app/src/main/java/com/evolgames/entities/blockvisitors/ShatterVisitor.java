@@ -32,7 +32,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
 
     private void processBlock(LayerBlock layerBlock, boolean isFirst) {
         float pulverizationImpulse;
-        if (layerBlock.getBlockArea()< 5 *MINIMUM_STABLE_SPLINTER_AREA&&availableImpulse > (pulverizationImpulse=calculatePulverizationImpulse(layerBlock))) {
+        if (layerBlock.getBlockArea() < 5 * MINIMUM_STABLE_SPLINTER_AREA && availableImpulse > (pulverizationImpulse = calculatePulverizationImpulse(layerBlock))) {
             layerBlock.setAborted(true);
             layerBlock
                     .getBlockGrid()

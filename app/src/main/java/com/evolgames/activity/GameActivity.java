@@ -178,8 +178,8 @@ public class GameActivity extends BaseGameActivity {
         this.mainScene = new MainScene(this.camera);
         this.uiController.setMainScene(this.mainScene);
         String saved = this.mainScene.loadStringFromPreferences("saved_tool_filename");
-        this.mainScene.saveStringToPreferences("SCENE","MENU");
-        if(!saved.isEmpty()) {
+        this.mainScene.saveStringToPreferences("SCENE", "MENU");
+        if (!saved.isEmpty()) {
             ItemMetaData item = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
                     .filter(e -> e.getFileName().equals(saved)).findFirst().orElse(null);
             ResourceManager.getInstance().setEditorItem(item);

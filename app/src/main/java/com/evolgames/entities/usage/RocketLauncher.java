@@ -1,6 +1,5 @@
 package com.evolgames.entities.usage;
 
-import static com.evolgames.entities.usage.Rocket.FORCE_FACTOR;
 import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
@@ -115,11 +114,11 @@ public class RocketLauncher extends Use {
 
     private void loadRockets(WorldFacade worldFacade) {
         this.rockets = new HashMap<>();
-        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzleEntity).allMatch(entity -> entity != null && entity.getBody() != null);
+        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getMuzzleEntity() != null && muzzle.getMuzzleEntity().getBody() != null);
         if (allBodiesReady) {
             initialized = true;
             for (ProjectileInfo projectileInfo : projectileInfoList) {
-                if (projectileInfo.getMuzzleEntity().getBody() != null) {
+                if (projectileInfo.getMuzzle().getMuzzleEntity().getBody() != null) {
                     this.createRocket(projectileInfo, worldFacade.getPhysicsScene());
                 }
             }
@@ -137,7 +136,7 @@ public class RocketLauncher extends Use {
         if (rocketEntity.getBody() == null) {
             return;
         }
-        if(rocketEntity.hasUsage(Bomb.class)){
+        if (rocketEntity.hasUsage(Bomb.class)) {
             Bomb bomb = rocketEntity.getUsage(Bomb.class);
             bomb.setHasSafety(false);
         }
@@ -148,7 +147,7 @@ public class RocketLauncher extends Use {
             }
         });
 
-        GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
 
         muzzleEntity.getBody().getJointList().forEach(jointEdge -> {
             Body bodyA = jointEdge.joint.getBodyA();
@@ -195,7 +194,7 @@ public class RocketLauncher extends Use {
                  SAXException e) {
             return;
         }
-        GameEntity muzzleEntity = projectileInfo.getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
 
         Vector2 end = projectileInfo.getProjectileEnd();
         Vector2 localDir = end.cpy().sub(projectileInfo.getProjectileOrigin()).nor();
@@ -247,7 +246,7 @@ public class RocketLauncher extends Use {
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
         physicsScene.sortChildren();
 
-        if(rocketEntity.hasUsage(Bomb.class)){
+        if (rocketEntity.hasUsage(Bomb.class)) {
             Bomb bomb = rocketEntity.getUsage(Bomb.class);
             bomb.setHasSafety(true);
         }
@@ -277,7 +276,7 @@ public class RocketLauncher extends Use {
                                 ExplosiveParticleWrapper fireSource =
                                         worldFacade
                                                 .createFireSource(
-                                                        p.getMuzzleEntity(),
+                                                        p.getMuzzle().getMuzzleEntity(),
                                                         e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                         e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                         -100f,
@@ -310,9 +309,6 @@ public class RocketLauncher extends Use {
         if (ratio < 0.9f) {
             return false;
         }
-        this.projectileInfoList.forEach(projectileInfo -> {
-            projectileInfo.setMuzzleEntity(heir);
-        });
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

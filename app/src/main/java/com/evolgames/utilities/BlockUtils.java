@@ -704,7 +704,7 @@ public class BlockUtils {
 
             Cut cut =
                     BlockUtils.generateCutCorrected(block.getVertices(), center, extremity1, extremity2);
-            if (cut != null && cut.isValid(block.getVertices())){
+            if (cut != null && cut.isValid(block.getVertices())) {
                 candidates.add(cut);
             }
         }

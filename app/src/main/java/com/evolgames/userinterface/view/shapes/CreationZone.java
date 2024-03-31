@@ -19,11 +19,10 @@ public class CreationZone {
     }
 
 
-
     public Vector2 applyMagnet(float x, float y) {
         for (ReferencePointImage referencePointImage : referencePointImageArrayList) {
             Vector2 v = referencePointImage.getPoint();
-            if (v.dst(x, y) < 32){
+            if (v.dst(x, y) < 32) {
                 return v;
             }
         }

@@ -14,8 +14,6 @@ import androidx.fragment.app.Fragment;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.gameengine.R;
 
-import java.util.Objects;
-
 public class MenuUIFragment extends Fragment {
 
     public MenuUIFragment() {
@@ -38,20 +36,23 @@ public class MenuUIFragment extends Fragment {
         mottoView.startAnimation(fadeIn);
         fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {}
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-               mottoView.startAnimation(fadeOut);
+            public void onAnimationStart(Animation animation) {
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationEnd(Animation animation) {
+                mottoView.startAnimation(fadeOut);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
 
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {}
+            public void onAnimationStart(Animation animation) {
+            }
 
             @Override
             public void onAnimationEnd(Animation animation) {
@@ -60,7 +61,8 @@ public class MenuUIFragment extends Fragment {
             }
 
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {
+            }
         });
 
         return fragment;

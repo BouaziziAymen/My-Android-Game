@@ -6,20 +6,39 @@ import static com.evolgames.scenes.PlayScene.pause;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.init.BodyInit;
+import com.evolgames.entities.properties.BodyUsageCategory;
+import com.evolgames.entities.properties.usage.BowProperties;
+import com.evolgames.entities.properties.usage.MotorControlProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
+import com.evolgames.entities.usage.Bow;
+import com.evolgames.entities.usage.Drag;
+import com.evolgames.entities.usage.FlameThrower;
+import com.evolgames.entities.usage.Heavy;
+import com.evolgames.entities.usage.ImpactBomb;
+import com.evolgames.entities.usage.LiquidContainer;
+import com.evolgames.entities.usage.Missile;
+import com.evolgames.entities.usage.MotorControl;
+import com.evolgames.entities.usage.Rocket;
+import com.evolgames.entities.usage.RocketLauncher;
+import com.evolgames.entities.usage.Shooter;
+import com.evolgames.entities.usage.Slasher;
+import com.evolgames.entities.usage.Smasher;
+import com.evolgames.entities.usage.Stabber;
+import com.evolgames.entities.usage.Throw;
+import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.BodyModel;
@@ -62,7 +81,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         Invoker.setScene(this);
     }
 
-    private static void setupModels(ArrayList<BodyModel> bodies) {
+    private static void setupSpecialModels(ArrayList<BodyModel> bodies) {
         List<DragModel> dragModels =
                 bodies.stream()
                         .map(BodyModel::getDragModels)
@@ -171,7 +190,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                             .createGameEntity(
                                     (_init.getX() + center.x - 400) / 32F,
                                     (_init.getY() + center.y - 240) / 32F,
-                                   0,
+                                    0,
                                     mirrored,
                                     bodyInit,
                                     blocks,
@@ -182,35 +201,130 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             gameEntity.setCenter(center);
             gameEntity.setZIndex(index++);
         }
-        // Handle usage
-        setupModels(bodies);
-        bodies.forEach(b -> b.setupUsages(this,b.getGameEntity().getCenter(), mirrored));
         // Create game group
         GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
         this.addGameGroup(gameGroup);
-        this.sortChildren();
+        // Handle usage
+        setupSpecialModels(bodies);
         // Create joints
+        List<JointBlock> mainJointBlocks = new ArrayList<>();
         for (JointModel jointModel : joints) {
-            createJointFromModel(jointModel, mirrored);
+            JointBlock mainJointBlock = createJointFromModel(jointModel, mirrored);
+            mainJointBlocks.add(mainJointBlock);
         }
+        setupUsages(bodies, mainJointBlocks,this, mirrored);
+
+        this.sortChildren();
+
         return gameGroup;
     }
 
-    public void createJointFromModel(JointModel jointModel, boolean mirrored) {
+
+    public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene<?> physicsScene, boolean mirrored) {
+        bodies.forEach(bodyModel -> {
+            Vector2 center = bodyModel.getGameEntity().getCenter();
+            bodyModel.getDragModels().forEach(dragModel -> {
+                Drag drag = new Drag(dragModel, mirrored);
+                bodyModel.getGameEntity().getUseList().add(drag);
+            });
+            bodyModel.getUsageModels()
+                    .forEach(
+                            e -> {
+                                switch (e.getType()) {
+                                    case HEAVY:
+                                        Heavy heavy = new Heavy();
+                                        bodyModel.getGameEntity().getUseList().add(heavy);
+                                        break;
+                                    case SHOOTER:
+                                    case SHOOTER_CONTINUOUS:
+                                        boolean isHeavy = bodyModel.getUsageModels().stream().anyMatch(u -> u.getType() == BodyUsageCategory.HEAVY);
+                                        Shooter shooter = new Shooter(e, physicsScene, isHeavy, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(shooter);
+                                        break;
+                                    case BOW:
+                                        BowProperties bowProperties = (BowProperties) e.getProperties();
+                                        if (bowProperties.getUpper() != null && bowProperties.getMiddle() != null && bowProperties.getLower() != null) {
+                                            bowProperties.getUpper().sub(center);
+                                            bowProperties.getMiddle().sub(center);
+                                            bowProperties.getLower().sub(center);
+                                        }
+                                        Bow bow = new Bow(e, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(bow);
+                                        break;
+                                    case TIME_BOMB:
+                                        TimeBomb timeBomb = new TimeBomb(e, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(timeBomb);
+                                        break;
+                                    case IMPACT_BOMB:
+                                        ImpactBomb impactBomb = new ImpactBomb(e, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(impactBomb);
+                                        break;
+                                    case SLASHER:
+                                        Slasher slasher = new Slasher();
+                                        bodyModel.getGameEntity().getUseList().add(slasher);
+                                        break;
+                                    case BLUNT:
+                                        Smasher smasher = new Smasher();
+                                        bodyModel.getGameEntity().getUseList().add(smasher);
+                                        break;
+                                    case STABBER:
+                                        Stabber stabber = new Stabber();
+                                        bodyModel.getGameEntity().getUseList().add(stabber);
+                                        break;
+                                    case THROWING:
+                                        Throw throwable = new Throw();
+                                        bodyModel.getGameEntity().getUseList().add(throwable);
+                                        break;
+                                    case FLAME_THROWER:
+                                        FlameThrower flameThrower = new FlameThrower(e, physicsScene, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(flameThrower);
+                                        break;
+                                    case ROCKET:
+                                        Rocket rocket = new Rocket(e, physicsScene, mirrored);
+                                        rocket.setRocketBodyGameEntity(bodyModel.getGameEntity());
+                                        bodyModel.getGameEntity().getUseList().add(rocket);
+                                        break;
+                                    case MISSILE:
+                                        Missile missile = new Missile(e, physicsScene, mirrored);
+                                        missile.setRocketBodyGameEntity(bodyModel.getGameEntity());
+                                        bodyModel.getGameEntity().getUseList().add(missile);
+                                        break;
+                                    case LIQUID_CONTAINER:
+                                        LiquidContainer liquidContainer = new LiquidContainer(e, physicsScene, mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(liquidContainer);
+                                        break;
+                                    case ROCKET_LAUNCHER:
+                                        RocketLauncher rocketLauncher = new RocketLauncher(e, physicsScene.getWorldFacade(), mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(rocketLauncher);
+                                        break;
+                                    case MOTOR_CONTROL:
+                                       MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
+                                        JointBlock jointBlock = mainJointBlocks.stream().filter(j->j.getJointId()==motorControlProperties.getJointId()).findFirst().orElse(null);
+                                        MotorControl motorControl = new MotorControl(e, jointBlock,mirrored);
+                                        bodyModel.getGameEntity().getUseList().add(motorControl);
+                                        break;
+                                }
+
+                            });
+        });
+    }
+
+
+    public JointBlock createJointFromModel(JointModel jointModel, boolean mirrored) {
         BodyModel bodyModel1 = jointModel.getBodyModel1();
         BodyModel bodyModel2 = jointModel.getBodyModel2();
-        if(bodyModel1==null||bodyModel2==null){
-            return;
+        if (bodyModel1 == null || bodyModel2 == null) {
+            return null;
         }
         GameEntity entity1 = bodyModel1.getGameEntity();
         GameEntity entity2 = bodyModel2.getGameEntity();
 
         if (entity1 == null || entity2 == null) {
-            return;
+            return null;
         }
         JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter(), mirrored);
 
-        getWorldFacade().addJointToCreate(jointDef, entity1, entity2,jointModel.getJointId());
+        return getWorldFacade().addJointToCreate(jointDef, entity1, entity2, jointModel.getJointId());
     }
 
     public WorldFacade getWorldFacade() {
@@ -290,13 +404,13 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     }
 
     public GameGroup createItemFromFile(String name, float x, float y, boolean assets, boolean mirrored) {
-       ToolModel toolModel = loadToolModel(name, false, assets);
-        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x,y).filter(OBJECT,OBJECT).build()));
+        ToolModel toolModel = loadToolModel(name, false, assets);
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x, y).filter(OBJECT, OBJECT).build()));
         return createTool(toolModel, mirrored);
     }
 
     public GameGroup createItem(ToolModel toolModel, boolean mirrored) {
-        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(400f,240f).filter(OBJECT,OBJECT).build()));
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(400f, 240f).filter(OBJECT, OBJECT).build()));
         return createTool(toolModel, mirrored);
     }
 
@@ -305,7 +419,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
     }
 
     public GameGroup createItem(float x, float y, float angle, ToolModel toolModel, boolean mirrored) {
-        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit( new Init.Builder(x,y).angle(angle).filter(OBJECT,OBJECT).build()));
+        toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x, y).angle(angle).filter(OBJECT, OBJECT).build()));
         return createTool(toolModel, mirrored);
     }
 

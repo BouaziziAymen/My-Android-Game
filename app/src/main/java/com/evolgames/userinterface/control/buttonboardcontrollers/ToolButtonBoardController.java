@@ -1,6 +1,5 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
-import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;

@@ -167,7 +167,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
     public void onHomeButtonReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
-        editorUserInterface.doWithConfirm("Are you sure you want to quit?",()->{
+        editorUserInterface.doWithConfirm("Are you sure you want to quit?", () -> {
             editorUserInterface.getScene().goToScene(SceneType.MENU);
         });
     }

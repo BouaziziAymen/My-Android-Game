@@ -31,7 +31,7 @@ public class Explosion {
 
         if (fireRatio > 0.1f || smokeRatio > 0.1f || sparkRatio > 0.1f) {
             Vector2 c = center.cpy().mul(32f);
-            this.explosionParticleWrapper = this.scene.getWorldFacade().createPointFireSource(null, new float[]{c.x, c.y, c.x, c.y}, velocity, fireRatio, smokeRatio, sparkRatio, particlesRatio, 1000+1000*heatRatio, inParticleSizeRatio, finParticleSizeRatio, false);
+            this.explosionParticleWrapper = this.scene.getWorldFacade().createPointFireSource(null, new float[]{c.x, c.y, c.x, c.y}, velocity, fireRatio, smokeRatio, sparkRatio, particlesRatio, 1000 + 1000 * heatRatio, inParticleSizeRatio, finParticleSizeRatio, false);
 
         }
     }
@@ -53,7 +53,7 @@ public class Explosion {
                 impacts.forEach(i -> {
                     Vector2 p = i.getWorldPoint();
                     vector.set(p.x - center.x, p.y - center.y);
-                    float d = Math.max(i.isInner()?0.01f:3f, vector.len());
+                    float d = Math.max(i.isInner() ? 0.01f : 3f, vector.len());
                     i.setImpactImpulse(1000f * delta / (d * d));
                     i.setDistanceFromSource(d);
                     vector.mul(i.getImpactImpulse() / 2000f);

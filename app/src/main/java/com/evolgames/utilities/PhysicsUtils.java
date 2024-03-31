@@ -33,7 +33,7 @@ public class PhysicsUtils {
             float specificHeat, double gas_temperature, CoatingBlock solidCoatingBlock) {
         double tempDifference = gas_temperature - solidCoatingBlock.getTemperature();
 
-        double deltaTemperature = tempDifference / (PhysicsConstants.HEAT_CONSTANT *specificHeat);
+        double deltaTemperature = tempDifference / (PhysicsConstants.HEAT_CONSTANT * specificHeat);
 
         solidCoatingBlock.applyDeltaTemperature(deltaTemperature);
     }

@@ -1,7 +1,5 @@
 package com.evolgames.entities.commandtemplate.commands;
 
-import android.util.Log;
-
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.entities.basics.GameEntity;
@@ -36,6 +34,9 @@ public class BodyCreationCommand extends Command {
         body.setAngularDamping(DEFAULT_DAMPING);
         bodyInit.initialize(body);
         entity.createJuiceSources();
+        if(entity.isOutlined()){
+            entity.outlineEntity();
+        }
     }
 
     public GameEntity getGameEntity() {

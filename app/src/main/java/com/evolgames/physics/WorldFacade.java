@@ -150,8 +150,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8*2);
-        physicsWorld.setPositionIterations(3*2 );
+        physicsWorld.setVelocityIterations(8 * 2);
+        physicsWorld.setPositionIterations(3 * 2);
         physicsWorld.setContinuousPhysics(true);
     }
 
@@ -653,9 +653,9 @@ public class WorldFacade implements ContactObserver {
         // convection
         Collections.shuffle(flames);
         for (Fire fire : flames) {
-            Particle<UncoloredSprite>[] particles = Arrays.copyOf(fire.getFireParticleSystem().getParticles(),fire.getFireParticleSystem().getParticles().length);
+            Particle<UncoloredSprite>[] particles = Arrays.copyOf(fire.getFireParticleSystem().getParticles(), fire.getFireParticleSystem().getParticles().length);
             for (Particle<UncoloredSprite> p : particles) {
-                if (p == null || p.isExpired()){
+                if (p == null || p.isExpired()) {
                     continue;
                 }
 
@@ -749,14 +749,12 @@ public class WorldFacade implements ContactObserver {
                 (float)
                         Math.sqrt(
                                 normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
-        if(Float.isInfinite(impulseValue)){
+        if (Float.isInfinite(impulseValue)) {
             return;
         }
         if (entity1.getParentGroup() == entity2.getParentGroup()) {
             return;
         }
-        Log.e("Compare",impulseValue+"/"+this.computeCollisionImpulse(entity1.getBody().getLinearVelocity(),
-                entity2.getBody().getLinearVelocity(),        contact.getWorldManifold().getNormal(),entity1.getMass(),entity2.getMass()));
         computeShatterImpact(contact, impulseValue, entity1, entity2);
     }
 
@@ -797,7 +795,7 @@ public class WorldFacade implements ContactObserver {
                 || Float.isInfinite(penetrationPoint.y)
                 || Float.isNaN(penetrationPoint.x)
                 || Float.isNaN(penetrationPoint.y)) {
-           return;
+            return;
         }
 
 
@@ -919,7 +917,7 @@ public class WorldFacade implements ContactObserver {
         final float collisionImpulse =
                 computeCollisionImpulse(V1, V2, normal, m1, m2);
         final float collisionEnergy = computeCollisionEnergy(V1, V2, normal, m1, m2);
-        if(collisionEnergy<10||Float.isNaN(collisionEnergy)||Float.isInfinite(collisionEnergy)){
+        if (collisionEnergy < 10 || Float.isNaN(collisionEnergy) || Float.isInfinite(collisionEnergy)) {
             return false;
         }
         Log.e("Penetration",
@@ -1035,7 +1033,7 @@ public class WorldFacade implements ContactObserver {
             }
 
 
-            if (step>100) {
+            if (step > 100) {
                 break;
             }
 
@@ -1137,10 +1135,10 @@ public class WorldFacade implements ContactObserver {
         jointDef.localAnchorB.set(localB.cpy());
         jointDef.collideConnected = false;
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
-        addJointToCreate(jointDef, receiver, traveler,-2);
+        addJointToCreate(jointDef, receiver, traveler, -2);
 
         scheduleGameEntityToDestroy(traveler, 1200);
-        traveler.setZIndex(receiver.getZIndex()-1);
+        traveler.setZIndex(receiver.getZIndex() - 1);
         scene.sortChildren();
     }
 
@@ -1242,7 +1240,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void destroyGameEntity(GameEntity entity, boolean finalDestruction, boolean recycle) {
-        if (entity == null || !entity.isAlive()||entity.getBody()==null) {
+        if (entity == null || !entity.isAlive() || entity.getBody() == null) {
             return;
         }
         entity.hideOutline();
@@ -1386,9 +1384,9 @@ public class WorldFacade implements ContactObserver {
         float x2 = innerCut.second.x;
         float y2 = innerCut.second.y;
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
-        line.setColor(block.getProperties().isJuicy()?block.getProperties().getJuiceColor():Color.BLACK);
+        line.setColor(block.getProperties().isJuicy() ? block.getProperties().getJuiceColor() : Color.BLACK);
         gameEntity.getMesh().attachChild(line);
-        if(block.getProperties().isJuicy()) {
+        if (block.getProperties().isJuicy()) {
             scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
         }
     }
@@ -1502,10 +1500,10 @@ public class WorldFacade implements ContactObserver {
             float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
         int numberOfPoints =
                 (int)
-                        (5*impulse
+                        (5 * impulse
                                 / (PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity()));
 
-        numberOfPoints = Math.min(10,numberOfPoints);
+        numberOfPoints = Math.min(10, numberOfPoints);
         List<Vector2> pts =
                 Vector2Utils.generateRandomPointsInsidePolygon(
                         numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
@@ -1738,7 +1736,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
-        if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody()==null) {
+        if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody() == null) {
             return;
         }
         LayerBlock nearest =
@@ -1751,7 +1749,7 @@ public class WorldFacade implements ContactObserver {
 
     private void applyOnePointImpactToEntity(
             LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
-        if(impulse<10){
+        if (impulse < 10) {
             return;
         }
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody) {
@@ -1764,7 +1762,7 @@ public class WorldFacade implements ContactObserver {
         }
         if (gameEntity.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
-            if(impactBomb.isActive()) {
+            if (impactBomb.isActive()) {
                 if (impactBomb.getSensitiveLayers().contains(block.getId())) {
                     impactBomb.onImpact(impulse);
                 }
@@ -1823,10 +1821,10 @@ public class WorldFacade implements ContactObserver {
     public void applyImpactHeat(float heatRatio, List<ImpactData> impactData) {
         impactData.forEach(
                 impact -> {
-                  impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
-                      coatingBlock.onHeatWave(heatRatio/impact.getDistanceFromSource());
+                    impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
+                        coatingBlock.onHeatWave(heatRatio / impact.getDistanceFromSource());
 
-                  }));
+                    }));
                 });
     }
 
@@ -1920,16 +1918,6 @@ public class WorldFacade implements ContactObserver {
         layerBlock2.addAssociatedBlock(jointBlock2);
     }
 
-    public void addJointToCreate(
-            JointDef jointDef,
-            GameEntity entity1,
-            GameEntity entity2,
-            JointBlock jointBlock1,
-            JointBlock jointBlock2) {
-        this.addJointBlocks(entity1, entity2, jointBlock1, jointBlock2, jointDef);
-        Invoker.addJointCreationCommand(
-                jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
-    }
 
     public void addJointToRecreate(
             JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock jointBlock) {
@@ -1943,8 +1931,14 @@ public class WorldFacade implements ContactObserver {
                 jointBlock);
     }
 
-    public void addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
-        this.addJointToCreate(jointDef, entity1, entity2, new JointBlock(jointId), new JointBlock(jointId));
+    /** @noinspection UnusedReturnValue*/
+    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
+        JointBlock jointBlock1 =  new JointBlock(jointId);
+        JointBlock jointBlock2 = new JointBlock(jointId);
+        this.addJointBlocks(entity1, entity2, jointBlock1, jointBlock2, jointDef);
+        Invoker.addJointCreationCommand(
+                jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
+        return jointBlock1;
     }
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {

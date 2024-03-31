@@ -117,17 +117,16 @@ public class CreateItemDialog extends DialogFragment {
 
 
         EditText itemNameEditText = dialogLayout.findViewById(R.id.itemName);
-        itemNameEditText.setFilters(new InputFilter[] {(source, start, end, dest, dstart, dend) -> {
+        itemNameEditText.setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
             StringBuilder filteredStringBuilder = new StringBuilder();
             for (int i = start; i < end; i++) {
                 char currentChar = source.charAt(i);
-                if (Character.isLetterOrDigit(currentChar) ||(BuildConfig.DEBUG&&currentChar=='#') || currentChar == ' '|| currentChar == '-' || currentChar == '.' || currentChar == '_') {
+                if (Character.isLetterOrDigit(currentChar) || (BuildConfig.DEBUG && currentChar == '#') || currentChar == ' ' || currentChar == '-' || currentChar == '.' || currentChar == '_') {
                     filteredStringBuilder.append(currentChar);
                 }
             }
             return filteredStringBuilder.toString();
         }});
-
 
 
         builder.setView(dialogLayout)
@@ -150,7 +149,7 @@ public class CreateItemDialog extends DialogFragment {
             String itemTemplateText = itemTemplateAutoComplete.getText().toString().trim();
 
             boolean isTypeInvalid = (itemTypeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(itemTypeText)));
-            boolean isTemplateInvalid = !itemTemplateText.isEmpty()&&Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
+            boolean isTemplateInvalid = !itemTemplateText.isEmpty() && Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
             boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
             if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {

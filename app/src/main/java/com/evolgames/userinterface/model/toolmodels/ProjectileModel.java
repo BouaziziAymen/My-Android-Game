@@ -4,10 +4,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.ProjectileProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
+import com.evolgames.entities.usage.Muzzle;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.ProjectileShape;
 import com.evolgames.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 import com.evolgames.utilities.GeometryUtils;
+
+import java.util.UUID;
 
 public class ProjectileModel extends ProperModel<ProjectileProperties> {
 
@@ -82,12 +85,15 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
         pi.setMuzzleVelocity(this.properties.getMuzzleVelocity());
         pi.setFireSound(this.properties.getFireSound());
         pi.setRecoil(this.properties.getRecoil());
-        pi.setMuzzleEntity(this.muzzleEntity);
         pi.setFireRatio(this.properties.getFireRatio());
         pi.setSmokeRatio(this.properties.getSmokeRatio());
         pi.setSparkRatio(this.properties.getSparkRatio());
+        pi.setProjectileInfoUniqueId(UUID.randomUUID().toString());
+        Muzzle muzzle = new Muzzle(this.muzzleEntity, pi);
+        this.muzzleEntity.getUseList().add(muzzle);
+        pi.setMuzzle(muzzle);
         if (casingModel != null) {
-            pi.setCasingInfo(this.casingModel.toCasingInfo(mirrored,this.muzzleEntity));
+            pi.setCasingInfo(this.casingModel.toCasingInfo(mirrored, this.muzzleEntity));
         }
         pi.setMissileFile(this.properties.getMissileFile());
         pi.setInFirePartSize(this.properties.getInFirePartSize());

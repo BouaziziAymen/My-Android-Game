@@ -82,15 +82,16 @@ public class PrismaticJointShape extends JointShape {
     }
 
     private void onLowerLimitUpdated() {
-        model.getProperties().setLowerTranslation(lowerLimit/32f);
+        model.getProperties().setLowerTranslation(lowerLimit / 32f);
     }
+
     private void onUpperLimitUpdated() {
-        model.getProperties().setUpperTranslation(upperLimit/32f);
+        model.getProperties().setUpperTranslation(upperLimit / 32f);
     }
 
 
     public void onBeginPointMoved(float x, float y) {
-        super.onBeginPointMoved(x,y);
+        super.onBeginPointMoved(x, y);
         directionAngleIndicator.updateBegin(x, y);
         directionAngleIndicator.drawSelf();
         updateLowerLimitPosition();
@@ -103,7 +104,7 @@ public class PrismaticJointShape extends JointShape {
         if (!moveLimits) {
             result.addAll(super.getMovables(false));
         } else {
-            if(limitsShown) {
+            if (limitsShown) {
                 result.add(directionAngleIndicator.getLimit());
                 result.add(upperLimitPoint);
                 result.add(lowerLimitPoint);
@@ -216,9 +217,9 @@ public class PrismaticJointShape extends JointShape {
         if (model.getProperties().isEnableLimit()) {
             this.showLimitsElements();
         }
-        this.updateLowerLimit(model.getProperties().getLowerTranslation()*32f);
-        this.updateUpperLimit(model.getProperties().getUpperTranslation()*32f);
-        float angle = (float) Math.toDegrees(Math.atan2(model.getProperties().getLocalAxis1().y,model.getProperties().getLocalAxis1().x));
+        this.updateLowerLimit(model.getProperties().getLowerTranslation() * 32f);
+        this.updateUpperLimit(model.getProperties().getUpperTranslation() * 32f);
+        float angle = (float) Math.toDegrees(Math.atan2(model.getProperties().getLocalAxis1().y, model.getProperties().getLocalAxis1().x));
         this.updateDirectionAngleIndicator(angle);
     }
 }

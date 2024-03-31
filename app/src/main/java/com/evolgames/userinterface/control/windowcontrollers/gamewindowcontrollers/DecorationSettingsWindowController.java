@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
-import android.util.Log;
-
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.DecorationProperties;

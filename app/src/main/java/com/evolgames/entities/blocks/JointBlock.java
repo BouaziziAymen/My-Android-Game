@@ -1,6 +1,7 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
@@ -12,7 +13,6 @@ import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.properties.JointBlockProperties;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.entities.serialization.infos.JointInfo;
-import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 
 import java.util.ArrayList;
@@ -26,11 +26,14 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     private transient GameEntity entity;
     private JointInfo jointInfo;
 
-    private  int jointId;
+    private int jointId;
+    private transient Joint joint;
 
     @SuppressWarnings("Unused")
-    public JointBlock(){}
-    public JointBlock(int jointId){
+    public JointBlock() {
+    }
+
+    public JointBlock(int jointId) {
         this.jointId = jointId;
     }
 
@@ -236,7 +239,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     @Override
     public void mirror() {
         super.mirror();
-        if(this.position==Position.A) {
+        if (this.position == Position.A) {
             JointDef jointDef = getProperties().getJointDef();
             switch (jointType) {
                 case Unknown:
@@ -260,6 +263,14 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
                     break;
             }
         }
+    }
+
+    public void setJoint(Joint joint) {
+        this.joint = joint;
+    }
+
+    public Joint getJoint() {
+        return joint;
     }
 
     public enum Position {

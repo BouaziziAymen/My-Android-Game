@@ -132,7 +132,6 @@ public class Utils {
     }
 
 
-
     public static Color getColorNonBlack() {
 
         return new Color(

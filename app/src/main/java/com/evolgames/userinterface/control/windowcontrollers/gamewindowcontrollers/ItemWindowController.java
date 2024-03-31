@@ -155,15 +155,13 @@ public class ItemWindowController
                             .getToolModel()
                             .getBombById(itemField.getPrimaryKey(), itemField.getModelId());
             outlineController.onItemSelectionUpdated(model);
-        }
-        else if (itemField instanceof SpecialPointField) {
+        } else if (itemField instanceof SpecialPointField) {
             SpecialPointModel model =
                     editorUserInterface
                             .getToolModel()
                             .getSpecialPointById(itemField.getPrimaryKey(), itemField.getModelId());
             outlineController.onItemSelectionUpdated(model);
-        }
-        else if (itemField instanceof FireSourceField) {
+        } else if (itemField instanceof FireSourceField) {
             FireSourceModel model =
                     editorUserInterface
                             .getToolModel()
@@ -259,7 +257,7 @@ public class ItemWindowController
         super.onPrimaryButtonClicked(bodyField);
         outlineController.onSelectionUpdated(getSelectedBody(), null, null);
 
-        if(selectedSecondaryField!=null){
+        if (selectedSecondaryField != null) {
             selectedSecondaryField.showFields();
         }
     }
@@ -391,6 +389,7 @@ public class ItemWindowController
         BombShape bombShape = bombModel.getBombShape();
         bombShape.detach();
     }
+
     private void detachSpecialPointModelShape(SpecialPointModel specialPointModel) {
         SpecialPointShape specialPointShape = specialPointModel.getSpecialPointShape();
         specialPointShape.detach();
@@ -525,9 +524,9 @@ public class ItemWindowController
 
     public void onAmmoOptionButtonReleased(CasingField casingField) {
         BodyModel selectedBodyModel = getSelectedBody();
-        if(selectedBodyModel!=null) {
+        if (selectedBodyModel != null) {
             this.ammoOptionController.onModelUpdated(
-                   selectedBodyModel.getCasingModelById(casingField.getModelId()));
+                    selectedBodyModel.getCasingModelById(casingField.getModelId()));
             this.ammoOptionController.openWindow();
             unfold();
         }
@@ -567,13 +566,13 @@ public class ItemWindowController
     }
 
     public void onBombOptionsButtonReleased(BombField bombField) {
-       BodyModel bodyModel =  getSelectedBody();
-       if(bodyModel!=null) {
-           this.bombOptionController.onModelUpdated(
-                   getSelectedBody().getBombModelById(bombField.getModelId()));
-           this.bombOptionController.openWindow();
-           unfold();
-       }
+        BodyModel bodyModel = getSelectedBody();
+        if (bodyModel != null) {
+            this.bombOptionController.onModelUpdated(
+                    getSelectedBody().getBombModelById(bombField.getModelId()));
+            this.bombOptionController.openWindow();
+            unfold();
+        }
     }
 
     public AtomicInteger getItemCounter() {

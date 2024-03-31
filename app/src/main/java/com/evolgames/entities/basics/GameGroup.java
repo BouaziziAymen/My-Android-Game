@@ -14,14 +14,6 @@ public class GameGroup {
     private final GroupType groupType;
     private String uniqueID = UUID.randomUUID().toString();
 
-    public String getUniqueID() {
-        return uniqueID;
-    }
-
-    public void setUniqueID(String uniqueID) {
-        this.uniqueID = uniqueID;
-    }
-
     public GameGroup(GroupType groupType, GameEntity... groupOfEntities) {
         this.groupType = groupType;
         entities = new CopyOnWriteArrayList<>();
@@ -39,6 +31,14 @@ public class GameGroup {
         for (GameEntity entity : groupOfEntities) {
             entity.setParentGroup(this);
         }
+    }
+
+    public String getUniqueID() {
+        return uniqueID;
+    }
+
+    public void setUniqueID(String uniqueID) {
+        this.uniqueID = uniqueID;
     }
 
     public GroupType getGroupType() {
@@ -74,8 +74,8 @@ public class GameGroup {
 
     public float getMass() {
         float result = 0;
-        for(GameEntity gameEntity:entities){
-            if(gameEntity.isAlive()&&gameEntity.getBody()!=null){
+        for (GameEntity gameEntity : entities) {
+            if (gameEntity.isAlive() && gameEntity.getBody() != null) {
                 result += gameEntity.getBody().getMass();
             }
         }

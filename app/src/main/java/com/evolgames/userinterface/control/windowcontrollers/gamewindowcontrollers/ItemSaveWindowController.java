@@ -16,7 +16,6 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ItemSaveWindowController extends SettingsWindowController<ToolProperties> {
@@ -57,7 +56,7 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
         window.addPrimary(titleField);
         titleTextField
                 .getBehavior()
-                .setReleaseAction(() -> ((ToolModel)model).getProperties().setToolName(titleTextField.getTextString()));
+                .setReleaseAction(() -> ((ToolModel) model).getProperties().setToolName(titleTextField.getTextString()));
 
         updateLayout();
         window.createScroller();
@@ -78,6 +77,6 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
     public void onSubmitSettings() {
         super.onSubmitSettings();
         this.editorUserInterface.saveToolModel();
-      ResourceManager.getInstance().activity.getUiController().onItemSaved();
+        ResourceManager.getInstance().activity.getUiController().onItemSaved();
     }
 }

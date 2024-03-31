@@ -18,11 +18,9 @@ public class JointDestructionCommand extends Command {
 
     @Override
     protected void run() {
-        Log.e("Mirror", joint + "-------------Destroying joint-----------:" + joint.getType());
-
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         JointBlock jointBlock = (JointBlock) joint.getUserData();
-        if(jointBlock.isNotAborted()) {
+        if (jointBlock.isNotAborted()) {
             jointBlock.getEntity().removeJointBlock(jointBlock);
             jointBlock.getBrother().getEntity().removeJointBlock(jointBlock.getBrother());
             jointBlock.setAborted(true);

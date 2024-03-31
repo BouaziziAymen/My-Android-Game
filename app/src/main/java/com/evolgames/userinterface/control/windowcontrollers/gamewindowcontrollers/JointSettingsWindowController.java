@@ -242,7 +242,7 @@ public class JointSettingsWindowController
             SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyField.getMain().release();
         this.jointModel.setBodyModel1(null);
-        outlineController.onJointBodySelectionUpdated( this.jointModel);
+        outlineController.onJointBodySelectionUpdated(this.jointModel);
     }
 
     private void onSecondBodyButtonReleased(
@@ -806,8 +806,8 @@ public class JointSettingsWindowController
         // setting the values of the textfields in accordance with the stored values
         switch (jointModel.getProperties().getJointType()) {
             case RevoluteJoint:
-                float lowerAngleInRevolutions = (float) (jointModel.getProperties().getLowerAngle()/(2*Math.PI));
-                float upperAngleInRevolutions = (float) (jointModel.getProperties().getUpperAngle()/(2*Math.PI));
+                float lowerAngleInRevolutions = (float) (jointModel.getProperties().getLowerAngle() / (2 * Math.PI));
+                float upperAngleInRevolutions = (float) (jointModel.getProperties().getUpperAngle() / (2 * Math.PI));
                 float motorSpeedInRevolutions = (float) (jointModel.getProperties().getMotorSpeed() / (2 * Math.PI));
                 setRevoluteHasMotor(jointModel.getProperties().isEnableMotor());
                 setRevoluteHasLimits(jointModel.getProperties().isEnableLimit());
@@ -823,7 +823,7 @@ public class JointSettingsWindowController
                 float lowerLimit = jointModel.getProperties().getLowerTranslation();
                 float upperLimit = jointModel.getProperties().getUpperTranslation();
                 Vector2 direction = jointModel.getProperties().getLocalAxis1();
-                float angle = GeometryUtils.calculateAngleDegrees(direction.x,direction.y);
+                float angle = GeometryUtils.calculateAngleDegrees(direction.x, direction.y);
                 setPrismaticHasLimits(jointModel.getProperties().isEnableLimit());
                 setPrismaticLowerTranslation(lowerLimit);
                 setPrismaticUpperTranslation(upperLimit);
@@ -858,7 +858,7 @@ public class JointSettingsWindowController
 
     public void onCancelSettings() {
         jointModel.setProperties(this.propertiesCopy);
-        switch (jointModel.getProperties().getJointType()){
+        switch (jointModel.getProperties().getJointType()) {
             case Unknown:
                 break;
             case RevoluteJoint:
@@ -991,7 +991,6 @@ public class JointSettingsWindowController
         prismaticHasMotorField.getSection().setActive(hasMotor);
         updateLayout();
     }
-
 
 
     public void setJointWindowController(JointWindowController jointWindowController) {

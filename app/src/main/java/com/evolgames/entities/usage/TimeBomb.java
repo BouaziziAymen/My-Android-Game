@@ -35,19 +35,19 @@ public class TimeBomb extends Bomb {
 
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
-super.dynamicMirror(physicsScene);
+        super.dynamicMirror(physicsScene);
     }
 
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-       if(isActive()){
-           return false;
-       }
-        if(ratio<0.9f){
+        if (isActive()) {
             return false;
         }
-        this.getBombInfoList().forEach( bombInfo -> bombInfo.setCarrierEntity(heir));
+        if (ratio < 0.9f) {
+            return false;
+        }
+        this.getBombInfoList().forEach(bombInfo -> bombInfo.setCarrierEntity(heir));
         return true;
     }
 

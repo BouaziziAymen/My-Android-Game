@@ -39,7 +39,7 @@ public abstract class Bomb extends Use {
                         .map(m -> m.toBombInfo(mirrored))
                         .collect(Collectors.toList());
         this.safetyJointId = properties.getSafetyJoint();
-        if(this.safetyJointId!=-1){
+        if (this.safetyJointId != -1) {
             hasSafety = true;
         }
     }
@@ -54,7 +54,7 @@ public abstract class Bomb extends Use {
     private void detonate(WorldFacade worldFacade) {
         for (BombInfo bombInfo : bombInfoList) {
             Body body = bombInfo.getCarrierEntity().getBody();
-            if(body == null){
+            if (body == null) {
                 return;
             }
             Vector2 pos =
@@ -94,9 +94,10 @@ public abstract class Bomb extends Use {
         }
         return null;
     }
+
     public void onTriggered(WorldFacade worldFacade) {
         active = true;
-        if(this.safetyJointId!=-1) {
+        if (this.safetyJointId != -1) {
             this.removeSafety(worldFacade);
             this.hasSafety = false;
         }
@@ -114,7 +115,9 @@ public abstract class Bomb extends Use {
         Set<Joint> jointSet = new HashSet<>();
         for (BombInfo bombInfo : bombInfoList) {
             GameEntity carrierEntity = bombInfo.getCarrierEntity();
-            if(carrierEntity.getBody()==null){continue;}
+            if (carrierEntity.getBody() == null) {
+                continue;
+            }
             carrierEntity.getBody().getJointList().forEach(jointEdge -> {
                 Joint joint = jointEdge.joint;
                 JointBlock jointBlock = (JointBlock) joint.getUserData();
@@ -123,10 +126,10 @@ public abstract class Bomb extends Use {
                     Invoker.addJointDestructionCommand(carrierEntity.getParentGroup(), joint);
                     GameEntity entity1 = (GameEntity) joint.getBodyA().getUserData();
                     GameEntity entity2 = (GameEntity) joint.getBodyB().getUserData();
-                    if(carrierEntity==entity1){
-                        entity2.getBody().setLinearVelocity(carrierEntity.isMirrored()?-5f:5f,10f);
+                    if (carrierEntity == entity1) {
+                        entity2.getBody().setLinearVelocity(carrierEntity.isMirrored() ? -5f : 5f, 10f);
                     } else {
-                        entity1.getBody().setLinearVelocity(carrierEntity.isMirrored()?-5f:5f,10f);
+                        entity1.getBody().setLinearVelocity(carrierEntity.isMirrored() ? -5f : 5f, 10f);
                     }
                     worldFacade.addNonCollidingPair(entity1, entity2);
                 }
@@ -141,7 +144,7 @@ public abstract class Bomb extends Use {
         });
     }
 
-    protected boolean hasSafety(){
+    protected boolean hasSafety() {
         return hasSafety;
     }
 }

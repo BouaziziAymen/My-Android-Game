@@ -1,11 +1,7 @@
 package com.evolgames.userinterface.view;
 
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.scenes.PlayScene;
-import com.evolgames.userinterface.control.Controller;
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
-import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.controllers.ControlPanel;
 
 import org.andengine.input.touch.TouchEvent;

@@ -102,10 +102,7 @@ public class Smasher extends MeleeUse implements Penetrating {
 
     @Override
     public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
-        if(ratio<0.3f){
-            return false;
-        }
-        return true;
+        return !(ratio < 0.3f);
     }
 
 }

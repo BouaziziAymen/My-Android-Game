@@ -1,10 +1,7 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
 
-import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
-import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.DecorationSettingsWindowController;
-import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.windows.windowfields.SimpleTitleField;
 
 public class DecorationSettingsWindow extends SettingsWindow {

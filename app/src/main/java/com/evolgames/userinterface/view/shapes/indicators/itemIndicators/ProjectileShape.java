@@ -37,9 +37,10 @@ public class ProjectileShape extends VectorIndicator implements MovablesContaine
         this.direction = new Vector2();
         this.editorUserInterface.addElement(originPoint);
 
-       this.updateZoom(scene.getUserInterface().getZoomFactor());
+        this.updateZoom(scene.getUserInterface().getZoomFactor());
         editorUserInterface.setUpdated(true);
     }
+
     @Override
     public void updateZoom(float zoom) {
         super.updateZoom(zoom);

@@ -16,6 +16,7 @@ import java.util.List;
 
 public class Panel extends LinearLayout implements Touchable {
 
+    private final List<Image> clickableParts = new ArrayList<>();
     private Button<AdvancedWindowController<?>> closeButton;
     private Button<AdvancedWindowController<?>> acceptButton;
 
@@ -56,7 +57,7 @@ public class Panel extends LinearLayout implements Touchable {
     public Button<AdvancedWindowController<?>> getAcceptButton() {
         return acceptButton;
     }
-    private final List<Image> clickableParts = new ArrayList<>();
+
     @Override
     public boolean onTouchHud(TouchEvent pTouchEvent) {
         for (Image image : clickableParts) {

@@ -19,7 +19,7 @@ public class Drag extends Use {
     public Drag() {
     }
 
-    public Drag(DragModel dragModel,boolean mirrored) {
+    public Drag(DragModel dragModel, boolean mirrored) {
         this.dragInfo = dragModel.toDragInfo(mirrored);
     }
 
@@ -62,7 +62,7 @@ public class Drag extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if(ratio<0.8f){
+        if (ratio < 0.8f) {
             return false;
         }
         dragInfo.setDraggedEntity(heir);

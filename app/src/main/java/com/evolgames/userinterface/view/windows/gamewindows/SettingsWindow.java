@@ -3,7 +3,6 @@ package com.evolgames.userinterface.view.windows.gamewindows;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.LinearLayoutAdvancedWindowController;
-import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsWindowController;
 import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.layouts.LinearLayout;

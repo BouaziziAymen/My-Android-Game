@@ -1,5 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
+import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.BodyUsageCategory;
@@ -11,6 +12,7 @@ import com.evolgames.entities.properties.usage.HeavyProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
+import com.evolgames.entities.properties.usage.MotorControlProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.RocketLauncherProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
@@ -61,6 +63,8 @@ import java.util.stream.Collectors;
 public class BodySettingsWindowController extends SettingsWindowController<BodyProperties> {
 
     private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8, 5);
+    private final NumericValidator motorPowerValidator =
+            new NumericValidator(false, true, 0, 1000, 6, 2);
     private final NumericValidator gunReloadTimeValidator =
             new NumericValidator(false, false, 0, 1000, 3, 0);
     private final NumericValidator rocketFuelValidator =
@@ -71,7 +75,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             new NumericValidator(false, true, 0.01f, 1000f, 3, 2);
     private final NumericValidator bombMinImpactValidator =
             new NumericValidator(false, true, 0.01f, 9999f, 4, 2);
-    private final Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable;
     private LayerWindowController layerWindowController;
     private TextField<BodySettingsWindowController> bodyNameTextField;
     // Automatic
@@ -79,7 +82,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private TextField<BodySettingsWindowController> rangedManualReloadTimeTextField;
     // Semi Automatic
     private Quantity<BodySettingsWindowController> fireRateQuantityField;
-    private Quantity<BodySettingsWindowController> slashSpeedQuantityField;
+    private Quantity<BodySettingsWindowController> forwardSpeedQuantityField, backwardSpeedQuantityField;
     private BodyModel bodyModel;
     private EditorUserInterface editorUserInterface;
     private TextField<BodySettingsWindowController> roundsTextField;
@@ -90,9 +93,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private TextField<BodySettingsWindowController> rocketFuelTextField;
     private OutlineController outlineController;
     private SecondarySectionField<BodySettingsWindowController> sensitiveLayersField;
+    private TextField<BodySettingsWindowController> motorPowerTextField;
+    private SimpleSecondary<TitledButton<BodySettingsWindowController>> brakesField;
 
     public BodySettingsWindowController() {
-        this.missileButtonsTable = new Hashtable<>();
+        Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable = new Hashtable<>();
     }
 
     public void setLayerWindowController(LayerWindowController layerWindowController) {
@@ -163,6 +168,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
                 // setSlashSpeed(slashUsageProperties.getSpeed());
                 break;
+            case MOTOR_CONTROL:
+                UsageModel<MotorControlProperties> motorControlPropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                MotorControlProperties motorControlProperties = motorControlPropertiesUsageModel.getProperties();
+                setMotorPower(motorControlProperties.getPower());
+                setMotorForwardSpeed(motorControlProperties.getForwardSpeed());
+                setMotorBackwardSpeed(motorControlProperties.getBackwardSpeed());
+                setMotorBrakes(motorControlProperties.isBrakes());
+                break;
             case BLUNT:
                 break;
             case STABBER:
@@ -199,6 +213,37 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setReloadTime(rocketLauncherProperties.getReloadTime());
                 break;
         }
+    }
+
+    private void setMotorBrakes(boolean brakes) {
+        brakesField.getMain().getAttachment().updateState(brakes ? Button.State.PRESSED : Button.State.NORMAL);
+    }
+
+    private void createMotorBrakesField(int primaryKey, int secondaryKey, MotorControlProperties motorControlProperties) {
+        TitledButton<BodySettingsWindowController> motorBrakesButton =
+                new TitledButton<>(
+                        "Brakes :",
+                        ResourceManager.getInstance().onoffTextureRegion,
+                        Button.ButtonType.Selector,
+                        5f, true, 1);
+
+
+        brakesField = new SimpleSecondary<>(primaryKey, secondaryKey, motorBrakesButton);
+        window.addSecondary(brakesField);
+        if (motorControlProperties.isBrakes()) {
+            motorBrakesButton.getAttachment().updateState(Button.State.PRESSED);
+        }
+        motorBrakesButton.getAttachment().setBehavior(new ButtonBehavior<BodySettingsWindowController>(this,motorBrakesButton.getAttachment()) {
+            @Override
+            public void informControllerButtonClicked() {
+            }
+
+            @Override
+            public void informControllerButtonReleased() {
+            }
+        });
+        motorBrakesButton.getAttachment().getBehavior().setPushAction(() -> motorControlProperties.setBrakes(true));
+        motorBrakesButton.getAttachment().getBehavior().setReleaseAction(() -> motorControlProperties.setBrakes(false));
     }
 
     private void createNumberOfRoundsTextField(String title,
@@ -251,6 +296,19 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         missileControlQuantityField.updateRatio(control);
     }
 
+    private void setMotorForwardSpeed(float motorForwardSpeed) {
+        forwardSpeedQuantityField.updateRatio(motorForwardSpeed);
+    }
+
+    private void setMotorBackwardSpeed(float motorBackwardSpeed) {
+        backwardSpeedQuantityField.updateRatio(motorBackwardSpeed);
+    }
+
+    private void setMotorPower(float power) {
+        motorPowerTextField
+                .getBehavior()
+                .setTextValidated(String.valueOf(Float.valueOf(power)));
+    }
 
     private void setReloadTime(float reloadTime) {
         rangedManualReloadTimeTextField
@@ -393,7 +451,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createBombMinImpactField(primaryId, 2, impactBombProperties);
                             createBombsField(primaryId, 3, impactBombProperties);
                             createSafetyJointField(primaryId, 4, impactBombProperties);
-                            createSensitiveLayersField(primaryId,5,impactBombProperties);
+                            createSensitiveLayersField(primaryId, 5, impactBombProperties);
                             break;
                         case SLASHER:
                             SlashProperties slasherProperties =
@@ -420,12 +478,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createRocketPowerField(
                                     primaryId,
                                     1,
-                                    () ->
-                                            rocketPowerQuantityField
-                                                    .getBehavior()
-                                                    .setChangeAction(
-                                                            () ->
-                                                                    rocketProperties.setPower(rocketPowerQuantityField.getRatio())));
+                                    rocketProperties);
                             createRocketFuelField(primaryId, 2, rocketProperties);
                             break;
                         case MISSILE:
@@ -434,22 +487,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createRocketFireSourceField(primaryId, 0, missileProperties);
                             createRocketPowerField(
                                     primaryId,
-                                    1,
-                                    () ->
-                                            rocketPowerQuantityField
-                                                    .getBehavior()
-                                                    .setChangeAction(
-                                                            () ->
-                                                                    missileProperties.setPower(rocketPowerQuantityField.getRatio())));
+                                    1, missileProperties);
                             createMissileControlField(
                                     primaryId,
                                     2,
-                                    () ->
-                                            missileControlQuantityField
-                                                    .getBehavior()
-                                                    .setChangeAction(
-                                                            () ->
-                                                                    missileProperties.setControl(rocketPowerQuantityField.getRatio())));
+                                    missileProperties);
                             createRocketFuelField(primaryId, 3, missileProperties);
                             break;
                         case LIQUID_CONTAINER:
@@ -464,6 +506,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             createProjectilesField(primaryId, 1, rocketLauncherProperties);
                             break;
                         case HEAVY:
+                            break;
+                        case MOTOR_CONTROL:
+                            MotorControlProperties motorControlProperties =
+                                    bodyModel.getUsageModelProperties(BodyUsageCategory.MOTOR_CONTROL);
+                            createMotorPowerField(primaryId, 0, motorControlProperties);
+                            createMotorForwardSpeedField(primaryId, 1, motorControlProperties);
+                            createMotorBackwardSpeedField(primaryId, 2, motorControlProperties);
+                            createMotorBrakesField(primaryId, 3, motorControlProperties);
+                            createMotorJointsField(primaryId, 4, motorControlProperties);
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
@@ -498,7 +549,56 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                 fireRateQuantityField.getRatio()));
     }
 
-    private void createRocketPowerField(int primaryId, int secondaryId, Runnable action) {
+
+    private void createMotorForwardSpeedField(int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
+        TitledQuantity<BodySettingsWindowController> titledForwardSpeedField =
+                new TitledQuantity<>("Frd. Speed:", 16, "r", 5, 50);
+        forwardSpeedQuantityField = titledForwardSpeedField.getAttachment();
+        titledForwardSpeedField
+                .getAttachment()
+                .setBehavior(
+                        new QuantityBehavior<BodySettingsWindowController>(this, forwardSpeedQuantityField) {
+                            @Override
+                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                            }
+                        });
+
+        FieldWithError forwardSpeedFieldWithError = new FieldWithError(titledForwardSpeedField);
+        SimpleSecondary<FieldWithError> forwardSpeedElement =
+                new SimpleSecondary<>(primaryId, secondaryId, forwardSpeedFieldWithError);
+        window.addSecondary(forwardSpeedElement);
+        forwardSpeedQuantityField
+                .getBehavior()
+                .setChangeAction(
+                        () -> motorControlProperties.setForwardSpeed(
+                                forwardSpeedQuantityField.getRatio()));
+    }
+
+    private void createMotorBackwardSpeedField(int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
+        TitledQuantity<BodySettingsWindowController> titledBackwardSpeedField =
+                new TitledQuantity<>("Brd. Speed:", 16, "b", 5, 50);
+        backwardSpeedQuantityField = titledBackwardSpeedField.getAttachment();
+        titledBackwardSpeedField
+                .getAttachment()
+                .setBehavior(
+                        new QuantityBehavior<BodySettingsWindowController>(this, backwardSpeedQuantityField) {
+                            @Override
+                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
+                            }
+                        });
+
+        FieldWithError backwardSpeedFieldWithError = new FieldWithError(titledBackwardSpeedField);
+        SimpleSecondary<FieldWithError> backwardSpeedElement =
+                new SimpleSecondary<>(primaryId, secondaryId, backwardSpeedFieldWithError);
+        window.addSecondary(backwardSpeedElement);
+        backwardSpeedQuantityField
+                .getBehavior()
+                .setChangeAction(
+                        () -> motorControlProperties.setBackwardSpeed(
+                                forwardSpeedQuantityField.getRatio()));
+    }
+
+    private void createRocketPowerField(int primaryId, int secondaryId, RocketProperties rocketProperties) {
         TitledQuantity<BodySettingsWindowController> titledMotorPowerQuantity =
                 new TitledQuantity<>("Power:", 16, "r", 5, 50);
         rocketPowerQuantityField = titledMotorPowerQuantity.getAttachment();
@@ -515,10 +615,14 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         SimpleSecondary<FieldWithError> rocketPowerElement =
                 new SimpleSecondary<>(primaryId, secondaryId, rocketPowerFieldWithError);
         window.addSecondary(rocketPowerElement);
-        action.run();
+        rocketPowerQuantityField
+                .getBehavior()
+                .setChangeAction(
+                        () ->
+                                rocketProperties.setPower(rocketPowerQuantityField.getRatio()));
     }
 
-    private void createMissileControlField(int primaryId, int secondaryId, Runnable action) {
+    private void createMissileControlField(int primaryId, int secondaryId, MissileProperties missileProperties) {
         TitledQuantity<BodySettingsWindowController> titledMissileControlQuantity =
                 new TitledQuantity<>("Control:", 16, "r", 5, 50);
         missileControlQuantityField = titledMissileControlQuantity.getAttachment();
@@ -535,7 +639,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         SimpleSecondary<FieldWithError> missileControlElement =
                 new SimpleSecondary<>(primaryId, secondaryId, missileControlFieldWithError);
         window.addSecondary(missileControlElement);
-        action.run();
+        missileControlQuantityField
+                .getBehavior()
+                .setChangeAction(
+                        () ->
+                                missileProperties.setControl(rocketPowerQuantityField.getRatio()));
     }
 
     private void createRocketFuelField(
@@ -619,6 +727,50 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             float reloadTime = Integer.parseInt(rangedManualReloadTimeTextField.getTextString());
                             assert rangedProperties != null;
                             rangedProperties.setReloadTime(reloadTime);
+                        });
+    }
+
+
+    private void createMotorPowerField(
+            int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
+        TitledTextField<BodySettingsWindowController> motorPowerField =
+                new TitledTextField<>("Power (HP):", 6, 5, 80);
+        motorPowerTextField = motorPowerField.getAttachment();
+
+        motorPowerField
+                .getAttachment()
+                .setBehavior(
+                        new TextFieldBehavior<BodySettingsWindowController>(
+                                this,
+                                motorPowerTextField,
+                                Keyboard.KeyboardType.Numeric,
+                                motorPowerValidator,
+                                true) {
+                            @Override
+                            protected void informControllerTextFieldTapped() {
+                                BodySettingsWindowController.super.onTextFieldTapped(
+                                        motorPowerTextField);
+                            }
+
+                            @Override
+                            protected void informControllerTextFieldReleased() {
+                                BodySettingsWindowController.super.onTextFieldReleased(
+                                        motorPowerTextField);
+                            }
+                        });
+
+        FieldWithError motorPowerFieldWithError = new FieldWithError(motorPowerField);
+        SimpleSecondary<FieldWithError> fireRateElement =
+                new SimpleSecondary<>(primaryId, secondaryId, motorPowerFieldWithError);
+        window.addSecondary(fireRateElement);
+
+        motorPowerTextField
+                .getBehavior()
+                .setReleaseAction(
+                        () -> {
+                            float motorPower = Float.parseFloat(motorPowerTextField.getTextString());
+                            assert motorControlProperties != null;
+                            motorControlProperties.setPower(motorPower);
                         });
     }
 
@@ -717,6 +869,25 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         .collect(Collectors.toList());
         for (ProjectileModel projectileModel : projectiles) {
             createProjectileButton(primaryId, secondaryId, projectileModel, rangedProperties);
+        }
+    }
+
+    private void createMotorJointsField(
+            int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
+        SecondarySectionField<BodySettingsWindowController> motorJointField =
+                new SecondarySectionField<>(
+                        primaryId,
+                        secondaryId,
+                        "Joint",
+                        ResourceManager.getInstance().mainButtonTextureRegion,
+                        this);
+        window.addSecondary(motorJointField);
+        List<JointModel> projectiles =
+                editorUserInterface.getToolModel().getJoints().stream()
+                        .filter(jointModel -> jointModel.getProperties().getJointType() == JointDef.JointType.RevoluteJoint || jointModel.getProperties().getJointType() == JointDef.JointType.PrismaticJoint)
+                        .collect(Collectors.toList());
+        for (JointModel jointModel : projectiles) {
+            createMotorJointButton(primaryId, secondaryId, jointModel, motorControlProperties);
         }
     }
 
@@ -879,6 +1050,47 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
     }
 
+
+    private void createMotorJointButton(
+            int primaryKey,
+            int secondaryKey,
+            JointModel jointModel,
+            MotorControlProperties motorControlProperties) {
+        ButtonWithText<BodySettingsWindowController> jointButton =
+                new ButtonWithText<>(
+                        jointModel.getModelName(),
+                        2,
+                        ResourceManager.getInstance().simpleButtonTextureRegion,
+                        Button.ButtonType.Selector,
+                        true);
+        SimpleTertiary<ButtonWithText<?>> jointField =
+                new SimpleTertiary<>(
+                        primaryKey, secondaryKey, jointModel.getJointId(), jointButton);
+        window.addTertiary(jointField);
+        jointButton.setBehavior(
+                new ButtonBehavior<BodySettingsWindowController>(this, jointButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        motorControlProperties.setJointModel(jointModel);
+                        int size = window.getLayout().getTertiariesSize(primaryKey, secondaryKey);
+                        for (int i = 0; i < size; i++) {
+                            SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
+                            if (other != jointField) {
+                                ((ButtonWithText<?>) other.getMain()).updateState(Button.State.NORMAL);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        motorControlProperties.setJointModel(null);
+                    }
+                });
+        if (motorControlProperties.getJointModel() == jointModel) {
+            jointButton.updateState(Button.State.PRESSED);
+        }
+    }
+
     private void createJointButton(
             int primaryKey,
             int secondaryKey,
@@ -1017,6 +1229,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         if (e == BodyUsageCategory.HEAVY) {
             UsageModel<HeavyProperties> usage = new UsageModel<>("", e);
+            bodyModel.getUsageModels().add(usage);
+        }
+        if (e == BodyUsageCategory.MOTOR_CONTROL) {
+            UsageModel<MotorControlProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
         }
     }
@@ -1180,7 +1396,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createSensitiveLayersField(
             int primaryId, int secondaryId, ImpactBombUsageProperties bombUsageProperties) {
-      sensitiveLayersField =
+        sensitiveLayersField =
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
@@ -1202,8 +1418,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     @Override
     public void onSecondaryButtonReleased(SimpleSecondary<?> simpleSecondary) {
         super.onSecondaryButtonReleased(simpleSecondary);
-        if(simpleSecondary==sensitiveLayersField){
-         outlineController.onSelectionUpdated(layerWindowController.getSelectedBodyModel(),layerWindowController.getSelectedLayerModel(),layerWindowController.getSelectedDecorationModel());
+        if (simpleSecondary == sensitiveLayersField) {
+            outlineController.onSelectionUpdated(layerWindowController.getSelectedBodyModel(), layerWindowController.getSelectedLayerModel(), layerWindowController.getSelectedDecorationModel());
         }
     }
 
@@ -1226,7 +1442,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, layerButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        if(layerModel.getLayerId()!=-1) {
+                        if (layerModel.getLayerId() != -1) {
                             impactBombUsageProperties.getSensitiveLayers().add(layerModel.getLayerId());
                         }
 
@@ -1237,24 +1453,23 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                 ((ButtonWithText<?>) other.getMain()).updateState(Button.State.PRESSED);
                             }
                         }
-                        outlineController.onSensitiveLayersChanged(bodyModel,impactBombUsageProperties.getSensitiveLayers());
+                        outlineController.onSensitiveLayersChanged(bodyModel, impactBombUsageProperties.getSensitiveLayers());
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        if(layerModel.getLayerId()==-1){
+                        if (layerModel.getLayerId() == -1) {
                             impactBombUsageProperties.getSensitiveLayers().clear();
                             for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
                                 SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
-                                if(other.getSecondaryKey()!=-1) {
+                                if (other.getSecondaryKey() != -1) {
                                     ((ButtonWithText<?>) other.getMain()).updateState(Button.State.NORMAL);
                                 }
                             }
-                        }
-                        else if(impactBombUsageProperties.getSensitiveLayers().contains(layerModel.getLayerId())) {
+                        } else if (impactBombUsageProperties.getSensitiveLayers().contains(layerModel.getLayerId())) {
                             impactBombUsageProperties.getSensitiveLayers().removeIf(e -> e == layerModel.getLayerId());
                         }
-                        outlineController.onSensitiveLayersChanged(bodyModel,impactBombUsageProperties.getSensitiveLayers());
+                        outlineController.onSensitiveLayersChanged(bodyModel, impactBombUsageProperties.getSensitiveLayers());
                     }
                 });
         if (impactBombUsageProperties.getSensitiveLayers().contains(layerModel.getLayerId())) {

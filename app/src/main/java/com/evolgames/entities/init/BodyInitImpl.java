@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.evolgames.entities.basics.EntityWithBody;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.physics.CollisionUtils;
 
@@ -28,7 +29,7 @@ public class BodyInitImpl implements BodyInit {
 
     @Override
     public void initialize(Body body) {
-        EntityWithBody entity = (EntityWithBody) body.getUserData();
+        GameEntity entity = (GameEntity) body.getUserData();
         entity.setGroupIndex(this.filter.groupIndex);
         for (Fixture f : body.getFixtureList()) {
             f.setFilterData(this.filter);

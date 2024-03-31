@@ -6,7 +6,6 @@ import com.evolgames.utilities.MathUtils;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
-import org.andengine.entity.primitive.Mesh;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.adt.color.Color;

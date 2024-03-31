@@ -1,10 +1,7 @@
 package com.evolgames.scenes;
 
-import android.widget.Toast;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
@@ -15,7 +12,6 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.entities.particles.wrappers.FluxParticleWrapper;
-import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.MenuUserInterface;
@@ -55,7 +51,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         gameEntity1.setCenter(new Vector2());
         gameEntity1.setName("Main Button");
 
-       worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
+        worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
 
         createRagDoll(415, 460);
         jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);

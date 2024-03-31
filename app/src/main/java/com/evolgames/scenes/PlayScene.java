@@ -29,24 +29,19 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
-import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Bomb;
 import com.evolgames.entities.usage.Bow;
-import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
-import com.evolgames.entities.usage.Missile;
+import com.evolgames.entities.usage.MotorControl;
 import com.evolgames.entities.usage.Projectile;
 import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
-import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.PlayUserInterface;
-import com.evolgames.userinterface.view.inputs.controllers.ControlElement;
-import com.evolgames.userinterface.view.inputs.controllers.ControllerAction;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MyColorUtils;
@@ -153,7 +148,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         }
         Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
         if (!hudTouched) {
-            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold||playerAction==PlayerAction.Select) {
+            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
                 processHandling(touchEvent);
             }
         }
@@ -530,7 +525,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                                 GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
         gameEntity3.setName("small rectangle");
-       // gameEntity3.getUseList().add(new Stabber());
+        // gameEntity3.getUseList().add(new Stabber());
         gameEntity3.setCenter(new Vector2());
 
 
@@ -611,7 +606,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 //            if (h.getGrabbedEntity().hasUsage(Missile.class)) {
 //                missile = h.getGrabbedEntity().getUsage(Missile.class);
 //            }
-            //Missile finalMissile = missile;
+        //Missile finalMissile = missile;
 //            userInterface
 //                    .getPanel()
 //                    .allocateController(
@@ -659,11 +654,11 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                         .getUseList()
                         .forEach(
                                 u -> {
-                                    if (this.playerAction == PlayerAction.Hold||hand.hasSelectedEntity()) {
+                                    if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
                                         if (u.getActions() != null && !u.getActions().isEmpty()) {
                                             usageList.addAll(u.getActions());
-                                            if(this.playerAction == PlayerAction.Select){
-                                                usageList.removeIf(e->!e.fromDistance);
+                                            if (this.playerAction == PlayerAction.Select) {
+                                                usageList.removeIf(e -> !e.fromDistance);
                                             }
                                         }
                                     }
@@ -726,12 +721,23 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
 
-        if (playerSpecialAction == PlayerSpecialAction.FireHeavy||playerSpecialAction == PlayerSpecialAction.AimHeavy) {
+        if (playerSpecialAction == PlayerSpecialAction.FireHeavy || playerSpecialAction == PlayerSpecialAction.AimHeavy) {
             if (this.hand != null) {
-             hand.holdEntity();
+                hand.holdEntity();
             }
         }
-
+        if (playerSpecialAction == PlayerSpecialAction.motorMoveForward ||
+                playerSpecialAction == PlayerSpecialAction.motorMoveBackward || playerSpecialAction == PlayerSpecialAction.motorStop) {
+            if (hand != null) {
+                GameEntity usableEntity = hand.getUsableEntity();
+                if (usableEntity != null && usableEntity.hasUsage(MotorControl.class)) {
+                    MotorControl motorControl = usableEntity.getUsage(MotorControl.class);
+                    int state = playerSpecialAction == PlayerSpecialAction.motorMoveBackward ? -1 :
+                            playerSpecialAction == PlayerSpecialAction.motorMoveForward ? 1 : 0;
+                    motorControl.setMotorState(state);
+                }
+            }
+        }
         if (playerSpecialAction == PlayerSpecialAction.Shoot_Arrow) {
             if (this.hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
@@ -741,14 +747,13 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                     onUsagesUpdated();
                 }
             }
-        }
-        else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
+        } else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
                 if (usableEntity != null && usableEntity.hasUsage(Bomb.class)) {
-                        Bomb bomb = usableEntity.getUsage(Bomb.class);
-                        bomb.onTriggered(worldFacade);
-                      //  hand.releaseGrabbedEntity(true);
+                    Bomb bomb = usableEntity.getUsage(Bomb.class);
+                    bomb.onTriggered(worldFacade);
+                    //  hand.releaseGrabbedEntity(true);
                     onUsagesUpdated();
                     resetTouchHold();
                 }
@@ -775,17 +780,17 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                     Rocket rocket = usableEntity.getUsage(Rocket.class);
                     if (!rocket.isOn()) {
                         hand.launchRocket();
-                        if(hand.getMouseJoint()!=null) {
+                        if (hand.getMouseJoint() != null) {
                             Invoker.addJointDestructionCommand(usableEntity.getParentGroup(), hand.getMouseJoint());
                         }
-                    onUsagesUpdated();
+                        onUsagesUpdated();
                     }
                 }
             }
         } else if (playerSpecialAction == PlayerSpecialAction.SwitchOff) {
             if (this.hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
-                if (usableEntity!=null&&usableEntity.hasUsage(LiquidContainer.class)) {
+                if (usableEntity != null && usableEntity.hasUsage(LiquidContainer.class)) {
                     LiquidContainer liquidContainer = usableEntity.getUsage(LiquidContainer.class);
                     liquidContainer.close();
                     onUsagesUpdated();
@@ -802,9 +807,8 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     }
 
     public void onMirrorButtonClicked() {
-        if (hand != null && hand.getGrabbedEntity() != null) {
-            Invoker.addBodyMirrorCommand(hand.getGrabbedEntity());
-            //  hand.getGrabbedEntity().tryDynamicMirror();
+        if (hand != null && hand.getUsableEntity() != null) {
+            Invoker.addBodyMirrorCommand(hand.getUsableEntity());
         }
     }
 }

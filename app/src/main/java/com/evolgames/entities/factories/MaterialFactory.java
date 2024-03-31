@@ -14,17 +14,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MaterialFactory {
-    private static final MaterialFactory INSTANCE = new MaterialFactory();
-
     public static final int SULFUR = 33;
-
     public static final int IVORY = 32;
-
     public static final int SILVER = 31;
-
     public static final int MARBLE = 30;
     public static final int ROCK = 29;
-
     public static final int TUNGSTEN = 28;
     public static final int SILK = 27;
     public static final int KEVLAR = 26;
@@ -35,9 +29,6 @@ public class MaterialFactory {
     public static final int GRAPHENE = 21;
     public static final int DIAMOND = 20;
     public static final int GLASS = 19;
-    private static final int RUBBER = 18;
-    private static final int HARD_WOOD = 17;
-    private static final int HARD_STEEL = 16;
     public static final int PLASTIC = 15;
     public static final int CLAY = 14;
     public static final int ASPHALT = 13;
@@ -54,21 +45,23 @@ public class MaterialFactory {
     public static final int IRON = 2;
     public static final int STEEL = 1;
     public static final int WOOD = 0;
-
-
-
     public static final int COAL = 34;
     public static final int CHARCOAL = 35;
     public static final int IGNIUM = 36;
     public static final int TITANIUM = 37;
     public static final int LEATHER = 38;
-    public static final int  CARBON_FIBER = 39;
+    public static final int CARBON_FIBER = 39;
     public static final int FIBER_GLASS = 40;
     public static final int FEATHER = 41;
     public static final int TISSUE = 42;
+    private static final MaterialFactory INSTANCE = new MaterialFactory();
+    private static final int RUBBER = 18;
+    private static final int HARD_WOOD = 17;
+    private static final int HARD_STEEL = 16;
+    public static Map<String, float[]> materialProperties;
     public List<Material> materials;
     public AtomicInteger counter;
-    public static Map<String, float[]> materialProperties;
+
     private MaterialFactory() {
         counter = new AtomicInteger();
 
@@ -121,19 +114,19 @@ public class MaterialFactory {
 
 
         Material rubber = new Material("Rubber", RUBBER, new Color(0.4f, 0.4f, 0.4f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material plastic = new Material("Plastic", PLASTIC, new Color(1.0f, 0.0f, 0.0f), 0.5f, 0, 0.0f, 0.0f, 0.0f,  true, 600, 600, false, 0f,300);
-        Material wood = new Material("Wood", WOOD, new Color(0.545f, 0.271f, 0.075f),  0.6f, 0, 0.0f, 0.0f, 0.0f,  true, 500, 700, false, 0f,500);
-        Material hardWood = new Material("Hard Wood", HARD_WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f,  true, 600, 700, false, 0f,400);
-        Material glass = new Material("Glass", GLASS, new Color(1.0f, 1.0f, 1.0f),  0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material plastic = new Material("Plastic", PLASTIC, new Color(1.0f, 0.0f, 0.0f), 0.5f, 0, 0.0f, 0.0f, 0.0f, true, 600, 600, false, 0f, 300);
+        Material wood = new Material("Wood", WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f, true, 500, 700, false, 0f, 500);
+        Material hardWood = new Material("Hard Wood", HARD_WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f, true, 600, 700, false, 0f, 400);
+        Material glass = new Material("Glass", GLASS, new Color(1.0f, 1.0f, 1.0f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material copper = new Material("Copper", COPPER, new Color(0.722f, 0.451f, 0.2f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material steel = new Material("Steel", STEEL, new Color(0.7f, 0.7f, 0.7f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material hardSteel = new Material("Hard Steel", HARD_STEEL, new Color(0.75f, 0.75f, 0.75f),0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material hardSteel = new Material("Hard Steel", HARD_STEEL, new Color(0.75f, 0.75f, 0.75f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material iron = new Material("Iron", IRON, new Color(0.878f, 0.878f, 0.878f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material diamond = new Material("Diamond", DIAMOND, new Color(0.0f, 0.0f, 0.0f,0.1f),  1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material diamond = new Material("Diamond", DIAMOND, new Color(0.0f, 0.0f, 0.0f, 0.1f), 1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material graphene = new Material("Graphene", GRAPHENE, new Color(1.0f, 1.0f, 1.0f), 1.0f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material flesh = new Material("Flesh", FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f), 0.7f, 0, 0.8f, 0.3f, 0.4f, true, 600, 650, false, 0.0f, 300.0);
-        Material hardFlesh = new Material("Hard Flesh", HARD_FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f),  0.7f, 0, 0.8f, 0.2f, 0.5f, true, 600, 650, false, 0.0f, 300.0);
-        Material concrete = new Material("Concrete", CONCRETE, new Color(0.663f, 0.663f, 0.663f),  0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material hardFlesh = new Material("Hard Flesh", HARD_FLESH, new Color(255 / 255f, 204f / 255f, 153f / 255f), 0.7f, 0, 0.8f, 0.2f, 0.5f, true, 600, 650, false, 0.0f, 300.0);
+        Material concrete = new Material("Concrete", CONCRETE, new Color(0.663f, 0.663f, 0.663f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material aluminum = new Material("Aluminum", ALUMINIUM, new Color(0.753f, 0.753f, 0.753f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material brick = new Material("Brick", BRICK, new Color(0.698f, 0.133f, 0.133f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material bone = new Material("Bone", BONE, new Color(1.0f, 0.98f, 0.94f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
@@ -141,15 +134,15 @@ public class MaterialFactory {
         Material kevlar = new Material("Kevlar", KEVLAR, new Color(1.0f, 1.0f, 1.0f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material silk = new Material("Silk", SILK, new Color(1.0f, 1.0f, 1.0f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material tungsten = new Material("Tungsten", TUNGSTEN, new Color(0.753f, 0.753f, 0.753f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material lead = new Material("Lead", LEAD, new Color(0.663f, 0.663f, 0.663f),  0.5f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material lead = new Material("Lead", LEAD, new Color(0.663f, 0.663f, 0.663f), 0.5f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material tin = new Material("Tin", TIN, new Color(0.663f, 0.663f, 0.663f), 0.4f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material brass = new Material("Brass", BRASS, new Color(225f/255f, 193/255f, 110/255f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material brass = new Material("Brass", BRASS, new Color(225f / 255f, 193 / 255f, 110 / 255f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material ceramic = new Material("Ceramic", CERAMIC, new Color(1.0f, 1.0f, 1.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material asphalt = new Material("Asphalt", ASPHALT, new Color(0.412f, 0.412f, 0.412f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material rock = new Material("Rock", ROCK, new Color(0.502f, 0.502f, 0.502f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material marble = new Material("Marble", MARBLE, new Color(1.0f, 1.0f, 1.0f), 0.6f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material gold = new Material("Gold", GOLD, new Color(1.0f, 0.843f, 0.0f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
-        Material silver = new Material("Silver", SILVER, new Color(0.753f, 0.753f, 0.753f),  0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material silver = new Material("Silver", SILVER, new Color(0.753f, 0.753f, 0.753f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material ivory = new Material("Ivory", IVORY, new Color(1.0f, 1.0f, 0.941f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material sulfur = new Material("Sulfur", SULFUR, new Color(1.0f, 1.0f, 0.0f), 0.4f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material coal = new Material("Coal", COAL, new Color(0.078f, 0.078f, 0.078f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
@@ -160,9 +153,9 @@ public class MaterialFactory {
         Material titanium = new Material("Titanium", TITANIUM, new Color(0.5f, 0.5f, 0.5f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material leather = new Material("Leather", LEATHER, new Color(0.804f, 0.522f, 0.247f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
         Material carbonFiber = new Material("Carbon Fiber", CARBON_FIBER, new Color(0.235f, 0.235f, 0.235f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 600, 600, false, 0.0f, 0f);
-        Material fiberGlass = new Material("Fiber Glass", FIBER_GLASS, new Color(1f,1f,1f,0.5f), 0.83f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0.0f, 200.0f);
-        Material feather = new Material("Feather", FEATHER, new Color(0.9f,0.9f,0.9f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 500, 500, false, 0.0f, 200.0f);
-        Material tissue = new Material("Tissue", TISSUE, new Color(0.9f,0.9f,0.9f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
+        Material fiberGlass = new Material("Fiber Glass", FIBER_GLASS, new Color(1f, 1f, 1f, 0.5f), 0.83f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0.0f, 200.0f);
+        Material feather = new Material("Feather", FEATHER, new Color(0.9f, 0.9f, 0.9f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 500, 500, false, 0.0f, 200.0f);
+        Material tissue = new Material("Tissue", TISSUE, new Color(0.9f, 0.9f, 0.9f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
 
         materials.add(tissue);
         materials.add(carbonFiber);
@@ -220,9 +213,9 @@ public class MaterialFactory {
 
     public Material getMaterialByIndex(int index) {
         try {
-            return this.materials.stream().filter(e->e.getIndex()==index).findFirst().get();
-        } catch (Throwable t){
-            Log.e("Error loading material",t.toString());
+            return this.materials.stream().filter(e -> e.getIndex() == index).findFirst().get();
+        } catch (Throwable t) {
+            Log.e("Error loading material", t.toString());
             return null;
         }
     }

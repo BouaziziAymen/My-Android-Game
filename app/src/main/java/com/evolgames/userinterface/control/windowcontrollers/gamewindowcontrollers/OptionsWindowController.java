@@ -71,14 +71,14 @@ public class OptionsWindowController
             case ROTATE_IMAGE_SETTINGS:
             case MOVE_IMAGE_SETTINGS:
                 openWindow();
-                dimensionsText = new Text("",2);
-                window.addPrimary( new SimplePrimary<>(0,this.dimensionsText));
+                dimensionsText = new Text("", 2);
+                window.addPrimary(new SimplePrimary<>(0, this.dimensionsText));
                 break;
             case SCALE_IMAGE_SETTINGS:
                 openWindow();
                 window.addPrimary(createOnOffField(0, "Fixed Ratio :", (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
-                dimensionsText = new Text("!!!",2);
-                window.addPrimary( new SimplePrimary<>(1,this.dimensionsText));
+                dimensionsText = new Text("!!!", 2);
+                window.addPrimary(new SimplePrimary<>(1, this.dimensionsText));
                 break;
             case REMOVE_POINT_SETTINGS:
                 openWindow();
@@ -384,9 +384,9 @@ public class OptionsWindowController
                 });
 
         TitledField<ButtonBoard> centerMagnetField = new TitledField<>("Magnet:", magnetBoard, 8);
-       if(editorUserInterface.getCreationZoneController().isCenterMagnet()){
-           button1.updateState(Button.State.PRESSED);
-       }
+        if (editorUserInterface.getCreationZoneController().isCenterMagnet()) {
+            button1.updateState(Button.State.PRESSED);
+        }
         return new SimplePrimary<>(primaryId, centerMagnetField);
     }
 
@@ -598,7 +598,7 @@ public class OptionsWindowController
     }
 
     public void onUpdatedImageDimensions(ImageShape imageShape) {
-        if(imageShape==null){
+        if (imageShape == null) {
             return;
         }
         float x = imageShape.getX();
@@ -607,16 +607,16 @@ public class OptionsWindowController
         float width = imageShape.getWidth();
         float height = imageShape.getHeight();
         String text = "";
-        if(settingsType==SettingsType.SCALE_IMAGE_SETTINGS) {
+        if (settingsType == SettingsType.SCALE_IMAGE_SETTINGS) {
             text = String.format("Width=%.2f, Height=%.2f", width, height);
         }
-        if(settingsType==SettingsType.ROTATE_IMAGE_SETTINGS) {
-            text = String.format("Rot=%.2f",rot);
+        if (settingsType == SettingsType.ROTATE_IMAGE_SETTINGS) {
+            text = String.format("Rot=%.2f", rot);
         }
-        if(settingsType==SettingsType.MOVE_IMAGE_SETTINGS) {
+        if (settingsType == SettingsType.MOVE_IMAGE_SETTINGS) {
             text = String.format("(X=%.2f, Y=%.2f)", x, y);
         }
-        if(dimensionsText!=null) {
+        if (dimensionsText != null) {
             dimensionsText.updateText(text);
         }
     }

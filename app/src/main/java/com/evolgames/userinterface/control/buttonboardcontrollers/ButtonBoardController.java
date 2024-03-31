@@ -47,15 +47,15 @@ public class ButtonBoardController extends Controller {
     public void init() {
     }
 
-    public void setActive(boolean active){
+    public void setActive(boolean active) {
         this.active = active;
-        if(!active){
-            for(int i=0;i<buttonBoard.getSize();i++) {
+        if (!active) {
+            for (int i = 0; i < buttonBoard.getSize(); i++) {
                 Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
                 button.updateState(Button.State.DISABLED);
             }
         } else {
-            for(int i=0;i<buttonBoard.getSize();i++) {
+            for (int i = 0; i < buttonBoard.getSize(); i++) {
                 Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
                 button.updateState(Button.State.NORMAL);
             }
@@ -64,13 +64,13 @@ public class ButtonBoardController extends Controller {
 
 
     public void setTemporarilyActive(boolean active) {
-        if(!active){
-            for(int i=0;i<buttonBoard.getSize();i++) {
+        if (!active) {
+            for (int i = 0; i < buttonBoard.getSize(); i++) {
                 Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
                 button.updateState(Button.State.DISABLED);
             }
         } else {
-            if(this.active) {
+            if (this.active) {
                 for (int i = 0; i < buttonBoard.getSize(); i++) {
                     Button<? extends Controller> button = buttonBoard.getButtonAtIndex(i);
                     button.updateState(Button.State.NORMAL);

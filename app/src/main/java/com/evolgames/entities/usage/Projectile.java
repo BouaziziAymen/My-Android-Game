@@ -2,8 +2,6 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
@@ -14,14 +12,10 @@ import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
 
 
-    private float impactFactor(){
-        return projectileType==ProjectileType.BULLET?6:1;
-    }
     private ProjectileType projectileType;
 
     @SuppressWarnings("unused")
@@ -31,6 +25,10 @@ public class Projectile extends Use implements Penetrating {
     public Projectile(ProjectileType projectileType) {
         this.active = false;
         this.projectileType = projectileType;
+    }
+
+    private float impactFactor() {
+        return projectileType == ProjectileType.BULLET ? 6 : 1;
     }
 
     @Override
@@ -73,12 +71,12 @@ public class Projectile extends Use implements Penetrating {
 
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
 
-        if(projectileType==ProjectileType.SHARP_WEAPON) {
+        if (projectileType == ProjectileType.SHARP_WEAPON) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(consumedImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                worldFacade.applyPointImpact(obtain(point), 100f*impactFactor() * consumedImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), 100f * impactFactor() * consumedImpulse * massFraction, penetrated);
             }
         });
 
@@ -90,14 +88,14 @@ public class Projectile extends Use implements Penetrating {
             if (projectileType == ProjectileType.SHARP_WEAPON) {
                 worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
             } else {
-                if(penetrator.isAlive()) {
+                if (penetrator.isAlive()) {
                     penetrator.setAlive(false);
                     penetrator.setVisible(false);
                     worldFacade.destroyGameEntity(penetrator, false, false);
                 }
             }
         }
-        onImpact(consumedImpulse*4,penetrator);
+        onImpact(consumedImpulse * 4, penetrator);
         setActive(false);
     }
 
@@ -120,23 +118,24 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.addNonCollidingPair(gameEntity, penetrator);
         }
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
-        if(projectileType==ProjectileType.SHARP_WEAPON) {
+        if (projectileType == ProjectileType.SHARP_WEAPON) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(collisionImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                worldFacade.applyPointImpact(obtain(point), 100f*impactFactor() * collisionImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), 100f * impactFactor() * collisionImpulse * massFraction, penetrated);
             }
         });
-        onImpact(collisionImpulse*4,penetrator);
+        onImpact(collisionImpulse * 4, penetrator);
         setActive(false);
         penetrator.setZIndex(-1);
         worldFacade.getPhysicsScene().sortChildren();
     }
-    private void onImpact(float impulse, GameEntity penetrator){
-        if(penetrator.hasUsage(ImpactBomb.class)){
+
+    private void onImpact(float impulse, GameEntity penetrator) {
+        if (penetrator.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = penetrator.getUsage(ImpactBomb.class);
-         impactBomb.onImpact(impulse);
+            impactBomb.onImpact(impulse);
         }
     }
 

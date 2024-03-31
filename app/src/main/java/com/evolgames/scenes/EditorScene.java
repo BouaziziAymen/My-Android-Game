@@ -76,7 +76,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         this.groundModel.setModelName("Ground");
 
         Entity background = new Entity();
-         this.setBackground(new EntityBackground(0.3f, 0.3f, 0.3f, background));
+        this.setBackground(new EntityBackground(0.3f, 0.3f, 0.3f, background));
         //this.setBackground(new EntityBackground(0, 0, 0, background));
         plotter = new Plotter();
         plotter.setZIndex(200);
@@ -235,7 +235,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
         boolean hudTouched = false;
-        if(touchEvent.getPointerID()==0) {
+        if (touchEvent.getPointerID() == 0) {
             if (!hudLocked) {
                 hudTouched = userInterface.onTouchHud(hudTouchEvent);
             }
@@ -281,7 +281,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         float zf = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
-        if (zf >= 1) {
+        if (zf >= 0.1f) {
             cam.setZoomFactor(zf);
             userInterface.updateZoom(zf);
         }
@@ -293,7 +293,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         float zf = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
-        if (zf >= 1) {
+        if (zf >= 0.1f) {
             cam.setZoomFactor(zf);
             userInterface.updateZoom(zf);
         }

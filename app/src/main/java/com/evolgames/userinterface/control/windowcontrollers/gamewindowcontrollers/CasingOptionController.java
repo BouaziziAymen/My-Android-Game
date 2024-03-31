@@ -6,7 +6,6 @@ import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
 import com.evolgames.userinterface.view.inputs.Quantity;
-import com.evolgames.userinterface.view.inputs.RotationQuantity;
 import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;

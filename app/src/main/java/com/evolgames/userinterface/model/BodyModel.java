@@ -13,7 +13,7 @@ import com.evolgames.entities.usage.Heavy;
 import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.Missile;
-import com.evolgames.entities.usage.Muzzle;
+import com.evolgames.entities.usage.MotorControl;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
@@ -209,88 +209,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
 
     public ArrayList<LiquidSourceModel> getLiquidSourceModels() {
         return liquidSourceModels;
-    }
-
-    public void setupUsages(PhysicsScene<?> physicsScene, Vector2 center, boolean mirrored) {
-        this.getDragModels().forEach(dragModel -> {
-            Drag drag = new Drag(dragModel, mirrored);
-            this.getGameEntity().getUseList().add(drag);
-        });
-        this.getUsageModels()
-                .forEach(
-                        e -> {
-                            switch (e.getType()) {
-                                case HEAVY:
-                                    Heavy heavy = new Heavy();
-                                    this.getGameEntity().getUseList().add(heavy);
-                                    break;
-                                case SHOOTER:
-                                case SHOOTER_CONTINUOUS:
-                                    boolean isHeavy = this.getUsageModels().stream().anyMatch(u->u.getType()==BodyUsageCategory.HEAVY);
-                                    Shooter shooter = new Shooter(e, physicsScene, isHeavy, mirrored);
-                                    this.getGameEntity().getUseList().add(shooter);
-                                    break;
-                                case BOW:
-                                    BowProperties bowProperties = (BowProperties) e.getProperties();
-                                    if (bowProperties.getUpper() != null && bowProperties.getMiddle() != null && bowProperties.getLower() != null) {
-                                        bowProperties.getUpper().sub(center);
-                                        bowProperties.getMiddle().sub(center);
-                                        bowProperties.getLower().sub(center);
-                                    }
-                                    Bow bow = new Bow(e, mirrored);
-                                    this.getGameEntity().getUseList().add(bow);
-                                    break;
-                                case TIME_BOMB:
-                                    TimeBomb timeBomb = new TimeBomb(e, mirrored);
-                                    this.getGameEntity().getUseList().add(timeBomb);
-                                    break;
-                                case IMPACT_BOMB:
-                                    ImpactBomb impactBomb = new ImpactBomb(e, mirrored);
-                                    this.getGameEntity().getUseList().add(impactBomb);
-                                    break;
-                                case SLASHER:
-                                    Slasher slasher = new Slasher();
-                                    this.getGameEntity().getUseList().add(slasher);
-                                    break;
-                                case BLUNT:
-                                    Smasher smasher = new Smasher();
-                                    this.getGameEntity().getUseList().add(smasher);
-                                    break;
-                                case STABBER:
-                                    Stabber stabber = new Stabber();
-                                    this.getGameEntity().getUseList().add(stabber);
-                                    break;
-                                case THROWING:
-                                    Throw throwable = new Throw();
-                                    this.getGameEntity().getUseList().add(throwable);
-                                    break;
-                                case FLAME_THROWER:
-                                    FlameThrower flameThrower = new FlameThrower(e, physicsScene, mirrored);
-                                    this.getGameEntity().getUseList().add(flameThrower);
-                                    break;
-                                case ROCKET:
-                                    Rocket rocket = new Rocket(e, physicsScene, mirrored);
-                                    rocket.setRocketBodyGameEntity(this.getGameEntity());
-                                    this.getGameEntity().getUseList().add(rocket);
-                                    break;
-                                case MISSILE:
-                                    Missile missile = new Missile(e, physicsScene, mirrored);
-                                    missile.setRocketBodyGameEntity(this.getGameEntity());
-                                    this.getGameEntity().getUseList().add(missile);
-                                    break;
-                                case LIQUID_CONTAINER:
-                                    LiquidContainer liquidContainer = new LiquidContainer(e, physicsScene, mirrored);
-                                    this.getGameEntity().getUseList().add(liquidContainer);
-                                    break;
-                                case ROCKET_LAUNCHER:
-                                    RocketLauncher rocketLauncher = new RocketLauncher(e, physicsScene.getWorldFacade(), mirrored);
-                                    this.getGameEntity().getUseList().add(rocketLauncher);
-                                    break;
-                            }
-
-                        });
-
-
     }
 
 

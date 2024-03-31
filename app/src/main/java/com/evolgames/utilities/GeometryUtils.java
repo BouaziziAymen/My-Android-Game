@@ -377,21 +377,22 @@ public class GeometryUtils {
         for (List<Vector2> vector2List : lists) {
             list.addAll(vector2List);
         }
-            float totalX = 0;
-            float totalY = 0;
+        float totalX = 0;
+        float totalY = 0;
 
-            // Calculate the total sum of X and Y coordinates
-            for (Vector2 point : list) {
-                totalX += point.x;
-                totalY += point.y;
-            }
-            // Calculate the average X and Y coordinates
-            float centerX = totalX / list.size();
-            float centerY = totalY / list.size();
+        // Calculate the total sum of X and Y coordinates
+        for (Vector2 point : list) {
+            totalX += point.x;
+            totalY += point.y;
+        }
+        // Calculate the average X and Y coordinates
+        float centerX = totalX / list.size();
+        float centerY = totalY / list.size();
 
-            // Return the center point
-            return new Vector2(centerX, centerY);
+        // Return the center point
+        return new Vector2(centerX, centerY);
     }
+
     public static Vector2 calculateCenterScatter(List<Vector2> list) {
         float totalX = 0;
         float totalY = 0;
@@ -434,7 +435,6 @@ public class GeometryUtils {
         // Calculate the angle in radians
         return (float) Math.atan2(y, x);
     }
-
 
 
     public static float calculateAngleDegrees(float x, float y) {

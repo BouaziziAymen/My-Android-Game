@@ -8,18 +8,31 @@ import com.evolgames.scenes.PhysicsScene;
 
 import java.util.List;
 
-public class Muzzle extends Use{
+public class Muzzle extends Use {
 
-    private int projectileIndex;
+    private String projectileInfoUniqueId;
+    private transient GameEntity muzzleEntity;
+
     @SuppressWarnings("Unused")
-    public Muzzle(){}
-
-    public Muzzle(int projectileIndex) {
-       this.projectileIndex = projectileIndex;
+    public Muzzle() {
     }
 
-    public int getProjectileIndex() {
-        return projectileIndex;
+    public Muzzle(GameEntity muzzleEntity, ProjectileInfo projectileInfo) {
+        this.muzzleEntity = muzzleEntity;
+        this.projectileInfoUniqueId = projectileInfo.getProjectileInfoUniqueId();
+        this.active = true;
+    }
+
+    public String getProjectileInfoUniqueId() {
+        return projectileInfoUniqueId;
+    }
+
+    public GameEntity getMuzzleEntity() {
+        return muzzleEntity;
+    }
+
+    public void setMuzzleEntity(GameEntity muzzleEntity) {
+        this.muzzleEntity = muzzleEntity;
     }
 
     @Override
@@ -39,6 +52,12 @@ public class Muzzle extends Use{
 
     @Override
     public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
-        return ratio>0.9f;
+        if (ratio > 0.9f) {
+            this.muzzleEntity = biggestSplinter;
+            return true;
+        } else {
+            this.setActive(false);
+            return false;
+        }
     }
 }

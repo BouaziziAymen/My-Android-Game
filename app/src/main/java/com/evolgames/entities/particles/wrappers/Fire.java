@@ -7,5 +7,6 @@ import org.andengine.entity.sprite.UncoloredSprite;
 public interface Fire {
 
     ParticleSystem<UncoloredSprite> getFireParticleSystem();
+
     double getParticleTemperature(Particle<?> particle);
 }

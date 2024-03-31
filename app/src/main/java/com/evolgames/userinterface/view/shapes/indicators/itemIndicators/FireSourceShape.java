@@ -63,6 +63,7 @@ public class FireSourceShape extends AngleIndicator implements MovablesContainer
         updateZoom(this.editorUserInterface.getZoomFactor());
         this.editorUserInterface.setUpdated(true);
     }
+
     @Override
     public void updateZoom(float zoom) {
         super.updateZoom(zoom);

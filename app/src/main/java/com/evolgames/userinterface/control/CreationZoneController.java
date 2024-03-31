@@ -135,8 +135,8 @@ public class CreationZoneController extends Controller {
                 editorScene.setZoomEnabled(true);
                 break;
             case NONE:
-                if(selectedPointImage!=null){
-                  releaseSelectedPointImage();
+                if (selectedPointImage != null) {
+                    releaseSelectedPointImage();
                 }
                 editorScene.setScrollerEnabled(true);
                 editorScene.setZoomEnabled(true);
@@ -171,7 +171,7 @@ public class CreationZoneController extends Controller {
     }
 
     private void releaseBoardsButtons() {
-        if (action == CreationAction.ROTATE_IMAGE || action == CreationAction.SCALE_IMAGE|| action == CreationAction.MOVE_IMAGE) {
+        if (action == CreationAction.ROTATE_IMAGE || action == CreationAction.SCALE_IMAGE || action == CreationAction.MOVE_IMAGE) {
             editorUserInterface.getImageButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
@@ -187,7 +187,7 @@ public class CreationZoneController extends Controller {
             editorUserInterface.getImageButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
-        if (action == CreationAction.BOMB ||action==CreationAction.SPECIAL_POINT|| action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
+        if (action == CreationAction.BOMB || action == CreationAction.SPECIAL_POINT || action == CreationAction.PROJECTILE || action == CreationAction.AMMO || action == CreationAction.LIQUID_SOURCE || action == CreationAction.FIRE_SOURCE || action == CreationAction.DRAG) {
             editorUserInterface.getItemButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
@@ -257,7 +257,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (movablePointImages != null) {
-            float distance = 32f/editorUserInterface.getZoomFactor();
+            float distance = 32f / editorUserInterface.getZoomFactor();
             PointImage point = null;
             for (PointImage p : movablePointImages) {
                 float d = p.getPoint().dst(x, y);
@@ -281,7 +281,7 @@ public class CreationZoneController extends Controller {
     public void createReferencePoint() {
         if (selectedPointImage != null) {
             if (selectedPointImage.getPointsShape() != null) {
-                    selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
+                selectedPointImage.getPointsShape().createReferencePointImage(selectedPointImage.getPoint());
             }
         }
     }
@@ -333,7 +333,7 @@ public class CreationZoneController extends Controller {
                 float Y = editorScene.getUserInterface().getImageShape().getY();
 
                 indicatorArrow = new RotateImageShape(new Vector2(X, Y), editorScene.getUserInterface().getImageShape(), editorScene, 32);
-            editorScene.setHudLocked(true);
+                editorScene.setHudLocked(true);
             }
         }
         if (action == CreationAction.SCALE_IMAGE) {

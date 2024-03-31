@@ -33,7 +33,6 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledButton;
 import com.evolgames.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.userinterface.view.windows.windowfields.projectieoptionwindow.SoundField;
-import com.evolgames.utilities.ToolUtils;
 
 import org.xml.sax.SAXException;
 
@@ -42,10 +41,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -96,7 +93,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         files.addAll(arrows);
         files.addAll(shells);
         AtomicInteger missileCounter = new AtomicInteger();
-        files.forEach(itemMetaData-> createProjectileToolButton(itemMetaData, missileCounter.getAndIncrement()));
+        files.forEach(itemMetaData -> createProjectileToolButton(itemMetaData, missileCounter.getAndIncrement()));
         this.onUpdated();
     }
 
@@ -154,7 +151,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private void createProjectileToolButton(ItemMetaData itemMetaData, int missileId) {
         ButtonWithText<ProjectileOptionController> missileButton =
                 new ButtonWithText<>(
-                      itemMetaData.getName(),
+                        itemMetaData.getName(),
                         2,
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
@@ -175,10 +172,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                         ToolModel missileModel;
                         if (!missileTable.containsKey(itemMetaData.getFileName())) {
                             try {
-                                missileModel = PersistenceCaretaker.getInstance().loadToolModel(itemMetaData.getFileName(),false,!itemMetaData.isUserCreated());
+                                missileModel = PersistenceCaretaker.getInstance().loadToolModel(itemMetaData.getFileName(), false, !itemMetaData.isUserCreated());
                                 missileTable.put(itemMetaData.getFileName(), missileModel);
                                 projectileModel.getProperties().setMissileFile(itemMetaData.getFileName());
-                           projectileModel.getProperties().setAssetsMissile(!itemMetaData.isUserCreated());
+                                projectileModel.getProperties().setAssetsMissile(!itemMetaData.isUserCreated());
                             } catch (PersistenceException
                                      | SAXException
                                      | ParserConfigurationException

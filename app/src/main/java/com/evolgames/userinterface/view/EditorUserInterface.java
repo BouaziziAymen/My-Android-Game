@@ -1041,9 +1041,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void onAddImageButtonClicked() {
         ResourceManager.getInstance().activity.requestImagePermission();
     }
-    public void onMirrorImageButtonClicked(){
+
+    public void onMirrorImageButtonClicked() {
         ResourceManager.getInstance().mirrorSketch();
-        if(imageShape!=null) {
+        if (imageShape != null) {
             imageShape.updateSprite();
             ImageShapeModel model = toolModel.getImageShapeModel();
             imageShape.updateWidth(model.getWidth());
@@ -1178,30 +1179,30 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     }
 
     public void setBoardsState(Screen screen, CreationAction creationAction) {
-      if(screen!=Screen.NONE) {
-          mainButtonBoard.getButtonAtIndex(screen.ordinal()).updateState(Button.State.PRESSED);
+        if (screen != Screen.NONE) {
+            mainButtonBoard.getButtonAtIndex(screen.ordinal()).updateState(Button.State.PRESSED);
 
-          switch (screen){
-              case DRAW_SCREEN:
-                  mainButtonBoardController.onDrawOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
-                  break;
-              case JOINTS_SCREEN:
-                  mainButtonBoardController.onJointOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
-                  break;
-              case ITEMS_SCREEN:
-                  mainButtonBoardController.onToolOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
-                  break;
-              case IMAGE_SCREEN:
-                  mainButtonBoardController.onImageOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
-                  break;
-              case SAVE_SCREEN:
-                  mainButtonBoardController.onSaveOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
-                  break;
-          }
-      }
+            switch (screen) {
+                case DRAW_SCREEN:
+                    mainButtonBoardController.onDrawOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                    break;
+                case JOINTS_SCREEN:
+                    mainButtonBoardController.onJointOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                    break;
+                case ITEMS_SCREEN:
+                    mainButtonBoardController.onToolOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                    break;
+                case IMAGE_SCREEN:
+                    mainButtonBoardController.onImageOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                    break;
+                case SAVE_SCREEN:
+                    mainButtonBoardController.onSaveOptionClicked((Button<MainButtonBoardController>) mainButtonBoard.getButtonAtIndex(screen.ordinal()));
+                    break;
+            }
         }
+    }
 
-    public void setBoardsActive(boolean b){
+    public void setBoardsActive(boolean b) {
         drawButtonBoardController.setTemporarilyActive(b);
         toolButtonBoardController.setTemporarilyActive(b);
         imageButtonBoardController.setTemporarilyActive(b);

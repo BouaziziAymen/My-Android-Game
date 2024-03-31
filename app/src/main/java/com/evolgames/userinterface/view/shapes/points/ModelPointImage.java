@@ -23,7 +23,7 @@ public class ModelPointImage extends PointImage {
         } else {
             Vector2 d = new Vector2(dx, dy);
             float len = d.len();
-            d.nor().mul(len/2);
+            d.nor().mul(len / 2);
             if (d.len() > 0.02f) {
                 this.onControllerMoved(d.x, d.y);
             }

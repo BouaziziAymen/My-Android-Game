@@ -6,8 +6,6 @@ import com.evolgames.entities.factories.Materials;
 
 import org.andengine.util.adt.color.Color;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class Material {
 
     private final float tenacity;
@@ -31,8 +29,8 @@ public class Material {
     private final boolean flammable;
 
     private final float flammability;
-    private int juiceIndex;
     private final float heatResistance;
+    private int juiceIndex;
 
     public Material(
             String name,
@@ -62,7 +60,7 @@ public class Material {
         this.heatResistance = heatResistance;
         this.index = index;
 
-        this.juicy = jd>0f;
+        this.juicy = jd > 0f;
         this.JuicinessLowerPressure = jlp;
         this.JuicinessUpperPressure = jup;
         this.JuicinessDensity = jd;
@@ -71,7 +69,7 @@ public class Material {
         this.combustible = combustible;
         this.ignitionTemperature = ignitionTemperature;
         this.flameTemperature = flameTemperature;
-        this.energy = 3f*energy;
+        this.energy = 3f * energy;
         this.flammable = flammable;
         this.flammability = flammability;
     }

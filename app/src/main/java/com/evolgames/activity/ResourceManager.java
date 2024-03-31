@@ -6,9 +6,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
-import com.evolgames.entities.factories.MaterialFactory;
-import com.evolgames.entities.persistence.VersioningHelper;
-import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.MyLetter;
@@ -174,6 +171,23 @@ public class ResourceManager {
         return ResourceManager.INSTANCE;
     }
 
+    public static Bitmap createMirroredBitmap(Bitmap srcBitmap) {
+        // Create a new bitmap with the same width and height as the source bitmap
+        Bitmap mirroredBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), srcBitmap.getConfig());
+
+        // Create a canvas with the mirrored bitmap
+        Canvas canvas = new Canvas(mirroredBitmap);
+
+        // Create a matrix for mirroring
+        Matrix matrix = new Matrix();
+        matrix.setScale(-1, 1, srcBitmap.getWidth() / 2f, srcBitmap.getHeight() / 2f); // Horizontal mirroring
+
+        // Apply the matrix to the canvas
+        canvas.drawBitmap(srcBitmap, matrix, null);
+
+        return mirroredBitmap;
+    }
+
     public void loadBatches() {
         hudBatcher =
                 new SpriteBatch(
@@ -291,7 +305,6 @@ public class ResourceManager {
         this.homeBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "main_board/homeoption.png", 2, 1);
-
 
 
         this.optionsPointTextureRegion =
@@ -707,8 +720,6 @@ public class ResourceManager {
         this.vbom = vbom;
     }
 
-
-
     public void loadGameAudio() {
         try {
             String[] names =
@@ -778,7 +789,6 @@ public class ResourceManager {
         sketchBitmap = bitmap;
     }
 
-
     public String getString(int id) {
         return activity.getString(id);
     }
@@ -799,24 +809,8 @@ public class ResourceManager {
         this.editorItem = editorItem;
     }
 
-    public static Bitmap createMirroredBitmap(Bitmap srcBitmap) {
-        // Create a new bitmap with the same width and height as the source bitmap
-        Bitmap mirroredBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), srcBitmap.getConfig());
-
-        // Create a canvas with the mirrored bitmap
-        Canvas canvas = new Canvas(mirroredBitmap);
-
-        // Create a matrix for mirroring
-        Matrix matrix = new Matrix();
-        matrix.setScale(-1, 1, srcBitmap.getWidth() / 2f, srcBitmap.getHeight() / 2f); // Horizontal mirroring
-
-        // Apply the matrix to the canvas
-        canvas.drawBitmap(srcBitmap, matrix, null);
-
-        return mirroredBitmap;
-    }
-    public void mirrorSketch(){
-        if(sketchBitmap!=null) {
+    public void mirrorSketch() {
+        if (sketchBitmap != null) {
             loadImage(createMirroredBitmap(sketchBitmap));
         }
     }

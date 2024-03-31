@@ -1,7 +1,5 @@
 package com.evolgames.userinterface.view;
 
-import com.evolgames.userinterface.control.CreationAction;
-
 import java.util.Arrays;
 
 public enum Screen {
@@ -11,8 +9,9 @@ public enum Screen {
     IMAGE_SCREEN,
     SAVE_SCREEN,
     NONE;
-    public static Screen fromName(String name){
-        return Arrays.stream(values()).filter(e->e.name().equals(name)).findFirst().orElse(null);
+
+    public static Screen fromName(String name) {
+        return Arrays.stream(values()).filter(e -> e.name().equals(name)).findFirst().orElse(null);
     }
 
 }

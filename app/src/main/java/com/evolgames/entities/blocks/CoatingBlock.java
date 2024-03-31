@@ -257,11 +257,12 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
             this.isOnFire = true;
         }
     }
-    public void onHeatWave(float heatRatio){
-        if(!(getParent().getProperties().isCombustible()||getParent().getProperties().isFlammable())){
+
+    public void onHeatWave(float heatRatio) {
+        if (!(getParent().getProperties().isCombustible() || getParent().getProperties().isFlammable())) {
             return;
         }
-        if (Math.random() < 0.5f*heatRatio*heatRatio) {
+        if (Math.random() < 0.5f * heatRatio * heatRatio) {
             this.isOnFlame = true;
             this.isOnFire = true;
         }

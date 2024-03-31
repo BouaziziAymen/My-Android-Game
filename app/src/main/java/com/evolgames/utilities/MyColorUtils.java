@@ -35,7 +35,7 @@ public class MyColorUtils {
                     if (temperature > 1000f) {
                         alpha = 0.5f;
                     } else if (temperature > 300f) {
-                        alpha = 0.5f*(temperature - 300f) / 700f;
+                        alpha = 0.5f * (temperature - 300f) / 700f;
                     } else {
                         alpha = 0;
                     }
@@ -57,7 +57,7 @@ public class MyColorUtils {
                     @Override
                     public void performAction(Color color, float burnRatio) {
                         result = true;
-                        color.set(0.1f, 0.1f, 0.1f, burnRatio/2f);
+                        color.set(0.1f, 0.1f, 0.1f, burnRatio / 2f);
                     }
                 };
         gradient = new ArrayList<>();

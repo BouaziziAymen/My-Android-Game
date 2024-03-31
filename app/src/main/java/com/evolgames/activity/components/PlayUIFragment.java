@@ -44,6 +44,7 @@ public class PlayUIFragment extends Fragment {
         touchHoldButton.setIcon(R.drawable.drag_icon);
         usesButton.setState(Button.State.NORMAL);
     }
+
     public void reset() {
         resetTouchHold();
         optionsListAdaptor.setPlayerSpecialActionList(new ArrayList<>(), null);
@@ -100,7 +101,6 @@ public class PlayUIFragment extends Fragment {
     }
 
 
-
     private void setupMirrorButton(GameImageButton mirrorButton) {
         mirrorButton.setOnReleased(() -> {
             ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked();
@@ -115,6 +115,7 @@ public class PlayUIFragment extends Fragment {
         usesButton.setOnReleased(() -> optionsRecyclerView.setVisibility(View.GONE));
         usesButton.setOnPressed(() -> optionsRecyclerView.setVisibility(View.VISIBLE));
     }
+
     private void setupSelectButton(GameImageButton selectButton) {
         selectButton.setOnPressed(() -> {
             ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(TouchHoldState.SELECT);
@@ -123,6 +124,7 @@ public class PlayUIFragment extends Fragment {
             ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
         });
     }
+
     private void setupTouchHoldButton(GameImageButton touchHoldButton) {
         touchHoldButton.setOnReleased(() -> {
             if (touchHoldState == TouchHoldState.HOLD) {

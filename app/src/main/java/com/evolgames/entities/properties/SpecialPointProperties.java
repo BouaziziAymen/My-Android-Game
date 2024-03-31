@@ -3,7 +3,7 @@ package com.evolgames.entities.properties;
 import com.badlogic.gdx.math.Vector2;
 
 public class SpecialPointProperties extends Properties {
-        private Vector2 position;
+    private Vector2 position;
 
     public Vector2 getPosition() {
         return position;

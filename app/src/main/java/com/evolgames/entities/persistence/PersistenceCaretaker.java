@@ -26,11 +26,11 @@ import com.evolgames.entities.properties.usage.BombUsageProperties;
 import com.evolgames.entities.properties.usage.BowProperties;
 import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.FlameThrowerProperties;
-import com.evolgames.entities.properties.usage.FuzeBombUsageProperties;
 import com.evolgames.entities.properties.usage.HeavyProperties;
 import com.evolgames.entities.properties.usage.ImpactBombUsageProperties;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.properties.usage.MissileProperties;
+import com.evolgames.entities.properties.usage.MotorControlProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.RocketLauncherProperties;
 import com.evolgames.entities.properties.usage.RocketProperties;
@@ -135,6 +135,7 @@ public class PersistenceCaretaker {
     public static final String BODY_B_ID_JOINT_ATTRIBUTE = "bodyBId";
     public static final String XML_FOLDER = "xml";
     public static final String JOINT = "joint";
+    public static final String SPACIAL_POINT_TAG = "spacialPoint";
     private static final PersistenceCaretaker INSTANCE = new PersistenceCaretaker();
     private static final String IMAGE_SHAPE_TAG = "imageShape";
     private static final String JOINTS_TAG = "joints";
@@ -142,7 +143,6 @@ public class PersistenceCaretaker {
     private static final String SPECIAL_POINTS_LIST_TAG = "specialPointsList";
     private static final String BOMB_TAG = "bomb";
     private static final String CATEGORY = "category";
-    public static final String SPACIAL_POINT_TAG = "spacialPoint";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
     private AbstractScene<?> scene;
@@ -174,6 +174,18 @@ public class PersistenceCaretaker {
         return numbers;
     }
 
+    private static void scalePoints(Vector2 center, List<Vector2> vertices, float scale) {
+        for (int i = 0; i < vertices.size(); i++) {
+            float originalX = vertices.get(i).x;
+            float originalY = vertices.get(i).y;
+
+            float scaledX = center.x + (originalX - center.x) * scale;
+            float scaledY = center.y + (originalY - center.y) * scale;
+            // Update vertex positions
+            vertices.get(i).set(scaledX, scaledY);
+        }
+    }
+
     public void create(AbstractScene<?> editorScene) throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         this.scene = editorScene;
@@ -192,8 +204,8 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
-  scaleTool("fra",12f/34f);
-       // moveLayersTransformation();
+        scaleTool("fra", 12f / 34f);
+        // moveLayersTransformation();
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -207,56 +219,45 @@ public class PersistenceCaretaker {
             props.setDensity(material.getDensity());
             props.setRestitution(material.getRestitution());
             props.setFriction(material.getFriction());
-        },e->true);
+        }, e -> true);
     }
+
     private void moveLayersTransformation() {
         VersioningHelper.applyTreatment(toolModel -> {
             String name = toolModel.getProperties().getToolName();
-         if(name.equals("fra")){
-             toolModel.getBodies().get(1).getLayers().addAll(toolModel.getBodies().get(0).getLayers().stream().filter(l->l.getLayerId()>=7).collect(Collectors.toList()));
-             toolModel.getBodies().get(1).getLayerCounter().set(toolModel.getBodies().get(0).getLayerCounter().get());
-             toolModel.getBodies().get(0).getLayers().removeIf(e->e.getLayerId()>=7);
-         }
-        },(e)->true);
+            if (name.equals("fra")) {
+                toolModel.getBodies().get(1).getLayers().addAll(toolModel.getBodies().get(0).getLayers().stream().filter(l -> l.getLayerId() >= 7).collect(Collectors.toList()));
+                toolModel.getBodies().get(1).getLayerCounter().set(toolModel.getBodies().get(0).getLayerCounter().get());
+                toolModel.getBodies().get(0).getLayers().removeIf(e -> e.getLayerId() >= 7);
+            }
+        }, (e) -> true);
     }
 
-    private void scaleBodyModel(BodyModel bodyModel, float scale){
+    private void scaleBodyModel(BodyModel bodyModel, float scale) {
         List<List<Vector2>> list = new ArrayList<>();
         for (LayerModel layerModel : bodyModel.getLayers()) {
             list.add(layerModel.getPoints());
         }
         Vector2 center = GeometryUtils.calculateCenter(list);
-           for(LayerModel layerModel:bodyModel.getLayers()){
-               scalePoints(center, layerModel.getPoints(),scale);
-               scalePoints(center, layerModel.getReferencePoints(),scale);
-               for(DecorationModel decorationModel:layerModel.getDecorations()){
-                   scalePoints(center,decorationModel.getPoints(),scale);
-                   scalePoints(center, decorationModel.getReferencePoints(),scale);
-               }
-           }
-    }
-
-    private static void scalePoints(Vector2 center,  List<Vector2> vertices,float scale) {
-        for (int i = 0; i < vertices.size(); i ++) {
-            float originalX = vertices.get(i).x;
-            float originalY = vertices.get(i).y;
-
-            float scaledX = center.x + (originalX - center.x) * scale;
-            float scaledY = center.y + (originalY - center.y) * scale;
-            // Update vertex positions
-            vertices.get(i).set(scaledX,scaledY);
+        for (LayerModel layerModel : bodyModel.getLayers()) {
+            scalePoints(center, layerModel.getPoints(), scale);
+            scalePoints(center, layerModel.getReferencePoints(), scale);
+            for (DecorationModel decorationModel : layerModel.getDecorations()) {
+                scalePoints(center, decorationModel.getPoints(), scale);
+                scalePoints(center, decorationModel.getReferencePoints(), scale);
+            }
         }
     }
 
     private void scaleTool(String toolName, float scale) {
         VersioningHelper.applyTreatment(toolModel -> {
             String name = toolModel.getProperties().getToolName();
-           if(name.equals(toolName)){
-              for(BodyModel bodyModel:toolModel.getBodies()){
-                  scaleBodyModel(bodyModel,scale);
-              }
-           }
-        },(ItemMetaData e)-> e.getName().equals(toolName));
+            if (name.equals(toolName)) {
+                for (BodyModel bodyModel : toolModel.getBodies()) {
+                    scaleBodyModel(bodyModel, scale);
+                }
+            }
+        }, (ItemMetaData e) -> e.getName().equals(toolName));
     }
 
     public void saveToolModel(ToolModel toolModel)
@@ -320,11 +321,11 @@ public class PersistenceCaretaker {
                 JOINT_COLLIDE_CONNECTED_ATTRIBUTE, String.valueOf(jointModel.getProperties().isCollideConnected()));
         jointElement.setAttribute(
                 JOINT_TYPE_ATTRIBUTE, String.valueOf(jointModel.getProperties().getJointType().getValue()));
-        if(jointModel.getBodyModel1()!=null) {
+        if (jointModel.getBodyModel1() != null) {
             int bodyId1 = jointModel.getBodyModel1().getBodyId();
             jointElement.setAttribute(BODY_A_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId1));
         }
-        if(jointModel.getBodyModel2()!=null) {
+        if (jointModel.getBodyModel2() != null) {
             int bodyId2 = jointModel.getBodyModel2().getBodyId();
             jointElement.setAttribute(BODY_B_ID_JOINT_ATTRIBUTE, String.valueOf(bodyId2));
         }
@@ -461,7 +462,7 @@ public class PersistenceCaretaker {
         for (UsageModel<?> usageModel : bodyModel.getUsageModels()) {
             Element usageElement = document.createElement(USAGE_TAG);
             Properties props = bodyModel.getUsageModelProperties(usageModel.getType());
-            if(usageModel.getType()==BodyUsageCategory.BOW) {
+            if (usageModel.getType() == BodyUsageCategory.BOW) {
                 BowProperties bowProperties = (BowProperties) props;
                 if (bodyModel.getSpecialPointModels().size() == 3) {
                     List<SpecialPointModel> sp = bodyModel.getSpecialPointModels();
@@ -472,7 +473,7 @@ public class PersistenceCaretaker {
             }
             Element propertiesElement = createPropertiesElement(document, Objects.requireNonNull(props));
             if (usageModel.getType() == BodyUsageCategory.SHOOTER_CONTINUOUS
-                    || usageModel.getType() == BodyUsageCategory.SHOOTER||usageModel.getType() == BodyUsageCategory.BOW || usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
+                    || usageModel.getType() == BodyUsageCategory.SHOOTER || usageModel.getType() == BodyUsageCategory.BOW || usageModel.getType() == BodyUsageCategory.ROCKET_LAUNCHER) {
                 RangedProperties rangedProperties = bodyModel.getUsageModelProperties(usageModel.getType());
                 propertiesElement.setAttribute(
                         USAGE_PROPERTIES_PROJECTILES_TAG,
@@ -500,7 +501,7 @@ public class PersistenceCaretaker {
                                 impactBombUsageProperties.getBombModelList().stream()
                                         .map(BombModel::getBombId)
                                         .collect(Collectors.toList())));
-                propertiesElement.setAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG,convertIntListToString(
+                propertiesElement.setAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG, convertIntListToString(
                         impactBombUsageProperties.getSensitiveLayers()
                 ));
             }
@@ -717,12 +718,10 @@ public class PersistenceCaretaker {
                                         }
                                         assert (value != null) : "conversion failed";
                                         method.invoke(properties, value);
-                                    }
-                                    else if (field.getType() == String.class) {
+                                    } else if (field.getType() == String.class) {
                                         String stringValue = propertiesElement.getAttribute(field.getName());
                                         method.invoke(properties, stringValue);
-                                    }
-                                    else if (field.getType() == Color.class) {
+                                    } else if (field.getType() == Color.class) {
                                         int packedColor =
                                                 Integer.parseInt(propertiesElement.getAttribute(field.getName()));
                                         Color color = ColorUtils.convertARGBPackedIntToColor(packedColor);
@@ -874,6 +873,9 @@ public class PersistenceCaretaker {
         Element toolElement = xml.getDocumentElement();
         String toolName = toolElement.getAttribute(NAME);
         ItemCategory category = ItemCategory.fromName(toolElement.getAttribute(CATEGORY));
+        ToolModel toolModel = new ToolModel(scene);
+        toolModel.getProperties().setToolName(toolName);
+        toolModel.setCategory(category);
         Element bodiesElement = (Element) toolElement.getElementsByTagName(BODIES_TAG).item(0);
         List<BodyModel> bodyModels = new ArrayList<>();
         for (int i = 0; i < bodiesElement.getChildNodes().getLength(); i++) {
@@ -887,6 +889,49 @@ public class PersistenceCaretaker {
                 throw new PersistenceException("Error reading body model:" + ID, e);
             }
         }
+
+        List<JointModel> jointModels = new ArrayList<>();
+        Element jointsElement = (Element) toolElement.getElementsByTagName(JOINTS_TAG).item(0);
+        if (jointsElement != null) {
+            for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
+                Element jointElement = (Element) jointsElement.getChildNodes().item(i);
+                JointModel jointModel;
+                try {
+                    jointModel =
+                            readJointModel(
+                                    Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
+                } catch (PersistenceException e) {
+                    throw new PersistenceException("Error reading joint:" + ID, e);
+                }
+                jointModels.add(jointModel);
+            }
+            toolModel.getJoints().addAll(jointModels);
+        }
+
+        populateSpecialModels(bodyModels,jointModels);
+
+        toolModel.getBodies().addAll(bodyModels);
+
+
+        if (editor) {
+            Element panelColorsElement = (Element) toolElement.getElementsByTagName(PANEL_COLORS_TAG).item(0);
+            if (panelColorsElement != null) {
+                List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
+                toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
+            }
+
+            Element imageShapeElement = (Element) toolElement.getElementsByTagName(IMAGE_SHAPE_TAG).item(0);
+            if (imageShapeElement != null) {
+                Element propertiesElement = (Element) imageShapeElement.getElementsByTagName(PROPERTIES_TAG).item(0);
+                ImageShapeModel imageShapeModel = loadProperties(propertiesElement, ImageShapeModel.class);
+                toolModel.setImageShapeModel(imageShapeModel);
+            }
+        }
+        this.initializeCounters(toolModel);
+        return toolModel;
+    }
+
+    private static void populateSpecialModels(List<BodyModel> bodyModels, List<JointModel> jointModels) {
         List<FireSourceModel> allFireSources = new ArrayList<>();
         for (BodyModel model : bodyModels) {
             ArrayList<FireSourceModel> fireSourceModels = model.getFireSourceModels();
@@ -936,7 +981,7 @@ public class PersistenceCaretaker {
                                                                     .getFireSourceIds()
                                                                     .contains(p.getFireSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Shooter") || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER||e.getType()==BodyUsageCategory.BOW) {
+                } else if (e.getType().toString().startsWith("Shooter") || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER || e.getType() == BodyUsageCategory.BOW) {
                     RangedProperties rangedProperties = (RangedProperties) e.getProperties();
                     rangedProperties
                             .getProjectileModelList()
@@ -966,48 +1011,14 @@ public class PersistenceCaretaker {
                                     allBombs.stream()
                                             .filter(p -> bombUsageProperties.getBombIds().contains(p.getBombId()))
                                             .collect(Collectors.toList()));
+                } else if(e.getType()==BodyUsageCategory.MOTOR_CONTROL){
+                    MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
+                   motorControlProperties.setJointModel(
+                            jointModels.stream().filter(jointModel -> jointModel.getJointId()==motorControlProperties.getJointId()).findFirst().orElse(null)
+                    );
                 }
             }
         }
-
-        ToolModel toolModel = new ToolModel(scene);
-        toolModel.getProperties().setToolName(toolName);
-        toolModel.setCategory(category);
-        toolModel.getBodies().addAll(bodyModels);
-
-        List<JointModel> jointModels = new ArrayList<>();
-        Element jointsElement = (Element) toolElement.getElementsByTagName(JOINTS_TAG).item(0);
-        if (jointsElement != null) {
-            for (int i = 0; i < jointsElement.getChildNodes().getLength(); i++) {
-                Element jointElement = (Element) jointsElement.getChildNodes().item(i);
-                JointModel jointModel;
-                try {
-                    jointModel =
-                            readJointModel(
-                                    Integer.parseInt(jointElement.getAttribute(ID)), jointElement, bodyModels);
-                } catch (PersistenceException e) {
-                    throw new PersistenceException("Error reading joint:" + ID, e);
-                }
-                jointModels.add(jointModel);
-            }
-            toolModel.getJoints().addAll(jointModels);
-        }
-        if (editor) {
-            Element panelColorsElement = (Element) toolElement.getElementsByTagName(PANEL_COLORS_TAG).item(0);
-            if (panelColorsElement != null) {
-                List<SquareProperties> list = readPanelColorsElement(panelColorsElement);
-                toolModel.getColorPanelProperties().getSquarePropertiesList().addAll(list);
-            }
-
-            Element imageShapeElement = (Element) toolElement.getElementsByTagName(IMAGE_SHAPE_TAG).item(0);
-            if (imageShapeElement != null) {
-                Element propertiesElement = (Element) imageShapeElement.getElementsByTagName(PROPERTIES_TAG).item(0);
-                ImageShapeModel imageShapeModel = loadProperties(propertiesElement, ImageShapeModel.class);
-                toolModel.setImageShapeModel(imageShapeModel);
-            }
-        }
-        this.initializeCounters(toolModel);
-        return toolModel;
     }
 
     DecorationModel readDecorationModel(Element element, LayerModel layerModel, int bodyId, int layerId, int decorationId)
@@ -1452,9 +1463,14 @@ public class PersistenceCaretaker {
                 usageModel.setProperties(rocketLauncherProperties);
                 break;
             case HEAVY:
-            HeavyProperties heavyProperties =
-                    loadProperties(propertiesElement, HeavyProperties.class);
+                HeavyProperties heavyProperties =
+                        loadProperties(propertiesElement, HeavyProperties.class);
                 usageModel.setProperties(heavyProperties);
+                break;
+            case MOTOR_CONTROL:
+                MotorControlProperties motorControlProperties =
+                        loadProperties(propertiesElement, MotorControlProperties.class);
+                usageModel.setProperties(motorControlProperties);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
@@ -1512,6 +1528,7 @@ public class PersistenceCaretaker {
         bombModel.setProperties(bombProperties);
         return bombModel;
     }
+
     private SpecialPointModel readSpecialPointModel(Element specialPointElement, int bodyId, int id)
             throws PersistenceException {
         Element propertiesElement = (Element) specialPointElement.getElementsByTagName(PROPERTIES_TAG).item(0);
@@ -1558,7 +1575,8 @@ public class PersistenceCaretaker {
                     bodyModels.stream().filter(bodyModel -> bodyModel.getBodyId() == bodyBId).findFirst().get();
             jointModel.setBodyModel1(bodyModelA);
             jointModel.setBodyModel2(bodyModelB);
-        } catch (Throwable t){}
+        } catch (Throwable t) {
+        }
         switch (jointType) {
             case WeldJoint:
                 break;

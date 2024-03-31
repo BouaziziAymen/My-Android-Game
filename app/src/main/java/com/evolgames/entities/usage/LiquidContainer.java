@@ -147,7 +147,7 @@ public class LiquidContainer extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if(ratio<0.9f){
+        if (ratio < 0.9f) {
             return false;
         }
         this.liquidSourceInfoList.forEach(liquidSourceInfo -> {

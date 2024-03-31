@@ -58,7 +58,7 @@ public class ImpactBomb extends Bomb {
 
     @Override
     public boolean isActive() {
-        if(hasSafety()) {
+        if (hasSafety()) {
             return super.isActive();
         }
         return true;
@@ -69,7 +69,7 @@ public class ImpactBomb extends Bomb {
         for (BombInfo bombInfo : getBombInfoList()) {
             bombInfo.setCarrierEntity(heir);
         }
-       return ratio>0.5f;
+        return ratio > 0.5f;
     }
 
     public void onImpact(float impulse) {

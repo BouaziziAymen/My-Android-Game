@@ -22,15 +22,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ColorSelectorWindowController
         extends LinearLayoutAdvancedWindowController<ColorSelectorWindow> {
     private final EditorUserInterface editorUserInterface;
+    private final List<Button<?>> squareList = new ArrayList<>();
+    private final AtomicInteger colorSlotCounter = new AtomicInteger();
     private ColoredProperties copy;
     private Button<ColorSelectorWindowController> selectedSlot;
     private ColoredProperties coloredProperties;
     private Action acceptAction;
     private ColorPanelProperties colorPanelProperties;
-
-    private final List<Button<?>> squareList = new ArrayList<>();
-
-    private final AtomicInteger colorSlotCounter = new AtomicInteger();
 
     public ColorSelectorWindowController(EditorUserInterface editorUserInterface) {
         this.editorUserInterface = editorUserInterface;
@@ -110,7 +108,8 @@ public class ColorSelectorWindowController
         colorSelector.updateColorHSV();
         onColorUpdated();
     }
-    public void addColorToPanel(Color color,int id, boolean addToProperties) {
+
+    public void addColorToPanel(Color color, int id, boolean addToProperties) {
         Button<ColorSelectorWindowController> square = window
                 .getPanel()
                 .addColor(color.getRed(), color.getGreen(), color.getBlue());
@@ -123,12 +122,12 @@ public class ColorSelectorWindowController
 
     public void addColorToPanel(Color color, boolean addToProperties) {
         int id = colorSlotCounter.getAndIncrement();
-      addColorToPanel(color,id,addToProperties);
+        addColorToPanel(color, id, addToProperties);
     }
 
     public void addSelectorColorToPanel() {
         ColorSelector colorSelector = window.getSelector();
-        addColorToPanel(new Color(colorSelector.getRed(), colorSelector.getGreen(), colorSelector.getBlue()),true);
+        addColorToPanel(new Color(colorSelector.getRed(), colorSelector.getGreen(), colorSelector.getBlue()), true);
     }
 
     public void updateMeshColor(float red, float green, float blue, float alpha) {
@@ -145,7 +144,7 @@ public class ColorSelectorWindowController
     }
 
     public void onColorSlotReleased(Button<?> square) {
-        if(coloredProperties.getColorSquareId()==square.getId()) {
+        if (coloredProperties.getColorSquareId() == square.getId()) {
             coloredProperties.setColorSquareId(-1);
         }
         selectedSlot = null;
@@ -172,14 +171,14 @@ public class ColorSelectorWindowController
                 slot.updateState(Button.State.PRESSED);
             }
         } else {
-           resetSlots();
+            resetSlots();
         }
     }
 
     public void resetSlots() {
-     squareList.forEach(square->{
-         square.updateState(Button.State.NORMAL);
-     });
+        squareList.forEach(square -> {
+            square.updateState(Button.State.NORMAL);
+        });
     }
 
     public void onAccept() {

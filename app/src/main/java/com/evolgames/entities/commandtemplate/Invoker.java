@@ -43,9 +43,9 @@ public class Invoker {
                             }
                             // after creating the bodies we can create the joints
                             for (GameGroup gameGroup : scene.getGameGroups()) {
-                                gameGroup.getCommands().sort((a,b)->{
-                                    if(a instanceof JointDestructionCommand)return 1;
-                                    else if( b instanceof JointDestructionCommand)return -1;
+                                gameGroup.getCommands().sort((a, b) -> {
+                                    if (a instanceof JointDestructionCommand) return 1;
+                                    else if (b instanceof JointDestructionCommand) return -1;
                                     return 0;
                                 });
                                 for (Command command : gameGroup.getCommands()) {

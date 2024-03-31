@@ -7,7 +7,7 @@ import com.evolgames.scenes.PhysicsScene;
 
 import java.util.List;
 
-public class Heavy extends Use{
+public class Heavy extends Use {
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
 
@@ -24,6 +24,6 @@ public class Heavy extends Use{
 
     @Override
     public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
-        return ratio>0.7f;
+        return ratio > 0.7f;
     }
 }

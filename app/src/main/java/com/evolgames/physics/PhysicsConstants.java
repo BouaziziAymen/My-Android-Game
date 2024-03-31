@@ -19,7 +19,7 @@ public class PhysicsConstants {
     public static final float GRAIN_SPACING = 16f;
     public static final float PARTICLE_TERMINAL_VELOCITY = 10f;
     public static final float EXPLOSION_FORCE_THRESHOLD = 100f;
-    public static final int EXPLOSION_LIFESPAN =20;
+    public static final int EXPLOSION_LIFESPAN = 20;
     public static final int PULVERIZATION_DURATION = 10;
     public static final float HEAT_CONSTANT = 10000f;
     public static final int BOMB_IMPACT_FACTOR = 10;
@@ -43,16 +43,12 @@ public class PhysicsConstants {
         return ratio * 10f;
     }
 
+    public static float getRotationSpeedFromRatio(float ratio) {
+        return (10f+100f*ratio)* 2f * (float)Math.PI;
+    }
+
     public static float getTenacityRatio(float tenacity) {
         return (tenacity) / (10f);
-    }
-
-    public static float getHardnessFromRatio(float ratio) {
-        return 0.1f + ratio * (10f - 0.1f);
-    }
-
-    public static float getHardnessRatio(float tenacity) {
-        return (tenacity - 0.1f) / (10f - 0.1f);
     }
 
     public static float getParticleVelocity(float speedRatio) {

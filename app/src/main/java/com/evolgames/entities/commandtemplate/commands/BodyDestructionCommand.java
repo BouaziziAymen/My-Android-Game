@@ -7,6 +7,8 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
+import com.evolgames.entities.hand.Hand;
+import com.evolgames.scenes.PlayScene;
 
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
@@ -48,6 +50,10 @@ public class BodyDestructionCommand extends Command {
         entity.setMirrorBody(null);
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
+        Hand hand = ((PlayScene) Invoker.scene).getHand();
+        if(hand.getUsableEntity()==entity){
+            hand.setSelectedEntity(null);
+        }
 
     }
 

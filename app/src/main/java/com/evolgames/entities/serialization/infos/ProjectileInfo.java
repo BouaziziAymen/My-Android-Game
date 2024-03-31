@@ -1,15 +1,16 @@
 package com.evolgames.entities.serialization.infos;
 
-import android.util.Log;
-
 import androidx.annotation.Nullable;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.usage.Muzzle;
 
 public class ProjectileInfo {
+
+    private String projectileInfoUniqueId;
     private CasingInfo casingInfo;
-    private transient GameEntity muzzleEntity;
+
+    private transient Muzzle muzzle;
     private String muzzleEntityUniqueId;
     private Vector2 projectileOrigin;
     private Vector2 projectileEnd;
@@ -36,23 +37,25 @@ public class ProjectileInfo {
         this.casingInfo = casingInfo;
     }
 
-    public GameEntity getMuzzleEntity() {
-        return muzzleEntity;
+    public String getProjectileInfoUniqueId() {
+        return projectileInfoUniqueId;
     }
 
-    public void setMuzzleEntity(@Nullable GameEntity muzzleEntity) {
-        this.muzzleEntity = muzzleEntity;
-        if (this.muzzleEntity != null) {
-            this.muzzleEntityUniqueId = muzzleEntity.getUniqueID();
-        }
+    public void setProjectileInfoUniqueId(String projectileInfoUniqueId) {
+        this.projectileInfoUniqueId = projectileInfoUniqueId;
     }
 
     public String getMuzzleEntityUniqueId() {
         return muzzleEntityUniqueId;
     }
 
-    public void setMuzzleEntityUniqueId(String muzzleEntityUniqueId) {
-        this.muzzleEntityUniqueId = muzzleEntityUniqueId;
+    public Muzzle getMuzzle() {
+        return muzzle;
+    }
+
+    public void setMuzzle(Muzzle muzzle) {
+        this.muzzle = muzzle;
+        this.muzzleEntityUniqueId = muzzle.getMuzzleEntity().getUniqueID();
     }
 
     public Vector2 getProjectileOrigin() {
@@ -172,12 +175,12 @@ public class ProjectileInfo {
         return id == ((ProjectileInfo) obj).id;
     }
 
-    public void setAssetsMissile(boolean assetsMissile) {
-        this.assetsMissile = assetsMissile;
-    }
-
     public boolean isAssetsMissile() {
         return assetsMissile;
+    }
+
+    public void setAssetsMissile(boolean assetsMissile) {
+        this.assetsMissile = assetsMissile;
     }
 
     public String getArrowGroupUniqueId() {

@@ -2,7 +2,7 @@ package com.evolgames.entities.properties.usage;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class BowProperties extends RangedProperties{
+public class BowProperties extends RangedProperties {
     private Vector2 upper;
     private Vector2 middle;
     private Vector2 lower;

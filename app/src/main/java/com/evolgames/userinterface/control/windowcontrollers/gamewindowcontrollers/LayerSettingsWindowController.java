@@ -89,7 +89,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
     private void setJuiceColorSlot() {
         Color color = layerProperty.getJuiceColor();
-        if(color!=null) {
+        if (color != null) {
             colorSlotForJuice.setColor(color.getRed(), color.getGreen(), color.getBlue());
         }
     }
@@ -102,9 +102,9 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
             SimplePrimary<?> element = window.getLayout().getPrimaryByIndex(i);
-            if(element.getPrimaryKey()!=2) {
+            if (element.getPrimaryKey() != 2) {
                 element.getSection().setActive(false);
-                if(element.getMain() instanceof ButtonWithText<?>) {
+                if (element.getMain() instanceof ButtonWithText<?>) {
                     ((ButtonWithText<?>) element.getMain()).updateState(Button.State.NORMAL);
                 }
             }
@@ -395,8 +395,6 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         heatResistanceQuantity
                 .getBehavior()
                 .setChangeAction(() -> layerProperty.setHeatResistance(heatResistanceQuantity.getRatio()));
-
-
 
 
         secId++;
@@ -878,8 +876,9 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private void setTenacity(float tenacity) {
         tenacityQuantity.updateRatio(PhysicsConstants.getTenacityRatio(tenacity));
     }
+
     private void setHeatResistance(float heatResistance) {
-        heatResistanceQuantity.updateRatio(heatResistance<=1.0?heatResistance:0);
+        heatResistanceQuantity.updateRatio(heatResistance <= 1.0 ? heatResistance : 0);
     }
 
     private void setFlammability(float flammability) {

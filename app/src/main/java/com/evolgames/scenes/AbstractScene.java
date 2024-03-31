@@ -58,7 +58,7 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
         ToolModel toolModel;
         if (file != null && !file.isEmpty()) {
             try {
-                toolModel =  PersistenceCaretaker.getInstance().loadToolModel(file, editor, assets);
+                toolModel = PersistenceCaretaker.getInstance().loadToolModel(file, editor, assets);
                 return toolModel;
             } catch (IOException | ParserConfigurationException | SAXException |
                      PersistenceException e) {

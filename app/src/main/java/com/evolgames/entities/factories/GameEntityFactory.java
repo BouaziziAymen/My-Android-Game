@@ -4,8 +4,6 @@ import static com.evolgames.physics.CollisionUtils.OBJECTS_BACK_CATEGORY;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_FRONT_CATEGORY;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -40,7 +38,6 @@ import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 
 import org.andengine.entity.primitive.Line;
-import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.util.adt.color.Color;
@@ -224,12 +221,12 @@ public class GameEntityFactory {
         }
         GameEntity biggestSplinter = entities.stream().max(Comparator.comparing(GameEntity::getArea)).get();
 
-        for(Use use:parent.getUseList()){
-            float ratio = biggestSplinter.getArea()/parent.getArea();
-           boolean inherited = use.inheritedBy(biggestSplinter,ratio);
-           if(inherited) {
-               biggestSplinter.getUseList().add(use);
-           }
+        for (Use use : parent.getUseList()) {
+            float ratio = biggestSplinter.getArea() / parent.getArea();
+            boolean inherited = use.inheritedBy(biggestSplinter, ratio);
+            if (inherited) {
+                biggestSplinter.getUseList().add(use);
+            }
         }
         return entities;
     }
@@ -647,7 +644,7 @@ public class GameEntityFactory {
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-HEAD_RAY - NECK_LENGTH) / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, TORSO_HEIGHT / 2 / 32));
         revoluteJointDef.collideConnected = true;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, head, upperTorso,0);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, head, upperTorso, 0);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -659,7 +656,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = 0;
         revoluteJointDef.upperAngle = (float) ((float) Math.PI);
 
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmRight,1);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmRight, 1);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -670,7 +667,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) ((float) -Math.PI);
         revoluteJointDef.upperAngle = (float) 0;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmLeft,2);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmLeft, 2);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, -ARM_LENGTH / 2 / 32));
@@ -679,7 +676,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = (float) 0;
         revoluteJointDef.upperAngle = (float) Math.PI;
         revoluteJointDef.collideConnected = false;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperArmRight, lowerArmR,3);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperArmRight, lowerArmR, 3);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, -ARM_LENGTH / 2 / 32));
@@ -688,7 +685,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) -Math.PI;
         revoluteJointDef.upperAngle = (float) 0;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperArmLeft, lowerArmL,4);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperArmLeft, lowerArmL, 4);
 
         float sleeve = UPPERARM_CIR1 / 2 - ARM_LENGTH / 2 - LOWERARM_CIR2;
 
@@ -699,7 +696,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) (-Math.PI / 6);
         revoluteJointDef.upperAngle = (float) (Math.PI / 6);
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerArmR, rightHand,5);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerArmR, rightHand, 5);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, sleeve / 32));
@@ -708,7 +705,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) (-Math.PI / 6);
         revoluteJointDef.upperAngle = (float) (Math.PI / 6);
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerArmL, leftHand,6);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerArmL, leftHand, 6);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -719,7 +716,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = (float) (float) -(Math.PI / 4);
         revoluteJointDef.upperAngle = (float) (Math.PI / 2);
         revoluteJointDef.collideConnected = false;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegR,7);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegR, 7);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -730,7 +727,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = (float) (-Math.PI / 2);
         revoluteJointDef.upperAngle = (float) (float) (Math.PI / 4);
         revoluteJointDef.collideConnected = false;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegL,8);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegL, 8);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-hLegLength + UPPERLEG_CIR2) / 32f));
@@ -740,7 +737,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = (float) (-Math.PI / 2);
         revoluteJointDef.upperAngle = (float) (0);
         revoluteJointDef.collideConnected = false;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperLegR, lowerLegR,9);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperLegR, lowerLegR, 9);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-hLegLength + UPPERLEG_CIR2) / 32f));
@@ -750,7 +747,7 @@ public class GameEntityFactory {
         revoluteJointDef.lowerAngle = (float) (0);
         revoluteJointDef.upperAngle = (float) (Math.PI / 2);
         revoluteJointDef.collideConnected = false;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperLegL, lowerLegL,10);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperLegL, lowerLegL, 10);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -761,7 +758,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.upperAngle = (float) Math.PI / 5;
         revoluteJointDef.lowerAngle = (float) -Math.PI / 4;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerLegR, rightFoot,11);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerLegR, rightFoot, 11);
 
         revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(
@@ -772,7 +769,7 @@ public class GameEntityFactory {
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) -Math.PI / 5;
         revoluteJointDef.upperAngle = (float) Math.PI / 4;
-        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerLegL, leftFoot,12);
+        scene.getWorldFacade().addJointToCreate(revoluteJointDef, lowerLegL, leftFoot, 12);
 
         return ragdoll;
     }

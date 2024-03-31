@@ -7,10 +7,7 @@ import com.evolgames.entities.factories.MeshFactory;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
 import com.evolgames.entities.properties.ColorPanelProperties;
 import com.evolgames.entities.properties.ToolProperties;
-import com.evolgames.helpers.ItemMetaData;
-import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
-import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -29,8 +26,6 @@ import com.evolgames.userinterface.view.shapes.indicators.itemIndicators.Special
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.JointShape;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
-
-import org.andengine.util.adt.color.Color;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -131,7 +126,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public ArrayList<BodyModel> getBodies() {
         return bodies;
     }
-    
+
     public JointModel getJointById(int jointId) {
         for (JointModel jointModel : joints) {
             if (jointModel.getJointId() == jointId) {
@@ -254,6 +249,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     public void removeLiquidSource(int primaryKey, int secondaryKey) {
         getBodyModelById(primaryKey).getLiquidSourceModels().removeIf(e -> e.getLiquidSourceId() == secondaryKey);
     }
+
     public void removeSpecialPoint(int primaryKey, int secondaryKey) {
         getBodyModelById(primaryKey).getSpecialPointModels().removeIf(e -> e.getPointId() == secondaryKey);
     }

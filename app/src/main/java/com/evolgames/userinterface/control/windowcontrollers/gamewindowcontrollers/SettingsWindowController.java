@@ -1,7 +1,6 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.entities.properties.Properties;
-import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.ThreeLevelSectionedAdvancedWindowController;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
@@ -11,7 +10,6 @@ import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 import com.evolgames.userinterface.view.sections.basic.SimpleQuaternary;
 import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
-import com.evolgames.userinterface.view.windows.Window;
 import com.evolgames.userinterface.view.windows.gamewindows.SettingsWindow;
 
 public class SettingsWindowController<P extends Properties>
