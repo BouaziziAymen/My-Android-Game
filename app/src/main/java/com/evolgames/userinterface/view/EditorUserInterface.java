@@ -147,8 +147,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             KeyboardController keyboardController) {
         super(editorScene);
 
-        ResourceManager.getInstance().hudBatcher.setZIndex(1);
-        ResourceManager.getInstance().sceneBatcher.setZIndex(1);
+        ResourceManager.getInstance().hudBatcher.setZIndex(10000000);
+        ResourceManager.getInstance().sceneBatcher.setZIndex(1000000);
 
 
         Grid grid = new Grid(editorScene);
@@ -899,6 +899,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                     layerModel.setPointsShape(pointsShape);
                 }
                 layerModel.getPointsShape().updateOutlineShape();
+                layerModel.getReferencePoints().forEach(refPoint -> layerModel.getPointsShape().createReferencePointImage(refPoint));
                 addElement(layerModel.getPointsShape());
                 for (DecorationModel decorationModel : layerModel.getDecorations()) {
                     if (decorationModel.getPointsShape() == null) {
@@ -1202,10 +1203,4 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         }
     }
 
-    public void setBoardsActive(boolean b) {
-        drawButtonBoardController.setTemporarilyActive(b);
-        toolButtonBoardController.setTemporarilyActive(b);
-        imageButtonBoardController.setTemporarilyActive(b);
-        jointButtonBoardController.setTemporarilyActive(b);
-    }
 }

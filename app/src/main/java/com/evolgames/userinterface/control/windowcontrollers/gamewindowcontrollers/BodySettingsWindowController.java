@@ -64,9 +64,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private final AlphaNumericValidator bodyNameValidator = new AlphaNumericValidator(8, 5);
     private final NumericValidator motorPowerValidator =
-            new NumericValidator(false, true, 0, 1000, 6, 2);
+            new NumericValidator(false, true, 0, 100000, 6, 2);
     private final NumericValidator gunReloadTimeValidator =
             new NumericValidator(false, false, 0, 1000, 3, 0);
+
+    private final NumericValidator zIndexValidator =
+            new NumericValidator(true, false, -1000, 1000, 3, 0);
     private final NumericValidator rocketFuelValidator =
             new NumericValidator(false, false, 0, 1000, 3, 0);
     private final NumericValidator roundsValidator =
@@ -80,6 +83,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     // Automatic
     // Manual
     private TextField<BodySettingsWindowController> rangedManualReloadTimeTextField;
+    private TextField<BodySettingsWindowController> zIndexTextField;
     // Semi Automatic
     private Quantity<BodySettingsWindowController> fireRateQuantityField;
     private Quantity<BodySettingsWindowController> forwardSpeedQuantityField, backwardSpeedQuantityField;
@@ -122,6 +126,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         .collect(Collectors.toList())) {
             updateUsageCategoryFields(usageCategory);
         }
+        setZIndex(bodyModel.getProperties().getZIndex());
         updateScroller();
     }
 
@@ -309,7 +314,11 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 .getBehavior()
                 .setTextValidated(String.valueOf(Float.valueOf(power)));
     }
-
+    private void setZIndex(int zIndex) {
+        zIndexTextField
+                .getBehavior()
+                .setTextValidated(String.valueOf(Integer.valueOf(zIndex)));
+    }
     private void setReloadTime(float reloadTime) {
         rangedManualReloadTimeTextField
                 .getBehavior()
@@ -368,9 +377,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(1, 0, fieldWithError);
         window.addSecondary(secondaryElement1);
 
+        createZIndexField(1,1);
         createCategorySection();
         updateUsageSettings();
-
         updateLayout();
         window.createScroller();
     }
@@ -595,7 +604,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 .getBehavior()
                 .setChangeAction(
                         () -> motorControlProperties.setBackwardSpeed(
-                                forwardSpeedQuantityField.getRatio()));
+                                backwardSpeedQuantityField.getRatio()));
     }
 
     private void createRocketPowerField(int primaryId, int secondaryId, RocketProperties rocketProperties) {
@@ -686,6 +695,51 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                             rocketProperties.setFuel(fuel);
                         });
     }
+
+    private void createZIndexField(
+            int primaryId, int secondaryId) {
+        TitledTextField<BodySettingsWindowController> zIndexField =
+                new TitledTextField<>("Z Index:", 6, 5, 80);
+        zIndexTextField = zIndexField.getAttachment();
+
+        zIndexField
+                .getAttachment()
+                .setBehavior(
+                        new TextFieldBehavior<BodySettingsWindowController>(
+                                this,
+                                zIndexTextField,
+                                Keyboard.KeyboardType.Numeric,
+                                zIndexValidator,
+                                true) {
+                            @Override
+                            protected void informControllerTextFieldTapped() {
+                                BodySettingsWindowController.super.onTextFieldTapped(zIndexTextField);
+                            }
+
+                            @Override
+                            protected void informControllerTextFieldReleased() {
+                                BodySettingsWindowController.super.onTextFieldReleased(
+                                        zIndexTextField);
+                            }
+                        });
+
+        FieldWithError zIndexFieldWithError = new FieldWithError(zIndexField);
+        SimpleSecondary<FieldWithError> zIndexElement =
+                new SimpleSecondary<>(primaryId, secondaryId, zIndexFieldWithError);
+        window.addSecondary(zIndexElement);
+
+        zIndexTextField
+                .getBehavior()
+                .setReleaseAction(
+                        () -> {
+                            int zIndex = Integer.parseInt(zIndexTextField.getTextString());
+                            if(bodyModel!=null) {
+                                bodyModel.getProperties().setZIndex(zIndex);
+                                editorUserInterface.getToolModel().updateMesh();
+                            }
+                        });
+    }
+
 
     private void createReloadTimeField(
             int primaryId, int secondaryId, RangedProperties rangedProperties) {
@@ -1071,22 +1125,15 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, jointButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        motorControlProperties.setJointModel(jointModel);
-                        int size = window.getLayout().getTertiariesSize(primaryKey, secondaryKey);
-                        for (int i = 0; i < size; i++) {
-                            SimpleTertiary<?> other = window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
-                            if (other != jointField) {
-                                ((ButtonWithText<?>) other.getMain()).updateState(Button.State.NORMAL);
-                            }
-                        }
+                        motorControlProperties.getJointIds().add(jointModel.getJointId());
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        motorControlProperties.setJointModel(null);
+                        motorControlProperties.getJointIds().removeIf(j->j==jointModel.getJointId());
                     }
                 });
-        if (motorControlProperties.getJointModel() == jointModel) {
+        if (motorControlProperties.getJointIds().contains(jointModel.getJointId())) {
             jointButton.updateState(Button.State.PRESSED);
         }
     }
@@ -1233,6 +1280,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         if (e == BodyUsageCategory.MOTOR_CONTROL) {
             UsageModel<MotorControlProperties> usage = new UsageModel<>("", e);
+            MotorControlProperties motorControlProperties = usage.getProperties();
+            motorControlProperties.setJointIds(new ArrayList<>());
             bodyModel.getUsageModels().add(usage);
         }
     }

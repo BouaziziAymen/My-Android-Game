@@ -59,6 +59,7 @@ public class PropertiesFactory {
         properties.setFlameTemperature(original.getFlameTemperature());
         properties.setChemicalEnergy(original.getChemicalEnergy());
         properties.setSharpness(original.getSharpness());
+        properties.setSensor(original.isSensor());
         if (original.getJuiceColor() != null) {
             properties.setJuiceColor(new Color(original.getJuiceColor()));
         }

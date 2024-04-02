@@ -39,6 +39,9 @@ public abstract class TransformationStrategy {
             shapePointsModel.getPointsShape().detachReferencePointImages();
             shapePointsModel.setPoints(newPoints);
             shapePointsModel.setReferencePoints(newReferencePoints);
+            for(Vector2 v:newReferencePoints) {
+                shapePointsModel.getPointsShape().createReferencePointImage(v);
+            }
             shapePointsModel.getPointsShape().onModelUpdated();
         }
     }

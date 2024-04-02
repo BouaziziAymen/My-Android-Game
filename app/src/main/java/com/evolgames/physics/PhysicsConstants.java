@@ -44,7 +44,7 @@ public class PhysicsConstants {
     }
 
     public static float getRotationSpeedFromRatio(float ratio) {
-        return (10f+100f*ratio)* 2f * (float)Math.PI;
+        return (100f+600f*ratio)* 2f * (float)Math.PI/60f;
     }
 
     public static float getTenacityRatio(float tenacity) {

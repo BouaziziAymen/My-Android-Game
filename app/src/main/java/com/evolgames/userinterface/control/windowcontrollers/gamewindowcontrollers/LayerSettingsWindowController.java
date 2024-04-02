@@ -1048,6 +1048,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         layerProperty.setFlammable(material.isFlammable());
         layerProperty.setFlammability(material.getFlammability());
         layerProperty.setChemicalEnergy(material.getEnergy());
+        layerProperty.setSensor(material.getIndex()==-1);
 
         setDensity(layerProperty.getDensity());
         setBounciness(layerProperty.getRestitution());

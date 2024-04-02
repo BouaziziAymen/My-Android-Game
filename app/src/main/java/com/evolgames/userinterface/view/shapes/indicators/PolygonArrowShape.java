@@ -48,6 +48,7 @@ public class PolygonArrowShape extends ArrowShape {
                 VerticesFactory.createPolygon(begin.x, begin.y, angle, d, d, numberOfPoints);
         if (shapePointsModel.testPoints(newPoints)) {
             shapePointsModel.getPointsShape().detachPointImages();
+            shapePointsModel.getPointsShape().detachReferencePointImages();
             super.updateEnd(x, y);
             shapePointsModel.getPointsShape().createReferencePointImage(begin);
             shapePointsModel.setPoints(newPoints);

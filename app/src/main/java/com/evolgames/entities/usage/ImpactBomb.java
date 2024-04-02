@@ -72,9 +72,11 @@ public class ImpactBomb extends Bomb {
         return ratio > 0.5f;
     }
 
-    public void onImpact(float impulse) {
-        if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * this.minImpact) {
-            this.setImpacted(true);
+    public void onImpact(float impulse, int id) {
+        if(sensitiveLayers.contains(id)) {
+            if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * this.minImpact) {
+                this.setImpacted(true);
+            }
         }
     }
 }

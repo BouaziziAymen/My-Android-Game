@@ -9,6 +9,7 @@ import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.Material;
 import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.BombProperties;
 import com.evolgames.entities.properties.CasingProperties;
@@ -114,6 +115,7 @@ public class PersistenceCaretaker {
     public static final String USAGE_LIST_TAG = "usageList";
     public static final String DRAG_LIST_TAG = "dragList";
     public static final String USAGE_TAG = "usage";
+    public static final String USAGE_PROPERTIES_JOINTS_TAG = "motorJoints";
     public static final String USAGE_PROPERTIES_PROJECTILES_TAG = "projectiles";
     public static final String USAGE_PROPERTIES_FIRE_SOURCES_TAG = "fireSources";
     public static final String USAGE_PROPERTIES_LIQUID_SOURCES_TAG = "liquidSources";
@@ -204,7 +206,8 @@ public class PersistenceCaretaker {
     private void runVersionUpdates() {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
-        scaleTool("fra", 12f / 34f);
+     // scaleToolBody("Main Battle Tank#",2f,13);
+      scaleTool("Shell 155mm#",120f/155f);
         // moveLayersTransformation();
     }
 
@@ -248,6 +251,20 @@ public class PersistenceCaretaker {
             }
         }
     }
+    private void scaleToolBody(String toolName, float scale, int bodyId) {
+        VersioningHelper.applyTreatment(toolModel -> {
+            String name = toolModel.getProperties().getToolName();
+            if (name.equals(toolName)) {
+                for (BodyModel bodyModel : toolModel.getBodies()) {
+                    if(bodyModel.getBodyId()!=bodyId){
+                        continue;
+                    }
+                    scaleBodyModel(bodyModel, scale);
+                }
+            }
+        }, (ItemMetaData e) -> e.getName().equals(toolName));
+    }
+
 
     private void scaleTool(String toolName, float scale) {
         VersioningHelper.applyTreatment(toolModel -> {
@@ -256,10 +273,37 @@ public class PersistenceCaretaker {
                 for (BodyModel bodyModel : toolModel.getBodies()) {
                     scaleBodyModel(bodyModel, scale);
                 }
+                float h = toolModel.getImageShapeModel().getHeight();
+                float w = toolModel.getImageShapeModel().getWidth();
+                toolModel.getImageShapeModel().setHeight(scale*h);
+                toolModel.getImageShapeModel().setWidth(scale*w);
+                toolModel.getJoints().clear();
             }
         }, (ItemMetaData e) -> e.getName().equals(toolName));
     }
 
+
+    private void mirrorTool(String toolName) {
+        VersioningHelper.applyTreatment(toolModel -> {
+            String name = toolModel.getProperties().getToolName();
+            if (name.equals(toolName)) {
+                for (BodyModel bodyModel : toolModel.getBodies()) {
+                   for(LayerModel layerModel:bodyModel.getLayers()){
+                      layerModel.setPoints(GeometryUtils.mirrorPointsWithShift(layerModel.getPoints()));
+                       layerModel.setReferencePoints(GeometryUtils.mirrorPointsWithShift(layerModel.getReferencePoints()));
+                       for(DecorationModel decorationModel: layerModel.getDecorations()){
+                           decorationModel.setPoints(GeometryUtils.mirrorPointsWithShift(decorationModel.getPoints()));
+                           decorationModel.setReferencePoints(GeometryUtils.mirrorPointsWithShift(decorationModel.getReferencePoints()));
+                       }
+                   }
+                }
+                for(JointModel jointModel:toolModel.getJoints()){
+                    jointModel.getProperties().getLocalAnchorA().set(GeometryUtils.mirrorPointWithShift(jointModel.getProperties().getLocalAnchorA()));
+                    jointModel.getProperties().getLocalAnchorB().set(GeometryUtils.mirrorPointWithShift(jointModel.getProperties().getLocalAnchorB()));
+                }
+            }
+        }, (ItemMetaData e) -> e.getName().equals(toolName));
+    }
     public void saveToolModel(ToolModel toolModel)
             throws FileNotFoundException, TransformerException {
         this.saveToolModel(
@@ -405,6 +449,9 @@ public class PersistenceCaretaker {
         Element bodyElement = document.createElement(BODY_TAG);
         bodyElement.setAttribute(ID, String.valueOf(bodyModel.getBodyId()));
         bodyElement.setIdAttribute(ID, true);
+        Element bodyPropertiesElement = createPropertiesElement(document, bodyModel.getProperties());
+        bodyElement.appendChild(bodyPropertiesElement);
+
         Element layersElement = document.createElement(LAYERS_TAG);
         bodyModel
                 .getLayers()
@@ -542,6 +589,14 @@ public class PersistenceCaretaker {
                                 missileProperties.getFireSourceModelList().stream()
                                         .map(FireSourceModel::getFireSourceId)
                                         .collect(Collectors.toList())));
+            }
+            if (usageModel.getType() == BodyUsageCategory.MOTOR_CONTROL) {
+                MotorControlProperties motorControlProperties =
+                        bodyModel.getUsageModelProperties(usageModel.getType());
+                propertiesElement.setAttribute(
+                        USAGE_PROPERTIES_JOINTS_TAG,
+                        convertIntListToString(
+                                motorControlProperties.getJointIds()));
             }
             usageElement.appendChild(propertiesElement);
             usageElement.setAttribute(USAGE_TYPE_TAG, usageModel.getType().getName());
@@ -1013,9 +1068,8 @@ public class PersistenceCaretaker {
                                             .collect(Collectors.toList()));
                 } else if(e.getType()==BodyUsageCategory.MOTOR_CONTROL){
                     MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
-                   motorControlProperties.setJointModel(
-                            jointModels.stream().filter(jointModel -> jointModel.getJointId()==motorControlProperties.getJointId()).findFirst().orElse(null)
-                    );
+                List<JointModel> list =    jointModels.stream().filter(jointModel -> motorControlProperties.getJointIds().contains(jointModel.getJointId())).collect(Collectors.toList());
+                motorControlProperties.setJointModels(list);
                 }
             }
         }
@@ -1187,6 +1241,10 @@ public class PersistenceCaretaker {
 
     BodyModel readBodyModel(Element element, int bodyId) throws PersistenceException {
         BodyModel bodyModel = new BodyModel(bodyId);
+        Element propertiesElement = (Element) element.getElementsByTagName(PROPERTIES_TAG).item(0);
+        BodyProperties bodyProperties = loadProperties(propertiesElement, BodyProperties.class);
+        bodyModel.setProperties(bodyProperties);
+
         Element layersElement = (Element) element.getElementsByTagName(LAYERS_TAG).item(0);
         List<LayerModel> layers = new ArrayList<>();
         NodeList childNodes = layersElement.getChildNodes();
@@ -1356,6 +1414,7 @@ public class PersistenceCaretaker {
         List<Integer> usageSensitiveLayersIds;
         List<Integer> usageFireSourceIds;
         List<Integer> usageLiquidSourceIds;
+        List<Integer> usageMotorJointIds;
         switch (bodyUsageCategory) {
             case SHOOTER:
                 usageProjectileIds =
@@ -1470,6 +1529,9 @@ public class PersistenceCaretaker {
             case MOTOR_CONTROL:
                 MotorControlProperties motorControlProperties =
                         loadProperties(propertiesElement, MotorControlProperties.class);
+                usageMotorJointIds =
+                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_JOINTS_TAG));
+                motorControlProperties.setJointIds(usageMotorJointIds);
                 usageModel.setProperties(motorControlProperties);
                 break;
             default:

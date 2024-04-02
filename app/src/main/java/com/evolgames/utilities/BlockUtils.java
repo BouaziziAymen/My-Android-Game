@@ -39,10 +39,12 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 public class BlockUtils {
     public static float e = 4f;
@@ -947,13 +949,17 @@ public class BlockUtils {
                 vertexNumber++;
             }
             for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                if (!b.isNotAborted()) continue;
+                if (!b.isNotAborted()) {
+                    continue;
+                }
                 List<Vector2> vertices;
-                if (b instanceof CoatingBlock) {
+                if (b instanceof CoatingBlock && !layerBlock.getProperties().isSensor()) {
                     vertices = b.getTriangles();
                 } else if (b instanceof DecorationBlock) {
                     vertices = b.getTriangles();
-                } else continue;
+                } else {
+                    continue;
+                }
                 for (Vector2 p : vertices) {
                     data[3 * vertexNumber] = p.x;
                     data[3 * vertexNumber + 1] = p.y;

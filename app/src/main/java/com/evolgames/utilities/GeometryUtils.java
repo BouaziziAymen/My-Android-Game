@@ -39,6 +39,15 @@ public class GeometryUtils {
         point.set(newX, newY);
     }
 
+    public static List<Vector2> mirrorPointsWithShift(List<Vector2> points) {
+        List<Vector2> result = new ArrayList<>();
+        for (int i = 0; i < points.size(); i++) {
+            Vector2 mirroredPoint = GeometryUtils.vectorRotated(UP, points.get(i));
+            mirroredPoint.x += 800f;
+            result.add(mirroredPoint);
+        }
+        return result;
+    }
     public static List<Vector2> mirrorPoints(List<Vector2> points) {
         List<Vector2> result = new ArrayList<>();
         for (int i = 0; i < points.size(); i++) {
@@ -50,6 +59,11 @@ public class GeometryUtils {
 
     public static Vector2 mirrorPoint(Vector2 point) {
         return GeometryUtils.vectorRotated(UP, point);
+    }
+    public static Vector2 mirrorPointWithShift(Vector2 point) {
+        Vector2 v = GeometryUtils.vectorRotated(UP, point);
+        v.x += 800;
+        return v;
     }
 
     public static List<Vector2> mirrorPoints(List<Vector2> points, Vector2 begin, Vector2 end) {

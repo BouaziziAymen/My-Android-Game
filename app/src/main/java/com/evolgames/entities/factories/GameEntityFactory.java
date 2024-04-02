@@ -228,6 +228,7 @@ public class GameEntityFactory {
                 biggestSplinter.getUseList().add(use);
             }
         }
+        parent.setHeir(biggestSplinter);
         return entities;
     }
 

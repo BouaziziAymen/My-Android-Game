@@ -79,8 +79,6 @@ public class JointModel extends ProperModel<JointProperties> {
                 revoluteJointDef.localAnchorA.set(u1);
                 revoluteJointDef.localAnchorB.set(u2);
                 revoluteJointDef.collideConnected = properties.isCollideConnected();
-
-
                 revoluteJointDef.enableLimit = properties.isEnableLimit();
 
                 revoluteJointDef.lowerAngle = properties.getLowerAngle();

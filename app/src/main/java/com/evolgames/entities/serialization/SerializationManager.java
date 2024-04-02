@@ -83,6 +83,7 @@ public class SerializationManager {
         kryo.register(com.evolgames.entities.usage.Drag.class);
         kryo.register(com.evolgames.entities.usage.ImpactBomb.class);
         kryo.register(com.evolgames.entities.usage.Missile.class);
+        kryo.register(com.evolgames.entities.usage.MotorControl.class);
         kryo.register(com.evolgames.entities.usage.LiquidContainer.class);
         kryo.register(com.evolgames.entities.usage.RocketLauncher.class);
         kryo.register(com.evolgames.entities.usage.Bow.class);

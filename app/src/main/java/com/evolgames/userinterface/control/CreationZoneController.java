@@ -179,7 +179,7 @@ public class CreationZoneController extends Controller {
             editorUserInterface.getDrawButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
-        if (action == CreationAction.REVOLUTE || action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
+        if (action == CreationAction.REVOLUTE || action== CreationAction.WELD||action == CreationAction.DISTANCE || action == CreationAction.PRISMATIC) {
             editorUserInterface.getJointButtonBoardController().releaseButtons();
             setAction(CreationAction.NONE);
         }
@@ -257,7 +257,7 @@ public class CreationZoneController extends Controller {
         }
 
         if (movablePointImages != null) {
-            float distance = 32f / editorUserInterface.getZoomFactor();
+            float distance = 32f;
             PointImage point = null;
             for (PointImage p : movablePointImages) {
                 float d = p.getPoint().dst(x, y);

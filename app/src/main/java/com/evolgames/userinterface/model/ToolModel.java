@@ -174,6 +174,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
             Vector2 center = GeometryUtils.calculateCentroid(layers.get(0).getPoints());
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(layers, center);
             MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(center.x, center.y, 0, blocks);
+            mesh.setZIndex(bodyModel.getProperties().getZIndex());
             scene.attachChild(mesh);
             meshes.add(mesh);
         }

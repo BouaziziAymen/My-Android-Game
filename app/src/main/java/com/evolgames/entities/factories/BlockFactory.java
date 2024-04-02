@@ -30,7 +30,7 @@ public class BlockFactory {
 
     public static LayerBlock createLayerBlock(
             List<Vector2> vertices, LayerProperties properties, int ID, int order) {
-        return BlockFactory.createLayerBlock(vertices, properties, ID, order, true);
+        return BlockFactory.createLayerBlock(vertices, properties, ID, order, !properties.isSensor());
     }
 
     public static LayerBlock createLayerBlock(

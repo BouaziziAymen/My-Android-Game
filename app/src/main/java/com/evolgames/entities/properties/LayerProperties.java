@@ -30,6 +30,7 @@ public class LayerProperties extends ColoredProperties {
 
     private float juiceFlammability;
     private float heatResistance;
+    private boolean sensor;
 
     public LayerProperties copy() {
         return PropertiesFactory.getInstance().createProperties(this);
@@ -217,5 +218,13 @@ public class LayerProperties extends ColoredProperties {
 
     public void setJuiceFlammability(float juiceFlammability) {
         this.juiceFlammability = juiceFlammability;
+    }
+
+    public boolean isSensor() {
+        return sensor;
+    }
+
+    public void setSensor(boolean sensor) {
+        this.sensor = sensor;
     }
 }

@@ -96,6 +96,7 @@ public class GameEntity extends EntityWithBody {
     private Entity outline, mirrorOutline;
     private int zIndex;
     private boolean outlined;
+    private GameEntity heir;
 
     public GameEntity(
             MosaicMesh mesh, PhysicsScene<?> scene, String entityName, List<LayerBlock> layerBlocks) {
@@ -129,7 +130,7 @@ public class GameEntity extends EntityWithBody {
             }
         }
         scene.attachChild(outline);
-        outline.setZIndex(1000);
+        outline.setZIndex(mesh.getZIndex()-1);
         outline.setVisible(true);
         scene.sortChildren();
     }
@@ -212,7 +213,8 @@ public class GameEntity extends EntityWithBody {
 
     private void updateAssociatedBlocks() {
         for (LayerBlock block : this.getBlocks()) {
-            for (AssociatedBlock<?, ?> associatedBlock : block.getAssociatedBlocks()) {
+            List<AssociatedBlock<?,?>> copy = new ArrayList<>(block.getAssociatedBlocks());
+            for (AssociatedBlock<?, ?> associatedBlock : copy) {
                 associatedBlock.onStep(this);
             }
         }
@@ -222,7 +224,8 @@ public class GameEntity extends EntityWithBody {
         if (!this.getName().equals("Ground")) {
             updateAssociatedBlocks();
         }
-        for (Use use : useList) {
+        List<Use> copyUseList = new ArrayList<>(useList);
+        for (Use use : copyUseList) {
             use.onStep(timeStep, scene.getWorldFacade());
         }
 
@@ -782,5 +785,13 @@ public class GameEntity extends EntityWithBody {
     public void setZIndex(int i) {
         this.mesh.setZIndex(i);
         this.zIndex = i;
+    }
+
+    public void setHeir(GameEntity heir) {
+        this.heir = heir;
+    }
+
+    public GameEntity getHeir() {
+        return heir;
     }
 }

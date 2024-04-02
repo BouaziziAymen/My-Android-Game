@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SceneSerializer {
 
@@ -150,7 +151,6 @@ public class SceneSerializer {
         Map<String, List<JointBlock>> jointBlockMap = new HashMap<>();
         for (GameGroup gameGroup : scene.getGameGroups()) {
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                reloadGameEntityUses(scene, gameEntity);
                 for (LayerBlock layerBlock : gameEntity.getBlocks()) {
                     for (AssociatedBlock<?, ?> associatedBlock : layerBlock.getAssociatedBlocks()) {
                         if (associatedBlock instanceof JointBlock) {
@@ -199,6 +199,13 @@ public class SceneSerializer {
             }
         } catch (Throwable throwable) {
             throw new IllegalStateException("Problem recreate-ing joints." + throwable);
+        }
+
+
+        for(GameGroup gameGroup:scene.getGameGroups()){
+            for(GameEntity gameEntity:gameGroup.getEntities()){
+                reloadGameEntityUses(scene, gameEntity);
+            }
         }
         worldFacadeSerializer.afterCreate(scene);
         scene.sortChildren();
@@ -281,7 +288,8 @@ public class SceneSerializer {
         }
         if (gameEntity.hasUsage(MotorControl.class)) {
             MotorControl motorControl = gameEntity.getUsage(MotorControl.class);
-           motorControl.setJointBlock(SceneSerializer.mainJointBlocks.get(motorControl.getJointBlockUniqueId()));
+            List<JointBlock> jointBlocks = motorControl.getJointBlockUniqueIds().stream().map(e -> SceneSerializer.mainJointBlocks.get(e)).collect(Collectors.toList());
+           motorControl.setJointBlocks(jointBlocks);
         }
     }
 }

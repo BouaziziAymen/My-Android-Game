@@ -19,38 +19,6 @@ public class Utils {
     public static final Random RAND = new Random();
     private static final Random rand = new Random();
 
-    public static JointDef copyJointDef(JointDef jointDef) {
-        switch (jointDef.type) {
-            case Unknown:
-                break;
-            case RevoluteJoint:
-                break;
-            case PrismaticJoint:
-                break;
-            case DistanceJoint:
-                break;
-            case PulleyJoint:
-                break;
-            case MouseJoint:
-                break;
-            case GearJoint:
-                break;
-            case LineJoint:
-                break;
-            case WeldJoint:
-                WeldJointDef weldJointDef = (WeldJointDef) jointDef;
-                WeldJointDef copy = new WeldJointDef();
-                copy.collideConnected = weldJointDef.collideConnected;
-                copy.localAnchorA.set(weldJointDef.localAnchorA);
-                copy.localAnchorB.set(weldJointDef.localAnchorB);
-                copy.referenceAngle = weldJointDef.referenceAngle;
-                return copy;
-            case FrictionJoint:
-                break;
-        }
-        return null;
-    }
-
     public static boolean PointInPolygon(Vector2 point, List<Vector2> points) {
 
         int i, j, nvert = points.size();

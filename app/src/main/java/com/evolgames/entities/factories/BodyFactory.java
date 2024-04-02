@@ -61,12 +61,12 @@ public class BodyFactory {
             FixtureDef fixtureDef = PhysicsFactory.createFixtureDef(density, elasticity, friction);
 
             PolygonShape fixtureShape = new PolygonShape();
-
             Vector2[] points = fixtureVertices.toArray(new Vector2[0]);
             fixtureShape.set(points);
             fixtureDef.shape = fixtureShape;
             Fixture fixture = body.createFixture(fixtureDef);
             fixture.setUserData(block);
+            fixture.setSensor(block.getProperties().isSensor());
         }
     }
 }

@@ -163,7 +163,8 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
-        int index = 0;
+        //validate here:
+
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) {
                 continue;
@@ -199,8 +200,9 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setCenter(center);
-            gameEntity.setZIndex(index++);
+            gameEntity.setZIndex(bodyModel.getProperties().getZIndex());
         }
+        bodies.removeIf(e->e.getGameEntity()==null);
         // Create game group
         GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
         this.addGameGroup(gameGroup);
@@ -299,8 +301,8 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
                                         break;
                                     case MOTOR_CONTROL:
                                        MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
-                                        JointBlock jointBlock = mainJointBlocks.stream().filter(j->j.getJointId()==motorControlProperties.getJointId()).findFirst().orElse(null);
-                                        MotorControl motorControl = new MotorControl(e, jointBlock,mirrored);
+                                        List<JointBlock> jointBlocks = mainJointBlocks.stream().filter(j -> j!=null&&motorControlProperties.getJointIds().contains(j.getJointId())).collect(Collectors.toList());
+                                        MotorControl motorControl = new MotorControl(e, jointBlocks,mirrored);
                                         bodyModel.getGameEntity().getUseList().add(motorControl);
                                         break;
                                 }

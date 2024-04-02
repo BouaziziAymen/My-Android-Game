@@ -5,6 +5,7 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
@@ -61,7 +62,7 @@ public class Projectile extends Use implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float consumedImpulse) {
+            float consumedImpulse, LayerBlock penetratorBlock) {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
@@ -70,9 +71,15 @@ public class Projectile extends Use implements Penetrating {
                 worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
 
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+        if (projectileType == ProjectileType.BULLET) {
+            penetrator.setAlive(false);
+            penetrator.setVisible(false);
+            worldFacade.freeze(penetrator);
+            worldFacade.destroyGameEntity(penetrator, false, false);
+        }
 
         if (projectileType == ProjectileType.SHARP_WEAPON) {
-            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(consumedImpulse * massFraction), obtain(point));
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(0.5f * consumedImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
@@ -81,21 +88,11 @@ public class Projectile extends Use implements Penetrating {
         });
 
         for (GameEntity overlappedEntity : overlappedEntities) {
-            overlappedEntity
-                    .getParentGroup()
-                    .getGameEntities()
-                    .forEach(t -> worldFacade.addNonCollidingPair(penetrator, t));
             if (projectileType == ProjectileType.SHARP_WEAPON) {
                 worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
-            } else {
-                if (penetrator.isAlive()) {
-                    penetrator.setAlive(false);
-                    penetrator.setVisible(false);
-                    worldFacade.destroyGameEntity(penetrator, false, false);
-                }
             }
         }
-        onImpact(consumedImpulse * 4, penetrator);
+        onImpact(consumedImpulse * 4, penetrator, penetratorBlock);
         setActive(false);
     }
 
@@ -110,7 +107,7 @@ public class Projectile extends Use implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float collisionImpulse) {
+            float collisionImpulse, LayerBlock penetratorBlock) {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrated.getMassOfGroup() + penetrator.getBody().getMass());
@@ -126,16 +123,16 @@ public class Projectile extends Use implements Penetrating {
                 worldFacade.applyPointImpact(obtain(point), 100f * impactFactor() * collisionImpulse * massFraction, penetrated);
             }
         });
-        onImpact(collisionImpulse * 4, penetrator);
+        onImpact(collisionImpulse * 4, penetrator, penetratorBlock);
         setActive(false);
         penetrator.setZIndex(-1);
         worldFacade.getPhysicsScene().sortChildren();
     }
 
-    private void onImpact(float impulse, GameEntity penetrator) {
+    private void onImpact(float impulse, GameEntity penetrator, LayerBlock block) {
         if (penetrator.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = penetrator.getUsage(ImpactBomb.class);
-            impactBomb.onImpact(impulse);
+            impactBomb.onImpact(impulse, block.getId());
         }
     }
 

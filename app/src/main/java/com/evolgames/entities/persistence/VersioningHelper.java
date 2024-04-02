@@ -25,7 +25,7 @@ public class VersioningHelper {
         List<ItemMetaData> items = map.values().stream().flatMap(List::stream).filter(condition).collect(Collectors.toList());
         for (ItemMetaData item : items) {
             try {
-                ToolModel toolModel = persistenceCaretaker.loadToolModel(item.getFileName(), false, !item.isUserCreated());
+                ToolModel toolModel = persistenceCaretaker.loadToolModel(item.getFileName(), true, !item.isUserCreated());
                 transform.transform(toolModel);
                 persistenceCaretaker.saveToolModel(toolModel, item.getFileName(), "version\\");
             } catch (IOException | PersistenceException | SAXException |

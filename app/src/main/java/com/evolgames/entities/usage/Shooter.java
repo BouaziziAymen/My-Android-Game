@@ -343,6 +343,9 @@ public class Shooter extends Use {
 
     public void createFireSources(WorldFacade worldFacade) {
         this.projInfFireSourceMap = new HashMap<>();
+        if(this.missileModels.isEmpty()){
+            return;
+        }
         this.projectileInfoList
                 .forEach(
                         p -> {

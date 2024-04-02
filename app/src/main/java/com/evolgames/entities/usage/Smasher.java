@@ -5,6 +5,7 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
@@ -50,7 +51,7 @@ public class Smasher extends MeleeUse implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float consumedImpulse) {
+            float consumedImpulse, LayerBlock penetratorBlock) {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
@@ -75,7 +76,7 @@ public class Smasher extends MeleeUse implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float collisionImpulse) {
+            float collisionImpulse, LayerBlock penetratorBlock) {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());

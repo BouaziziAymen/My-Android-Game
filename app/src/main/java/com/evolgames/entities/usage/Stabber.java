@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.MoveToStabHandControl;
 import com.evolgames.entities.hand.PlayerSpecialAction;
@@ -54,7 +55,7 @@ public class Stabber extends MeleeUse implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float consumedImpulse) {
+            float consumedImpulse, LayerBlock penetratorBlock) {
         MoveToStabHandControl moveToStabHandControl = ((MoveToStabHandControl) hand.getHandControlStack().peek());
 
         float possibleAdvance = Math.min(Hand.STAB_ADVANCE - moveToStabHandControl.getCurrentAdvance(), actualAdvance);
@@ -97,7 +98,7 @@ public class Stabber extends MeleeUse implements Penetrating {
             GameEntity penetrated,
             List<TopographyData> envData,
             List<TopographyData> penData,
-            float collisionImpulse) {
+            float collisionImpulse, LayerBlock penetratorBlock) {
 
         MoveToStabHandControl moveToStabHandControl = ((MoveToStabHandControl) hand.getHandControlStack().peek());
 

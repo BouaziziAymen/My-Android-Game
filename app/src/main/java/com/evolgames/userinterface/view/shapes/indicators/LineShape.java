@@ -78,11 +78,12 @@ public class LineShape {
             lineStrip.shift();
             lineStrip.setIndex(lineStrip.getIndex() - 1);
         }
+        lineStrip.setZIndex(10000);
         lineStrip.add(begin.x, begin.y);
         lineStrip.add(end.x, end.y);
         lineStrip.setColor(mRed, mGreen, mBlue);
-        System.out.println("#######Projectile Shape visible line:" + visible);
         lineStrip.setVisible(visible);
+        creationScene.sortChildren();
     }
 
     protected void onExtremityUpdated() {

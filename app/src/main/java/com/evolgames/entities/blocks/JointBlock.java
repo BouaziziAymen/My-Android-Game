@@ -209,6 +209,10 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
                 jointInfo.setReferenceAngle(prismaticJointDef.referenceAngle);
                 break;
             case DistanceJoint:
+                DistanceJointDef distanceJointDef = (DistanceJointDef) jointDef;
+                jointInfo.setFrequencyHz(distanceJointDef.frequencyHz);
+                jointInfo.setLowerTranslation(distanceJointDef.dampingRatio);
+                jointInfo.setUpperTranslation(distanceJointDef.length);
                 break;
             case PulleyJoint:
                 break;

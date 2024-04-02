@@ -17,7 +17,7 @@ public enum BodyUsageCategory {
     MISSILE("Missile", "Missile. Options", 8),
     LIQUID_CONTAINER("Liquid Container", "Container. Options", 9),
     ROCKET_LAUNCHER("Rocket Launcher", "Rock. Launch. Options", 7),
-    MOTOR_CONTROL("Motor Control","Motor. Cont. Options",10);
+    MOTOR_CONTROL("Motor Control","Motor. Cont. Options",11);
     final String name;
     final int group;
     private final String optionsTitle;

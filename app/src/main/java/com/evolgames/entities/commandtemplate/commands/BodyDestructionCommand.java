@@ -50,9 +50,11 @@ public class BodyDestructionCommand extends Command {
         entity.setMirrorBody(null);
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
-        Hand hand = ((PlayScene) Invoker.scene).getHand();
-        if(hand.getUsableEntity()==entity){
-            hand.setSelectedEntity(null);
+        Hand hand = Invoker.scene.getHand();
+        if(hand!=null&&hand.getUsableEntity()==entity){
+            if(entity.getHeir()!=null) {
+                hand.setSelectedEntity(entity.getHeir());
+            }
         }
 
     }

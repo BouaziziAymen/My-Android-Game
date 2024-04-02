@@ -45,6 +45,7 @@ public class MaterialFactory {
     public static final int IRON = 2;
     public static final int STEEL = 1;
     public static final int WOOD = 0;
+    public static final int VOID = -1;
     public static final int COAL = 34;
     public static final int CHARCOAL = 35;
     public static final int IGNIUM = 36;
@@ -71,6 +72,7 @@ public class MaterialFactory {
         materialProperties.put("Rubber", new float[]{1.1f, 0.75f, 0.6f, 5f, 3f});
         materialProperties.put("Plastic", new float[]{1.2f, 0.5f, 0.5f, 6f, 4f});
         materialProperties.put("Wood", new float[]{0.6f, 0.35f, 0.4f, 4f, 2f});
+        materialProperties.put("Void", new float[]{0.1f, 0f, 0f, 10f, 0f});
         materialProperties.put("Hard Wood", new float[]{0.8f, 0.35f, 0.4f, 4f, 3f});
         materialProperties.put("Glass", new float[]{2.5f, 0.2f, 0.3f, 2f, 5f});
         materialProperties.put("Copper", new float[]{8.96f, 0.25f, 0.4f, 8f, 6f});
@@ -79,8 +81,8 @@ public class MaterialFactory {
         materialProperties.put("Iron", new float[]{7.87f, 0.25f, 0.4f, 6f, 6f});
         materialProperties.put("Diamond", new float[]{3.5f, 0.075f, 0.05f, 10f, 10f});
         materialProperties.put("Graphene", new float[]{1f, 0.975f, 0.05f, 10f, 10f});
-        materialProperties.put("Flesh", new float[]{1f, 0.15f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
-        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.65f, 0.4f, 2f, 2f}); // Adjusted hardness value
+        materialProperties.put("Flesh", new float[]{1f, 0.1f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
+        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.15f, 0.4f, 2f, 2f}); // Adjusted hardness value
         materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.8f, 4.75f, 7f});
         materialProperties.put("Aluminum", new float[]{2.7f, 0.25f, 0.1f, 3.75f, 7.5f});
         materialProperties.put("Brick", new float[]{1.6f, 0.25f, 0.05f, 4.5f, 6f});
@@ -156,7 +158,8 @@ public class MaterialFactory {
         Material fiberGlass = new Material("Fiber Glass", FIBER_GLASS, new Color(1f, 1f, 1f, 0.5f), 0.83f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0.0f, 200.0f);
         Material feather = new Material("Feather", FEATHER, new Color(0.9f, 0.9f, 0.9f), 0.83f, 0, 0.0f, 0.0f, 0.0f, true, 500, 500, false, 0.0f, 200.0f);
         Material tissue = new Material("Tissue", TISSUE, new Color(0.9f, 0.9f, 0.9f), 0.7f, 0, 0.0f, 0.0f, 0.0f, true, 500, 600, false, 0.0f, 200.0f);
-
+        Material thevoid = new Material("Void", VOID, new Color(0f, 0f, 0f,0f), 0f, 0, 0.0f, 0.0f, 0.0f, false, 0, 0, false, 0f, 0f);
+        materials.add(thevoid);
         materials.add(tissue);
         materials.add(carbonFiber);
         materials.add(fiberGlass);

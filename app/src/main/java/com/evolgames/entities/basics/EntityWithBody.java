@@ -5,18 +5,20 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.commandtemplate.commands.Command;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EntityWithBody {
 
-    transient private final ArrayList<Command> commands;
+    transient private final List<Command> commands;
     transient protected Body body;
     private short groupIndex;
 
     public EntityWithBody() {
-        this.commands = new ArrayList<>();
+        this.commands = new CopyOnWriteArrayList<>();
     }
 
-    public ArrayList<Command> getCommands() {
+    public List<Command> getCommands() {
         return commands;
     }
 

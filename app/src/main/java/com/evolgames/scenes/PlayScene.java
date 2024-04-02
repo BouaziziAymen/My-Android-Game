@@ -388,10 +388,10 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     private void createGround() {
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices1 = new ArrayList<>();
-        vertices1.add(obtain(-400, -50));
-        vertices1.add(obtain(-400, 20));
-        vertices1.add(obtain(400, 20));
-        vertices1.add(obtain(400, -50));
+        vertices1.add(obtain(-40000, -50));
+        vertices1.add(obtain(-40000, 20));
+        vertices1.add(obtain(40000, 20));
+        vertices1.add(obtain(40000, -50));
 
    /* List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));
@@ -520,7 +520,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 GameEntityFactory.getInstance()
                         .createGameGroupTest(
                                 blocks3,
-                                new Vector2(600 / 32f, 200 / 32f),
+                                new Vector2(700 / 32f, 200 / 32f),
                                 BodyDef.BodyType.DynamicBody,
                                 GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);

@@ -3,13 +3,16 @@ package com.evolgames.entities.properties.usage;
 import com.evolgames.entities.properties.Properties;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 
+import java.util.List;
+
 public class MotorControlProperties extends Properties {
     private float forwardSpeed;
     private float backwardSpeed;
     private float power;
-    private JointModel jointModel;
-    private int jointId;
+    private List<JointModel> jointModels;
+    private List<Integer> jointIds;
     private boolean brakes;
+
 
     public float getForwardSpeed() {
         return forwardSpeed;
@@ -35,21 +38,20 @@ public class MotorControlProperties extends Properties {
         this.power = power;
     }
 
-    public void setJointModel(JointModel jointModel) {
-        this.jointModel = jointModel;
-        if(jointModel!=null) {
-            this.jointId = jointModel.getJointId();
-        } else {
-            this.jointId = -1;
-        }
+    public List<JointModel> getJointModels() {
+        return jointModels;
     }
 
-    public JointModel getJointModel() {
-        return jointModel;
+    public void setJointModels(List<JointModel> jointModels) {
+        this.jointModels = jointModels;
     }
 
-    public int getJointId() {
-        return jointId;
+    public List<Integer> getJointIds() {
+        return jointIds;
+    }
+
+    public void setJointIds(List<Integer> jointIds) {
+        this.jointIds = jointIds;
     }
 
     public void setBrakes(boolean brakes) {
