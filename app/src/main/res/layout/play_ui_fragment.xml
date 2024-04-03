@@ -125,6 +125,12 @@
                 android:layout_height="wrap_content"
                 app:buttonType="click"
                 app:icon="@drawable/flip_icon" />
+            <com.evolgames.activity.components.GameImageButton
+                android:id="@+id/camera_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:buttonType="select"
+                app:icon="@drawable/track_icon" />
         </LinearLayout>
 
         <ExpandableListView

@@ -55,7 +55,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, consumedImpulse);
         penetrated
                 .getBody()
                 .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
@@ -82,7 +82,7 @@ public class Smasher extends MeleeUse implements Penetrating {
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         hand.getHandControlStack().peek().setDead(true);
         worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData);
+        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
         setActive(false);
     }
 

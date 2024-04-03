@@ -34,6 +34,7 @@ import com.evolgames.scenes.MainScene;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
+import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
@@ -142,7 +143,9 @@ public class GameActivity extends BaseGameActivity {
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-        this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 1000 * 32f, 1000 * 32f, 5f);
+        this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 12000 * 32f, 12000 * 32f, 1f);
+        ((SmoothCamera)this.camera).setBounds(-Float.MAX_VALUE,0,Float.MAX_VALUE,Float.MAX_VALUE);
+        ((SmoothCamera)this.camera).setBoundsEnabled(true);
         this.camera.setZClippingPlanes(-1, 1);
 
         IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();

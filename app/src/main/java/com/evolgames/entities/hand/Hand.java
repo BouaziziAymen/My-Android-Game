@@ -205,12 +205,16 @@ public class Hand {
                     if (grabbedEntity != null) {
                         releaseGrabbedEntity(true);
                         this.follow = false;
+                        playScene.setScrollerEnabled(true);
+                        playScene.setScrollerEnabled(true);
                         return true;
                     }
                 } else if (touchEvent.isActionDown()) {
                     Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
                     if (touchData != null && touchData.first != null) {
                         grab(touchData.first, touchEvent, touchData.second);
+                        playScene.setScrollerEnabled(false);
+                        playScene.setZoomEnabled(false);
                         this.follow = true;
                     }
                 }
@@ -224,16 +228,20 @@ public class Hand {
                     } else {
                         if (grabbedEntity != null) {
                             if (this.playScene.getSpecialAction() == PlayerSpecialAction.Fire) {
-                                if ((this.grabbedEntity.hasUsage(Shooter.class) && (touchData == null || touchData.first != grabbedEntity))) {
+                                if ((this.grabbedEntity.hasUsage(Shooter.class, FlameThrower.class) && (touchData == null || touchData.first != grabbedEntity))) {
                                     doAim(touchEvent, grabbedEntity.isMirrored());
                                 }
                             }
-                            if (this.grabbedEntity.hasUsage(RocketLauncher.class, Bow.class, FlameThrower.class)) {
-                                doAim(touchEvent, grabbedEntity.isMirrored());
+                            if (this.playScene.getSpecialAction() == PlayerSpecialAction.AimLight) {
+                                if (this.grabbedEntity.hasUsage(RocketLauncher.class, Bow.class, Shooter.class, Rocket.class)) {
+                                    doAim(touchEvent, grabbedEntity.isMirrored());
+                                }
                             }
+
                         }
                     }
                 } else if (touchEvent.isActionUp()) {
+                    playScene.setScrollerEnabled(true);
                     this.follow = false;
                     switch (this.playScene.getSpecialAction()) {
                         case None:
@@ -270,6 +278,7 @@ public class Hand {
                                 grab(touchData.first, touchEvent, touchData.second);
                                 holdEntity();
                                 onEntityHeld();
+                                playScene.setScrollerEnabled(false);
                                 return false;
                             }
                         }
@@ -346,6 +355,7 @@ public class Hand {
             } else if (touchEvent.isActionDown()) {
 
             } else if (touchEvent.isActionUp()) {
+                playScene.setScrollerEnabled(true);
                 if (touchData != null && touchData.first != null) {
                     if (selectedEntity != touchData.first) {
                         if (selectedEntity != null) {
@@ -386,6 +396,7 @@ public class Hand {
                     }
                     if (playScene.getSpecialAction() == PlayerSpecialAction.FireHeavy || playScene.getSpecialAction() == PlayerSpecialAction.AimHeavy) {
                         if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
+                            playScene.setScrollerEnabled(false);
                             GameEntity muzzleEntity = getHeldEntity();
                             Vector2 target =
                                     new Vector2(
@@ -465,6 +476,7 @@ public class Hand {
     }
 
     private void doAim(TouchEvent touchEvent, boolean isMirrored) {
+        playScene.setScrollerEnabled(false);
         if (grabbedEntity.getBody() == null) {
             return;
         }
@@ -486,7 +498,8 @@ public class Hand {
 
     public void launchRocket() {
         Rocket rocket = getUsableEntity().getUsage(Rocket.class);
-        rocket.onLaunch();
+        releaseGrabbedEntity(true);
+        rocket.onLaunch(playScene);
     }
 
     public void setHoldingAngle(float angleDeg) {

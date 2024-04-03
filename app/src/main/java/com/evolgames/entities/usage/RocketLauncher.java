@@ -29,7 +29,7 @@ import com.evolgames.utilities.ToolUtils;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class RocketLauncher extends Use {
         this.loading = true;
         this.loadingTimer = 0;
         for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
-            fire(i);
+            fire(i, playScene);
 
         }
     }
@@ -126,7 +126,7 @@ public class RocketLauncher extends Use {
     }
 
 
-    private void fire(int index) {
+    private void fire(int index, PlayScene playScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
         Rocket rocket = rockets.get(projectileInfo);
         if (rocket == null) {
@@ -159,7 +159,7 @@ public class RocketLauncher extends Use {
 
         computeRecoil(projectileInfo, rocketEntity, muzzleEntity);
 
-        Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch();
+        Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch(playScene);
         if (projInfFireSourceMap.containsKey(projectileInfo)) {
             projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
             fireOn = true;
@@ -254,9 +254,13 @@ public class RocketLauncher extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.AimLight);
         if (!loading) {
-            return Collections.singletonList(PlayerSpecialAction.Trigger);
-        } else return null;
+            list.add(PlayerSpecialAction.Trigger);
+        }
+        return list;
     }
 
 

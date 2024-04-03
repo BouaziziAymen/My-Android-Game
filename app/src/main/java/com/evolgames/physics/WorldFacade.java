@@ -327,9 +327,9 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         int lowerRate =
-                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
+                (int) (5f*BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
         int higherRate =
-                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
+                (int) (5f*BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
@@ -725,7 +725,7 @@ public class WorldFacade implements ContactObserver {
                         continue;
                     }
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(0.1f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(0.02f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
@@ -1074,7 +1074,7 @@ public class WorldFacade implements ContactObserver {
                         penetrated,
                         environmentData,
                         penetratorData,
-                        (float) Math.sqrt(collisionEnergy),penetratorBlock);
+                        (float) Math.sqrt(collisionEnergy), penetratorBlock);
                 Log.e("Penetration",
                         "-----------$ On energy consumed, penetrationEnergy:"
                                 + penetrationEnergy
@@ -1094,7 +1094,7 @@ public class WorldFacade implements ContactObserver {
                 penetrated,
                 environmentData,
                 penetratorData,
-                collisionImpulse,penetratorBlock);
+                collisionImpulse, penetratorBlock);
         return true;
     }
 
@@ -1137,7 +1137,7 @@ public class WorldFacade implements ContactObserver {
         return envError;
     }
 
-    public void  freeze(GameEntity penetrator) {
+    public void freeze(GameEntity penetrator) {
         penetrator.getBody().setAngularVelocity(0);
         penetrator.getBody().setLinearVelocity(0, 0);
     }
@@ -1267,7 +1267,6 @@ public class WorldFacade implements ContactObserver {
             return;
         }
         entity.hideOutline();
-        entity.getBody().setActive(false);
         Invoker.addBodyDestructionCommand(entity);
 
         if (finalDestruction) {
@@ -1642,7 +1641,7 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void computePenetrationPoints(
-            Vector2 normal, float advance, List<TopographyData> envData) {
+            Vector2 normal, float advance, List<TopographyData> envData, float collisionImpulse) {
         List<PenetrationPoint> allPenPoints = new ArrayList<>();
         for (TopographyData topographyData : envData) {
             List<PenetrationPoint> dataPenPoints = new ArrayList<>();
@@ -1725,7 +1724,7 @@ public class WorldFacade implements ContactObserver {
                                                     * layerBlock.getProperties().getJuicinessDensity());
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
-                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-2000f));
+                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse*25f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
@@ -1883,7 +1882,7 @@ public class WorldFacade implements ContactObserver {
             GameEntity entity2,
             JointBlock jointBlock1,
             JointBlock jointBlock2,
-            JointDef jointDef) {
+            JointDef jointDef, boolean mirror) {
         Vector2 anchorA = new Vector2();
         Vector2 anchorB = new Vector2();
 
@@ -1944,6 +1943,9 @@ public class WorldFacade implements ContactObserver {
                 jointBlock1);
         LayerBlock layerBlock2 = BlockUtils.getNearestBlock(anchorB, entity2.getBlocks());
         layerBlock2.addAssociatedBlock(jointBlock2);
+        if (mirror) {
+            jointBlock1.mirrorJointDef();
+        }
     }
 
 
@@ -1962,14 +1964,20 @@ public class WorldFacade implements ContactObserver {
     /**
      * @noinspection UnusedReturnValue
      */
-    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
-        JointBlock jointBlock1 = new JointBlock(jointId);
-        JointBlock jointBlock2 = new JointBlock(jointId);
-        this.addJointBlocks(entity1, entity2, jointBlock1, jointBlock2, jointDef);
+    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId, boolean mirror) {
+        JointBlock jointBlock1 = new JointBlock();
+        JointBlock jointBlock2 = new JointBlock();
+        jointBlock1.setJointId(jointId);
+        jointBlock2.setJointId(jointId);
+        this.addJointBlocks(entity1, entity2, jointBlock1, jointBlock2, jointDef, mirror);
         Invoker.addJointCreationCommand(
                 jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
         return jointBlock1;
     }
+
+    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId){
+        return addJointToCreate(jointDef,entity1,entity2,jointId,false);
+}
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {
         sum.set(0, 0);

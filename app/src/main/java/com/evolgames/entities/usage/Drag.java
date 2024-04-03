@@ -1,13 +1,20 @@
 package com.evolgames.entities.usage;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.serialization.infos.DragInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
+import com.evolgames.utilities.GeometryUtils;
+
+import org.andengine.util.adt.color.Color;
 
 import java.util.List;
 
@@ -34,7 +41,7 @@ public class Drag extends Use {
             Vector2 normal = dragInfo.getDragNormal();
             Vector2 center = body.getWorldPoint(dragInfo.getDragOrigin()).cpy();
             Vector2 velocity = body.getLinearVelocity();
-            Vector2 projectedNormal = body.getWorldVector(normal);
+            Vector2 projectedNormal = body.getWorldVector(normal).cpy().nor();
             float velocityProjection = velocity.dot(projectedNormal);
             if (velocityProjection > 0 || dragInfo.isSymmetrical()) {
                 float forceFactor =
@@ -46,6 +53,7 @@ public class Drag extends Use {
                 Vector2 force = projectedNormal.cpy().mul(forceFactor);
 
                 body.applyForce(force.x, force.y, center.x, center.y);
+                Log.e("Rocket",center+"/ force:"+force);
             }
         }
     }
@@ -57,7 +65,7 @@ public class Drag extends Use {
 
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
-
+            dragInfo.getDragOrigin().set(GeometryUtils.mirrorPoint(dragInfo.getDragOrigin()));
     }
 
     @Override

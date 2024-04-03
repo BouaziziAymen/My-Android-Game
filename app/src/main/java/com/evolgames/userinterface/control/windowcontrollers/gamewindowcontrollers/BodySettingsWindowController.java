@@ -71,7 +71,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private final NumericValidator zIndexValidator =
             new NumericValidator(true, false, -1000, 1000, 3, 0);
     private final NumericValidator rocketFuelValidator =
-            new NumericValidator(false, false, 0, 1000, 3, 0);
+            new NumericValidator(false, true, 0, 1000, 3, 1);
     private final NumericValidator roundsValidator =
             new NumericValidator(false, false, 0, 1000, 3, 0);
     private final NumericValidator bombDelayValidator =
@@ -325,7 +325,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 .setTextValidated(String.valueOf(Float.valueOf(reloadTime).intValue()));
     }
 
-    private void setFuel(int fuel) {
+    private void setFuel(float fuel) {
         rocketFuelTextField.getBehavior().setTextValidated(String.valueOf(fuel));
     }
 
@@ -690,7 +690,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 .getBehavior()
                 .setReleaseAction(
                         () -> {
-                            int fuel = Integer.parseInt(rocketFuelTextField.getTextString());
+                            float fuel = Float.parseFloat(rocketFuelTextField.getTextString());
                             assert rocketProperties != null;
                             rocketProperties.setFuel(fuel);
                         });

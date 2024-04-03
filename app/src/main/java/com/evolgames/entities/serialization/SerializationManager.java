@@ -26,6 +26,7 @@ import com.evolgames.scenes.PlayScene;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SerializationManager {
 
@@ -92,8 +93,9 @@ public class SerializationManager {
         kryo.register(com.evolgames.entities.properties.LayerProperties.class);
         kryo.register(com.evolgames.entities.properties.CoatingProperties.class);
         kryo.register(com.evolgames.entities.properties.StainProperties.class);
-        kryo.register(JointBlockProperties.class);
+        kryo.register(com.evolgames.entities.properties.JointBlockProperties.class);
         kryo.register(com.evolgames.entities.properties.DecorationProperties.class);
+        kryo.register(com.evolgames.entities.properties.BodyProperties.class);
 
         kryo.register(com.evolgames.entities.hand.Hand.class);
         kryo.register(com.evolgames.entities.hand.PlayerAction.class, new EnumSerializer<PlayerAction>());
@@ -115,6 +117,7 @@ public class SerializationManager {
         kryo.register(org.andengine.util.adt.color.Color.class);
         kryo.register(com.badlogic.gdx.math.Vector2.class);
         kryo.register(java.util.ArrayList.class);
+        kryo.register(java.util.concurrent.CopyOnWriteArrayList.class);
         kryo.register(java.util.HashSet.class);
         kryo.register(float[].class, new FloatArraySerializer());
         kryo.setReferences(false);

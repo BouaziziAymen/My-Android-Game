@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -13,6 +14,8 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
+
+import org.andengine.engine.camera.SmoothCamera;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,6 +77,7 @@ public abstract class Bomb extends Use {
                     bombInfo.getHeat(),
                     bombInfo.getSpeed(), 1f, 0f);
         }
+
         this.alive = false;
     }
 

@@ -19,22 +19,17 @@ import java.util.ArrayList;
 
 public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties> {
 
+    private JointInfo jointInfo;
     private JointDef.JointType jointType;
     private Position position;
     private String jointUniqueId;
+    private int jointId;
     private transient JointBlock brother;
     private transient GameEntity entity;
-    private JointInfo jointInfo;
-
-    private int jointId;
     private transient Joint joint;
 
-    @SuppressWarnings("Unused")
-    public JointBlock() {
-    }
 
-    public JointBlock(int jointId) {
-        this.jointId = jointId;
+    public JointBlock() {
     }
 
     public int getJointId() {
@@ -128,6 +123,10 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     protected void calculateArea() {
     }
 
+    public void setJointId(int jointId) {
+        this.jointId = jointId;
+    }
+
     @Override
     protected boolean shouldCalculateArea() {
         return false;
@@ -135,7 +134,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
 
     @Override
     protected JointBlock createChildBlock() {
-        return new JointBlock(jointId);
+        return new JointBlock();
     }
 
     @Override
@@ -243,6 +242,10 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     @Override
     public void mirror() {
         super.mirror();
+        mirrorJointDef();
+    }
+
+    public void mirrorJointDef() {
         if (this.position == Position.A) {
             JointDef jointDef = getProperties().getJointDef();
             switch (jointType) {

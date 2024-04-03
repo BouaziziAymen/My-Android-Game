@@ -8,7 +8,7 @@ public class CollisionUtils {
     public static final short OBJECTS_BACK_CATEGORY = 0x80;
     public static final short OBJECT = OBJECTS_BACK_CATEGORY | OBJECTS_MIDDLE_CATEGORY | OBJECTS_FRONT_CATEGORY;
     public static final short ALL_MASK = -1;
-    private static short groupIndex;
+    private static short groupIndex = 2;
 
     public static synchronized short groupIndex() {
         return (short) -(groupIndex++);

@@ -74,6 +74,7 @@ public class Shooter extends Use {
                         .map(m -> m.toProjectileInfo(mirrored))
                         .collect(Collectors.toList());
         fillMissileModels();
+        this.projectileInfoList.forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
         createFireSources(physicsScene.getWorldFacade());
         switch (rangedUsageModel.getType()) {
             case SHOOTER:
@@ -140,6 +141,10 @@ public class Shooter extends Use {
             for (ExplosiveParticleWrapper explosiveParticleWrapper : this.projInfFireSourceMap.values()) {
                 explosiveParticleWrapper.setSpawnEnabled(fireCountdown > 0);
             }
+        }
+        boolean updatedMuzzles = projectileInfoList.stream().anyMatch(ProjectileInfo::isUpdatedMuzzle);
+        if(updatedMuzzles){
+            createFireSources(worldFacade);
         }
         if (this.loading) {
             this.loadingTimer += deltaTime;
@@ -299,9 +304,17 @@ public class Shooter extends Use {
     @Override
     public List<PlayerSpecialAction> getActions() {
         if (!isHeavy) {
-            return Collections.singletonList(PlayerSpecialAction.Fire);
+            List<PlayerSpecialAction> list = new ArrayList<>();
+            list.add(PlayerSpecialAction.None);
+            list.add(PlayerSpecialAction.Fire);
+            list.add(PlayerSpecialAction.AimLight);
+            if(isLoaded()) {
+                list.add(PlayerSpecialAction.Trigger);
+            }
+            return list;
         } else {
             List<PlayerSpecialAction> list = new ArrayList<>();
+            list.add(PlayerSpecialAction.None);
             if (this.type == BodyUsageCategory.SHOOTER_CONTINUOUS) {
                 list.add(PlayerSpecialAction.FireHeavy);
             } else {
@@ -334,6 +347,7 @@ public class Shooter extends Use {
         this.projInfFireSourceMap.values().forEach(
                 ExplosiveParticleWrapper::detach
         );
+        this.projectileInfoList.forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
         createFireSources(physicsScene.getWorldFacade());
     }
 
@@ -349,30 +363,32 @@ public class Shooter extends Use {
         this.projectileInfoList
                 .forEach(
                         p -> {
-                            if (p.getFireRatio() >= 0.1f
-                                    || p.getSmokeRatio() >= 0.1f
-                                    || p.getSparkRatio() >= 0.1f) {
-                                Vector2 end = p.getProjectileEnd().cpy().mul(32f);
-                                Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
-                                Vector2 nor = new Vector2(-dir.y, dir.x);
-                                int index = this.projectileInfoList.indexOf(p);
-                                float axisExtent = ToolUtils.getAxisExtent(this.missileModels.get(index), nor) / 2f;
-                                ExplosiveParticleWrapper fireSource =
-                                        worldFacade
-                                                .createFireSource(
-                                                        p.getMuzzle().getMuzzleEntity(),
-                                                        end.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
-                                                        end.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
-                                                        PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
-                                                                / 5f,
-                                                        p.getFireRatio(),
-                                                        p.getSmokeRatio(),
-                                                        p.getSparkRatio(),
-                                                        1f,
-                                                        0.2f, 1f, 0f);
-                                fireSource.setSpawnEnabled(false);
-                                this.projInfFireSourceMap.put(p, fireSource);
-
+                            if(p.getMuzzle()!=null&&p.isUpdatedMuzzle()) {
+                                if (p.getFireRatio() >= 0.1f
+                                        || p.getSmokeRatio() >= 0.1f
+                                        || p.getSparkRatio() >= 0.1f) {
+                                    Vector2 end = p.getProjectileEnd().cpy().mul(32f);
+                                    Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
+                                    Vector2 nor = new Vector2(-dir.y, dir.x);
+                                    int index = this.projectileInfoList.indexOf(p);
+                                    float axisExtent = ToolUtils.getAxisExtent(this.missileModels.get(index), nor) / 2f;
+                                    ExplosiveParticleWrapper fireSource =
+                                            worldFacade
+                                                    .createFireSource(
+                                                            p.getMuzzle().getMuzzleEntity(),
+                                                            end.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
+                                                            end.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
+                                                            PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())
+                                                                    / 5f,
+                                                            p.getFireRatio(),
+                                                            p.getSmokeRatio(),
+                                                            p.getSparkRatio(),
+                                                            1f,
+                                                            0.2f, 1f, 0f);
+                                    fireSource.setSpawnEnabled(false);
+                                    this.projInfFireSourceMap.put(p, fireSource);
+                                    p.setUpdatedMuzzle(false);
+                                }
                             }
                         });
     }

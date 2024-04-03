@@ -12,6 +12,7 @@ public class Muzzle extends Use {
 
     private String projectileInfoUniqueId;
     private transient GameEntity muzzleEntity;
+    private transient ProjectileInfo projectileInfo;
 
     @SuppressWarnings("Unused")
     public Muzzle() {
@@ -20,6 +21,7 @@ public class Muzzle extends Use {
     public Muzzle(GameEntity muzzleEntity, ProjectileInfo projectileInfo) {
         this.muzzleEntity = muzzleEntity;
         this.projectileInfoUniqueId = projectileInfo.getProjectileInfoUniqueId();
+        this.projectileInfo = projectileInfo;
         this.active = true;
     }
 
@@ -33,6 +35,10 @@ public class Muzzle extends Use {
 
     public void setMuzzleEntity(GameEntity muzzleEntity) {
         this.muzzleEntity = muzzleEntity;
+    }
+
+    public void setProjectileInfo(ProjectileInfo projectileInfo) {
+        this.projectileInfo = projectileInfo;
     }
 
     @Override
@@ -54,6 +60,9 @@ public class Muzzle extends Use {
     public boolean inheritedBy(GameEntity biggestSplinter, float ratio) {
         if (ratio > 0.9f) {
             this.muzzleEntity = biggestSplinter;
+            if(this.projectileInfo!=null){
+                projectileInfo.setUpdatedMuzzle(true);
+            }
             return true;
         } else {
             this.setActive(false);

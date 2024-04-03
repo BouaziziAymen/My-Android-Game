@@ -36,6 +36,9 @@ public class BodyDestructionCommand extends Command {
                 physicsWorld.destroyJoint(joint);
             }
         }
+        if(Invoker.scene.getChasedEntity()==entity){
+            Invoker.scene.resetChasedEntity();
+        }
         physicsWorld.destroyBody(body);
     }
 

@@ -83,11 +83,8 @@ public class JointModel extends ProperModel<JointProperties> {
 
                 revoluteJointDef.lowerAngle = properties.getLowerAngle();
                 revoluteJointDef.upperAngle = properties.getUpperAngle();
-                if (mirrored) {
                     revoluteJointDef.motorSpeed = -properties.getMotorSpeed();
-                } else {
                     revoluteJointDef.motorSpeed = properties.getMotorSpeed();
-                }
                 revoluteJointDef.maxMotorTorque = properties.getMaxMotorTorque();
                 revoluteJointDef.enableMotor = properties.isEnableMotor();
                 revoluteJointDef.referenceAngle = properties.getReferenceAngle();
@@ -100,11 +97,7 @@ public class JointModel extends ProperModel<JointProperties> {
                 prismaticJointDef.lowerTranslation = properties.getLowerTranslation();
                 prismaticJointDef.upperTranslation = properties.getUpperTranslation();
                 Vector2 localAxis1 = properties.getLocalAxis1();
-                if (mirrored) {
-                    prismaticJointDef.localAxis1.set(-localAxis1.x, localAxis1.y);
-                } else {
                     prismaticJointDef.localAxis1.set(localAxis1.x, localAxis1.y);
-                }
                 prismaticJointDef.enableLimit = properties.isEnableLimit();
                 prismaticJointDef.motorSpeed = properties.getMotorSpeed();
                 prismaticJointDef.maxMotorForce = properties.getMaxMotorForce();

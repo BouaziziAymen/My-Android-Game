@@ -10,7 +10,7 @@ public class RocketProperties extends Properties {
     private final List<FireSourceModel> fireSourceModelList;
     private List<Integer> fireSourceModelListIds;
     private float power = 0.5f;
-    private int fuel = 10;
+    private float fuel = 10;
 
     public RocketProperties() {
         this.fireSourceModelList = new ArrayList<>();
@@ -24,11 +24,11 @@ public class RocketProperties extends Properties {
         this.power = power;
     }
 
-    public int getFuel() {
+    public float getFuel() {
         return fuel;
     }
 
-    public void setFuel(int fuel) {
+    public void setFuel(float fuel) {
         this.fuel = fuel;
     }
 

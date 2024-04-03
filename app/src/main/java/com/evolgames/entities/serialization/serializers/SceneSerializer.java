@@ -78,7 +78,7 @@ public class SceneSerializer {
         for (FireSourceInfo fireSourceInfo : rocket.getFireSourceInfoList()) {
             fireSourceInfo.setMuzzleEntity(GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
         }
-        rocket.setRocketBodyGameEntity(GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId()));
+        rocket.setRocketBodyGameEntity(Objects.requireNonNull(GameEntitySerializer.entities.get(rocket.getRocketBodyEntityUniqueId())));
         rocket.createFireSources(scene.getWorldFacade());
     }
 
@@ -92,6 +92,7 @@ public class SceneSerializer {
                 if (muzzle != null) {
                     muzzle.setMuzzleEntity(muzzleEntity);
                     projectileInfo.setMuzzle(muzzle);
+                    muzzle.setProjectileInfo(projectileInfo);
                 }
             }
         }
@@ -214,6 +215,7 @@ public class SceneSerializer {
     private void reloadGameEntityUses(PhysicsScene<?> scene, GameEntity gameEntity) {
         if (gameEntity.hasUsage(Shooter.class)) {
             Shooter shooter = gameEntity.getUsage(Shooter.class);
+            shooter.getProjectileInfoList().forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
             resetMuzzles(shooter.getProjectileInfoList());
             shooter.fillMissileModels();
             shooter.createFireSources(scene.getWorldFacade());

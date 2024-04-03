@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.basics.EntityWithBody;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -34,7 +33,7 @@ import org.andengine.util.adt.color.Color;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,9 +112,9 @@ public class Bow extends Use {
         return projectileInfoList;
     }
 
-    public void onArrowsReleased() {
+    public void onArrowsReleased(PlayScene playScene) {
         for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
-            fire(i);
+            fire(i,playScene);
         }
         this.loading = true;
         this.loaded = false;
@@ -160,7 +159,7 @@ public class Bow extends Use {
         }
     }
 
-    private void fire(int index) {
+    private void fire(int index, PlayScene playScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
 
         GameGroup arrowGroup = Objects.requireNonNull(arrows.get(projectileInfo));
@@ -194,8 +193,10 @@ public class Bow extends Use {
         float muzzleVelocity = getProjectileVelocity(projectileInfo.getMuzzleVelocity());
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
         arrowGroup.getGameEntityByIndex(0).getBody().setLinearVelocity(muzzleVelocityVector);
-        //ResourceManager.getInstance().firstCamera.setChaseEntity(arrowGroup.getGameEntityByIndex(0).getMesh());
         computeRecoil(projectileInfo, arrowGroup, muzzleEntity);
+        if(playScene.isChaseActive()) {
+            playScene.chaseEntity(arrowGroup.getGameEntityByIndex(0));
+        }
 
     }
 
@@ -244,9 +245,9 @@ public class Bow extends Use {
             BodyModel bodyModel = arrowModel.getBodies().get(i);
             if (i == 0) {
                 //this is the main arrow body
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT).angle(worldAngle).isBullet(true).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-1).angle(worldAngle).isBullet(true).build());
             } else {
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT).angle(worldAngle).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-1).angle(worldAngle).build());
             }
         }
         JointModel jointModel = new JointModel(arrowModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
@@ -285,9 +286,13 @@ public class Bow extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.AimLight);
         if (!loading) {
-            return Collections.singletonList(PlayerSpecialAction.Shoot_Arrow);
-        } else return null;
+            list.add(PlayerSpecialAction.Shoot_Arrow);
+        }
+        return list;
     }
 
     @Override

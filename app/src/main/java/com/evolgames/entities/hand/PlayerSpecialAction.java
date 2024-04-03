@@ -3,7 +3,7 @@ package com.evolgames.entities.hand;
 import com.evolgames.gameengine.R;
 
 public enum PlayerSpecialAction {
-    None(R.drawable.drag_icon, false, false, false),
+    None(R.drawable.none_icon, false, false, false),
     Trigger(R.drawable.tap_icon, false, false, true),
     SwitchOn(R.drawable.on_icon, true, false, true),
     SwitchOff(R.drawable.off_icon, true, false, true),
@@ -12,6 +12,7 @@ public enum PlayerSpecialAction {
     Throw(R.drawable.hatchet_icon, false, true, false),
     Smash(R.drawable.mace_icon, false, true, false),
     Fire(R.drawable.shooting_icon, false, true, false),
+    AimLight(R.drawable.aim_icon, false, false, false),
     Guide(R.drawable.home_icon, false, true, true),
     Shoot_Arrow(R.drawable.target_icon, false, true, false),
     FireHeavy(R.drawable.machine_icon, false, false, true),

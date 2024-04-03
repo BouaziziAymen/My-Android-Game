@@ -12,6 +12,7 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,10 @@ public class FlameThrower extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.Fire);
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.Fire);
+        return list;
     }
 
     @Override

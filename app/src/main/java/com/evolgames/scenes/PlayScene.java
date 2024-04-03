@@ -3,6 +3,7 @@ package com.evolgames.scenes;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -41,13 +42,14 @@ import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
 import com.evolgames.scenes.entities.SceneType;
-import com.evolgames.userinterface.view.PlayUserInterface;
+import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MyColorUtils;
 import com.evolgames.utilities.Vector2Utils;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Mesh;
@@ -56,6 +58,7 @@ import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
+import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
@@ -63,13 +66,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class PlayScene extends PhysicsScene<PlayUserInterface>
+public class PlayScene extends PhysicsScene<UserInterface<?>>
         implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
         PinchZoomDetector.IPinchZoomDetectorListener {
 
     public static boolean pause = false;
     public static Plotter plotter;
+    private final SurfaceScrollDetector mScrollDetector;
+    private final PinchZoomDetector mPinchZoomDetector;
     private GameGroup gameGroup1;
     private PlayerAction playerAction = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
@@ -78,17 +83,29 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     private ArrayList<Vector2> points;
     private boolean scroll;
     private SavingBox savingBox;
+    private float mPinchZoomStartedCameraZoomFactor;
+    private boolean chaseActive;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
         this.savingBox = new SavingBox(this);
         plotter = new Plotter();
         this.attachChild(plotter);
+        this.mScrollDetector = new SurfaceScrollDetector(this);
+
+        this.mPinchZoomDetector = new PinchZoomDetector(this);
+
+
     }
 
     @Override
     protected void onManagedUpdate(float pSecondsElapsed) {
+
         super.onManagedUpdate(1 / 60f);
+        step++;
+        if(step%60==0){
+            Log.e("Position rocket",""+mCamera.getCenterX());
+        }
         if (this.savingBox != null) {
             this.savingBox.onStep();
         }
@@ -126,7 +143,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-        boolean hudTouched = this.userInterface.onTouchHud(hudTouchEvent);
         if (false) {
             projectionTest(touchEvent);
         }
@@ -146,28 +162,28 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         if (playerAction == PlayerAction.Slice) {
             processSlicing(touchEvent);
         }
-        Vector2 touch = obtain(touchEvent.getX(), touchEvent.getY());
-        if (!hudTouched) {
-            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
-                processHandling(touchEvent);
-            }
+        if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
+            processHandling(touchEvent);
         }
         if (playerAction == PlayerAction.Slice) {
             processSlicing(touchEvent);
+        }
+
+        if (mPinchZoomDetector != null) {
+            mPinchZoomDetector.onTouchEvent(touchEvent);
+
+            mScrollDetector.onTouchEvent(touchEvent);
+        } else {
+            mScrollDetector.onTouchEvent(touchEvent);
         }
     }
 
     @Override
     public void populate() {
         createRagDoll(400, 420);
-        // createItemFromFile("RPG.xml",true,true);
         createTestUnit();
         createGround();
         testMesh();
-        // createTool(loadToolModel("c1_knife.xml"));
-        //  createTool(loadToolModel("c1_sword.xml"));
-        //  createTool(loadToolModel("c1_morning_star.xml"));
-        //  createTool(loadToolModel("c2_revolver_latest.xml"));
     }
 
     @Override
@@ -206,7 +222,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     @Override
     public void createUserInterface() {
-        this.userInterface = new PlayUserInterface(this);
     }
 
     private void bluntDamageTest() {
@@ -339,36 +354,6 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
 
     @Override
     public void onAccelerationChanged(AccelerationData pAccelerationData) {
-    }
-
-    @Override
-    public void onPinchZoomStarted(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pSceneTouchEvent) {
-    }
-
-    @Override
-    public void onPinchZoom(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
-    }
-
-    @Override
-    public void onPinchZoomFinished(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
-    }
-
-    @Override
-    public void onScrollStarted(
-            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-    }
-
-    @Override
-    public void onScroll(
-            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
-    }
-
-    @Override
-    public void onScrollFinished(
-            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
     }
 
     private void testMesh() {
@@ -679,7 +664,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
     public Pair<GameEntity, Vector2> getTouchedEntity(TouchEvent touchEvent, boolean withHold) {
         GameEntity result = null;
         Vector2 anchor = null;
-        float minDis = 12f;
+        float minDis = 32f;
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
@@ -743,7 +728,7 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
                 GameEntity usableEntity = hand.getUsableEntity();
                 if (usableEntity != null && usableEntity.hasUsage(Bow.class)) {
                     Bow bow = usableEntity.getUsage(Bow.class);
-                    bow.onArrowsReleased();
+                    bow.onArrowsReleased(this);
                     onUsagesUpdated();
                 }
             }
@@ -810,5 +795,74 @@ public class PlayScene extends PhysicsScene<PlayUserInterface>
         if (hand != null && hand.getUsableEntity() != null) {
             Invoker.addBodyMirrorCommand(hand.getUsableEntity());
         }
+    }
+
+
+    @Override
+    public void onPinchZoomStarted(
+            PinchZoomDetector pPinchZoomDetector, TouchEvent pSceneTouchEvent) {
+        SmoothCamera cam = (SmoothCamera) this.mCamera;
+        this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
+        this.mScrollDetector.setEnabled(false);
+    }
+
+    @Override
+    public void onPinchZoom(
+            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
+
+        SmoothCamera cam = (SmoothCamera) this.mCamera;
+        float zf = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
+        cam.setZoomFactor(zf);
+    }
+
+    @Override
+    public void onPinchZoomFinished(
+            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
+        mScrollDetector.setEnabled(true);
+        onScroll(mScrollDetector, pTouchEvent.getPointerID(), 0, 0);
+    }
+
+    @Override
+    public void onScrollStarted(
+            ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+        mPinchZoomDetector.setEnabled(false);
+    }
+
+    @Override
+    public void onScroll(
+            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+
+        SmoothCamera cam = (SmoothCamera) this.mCamera;
+
+        float zoomFactor = cam.getZoomFactor();
+
+        float deltaX = -pDistanceX / zoomFactor;
+
+        float deltaY = pDistanceY / zoomFactor;
+
+        mCamera.offsetCenter(deltaX, deltaY);
+
+    }
+
+    @Override
+    public void onScrollFinished(
+            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+        mPinchZoomDetector.setEnabled(true);
+    }
+
+    public void setScrollerEnabled(boolean pScrollerEnabled) {
+        mScrollDetector.setEnabled(pScrollerEnabled);
+    }
+
+    public void setZoomEnabled(boolean pZoomEnabled) {
+        mPinchZoomDetector.setEnabled(pZoomEnabled);
+    }
+
+    public boolean isChaseActive() {
+        return chaseActive;
+    }
+
+    public void setChaseActive(boolean chaseActive) {
+        this.chaseActive = chaseActive;
     }
 }

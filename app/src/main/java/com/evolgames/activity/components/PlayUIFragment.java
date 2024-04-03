@@ -70,6 +70,9 @@ public class PlayUIFragment extends Fragment {
         GameImageButton mirrorButton = leftLayout.findViewById(R.id.mirror_button);
         setupMirrorButton(mirrorButton);
 
+        GameImageButton trackCameraButton = leftLayout.findViewById(R.id.camera_button);
+        setupCameraButton(trackCameraButton);
+
         GameImageButton homeButton = topLayout.findViewById(R.id.home_button);
         setupHomeButton(homeButton);
 
@@ -98,6 +101,15 @@ public class PlayUIFragment extends Fragment {
         optionsRecyclerView.setAdapter(optionsListAdaptor);
         optionsRecyclerView.setVisibility(View.GONE);
         return fragment;
+    }
+
+    private void setupCameraButton(GameImageButton trackCameraButton) {
+        trackCameraButton.setOnPressed(() -> {
+            ((GameActivity) getActivity()).getUiController().onTrackButtonClicked();
+        });
+        trackCameraButton.setOnReleased(() -> {
+            ((GameActivity) getActivity()).getUiController().onTrackButtonReleased();
+        });
     }
 
 

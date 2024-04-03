@@ -10,16 +10,17 @@ import com.evolgames.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Rocket extends Use {
-    public static final int FORCE_FACTOR = 10000;
+    public static final int FORCE_FACTOR = 5000;
     protected transient GameEntity rocketBodyEntity;
     int time = 0;
     private List<FireSourceInfo> fireSourceInfoList;
@@ -67,9 +68,11 @@ public class Rocket extends Use {
         }
     }
 
-    public void onLaunch() {
+    public void onLaunch(PlayScene playScene) {
+        if(playScene.isChaseActive()) {
+            playScene.chaseEntity(rocketBodyEntity);
+        }
         this.on = true;
-        //   ResourceManager.getInstance().firstCamera.setChaseEntity(rocketBodyEntity.getMesh());
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
@@ -109,11 +112,15 @@ public class Rocket extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.AimLight);
         if (isOn()) {
-            return Collections.singletonList(PlayerSpecialAction.SwitchOff);
+          list.add(PlayerSpecialAction.SwitchOff);
         } else {
-            return Collections.singletonList(PlayerSpecialAction.SwitchOn);
+           list.add(PlayerSpecialAction.SwitchOn);
         }
+        return list;
     }
 
 

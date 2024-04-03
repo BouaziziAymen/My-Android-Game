@@ -169,4 +169,15 @@ public class NativeUIController implements INativeUIController {
     public void onItemSaved() {
         this.fillItemsMap();
     }
+
+    public void onTrackButtonClicked() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setChaseActive(true);
+    }
+
+    public void onTrackButtonReleased() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setChaseActive(false);
+        playScene.releaseChasedEntity();
+    }
 }

@@ -28,6 +28,7 @@ public class ProjectileInfo {
     private String rocketEntityUniqueId;
     private boolean assetsMissile;
     private String arrowGroupUniqueId;
+    private boolean updatedMuzzle;
 
     public CasingInfo getCasingInfo() {
         return casingInfo;
@@ -189,5 +190,13 @@ public class ProjectileInfo {
 
     public void setArrowGroupUniqueId(String arrowGroupUniqueId) {
         this.arrowGroupUniqueId = arrowGroupUniqueId;
+    }
+
+    public void setUpdatedMuzzle(boolean updatedMuzzle) {
+        this.updatedMuzzle = updatedMuzzle;
+    }
+
+    public boolean isUpdatedMuzzle() {
+        return updatedMuzzle;
     }
 }/**/

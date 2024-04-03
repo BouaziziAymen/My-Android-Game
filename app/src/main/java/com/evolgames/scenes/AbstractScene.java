@@ -3,7 +3,9 @@ package com.evolgames.scenes;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.scenes.entities.SceneType;
@@ -11,6 +13,7 @@ import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -24,10 +27,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public abstract class AbstractScene<T extends UserInterface<?>> extends Scene implements IOnSceneTouchListener {
     protected final Camera mCamera;
+    private Vector2 cameraPositionBeforeChase = new Vector2();
 
     private final HUD hud;
     private final SceneType sceneName;
     protected T userInterface;
+    private GameEntity chasedEntity;
 
     public AbstractScene(Camera pCamera, SceneType sceneName) {
         this.mCamera = pCamera;
@@ -148,5 +153,26 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
         return false;
     }
 
+    public GameEntity getChasedEntity() {
+        return chasedEntity;
+    }
+public void resetChasedEntity(){
+    this.chasedEntity = null;
+    ResourceManager.getInstance().firstCamera.setChaseEntity(null);
+}
+    public void chaseEntity(GameEntity entity) {
+        this.cameraPositionBeforeChase.set(mCamera.getCenterX(),mCamera.getCenterY());
+        if (entity == null) {
+            return;
+        }
+        this.chasedEntity = entity;
+        ResourceManager.getInstance().firstCamera.setChaseEntity(entity.getMesh());
+    }
 
+    public void releaseChasedEntity() {
+     resetChasedEntity();
+        if(cameraPositionBeforeChase!=null) {
+            ((SmoothCamera)ResourceManager.getInstance().firstCamera).setCenterDirect(cameraPositionBeforeChase.x, cameraPositionBeforeChase.y);
+        }
+    }
 }
