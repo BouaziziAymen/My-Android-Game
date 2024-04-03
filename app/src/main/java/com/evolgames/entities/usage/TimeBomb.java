@@ -41,9 +41,6 @@ public class TimeBomb extends Bomb {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        if (isActive()) {
-            return false;
-        }
         if (ratio < 0.9f) {
             return false;
         }
