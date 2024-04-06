@@ -180,4 +180,28 @@ public class NativeUIController implements INativeUIController {
         playScene.setChaseActive(false);
         playScene.releaseChasedEntity();
     }
+
+    public void onUsesClicked() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setUsesActive(true);
+        playScene.setEffectsActive(false);
+        playScene.onUsagesUpdated();
+    }
+
+    public void onUsesReleased() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setUsesActive(false);
+    }
+
+    public void onEffectsClicked() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setEffectsActive(true);
+        playScene.setUsesActive(false);
+        playScene.onUsagesUpdated();
+    }
+
+    public void onEffectsReleased() {
+        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        playScene.setEffectsActive(false);
+    }
 }

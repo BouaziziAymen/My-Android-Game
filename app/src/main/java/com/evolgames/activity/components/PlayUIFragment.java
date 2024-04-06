@@ -26,7 +26,7 @@ import java.util.Map;
 public class PlayUIFragment extends Fragment {
     private ExpandableListView itemsExpandableListView;
     private TouchHoldState touchHoldState = TouchHoldState.TOUCH;
-    private GameImageButton usesButton;
+    private GameImageButton usesButton, effectsButton;
     private GameImageButton touchHoldButton;
     private GameImageButton weaponsButton;
     private RecyclerView optionsRecyclerView;
@@ -86,6 +86,9 @@ public class PlayUIFragment extends Fragment {
         usesButton = rightLayout.findViewById(R.id.uses_button);
         setupUsesButton(usesButton);
 
+        effectsButton = rightLayout.findViewById(R.id.effects_button);
+        setupEffectsButton(effectsButton);
+
         this.itemsExpandableListView = leftLayout.findViewById(R.id.exp_list);
         this.itemsExpandableListView.setVisibility(View.GONE);
         setupWeaponsListView(inflater);
@@ -124,8 +127,27 @@ public class PlayUIFragment extends Fragment {
     }
 
     private void setupUsesButton(GameImageButton usesButton) {
-        usesButton.setOnReleased(() -> optionsRecyclerView.setVisibility(View.GONE));
-        usesButton.setOnPressed(() -> optionsRecyclerView.setVisibility(View.VISIBLE));
+        usesButton.setOnReleased(() -> {
+            optionsRecyclerView.setVisibility(View.GONE);
+            ((GameActivity) getActivity()).getUiController().onUsesReleased();
+        });
+        usesButton.setOnPressed(() -> {
+            effectsButton.setState(Button.State.NORMAL);
+            optionsRecyclerView.setVisibility(View.VISIBLE);
+            ((GameActivity) getActivity()).getUiController().onUsesClicked();
+        });
+    }
+
+    private void setupEffectsButton(GameImageButton effectsButton) {
+        effectsButton.setOnReleased(() -> {
+            optionsRecyclerView.setVisibility(View.GONE);
+            ((GameActivity) getActivity()).getUiController().onEffectsReleased();
+        });
+        effectsButton.setOnPressed(() -> {
+            optionsRecyclerView.setVisibility(View.VISIBLE);
+            usesButton.setState(Button.State.NORMAL);
+            ((GameActivity) getActivity()).getUiController().onEffectsClicked();
+        });
     }
 
     private void setupSelectButton(GameImageButton selectButton) {

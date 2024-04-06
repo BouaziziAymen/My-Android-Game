@@ -381,7 +381,9 @@ public class GeometryUtils {
     private static boolean testPolygon(ArrayList<Vector2> polygon) {
         for (int i = 0; i < polygon.size(); i++) {
             int ni = (i == polygon.size() - 1) ? 0 : i + 1;
-            if (polygon.get(i).dst(polygon.get(ni)) < 2) return false;
+            if (polygon.get(i).dst(polygon.get(ni)) < 2){
+                return false;
+            }
         }
         return true;
     }

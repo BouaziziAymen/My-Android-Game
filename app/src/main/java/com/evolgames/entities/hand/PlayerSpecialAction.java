@@ -19,7 +19,12 @@ public enum PlayerSpecialAction {
     AimHeavy(R.drawable.aim_icon, false, false, true),
     motorStop(R.drawable.stop_icon, false, true, true),
     motorMoveForward(R.drawable.forward_icon, false, false, true),
-    motorMoveBackward(R.drawable.backward_icon, false, false, true);
+    motorMoveBackward(R.drawable.backward_icon, false, false, true),
+
+    effectCut(R.drawable.laser_cut_icon, false, false, false),
+    effectFireBolt(R.drawable.fire_icon, false, false, false),
+    effectMeteor(R.drawable.meteor_icon, false, false, false),
+    effectFrost(R.drawable.frost_icon, false, false, false);
     public final int iconId;
     public final boolean doubleState;
     public final boolean selectableByDefault;

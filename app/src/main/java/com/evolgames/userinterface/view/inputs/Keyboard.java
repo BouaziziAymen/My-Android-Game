@@ -82,7 +82,6 @@ public class Keyboard extends Container {
                             y,
                             LinearLayout.Direction.Horizontal,
                             -1);
-            Log.e("keyposition", String.valueOf(lineLayout.getLowerBottomX()));
             for (int i = 0; i < strings[j].length(); i++) {
                 Button.ButtonType type = Button.ButtonType.OneClick;
                 int n;

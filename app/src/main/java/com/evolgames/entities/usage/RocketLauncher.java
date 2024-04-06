@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.JointDef;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -148,7 +149,9 @@ public class RocketLauncher extends Use {
         });
 
         GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
-
+        if (muzzleEntity == null || muzzleEntity.getBody() == null) {
+            return;
+        }
         muzzleEntity.getBody().getJointList().forEach(jointEdge -> {
             Body bodyA = jointEdge.joint.getBodyA();
             Body bodyB = jointEdge.joint.getBodyB();
@@ -159,7 +162,9 @@ public class RocketLauncher extends Use {
 
         computeRecoil(projectileInfo, rocketEntity, muzzleEntity);
 
-        Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch(playScene);
+        Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch(playScene, false);
+        ResourceManager.getInstance()
+                .getProjectileSound(projectileInfo.getFireSound()).getSound().play();
         if (projInfFireSourceMap.containsKey(projectileInfo)) {
             projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
             fireOn = true;

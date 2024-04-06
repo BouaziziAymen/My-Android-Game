@@ -70,8 +70,6 @@ public class Stabber extends MeleeUse implements Penetrating {
                 penetrator);
         if (possibleAdvance > 0.01f) {
             for (GameEntity stabbedEntity : stabbedEntities) {
-                float massFraction = getMassFraction(penetrator, stabbedEntity);
-                worldFacade.applyPointImpact(obtain(point), 0.1f * consumedImpulse * massFraction, stabbedEntity);
                 for (GameEntity gameEntity : stabbedEntity.getParentGroup().getGameEntities()) {
                     this.targetGameEntities.add(gameEntity);
                     worldFacade.addNonCollidingPair(penetrator, gameEntity);
@@ -107,9 +105,7 @@ public class Stabber extends MeleeUse implements Penetrating {
         List<GameEntity> stabbedEntities =
                 worldFacade.findReachedEntities(penData, envData, possibleAdvance);
         for (GameEntity stabbedEntity : stabbedEntities) {
-            float massFraction = getMassFraction(penetrator, stabbedEntity);
             worldFacade.freeze(stabbedEntity);
-            worldFacade.applyPointImpact(obtain(point), 0.1f * collisionImpulse * massFraction, stabbedEntity);
             worldFacade.addNonCollidingPair(penetrator, stabbedEntity);
             for (GameEntity gameEntity : stabbedEntity.getParentGroup().getGameEntities()) {
                 this.targetGameEntities.add(gameEntity);

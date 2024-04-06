@@ -219,16 +219,17 @@ public class GameEntityFactory {
             entities.add(e);
             e.setParentGroup(parent.getParentGroup());
         }
-        GameEntity biggestSplinter = entities.stream().max(Comparator.comparing(GameEntity::getArea)).get();
-
-        for (Use use : parent.getUseList()) {
-            float ratio = biggestSplinter.getArea() / parent.getArea();
-            boolean inherited = use.inheritedBy(biggestSplinter, ratio);
-            if (inherited) {
-                biggestSplinter.getUseList().add(use);
+        GameEntity biggestSplinter = entities.stream().max(Comparator.comparing(GameEntity::getArea)).orElse(null);
+        if(biggestSplinter!=null) {
+            for (Use use : parent.getUseList()) {
+                float ratio = biggestSplinter.getArea() / parent.getArea();
+                boolean inherited = use.inheritedBy(biggestSplinter, ratio);
+                if (inherited) {
+                    biggestSplinter.getUseList().add(use);
+                }
             }
+            parent.setHeir(biggestSplinter);
         }
-        parent.setHeir(biggestSplinter);
         return entities;
     }
 
@@ -619,6 +620,7 @@ public class GameEntityFactory {
         leftHand.setType(SpecialEntityType.LeftHand);
         leftFoot.setType(SpecialEntityType.LeftFoot);
         rightFoot.setType(SpecialEntityType.RightFoot);
+
         upperTorso.setZIndex(3);
         upperLegR.setZIndex(2);
         upperLegL.setZIndex(2);

@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -128,7 +129,8 @@ public class ResourceManager {
     public TextureRegion handTextureRegion;
     public TextureRegion armTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
-    public ArrayList<GameSound> gunshotSounds;
+    public List<GameSound> projectileSounds, penetrationSounds;
+    public Sound slashSound;
     public TextureRegion aimCircleTextureRegion;
     public TiledTextureRegion saveBigButton;
     public TiledTextureRegion homeBigButton;
@@ -166,6 +168,7 @@ public class ResourceManager {
     private BuildableBitmapTextureAtlas texture;
     private Map<ItemCategory, List<ItemMetaData>> itemsMap;
     private ItemMetaData editorItem;
+    public TextureRegion frostParticle;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -247,6 +250,9 @@ public class ResourceManager {
         this.liquidParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
+        this.frostParticle =
+                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "particle/frost.png");
         this.dotParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "particle/dot.png");
@@ -722,24 +728,25 @@ public class ResourceManager {
 
     public void loadGameAudio() {
         try {
+
+
             String[] names =
                     new String[]{
-                            "shot1",
-                            "assault1",
-                            "assault2",
-                            "shot2",
-                            "shot3",
-                            "assault3",
-                            "shot4",
-                            "shot5",
-                            "shot6",
-                            "shot7"
+                            "missile",
+                            "pistol",
+                            "rifle",
+                            "shotgun",
+                            "explosion"
                     };
-            int[] numbers = new int[]{1, 4, 2, 1, 1, 3, 1, 1, 1, 1};
+            int[] numbers = new int[]{2, 7, 4, 1, 3};
 
-            gunshotSounds = new ArrayList<>();
             SoundFactory.setAssetBasePath("sfx/");
 
+            slashSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "slash.wav");
             onSound =
                     SoundFactory.createSoundFromAsset(
                             this.activity.getSoundManager(),
@@ -751,19 +758,30 @@ public class ResourceManager {
                             this.activity,
                             "off.wav");
 
-
-            for (int i = 1; i <= 10; i++) {
-                int n = numbers[i - 1];
-                List<Sound> list = new ArrayList<>();
-                for (int j = 1; j <= n; j++) {
+            projectileSounds = new LinkedList<>();
+            for (int i = 0; i < names.length; i++) {
+                int n = numbers[i];
+                for (int j = 0; j < n; j++) {
+                    String path = names[i] + "/" + j + ".wav";
                     Sound soundShot =
                             SoundFactory.createSoundFromAsset(
                                     this.activity.getSoundManager(),
                                     this.activity,
-                                    "gunshot/gun" + i + "/" + j + ".wav");
-                    list.add(soundShot);
+                                    path);
+
+                    projectileSounds.add(new GameSound(soundShot, names[i] + j, GameSound.SoundType.PROJECTILE));
                 }
-                gunshotSounds.add(new GameSound(list, names[i - 1]));
+            }
+
+            penetrationSounds = new LinkedList<>();
+            for (int j = 0; j < 13; j++) {
+                String path = "penetration/" + j + ".wav";
+                Sound soundShot =
+                        SoundFactory.createSoundFromAsset(
+                                this.activity.getSoundManager(),
+                                this.activity,
+                                path);
+                penetrationSounds.add(new GameSound(soundShot, "penetration" + j, GameSound.SoundType.PENETRATION));
             }
 
             MusicFactory.setAssetBasePath("mfx/");
@@ -778,6 +796,18 @@ public class ResourceManager {
         } catch (Exception e) {
             throw new RuntimeException("Error while loading audio", e);
         }
+    }
+
+    public GameSound getPenetrationSound(int i) {
+        return penetrationSounds.stream().filter(e -> e.getTitle().equals("penetration" + i)).findFirst().get();
+    }
+
+    public GameSound getProjectileSound(String title) {
+        return projectileSounds.stream().filter(e -> e.getTitle().equals(title)).findFirst().get();
+    }
+
+    public List<GameSound> getProjectileSounds() {
+        return projectileSounds;
     }
 
     public void loadImage(Bitmap bitmap) {

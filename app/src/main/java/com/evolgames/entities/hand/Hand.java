@@ -2,6 +2,7 @@ package com.evolgames.entities.hand;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
+import android.media.SoundPool;
 import android.util.Log;
 import android.util.Pair;
 
@@ -323,18 +324,20 @@ public class Hand {
                             }
                             break;
                         case Fire:
-                            if (grabbedEntity.hasUsage(Shooter.class)) {
-                                Shooter shooter = grabbedEntity.getUsage(Shooter.class);
-                                if (shooter.isLoaded()) {
-                                    shooter.onTriggerPulled(playScene);
+                            if(grabbedEntity!=null) {
+                                if (grabbedEntity.hasUsage(Shooter.class)) {
+                                    Shooter shooter = grabbedEntity.getUsage(Shooter.class);
+                                    if (shooter.isLoaded()) {
+                                        shooter.onTriggerPulled(playScene);
+                                    }
                                 }
-                            }
-                            if (grabbedEntity.hasUsage(FlameThrower.class)) {
-                                FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
-                                if (!flameThrower.isOn()) {
-                                    flameThrower.onTriggerPulled();
-                                } else {
-                                    flameThrower.onTriggerReleased();
+                                if (grabbedEntity.hasUsage(FlameThrower.class)) {
+                                    FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
+                                    if (!flameThrower.isOn()) {
+                                        flameThrower.onTriggerPulled();
+                                    } else {
+                                        flameThrower.onTriggerReleased();
+                                    }
                                 }
                             }
                             break;
@@ -499,7 +502,7 @@ public class Hand {
     public void launchRocket() {
         Rocket rocket = getUsableEntity().getUsage(Rocket.class);
         releaseGrabbedEntity(true);
-        rocket.onLaunch(playScene);
+        rocket.onLaunch(playScene, true);
     }
 
     public void setHoldingAngle(float angleDeg) {
@@ -554,7 +557,7 @@ public class Hand {
                                 values[5] = dy;
                             }
                             float blockSharpness = block.getProperties().getSharpness();
-                            float blockHardness = block.getProperties().getTenacity();
+                            float blockHardness = block.getTenacity();
 
                             if (local.y > localPoint.y && blockSharpness > 0f) {
                                 values[6] += blockHardness;

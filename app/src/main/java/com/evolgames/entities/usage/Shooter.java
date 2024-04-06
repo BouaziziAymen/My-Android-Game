@@ -28,11 +28,11 @@ import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.ToolUtils;
 
+import org.andengine.audio.sound.Sound;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -293,12 +293,8 @@ public class Shooter extends Use {
                 }
         );
 
-        ResourceManager.getInstance()
-                .gunshotSounds
-                .get(projectileInfo.getFireSound())
-                .getSoundList()
-                .get(0)
-                .play();
+        Sound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound()).getSound();
+        sound.play();
     }
 
     @Override
@@ -383,8 +379,8 @@ public class Shooter extends Use {
                                                             p.getFireRatio(),
                                                             p.getSmokeRatio(),
                                                             p.getSparkRatio(),
-                                                            1f,
-                                                            0.2f, 1f, 0f);
+                                                            0.5f,
+                                                            0.2f, 0.5f, 0f);
                                     fireSource.setSpawnEnabled(false);
                                     this.projInfFireSourceMap.put(p, fireSource);
                                     p.setUpdatedMuzzle(false);

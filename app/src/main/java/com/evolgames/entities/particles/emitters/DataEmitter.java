@@ -31,4 +31,10 @@ public abstract class DataEmitter extends BaseParticleEmitter {
         prepareData();
         GeometryUtils.transformation.transform(data);
     }
+    public void updatePosition(float x, float y) {
+        GeometryUtils.transformation.setToIdentity();
+        GeometryUtils.transformation.preTranslate(x, y);
+        prepareData();
+        GeometryUtils.transformation.transform(data);
+    }
 }

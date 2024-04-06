@@ -1,6 +1,7 @@
 package com.evolgames.physics.entities.explosions;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.physics.PhysicsConstants;
@@ -40,7 +41,7 @@ public class Explosion {
         return alive;
     }
 
-    public void update(float stepFactor) {
+    public void update() {
 
         if (!alive) {
             return;

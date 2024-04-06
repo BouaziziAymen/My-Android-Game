@@ -27,6 +27,7 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     private transient JointBlock brother;
     private transient GameEntity entity;
     private transient Joint joint;
+    private boolean frozen;
 
 
     public JointBlock() {
@@ -278,6 +279,14 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
 
     public Joint getJoint() {
         return joint;
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
+
+    public boolean isFrozen() {
+        return frozen;
     }
 
     public enum Position {

@@ -11,7 +11,7 @@ public class TimeBomb extends Bomb {
     private float countDown;
 
     @SuppressWarnings("unused")
-    public TimeBomb(UsageModel<?> e) {
+    public TimeBomb() {
     }
 
     public TimeBomb(UsageModel<?> usageModel, boolean mirrored) {

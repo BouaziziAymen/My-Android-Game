@@ -50,12 +50,14 @@ import com.evolgames.entities.cut.Segment;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
+import com.evolgames.entities.particles.wrappers.FrostParticleWrapper;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
@@ -93,6 +95,7 @@ import com.evolgames.utilities.PhysicsUtils;
 import com.evolgames.utilities.Utils;
 import com.evolgames.utilities.Vector2Utils;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.primitive.Line;
@@ -101,7 +104,6 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -144,6 +146,11 @@ public class WorldFacade implements ContactObserver {
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
+    private FrostParticleWrapper frostParticleWrapper;
+
+    public FrostParticleWrapper getFrostParticleWrapper() {
+        return frostParticleWrapper;
+    }
 
     public WorldFacade(PhysicsScene<?> scene) {
         this.scene = scene;
@@ -152,13 +159,12 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContactListener(contactListener);
 
         scene.registerUpdateHandler(physicsWorld);
-        physicsWorld.setVelocityIterations(8 * 3);
-        physicsWorld.setPositionIterations(3 * 3);
+        physicsWorld.setVelocityIterations(8*3);
+        physicsWorld.setPositionIterations(3*3);
         physicsWorld.setContinuousPhysics(true);
     }
 
     public void onStep(float pSecondsElapsed) {
-        float stepFactor = pSecondsElapsed * 60f;
         List<TimedCommand> list = new ArrayList<>(timedCommands);
         for (Iterator<TimedCommand> iterator = list.iterator(); iterator.hasNext(); ) {
             TimedCommand timedCommand = iterator.next();
@@ -167,20 +173,18 @@ public class WorldFacade implements ContactObserver {
                 iterator.remove();
             }
         }
-        List<Explosion> explosionsCopy = new ArrayList<>(explosions);
-        for (int i = 0, explosionsCopySize = explosionsCopy.size(); i < explosionsCopySize; i++) {
-            Explosion explosion = explosionsCopy.get(i);
-            explosion.update(stepFactor);
-            if (!explosion.isAlive()) {
-                explosions.remove(explosion);
-            }
-        }
+        clearExplosions();
         this.contactListener
                 .getNonCollidingEntities()
                 .removeIf(pair -> pair.first == null || pair.second == null || !pair.first.isAlive() || !pair.second.isAlive());
 
         clearPulverizationWrappers();
-        updateLiquidWrappers();
+        clearLiquidWrappers();
+        if(frostParticleWrapper!=null&&!frostParticleWrapper.isAlive()&&frostParticleWrapper.isAllParticlesExpired()){
+            frostParticleWrapper.getParticleSystem().detachSelf();
+            frostParticleWrapper = null;
+        }
+
         for (ExplosiveParticleWrapper explosiveParticleWrapper : explosivesParticleWrappers) {
             explosiveParticleWrapper.update();
         }
@@ -190,8 +194,32 @@ public class WorldFacade implements ContactObserver {
         }
         computeConduction();
         computeConvection();
+        frostConvection();
         updateLiquidWrappers();
         createFires();
+    }
+
+    private void clearExplosions() {
+        List<Explosion> explosionsCopy = new ArrayList<>(explosions);
+        for (int i = 0, explosionsCopySize = explosionsCopy.size(); i < explosionsCopySize; i++) {
+            Explosion explosion = explosionsCopy.get(i);
+            explosion.update();
+            if (!explosion.isAlive()) {
+                explosions.remove(explosion);
+            }
+        }
+    }
+
+    private void clearLiquidWrappers() {
+        Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
+        while (wrapperIterator.hasNext()) {
+            LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
+            liquidParticleWrapper.update();
+            if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
+                liquidParticleWrapper.getParticleSystem().detachSelf();
+                wrapperIterator.remove();
+            }
+        }
     }
 
     public void removeFireParticleWrapper(Fire fireParticleWrapper) {
@@ -383,6 +411,20 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
+    public static Color frostColor =  new Color(172f/255f, 213f/255f, 243f/255f);
+    public void frostParticleWrapper(
+            Vector2 begin, Vector2 end,
+            final int lowerRate,
+            final int higherRate) {
+        frostParticleWrapper = new FrostParticleWrapper(
+                new float[]{begin.x, begin.y, end.x, end.y},
+                frostColor,
+                0,
+                lowerRate,
+                higherRate);
+        scene.attachChild(frostParticleWrapper.getParticleSystem());
+    }
+
     public SegmentExplosiveParticleWrapper createFireSource(
             GameEntity entity,
             Vector2 v1,
@@ -527,6 +569,10 @@ public class WorldFacade implements ContactObserver {
                         smokeRatio,
                         sparkRatio, inFirePartSize, finFirePartSize);
         explosions.add(explosion);
+
+        Sound sound = ResourceManager.getInstance()
+                .getProjectileSound("explosion1").getSound();
+        sound.play();
     }
 
     private void updateLiquidWrappers() {
@@ -601,15 +647,7 @@ public class WorldFacade implements ContactObserver {
         for (GameEntity entity : affectedEntities) {
             entity.redrawStains();
         }
-        Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
-        while (wrapperIterator.hasNext()) {
-            LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
-            liquidParticleWrapper.update();
-            if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
-                liquidParticleWrapper.getParticleSystem().detachSelf();
-                wrapperIterator.remove();
-            }
-        }
+
     }
 
     private void clearPulverizationWrappers() {
@@ -668,8 +706,7 @@ public class WorldFacade implements ContactObserver {
         List<Fire> flamesCopy = new ArrayList<>(flames);
         Collections.shuffle(flamesCopy);
         for (Fire fire : flamesCopy) {
-            Particle<UncoloredSprite>[] particles = Arrays.copyOf(fire.getFireParticleSystem().getParticles(), fire.getFireParticleSystem().getParticles().length);
-            for (Particle<UncoloredSprite> p : particles) {
+            for (Particle<UncoloredSprite> p : fire.getFireParticleSystem().getParticles()) {
                 if (p == null || p.isExpired()) {
                     continue;
                 }
@@ -725,10 +762,55 @@ public class WorldFacade implements ContactObserver {
                         continue;
                     }
                     for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        PhysicsUtils.transferHeatByConvection(0.02f, PhysicsConstants.ambient_temperature, grain);
+                        PhysicsUtils.transferHeatByConvection(0.1f, PhysicsConstants.ambient_temperature, grain);
                     }
                 }
             }
+    }
+
+    private void frostConvection(){
+        if(frostParticleWrapper==null||!frostParticleWrapper.isAlive()){
+            return;
+        }
+        for (Particle<UncoloredSprite> p : frostParticleWrapper.getParticleSystem().getParticles()) {
+            if (p == null || p.isExpired()) {
+                continue;
+            }
+
+            Entity frostParticle = p.getEntity();
+
+            float x = frostParticle.getX();
+            float y = frostParticle.getY();
+            float w = frostParticle.getWidth() * frostParticle.getScaleX();
+            float h = frostParticle.getHeight() * frostParticle.getScaleY();
+            Vector2 worldPosition = new Vector2(x / 32f, y / 32f);
+            Vector2 lower = new Vector2(x - w / 2f, y - h / 2f).mul(1 / 32f);
+            Vector2 upper = new Vector2(x + w / 2f, y + h / 2f).mul(1 / 32f);
+            blockQueryCallBack.reset();
+            physicsWorld.QueryAABB(blockQueryCallBack, lower.x, lower.y, upper.x, upper.y);
+            List<LayerBlock> list = blockQueryCallBack.getBlocks();
+            List<Body> bodyList = blockQueryCallBack.getBodies();
+            if (list.size() == 0) {
+                continue;
+            }
+
+            for (LayerBlock block : list) {
+
+                Body body = bodyList.get(list.indexOf(block));
+
+                if (body == null) {
+                    continue;
+                }
+                Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
+                CoatingBlock nearestCoatingBlock =
+                        block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
+                recycle(localPosition);
+
+                if (nearestCoatingBlock != null) {
+                    nearestCoatingBlock.onFrost();
+                }
+            }
+        }
     }
 
     private void plotTouch() {
@@ -1408,6 +1490,7 @@ public class WorldFacade implements ContactObserver {
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
         line.setColor(block.getProperties().isJuicy() ? block.getProperties().getJuiceColor() : Color.BLACK);
         gameEntity.getMesh().attachChild(line);
+        processPenetrationSound(block,innerCut.getLength()*10);
         if (block.getProperties().isJuicy()) {
             scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
         }
@@ -1523,7 +1606,7 @@ public class WorldFacade implements ContactObserver {
         int numberOfPoints =
                 (int)
                         (5 * impulse
-                                / (PhysicsConstants.TENACITY_FACTOR * layerBlock.getProperties().getTenacity()));
+                                / (PhysicsConstants.TENACITY_FACTOR * layerBlock.getTenacity()));
 
         numberOfPoints = Math.min(10, numberOfPoints);
         List<Vector2> pts =
@@ -1619,6 +1702,9 @@ public class WorldFacade implements ContactObserver {
             block.performCut(cut);
             cutPerformed = true;
 
+            ResourceManager.getInstance().slashSound.setVolume(calculateVolumeRatio(10*cut.getLength()));
+            ResourceManager.getInstance().slashSound.play();
+
             Iterator<LayerBlock> iterator = block.createIterator();
             while (iterator.hasNext()) {
                 LayerBlock bl = iterator.next();
@@ -1706,6 +1792,7 @@ public class WorldFacade implements ContactObserver {
             for (Map.Entry<LayerBlock, List<PenetrationPoint>> entryByBlock : res.entrySet()) {
                 LayerBlock layerBlock = entryByBlock.getKey();
 
+
                 List<CutPoint> enterBleedingPoints =
                         entryByBlock.getValue().stream()
                                 .filter(PenetrationPoint::isEntering)
@@ -1722,9 +1809,10 @@ public class WorldFacade implements ContactObserver {
                                     Math.ceil(
                                             length
                                                     * layerBlock.getProperties().getJuicinessDensity());
+                    processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut =
-                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse*25f));
+                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse*5f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
@@ -1757,6 +1845,74 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
+    private static void processPenetrationSound(LayerBlock layerBlock, float collisionImpulse) {
+        MaterialFactory.MaterialAcousticType materialAcousticType
+                = MaterialFactory.getInstance().getMaterialAcousticType(layerBlock.getProperties().getMaterialNumber());
+        if(materialAcousticType==null){
+            return;
+        }
+        Sound sound = null;
+        switch (materialAcousticType){
+            case SOFT:
+                sound = ResourceManager.getInstance().penetrationSounds.get(0).getSound();
+                break;
+            case METAL:
+                if(Math.random()<0.5f) {
+                   sound = ResourceManager.getInstance().penetrationSounds.get(3).getSound();
+                }
+                else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(6).getSound();
+                }
+                break;
+            case HARD_METAL:
+                if(Math.random()<0.5f) {
+                   sound = ResourceManager.getInstance().penetrationSounds.get(4).getSound();
+                }
+                else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(5).getSound();
+                }
+                break;
+            case WOOD:
+                if(Math.random()<0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(11).getSound();
+                }
+                else {
+                   sound = ResourceManager.getInstance().penetrationSounds.get(12).getSound();
+                }
+                break;
+            case ROCK:
+                if(Math.random()<0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(9).getSound();
+                }
+                else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(10).getSound();
+                }
+                break;
+            case GLASS:
+                   sound =  ResourceManager.getInstance().penetrationSounds.get(8).getSound();
+                break;
+            default:
+             break;
+        }
+
+        if(sound!=null){
+            sound.setVolume(calculateVolumeRatio(collisionImpulse));
+            sound.play();
+        }
+    }
+    public static float calculateVolumeRatio(float impulse) {
+        // Calculate the volume ratio using a logarithmic scale
+        float volumeRatio = (float) (1 - Math.exp(-impulse/1000f));
+
+        // Ensure the volume ratio is within the valid range [0, 1]
+        if (volumeRatio < 0) {
+            volumeRatio = 0;
+        } else if (volumeRatio > 1) {
+            volumeRatio = 1;
+        }
+
+        return volumeRatio;
+    }
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody() == null) {
             return;
@@ -1855,12 +2011,11 @@ public class WorldFacade implements ContactObserver {
         HashSet<CoatingBlock> neighbors = coatingBlock.getNeighbors();
 
         for (CoatingBlock other : neighbors) {
-            float density = coatingBlock.getParent().getProperties().getDensity();
             float area1 = coatingBlock.getArea();
             float area2 = other.getArea();
             float length = (float) (area1 <= area2 ? Math.sqrt(area1) : Math.sqrt(area2));
             PhysicsUtils.transferHeatByConduction(
-                    density, density, length, coatingBlock, other);
+                    length, coatingBlock, other);
         }
     }
 

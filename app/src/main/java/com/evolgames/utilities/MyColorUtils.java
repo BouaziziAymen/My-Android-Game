@@ -14,17 +14,8 @@ public class MyColorUtils {
     public static final Color bloodColor = new Color(175 / 256f, 17 / 256f, 28 / 256f);
     private static final ArrayList<Color> gradient;
     private static final float[] limits = new float[]{0, 500, 1000, 6000, 12000, 100000};
+  public static Color frostColor =  new Color(172f/255f, 213f/255f, 243f/255f);
 
-    private static final ColorTest testBurnRatioAction =
-            new ColorTest() {
-                @Override
-                public void testFactor(Color color, double burnRatio, ColorAction action) {
-                    if (burnRatio > 0.01f) {
-                        action.performAction(color, (float) burnRatio);
-                    }
-                }
-            };
-    private static final ColorAction setTextureColorAction;
     private static final ColorAction setRadianceColorAction =
             new ColorAction() {
                 @Override
@@ -52,14 +43,6 @@ public class MyColorUtils {
             };
 
     static {
-        setTextureColorAction =
-                new ColorAction() {
-                    @Override
-                    public void performAction(Color color, float burnRatio) {
-                        result = true;
-                        color.set(0.1f, 0.1f, 0.1f, burnRatio / 2f);
-                    }
-                };
         gradient = new ArrayList<>();
         gradient.add(new Color(0.5f, 0, 0));
         gradient.add(new Color(1f, 0, 0));
@@ -144,10 +127,21 @@ public class MyColorUtils {
         return setRadianceColorAction.result;
     }
 
-    public static boolean setTextureColor(Color color, double burnRatio) {
-        setTextureColorAction.result = false;
-        testBurnRatioAction.testFactor(color, burnRatio, setTextureColorAction);
-        return setTextureColorAction.result;
+    public static boolean setTextureColor(Color color, double burnRatio, double frostRatio) {
+        color.set(0,0,0,0f);
+        boolean hasTexture = false;
+        if(burnRatio > 0.01f) {
+            hasTexture = true;
+            color.set(0.1f, 0.1f, 0.1f, (float) (burnRatio / 2f));
+        }
+
+      frostColor.setAlpha((float) frostRatio);
+        if(frostRatio>0.7){
+            hasTexture = true;
+            MyColorUtils.blendColors(color, color,frostColor);
+        }
+
+        return hasTexture;
     }
 
     public static Color getAverageRGBCircle(Bitmap img, int x, int y, int radius) {

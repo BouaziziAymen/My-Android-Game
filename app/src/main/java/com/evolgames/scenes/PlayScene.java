@@ -1,5 +1,6 @@
 package com.evolgames.scenes;
 
+import static com.evolgames.entities.factories.MaterialFactory.IGNIUM;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
@@ -85,6 +86,8 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private SavingBox savingBox;
     private float mPinchZoomStartedCameraZoomFactor;
     private boolean chaseActive;
+    private boolean usesActive;
+    private boolean effectsActive;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -103,9 +106,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
         super.onManagedUpdate(1 / 60f);
         step++;
-        if(step%60==0){
-            Log.e("Position rocket",""+mCamera.getCenterX());
-        }
+
         if (this.savingBox != null) {
             this.savingBox.onStep();
         }
@@ -154,19 +155,26 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                         gameGroup1.getGameEntityByIndex(0));
             }
         }
-        if (false) {
-            explosionTest(touchEvent);
-        }
 
-
-        if (playerAction == PlayerAction.Slice) {
-            processSlicing(touchEvent);
+        if(this.specialAction==PlayerSpecialAction.effectMeteor){
+            if(touchEvent.isActionDown()){
+                setScrollerEnabled(false);
+                createMeteorite(touchEvent.getX()/32f,100f);
+            }
+            if(touchEvent.isActionUp()||touchEvent.isActionCancel()||touchEvent.isActionOutside()){
+                setScrollerEnabled(true);
+            }
         }
-        if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
-            processHandling(touchEvent);
-        }
-        if (playerAction == PlayerAction.Slice) {
+        else if (this.specialAction == PlayerSpecialAction.effectFrost) {
+            processFrostEffect(touchEvent);
+        } else if (this.specialAction == PlayerSpecialAction.effectFireBolt) {
+            processExplosionEffect(touchEvent);
+        } else if (this.specialAction == PlayerSpecialAction.effectCut) {
             processSlicing(touchEvent);
+        } else {
+            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
+                processHandling(touchEvent);
+            }
         }
 
         if (mPinchZoomDetector != null) {
@@ -175,6 +183,22 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             mScrollDetector.onTouchEvent(touchEvent);
         } else {
             mScrollDetector.onTouchEvent(touchEvent);
+        }
+    }
+
+    private void processFrostEffect(TouchEvent touchEvent) {
+        if (touchEvent.isActionDown()) {
+            worldFacade.frostParticleWrapper(new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
+            worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
+            setScrollerEnabled(false);
+        }
+        if (touchEvent.isActionMove()) {
+            worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
+        }
+        if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
+            worldFacade.getFrostParticleWrapper().setAlive(false);
+            worldFacade.getFrostParticleWrapper().setSpawnEnabled(false);
+            setScrollerEnabled(true);
         }
     }
 
@@ -278,6 +302,43 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             BlockUtils.computeCoatingBlocks(layerBlock);
         }
     }
+    private Random random = new Random();
+    private void createMeteorite(float x, float y){
+        int n = 5+random.nextInt(10);
+        float size = (float) (Math.random()*5 + 5);
+        float angle = (float) (Math.PI * 2 * Math.random());
+       List<Vector2> points = VerticesFactory.createPolygon(0,0,angle,size,size,n);
+        LayerProperties properties1 =
+                PropertiesFactory.getInstance()
+                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(IGNIUM));
+        properties1.setTenacity(0.1f);
+        LayerBlock block = BlockFactory.createLayerBlock(points, properties1, 0);
+
+        ArrayList<LayerBlock> blocks = new ArrayList<>();
+        blocks.add(block);
+        Vector2 u = new Vector2(0,-1);
+        BodyInit bodyInit =
+                new BulletInit(
+                        new TransformInit(
+                                new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(500)),
+                                x,
+                                y,
+                                0),
+                        true);
+        GameEntity meteorite =
+                GameEntityFactory.getInstance()
+                        .createGameEntity(
+                                x / 32f,
+                                y / 32f,
+                                0,
+                                false,
+                                bodyInit,
+                                blocks,
+                                BodyDef.BodyType.DynamicBody,
+                                "Meteorite");
+        GameGroup proj = new GameGroup(GroupType.OTHER, meteorite);
+        addGameGroup(proj);
+    }
 
     private void projectionTest(TouchEvent touchEvent) {
         if (this.points == null) {
@@ -340,11 +401,11 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         }
     }
 
-    private void explosionTest(TouchEvent touchEvent) {
+    private void processExplosionEffect(TouchEvent touchEvent) {
         float x = touchEvent.getX();
         float y = touchEvent.getY();
         if (touchEvent.isActionDown()) {
-            this.worldFacade.createExplosion(null, x, y, 1f, 0.3f, 0.3f, 0.2f, 100f, 0.1f, 1f, 1f, 0f);
+            this.worldFacade.createExplosion(null, x / 32f, y / 32f, 1f, 0.3f, 0.3f, 10f, 0.01f, 1f, 0.25f, 1f, 0f);
         }
     }
 
@@ -373,10 +434,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private void createGround() {
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices1 = new ArrayList<>();
-        vertices1.add(obtain(-40000, -50));
-        vertices1.add(obtain(-40000, 20));
-        vertices1.add(obtain(40000, 20));
-        vertices1.add(obtain(40000, -50));
+        vertices1.add(obtain(-400, -50));
+        vertices1.add(obtain(-400, 20));
+        vertices1.add(obtain(400, 20));
+        vertices1.add(obtain(400, -50));
 
    /* List<Vector2> vertices2 = new ArrayList<>();
     vertices2.add(obtain(200, 15));
@@ -546,11 +607,13 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         if (touchEvent.isActionDown()) {
             point1 = new Vector2(touchEvent.getX(), touchEvent.getY());
             point2 = new Vector2(point1);
-            line = new Line(point1.x, point1.y, point2.x, point2.y, ResourceManager.getInstance().vbom);
-            line.setColor(Color.PINK);
+            line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
+
+            line.setColor(Color.RED);
             line.setZIndex(999);
             this.attachChild(line);
             this.sortChildren();
+            setScrollerEnabled(false);
         }
         if (touchEvent.isActionMove()) {
             if (point2 != null) {
@@ -559,6 +622,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             }
         }
         if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
+            setScrollerEnabled(true);
             if (point1 != null && point2 != null) {
                 this.worldFacade.performScreenCut(point1.mul(1 / 32f), point2.mul(1 / 32f));
                 point1 = null;
@@ -633,26 +697,34 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     public void onUsagesUpdated() {
         getActivity().runOnUiThread(() -> {
             List<PlayerSpecialAction> usageList = new ArrayList<>();
-            Hand h = getHand();
-            if (h != null && h.getUsableEntity() != null) {
-                h.getUsableEntity()
-                        .getUseList()
-                        .forEach(
-                                u -> {
-                                    if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
-                                        if (u.getActions() != null && !u.getActions().isEmpty()) {
-                                            usageList.addAll(u.getActions());
-                                            if (this.playerAction == PlayerAction.Select) {
-                                                usageList.removeIf(e -> !e.fromDistance);
+            PlayerSpecialAction defaultAction = null;
+            if (usesActive) {
+                Hand h = getHand();
+                if (h != null && h.getUsableEntity() != null) {
+                    h.getUsableEntity()
+                            .getUseList()
+                            .forEach(
+                                    u -> {
+                                        if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
+                                            if (u.getActions() != null && !u.getActions().isEmpty()) {
+                                                usageList.addAll(u.getActions());
+                                                if (this.playerAction == PlayerAction.Select) {
+                                                    usageList.removeIf(e -> !e.fromDistance);
+                                                }
                                             }
                                         }
-                                    }
-                                });
+                                    });
+                }
+
+                defaultAction = specialAction == null ? usageList.stream().filter(e -> e.selectableByDefault).findFirst().orElse(null) : specialAction;
+                this.setSpecialAction(usageList.contains(defaultAction) ? defaultAction : PlayerSpecialAction.None);
             }
-
-            PlayerSpecialAction defaultAction = specialAction == null ? usageList.stream().filter(e -> e.selectableByDefault).findFirst().orElse(null) : specialAction;
-            this.setSpecialAction(usageList.contains(defaultAction) ? defaultAction : PlayerSpecialAction.None);
-
+            if (effectsActive) {
+                usageList.add(PlayerSpecialAction.effectCut);
+                usageList.add(PlayerSpecialAction.effectFireBolt);
+                usageList.add(PlayerSpecialAction.effectMeteor);
+                usageList.add(PlayerSpecialAction.effectFrost);
+            }
             getActivity().getUiController().onUsagesUpdated(usageList, defaultAction);
         });
     }
@@ -864,5 +936,21 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
     public void setChaseActive(boolean chaseActive) {
         this.chaseActive = chaseActive;
+    }
+
+    public boolean isUsesActive() {
+        return usesActive;
+    }
+
+    public void setUsesActive(boolean usesActive) {
+        this.usesActive = usesActive;
+    }
+
+    public boolean isEffectsActive() {
+        return effectsActive;
+    }
+
+    public void setEffectsActive(boolean effectsActive) {
+        this.effectsActive = effectsActive;
     }
 }

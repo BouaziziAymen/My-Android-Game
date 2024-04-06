@@ -24,7 +24,7 @@ import java.util.List;
 public class BlockFactory {
 
     public static LayerBlock createLayerBlock(
-            ArrayList<Vector2> vertices, LayerProperties properties, int ID) {
+            List<Vector2> vertices, LayerProperties properties, int ID) {
         return BlockFactory.createLayerBlock(vertices, properties, ID, 0, true);
     }
 

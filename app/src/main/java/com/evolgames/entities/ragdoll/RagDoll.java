@@ -10,6 +10,7 @@ import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.scenes.PhysicsScene;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class RagDoll extends GameGroup {
@@ -31,7 +32,7 @@ public class RagDoll extends GameGroup {
     transient GameEntity rightHand;
     transient GameEntity leftHand;
     boolean alive = true;
-    transient Balancer[] balancers = new Balancer[8];
+    transient Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
 
@@ -55,10 +56,34 @@ public class RagDoll extends GameGroup {
     }
 
     private void performAction() {
-        if (leftLegReadyToStand && rightLegReadyToStand)
-            for (Balancer balancer : balancers)
-                if (balancer.getEntity() != null && ((GameEntity) balancer.getEntity()).isAlive())
+        boolean[] active = new boolean[]{true, true, true, true, true, true};
+        for (int i = 0; i < balancers.length; i++) {
+            Balancer balancer = balancers[i];
+            if (balancer == null || balancer.getEntity() == null || !((GameEntity) balancer.getEntity()).isAlive() || balancer.getEntity().isFrozen()) {
+                active[i] = false;
+                if (i == 1) {
+                    Arrays.fill(active,1,active.length,false);
+                    break;
+                }
+                if (i == 2) {
+                    active[4] = false;
+                    active[1] = false;
+                }
+                if (i == 3) {
+                    active[5] = false;
+                    active[1] = false;
+                }
+            }
+        }
+        if (leftLegReadyToStand && rightLegReadyToStand) {
+            for (int i = 0; i < balancers.length; i++) {
+                Balancer balancer = balancers[i];
+                if (active[i]) {
                     balancer.equilibrate();
+                }
+            }
+        }
+
     }
 
     @Override
@@ -191,14 +216,14 @@ public class RagDoll extends GameGroup {
                     break;
                 case UpperLegLeft:
                     upperLegL = e;
-                    if (balancers[4] == null) {
-                        balancers[4] = new Balancer(upperLegL, (float) (Math.PI / 10), 0);
+                    if (balancers[3] == null) {
+                        balancers[3] = new Balancer(upperLegL, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case LowerLegRight:
                     lowerLegR = e;
-                    if (balancers[3] == null) {
-                        balancers[3] = new Balancer(lowerLegR, (float) (Math.PI / 10), 0);
+                    if (balancers[4] == null) {
+                        balancers[4] = new Balancer(lowerLegR, (float) (Math.PI / 10), 0);
                     }
                     break;
                 case LowerLegLeft:
@@ -209,15 +234,9 @@ public class RagDoll extends GameGroup {
                     break;
                 case RightFoot:
                     rightFoot = e;
-                    if (balancers[6] == null) {
-                        balancers[6] = new Balancer(rightFoot, 0, 0);
-                    }
                     break;
                 case LeftFoot:
                     leftFoot = e;
-                    if (balancers[7] == null) {
-                        balancers[7] = new Balancer(leftFoot, 0, 0);
-                    }
                     break;
             }
         }

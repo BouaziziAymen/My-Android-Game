@@ -10,7 +10,7 @@ public class ProjectileProperties extends Properties {
     private Vector2 projectileEnd;
     private float muzzleVelocity = 0.5f;
     private float recoil = 0.3f;
-    private int fireSound = 1;
+    private String fireSound;
     private Explosive explosive = Explosive.OTHER;
     private float smokeRatio;
     private float fireRatio;
@@ -72,11 +72,11 @@ public class ProjectileProperties extends Properties {
         this.recoil = recoil;
     }
 
-    public int getFireSound() {
+    public String getFireSound() {
         return fireSound;
     }
 
-    public void setFireSound(int fireSound) {
+    public void setFireSound(String fireSound) {
         this.fireSound = fireSound;
     }
 

@@ -16,7 +16,7 @@ public class ProjectileInfo {
     private Vector2 projectileEnd;
     private float muzzleVelocity;
     private float recoil;
-    private int fireSound;
+    private String fireSound;
     private float fireRatio;
     private float smokeRatio;
     private float sparkRatio;
@@ -91,11 +91,11 @@ public class ProjectileInfo {
         this.recoil = recoil;
     }
 
-    public int getFireSound() {
+    public String getFireSound() {
         return fireSound;
     }
 
-    public void setFireSound(int fireSound) {
+    public void setFireSound(String fireSound) {
         this.fireSound = fireSound;
     }
 

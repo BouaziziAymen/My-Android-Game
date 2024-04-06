@@ -721,7 +721,7 @@ public class BlockUtils {
             float value = getInnerValue(coatingBlock.getVertices(), chosen.getP1(), chosen.getP2());
             destructionEnergy +=
                     PhysicsConstants.TENACITY_FACTOR
-                            * block.getProperties().getTenacity()
+                            * block.getTenacity()
                             * ratio
                             * value
                             * value;

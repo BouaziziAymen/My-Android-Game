@@ -10,6 +10,8 @@ import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
@@ -34,6 +36,7 @@ import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.MathUtils;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
@@ -57,21 +60,7 @@ public class GameEntity extends EntityWithBody {
 
     private final List<LayerBlock> layerBlocks;
     public boolean changed = true;
-    // Define the vertex shader
-// Define the vertex shader
-    String vertexShader =
-            "uniform mat4 " + ShaderProgramConstants.UNIFORM_MODELVIEWPROJECTIONMATRIX + ";\n" +
-                    "attribute vec4 " + ShaderProgramConstants.ATTRIBUTE_POSITION + ";\n" +
-                    "void main() {\n" +
-                    "    gl_Position = " + ShaderProgramConstants.UNIFORM_MODELVIEWPROJECTIONMATRIX + " * " + ShaderProgramConstants.ATTRIBUTE_POSITION + ";\n" +
-                    "}\n";
 
-    // Define the fragment shader
-    String fragmentShader =
-            "precision mediump float;\n" +
-                    "void main() {\n" +
-                    "    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); // Green color\n" +
-                    "}\n";
     private Body mirrorBody;
     private boolean mirrorCreated = false;
     private PhysicsScene<?> scene;
@@ -232,6 +221,44 @@ public class GameEntity extends EntityWithBody {
         if (isFireSetup) {
             fireParticleWrapper.update();
         }
+
+        for(LayerBlock layerBlock:layerBlocks){
+            if(layerBlock.isFrozen()){
+              for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
+                  if(associatedBlock instanceof JointBlock){
+                      JointBlock jointBlock = (JointBlock) associatedBlock;
+                      if(jointBlock.getJointType()== JointDef.JointType.RevoluteJoint&&!jointBlock.isFrozen()){
+                          RevoluteJoint revoluteJoint = (RevoluteJoint) jointBlock.getJoint();
+                          if(!jointBlock.isFrozen()) {
+                              jointBlock.setFrozen(true);
+                              jointBlock.getBrother().setFrozen(true);
+                              revoluteJoint.setLimits(revoluteJoint.getJointAngle(), revoluteJoint.getJointAngle());
+                              revoluteJoint.enableLimit(true);
+                          }
+                      }
+                  }
+              }
+            } else {
+                for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
+                    if(associatedBlock instanceof JointBlock){
+                        JointBlock jointBlock = (JointBlock) associatedBlock;
+                        if(jointBlock.getJointType()== JointDef.JointType.RevoluteJoint&& jointBlock.getPosition()== JointBlock.Position.A){
+                            RevoluteJoint revoluteJoint = (RevoluteJoint) jointBlock.getJoint();
+                            RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointBlock.getProperties().getJointDef();
+                          if(jointBlock.isFrozen()){
+                              jointBlock.setFrozen(false);
+                              revoluteJoint.enableLimit(revoluteJointDef.enableLimit);
+                              revoluteJoint.setLimits(revoluteJointDef.lowerAngle,revoluteJointDef.upperAngle);
+                          }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+   public boolean isFrozen(){
+        return getBlocks().get(0).isFrozen();
     }
 
     public Vector2 computeTouch(TouchEvent touch, boolean withHold) {

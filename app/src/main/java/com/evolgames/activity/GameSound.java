@@ -2,19 +2,28 @@ package com.evolgames.activity;
 
 import org.andengine.audio.sound.Sound;
 
-import java.util.List;
-
 public class GameSound {
-    private final List<Sound> soundList;
+    private final SoundType soundType;
+
+    public enum SoundType{
+        PROJECTILE, PENETRATION, EXPLOSION
+    }
+    private final Sound sound;
     private final String title;
 
-    public GameSound(List<Sound> soundList, String title) {
-        this.soundList = soundList;
+    public GameSound(Sound sound, String title, SoundType soundType) {
+        this.sound = sound;
         this.title = title;
+        this.soundType = soundType;
+        this.sound.setVolume(1f);
     }
 
-    public List<Sound> getSoundList() {
-        return soundList;
+    public Sound getSound() {
+        return sound;
+    }
+
+    public SoundType getSoundType() {
+        return soundType;
     }
 
     public String getTitle() {

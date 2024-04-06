@@ -274,4 +274,8 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
         super.mirror();
         position.set(GeometryUtils.mirrorPoint(position));
     }
+
+    public void onFrost() {
+        applyDeltaTemperature(-0.01f);
+    }
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -34,6 +35,13 @@ public class JointCreationCommand extends Command {
         joint.setUserData(this.mainBlock);
         this.mainBlock.setJoint(joint);
         this.mainBlock.getBrother().setJoint(joint);
+        if(this.mainBlock.getJointType()== JointDef.JointType.RevoluteJoint){
+            if(mainBlock.isFrozen()){
+                RevoluteJoint revoluteJoint = (RevoluteJoint) joint;
+                revoluteJoint.setLimits(revoluteJoint.getJointAngle(), revoluteJoint.getJointAngle());
+                revoluteJoint.enableLimit(true);
+            }
+        }
         if (joint instanceof MouseJoint) {
             Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
         }

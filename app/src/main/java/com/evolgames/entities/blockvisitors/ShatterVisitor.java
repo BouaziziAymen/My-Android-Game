@@ -69,7 +69,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
                 (50000f
                         * Math.sqrt(
                         PhysicsConstants.TENACITY_FACTOR
-                                * layerBlock.getProperties().getTenacity()
+                                * layerBlock.getTenacity()
                                 * PhysicsConstants.PULVERIZATION_CONSTANT
                                 * totalRatio
                                 * layerBlock.getBlockArea()));

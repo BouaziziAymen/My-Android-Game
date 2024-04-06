@@ -74,15 +74,15 @@ public class MaterialFactory {
         materialProperties.put("Wood", new float[]{0.6f, 0.35f, 0.4f, 4f, 2f});
         materialProperties.put("Void", new float[]{0.1f, 0f, 0f, 10f, 0f});
         materialProperties.put("Hard Wood", new float[]{0.8f, 0.35f, 0.4f, 4f, 3f});
-        materialProperties.put("Glass", new float[]{2.5f, 0.2f, 0.3f, 2f, 5f});
+        materialProperties.put("Glass", new float[]{2.5f, 0.2f, 0.3f, 0.5f, 5f});
         materialProperties.put("Copper", new float[]{8.96f, 0.25f, 0.4f, 8f, 6f});
         materialProperties.put("Steel", new float[]{7.85f, 0.25f, 0.4f, 7f, 7f});
         materialProperties.put("Hard Steel", new float[]{7.85f, 0.25f, 0.4f, 7f, 8f});
         materialProperties.put("Iron", new float[]{7.87f, 0.25f, 0.4f, 6f, 6f});
         materialProperties.put("Diamond", new float[]{3.5f, 0.075f, 0.05f, 10f, 10f});
         materialProperties.put("Graphene", new float[]{1f, 0.975f, 0.05f, 10f, 10f});
-        materialProperties.put("Flesh", new float[]{1f, 0.1f, 0.7f, 2f, 1.5f}); // Adjusted hardness value
-        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.15f, 0.4f, 2f, 2f}); // Adjusted hardness value
+        materialProperties.put("Flesh", new float[]{1f, 0.1f, 0.7f, 0.8f, 1.5f}); // Adjusted hardness value
+        materialProperties.put("Hard Flesh", new float[]{1.5f, 0.15f, 0.4f, 1f, 2f}); // Adjusted hardness value
         materialProperties.put("Concrete", new float[]{2.4f, 0.25f, 0.8f, 4.75f, 7f});
         materialProperties.put("Aluminum", new float[]{2.7f, 0.25f, 0.1f, 3.75f, 7.5f});
         materialProperties.put("Brick", new float[]{1.6f, 0.25f, 0.05f, 4.5f, 6f});
@@ -104,7 +104,7 @@ public class MaterialFactory {
         materialProperties.put("Sulfur", new float[]{2.07f, 0.25f, 0.05f, 2f, 2f});
         materialProperties.put("Coal", new float[]{1.1f, 0.25f, 0.05f, 2f, 2f});
         materialProperties.put("Charcoal", new float[]{0.22f, 0.25f, 0.05f, 1f, 1f});
-        materialProperties.put("Clay", new float[]{2f, 0.25f, 0.05f, 2f, 2f});
+        materialProperties.put("Clay", new float[]{2f, 0.25f, 0.05f, 0.1f, 2f});
         materialProperties.put("Bronze", new float[]{8.7f, 0.25f, 0.05f, 3.5f, 3.5f});
         materialProperties.put("Ignium", new float[]{6f, 0.075f, 0.1f, 8.5f, 8f});
         materialProperties.put("Titanium", new float[]{4.5f, 0.25f, 0.1f, 6.5f, 6.5f});
@@ -221,6 +221,35 @@ public class MaterialFactory {
             Log.e("Error loading material", t.toString());
             return null;
         }
+    }
+
+
+    public enum MaterialAcousticType{
+        SOFT,METAL,HARD_METAL,WOOD, ROCK, GLASS
+    }
+
+    public MaterialAcousticType getMaterialAcousticType(int materialIndex){
+        if(materialIndex==WOOD||materialIndex==HARD_WOOD||materialIndex==CHARCOAL||materialIndex==SULFUR
+                ||materialIndex==IVORY||materialIndex==PLASTIC||materialIndex==CARBON_FIBER){
+            return MaterialAcousticType.WOOD;
+        }
+        if(materialIndex==FLESH||materialIndex==HARD_FLESH||materialIndex==TISSUE||materialIndex==LEATHER||materialIndex==RUBBER){
+            return MaterialAcousticType.SOFT;
+        }
+        if(materialIndex==SILVER||materialIndex==GOLD||materialIndex==TUNGSTEN||materialIndex==BRASS
+                ||materialIndex==COPPER||materialIndex==LEAD||materialIndex==TITANIUM||materialIndex==ALUMINIUM){
+            return MaterialAcousticType.METAL;
+        }
+        if(materialIndex==IRON||materialIndex==STEEL||materialIndex==IGNIUM){
+            return MaterialAcousticType.HARD_METAL;
+        }
+        if(materialIndex==MARBLE||materialIndex==ROCK||materialIndex==ASPHALT||materialIndex==CONCRETE||materialIndex==DIAMOND||materialIndex==GRANITE){
+            return MaterialAcousticType.HARD_METAL;
+        }
+        if(materialIndex==GLASS||materialIndex==FIBER_GLASS||materialIndex==CLAY){
+            return MaterialAcousticType.GLASS;
+        }
+        return null;
     }
 
 }

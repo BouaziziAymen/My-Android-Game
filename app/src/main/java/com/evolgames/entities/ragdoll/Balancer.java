@@ -2,20 +2,21 @@ package com.evolgames.entities.ragdoll;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.basics.EntityWithBody;
+import com.evolgames.entities.basics.GameEntity;
 
 public class Balancer {
 
-    private final EntityWithBody entity;
+    private final GameEntity entity;
     private final float limit;
     private final float angle;
 
-    public Balancer(EntityWithBody entity, float limit, float angle) {
+    public Balancer(GameEntity entity, float limit, float angle) {
         this.entity = entity;
         this.limit = limit;
         this.angle = angle;
     }
 
-    public EntityWithBody getEntity() {
+    public GameEntity getEntity() {
         return entity;
     }
 
@@ -28,7 +29,7 @@ public class Balancer {
         while (error > Math.PI) error -= 2 * Math.PI;
 
         if (Math.abs(error) < limit) {
-            body.setAngularVelocity(120 * Math.signum(error) * error * error / limit);
+            body.setAngularVelocity(80 * Math.signum(error) * error * error / limit);
         }
     }
 }

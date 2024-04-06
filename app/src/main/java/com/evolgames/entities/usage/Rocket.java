@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
@@ -68,7 +69,7 @@ public class Rocket extends Use {
         }
     }
 
-    public void onLaunch(PlayScene playScene) {
+    public void onLaunch(PlayScene playScene, boolean withSound) {
         if(playScene.isChaseActive()) {
             playScene.chaseEntity(rocketBodyEntity);
         }
@@ -78,6 +79,10 @@ public class Rocket extends Use {
             if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
                 rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
             }
+        }
+        if(withSound) {
+            ResourceManager.getInstance()
+                    .getProjectileSound("missile1").getSound().play();
         }
     }
 

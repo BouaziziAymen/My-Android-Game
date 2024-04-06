@@ -1,5 +1,10 @@
 package com.evolgames.entities.properties;
 
+import static com.evolgames.entities.factories.MaterialFactory.FLESH;
+import static com.evolgames.entities.factories.MaterialFactory.HARD_FLESH;
+
+import android.util.Log;
+
 import com.evolgames.utilities.MyColorUtils;
 
 import org.andengine.util.adt.color.Color;
@@ -50,7 +55,13 @@ public class CoatingProperties extends ColoredProperties {
     public void updateColors() {
         MyColorUtils.setupFlameColor(flameColor1, getFlameTemperature());
         MyColorUtils.setupFlameColor(flameColor2, Math.max(0, temperature - 2000));
-        hasTexture = MyColorUtils.setTextureColor(textureColor, burnRatio);
+        float frostRatio = 0f;
+        if(this.parentProperties.getMaterialNumber()==FLESH||this.parentProperties.getMaterialNumber()==HARD_FLESH){
+            if(this.temperature<0){
+                frostRatio = Math.min(1f,(float) (Math.abs(temperature)/40f));
+            }
+        }
+        hasTexture = MyColorUtils.setTextureColor(textureColor, burnRatio,frostRatio);
         hasRadiance = MyColorUtils.setRadianceColor(radianceColor, temperature);
         setupCoatingColor();
     }
@@ -66,12 +77,20 @@ public class CoatingProperties extends ColoredProperties {
     }
 
     public void applyDeltaTemperature(double delta) {
-        if (temperature + delta < 2000000) {
-            temperature += delta;
+        if(delta>0) {
+            if (temperature + delta < 2000000) {
+                temperature += delta;
+            } else {
+                temperature = 2000000;
+            }
         } else {
-            temperature = 2000000;
+            if (temperature + delta > -273) {
+                temperature += delta;
+            } else {
+                temperature = -273;
+            }
         }
-    }
+        }
 
     public CoatingProperties copy() {
         CoatingProperties properties = new CoatingProperties();

@@ -63,6 +63,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private ItemWindowController itemWindowController;
     private Quantity<ProjectileOptionController> inSizeQuantityField;
     private Quantity<ProjectileOptionController> finSizeQuantityField;
+    private List<GameSound> sounds;
 
     public ProjectileOptionController(EditorScene editorScene) {
         this.editorScene = editorScene;
@@ -260,13 +261,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         int primaryKey = simpleTertiary.getPrimaryKey();
         int secondaryKey = simpleTertiary.getSecondaryKey();
         if (simpleTertiary.getPrimaryKey() == 2 && simpleTertiary.getSecondaryKey() == 1) {
-            ResourceManager.getInstance()
-                    .gunshotSounds
-                    .get(simpleTertiary.getTertiaryKey())
-                    .getSoundList()
-                    .get(0)
+            GameSound gameSound =   this.sounds
+                    .get(simpleTertiary.getTertiaryKey());
+          gameSound.getSound()
                     .play();
-            projectileProperties.setFireSound(simpleTertiary.getTertiaryKey());
+            projectileProperties.setFireSound(gameSound.getTitle());
             for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
                 SimpleTertiary<?> element =
                         window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
@@ -313,8 +312,8 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         FieldWithError fieldWithError = new FieldWithError(layerNameField);
         SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(2, 0, fieldWithError);
         window.addSecondary(secondaryElement1);
-
-        ArrayList<GameSound> sounds = ResourceManager.getInstance().gunshotSounds;
+ //TODO wire with the new sound map
+        sounds =  ResourceManager.getInstance().getProjectileSounds();
         SecondarySectionField<ProjectileOptionController> projectileShotSoundSection =
                 new SecondarySectionField<>(
                         2, 1, "Shot Sound", ResourceManager.getInstance().mainButtonTextureRegion, this);
@@ -392,7 +391,15 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         projectileNameField.getBehavior().setTextValidated(name);
     }
 
-    private void setFireSound(int fireSound) {
+    private void setFireSound(String sound) {
+       int n = window.getLayout().getTertiariesSize(2,1);
+       for(int i=0;i<n;i++){
+          SoundField soundField = (SoundField) window.getLayout().getTertiaryByIndex(2, 1, i);
+         String name =  soundField.getSoundFieldControl().getTitle();
+         if(name.equals(sound)) {
+             soundField.getSoundFieldControl().updateState(Button.State.PRESSED);
+         }
+       }
     }
 
     @Override

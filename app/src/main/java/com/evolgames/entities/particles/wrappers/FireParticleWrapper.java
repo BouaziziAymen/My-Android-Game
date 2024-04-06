@@ -20,9 +20,9 @@ import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
 public class FireParticleWrapper implements Fire {
-    private static final float RATE_MIN = 30 * 3;
-    private static final float RATE_MAX = 50 * 3;
-    private static final int PARTICLES_MAX = 75 * 3;
+    private static final float RATE_MIN = 60;
+    private static final float RATE_MAX = 100;
+    private static final int PARTICLES_MAX = 150;
     private final GameEntity gameEntity;
     public BatchedSpriteParticleSystem particleSystem;
     public FireEmitter emitter;

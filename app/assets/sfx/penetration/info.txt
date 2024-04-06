@@ -1,0 +1,8 @@
+0 1 2 flesh
+3 4 5 6 metal
+7 brick
+glass 8
+gravel 9
+rock 10
+wood 11
+wood 12

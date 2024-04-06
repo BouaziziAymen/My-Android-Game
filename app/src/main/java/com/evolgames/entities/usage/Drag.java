@@ -51,9 +51,7 @@ public class Drag extends Use {
                                 * velocityProjection
                                 * dragInfo.getDraggedEntity().getBody().getMass();
                 Vector2 force = projectedNormal.cpy().mul(forceFactor);
-
                 body.applyForce(force.x, force.y, center.x, center.y);
-                Log.e("Rocket",center+"/ force:"+force);
             }
         }
     }

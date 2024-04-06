@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.evolgames.entities.cut.Cut;
 import com.evolgames.entities.cut.FreshCut;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.grid.BlockGrid;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.properties.Properties;
@@ -228,5 +229,27 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
         for (AssociatedBlock<?, ?> associatedBlock : associatedBlocks) {
             associatedBlock.mirror();
         }
+    }
+
+    public boolean isFrozen() {
+        if(!getProperties().isJuicy()){
+            return false;
+        }
+        if(this.blockGrid==null){
+            return false;
+        }
+        int n = 0;
+        for(CoatingBlock coatingBlock:blockGrid.getCoatingBlocks()){
+            if(coatingBlock.getTemperature()<=-40){
+                n++;
+            }
+        }
+        return n/(float)blockGrid.getCoatingBlocks().size()>0.5f;
+    }
+    public float getTenacity(){
+        if(isFrozen()){
+            return MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.CLAY).getTenacity();
+        }
+        return getProperties().getTenacity();
     }
 }

@@ -33,7 +33,6 @@ public abstract class VectorIndicator extends ArrowShape implements Movable {
 
     @Override
     public void updateEnd(float x, float y) {
-        System.out.println("#######Projectile Shape update end:" + x + "," + y);
         super.updateEnd(x, y);
         updateLimit(end.x, end.y);
     }

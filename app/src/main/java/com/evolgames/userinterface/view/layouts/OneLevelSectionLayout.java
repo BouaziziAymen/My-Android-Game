@@ -92,7 +92,6 @@ public class OneLevelSectionLayout<Primary extends Element, Secondary extends El
     }
 
     public void removeSecondary(int primaryKey, int secondaryKey) {
-        System.out.println("------------------Remove Secondary:" + primaryKey + ":" + secondaryKey);
         getSectionByKey(primaryKey).removeSection(secondaryKey);
     }
 
