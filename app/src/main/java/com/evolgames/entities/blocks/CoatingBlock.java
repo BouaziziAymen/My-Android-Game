@@ -94,7 +94,7 @@ public final class CoatingBlock extends AssociatedBlock<CoatingBlock, CoatingPro
     }
 
     @Override
-    public void translate(Vector2 translation) {
+    public void translate(Vector2 translation, Vector2 worldTranslation) {
         Utils.translatePoints(getVertices(), translation);
         computeTriangles();
         centerCoreCoatingBlock();

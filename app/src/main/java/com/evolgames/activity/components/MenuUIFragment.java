@@ -25,6 +25,19 @@ public class MenuUIFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragment = inflater.inflate(R.layout.menu_ui_fragment, container, false);
+
+
+        GameImageButton settingsButton = fragment.findViewById(R.id.options_button);
+        settingsButton.setOnReleased(() -> {
+            ((GameActivity) requireActivity()).showOptionsDialog();
+        });
+
+
+        GameImageButton rateButton = fragment.findViewById(R.id.rate_button);
+        rateButton.setOnReleased(() -> {
+            ((GameActivity) requireActivity()).showRateUsDialog();;
+        });
+
         GameImageButton editorButton = fragment.findViewById(R.id.editor_button);
         editorButton.setOnReleased(() -> {
             ((GameActivity) requireActivity()).getUiController().onEditorClicked();

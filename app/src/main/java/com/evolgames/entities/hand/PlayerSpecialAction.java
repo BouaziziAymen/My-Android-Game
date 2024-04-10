@@ -22,6 +22,7 @@ public enum PlayerSpecialAction {
     motorMoveBackward(R.drawable.backward_icon, false, false, true),
 
     effectCut(R.drawable.laser_cut_icon, false, false, false),
+    effectGlue(R.drawable.glue_icon, false, false, false),
     effectFireBolt(R.drawable.fire_icon, false, false, false),
     effectMeteor(R.drawable.meteor_icon, false, false, false),
     effectFrost(R.drawable.frost_icon, false, false, false);

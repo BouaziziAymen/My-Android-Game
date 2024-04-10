@@ -1,11 +1,8 @@
 package com.evolgames.entities.blocks;
 
 import com.badlogic.gdx.math.Vector2;
-import com.evolgames.entities.blockvisitors.ClipVisitor;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.utilities.Utils;
-
-import java.util.ArrayList;
 
 public final class DecorationBlock extends AssociatedBlock<DecorationBlock, DecorationProperties> {
 
@@ -24,7 +21,7 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
     }
 
     @Override
-    public void translate(Vector2 translationVector) {
+    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
         Utils.translatePoints(this.getVertices(), translationVector);
         computeTriangles();
     }
@@ -34,10 +31,4 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
         return this;
     }
 
-    public void applyClip(ArrayList<Vector2> clipPath) {
-        ClipVisitor clipVisitor = new ClipVisitor();
-        clipVisitor.setClipPath(clipPath);
-        clipVisitor.visitTheElement(this);
-        setVertices(clipVisitor.getResult());
-    }
 }

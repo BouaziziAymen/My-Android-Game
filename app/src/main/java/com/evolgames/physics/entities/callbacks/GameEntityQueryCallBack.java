@@ -16,7 +16,9 @@ public class GameEntityQueryCallBack implements QueryCallback {
     @Override
     public boolean reportFixture(Fixture fixture) {
         GameEntity entity = (GameEntity) fixture.getBody().getUserData();
-        if (entity != null) entities.add(entity);
+        if (entity != null) {
+            entities.add(entity);
+        }
         return true;
     }
 

@@ -16,7 +16,7 @@ import com.evolgames.userinterface.view.inputs.Button;
 public class GameImageButton extends FrameLayout {
     private ImageView button;
     private ImageView icon;
-    private Button.State state;
+    private Button.State state = Button.State.NORMAL;
 
     private Runnable onPressed;
     private Runnable onReleased;
@@ -78,7 +78,7 @@ public class GameImageButton extends FrameLayout {
                     if (onPressed != null) {
                         onPressed.run();
                     }
-                    ResourceManager.getInstance().onSound.play();
+                    ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f);
                     performClick(); // Handle click event
                     return true;
                 case MotionEvent.ACTION_UP:
@@ -101,14 +101,14 @@ public class GameImageButton extends FrameLayout {
                     if (state == Button.State.PRESSED) {
                         button.setImageResource(R.drawable.button_released);
                         this.state = Button.State.NORMAL;
-                        ResourceManager.getInstance().offSound.play();
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().offSound,1f);
                         if (onReleased != null) {
                             onReleased.run();
                         }
-                    } else {
+                    } else if (state == Button.State.NORMAL)  {
                         button.setImageResource(R.drawable.button_clicked_two);
                         this.state = Button.State.PRESSED;
-                        ResourceManager.getInstance().onSound.play();
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f);
                         if (onPressed != null) {
                             onPressed.run();
                         }

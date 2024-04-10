@@ -32,7 +32,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     private float impactFactor() {
-        return projectileType == ProjectileType.BULLET ? 6 : 1;
+        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 10f : 1f;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class Projectile extends Use implements Penetrating {
         }
 
         if (projectileType == ProjectileType.SHARP_WEAPON) {
-            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(5f*consumedImpulse * massFraction), obtain(point));
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(consumedImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
@@ -98,8 +98,10 @@ public class Projectile extends Use implements Penetrating {
         setActive(false);
         penetrator.setZIndex(-1);
         worldFacade.getPhysicsScene().sortChildren();
-        if(!overlappedEntities.isEmpty()) {
-            worldFacade.freeze(penetrator);
+        if(projectileType!=ProjectileType.METEOR) {
+            if (!overlappedEntities.isEmpty()) {
+                worldFacade.freeze(penetrator);
+            }
         }
         onImpact(consumedImpulse * 4, penetrator, penetratorBlock);
     }

@@ -1003,8 +1003,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         }
         layerProperty.setJuiceIndex(juiceButton.getQuaternaryKey());
         Liquid liquid = Materials.getLiquidByIndex(juiceButton.getQuaternaryKey());
-        layerProperty.getJuiceColor().set(liquid.getDefaultColor());
-        colorSlotForJuice.setColor(liquid.getDefaultColor());
+        layerProperty.getJuiceColor().set(new Color(liquid.getDefaultColor()));
+        colorSlotForJuice.setColor(layerProperty.getJuiceColor());
     }
 
     void onMaterialButtonClicked(SimpleSecondary<?> materialButton) {

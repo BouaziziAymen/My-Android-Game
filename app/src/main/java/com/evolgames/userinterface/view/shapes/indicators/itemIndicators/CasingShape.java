@@ -19,7 +19,7 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
     private CasingModel model;
 
     public CasingShape(Vector2 begin, EditorScene scene) {
-        super(begin, scene, 24, 1);
+        super(begin, scene, 32, 1);
 
         this.editorUserInterface = scene.getUserInterface();
         this.originPoint =

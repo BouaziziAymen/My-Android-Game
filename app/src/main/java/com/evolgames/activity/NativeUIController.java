@@ -33,14 +33,16 @@ public class NativeUIController implements INativeUIController {
 
     @Override
     public void onItemButtonPressed(ItemMetaData itemMetaData) {
-        ((PlayScene) mainScene.getChildScene()).createItemFromFile(itemMetaData.getFileName(), !itemMetaData.isUserCreated(), true);
+         ResourceManager.getInstance().setSelectedItemMetaData(itemMetaData);
+        ((PlayScene) mainScene.getChildScene()).setPlayerAction(PlayerAction.Create);
+        //  ((PlayScene) mainScene.getChildScene()).createItemFromFile(itemMetaData.getFileName(), !itemMetaData.isUserCreated(), true);
     }
 
     @Override
     public void onHomeButtonPressed() {
+        resetUI();
         gameActivity.runOnUpdateThread(() -> {
             ((AbstractScene<?>) mainScene.getChildScene()).onPause();
-            resetUI();
             mainScene.goToScene(SceneType.MENU);
         });
 
@@ -63,9 +65,11 @@ public class NativeUIController implements INativeUIController {
     }
 
     @Override
-    public void onUsagesUpdated(List<PlayerSpecialAction> usageList, PlayerSpecialAction selected) {
-        PlayUIFragment playUIFragment = gameActivity.getGameUIFragment();
-        playUIFragment.setOptionsList(usageList, selected);
+    public void onUsagesUpdated(List<PlayerSpecialAction> usageList, PlayerSpecialAction selected, boolean usesActive) {
+        gameActivity.runOnUiThread(() -> {
+            PlayUIFragment playUIFragment = gameActivity.getGameUIFragment();
+            playUIFragment.setOptionsList(usageList, selected, usesActive);
+        });
     }
 
     @Override
@@ -108,8 +112,10 @@ public class NativeUIController implements INativeUIController {
 
     @Override
     public void onMirrorButtonClicked() {
-        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
-        playScene.onMirrorButtonClicked();
+        gameActivity.runOnUpdateThread(() -> {
+            PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+            playScene.onMirrorButtonClicked();
+        });
     }
 
     @Override
@@ -129,7 +135,7 @@ public class NativeUIController implements INativeUIController {
                 itemMetaData.setToolName(BuildConfig.DEBUG ? res.get().getName() : "Anonymous");
                 itemMetaData.setItemCategory(res.get().getItemCategory());
                 ResourceManager.getInstance().setEditorItem(itemMetaData);
-                mainScene.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(itemMetaData.getName()));
+                ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(itemMetaData.getName()));
                 mainScene.goToScene(SceneType.EDITOR);
             }
         });
@@ -148,7 +154,7 @@ public class NativeUIController implements INativeUIController {
                 newItemMetaData.setUserCreated(res.get().isUserCreated());
             }
             ResourceManager.getInstance().setEditorItem(newItemMetaData);
-            mainScene.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(newItemMetaData.getName()));
+            ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(newItemMetaData.getName()));
             mainScene.goToScene(SceneType.EDITOR);
         });
     }
@@ -185,7 +191,7 @@ public class NativeUIController implements INativeUIController {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
         playScene.setUsesActive(true);
         playScene.setEffectsActive(false);
-        playScene.onUsagesUpdated();
+       // playScene.onUsagesUpdated();
     }
 
     public void onUsesReleased() {
@@ -203,5 +209,18 @@ public class NativeUIController implements INativeUIController {
     public void onEffectsReleased() {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
         playScene.setEffectsActive(false);
+        playScene.setUsesActive(true);
+        playScene.onUsagesUpdated();
+    }
+
+    public void onItemCreated() {
+        gameActivity.runOnUiThread(() -> {
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.resetClickedItem();
+        });
+    }
+
+    public void onHelpPressed() {
+        gameActivity.showHelpDialog();
     }
 }

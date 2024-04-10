@@ -38,7 +38,6 @@ import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.Utils;
 
 import org.andengine.entity.primitive.Line;
-import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.util.adt.color.Color;
 
@@ -52,17 +51,14 @@ import java.util.stream.Collectors;
 public class GameEntityFactory {
     private static final GameEntityFactory INSTANCE = new GameEntityFactory();
     private PhysicsScene<?> scene;
-    private PhysicsWorld physicsWorld;
 
     public static GameEntityFactory getInstance() {
         return INSTANCE;
     }
 
-    public void create(PhysicsWorld physicsWorld, PhysicsScene<?> scene) {
-        this.physicsWorld = physicsWorld;
+    public void create(PhysicsScene<?> scene) {
         this.scene = scene;
     }
-
     public GameEntity createGameEntity(
             float x,
             float y,
@@ -72,15 +68,31 @@ public class GameEntityFactory {
             List<LayerBlock> blocks,
             BodyDef.BodyType bodyType,
             String name) {
+        return createGameEntity(x,y,rot,mirrored,bodyInit,blocks,bodyType,name,null);
+    }
+    public GameEntity createGameEntity(
+            float x,
+            float y,
+            float rot,
+            boolean mirrored,
+            BodyInit bodyInit,
+            List<LayerBlock> blocks,
+            BodyDef.BodyType bodyType,
+            String name, Vector2 center) {
         Collections.sort(blocks);
 
         for (LayerBlock b : blocks) {
             b.getAssociatedBlocks().sort(BlockUtils.associatedBlockComparator);
         }
-
+          if(center==null){
+              center = BlockUtils.calculateBodyCenter(blocks);
+          }
         MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x * 32, y * 32, rot, blocks);
-        // mesh.setCullingEnabled(true);
+        float[] bounds = BlockUtils.getBounds(mirrored, blocks, center);
+        mesh.setBounds(bounds);
+        mesh.setCullingEnabled(true);
         GameEntity entity = new GameEntity(mesh, scene, name, blocks);
+        entity.setCenter(center);
         entity.setMirrored(mirrored);
         entity.setMesh(mesh);
         entity.setVisible(false);
@@ -160,12 +172,13 @@ public class GameEntityFactory {
             Vector2 newCenter =
                     GeometryUtils.calculateCenter(
                             group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
-            for (LayerBlock b : group) {
-                b.translate(newCenter);
-                for (Block<?, ?> a : b.getAssociatedBlocks()) {
-                    a.translate(newCenter);
+            for (LayerBlock layerBlock : group) {
+                Vector2 worldTranslation = parent.getBody().getWorldVector(newCenter.cpy().mul(1/32f));
+                layerBlock.translate(newCenter, worldTranslation);
+                for (Block<?, ?> a : layerBlock.getAssociatedBlocks()) {
+                    a.translate(newCenter, worldTranslation);
                 }
-                for (FreshCut freshCut : b.getFreshCuts()) {
+                for (FreshCut freshCut : layerBlock.getFreshCuts()) {
                     if (freshCut instanceof SegmentFreshCut) {
                         SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
                         if (segmentFreshCut.isInner()) {
@@ -193,14 +206,11 @@ public class GameEntityFactory {
             BodyInit bodyInit =
                     new TransformInit(
                             new LinearVelocityInit(
-                                    new AngularVelocityInit(new BodyInitImpl(filter.categoryBits), angularVelocity),
+                                    new AngularVelocityInit(new BodyInitImpl(filter), angularVelocity),
                                     linearVelocity),
                             x + newCenter.x / 32f,
                             y + newCenter.y / 32f,
                             rot);
-            Vector2 c =
-                    GeometryUtils.calculateCenter(
-                            group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
             GameEntity e =
                     GameEntityFactory.getInstance()
                             .createGameEntity(
@@ -263,11 +273,15 @@ public class GameEntityFactory {
 
     GameEntity createDollPart(
             float x, float y, float rot, ArrayList<LayerBlock> blocks, String name) {
+        Filter filter = new Filter();
+        filter.categoryBits =   (short)
+                (OBJECTS_MIDDLE_CATEGORY | OBJECTS_FRONT_CATEGORY | OBJECTS_BACK_CATEGORY);
+        filter.maskBits = filter.categoryBits;
+        filter.groupIndex = -1;
         BodyInit bodyInit =
                 new TransformInit(
                         new BodyInitImpl(
-                                (short)
-                                        (OBJECTS_MIDDLE_CATEGORY | OBJECTS_FRONT_CATEGORY | OBJECTS_BACK_CATEGORY)),
+                               filter),
                         x,
                         y,
                         rot);
@@ -307,7 +321,7 @@ public class GameEntityFactory {
         float level0 = y - (HEAD_RAY + NECK_LENGTH + TORSO_HEIGHT / 2) / 32f;
 
         ArrayList<Vector2> points =
-                VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 30);
+                VerticesFactory.createPolygon(0, 0, 1.25f * HEAD_RAY, 1.25f * HEAD_RAY, 20);
         LayerBlock block =
                 BlockFactory.createLayerBlock(
                         points,
@@ -621,6 +635,12 @@ public class GameEntityFactory {
         leftFoot.setType(SpecialEntityType.LeftFoot);
         rightFoot.setType(SpecialEntityType.RightFoot);
 
+        rightHand.setZIndex(5);
+        leftHand.setZIndex(5);
+        upperArmLeft.setZIndex(4);
+        upperArmRight.setZIndex(4);
+        lowerArmL.setZIndex(4);
+        lowerArmR.setZIndex(4);
         upperTorso.setZIndex(3);
         upperLegR.setZIndex(2);
         upperLegL.setZIndex(2);
@@ -646,6 +666,9 @@ public class GameEntityFactory {
         RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
         revoluteJointDef.localAnchorA.set(Vector2Pool.obtain(0, (-HEAD_RAY - NECK_LENGTH) / 32));
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, TORSO_HEIGHT / 2 / 32));
+        revoluteJointDef.lowerAngle = (float) (-Math.PI/4);
+        revoluteJointDef.upperAngle = (float) (Math.PI/4);
+        revoluteJointDef.enableLimit = true;
         revoluteJointDef.collideConnected = true;
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, head, upperTorso, 0);
 
@@ -656,7 +679,7 @@ public class GameEntityFactory {
         revoluteJointDef.localAnchorB.set(Vector2Pool.obtain(0, ARM_LENGTH / 2 / 32f));
         revoluteJointDef.collideConnected = false;
         revoluteJointDef.enableLimit = true;
-        revoluteJointDef.lowerAngle = 0;
+        revoluteJointDef.lowerAngle = (float) (Math.PI/8);
         revoluteJointDef.upperAngle = (float) ((float) Math.PI);
 
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmRight, 1);
@@ -669,7 +692,7 @@ public class GameEntityFactory {
         revoluteJointDef.collideConnected = false;
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) ((float) -Math.PI);
-        revoluteJointDef.upperAngle = (float) 0;
+        revoluteJointDef.upperAngle = (float) (float) (-Math.PI/8);;
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperArmLeft, 2);
 
         revoluteJointDef = new RevoluteJointDef();

@@ -5,7 +5,10 @@ import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -24,17 +27,21 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.evolgames.activity.components.BadReviewDialog;
 import com.evolgames.activity.components.CreateItemDialog;
 import com.evolgames.activity.components.EditItemDialog;
+import com.evolgames.activity.components.EditorHelpDialog;
+import com.evolgames.activity.components.HelpDialog;
 import com.evolgames.activity.components.MenuUIFragment;
+import com.evolgames.activity.components.OptionsDialog;
 import com.evolgames.activity.components.PlayUIFragment;
+import com.evolgames.activity.components.RateUsDialog;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.scenes.MainScene;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
-import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
@@ -58,6 +65,9 @@ public class GameActivity extends BaseGameActivity {
 
     public static final int CAMERA_WIDTH = 800;
     public static final int CAMERA_HEIGHT = 480;
+    public static final String MAP_KEY = "GameMap";
+    public static final String SOUND_KEY = "Sound";
+    public static final String MUSIC_KEY = "Music";
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final String DEVELOPER_EMAIL = "aymendotbouazizi@gmail.com";
     private static final String EMAIL_SUBJECT = "Mutilate : Item";
@@ -76,6 +86,7 @@ public class GameActivity extends BaseGameActivity {
     private MenuUIFragment menuUIFragment;
     private CreateItemDialog createItemDialog;
     private EditItemDialog editItemDialog;
+    private OptionsDialog optionsDialog;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -144,8 +155,8 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public EngineOptions onCreateEngineOptions() {
         this.camera = new SmoothCamera(0, 0, GameActivity.CAMERA_WIDTH, GameActivity.CAMERA_HEIGHT, 12000 * 32f, 12000 * 32f, 1f);
-        ((SmoothCamera)this.camera).setBounds(-Float.MAX_VALUE,0,Float.MAX_VALUE,Float.MAX_VALUE);
-        ((SmoothCamera)this.camera).setBoundsEnabled(true);
+        ((SmoothCamera) this.camera).setBounds(-Float.MAX_VALUE, 0, Float.MAX_VALUE, Float.MAX_VALUE);
+        ((SmoothCamera) this.camera).setBoundsEnabled(true);
         this.camera.setZClippingPlanes(-1, 1);
 
         IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();
@@ -169,6 +180,7 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public void onCreateResources(IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback) {
         ResourceManager.getInstance().create(this, this.getEngine(), camera, this.getVertexBufferObjectManager());
+        ResourceManager.getInstance().loadPreferences();
         ResourceManager.getInstance().loadFonts();
         ResourceManager.getInstance().loadImages();
         ResourceManager.getInstance().loadGameAudio();
@@ -180,8 +192,8 @@ public class GameActivity extends BaseGameActivity {
     public void onCreateScene(IGameInterface.OnCreateSceneCallback pOnCreateSceneCallback) {
         this.mainScene = new MainScene(this.camera);
         this.uiController.setMainScene(this.mainScene);
-        String saved = this.mainScene.loadStringFromPreferences("saved_tool_filename");
-        this.mainScene.saveStringToPreferences("SCENE", "MENU");
+        String saved = this.loadStringFromPreferences("saved_tool_filename");
+        this.saveStringToPreferences("SCENE", "MENU");
         if (!saved.isEmpty()) {
             ItemMetaData item = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
                     .filter(e -> e.getFileName().equals(saved)).findFirst().orElse(null);
@@ -326,7 +338,12 @@ public class GameActivity extends BaseGameActivity {
         this.menuUIFragment = new MenuUIFragment();
         this.createItemDialog = new CreateItemDialog();
         this.editItemDialog = new EditItemDialog();
+        this.optionsDialog = new OptionsDialog();
+    }
 
+    public void showOptionsDialog() {
+        getSupportFragmentManager().beginTransaction().hide(menuUIFragment).commit();
+        optionsDialog.show(getSupportFragmentManager(), "optionsDialog");
     }
 
     public void showEditItemDialog() {
@@ -338,6 +355,7 @@ public class GameActivity extends BaseGameActivity {
         getSupportFragmentManager().beginTransaction().hide(menuUIFragment).hide(createItemDialog).commit();
         editItemDialog.show(getSupportFragmentManager(), "editItemDialog");
     }
+
 
     public void showCreateItemDialog() {
         try {
@@ -388,6 +406,90 @@ public class GameActivity extends BaseGameActivity {
 
     public PlayUIFragment getGameUIFragment() {
         return gameUIFragment;
+    }
+
+    public void openBadReviewDialog() {
+        BadReviewDialog dialog = new BadReviewDialog(this);
+        dialog.show();
+    }
+
+    public void saveOptions() {
+        saveStringToPreferences(MAP_KEY, ResourceManager.getInstance().getMapString());
+        saveBooleanToPreferences(SOUND_KEY, ResourceManager.getInstance().isSound());
+        saveBooleanToPreferences(MUSIC_KEY, ResourceManager.getInstance().isMusic());
+    }
+
+    public void showHelpDialog() {
+        HelpDialog dialog = new HelpDialog(this);
+        dialog.show();
+    }
+    public void showEditorHelpDialog() {
+        EditorHelpDialog dialog = new EditorHelpDialog(this);
+        dialog.show();
+    }
+
+    public void showRateUsDialog() {
+        RateUsDialog dialog = new RateUsDialog(this);
+        dialog.show();
+    }
+
+    public void openPlayStoreForReview() {
+        String packageName = this.getPackageName();
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(intent);
+        }
+    }
+
+    public final void saveStringToPreferences(String key, String value) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
+    public final void saveBooleanToPreferences(String key, boolean value) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    public final boolean loadBooleanFromPreferences(String key) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        return preferences.getBoolean(key, false);
+    }
+
+    public final String loadStringFromPreferences(String key, String defaultValue) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        return preferences.getString(key, defaultValue);
+    }
+
+    public final boolean loadBooleanFromPreferences(String key, boolean defaultValue) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        return preferences.getBoolean(key, defaultValue);
+    }
+
+    public final String loadStringFromPreferences(String key) {
+        SharedPreferences preferences =
+                this
+                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
+        return preferences.getString(key, "");
     }
 
 

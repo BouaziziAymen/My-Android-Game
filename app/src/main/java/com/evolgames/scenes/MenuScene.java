@@ -48,7 +48,6 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
                         GroupType.OTHER);
 
         GameEntity gameEntity1 = gameGroup1.getGameEntityByIndex(0);
-        gameEntity1.setCenter(new Vector2());
         gameEntity1.setName("Main Button");
 
         worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);

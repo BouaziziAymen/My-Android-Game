@@ -13,8 +13,9 @@ public class Materials {
     static {
         liquids = new ArrayList<>();
         liquids.add(new Liquid(0, "Blood", 0f, MyColorUtils.bloodColor));
-        liquids.add(new Liquid(1, "Goo", 0f, new Color(0.1f, 0.1f, 0.1f, 0.5f)));
         liquids.add(new Liquid(2, "Petrol", 0.5f, new Color(156f / 255f, 89 / 255f, 0, 0.5f)));
+        liquids.add(new Liquid(0, "Juice", 0f, new Color(1f,1f,1f,0.2f)));
+        liquids.add(new Liquid(1, "Goo", 0f, new Color(0.1f, 0.1f, 0.1f, 0.5f)));
     }
 
     public static Liquid getLiquidByIndex(int i) {

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -19,17 +19,26 @@
             android:id="@+id/editor_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
+            android:layout_margin="5dp"
             app:buttonType="click"
             app:icon="@drawable/lab_icon"
             tools:ignore="RtlHardcoded" />
+
+        <com.evolgames.activity.components.GameImageButton
+            android:id="@+id/options_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonType="click"
+            android:layout_margin="5dp"
+            app:icon="@drawable/gear_icon" />
 
         <com.evolgames.activity.components.GameImageButton
             android:id="@+id/rate_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:buttonType="click"
-            app:icon="@drawable/refresh_icon" />
+            android:layout_margin="5dp"
+            app:icon="@drawable/rating_icon" />
     </LinearLayout>
 
     <ImageView

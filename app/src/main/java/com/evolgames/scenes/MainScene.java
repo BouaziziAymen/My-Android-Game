@@ -59,7 +59,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
     @Override
     public void onPause() {
-        saveStringToPreferences("SCENE", scene.getSceneName().name());
+        ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", scene.getSceneName().name());
         if (this.scene != null) {
             this.scene.onPause();
         }
@@ -67,7 +67,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
     @Override
     public void onResume() {
-        String sceneName = loadStringFromPreferences("SCENE");
+        String sceneName = ResourceManager.getInstance().activity.loadStringFromPreferences("SCENE");
         if (!sceneName.isEmpty() && !sceneName.equals("MENU")) {
             changeScene(SceneType.valueOf(sceneName), false);
         } else {
@@ -102,7 +102,7 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
 
     public void goToScene(SceneType sceneType) {
         changeScene(sceneType, true);
-        this.saveStringToPreferences("SCENE", "");
+        ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", "");
         scene.createUserInterface();
     }
 

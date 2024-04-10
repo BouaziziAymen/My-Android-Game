@@ -33,7 +33,7 @@ public class PropertiesFactory {
         properties.setChemicalEnergy(material.getEnergy());
         properties.setFlammable(material.isFlammable());
         properties.setFlammability(material.getFlammability());
-        properties.setJuiceColor(material.getJuiceColor());
+        properties.setJuiceColor(new Color(material.getJuiceColor()));
         properties.setJuiceFlammability(material.getJuiceFlammability());
         properties.setHeatResistance(material.getHeatResistance());
         return properties;

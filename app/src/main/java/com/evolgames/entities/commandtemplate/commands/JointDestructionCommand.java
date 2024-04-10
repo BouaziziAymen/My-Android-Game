@@ -26,7 +26,7 @@ public class JointDestructionCommand extends Command {
             jointBlock.setAborted(true);
             jointBlock.getBrother().setAborted(true);
             if (this.joint instanceof MouseJoint) {
-                Invoker.scene.onDestroyMouseJoint((MouseJoint) joint);
+                Invoker.scene.getHand().onMouseJointDestroyed((MouseJoint) joint);
             }
             physicsWorld.destroyJoint(joint);
         }

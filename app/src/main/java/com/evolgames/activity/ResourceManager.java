@@ -1,5 +1,9 @@
 package com.evolgames.activity;
 
+import static com.evolgames.activity.GameActivity.MAP_KEY;
+import static com.evolgames.activity.GameActivity.MUSIC_KEY;
+import static com.evolgames.activity.GameActivity.SOUND_KEY;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -36,7 +40,6 @@ import org.andengine.util.adt.color.Color;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +60,6 @@ public class ResourceManager {
     public BitmapTextureAtlas texturedMesh;
     public TiledTextureRegion stainTextureRegions;
     public TextureRegion liquidParticle;
-    public TextureRegion pokemon;
     public TiledTextureRegion button;
     public ArrayList<ITextureRegion> window;
     public TiledTextureRegion windowFoldTextureRegion;
@@ -85,7 +87,7 @@ public class ResourceManager {
     public TiledTextureRegion add1;
     public TiledTextureRegion minus1;
     public TextureRegion slotTextureRegion;
-    public TiledTextureRegion smallButtonTextureRegion;
+    public TiledTextureRegion smallButtonTextureRegion,plusButtonTextureRegion;
     public TiledTextureRegion simpleButtonTextureRegion;
     public TiledTextureRegion onoffTextureRegion;
     public Engine engine;
@@ -99,7 +101,6 @@ public class ResourceManager {
     public TiledTextureRegion mirrorTextureRegion;
     public TiledTextureRegion rotateTextureRegion;
     public TextureRegion centeredDiskTextureRegion;
-    public TextureRegion handPointTextureRegion;
     public TiledTextureRegion drawBigButton, collisionBigButton, jointBigButton, imageBigButton;
     public TiledTextureRegion revoluteTextureRegion,
             weldTextureRegion,
@@ -126,12 +127,11 @@ public class ResourceManager {
     public TiledTextureRegion optionsMagnetTextureRegion;
     public TiledTextureRegion optionsLinesTextureRegion;
     public TiledTextureRegion targetButtonTextureRegion;
-    public TextureRegion handTextureRegion;
-    public TextureRegion armTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound;
+    public Sound slashSound, bluntSound;
     public TextureRegion aimCircleTextureRegion;
+    public TiledTextureRegion helpBigButton;
     public TiledTextureRegion saveBigButton;
     public TiledTextureRegion homeBigButton;
     public TextureRegion pixelParticle;
@@ -149,10 +149,6 @@ public class ResourceManager {
 
     public TextureRegion specialPointShapeTextureRegion;
     public TextureRegion casingShapeTextureRegion;
-    public TextureRegion switcher, switcherBackground;
-    public List<TextureRegion> particularUsages;
-    public List<TextureRegion> generalUsages;
-    public TiledTextureRegion switcherLeft, switcherRight;
     public TiledTextureRegion fireSourceTextureRegion;
     public TiledTextureRegion liquidSourceTextureRegion;
     public TextureRegion fireShapeTextureRegion;
@@ -161,14 +157,16 @@ public class ResourceManager {
     public TiledTextureRegion projDragTextureRegion;
     public TiledTextureRegion showHideTextureRegion;
     public TextureRegion playTextureRegion;
-    public TextureRegion labTextureRegion;
     public Music mMusic;
     public Sound onSound, offSound;
+    public TextureRegion frostParticle;
     private FontLoader fontLoader;
     private BuildableBitmapTextureAtlas texture;
     private Map<ItemCategory, List<ItemMetaData>> itemsMap;
     private ItemMetaData editorItem;
-    public TextureRegion frostParticle;
+    private ItemMetaData selectedItemMetaData;
+    private String mapString;
+    private boolean sound, music;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -189,6 +187,41 @@ public class ResourceManager {
         canvas.drawBitmap(srcBitmap, matrix, null);
 
         return mirroredBitmap;
+    }
+
+    public String getMapString() {
+        return mapString;
+    }
+
+    public void setMapString(String mapString) {
+        this.mapString = mapString;
+    }
+
+    public boolean isSound() {
+        return sound;
+    }
+
+    public void setSound(boolean sound) {
+        this.sound = sound;
+    }
+
+    public boolean isMusic() {
+        return music;
+    }
+
+    public void setMusic(boolean music) {
+        if(music){
+            this.mMusic.play();
+        } else {
+            this.mMusic.pause();
+        }
+        this.music = music;
+    }
+
+    public void loadPreferences() {
+        this.mapString = activity.loadStringFromPreferences(MAP_KEY, "Wood");
+        this.sound = activity.loadBooleanFromPreferences(SOUND_KEY, true);
+        this.music = activity.loadBooleanFromPreferences(MUSIC_KEY, true);
     }
 
     public void loadBatches() {
@@ -244,9 +277,7 @@ public class ResourceManager {
                         2048,
                         BitmapTextureFormat.RGBA_8888,
                         TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-        this.pokemon =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "bulbasaur.png");
+
         this.liquidParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
@@ -304,6 +335,11 @@ public class ResourceManager {
                         "main_board/collisionoption.png",
                         2,
                         1);
+
+        this.helpBigButton =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/questionoption.png", 2, 1);
+
         this.saveBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "main_board/saveoption.png", 2, 1);
@@ -435,63 +471,10 @@ public class ResourceManager {
         this.slotInnerTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "slotinner.png");
-        this.handTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "hand.png");
-        this.armTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "arm.png");
-        this.switcher =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "controllers/switcher/switcher.png");
-        this.switcherBackground =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas,
-                        this.activity.getAssets(),
-                        "controllers/switcher/switcherBackground.png");
-        this.particularUsages = new ArrayList<>();
-        for (int i = 0; i <= 12; i++) {
-            this.particularUsages.add(
-                    BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                            this.gameTextureAtlas,
-                            this.activity.getAssets(),
-                            "controllers/switcher/usages/" + i + ".png"));
-        }
-        Collections.reverse(particularUsages);
-
-        this.generalUsages = new ArrayList<>();
-        for (int i = 1; i <= 6; i++) {
-            this.generalUsages.add(
-                    BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                            this.gameTextureAtlas,
-                            this.activity.getAssets(),
-                            "controllers/switcher/general/" + i + ".png"));
-        }
-        Collections.reverse(generalUsages);
-        this.switcherLeft =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas,
-                        this.activity.getAssets(),
-                        "controllers/switcher/leftButton.png",
-                        1,
-                        3);
-        this.switcherRight =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas,
-                        this.activity.getAssets(),
-                        "controllers/switcher/rightButton.png",
-                        1,
-                        3);
 
         this.playTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "play.png");
-        this.labTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "lab.png");
-        this.handPointTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/hand1.png");
         this.diskTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/circle.png");
@@ -570,6 +553,11 @@ public class ResourceManager {
         this.smallButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "smallButton.png", 1, 2);
+
+        this.plusButtonTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "smallButtonPlus.png", 1, 2);
+
 
         this.simpleButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
@@ -742,11 +730,18 @@ public class ResourceManager {
 
             SoundFactory.setAssetBasePath("sfx/");
 
+            bluntSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "blunt.wav");
+
             slashSound =
                     SoundFactory.createSoundFromAsset(
                             this.activity.getSoundManager(),
                             this.activity,
                             "slash.wav");
+
             onSound =
                     SoundFactory.createSoundFromAsset(
                             this.activity.getSoundManager(),
@@ -788,18 +783,17 @@ public class ResourceManager {
             try {
                 mMusic = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "music_main.mp3");
                 mMusic.setLooping(true); // Loop the music
+                mMusic.setVolume(0.2f);
+                if(music){
+                    mMusic.play();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mMusic.play();
-            mMusic.setVolume(0.007f);
+
         } catch (Exception e) {
             throw new RuntimeException("Error while loading audio", e);
         }
-    }
-
-    public GameSound getPenetrationSound(int i) {
-        return penetrationSounds.stream().filter(e -> e.getTitle().equals("penetration" + i)).findFirst().get();
     }
 
     public GameSound getProjectileSound(String title) {
@@ -842,6 +836,20 @@ public class ResourceManager {
     public void mirrorSketch() {
         if (sketchBitmap != null) {
             loadImage(createMirroredBitmap(sketchBitmap));
+        }
+    }
+
+    public ItemMetaData getSelectedItemMetaData() {
+        return selectedItemMetaData;
+    }
+
+    public void setSelectedItemMetaData(ItemMetaData selectedItemMetaData) {
+        this.selectedItemMetaData = selectedItemMetaData;
+    }
+    public void tryPlaySound(Sound sound, float volume){
+        if(this.sound) {
+            sound.setVolume(volume);
+            sound.play();
         }
     }
 }

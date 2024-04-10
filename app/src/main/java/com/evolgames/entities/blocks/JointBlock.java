@@ -162,7 +162,11 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     }
 
     @Override
-    public void translate(Vector2 translationVector) {
+    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
+        if(this.jointType == JointDef.JointType.MouseJoint){
+            MouseJointDef mouseJointDef = (MouseJointDef) getProperties().getJointDef();
+            mouseJointDef.target.sub(worldTranslation);
+        }
         Utils.translatePoints(this.getVertices(), translationVector);
     }
 

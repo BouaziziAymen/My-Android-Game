@@ -1,5 +1,7 @@
 package com.evolgames.entities.persistence;
 
+import static com.evolgames.utilities.ToolUtils.scalePoints;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -176,17 +178,6 @@ public class PersistenceCaretaker {
         return numbers;
     }
 
-    private static void scalePoints(Vector2 center, List<Vector2> vertices, float scale) {
-        for (int i = 0; i < vertices.size(); i++) {
-            float originalX = vertices.get(i).x;
-            float originalY = vertices.get(i).y;
-
-            float scaledX = center.x + (originalX - center.x) * scale;
-            float scaledY = center.y + (originalY - center.y) * scale;
-            // Update vertex positions
-            vertices.get(i).set(scaledX, scaledY);
-        }
-    }
 
     public void create(AbstractScene<?> editorScene) throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -207,7 +198,8 @@ public class PersistenceCaretaker {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
      // scaleToolBody("Main Battle Tank#",2f,13);
-      scaleTool("Shell 155mm#",120f/155f);
+    //  scaleTool("Shell 155mm#",120f/155f);
+        mirrorTool("Rocket 2#");
         // moveLayersTransformation();
     }
 

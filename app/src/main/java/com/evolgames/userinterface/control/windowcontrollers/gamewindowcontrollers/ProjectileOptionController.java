@@ -263,8 +263,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (simpleTertiary.getPrimaryKey() == 2 && simpleTertiary.getSecondaryKey() == 1) {
             GameSound gameSound =   this.sounds
                     .get(simpleTertiary.getTertiaryKey());
-          gameSound.getSound()
-                    .play();
+        ResourceManager.getInstance().tryPlaySound(gameSound.getSound(),1f);
             projectileProperties.setFireSound(gameSound.getTitle());
             for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
                 SimpleTertiary<?> element =
@@ -384,7 +383,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         editorUserInterface
                 .getItemWindowController()
                 .changeItemName(
-                        model.getModelName(), projectileModel.getBodyId(), projectileModel.getProjectileId());
+                        model.getModelName(), projectileModel.getProjectileField().getPrimaryKey(), projectileModel.getProjectileField().getSecondaryKey());
     }
 
     private void setProjectileName(String name) {

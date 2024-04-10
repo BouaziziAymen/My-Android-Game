@@ -1,6 +1,7 @@
 package com.evolgames.scenes;
 
 import static com.evolgames.entities.factories.MaterialFactory.IGNIUM;
+import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
@@ -15,6 +16,7 @@ import com.evolgames.entities.Plotter;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BlockFactory;
@@ -31,6 +33,7 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Bomb;
@@ -42,9 +45,11 @@ import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
+import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.physics.entities.Touch;
 import com.evolgames.scenes.entities.SceneType;
+import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.UserInterface;
-import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MyColorUtils;
 import com.evolgames.utilities.Vector2Utils;
@@ -86,8 +91,9 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private SavingBox savingBox;
     private float mPinchZoomStartedCameraZoomFactor;
     private boolean chaseActive;
-    private boolean usesActive;
+    private boolean usesActive = true;
     private boolean effectsActive;
+    private boolean creating;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -106,6 +112,16 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
         super.onManagedUpdate(1 / 60f);
         step++;
+//        int n = 0;
+//        int c = 0;
+//        for(GameGroup gameGroup:getGameGroups()){
+//            for(GameEntity gameEntity:gameGroup.getEntities()){
+//                n++;
+//                boolean culled = gameEntity.getMesh().isCulled(this.mCamera);
+//                if(culled)c++;
+//            }
+//        }
+//        Log.e("Culling",n+":"+c);
 
         if (this.savingBox != null) {
             this.savingBox.onStep();
@@ -121,9 +137,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         if (false) {
             pulverizationTest();
         }
-
-        if (false) coatingTest();
-
         // projectiles test
         if (false) {
             projectileTest();
@@ -155,28 +168,61 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                         gameGroup1.getGameEntityByIndex(0));
             }
         }
-
-        if(this.specialAction==PlayerSpecialAction.effectMeteor){
-            if(touchEvent.isActionDown()){
-                setScrollerEnabled(false);
-                createMeteorite(touchEvent.getX()/32f,100f);
+        if(this.playerAction==PlayerAction.Create){
+            ItemMetaData itemToCreate = ResourceManager.getInstance().getSelectedItemMetaData();
+            if(itemToCreate!=null) {
+                if (touchEvent.isActionDown()) {
+                      creating = true;
+                }
+                if(touchEvent.isActionUp()&&creating){
+                    float x = touchEvent.getX();
+                    float y = touchEvent.getY();
+                    ToolModel toolModel = loadToolModel(itemToCreate.getFileName(), false, !itemToCreate.isUserCreated());
+                    toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x, y).filter(OBJECT, OBJECT).build()));
+                    float[] bounds = toolModel.getBounds(x,y,false);
+                    plotter.detachChildren();
+                    boolean checkEmpty = worldFacade.checkEmpty(bounds[0]/32f,bounds[1]/32f,bounds[2]/32f,bounds[3]/32f);
+                    Color color;
+                    if(!checkEmpty) {
+                        Log.e("CheckEmpty",worldFacade.checkEmptyCallback.getGameEntity().getName());
+                        color = Color.RED;
+                        plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
+                        plotter.drawLine2(new Vector2(bounds[1], bounds[3]), new Vector2(bounds[1], bounds[2]), color, 1);
+                    }
+                    if(checkEmpty) {
+                        createTool(toolModel, false);
+                    }
+                    creating = false;
+                    this.playerAction = PlayerAction.Drag;
+                    ResourceManager.getInstance().activity.getUiController().onItemCreated();
+                }
             }
-            if(touchEvent.isActionUp()||touchEvent.isActionCancel()||touchEvent.isActionOutside()){
-                setScrollerEnabled(true);
-            }
-        }
-        else if (this.specialAction == PlayerSpecialAction.effectFrost) {
-            processFrostEffect(touchEvent);
-        } else if (this.specialAction == PlayerSpecialAction.effectFireBolt) {
-            processExplosionEffect(touchEvent);
-        } else if (this.specialAction == PlayerSpecialAction.effectCut) {
-            processSlicing(touchEvent);
         } else {
-            if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
-                processHandling(touchEvent);
+
+            if (this.specialAction == PlayerSpecialAction.effectMeteor) {
+                if (touchEvent.isActionDown()) {
+                    setScrollerEnabled(false);
+                    createMeteorite(touchEvent.getX() / 32f, 100f);
+                }
+                if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
+                    setScrollerEnabled(true);
+                }
+            } else if (this.specialAction == PlayerSpecialAction.effectFrost) {
+                processFrostEffect(touchEvent);
+            } else if (this.specialAction == PlayerSpecialAction.effectFireBolt) {
+                processExplosionEffect(touchEvent);
+            } else if (this.specialAction == PlayerSpecialAction.effectCut) {
+                processSlicing(touchEvent);
+            }
+            else if (this.specialAction == PlayerSpecialAction.effectGlue) {
+                processGluing(touchEvent);
+            }
+            else {
+                if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
+                    processHandling(touchEvent);
+                }
             }
         }
-
         if (mPinchZoomDetector != null) {
             mPinchZoomDetector.onTouchEvent(touchEvent);
 
@@ -206,8 +252,18 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     public void populate() {
         createRagDoll(400, 420);
         createTestUnit();
-        createGround();
-        testMesh();
+        String map = ResourceManager.getInstance().getMapString();
+        if("open".equals(map.toLowerCase())) {
+            createOpenGround();
+        }
+        if("marble".equals(map.toLowerCase())) {
+            createMarbleGround();
+        }
+        if("wood".equals(map.toLowerCase())) {
+            createWoodGround();
+        }
+        //testMesh();
+        onUsagesUpdated();
     }
 
     @Override
@@ -281,27 +337,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                             });
         }
     }
-
-    private void coatingTest() {
-        if (step % 5 == 0) {
-
-            LayerBlock layerBlock = new LayerBlock();
-            Random random = new Random();
-            // VerticesFactory.createPolygon(0,0, (float) (Math.random()*2*Math.PI), (float)
-            // (100+100*Math.random()),(float) (100+100*Math.random()),random.nextInt(1)+3);//
-            ArrayList<Vector2> vertices =
-                    GeometryUtils.generateRandomSpecialConvexPolygon(random.nextInt(10) + 6, 400, 240, 50);
-            // vertices.clear();
-            // Collections.addAll(vertices,new Vector2(0.7686557f,-113.54755f), new
-            // Vector2(170.17291f,57.157574f), new Vector2(-170.94154f,56.390015f));
-            layerBlock.initialization(
-                    vertices,
-                    PropertiesFactory.getInstance()
-                            .createProperties(MaterialFactory.getInstance().materials.get(0)),
-                    0);
-            BlockUtils.computeCoatingBlocks(layerBlock);
-        }
-    }
     private Random random = new Random();
     private void createMeteorite(float x, float y){
         int n = 5+random.nextInt(10);
@@ -335,7 +370,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                                 bodyInit,
                                 blocks,
                                 BodyDef.BodyType.DynamicBody,
-                                "Meteorite");
+                                "Meteorite",null);
+        Projectile projectileUse = new Projectile(ProjectileType.METEOR);
+        projectileUse.setActive(true);
+        meteorite.getUseList().add(projectileUse);
         GameGroup proj = new GameGroup(GroupType.OTHER, meteorite);
         addGameGroup(proj);
     }
@@ -394,7 +432,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                                     bodyInit,
                                     blocks,
                                     BodyDef.BodyType.DynamicBody,
-                                    "Projectile");
+                                    "Projectile",null);
             GameGroup proj = new GameGroup(GroupType.OTHER, gameEntity);
             gameEntity.getUseList().add(new Projectile(ProjectileType.SHARP_WEAPON));
             addGameGroup(proj);
@@ -431,66 +469,235 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         attachChild(theMesh);
     }
 
-    private void createGround() {
+    private void createOpenGround() {
+        List<GameEntity> entities = new ArrayList<>();
+        for(int i=-100;i<100;i++) {
+       // for(int i=2;i<3;i++) {
+            ArrayList<LayerBlock> blocks = new ArrayList<>();
+            List<Vector2> vertices = new ArrayList<>();
+            vertices.add(obtain(-200, -50));
+            vertices.add(obtain(-200, 30));
+            vertices.add(obtain(200, 30));
+            vertices.add(obtain(200, -50));
+            blocks.add(
+                    BlockFactory.createLayerBlock(
+                            vertices,
+                            PropertiesFactory.getInstance()
+                                    .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.ASPHALT)),
+                            0,
+                            0,
+                            false));
+
+            BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), i*400f/32f, 0, 0);
+            GameEntity entity =
+                    GameEntityFactory.getInstance().createGameEntity(i*400f/32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part "+i,null);
+            entities.add(entity);
+        }
+        GameGroup groundGroup = new GameGroup(GroupType.GROUND,entities);
+        this.addGameGroup(groundGroup);
+        this.worldFacade.setGroundGroup(groundGroup);
+    }
+
+
+    private void createWoodGround() {
+        ((SmoothCamera)ResourceManager.getInstance().firstCamera)
+                .setBounds(-400,0,1200,980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
-        List<Vector2> vertices1 = new ArrayList<>();
-        vertices1.add(obtain(-400, -50));
-        vertices1.add(obtain(-400, 20));
-        vertices1.add(obtain(400, 20));
-        vertices1.add(obtain(400, -50));
-
-   /* List<Vector2> vertices2 = new ArrayList<>();
-    vertices2.add(obtain(200, 15));
-    vertices2.add(obtain(200, 20));
-    vertices2.add(obtain(340, 20));
-    vertices2.add(obtain(340, 15));
-
-    List<Vector2> vertices3 = new ArrayList<>();
-    vertices3.add(obtain(100, 18));
-    vertices3.add(obtain(100, 20));
-    vertices3.add(obtain(50, 20));
-    vertices3.add(obtain(50, 18));
-
-    List<Vector2> vertices4 = new ArrayList<>();
-    vertices4.add(obtain(140, 18));
-    vertices4.add(obtain(140, 16));
-    vertices4.add(obtain(50, 16));
-    vertices4.add(obtain(50, 18));*/
-
+        List<Vector2> vertices = new ArrayList<>();
+        vertices.add(obtain(-800, -50));
+        vertices.add(obtain(-800, 20));
+        vertices.add(obtain(800, 20));
+        vertices.add(obtain(800, -50));
         blocks.add(
                 BlockFactory.createLayerBlock(
-                        vertices1,
+                        vertices,
                         PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.CONCRETE)),
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
                         0,
                         0,
                         false));
-   /* blocks.add(
-        BlockFactory.createLayerBlock(
-            vertices2,
-            PropertiesFactory.getInstance()
-                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)),
-            0,
-            1,
-            false));
 
-    blocks.add(
-        BlockFactory.createLayerBlock(
-            vertices3,
-            PropertiesFactory.getInstance()
-                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(1)),
-            0,
-            2,
-            false));
-    blocks.add(
-        BlockFactory.createLayerBlock(
-            vertices4,
-            PropertiesFactory.getInstance()
-                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(3)),
-            0,
-            3,
-            false));
-*/
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-800, 960));
+        vertices.add(obtain(-800, 20));
+        vertices.add(obtain(-780, 20));
+        vertices.add(obtain(-780, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
+                        1,
+                        0,
+                        false));
+
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(800, 960));
+        vertices.add(obtain(800, 20));
+        vertices.add(obtain(780, 20));
+        vertices.add(obtain(780, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
+                        2,
+                        0,
+                        false));
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-800, 960));
+        vertices.add(obtain(-800, 980));
+        vertices.add(obtain(800, 980));
+        vertices.add(obtain(800, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
+                        3,
+                        0,
+                        false));
+
+for(LayerBlock layerBlock:blocks){
+    layerBlock.getProperties().setDefaultColor(new Color(222f/255f,184f/255f,135/255f));
+}
+        GameGroup groundGroup =
+                GameEntityFactory.getInstance()
+                        .createGameGroupTest(
+                                blocks,
+                                new Vector2(400 / 32f, 0),
+                                BodyDef.BodyType.StaticBody,
+                                "Ground",
+                                OBJECTS_MIDDLE_CATEGORY,
+                                GroupType.GROUND);
+        this.worldFacade.setGroundGroup(groundGroup);
+    }
+
+    private void createMarbleGround() {
+        ((SmoothCamera)ResourceManager.getInstance().firstCamera)
+                .setBounds(-440,0,1240,980);
+        ArrayList<LayerBlock> blocks = new ArrayList<>();
+        List<Vector2> vertices = new ArrayList<>();
+        vertices.add(obtain(-800, -50));
+        vertices.add(obtain(-800, 10));
+        vertices.add(obtain(800, 10));
+        vertices.add(obtain(800, -50));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        0,
+                        0,
+                        false));
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-780, 10));
+        vertices.add(obtain(-780, 20));
+        vertices.add(obtain(780, 20));
+        vertices.add(obtain(780, 10));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        1,
+                        0,
+                        false));
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-760, 20));
+        vertices.add(obtain(-760, 30));
+        vertices.add(obtain(760, 30));
+        vertices.add(obtain(760, 20));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        2,
+                        0,
+                        false));
+
+
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-760, 960));
+        vertices.add(obtain(-760, 30));
+        vertices.add(obtain(-720, 30));
+        vertices.add(obtain(-720, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        3,
+                        0,
+                        false));
+
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(760, 960));
+        vertices.add(obtain(760, 30));
+        vertices.add(obtain(720, 30));
+        vertices.add(obtain(720, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        4,
+                        0,
+                        false));
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-800, 960));
+        vertices.add(obtain(-800, 980));
+        vertices.add(obtain(800, 980));
+        vertices.add(obtain(800, 960));
+        blocks.add(
+                BlockFactory.createLayerBlock(
+                        vertices,
+                        PropertiesFactory.getInstance()
+                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
+                        5,
+                        0,
+                        false));
+
+
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-780, 10));
+        vertices.add(obtain(-780, 11));
+        vertices.add(obtain(780, 11));
+        vertices.add(obtain(780, 10));
+        DecorationBlock decorationBlock = new DecorationBlock();
+        DecorationProperties decorationProperties = new DecorationProperties();
+        decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
+        decorationBlock.initialization(vertices,decorationProperties,0);
+     blocks.get(1).addAssociatedBlock(decorationBlock);
+
+
+        vertices = new ArrayList<>();
+        vertices.add(obtain(-760, 20));
+        vertices.add(obtain(-760, 21));
+        vertices.add(obtain(760, 21));
+        vertices.add(obtain(760, 20));
+        decorationBlock = new DecorationBlock();
+        decorationProperties = new DecorationProperties();
+        decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
+        decorationBlock.initialization(vertices,decorationProperties,0);
+        blocks.get(2).addAssociatedBlock(decorationBlock);
+
+
         GameGroup groundGroup =
                 GameEntityFactory.getInstance()
                         .createGameGroupTest(
@@ -571,8 +778,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                                 GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
         gameEntity3.setName("small rectangle");
-        // gameEntity3.getUseList().add(new Stabber());
-        gameEntity3.setCenter(new Vector2());
 
 
         List<Vector2> vertices4 = VerticesFactory.createRectangle(80, 80);
@@ -591,9 +796,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                                 GroupType.OTHER);
         GameEntity gameEntity4 = gameGroup2.getGameEntityByIndex(0);
         gameEntity4.setName("small rectangle");
-        // gameEntity3.getUseList().add(new Stabber());
-        gameEntity4.setCenter(new Vector2());
-
 
         if (false) {
             for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
@@ -629,6 +831,44 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                 point2 = null;
                 line.detachSelf();
             }
+        }
+    }
+    private GameEntity glueEntity;
+    private void processGluing(TouchEvent touchEvent) {
+
+        if (touchEvent.isActionDown()) {
+            point1 = new Vector2(touchEvent.getX(), touchEvent.getY());
+            point2 = new Vector2(point1);
+            line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
+
+            line.setColor(Color.BLUE);
+            line.setZIndex(999);
+            this.attachChild(line);
+            this.sortChildren();
+            setScrollerEnabled(false);
+            Pair<GameEntity, Vector2> touchData = this.getTouchedEntity(touchEvent, false,true);
+           if(touchData!=null) {
+               glueEntity = touchData.first;
+           }
+        }
+        if (touchEvent.isActionMove()) {
+            if (point2 != null) {
+                point2.set(touchEvent.getX(), touchEvent.getY());
+                line.setPosition(point1.x, point1.y, point2.x, point2.y);
+            }
+        }
+        if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
+            setScrollerEnabled(true);
+            Pair<GameEntity, Vector2> touchData = this.getTouchedEntity(touchEvent, false,true);
+            if (point1 != null && point2 != null&&glueEntity!=null && touchData!=null&&touchData.first!=null && glueEntity!=touchData.first) {
+              Touch touch = worldFacade.areTouching(glueEntity,touchData.first);
+                if(touch!=null){
+                  this.worldFacade.glueEntities(glueEntity,touchData.first,touch.getPoint());
+              }
+            }
+            point1 = null;
+            point2 = null;
+            line.detachSelf();
         }
     }
 
@@ -721,11 +961,12 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             }
             if (effectsActive) {
                 usageList.add(PlayerSpecialAction.effectCut);
+                usageList.add(PlayerSpecialAction.effectGlue);
                 usageList.add(PlayerSpecialAction.effectFireBolt);
                 usageList.add(PlayerSpecialAction.effectMeteor);
                 usageList.add(PlayerSpecialAction.effectFrost);
             }
-            getActivity().getUiController().onUsagesUpdated(usageList, defaultAction);
+            getActivity().getUiController().onUsagesUpdated(usageList, defaultAction, usesActive);
         });
     }
 
@@ -733,7 +974,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         return ResourceManager.getInstance().activity;
     }
 
-    public Pair<GameEntity, Vector2> getTouchedEntity(TouchEvent touchEvent, boolean withHold) {
+    public Pair<GameEntity, Vector2> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
         GameEntity result = null;
         Vector2 anchor = null;
         float minDis = 32f;
@@ -741,7 +982,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
                 if (entity.getBody() != null
-                        && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                        && (includeStatic||entity.getBody().getType() == BodyDef.BodyType.DynamicBody)) {
                     Vector2 proj = entity.computeTouch(touchEvent, withHold);
                     if (proj != null) {
                         float dis = proj.dst(touchEvent.getX(), touchEvent.getY());

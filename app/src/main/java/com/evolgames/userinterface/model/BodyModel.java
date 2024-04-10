@@ -33,6 +33,7 @@ import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.model.toolmodels.SpecialPointModel;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.BodyField;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +45,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BodyModel extends OutlineModel<BodyProperties> {
     public static final ArrayList<BodyUsageCategory> allCategories =
             new ArrayList<>(EnumSet.allOf(BodyUsageCategory.class));
+
+    static {
+        allCategories.remove(BodyUsageCategory.MISSILE);
+    }
     private final AtomicInteger layerCounter = new AtomicInteger();
     private final int bodyId;
     private final ArrayList<LayerModel> layers;
@@ -57,8 +62,9 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     private final List<SpecialPointModel> specialPointModels;
     private GameEntity gameEntity;
     private BodyField field;
-    private boolean bullet;
     private Init init;
+
+    private Vector2 center;
 
     public BodyModel(int bodyId) {
         super("Body" + bodyId);
@@ -216,4 +222,14 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return specialPointModels;
     }
 
+    public Vector2 calculateBodyCenter() {
+        if(this.center==null) {
+            List<List<Vector2>> list = new ArrayList<>();
+            for (LayerModel layerModel : this.getLayers()) {
+                list.add(layerModel.getPoints());
+            }
+            this.center = GeometryUtils.calculateCenter(list);
+        }
+        return this.center;
+    }
 }

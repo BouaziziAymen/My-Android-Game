@@ -35,6 +35,7 @@ public class RagDoll extends GameGroup {
     transient Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
+    private int bloodLost, bluntTrauma;
 
     public RagDoll(PhysicsScene<?> scene, GameEntity... entities) {
         super(GroupType.DOLL, entities);
@@ -242,4 +243,30 @@ public class RagDoll extends GameGroup {
         }
     }
 
+    public boolean isBodyPart(GameEntity parentEntity) {
+       return Arrays.asList(rightFoot,leftFoot,lowerLegR,lowerLegL,upperLegR,upperLegL,upperTorso,upperArmR,upperArmL,
+                lowerArmR,lowerArmL,rightHand,leftHand,head).contains(parentEntity);
+    }
+
+
+    public void onBlunt(int finalNumberOfPoints) {
+        bluntTrauma+= finalNumberOfPoints;
+        if(bluntTrauma>200){
+            if(head!=null) {
+                this.alive = false;
+                head.setType(SpecialEntityType.Default);
+                head = null;
+            }
+        }
+    }
+    public void onBleeding() {
+        bloodLost++;
+        if(bloodLost>200){
+            if(head!=null) {
+                this.alive = false;
+                head.setType(SpecialEntityType.Default);
+                head = null;
+            }
+        }
+    }
 }

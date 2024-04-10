@@ -5,6 +5,8 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.constraintlayout.helper.widget.Layer;
+
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.AssociatedBlockComparator;
@@ -30,6 +32,7 @@ import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.ElementCouple;
 import com.evolgames.helpers.UnionFind;
 import com.evolgames.physics.PhysicsConstants;
+import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.DecorationModel;
 import com.evolgames.userinterface.model.LayerModel;
 
@@ -1030,5 +1033,31 @@ public class BlockUtils {
             }
         }
         return blocks;
+    }
+
+    public static float[] getBounds(boolean mirrored, List<LayerBlock> layerBlocks, Vector2 center) {
+        float maxX = 0f;
+        float minX = 0f;
+        float maxY = 0f;
+        float minY = 0f;
+            for(LayerBlock layerBlock:layerBlocks){
+                for(Vector2 v:layerBlock.getVertices()){
+                    float dx = v.x - center.x;
+                    float dy = v.y - center.y;
+                    if(dx<minX){minX = dx;}
+                    if(dx>maxX){maxX = dx;}
+                    if(dy<minY){minY = dy;}
+                    if(dy>maxY){maxY = dy;}
+                }
+            }
+        return new float[]{!mirrored?minX:maxX,!mirrored?maxX:minX, minY,maxY, center.x, center.y};
+    }
+
+    public static Vector2 calculateBodyCenter(List<LayerBlock> layerBlocks) {
+            List<List<Vector2>> list = new ArrayList<>();
+            for (LayerBlock layerModel : layerBlocks) {
+                list.add(layerModel.getVertices());
+            }
+         return GeometryUtils.calculateCenter(list);
     }
 }

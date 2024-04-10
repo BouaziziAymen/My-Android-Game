@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_dialog_background"
+    android:padding="16dp"
+    android:gravity="center_horizontal"> <!-- Centering buttons horizontally -->
+
+    <TextView
+        android:id="@+id/rate_us_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:text=" Your 5-star rating fuels our progress and helps us keep enhancing your gaming experience. Share your support with a quick review."
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <com.evolgames.activity.components.GameImageButton
+            android:id="@+id/bad_review_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonType="click"
+            android:layout_gravity="right"
+            app:icon="@drawable/bad_icon" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <com.evolgames.activity.components.GameImageButton
+            android:id="@+id/five_stars_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonType="click"
+            android:layout_gravity="left"
+            app:icon="@drawable/five_stars_icon" />
+
+    </LinearLayout>
+
+</LinearLayout>

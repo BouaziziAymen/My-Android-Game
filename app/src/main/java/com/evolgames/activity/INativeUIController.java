@@ -13,7 +13,7 @@ public interface INativeUIController {
 
     void onTouchHoldButtonSwitched(PlayUIFragment.TouchHoldState touchHoldState);
 
-    void onUsagesUpdated(List<PlayerSpecialAction> usageList, PlayerSpecialAction selectedAction);
+    void onUsagesUpdated(List<PlayerSpecialAction> usageList, PlayerSpecialAction selected, boolean usesActive);
 
     void onOptionSelected(PlayerSpecialAction playerSpecialAction);
 

@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_dialog_background"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/rate_us_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:text="Please visit google play and rate us or send us a review."
+        android:textColor="#333"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

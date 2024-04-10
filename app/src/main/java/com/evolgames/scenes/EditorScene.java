@@ -210,16 +210,16 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public void onPause() {
         CreationAction creationAction = this.getUserInterface().getCreationZoneController().getAction();
         Screen screen = this.getUserInterface().getSelectedScreen();
-        saveStringToPreferences("editor_creation_action", creationAction.name());
-        saveStringToPreferences("editor_screen", screen.name());
-        saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
+        ResourceManager.getInstance().activity.saveStringToPreferences("editor_creation_action", creationAction.name());
+        ResourceManager.getInstance().activity.saveStringToPreferences("editor_screen", screen.name());
+        ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
         this.getUserInterface().saveToolModel();
     }
 
     @Override
     public void onResume() {
-        String actionString = loadStringFromPreferences("editor_creation_action");
-        String screenString = loadStringFromPreferences("editor_screen");
+        String actionString = ResourceManager.getInstance().activity.loadStringFromPreferences("editor_creation_action");
+        String screenString = ResourceManager.getInstance().activity.loadStringFromPreferences("editor_screen");
         CreationAction creationAction = CreationAction.fromName(actionString);
         Screen screen = Screen.fromName(screenString);
         createUserInterface();

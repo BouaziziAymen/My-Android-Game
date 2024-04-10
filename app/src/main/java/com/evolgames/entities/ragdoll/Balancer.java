@@ -29,7 +29,7 @@ public class Balancer {
         while (error > Math.PI) error -= 2 * Math.PI;
 
         if (Math.abs(error) < limit) {
-            body.setAngularVelocity(80 * Math.signum(error) * error * error / limit);
+            body.setAngularVelocity(100 * Math.signum(error) * error * error / limit);
         }
     }
 }

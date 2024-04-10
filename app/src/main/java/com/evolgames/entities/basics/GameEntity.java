@@ -663,9 +663,8 @@ public class GameEntity extends EntityWithBody {
         }
         for (Joint joint : jointsToDestroy) {
             scene.getPhysicsWorld().destroyJoint(joint);
-            Log.e("Mirror", "Destroy :" + joint.getType());
             if (joint.getType() == JointDef.JointType.MouseJoint) {
-                scene.onDestroyMouseJoint((MouseJoint) joint);
+                scene.getHand().onMouseJointDestroyed((MouseJoint) joint);
             }
         }
     }

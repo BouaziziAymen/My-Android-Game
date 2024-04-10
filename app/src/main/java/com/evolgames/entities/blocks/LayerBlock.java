@@ -69,7 +69,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
     }
 
     @Override
-    public void translate(Vector2 translationVector) {
+    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
         Utils.translatePoints(this.getVertices(), translationVector);
         computeTriangles();
     }

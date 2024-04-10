@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,6 +34,7 @@ public class PlayUIFragment extends Fragment {
     private OptionsListAdaptor optionsListAdaptor;
     private ExpandableListViewAdaptor expandableListViewAdaptor;
     private GameImageButton selectButton;
+    private View lastClickedLayout;
 
     public PlayUIFragment() {
         // Required empty public constructor
@@ -89,6 +91,9 @@ public class PlayUIFragment extends Fragment {
         effectsButton = rightLayout.findViewById(R.id.effects_button);
         setupEffectsButton(effectsButton);
 
+        GameImageButton helpButton = topLayout.findViewById(R.id.help_button);
+        setupHelpButton(helpButton);
+
         this.itemsExpandableListView = leftLayout.findViewById(R.id.exp_list);
         this.itemsExpandableListView.setVisibility(View.GONE);
         setupWeaponsListView(inflater);
@@ -117,15 +122,28 @@ public class PlayUIFragment extends Fragment {
 
 
     private void setupMirrorButton(GameImageButton mirrorButton) {
-        mirrorButton.setOnReleased(() -> {
-            ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked();
-        });
+        mirrorButton.setOnReleased(() -> ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked());
     }
 
-    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction) {
+    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction, boolean usesActive) {
+        if(optionsList.isEmpty()){
+            optionsRecyclerView.setVisibility(View.INVISIBLE);
+            usesButton.setState(Button.State.DISABLED);
+            usesButton.setIcon(R.drawable.usages_icon_empty);
+        } else {
+            if(usesActive) {
+                usesButton.setState(Button.State.NORMAL);
+                usesButton.setIcon(R.drawable.usages_icon);
+            }
+        }
         optionsListAdaptor.setPlayerSpecialActionList(optionsList, selectedAction);
     }
 
+    private void setupHelpButton(GameImageButton helpButton) {
+        helpButton.setOnPressed(() -> {
+            ((GameActivity) getActivity()).getUiController().onHelpPressed();
+        });
+    }
     private void setupUsesButton(GameImageButton usesButton) {
         usesButton.setOnReleased(() -> {
             optionsRecyclerView.setVisibility(View.GONE);
@@ -189,12 +207,39 @@ public class PlayUIFragment extends Fragment {
         this.expandableListViewAdaptor = new ExpandableListViewAdaptor(inflater, listDataHeader, map);
         itemsExpandableListView.setAdapter(expandableListViewAdaptor);
 
+        // Set the onChildClickListener
         itemsExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
+            // Reset the color of the previously clicked item if any
+            if (lastClickedLayout != null) {
+                // Reset the color of the previously clicked item
+                lastClickedLayout.setBackgroundResource(R.drawable.bg_items_element);
+            }
+
+            // Store the current clicked layout
+            LinearLayout clickedLayout = v.findViewById(R.id.itemsElementLayout);
+
+            // Change the color of the clicked layout
+            clickedLayout.setBackgroundResource(R.drawable.bg_items_element_pressed);
+
+            // Store the current clicked layout
+            lastClickedLayout = clickedLayout;
+
+            // Your existing logic here
             ItemMetaData clickedItem = (ItemMetaData) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
             ResourceManager.getInstance().activity.getUiController().onItemButtonPressed(clickedItem);
             return true;
         });
     }
+
+    public void resetClickedItem() {
+        if(lastClickedLayout!=null) {
+            // Reset the color of the clicked item
+            lastClickedLayout.setBackgroundResource(R.drawable.bg_items_element);
+            // Reset the last clicked layout
+            lastClickedLayout = null;
+        }
+    }
+
 
     public void resetSelectButton() {
         selectButton.setState(Button.State.NORMAL);

@@ -53,6 +53,7 @@ public class Hand {
 
     private MouseJointDef mouseJointDef;
     private int zIndex;
+    private Vector2 target = new Vector2();
 
     public Hand() {
     }
@@ -82,10 +83,10 @@ public class Hand {
         mouseJointDef = new MouseJointDef();
         entity.setHangedPointerId(touchEvent.getPointerID());
         mouseJointDef.dampingRatio = 0.5f;
-        mouseJointDef.frequencyHz = 10f;
+        mouseJointDef.frequencyHz = 5f;
         mouseJointDef.maxForce = 100000;
-        mouseJointDef.target.set(
-                anchor.x / PIXEL_TO_METER_RATIO_DEFAULT, anchor.y / PIXEL_TO_METER_RATIO_DEFAULT);
+        target.set( anchor.x / PIXEL_TO_METER_RATIO_DEFAULT, anchor.y / PIXEL_TO_METER_RATIO_DEFAULT);
+        mouseJointDef.target.set(target);
         mouseJointDef.collideConnected = true;
         this.mousePointerId = touchEvent.getPointerID();
 
@@ -199,7 +200,7 @@ public class Hand {
         if (selectedEntity == null) {
             if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
                 if (touchEvent.isActionMove()) {
-                    if (mouseJoint != null && follow) {
+                    if (mouseJoint != null&& grabbedEntity!=null && follow) {
                         moveHand(touchEvent);
                     }
                 } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
@@ -211,7 +212,7 @@ public class Hand {
                         return true;
                     }
                 } else if (touchEvent.isActionDown()) {
-                    Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
+                    Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
                     if (touchData != null && touchData.first != null) {
                         grab(touchData.first, touchEvent, touchData.second);
                         playScene.setScrollerEnabled(false);
@@ -220,7 +221,7 @@ public class Hand {
                     }
                 }
             } else if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
-                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, true);
+                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, true,false);
                 if (touchEvent.isActionMove()) {
                     if (follow) {
                         if (mouseJoint != null) {
@@ -262,7 +263,7 @@ public class Hand {
                         case Smash:
                             break;
                         case Fire:
-                            if (grabbedEntity.hasUsage(Shooter.class)) {
+                            if (grabbedEntity!=null&&grabbedEntity.hasUsage(Shooter.class)) {
                                 Shooter shooter = grabbedEntity.getUsage(Shooter.class);
                                 shooter.onTriggerReleased();
                             }
@@ -352,7 +353,7 @@ public class Hand {
         }
 
         if (this.playScene.getPlayerAction() == PlayerAction.Select) {
-            Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false);
+            Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
             if (touchEvent.isActionMove()) {
 
             } else if (touchEvent.isActionDown()) {
@@ -381,6 +382,7 @@ public class Hand {
                 }
             }
         } else {
+            if(true)return false;
             //Handle selection actions
             if (selectedEntity != null) {
                 if (touchEvent.isActionDown()) {
@@ -678,13 +680,17 @@ public class Hand {
         this.playScene.onUsagesUpdated();
     }
 
-    public void onMouseJointDestroyed() {
-        Log.e("Mirror", "On Mouse Joint Destroyed:" + mouseJoint);
+    public void onMouseJointDestroyed(MouseJoint mouseJoint) {
         if (this.onAction) {
             onGrabbedEntityReleased(true);
-        } else {
-            this.playScene.onUsagesUpdated();
             this.onAction = false;
+        } else {
+            if(this.mouseJoint == mouseJoint){
+               this.mouseJoint = null;
+               this.mouseJointDef = null;
+               this.grabbedEntity = null;
+            }
+            this.playScene.onUsagesUpdated();
             this.playScene.unlockSaving();
         }
     }
@@ -743,5 +749,13 @@ public class Hand {
             playScene.onUsagesUpdated();
         }
 
+    }
+
+    public GameEntity getSelectedEntity() {
+        return this.selectedEntity;
+    }
+
+    public boolean isOnAction() {
+        return onAction;
     }
 }

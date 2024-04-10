@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Rocket extends Use {
-    public static final int FORCE_FACTOR = 5000;
+    public static final int FORCE_FACTOR = 10000;
     protected transient GameEntity rocketBodyEntity;
     int time = 0;
     private List<FireSourceInfo> fireSourceInfoList;
@@ -81,8 +81,7 @@ public class Rocket extends Use {
             }
         }
         if(withSound) {
-            ResourceManager.getInstance()
-                    .getProjectileSound("missile1").getSound().play();
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().getProjectileSound("missile1").getSound(),1f);
         }
     }
 

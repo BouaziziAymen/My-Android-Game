@@ -15,23 +15,9 @@ public class ModifiedMesh extends Mesh {
             int pVertexCount,
             DrawMode pDrawMode,
             VertexBufferObjectManager pVertexBufferObjectManager) {
-        this(pX, pY, 0, 0, pBufferData, pVertexCount, pDrawMode, pVertexBufferObjectManager);
-    }
-
-    public ModifiedMesh(
-            float pX,
-            float pY,
-            float pWidth,
-            float pHeight,
-            float[] pBufferData,
-            int pVertexCount,
-            DrawMode pDrawMode,
-            VertexBufferObjectManager pVertexBufferObjectManager) {
         this(
                 pX,
                 pY,
-                pWidth,
-                pHeight,
                 pBufferData,
                 pVertexCount,
                 pDrawMode,
@@ -47,24 +33,9 @@ public class ModifiedMesh extends Mesh {
             DrawMode pDrawMode,
             VertexBufferObjectManager pVertexBufferObjectManager,
             DrawType pDrawType) {
-        this(pX, pY, 0, 0, pBufferData, pVertexCount, pDrawMode, pVertexBufferObjectManager, pDrawType);
-    }
-
-    public ModifiedMesh(
-            float pX,
-            float pY,
-            float pWidth,
-            float pHeight,
-            float[] pBufferData,
-            int pVertexCount,
-            DrawMode pDrawMode,
-            VertexBufferObjectManager pVertexBufferObjectManager,
-            DrawType pDrawType) {
         this(
                 pX,
                 pY,
-                pWidth,
-                pHeight,
                 pVertexCount,
                 pDrawMode,
                 new MosaicMeshVertexBufferObject(
@@ -79,11 +50,9 @@ public class ModifiedMesh extends Mesh {
     public ModifiedMesh(
             float pX,
             float pY,
-            float pWidth,
-            float pHeight,
             int pVertexCount,
             DrawMode pDrawMode,
             IMeshVertexBufferObject pMeshVertexBufferObject) {
-        super(pX, pY, pWidth, pHeight, pVertexCount, pDrawMode, pMeshVertexBufferObject);
+        super(pX, pY, pVertexCount, pDrawMode, pMeshVertexBufferObject);
     }
 }

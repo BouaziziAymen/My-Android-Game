@@ -3,15 +3,15 @@ package com.evolgames.physics;
 import android.hardware.SensorManager;
 
 public class PhysicsConstants {
-    public static final float TENACITY_FACTOR = 20f;
+    public static final float TENACITY_FACTOR = 1f;
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 50f;
     public static final float PENETRATION_CONSTANT = 50000000f;
     public static final float PULVERIZATION_CONSTANT = 3 * 3.41f;
     public static final int FLUX_PRECISION = 360;
     public static final float BACKOFF = 0.05f;
-    public static final float BLEEDING_CONSTANT = 2f;
-    public static final float LIQUID_DENSITY_CONSTANT = 100;
-    public static final float STAINING_PROBABILITY = 0.1f;
+    public static final float BLEEDING_CONSTANT = 5f;
+    public static final float LIQUID_DENSITY_CONSTANT = 50f;
+    public static final float STAINING_PROBABILITY = 0.25f;
     public static final float MIN_PROJECTILE_VELOCITY = 10f;
     public static final float MAX_PROJECTILE_VELOCITY = 600f;
     public static final float MIN_FIRE_RATE = 1f;

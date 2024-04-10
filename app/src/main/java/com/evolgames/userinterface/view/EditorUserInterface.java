@@ -380,15 +380,31 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                         getController().onHomeButtonReleased(button15);
                     }
                 });
+
+        Button<MainButtonBoardController> button16 =
+                new Button<>(ResourceManager.getInstance().helpBigButton, Button.ButtonType.OneClick, true);
+        button16.setBehavior(
+                new ButtonBehavior<MainButtonBoardController>(mainButtonBoardController, button16) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        getController().onHelpButtonClicked(button16);
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        getController().onHelpButtonReleased(button16);
+                    }
+                });
         mainButtonBoard.addToButtonBoard(button10);
         mainButtonBoard.addToButtonBoard(button11);
         mainButtonBoard.addToButtonBoard(button12);
         mainButtonBoard.addToButtonBoard(button13);
         mainButtonBoard.addToButtonBoard(button14);
         mainButtonBoard.addToButtonBoard(button15);
+        mainButtonBoard.addToButtonBoard(button16);
         // boards
         ButtonBoard drawButtonBoard =
-                new ButtonBoard(200, 480 - 41, LinearLayout.Direction.Horizontal, 0);
+                new ButtonBoard(160, 480 - 41, LinearLayout.Direction.Horizontal, 0);
         drawButtonBoardController =
                 new DrawButtonBoardController(
                         drawButtonBoard, creationZoneController, optionsWindowController);
@@ -847,17 +863,13 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         toolButtonBoard.addToButtonBoard(button45);
         toolButtonBoard.addToButtonBoard(button47);
         toolButtonBoard.addToButtonBoard(button44);
-        toolButtonBoard.setLowerBottomX(400 - toolButtonBoard.getWidth() / 2);
+        toolButtonBoard.setLowerBottomX(320 - toolButtonBoard.getWidth() / 2);
 
         panel = new ControlPanel(editorScene);
 
         confirmWindowController = new ConfirmWindowController(this);
         ConfirmWindow confirmWindow = new ConfirmWindow(400, 240, 1, confirmWindowController);
         addElement(confirmWindow);
-
-        // panel.allocateController( 800 - 64f / 2,64/2f,ControlElement.Type.AnalogController,null);
-
-        // panel.showControlElement(0);
         setUpdated(true);
     }
 

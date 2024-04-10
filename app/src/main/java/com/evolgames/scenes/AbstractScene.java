@@ -101,43 +101,6 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
 
     protected abstract void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent);
 
-    public final void saveStringToPreferences(String key, String value) {
-        SharedPreferences preferences =
-                ResourceManager.getInstance()
-                        .activity
-                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
-
-    public final void saveBooleanToPreferences(String key, boolean value) {
-        SharedPreferences preferences =
-                ResourceManager.getInstance()
-                        .activity
-                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    public final boolean loadBooleanFromPreferences(String key) {
-        SharedPreferences preferences =
-                ResourceManager.getInstance()
-                        .activity
-                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
-        return preferences.getBoolean(key, false);
-    }
-
-
-    public final String loadStringFromPreferences(String key) {
-        SharedPreferences preferences =
-                ResourceManager.getInstance()
-                        .activity
-                        .getSharedPreferences("RAG_DOLL_MUT", Context.MODE_PRIVATE);
-        return preferences.getString(key, "");
-    }
-
     @Override
     public boolean onSceneTouchEvent(Scene pScene, TouchEvent touchEvent) {
         float[] cameraSceneCoordinatesFromSceneCoordinates =

@@ -3,7 +3,6 @@ package com.evolgames.scenes;
 
 import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.scenes.PlayScene.pause;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
@@ -39,10 +38,11 @@ import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
 import com.evolgames.entities.usage.TimeBomb;
+import com.evolgames.helpers.FruitSizeGenerator;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.BodyModel;
-import com.evolgames.userinterface.model.LayerModel;
+import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.model.jointmodels.JointModel;
 import com.evolgames.userinterface.model.toolmodels.BombModel;
@@ -52,7 +52,7 @@ import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
 import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.utilities.BlockUtils;
-import com.evolgames.utilities.GeometryUtils;
+import com.evolgames.utilities.ToolUtils;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -76,7 +76,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         super(pCamera, sceneName);
         this.worldFacade = new WorldFacade(this);
         BodyFactory.getInstance().create(this.worldFacade.getPhysicsWorld());
-        GameEntityFactory.getInstance().create(this.worldFacade.getPhysicsWorld(), this);
+        GameEntityFactory.getInstance().create(this);
         BodyFactory.getInstance().create(this.worldFacade.getPhysicsWorld());
         Invoker.setScene(this);
     }
@@ -163,17 +163,16 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
+        if(toolModel.getToolCategory()== ItemCategory.FRUIT){
+            ToolUtils.scaleTool(toolModel, FruitSizeGenerator.generateSize());
+        }
         //validate here:
 
         for (BodyModel bodyModel : bodies) {
             if (bodyModel.getLayers().size() == 0) {
                 continue;
             }
-            List<List<Vector2>> list = new ArrayList<>();
-            for (LayerModel layerModel : bodyModel.getLayers()) {
-                list.add(layerModel.getPoints());
-            }
-            Vector2 center = GeometryUtils.calculateCenter(list);
+            Vector2 center = bodyModel.calculateBodyCenter();
             ArrayList<LayerBlock> blocks = BlockUtils.createBlocks(bodyModel.getLayers(), center);
             if (blocks.size() == 0) {
                 continue;
@@ -189,17 +188,16 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
             GameEntity gameEntity =
                     GameEntityFactory.getInstance()
                             .createGameEntity(
-                                    (_init.getX() + center.x - 400) / 32F,
-                                    (_init.getY() + center.y - 240) / 32F,
+                                    (_init.getX() + center.x - 400) / 32f,
+                                    (_init.getY() + center.y - 240) / 32f,
                                     0,
                                     mirrored,
                                     bodyInit,
                                     blocks,
                                     BodyDef.BodyType.DynamicBody,
-                                    toolModel.getProperties().getToolName());
+                                    toolModel.getProperties().getToolName(),center);
             gameEntities.add(gameEntity);
             bodyModel.setGameEntity(gameEntity);
-            gameEntity.setCenter(center);
             gameEntity.setZIndex(bodyModel.getProperties().getZIndex());
         }
         bodies.removeIf(e->e.getGameEntity()==null);
@@ -220,6 +218,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
 
         return gameGroup;
     }
+
 
 
     public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene<?> physicsScene, boolean mirrored) {
@@ -376,11 +375,6 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         }
     }
 
-    public void onDestroyMouseJoint(MouseJoint j) {
-        if (hand != null) {
-            hand.onMouseJointDestroyed();
-        }
-    }
 
     public GameEntity getGameEntityByUniqueId(String uniqueId) {
         for (GameGroup gameGroup : gameGroups) {
@@ -398,7 +392,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         if (!pause) {
             super.onManagedUpdate(1 / 60f);
         }
-        this.worldFacade.onStep(pSecondsElapsed);
+        this.worldFacade.onStep();
         Invoker.onStep();
         for (GameGroup gameGroup : getGameGroups()) {
             gameGroup.onStep(pSecondsElapsed);

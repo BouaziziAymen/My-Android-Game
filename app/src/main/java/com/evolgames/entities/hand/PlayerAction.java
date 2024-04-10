@@ -3,5 +3,5 @@ package com.evolgames.entities.hand;
 public enum PlayerAction {
     Drag,
     Hold,
-    Select
+    Create, Select
 }

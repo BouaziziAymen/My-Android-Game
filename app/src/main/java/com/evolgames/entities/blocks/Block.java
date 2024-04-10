@@ -107,7 +107,7 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         this.vertices = vertices;
     }
 
-    public abstract void translate(Vector2 t);
+    public abstract void translate(Vector2 translationVector, Vector2 worldTranslation);
 
     public List<Vector2> getTriangles() {
         if (triangles == null) {

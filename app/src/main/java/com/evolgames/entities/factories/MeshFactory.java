@@ -16,11 +16,8 @@ import org.andengine.util.adt.color.Color;
 import java.util.List;
 
 public class MeshFactory {
-
     private static final EarClippingTriangulator triangulator = new EarClippingTriangulator();
     private static final MeshFactory INSTANCE = new MeshFactory();
-    private EditorScene editorScene;
-
     public static MeshFactory getInstance() {
         return INSTANCE;
     }
@@ -32,11 +29,6 @@ public class MeshFactory {
         return new MosaicMesh(x, y, rot, data, colors, counts);
     }
 
-    public MosaicMesh createMosaicMesh(float x, float y, float rot, List<LayerBlock> blocks, Color singleColor) {
-        float[] data = BlockUtils.computeData(blocks);
-        int[] counts = BlockUtils.computeVertexCount(blocks);
-        return new MosaicMesh(x, y, rot, data, singleColor, counts);
-    }
 
     public float[] computeData(List<Vector2> triangles) {
         float[] meshData = new float[3 * triangles.size()];
@@ -92,8 +84,8 @@ public class MeshFactory {
         return data;
     }
 
-    public void create(EditorScene editorScene) {
-        this.editorScene = editorScene;
+    public void create() {
+
     }
 
     public List<Vector2> triangulate(List<Vector2> vertices) {

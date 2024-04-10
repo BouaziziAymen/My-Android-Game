@@ -3,14 +3,18 @@ package com.evolgames.entities.mesh.mosaic;
 import com.evolgames.activity.ResourceManager;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.opengl.util.GLState;
 import org.andengine.util.adt.color.Color;
+import org.andengine.util.adt.transformation.Transformation;
+import org.andengine.util.algorithm.collision.EntityCollisionChecker;
 
 public class MosaicMesh extends ModifiedMesh {
     private final Color[] colors;
     private final int[] layersVertexCount;
     private final Color singleColor;
+    private float[] bounds;
 
     public MosaicMesh(
             float x, float y, float rot, float[] data, Color[] colors, int[] layersVertexCount) {
@@ -66,5 +70,19 @@ public class MosaicMesh extends ModifiedMesh {
 
     public int[] getLayersVertexCount() {
         return layersVertexCount;
+    }
+
+
+    @Override
+    public boolean isCulled(final Camera pCamera) {
+        return !EntityCollisionChecker.isVisible(pCamera,-(bounds[1]-bounds[0])/2f,-(bounds[3]-bounds[2])/2f,bounds[1]-bounds[0], bounds[3]-bounds[2], getLocalToSceneTransformation());
+    }
+
+    public void setBounds(float[] bounds) {
+        this.bounds = bounds;
+    }
+
+    public float[] getBounds() {
+        return bounds;
     }
 }

@@ -23,13 +23,6 @@ public class BodyDestructionCommand extends Command {
 
     private void destroy(Body body) {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
-        body.getJointList().forEach(jointEdge -> {
-            Joint joint = jointEdge.joint;
-            JointBlock jointBlock = (JointBlock) joint.getUserData();
-            if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
-                Invoker.scene.onDestroyMouseJoint((MouseJoint) joint);
-            }
-        });
         for (Iterator<Joint> it = physicsWorld.getJoints(); it.hasNext(); ) {
             Joint joint = it.next();
             if (joint.getBodyA() == body || joint.getBodyB() == body) {
@@ -54,8 +47,8 @@ public class BodyDestructionCommand extends Command {
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
         Hand hand = Invoker.scene.getHand();
-        if(hand!=null&&hand.getUsableEntity()==entity){
-            if(entity.getHeir()!=null) {
+        if(hand!=null){
+            if(entity.getHeir()!=null&&hand.getSelectedEntity()==entity) {
                 hand.setSelectedEntity(entity.getHeir());
             }
         }

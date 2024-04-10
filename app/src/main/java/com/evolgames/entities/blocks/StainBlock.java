@@ -57,7 +57,7 @@ public final class StainBlock extends AssociatedBlock<StainBlock, StainPropertie
     }
 
     @Override
-    public void translate(Vector2 translationVector) {
+    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
         Utils.translatePoints(getVertices(), translationVector);
         computeTriangles();
         getProperties()

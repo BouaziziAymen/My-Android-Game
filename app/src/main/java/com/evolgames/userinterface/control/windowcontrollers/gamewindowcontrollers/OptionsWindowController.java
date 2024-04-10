@@ -89,7 +89,7 @@ public class OptionsWindowController
                 pipeColorSlot = new ColorSlot();
                 Button<OptionsWindowController> colorValidatedButton =
                         new Button<>(
-                                ResourceManager.getInstance().smallButtonTextureRegion,
+                                ResourceManager.getInstance().plusButtonTextureRegion,
                                 Button.ButtonType.OneClick,
                                 true);
                 LinearLayout linearLayout = new LinearLayout(LinearLayout.Direction.Horizontal, 5);
