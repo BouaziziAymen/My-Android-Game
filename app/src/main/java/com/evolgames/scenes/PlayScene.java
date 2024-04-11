@@ -79,6 +79,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
     public static boolean pause = false;
     public static Plotter plotter;
+    public static float groundY;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     private GameGroup gameGroup1;
@@ -470,6 +471,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     }
 
     private void createOpenGround() {
+        PlayScene.groundY = 30f;
         List<GameEntity> entities = new ArrayList<>();
         for(int i=-100;i<100;i++) {
        // for(int i=2;i<3;i++) {
@@ -500,6 +502,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
 
     private void createWoodGround() {
+        PlayScene.groundY = 20f;
         ((SmoothCamera)ResourceManager.getInstance().firstCamera)
                 .setBounds(-400,0,1200,980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
@@ -578,6 +581,8 @@ for(LayerBlock layerBlock:blocks){
     }
 
     private void createMarbleGround() {
+        PlayScene.groundY = 30f;
+
         ((SmoothCamera)ResourceManager.getInstance().firstCamera)
                 .setBounds(-440,0,1240,980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();

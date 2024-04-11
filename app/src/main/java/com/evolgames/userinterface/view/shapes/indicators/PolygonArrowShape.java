@@ -20,6 +20,7 @@ public class PolygonArrowShape extends ArrowShape {
             Vector2 begin, PointsModel<?> shapePointsModel, EditorScene scene, int numberOfPoints) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
+        this.shapePointsModel.getReferencePoints().clear();
         this.numberOfPoints = numberOfPoints;
         this.fixedRadius = false;
         radius = 0;
@@ -33,6 +34,7 @@ public class PolygonArrowShape extends ArrowShape {
             float radius) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
+        this.shapePointsModel.getReferencePoints().clear();
         this.numberOfPoints = numberOfPoints;
         this.fixedRadius = true;
         this.radius = radius;

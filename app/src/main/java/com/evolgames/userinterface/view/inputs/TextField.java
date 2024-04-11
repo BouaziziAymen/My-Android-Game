@@ -3,6 +3,7 @@ package com.evolgames.userinterface.view.inputs;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.view.Temporal;
+import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.basics.Text;
 
 public class TextField<C extends AdvancedWindowController<?>>
@@ -35,5 +36,15 @@ public class TextField<C extends AdvancedWindowController<?>>
 
     public String getTextString() {
         return getBehavior().getTextString();
+    }
+
+    @Override
+    public boolean isVisible() {
+       for(Element e:this.layout.getContents()){
+           if(!e.isVisible()){
+               return false;
+           }
+       }
+       return true;
     }
 }

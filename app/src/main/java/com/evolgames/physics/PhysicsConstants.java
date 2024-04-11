@@ -3,7 +3,7 @@ package com.evolgames.physics;
 import android.hardware.SensorManager;
 
 public class PhysicsConstants {
-    public static final float TENACITY_FACTOR = 1f;
+    public static final float TENACITY_FACTOR = 10f;
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 50f;
     public static final float PENETRATION_CONSTANT = 50000000f;
     public static final float PULVERIZATION_CONSTANT = 3 * 3.41f;

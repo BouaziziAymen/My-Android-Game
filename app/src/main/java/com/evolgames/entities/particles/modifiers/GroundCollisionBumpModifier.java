@@ -1,16 +1,12 @@
 package com.evolgames.entities.particles.modifiers;
 
+import com.evolgames.scenes.PlayScene;
+
 import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.modifier.IParticleModifier;
 import org.andengine.entity.sprite.UncoloredSprite;
 
 public class GroundCollisionBumpModifier implements IParticleModifier<UncoloredSprite> {
-    private final int groundY;
-
-    public GroundCollisionBumpModifier(int groundY) {
-        this.groundY = groundY;
-    }
-
     @Override
     public void onInitializeParticle(Particle<UncoloredSprite> pParticle) {
     }
@@ -19,7 +15,7 @@ public class GroundCollisionBumpModifier implements IParticleModifier<UncoloredS
     public void onUpdateParticle(Particle<UncoloredSprite> pParticle) {
         float vx = pParticle.getPhysicsHandler().getVelocityX();
         float vy = pParticle.getPhysicsHandler().getVelocityY();
-        if (pParticle.getEntity().getY() < groundY) {
+        if (pParticle.getEntity().getY() < PlayScene.groundY) {
             if (vy < 0) {
                 vy = -vy / 10;
             }

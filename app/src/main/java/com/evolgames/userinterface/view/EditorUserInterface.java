@@ -1136,6 +1136,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void detachReference(ReferencePointImage centerPointImage) {
         removeElement(centerPointImage);
         creationZone.getReferencePointImageArrayList().remove(centerPointImage);
+        setUpdated(true);
     }
 
     public ItemWindowController getItemWindowController() {

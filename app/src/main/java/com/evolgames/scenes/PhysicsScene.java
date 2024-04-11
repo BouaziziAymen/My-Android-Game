@@ -163,7 +163,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
-        if(toolModel.getToolCategory()== ItemCategory.FRUIT){
+        if(toolModel.getToolCategory()== ItemCategory.PRODUCE){
             ToolUtils.scaleTool(toolModel, FruitSizeGenerator.generateSize());
         }
         //validate here:

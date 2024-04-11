@@ -75,7 +75,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.sparkParticleSystem.addParticleModifier(
                 new ScaleParticleModifier<>(0f, lifeSpan, 0.25f, 0.25f));
         this.sparkParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-        this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpireModifier(20));
+        this.sparkParticleSystem.addParticleModifier(new GroundCollisionExpireModifier());
         return sparkParticleSystem;
     }
 
@@ -116,7 +116,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         this.fireParticleSystem.addParticleModifier(
                 new ScaleParticleModifier<>(0f, lifeSpan, Math.min(0.99f, initialFlameParticleSize), Math.min(0.99f, finalFlameParticleSize)));
         this.fireParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-        this.fireParticleSystem.addParticleModifier(new GroundCollisionExpireModifier(20));
+        this.fireParticleSystem.addParticleModifier(new GroundCollisionExpireModifier());
         return fireParticleSystem;
     }
 
@@ -142,7 +142,7 @@ public class DataExplosiveParticleWrapper extends ExplosiveParticleWrapper {
                 new AlphaParticleModifier<>(1f, lifeSpan, 0.1f, 0f));
         this.smokeParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifeSpan, 2f, 2f));
         this.smokeParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifeSpan));
-        this.smokeParticleSystem.addParticleModifier(new GroundCollisionBumpModifier(20));
+        this.smokeParticleSystem.addParticleModifier(new GroundCollisionBumpModifier());
         return smokeParticleSystem;
     }
 

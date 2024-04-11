@@ -45,7 +45,7 @@ public class PulverizationParticleWrapper {
         this.particleSystem.addParticleInitializer(velocityInitializer);
         this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(5f));
         this.particleSystem.addParticleInitializer(new ScaleParticleInitializer<>(2f));
-        this.particleSystem.addParticleModifier(new GroundCollisionStopModifier(20));
+        this.particleSystem.addParticleModifier(new GroundCollisionStopModifier());
         this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(8f, 10f, 1f, 0));
         this.addGravity();
     }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class InputField<C extends Controller, B extends AdvancedClickableBehavior<C>>
         extends ClickableContainer<C, B> {
 
-    private final LinearLayout layout;
+    protected final LinearLayout layout;
     private final boolean leftSlot;
     private final boolean rightSlot;
     protected int inputLength;

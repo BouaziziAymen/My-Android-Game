@@ -88,6 +88,9 @@ public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>>
 
     @Override
     public boolean processTouch(TouchEvent touchEvent) {
+        if(!textField.isVisible()){
+            return false;
+        }
         if (textField.isInBounds(touchEvent.getX(), touchEvent.getY())) {
             if (touchEvent.isActionDown()) {
                 if (!selected) {
