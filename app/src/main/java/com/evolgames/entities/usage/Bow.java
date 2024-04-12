@@ -245,9 +245,9 @@ public class Bow extends Use {
             BodyModel bodyModel = arrowModel.getBodies().get(i);
             if (i == 0) {
                 //this is the main arrow body
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-1).angle(worldAngle).isBullet(true).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-2).angle(worldAngle).isBullet(true).build());
             } else {
-                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-1).angle(worldAngle).build());
+                bodyModel.setInit(new Init.Builder(worldEnd.x, worldEnd.y).filter(OBJECT, OBJECT,(short)-2).angle(worldAngle).build());
             }
         }
         JointModel jointModel = new JointModel(arrowModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);

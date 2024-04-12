@@ -198,7 +198,7 @@ public class PersistenceCaretaker {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
      // scaleToolBody("Main Battle Tank#",2f,13);
-     scaleTool("Chair 1#",1.2f);
+     scaleTool("Archery Target#",1.333f);
        // mirrorTool("Rocket 2#");
         // moveLayersTransformation();
     }

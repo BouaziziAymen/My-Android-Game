@@ -55,19 +55,6 @@ public class Rocket extends Use {
         return fireSourceInfoList;
     }
 
-    public void onLaunch(float angleRad) {
-        this.on = true;
-        Body body = rocketBodyEntity.getBody();
-        body.setTransform(body.getPosition(), angleRad);
-
-        for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
-            FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
-            if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
-                rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
-                rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
-            }
-        }
-    }
 
     public void onLaunch(PlayScene playScene, boolean withSound) {
         if(playScene.isChaseActive()) {
@@ -183,9 +170,14 @@ public class Rocket extends Use {
         if (ratio < 0.9f) {
             return false;
         }
+        this.rocketBodyEntity = heir;
         this.fireSourceInfoList.forEach(fireSourceInfo -> {
             fireSourceInfo.setMuzzleEntity(heir);
         });
+        this.rocketFireSourceInfMap.values().forEach(
+                ExplosiveParticleWrapper::detach
+        );
+        createFireSources(heir.getScene().getWorldFacade());
 
         return true;
     }

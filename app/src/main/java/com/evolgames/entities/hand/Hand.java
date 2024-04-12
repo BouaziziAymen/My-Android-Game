@@ -2,8 +2,6 @@ package com.evolgames.entities.hand;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
-import android.media.SoundPool;
-import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -12,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.FlameThrower;
@@ -53,7 +52,6 @@ public class Hand {
 
     private MouseJointDef mouseJointDef;
     private int zIndex;
-    private Vector2 target = new Vector2();
 
     public Hand() {
     }
@@ -85,8 +83,7 @@ public class Hand {
         mouseJointDef.dampingRatio = 0.5f;
         mouseJointDef.frequencyHz = 5f;
         mouseJointDef.maxForce = 100000;
-        target.set( anchor.x / PIXEL_TO_METER_RATIO_DEFAULT, anchor.y / PIXEL_TO_METER_RATIO_DEFAULT);
-        mouseJointDef.target.set(target);
+        mouseJointDef.target.set( anchor.x / PIXEL_TO_METER_RATIO_DEFAULT, anchor.y / PIXEL_TO_METER_RATIO_DEFAULT);
         mouseJointDef.collideConnected = true;
         this.mousePointerId = touchEvent.getPointerID();
 
@@ -156,7 +153,7 @@ public class Hand {
         if (grabbedEntity == null || mouseJoint == null) {
             return;
         }
-
+        this.playScene.onGrabbedEntityReleased();
         Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
         onGrabbedEntityReleased(updateUsages);
     }
@@ -212,16 +209,16 @@ public class Hand {
                         return true;
                     }
                 } else if (touchEvent.isActionDown()) {
-                    Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
+                    Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
                     if (touchData != null && touchData.first != null) {
-                        grab(touchData.first, touchEvent, touchData.second);
+                        grab(touchData.first, touchEvent, touchData.second.first);
                         playScene.setScrollerEnabled(false);
                         playScene.setZoomEnabled(false);
                         this.follow = true;
                     }
                 }
             } else if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
-                Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, true,false);
+                Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.playScene.getTouchedEntity(touchEvent, true,false);
                 if (touchEvent.isActionMove()) {
                     if (follow) {
                         if (mouseJoint != null) {
@@ -229,7 +226,7 @@ public class Hand {
                         }
                     } else {
                         if (grabbedEntity != null) {
-                            if (this.playScene.getSpecialAction() == PlayerSpecialAction.Fire) {
+                            if (this.playScene.getSpecialAction() == PlayerSpecialAction.FireLight) {
                                 if ((this.grabbedEntity.hasUsage(Shooter.class, FlameThrower.class) && (touchData == null || touchData.first != grabbedEntity))) {
                                     doAim(touchEvent, grabbedEntity.isMirrored());
                                 }
@@ -262,7 +259,7 @@ public class Hand {
                             break;
                         case Smash:
                             break;
-                        case Fire:
+                        case FireLight:
                             if (grabbedEntity!=null&&grabbedEntity.hasUsage(Shooter.class)) {
                                 Shooter shooter = grabbedEntity.getUsage(Shooter.class);
                                 shooter.onTriggerReleased();
@@ -277,7 +274,7 @@ public class Hand {
                         if (touchData != null && touchData.first != null) {
                             if(touchData.first==grabbedEntity||playScene.getSpecialAction()==PlayerSpecialAction.None) {
                             if (!touchData.first.hasUsage(Heavy.class)) {
-                                grab(touchData.first, touchEvent, touchData.second);
+                                grab(touchData.first, touchEvent, touchData.second.first);
                                 holdEntity();
                                 onEntityHeld();
                                 playScene.setScrollerEnabled(false);
@@ -324,7 +321,7 @@ public class Hand {
                                 doSmash(smashTarget);
                             }
                             break;
-                        case Fire:
+                        case FireLight:
                             if(grabbedEntity!=null) {
                                 if (grabbedEntity.hasUsage(Shooter.class)) {
                                     Shooter shooter = grabbedEntity.getUsage(Shooter.class);
@@ -353,7 +350,7 @@ public class Hand {
         }
 
         if (this.playScene.getPlayerAction() == PlayerAction.Select) {
-            Pair<GameEntity, Vector2> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
+            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
             if (touchEvent.isActionMove()) {
 
             } else if (touchEvent.isActionDown()) {
@@ -367,11 +364,11 @@ public class Hand {
                                killTopOfStack();
                                 holding = false;
                             }
-                            deselect(selectedEntity);
+                            deselect();
                         }
                         select(touchData.first);
                     } else {
-                        deselect(selectedEntity);
+                        deselect();
                         if (this.isHolding()) {
                           killTopOfStack();
                             holding = false;
@@ -382,7 +379,6 @@ public class Hand {
                 }
             }
         } else {
-            if(true)return false;
             //Handle selection actions
             if (selectedEntity != null) {
                 if (touchEvent.isActionDown()) {
@@ -437,13 +433,17 @@ public class Hand {
         return false;
     }
 
-    private void deselect(GameEntity entity) {
-        entity.hideOutline();
-        this.selectedEntity = null;
-        if (entity.hasUsage(Shooter.class)) {
-            Shooter shooter = entity.getUsage(Shooter.class);
+    public void deselect() {
+        if(selectedEntity==null){
+            return;
+        }
+        selectedEntity.hideOutline();
+        if (selectedEntity.hasUsage(Shooter.class)) {
+            Shooter shooter = selectedEntity.getUsage(Shooter.class);
             shooter.onTriggerReleased();
         }
+        this.selectedEntity = null;
+        this.playScene.onSelectedEntitySpared();
     }
 
     private void select(GameEntity entity) {
@@ -742,13 +742,11 @@ public class Hand {
         return selectedEntity != null;
     }
 
-    public void setSelectedEntity(GameEntity selectedEntity) {
-        GameEntity entity = this.selectedEntity;
+    public void inheritSelectedEntity(GameEntity selectedEntity) {
         this.selectedEntity = selectedEntity;
-        if(entity!=null){
+        if(selectedEntity!=null){
             playScene.onUsagesUpdated();
         }
-
     }
 
     public GameEntity getSelectedEntity() {

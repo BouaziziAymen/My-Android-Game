@@ -261,12 +261,13 @@ public class GameEntity extends EntityWithBody {
         return getBlocks().get(0).isFrozen();
     }
 
-    public Vector2 computeTouch(TouchEvent touch, boolean withHold) {
+    public Pair<Vector2,LayerBlock> computeTouch(TouchEvent touch, boolean withHold) {
         Vector2 t =
                 this.body.getLocalPoint(new Vector2(touch.getX() / 32f, touch.getY() / 32f)).cpy().mul(32f);
         Vector2 result = null;
         float minDis = Float.MAX_VALUE;
-        for (Block<?, ?> block : layerBlocks) {
+        LayerBlock layerBlock = null;
+        for (LayerBlock block : layerBlocks) {
             LayerProperties layerProperties = (LayerProperties) block.getProperties();
             if (layerProperties.getSharpness() > 0.0f && withHold) {
                 continue;
@@ -277,11 +278,12 @@ public class GameEntity extends EntityWithBody {
                 if (dis < minDis) {
                     minDis = dis;
                     result = point;
+                    layerBlock = block;
                 }
             }
         }
         if (result != null) {
-            return body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f);
+            return new Pair<>(body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f),layerBlock);
         }
         return null;
     }
@@ -452,6 +454,7 @@ public class GameEntity extends EntityWithBody {
         }
         if (fireParticleWrapper != null) {
             scene.getWorldFacade().removeFireParticleWrapper(fireParticleWrapper);
+            fireParticleWrapper.detach();
         }
         dispose();
     }

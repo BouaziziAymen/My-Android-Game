@@ -88,9 +88,9 @@ public class Projectile extends Use implements Penetrating {
                 worldFacade.applyPointImpact(obtain(point), 20f * impactFactor() * consumedImpulse * massFraction, penetrated);
             }
         });
+        if (projectileType == ProjectileType.SHARP_WEAPON) {
 
         for (GameEntity overlappedEntity : overlappedEntities) {
-            if (projectileType == ProjectileType.SHARP_WEAPON) {
                 worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
             }
         }

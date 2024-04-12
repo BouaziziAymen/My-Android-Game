@@ -1,11 +1,16 @@
 package com.evolgames.activity.components;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -18,9 +23,11 @@ import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.model.ItemCategory;
+import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.inputs.Button;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +39,12 @@ public class PlayUIFragment extends Fragment {
     private GameImageButton weaponsButton;
     private RecyclerView optionsRecyclerView;
     private OptionsListAdaptor optionsListAdaptor;
-    private ExpandableListViewAdaptor expandableListViewAdaptor;
+    private ExpandableListViewAdapter expandableListViewAdapter;
     private GameImageButton selectButton;
     private View lastClickedLayout;
+    private View hintLayout;
+    private ImageView hintIcon;
+    private TextView hintText;
 
     public PlayUIFragment() {
         // Required empty public constructor
@@ -53,11 +63,15 @@ public class PlayUIFragment extends Fragment {
         optionsRecyclerView.setVisibility(View.GONE);
         itemsExpandableListView.setVisibility(View.GONE);
         weaponsButton.setState(Button.State.NORMAL);
-        for (int i = 0; i < expandableListViewAdaptor.getGroupCount(); i++) {
+        for (int i = 0; i < expandableListViewAdapter.getGroupCount(); i++) {
             if (itemsExpandableListView.isGroupExpanded(i)) {
                 itemsExpandableListView.collapseGroup(i);
             }
         }
+    }
+    public void resetWeaponsButtonAndClose(){
+        weaponsButton.setState(Button.State.NORMAL);
+        itemsExpandableListView.setVisibility(View.GONE);
     }
 
     @Nullable
@@ -91,6 +105,10 @@ public class PlayUIFragment extends Fragment {
         effectsButton = rightLayout.findViewById(R.id.effects_button);
         setupEffectsButton(effectsButton);
 
+        hintLayout = fragment.findViewById(R.id.hintLayout);
+        hintIcon = hintLayout.findViewById(R.id.hintIcon);
+        hintText = hintLayout.findViewById(R.id.hintText);
+
         GameImageButton helpButton = topLayout.findViewById(R.id.help_button);
         setupHelpButton(helpButton);
 
@@ -107,7 +125,6 @@ public class PlayUIFragment extends Fragment {
         List<PlayerSpecialAction> imageList = new ArrayList<>();
         optionsListAdaptor.setPlayerSpecialActionList(imageList, null);
         optionsRecyclerView.setAdapter(optionsListAdaptor);
-        optionsRecyclerView.setVisibility(View.GONE);
         return fragment;
     }
 
@@ -132,8 +149,9 @@ public class PlayUIFragment extends Fragment {
             usesButton.setIcon(R.drawable.usages_icon_empty);
         } else {
             if(usesActive) {
-                usesButton.setState(Button.State.NORMAL);
+                usesButton.setState(Button.State.PRESSED);
                 usesButton.setIcon(R.drawable.usages_icon);
+                optionsRecyclerView.setVisibility(View.VISIBLE);
             }
         }
         optionsListAdaptor.setPlayerSpecialActionList(optionsList, selectedAction);
@@ -204,8 +222,10 @@ public class PlayUIFragment extends Fragment {
     private void setupWeaponsListView(LayoutInflater inflater) {
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
         List<ItemCategory> listDataHeader = new ArrayList<>(ResourceManager.getInstance().getItemsMap().keySet());
-        this.expandableListViewAdaptor = new ExpandableListViewAdaptor(inflater, listDataHeader, map);
-        itemsExpandableListView.setAdapter(expandableListViewAdaptor);
+        listDataHeader.removeIf(e->e.nonCreatable);
+        listDataHeader.sort(Comparator.comparing(ItemCategory::name));
+        this.expandableListViewAdapter = new ExpandableListViewAdapter(inflater, listDataHeader, map,itemsExpandableListView);
+        itemsExpandableListView.setAdapter(expandableListViewAdapter);
 
         // Set the onChildClickListener
         itemsExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
@@ -224,7 +244,6 @@ public class PlayUIFragment extends Fragment {
             // Store the current clicked layout
             lastClickedLayout = clickedLayout;
 
-            // Your existing logic here
             ItemMetaData clickedItem = (ItemMetaData) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
             ResourceManager.getInstance().activity.getUiController().onItemButtonPressed(clickedItem);
             return true;
@@ -248,6 +267,51 @@ public class PlayUIFragment extends Fragment {
 
     public enum TouchHoldState {
         TOUCH, SELECT, HOLD
+    }
+
+
+
+    public void showHint(String text, int iconId){
+        hintLayout.setVisibility(View.VISIBLE);
+        hintText.setText(text);
+        hintIcon.setImageResource(iconId);
+        final long durationInMilliseconds = 3000L;
+
+        // Duration for fade in and fade out animations
+        final long animationDuration = 1000L;
+
+        // Start fade in animation
+        startFadeInAnimation(animationDuration);
+
+        // Schedule fade out animation after the specified duration
+        new Handler().postDelayed(() -> startFadeOutAnimation(animationDuration), durationInMilliseconds);
+    }
+
+    private void startFadeInAnimation(long duration) {
+        AlphaAnimation fadeInAnimation = new AlphaAnimation(0f, 1f);
+        fadeInAnimation.setDuration(duration);
+        hintLayout.startAnimation(fadeInAnimation);
+    }
+
+    private void startFadeOutAnimation(long duration) {
+        AlphaAnimation fadeOutAnimation = new AlphaAnimation(1f, 0f);
+        fadeOutAnimation.setDuration(duration);
+
+        fadeOutAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Hide the LinearLayout after the fade out animation
+                hintLayout.setVisibility(LinearLayout.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        hintLayout.startAnimation(fadeOutAnimation);
     }
 
 }

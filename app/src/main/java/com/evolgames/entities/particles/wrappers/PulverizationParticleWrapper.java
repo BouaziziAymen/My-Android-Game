@@ -1,6 +1,7 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
@@ -82,7 +83,10 @@ public class PulverizationParticleWrapper {
     }
 
     public void finishSelf() {
-        particleSystem.detachSelf();
+        ResourceManager.getInstance()
+                .activity
+                .runOnUpdateThread(
+                        () -> particleSystem.detachSelf());
     }
 
     public boolean isAlive() {

@@ -87,7 +87,10 @@ public abstract class LiquidParticleWrapper {
         if (!parent.isAlive()) {
             this.particleSystem.setParticlesSpawnEnabled(false);
             if (isAllParticlesExpired()) {
-                particleSystem.detachSelf();
+                ResourceManager.getInstance()
+                        .activity
+                        .runOnUpdateThread(
+                                particleSystem::detachSelf);
             }
             return;
         }

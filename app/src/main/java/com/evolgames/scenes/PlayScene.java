@@ -5,12 +5,14 @@ import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.activity.GameActivity;
+import com.evolgames.activity.NativeUIController;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.Plotter;
 import com.evolgames.entities.basics.GameEntity;
@@ -59,6 +61,8 @@ import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.primitive.DrawMode;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Mesh;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
@@ -69,6 +73,7 @@ import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -76,25 +81,24 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
         PinchZoomDetector.IPinchZoomDetectorListener {
-
+    public static float groundY;
     public static boolean pause = false;
     public static Plotter plotter;
-    public static float groundY;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
-    private GameGroup gameGroup1;
     private PlayerAction playerAction = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private Vector2 point1, point2;
     private Line line;
     private ArrayList<Vector2> points;
-    private boolean scroll;
     private SavingBox savingBox;
     private float mPinchZoomStartedCameraZoomFactor;
     private boolean chaseActive;
     private boolean usesActive = true;
     private boolean effectsActive;
     private boolean creating;
+    private PhysicsConnector physicsConnector;
+    private LayerBlock glueBlock;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -113,17 +117,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
         super.onManagedUpdate(1 / 60f);
         step++;
-//        int n = 0;
-//        int c = 0;
-//        for(GameGroup gameGroup:getGameGroups()){
-//            for(GameEntity gameEntity:gameGroup.getEntities()){
-//                n++;
-//                boolean culled = gameEntity.getMesh().isCulled(this.mCamera);
-//                if(culled)c++;
-//            }
-//        }
-//        Log.e("Culling",n+":"+c);
-
+        checkMotorSounds();
         if (this.savingBox != null) {
             this.savingBox.onStep();
         }
@@ -161,14 +155,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         if (false) {
             projectionTest(touchEvent);
         }
-        if (false) {
-            if (touchEvent.isActionDown()) {
-                this.worldFacade.performFlux(
-                        new Vector2(touchEvent.getX(), touchEvent.getY()),
-                        null,
-                        gameGroup1.getGameEntityByIndex(0));
-            }
-        }
+
         if(this.playerAction==PlayerAction.Create){
             ItemMetaData itemToCreate = ResourceManager.getInstance().getSelectedItemMetaData();
             if(itemToCreate!=null) {
@@ -185,6 +172,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
                     boolean checkEmpty = worldFacade.checkEmpty(bounds[0]/32f,bounds[1]/32f,bounds[2]/32f,bounds[3]/32f);
                     Color color;
                     if(!checkEmpty) {
+                        getActivity().getUiController().showHint("Insufficient space to position the item.", NativeUIController.HintType.WARNING);
                         Log.e("CheckEmpty",worldFacade.checkEmptyCallback.getGameEntity().getName());
                         color = Color.RED;
                         plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
@@ -444,7 +432,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         float x = touchEvent.getX();
         float y = touchEvent.getY();
         if (touchEvent.isActionDown()) {
-            this.worldFacade.createExplosion(null, x / 32f, y / 32f, 1f, 0.3f, 0.3f, 10f, 0.01f, 1f, 0.25f, 1f, 0f);
+            this.worldFacade.createExplosion(null, x / 32f, y / 32f, 1f, 0.3f, 0.3f, 10f, 0.001f, 1f, 0.25f, 1f, 0f);
         }
     }
 
@@ -842,18 +830,18 @@ for(LayerBlock layerBlock:blocks){
     private void processGluing(TouchEvent touchEvent) {
 
         if (touchEvent.isActionDown()) {
-            point1 = new Vector2(touchEvent.getX(), touchEvent.getY());
-            point2 = new Vector2(point1);
-            line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
-
-            line.setColor(Color.BLUE);
-            line.setZIndex(999);
-            this.attachChild(line);
-            this.sortChildren();
             setScrollerEnabled(false);
-            Pair<GameEntity, Vector2> touchData = this.getTouchedEntity(touchEvent, false,true);
+            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.getTouchedEntity(touchEvent, false,true);
            if(touchData!=null) {
                glueEntity = touchData.first;
+               point1 = touchData.second.first.cpy();
+               glueBlock = touchData.second.second;
+               point2 = new Vector2(point1);
+               line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
+               line.setColor(Color.BLUE);
+               line.setZIndex(999);
+               this.attachChild(line);
+               this.sortChildren();
            }
         }
         if (touchEvent.isActionMove()) {
@@ -864,16 +852,20 @@ for(LayerBlock layerBlock:blocks){
         }
         if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
             setScrollerEnabled(true);
-            Pair<GameEntity, Vector2> touchData = this.getTouchedEntity(touchEvent, false,true);
+            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.getTouchedEntity(touchEvent, false,true);
             if (point1 != null && point2 != null&&glueEntity!=null && touchData!=null&&touchData.first!=null && glueEntity!=touchData.first) {
-              Touch touch = worldFacade.areTouching(glueEntity,touchData.first);
+              Touch touch = worldFacade.areTouching(glueBlock,touchData.second.second);
                 if(touch!=null){
+                    line.setPosition(point1.x, point1.y, touchData.second.first.x, touchData.second.first.y);
                   this.worldFacade.glueEntities(glueEntity,touchData.first,touch.getPoint());
+                  ResourceManager.getInstance().glueSound.play();
               }
             }
             point1 = null;
             point2 = null;
-            line.detachSelf();
+            if(line!=null) {
+                line.detachSelf();
+            }
         }
     }
 
@@ -889,7 +881,7 @@ for(LayerBlock layerBlock:blocks){
         if (specialAction == PlayerSpecialAction.Slash) {
             getHand().setHoldingAngle(0);
         }
-        if (specialAction == PlayerSpecialAction.Fire) {
+        if (specialAction == PlayerSpecialAction.FireLight) {
             getHand().setHoldingAngle(0);
         }
 
@@ -962,6 +954,13 @@ for(LayerBlock layerBlock:blocks){
                 }
 
                 defaultAction = specialAction == null ? usageList.stream().filter(e -> e.selectableByDefault).findFirst().orElse(null) : specialAction;
+               if(hand!=null) {
+                   if (hand.hasSelectedEntity()) {
+                       usageList.add(PlayerSpecialAction.Unselect);
+                   } else if(playerAction==PlayerAction.Hold&&hand.getGrabbedEntity()!=null) {
+                       usageList.add(PlayerSpecialAction.Drop);
+                   }
+               }
                 this.setSpecialAction(usageList.contains(defaultAction) ? defaultAction : PlayerSpecialAction.None);
             }
             if (effectsActive) {
@@ -979,22 +978,22 @@ for(LayerBlock layerBlock:blocks){
         return ResourceManager.getInstance().activity;
     }
 
-    public Pair<GameEntity, Vector2> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
+    public Pair<GameEntity, Pair<Vector2,LayerBlock>> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
         GameEntity result = null;
-        Vector2 anchor = null;
+        Pair<Vector2, LayerBlock> anchor = null;
         float minDis = 32f;
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
                 if (entity.getBody() != null
                         && (includeStatic||entity.getBody().getType() == BodyDef.BodyType.DynamicBody)) {
-                    Vector2 proj = entity.computeTouch(touchEvent, withHold);
-                    if (proj != null) {
-                        float dis = proj.dst(touchEvent.getX(), touchEvent.getY());
+                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, withHold);
+                    if (vector2LayerBlockPair != null) {
+                        float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
                         if (dis < minDis) {
                             minDis = dis;
                             result = entity;
-                            anchor = proj;
+                            anchor = vector2LayerBlockPair;
                         }
                     }
                 }
@@ -1022,13 +1021,56 @@ for(LayerBlock layerBlock:blocks){
         createItemFromFile("editor_auto_save.mut", false, false);
     }
 
+    private Sprite aimSprite;
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
+
+        if(playerSpecialAction==PlayerSpecialAction.AimHeavy ||playerSpecialAction==PlayerSpecialAction.FireHeavy) {
+            if(aimSprite!=null&&aimSprite.hasParent()){
+                aimSprite.detachSelf();
+            } else {
+                getActivity().getUiController().showHint(playerSpecialAction.hint, NativeUIController.HintType.HINT);
+            }
+            createAimSprite(hand.getHeldEntity(), hand.getHeldEntity());
+            if(hand.getSelectedEntity().getBody()!=null) {
+                physicsConnector = new PhysicsConnector(aimSprite, hand.getHeldEntity().getBody());
+                getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+            }
+
+            if (!aimSprite.hasParent()) {
+                attachChild(aimSprite);
+            }
+        } else if(playerSpecialAction==PlayerSpecialAction.AimLight||playerSpecialAction==PlayerSpecialAction.FireLight) {
+            if(aimSprite!=null&&aimSprite.hasParent()){
+                aimSprite.detachSelf();
+                if(this.physicsConnector!=null) {
+                    getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
+                }
+            } else {
+                getActivity().getUiController().showHint(playerSpecialAction.hint, NativeUIController.HintType.HINT);
+            }
+            createAimSprite(hand.getGrabbedEntity(), hand.getGrabbedEntity());
+            if(hand.getGrabbedEntity().getBody()!=null) {
+               physicsConnector = new PhysicsConnector(aimSprite, hand.getGrabbedEntity().getBody());
+                getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+            }
+
+            if (!aimSprite.hasParent()) {
+                attachChild(aimSprite);
+            }
+        }else {
+            if(aimSprite!=null){
+                hideAimSprite(aimSprite.hasParent(), aimSprite);
+                this.aimSprite = null;
+                this.physicsConnector = null;
+            }
+        }
 
         if (playerSpecialAction == PlayerSpecialAction.FireHeavy || playerSpecialAction == PlayerSpecialAction.AimHeavy) {
             if (this.hand != null) {
                 hand.holdEntity();
             }
         }
+
         if (playerSpecialAction == PlayerSpecialAction.motorMoveForward ||
                 playerSpecialAction == PlayerSpecialAction.motorMoveBackward || playerSpecialAction == PlayerSpecialAction.motorStop) {
             if (hand != null) {
@@ -1041,6 +1083,8 @@ for(LayerBlock layerBlock:blocks){
                 }
             }
         }
+
+
         if (playerSpecialAction == PlayerSpecialAction.Shoot_Arrow) {
             if (this.hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
@@ -1049,6 +1093,17 @@ for(LayerBlock layerBlock:blocks){
                     bow.onArrowsReleased(this);
                     onUsagesUpdated();
                 }
+            }
+        }
+        else if (playerSpecialAction == PlayerSpecialAction.Unselect){
+            if(this.hand!=null){
+                this.hand.deselect();
+                onUsagesUpdated();
+            }
+        }
+        else if (playerSpecialAction == PlayerSpecialAction.Drop){
+            if(this.hand!=null){
+                this.hand.releaseGrabbedEntity(true);
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
@@ -1102,6 +1157,15 @@ for(LayerBlock layerBlock:blocks){
         } else {
             setSpecialAction(playerSpecialAction);
         }
+    }
+
+    private void createAimSprite(GameEntity hand, GameEntity hand1) {
+        aimSprite = new Sprite(hand.getX(), hand1.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
+        aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        aimSprite.setAlpha(0.01f);
+        aimSprite.setWidth(32 * 16);
+        aimSprite.setHeight(32 * 16);
+        aimSprite.setZIndex(-1);
     }
 
     private void resetTouchHold() {
@@ -1198,5 +1262,51 @@ for(LayerBlock layerBlock:blocks){
 
     public void setEffectsActive(boolean effectsActive) {
         this.effectsActive = effectsActive;
+    }
+
+
+    private void checkMotorSounds(){
+        HashSet<Integer> sounds = new HashSet<>();
+        for(GameGroup gameGroup:gameGroups){
+            for(GameEntity gameEntity: gameGroup.getEntities()){
+                if(gameEntity.hasUsage(MotorControl.class)){
+                    MotorControl motorControl = gameEntity.getUsage(MotorControl.class);
+                    if(motorControl.isRunning()){
+                        sounds.add(motorControl.getMotorSound());
+                    }
+                }
+            }
+        }
+        for(int i=0;i<3;i++){
+            if(sounds.contains(i)){
+                if(!motorSounds[i]){
+                    motorSounds[i] = true;
+                    ResourceManager.getInstance().motorSounds.get(i).play();
+                }
+            } else {
+                if(motorSounds[i]){
+                    ResourceManager.getInstance().motorSounds.get(i).stop();
+                    motorSounds[i] = false;
+                }
+            }
+        }
+    }
+    private final boolean[] motorSounds = new boolean[3];
+
+    public void onSelectedEntitySpared() {
+        hideAimSprite(this.aimSprite != null, this.aimSprite);
+    }
+
+    private void hideAimSprite(boolean aimSprite, Sprite aimSprite1) {
+        if (aimSprite) {
+            aimSprite1.detachSelf();
+            if (this.physicsConnector != null) {
+                getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
+            }
+        }
+    }
+
+    public void onGrabbedEntityReleased() {
+        hideAimSprite(this.aimSprite != null, this.aimSprite);
     }
 }

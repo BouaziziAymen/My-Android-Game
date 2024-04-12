@@ -4,6 +4,7 @@ import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.entities.hand.PlayerAction;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.gameengine.BuildConfig;
+import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.XmlHelper;
 import com.evolgames.scenes.AbstractScene;
@@ -35,7 +36,6 @@ public class NativeUIController implements INativeUIController {
     public void onItemButtonPressed(ItemMetaData itemMetaData) {
          ResourceManager.getInstance().setSelectedItemMetaData(itemMetaData);
         ((PlayScene) mainScene.getChildScene()).setPlayerAction(PlayerAction.Create);
-        //  ((PlayScene) mainScene.getChildScene()).createItemFromFile(itemMetaData.getFileName(), !itemMetaData.isUserCreated(), true);
     }
 
     @Override
@@ -216,11 +216,30 @@ public class NativeUIController implements INativeUIController {
     public void onItemCreated() {
         gameActivity.runOnUiThread(() -> {
             PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.resetWeaponsButtonAndClose();
             gameUIFragment.resetClickedItem();
         });
     }
 
     public void onHelpPressed() {
         gameActivity.showHelpDialog();
+    }
+    public enum HintType{
+        WARNING, HINT
+    }
+    public void showHint(String text, HintType hintType){
+        gameActivity.runOnUiThread(() -> {
+            int hintIconId = 0;
+            switch (hintType){
+                case WARNING:
+                    hintIconId = R.drawable.warning_icon;
+                    break;
+                case HINT:
+                    hintIconId = R.drawable.lightbulb_icon;
+                    break;
+            }
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.showHint(text,hintIconId);
+        });
     }
 }

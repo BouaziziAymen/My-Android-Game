@@ -302,7 +302,7 @@ public class Shooter extends Use {
         if (!isHeavy) {
             List<PlayerSpecialAction> list = new ArrayList<>();
             list.add(PlayerSpecialAction.None);
-            list.add(PlayerSpecialAction.Fire);
+            list.add(PlayerSpecialAction.FireLight);
             list.add(PlayerSpecialAction.AimLight);
             if(isLoaded()) {
                 list.add(PlayerSpecialAction.Trigger);

@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.evolgames.entities.basics.GameEntity;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class GameEntityContactListener implements ContactListener {
     private final ContactObserver observer;
@@ -91,4 +92,5 @@ public class GameEntityContactListener implements ContactListener {
                         (pair.first == entity1 && pair.second == entity2)
                                 || (pair.second == entity1 && pair.first == entity2));
     }
+
 }

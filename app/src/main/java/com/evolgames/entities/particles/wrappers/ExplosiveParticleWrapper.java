@@ -1,5 +1,8 @@
 package com.evolgames.entities.particles.wrappers;
 
+import android.util.Log;
+
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
@@ -130,10 +133,12 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
             }
             return;
         }
+        Log.e("data:",followParent+"/"+parent);
         if (followParent && parent != null) {
             emitter.update();
         }
     }
+
 
     public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
         if (fireParticleSystem != null) {
@@ -167,9 +172,14 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
     }
 
     private void finishSelf() {
-        if (smokeParticleSystem != null) this.smokeParticleSystem.detachSelf();
-        if (sparkParticleSystem != null) this.sparkParticleSystem.detachSelf();
-        if (fireParticleSystem != null) this.fireParticleSystem.detachSelf();
+        ResourceManager.getInstance()
+                .activity
+                .runOnUpdateThread(
+                        () -> {
+                            if (smokeParticleSystem != null) this.smokeParticleSystem.detachSelf();
+                            if (sparkParticleSystem != null) this.sparkParticleSystem.detachSelf();
+                            if (fireParticleSystem != null) this.fireParticleSystem.detachSelf();
+                        });
     }
 
     public void detach() {
@@ -202,4 +212,5 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
     public boolean isAlive() {
         return alive;
     }
+
 }

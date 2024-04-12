@@ -3,7 +3,9 @@ package com.evolgames.entities.hand;
 import com.evolgames.gameengine.R;
 
 public enum PlayerSpecialAction {
-    None(R.drawable.none_icon, false, false, false),
+    None(R.drawable.none_icon, false, false, true),
+    Drop(R.drawable.drop_icon, false, false, false),
+    Unselect(R.drawable.deselect_icon, false, false, true),
     Trigger(R.drawable.tap_icon, false, false, true),
     SwitchOn(R.drawable.on_icon, true, false, true),
     SwitchOff(R.drawable.off_icon, true, false, true),
@@ -11,12 +13,12 @@ public enum PlayerSpecialAction {
     Stab(R.drawable.stab_icon, false, true, false),
     Throw(R.drawable.hatchet_icon, false, true, false),
     Smash(R.drawable.mace_icon, false, true, false),
-    Fire(R.drawable.shooting_icon, false, true, false),
-    AimLight(R.drawable.aim_icon, false, false, false),
+    FireLight(R.drawable.shooting_icon, false, true, false,"Click inside the circle to aim and fire."),
+    AimLight(R.drawable.aim_icon, false, false, false,"Click inside the circle to aim."),
     Guide(R.drawable.home_icon, false, true, true),
     Shoot_Arrow(R.drawable.target_icon, false, true, false),
-    FireHeavy(R.drawable.machine_icon, false, false, true),
-    AimHeavy(R.drawable.aim_icon, false, false, true),
+    FireHeavy(R.drawable.machine_icon, false, false, true,"Click inside the circle to aim and fire."),
+    AimHeavy(R.drawable.aim_icon, false, false, true,"Click inside the circle to aim."),
     motorStop(R.drawable.stop_icon, false, true, true),
     motorMoveForward(R.drawable.forward_icon, false, false, true),
     motorMoveBackward(R.drawable.backward_icon, false, false, true),
@@ -30,11 +32,20 @@ public enum PlayerSpecialAction {
     public final boolean doubleState;
     public final boolean selectableByDefault;
     public final boolean fromDistance;
+    public final String hint;
 
     PlayerSpecialAction(int iconId, boolean doubleState, boolean selectableByDefault, boolean fromDistance) {
         this.iconId = iconId;
         this.doubleState = doubleState;
         this.selectableByDefault = selectableByDefault;
         this.fromDistance = fromDistance;
+        this.hint = null;
+    }
+    PlayerSpecialAction(int iconId, boolean doubleState, boolean selectableByDefault, boolean fromDistance, String hint) {
+        this.iconId = iconId;
+        this.doubleState = doubleState;
+        this.selectableByDefault = selectableByDefault;
+        this.fromDistance = fromDistance;
+        this.hint = hint;
     }
 }

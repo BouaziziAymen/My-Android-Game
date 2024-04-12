@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.evolgames.gameengine.R;
@@ -14,18 +15,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
+public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     private final List<ItemCategory> dataHeader;
     private final Map<ItemCategory, List<ItemMetaData>> listHashMap;
     private final LayoutInflater inflater;
+    private final ExpandableListView listView;
+    private int lastExpandedGroupPosition = -1;
 
-    public ExpandableListViewAdaptor(LayoutInflater inflater, List<ItemCategory> dataHeader, Map<ItemCategory, List<ItemMetaData>> listHashMap) {
+    public ExpandableListViewAdapter(LayoutInflater inflater, List<ItemCategory> dataHeader, Map<ItemCategory, List<ItemMetaData>> listHashMap, ExpandableListView itemsExpandableListView) {
         this.dataHeader = dataHeader;
         this.listHashMap = listHashMap;
         this.inflater = inflater;
+        this.listView = itemsExpandableListView;
     }
-
 
     @Override
     public int getGroupCount() {
@@ -67,7 +70,6 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
         ViewHolder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.exp_list_header, parent, false);
-
             holder = new ViewHolder();
             holder.textView = convertView.findViewById(R.id.itemsSectionTextView);
             convertView.setTag(holder);
@@ -82,12 +84,10 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-
         ViewHolder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.exp_list_body, parent, false);
             holder = new ViewHolder();
-
             holder.textView = convertView.findViewById(R.id.itemsElementTextView);
             convertView.setTag(holder);
         } else {
@@ -103,6 +103,16 @@ public class ExpandableListViewAdaptor extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    @Override
+    public void onGroupExpanded(int groupPosition) {
+        // Collapse the last expanded group
+        if (lastExpandedGroupPosition != -1 && groupPosition != lastExpandedGroupPosition) {
+           listView.collapseGroup(lastExpandedGroupPosition);
+        }
+        lastExpandedGroupPosition = groupPosition;
+        super.onGroupExpanded(groupPosition);
     }
 
     private static class ViewHolder {

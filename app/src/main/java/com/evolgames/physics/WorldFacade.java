@@ -226,7 +226,6 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     }
 
     public void removeFireParticleWrapper(Fire fireParticleWrapper) {
-        fireParticleWrapper.getFireParticleSystem().detachSelf();
         flames.remove(fireParticleWrapper);
     }
 
@@ -906,7 +905,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             }
         }
         if (!equivalentFound&&contact.getWorldManifold().getNumberOfContactPoints()>0) {
-            Touch newTouch = new Touch(block1, block2, body1, body2, contact.getWorldManifold().getPoints()[0]);
+            Touch newTouch = new Touch(block1, block2, body1, body2, contact.getWorldManifold().getPoints()[0].cpy());
             touches.add(newTouch);
         }
 
@@ -1314,7 +1313,6 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
 
         Vector2 impactPoint1 = obtain(point);
         Vector2 impactPoint2 = obtain(point);
-        contact.setEnabled(false);
         applyOnePointImpactToEntity(block1, impulse / 2, entity1, impactPoint1);
         applyOnePointImpactToEntity(block2, impulse / 2, entity2, impactPoint2);
     }
@@ -1393,7 +1391,6 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         if (entity == null || !entity.isAlive() || entity.getBody() == null) {
             return;
         }
-        entity.hideOutline();
         Invoker.addBodyDestructionCommand(entity);
 
         if (finalDestruction) {
@@ -1652,7 +1649,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         int numberOfPoints =Math.min(10,
                 (int)
                         (impulse
-                                / (20f*PhysicsConstants.TENACITY_FACTOR * layerBlock.getTenacity())));
+                                / (5f*PhysicsConstants.TENACITY_FACTOR * layerBlock.getTenacity())));
 
         List<Vector2> pts =
                 Vector2Utils.generateRandomPointsInsidePolygon(
@@ -2260,6 +2257,17 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         for(Touch touch:touches){
             if(entity1!=null&&entity2!=null&&entity1.getBody()!=null&&entity2.getBody()!=null) {
                 if (touch.isEquivalent(entity1.getBody(), entity2.getBody())) {
+                    return touch;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Touch areTouching(LayerBlock layerBlock1, LayerBlock layerBlock2){
+        for(Touch touch:touches){
+            if(layerBlock1!=null&&layerBlock2!=null) {
+                if (touch.isEquivalent(layerBlock1,layerBlock2)) {
                     return touch;
                 }
             }

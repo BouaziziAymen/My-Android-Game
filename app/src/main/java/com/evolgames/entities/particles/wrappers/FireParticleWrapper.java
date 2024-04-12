@@ -109,4 +109,13 @@ public class FireParticleWrapper implements Fire {
     public double getParticleTemperature(Particle<?> particle) {
         return ((CoatingBlock) particle.getEntity().getUserData()).getFlameTemperature();
     }
+    public void detach(){
+        ResourceManager.getInstance()
+                .activity
+                .runOnUpdateThread(
+                        () -> {
+                           this.particleSystem.detachSelf();
+                        });
+    }
+
 }

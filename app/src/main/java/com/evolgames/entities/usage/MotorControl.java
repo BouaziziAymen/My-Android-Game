@@ -2,6 +2,7 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
@@ -25,6 +26,8 @@ public class MotorControl extends Use {
     private float power;
     private int motorState;
 
+    private int motorSound;
+
     @SuppressWarnings("unused")
     public MotorControl() {
     }
@@ -38,11 +41,24 @@ public class MotorControl extends Use {
         this.jointBlocks = jointBlocks;
         this.jointBlockUniqueIds = jointBlocks.stream().map(t -> t.getJointUniqueId()).collect(Collectors.toList());
         this.motorState = 0;
+        if(power<10){
+            motorSound = 0;
+        } else if (power<50){
+            motorSound = 1;
+        } else {
+            motorSound = 2;
+        }
     }
 
 
     public void setMotorState(int motorState) {
         this.motorState = motorState;
+    }
+    public boolean isRunning(){
+        return this.motorState != 0;
+    }
+    public int getMotorSound(){
+        return motorSound;
     }
 
     @Override

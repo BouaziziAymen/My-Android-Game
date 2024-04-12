@@ -9,4 +9,5 @@ public interface Fire {
     ParticleSystem<UncoloredSprite> getFireParticleSystem();
 
     double getParticleTemperature(Particle<?> particle);
+
 }

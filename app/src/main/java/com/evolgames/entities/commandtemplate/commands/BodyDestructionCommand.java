@@ -2,13 +2,9 @@ package com.evolgames.entities.commandtemplate.commands;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
-import com.badlogic.gdx.physics.box2d.JointDef;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.Hand;
-import com.evolgames.scenes.PlayScene;
 
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
@@ -33,6 +29,7 @@ public class BodyDestructionCommand extends Command {
             Invoker.scene.resetChasedEntity();
         }
         physicsWorld.destroyBody(body);
+        entity.hideOutline();
     }
 
     @Override
@@ -49,7 +46,7 @@ public class BodyDestructionCommand extends Command {
         Hand hand = Invoker.scene.getHand();
         if(hand!=null){
             if(entity.getHeir()!=null&&hand.getSelectedEntity()==entity) {
-                hand.setSelectedEntity(entity.getHeir());
+                hand.inheritSelectedEntity(entity.getHeir());
             }
         }
 

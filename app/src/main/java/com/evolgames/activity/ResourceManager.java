@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
+import com.evolgames.entities.usage.MotorControl;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.MyLetter;
@@ -129,8 +130,9 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound, bluntSound;
+    public Sound slashSound, bluntSound,glueSound;
     public TextureRegion aimCircleTextureRegion;
+    public TextureRegion focusTextureRegion;
     public TiledTextureRegion helpBigButton;
     public TiledTextureRegion saveBigButton;
     public TiledTextureRegion homeBigButton;
@@ -167,6 +169,7 @@ public class ResourceManager {
     private ItemMetaData selectedItemMetaData;
     private String mapString;
     private boolean sound, music;
+    public ArrayList<Sound> motorSounds;
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -500,6 +503,10 @@ public class ResourceManager {
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/aimcircle.png");
 
+        this.focusTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "focus.png");
+
         this.targetShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/target.png");
@@ -735,6 +742,36 @@ public class ResourceManager {
                             this.activity.getSoundManager(),
                             this.activity,
                             "blunt.wav");
+
+            glueSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "glue.wav");
+
+            Sound motor1 = SoundFactory.createSoundFromAsset(
+                    this.activity.getSoundManager(),
+                    this.activity,
+                    "motor1.wav");
+
+            Sound motor2 = SoundFactory.createSoundFromAsset(
+                    this.activity.getSoundManager(),
+                    this.activity,
+                    "motor2.wav");
+
+            Sound motor3 = SoundFactory.createSoundFromAsset(
+                    this.activity.getSoundManager(),
+                    this.activity,
+                    "motor3.wav");
+            motorSounds = new ArrayList<>();
+            motor1.setLooping(true);
+            motor2.setLooping(true);
+            motor3.setLooping(true);
+            motorSounds.add(motor1);
+            motorSounds.add(motor2);
+            motorSounds.add(motor3);
+
+
 
             slashSound =
                     SoundFactory.createSoundFromAsset(

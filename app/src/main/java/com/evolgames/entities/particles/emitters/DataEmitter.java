@@ -37,4 +37,5 @@ public abstract class DataEmitter extends BaseParticleEmitter {
         prepareData();
         GeometryUtils.transformation.transform(data);
     }
+
 }

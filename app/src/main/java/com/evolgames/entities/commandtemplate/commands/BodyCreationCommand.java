@@ -30,6 +30,7 @@ public class BodyCreationCommand extends Command {
         physicsWorld.registerPhysicsConnector(physicsConnector);
         entity.setBody(body);
         entity.setVisible(true);
+        Invoker.scene.attachChild(entity.getMesh());
         body.setLinearDamping(DEFAULT_DAMPING);
         body.setAngularDamping(DEFAULT_DAMPING);
         bodyInit.initialize(body);

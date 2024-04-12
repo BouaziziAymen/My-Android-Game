@@ -96,7 +96,6 @@ public class GameEntityFactory {
         entity.setMirrored(mirrored);
         entity.setMesh(mesh);
         entity.setVisible(false);
-        this.scene.attachChild(entity.getMesh());
         InitInfo initInfo = bodyInit.getInitInfo(new InitInfo());
         entity.setInitInfo(initInfo);
         entity.setBodyType(bodyType);
