@@ -23,15 +23,15 @@ public class HelpDialog extends Dialog {
 
 // Additionally, use the mirror button to flip an item.
 private final String[] helpMessages = new String[]{
-        "To create an item, first, click the Items button. Then, select the desired item and click anywhere on the screen.",
-        "You have the option to switch between dragging and holding at any time.",
-        "To zoom in and out, use a pinch gesture with two fingers. To scroll the map horizontally, drag your finger across the screen.",
-        "When dragging an item, you can drag and drop it onto the desired location.",
-        "Alternatively, hold an item vertically to prepare it for use.",
-        "To select an item, activate the selection button and then click on the item.",
-        "Click on the 'Usage' button to choose how you want to utilize an item. Some usages, such as triggers, activate immediately upon selection.",
-        "Select an item and specify its usage if it can be utilized without being held.",
-        "Use the mirror button to flip the orientation of an item."
+       getContext().getString(R.string.scenario_help_1),
+        getContext().getString(R.string.scenario_help_2),
+        getContext().getString(R.string.scenario_help_3),
+        getContext().getString(R.string.scenario_help_4),
+        getContext().getString(R.string.scenario_help_5),
+        getContext().getString(R.string.scenario_help_6),
+        getContext().getString(R.string.scenario_help_7),
+        getContext().getString(R.string.scenario_help_8),
+        getContext().getString(R.string.scenario_help_9)
 };
 
     @Override

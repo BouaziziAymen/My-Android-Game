@@ -23,12 +23,12 @@ public class EditorHelpDialog extends Dialog {
 
     // Additionally, use the mirror button to flip an item.
     private final String[] helpMessages = {
-            "To start, click the pencil button and add a body to your design.",
-            "Connect bodies with joints. There are four types: revolute, elastic, weld, and prismatic. Remember to configure each joint.",
-            "Customize the physical properties of each layer using the layer settings.",
-            "Enhance your layers by decorating them with graphics that have no physical impact.",
-            "Design a gun by creating a projectile indicator, connecting it to a casing indicator to define projectile behavior, and then linking both to a shooting usage type.",
-            "Incorporate images into your design and adjust their size or orientation as needed. Use the pipe button to extract colors from the image."
+            getContext().getString(R.string.editor_help_1),
+            getContext().getString(R.string.editor_help_2),
+            getContext().getString(R.string.editor_help_3),
+            getContext().getString(R.string.editor_help_4),
+            getContext().getString(R.string.editor_help_5),
+            getContext().getString(R.string.editor_help_6)
     };
 
     @Override

@@ -10,4 +10,71 @@
     <string name="go_edit">Edit</string>
     <string name="cancel">Cancel</string>
     <string name="save_settings">Save</string>
+    <string name="throw_hint" >"Tap inside the circle to aim and throw."</string>
+    <string name="fire_light_hint">Tap inside the circle to aim and fire.</string>
+    <string name="aim_light_hint">Tap inside the circle to aim.</string>
+    <string name="fire_heavy_hint">Tap inside the circle to aim and fire.</string>
+    <string name="aim_heavy_hint">Tap inside the circle to aim.</string>
+    <string name="effect_cut_hint">Swipe in a line to slice through everything.</string>
+    <string name="effect_glue_hint">\"Tap one item, then another touching it, to bond them together.\"</string>
+    <string name="effect_fire_hint">Tap anywhere to ignite a fire bolt.</string>
+    <string name="effect_meteor_hint">Tap anywhere to target and strike with a meteor.</string>
+    <string name="effect_frost_hint">Tap anywhere to unleash a frosty downpour.</string>
+    <string name="insufficient_space">Insufficient space to position the item.</string>
+    <string name="gun_reloading_warning">Gun reloading. Loaded in %.1f seconds.</string>
+
+    <string name="edit_existing">Edit Existing</string>
+    <string name="item_name_hint">Item name</string>
+    <string name="item_type_hint">Item Type</string>
+    <string name="choose_template">Don\'t want to start from scratch ? Choose a template</string>
+    <string name="template_hint">Template (Optional)</string>
+    <string name="item_name">Item name</string>
+    <string name="send_for_review">Send for review</string>
+    <string name="continue_creating">Continue..</string>
+    <string name="create_new">Create New</string>
+
+    <string name="scenario_help_1">To create an item, first, click the Items button. Then, select the desired item and click anywhere on the screen.</string>
+    <string name="scenario_help_2">You have the option to switch between dragging and holding at any time.</string>
+    <string name="scenario_help_3">To zoom in and out, use a pinch gesture with two fingers. To scroll the map horizontally, drag your finger across the screen.</string>
+    <string name="scenario_help_4">When dragging an item, you can drag and drop it onto the desired location.</string>
+    <string name="scenario_help_5">Alternatively, hold an item vertically to prepare it for use.</string>
+    <string name="scenario_help_6">To select an item, activate the selection button and then click on the item.</string>
+    <string name="scenario_help_7">Choose how you want to utilize an item. Some usages, such as triggers, activate immediately upon selection.</string>
+    <string name="scenario_help_8">Select an item and specify its usage if it can be utilized without being held.</string>
+    <string name="scenario_help_9">Use the mirror button to flip the orientation of an item.</string>
+
+    <string name="rating">Enjoyed the game? Your 5-star rating fuels our progress and enhances your experience.</string>
+    <string name="bad_review">Feel free to visit Google Play to rate us or leave a review. Remember, if you ever need a refund, just let us know!</string>
+
+    <string name="sound_setting">Sound</string>
+    <string name="music_setting">Music</string>
+    <string name="map_options">Map Options</string>
+    <string name="open_map_option_hint">Open Map</string>
+    <string name="wood_house_option_hint">Wood House</string>
+    <string name="marble_house_option_hint">Marble House</string>
+    <string name="editor_letters">01234FGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?+-#:567890ABCDE</string>
+
+    <string name="category_sword">Swords</string>
+    <string name="category_axe">Axes</string>
+    <string name="category_spear">Spears</string>
+    <string name="category_produce">Produce</string>
+    <string name="category_bullet">Bullets</string>
+    <string name="category_shell">Shells</string>
+    <string name="category_knife">Knives</string>
+    <string name="category_other">Other</string>
+    <string name="category_mace">Maces</string>
+    <string name="category_grenade">Grenades</string>
+    <string name="category_gun">Guns</string>
+    <string name="category_heavy_weapon">Heavy Weapons</string>
+    <string name="category_projectile">Projectiles</string>
+    <string name="category_rocket">Rockets</string>
+    <string name="category_arrow">Arrows</string>
+    <string name="category_bow">Bows</string>
+
+    <string name="editor_help_1">To start, click the pencil button and add a body to your design.</string>
+    <string name="editor_help_2">Connect bodies with joints. There are four types: revolute, elastic, weld, and prismatic. Remember to configure each joint.</string>
+    <string name="editor_help_3">Customize the physical properties of each layer using the layer settings.</string>
+    <string name="editor_help_4">Enhance your layers by decorating them with graphics that have no physical impact.</string>
+    <string name="editor_help_5">Design a gun by creating a projectile indicator, connecting it to a casing indicator to define projectile behavior, and then linking both to a shooting usage type.</string>
+    <string name="editor_help_6">Incorporate images into your design and adjust their size or orientation as needed. Use the pipe button to extract colors from the image.</string>
 </resources>

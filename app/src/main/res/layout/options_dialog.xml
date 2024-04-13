@@ -45,14 +45,14 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"
                 android:button="@drawable/custom_checkbox"
-                android:text="  Sound" />
+                android:text="@string/sound_setting" />
             <CheckBox
                 android:id="@+id/musicCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="2dp"
                 android:button="@drawable/custom_checkbox"
-                android:text="  Music" />
+                android:text="@string/music_setting" />
             <!-- View for separation -->
             <View
                 android:layout_width="match_parent"
@@ -63,7 +63,7 @@
                 android:id="@+id/soundOptionsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Map Options"
+                android:text="@string/map_options"
                 android:textStyle="bold"
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="5dp"
@@ -86,7 +86,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:button="@drawable/custom_checkbox"
-                    android:text="  Open Map" />
+                    android:text="@string/open_map_option_hint" />
 
                 <RadioButton
                     android:id="@+id/woodMapOption"
@@ -94,7 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:button="@drawable/custom_checkbox"
-                    android:text="  Wood House" />
+                    android:text="@string/wood_house_option_hint" />
 
                 <RadioButton
                     android:id="@+id/marbleMapOption"
@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
                     android:button="@drawable/custom_checkbox"
-                    android:text="  Marble House" />
+                    android:text="@string/marble_house_option_hint" />
 
             </RadioGroup>
         </LinearLayout>

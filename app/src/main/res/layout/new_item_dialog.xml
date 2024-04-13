@@ -41,7 +41,7 @@
             android:layout_marginBottom="4dp"
             android:maxLength="20"
             android:backgroundTint="@color/styleRedColor"
-            android:hint="Item name"
+            android:hint="@string/item_name_hint"
             android:imeOptions="flagNoFullscreen"
             android:inputType="textEmailAddress" /> <!-- Set custom backgroundTint -->
 
@@ -57,7 +57,7 @@
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_marginBottom="4dp"
-            android:hint="Item Type"
+            android:hint="@string/item_type_hint"
             android:completionThreshold="0"
             android:imeOptions="flagNoFullscreen"
             android:backgroundTint="@color/styleRedColor" />
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:text="Don't want to start from scratch ? Choose a template"
+            android:text="@string/choose_template"
             android:textSize="11sp"
             android:textColor="@color/lightGrey"
             android:gravity="center" />
@@ -82,7 +82,7 @@
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_marginBottom="4dp"
-            android:hint="Template (Optional)"
+            android:hint="@string/template_hint"
             android:imeOptions="flagNoFullscreen"
             android:backgroundTint="@color/styleRedColor" />
 

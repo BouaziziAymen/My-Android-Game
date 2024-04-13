@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
@@ -17,8 +18,10 @@ import com.evolgames.utilities.GeometryUtils;
 
 import org.andengine.engine.camera.SmoothCamera;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -113,16 +116,14 @@ public abstract class Bomb extends Use {
     }
 
     protected void removeSafety(WorldFacade worldFacade) {
-        if (safetyJointId == -1) {
-            return;
-        }
         Set<Joint> jointSet = new HashSet<>();
         for (BombInfo bombInfo : bombInfoList) {
             GameEntity carrierEntity = bombInfo.getCarrierEntity();
-            if (carrierEntity.getBody() == null) {
+            if (carrierEntity==null||carrierEntity.getBody() == null) {
                 continue;
             }
-            carrierEntity.getBody().getJointList().forEach(jointEdge -> {
+            ArrayList<JointEdge> copy = new ArrayList<>(carrierEntity.getBody().getJointList());
+            for (JointEdge jointEdge : copy) {
                 Joint joint = jointEdge.joint;
                 JointBlock jointBlock = (JointBlock) joint.getUserData();
                 if (jointBlock.getJointId() == safetyJointId && !jointSet.contains(joint)) {
@@ -137,7 +138,7 @@ public abstract class Bomb extends Use {
                     }
                     worldFacade.addNonCollidingPair(entity1, entity2);
                 }
-            });
+            }
         }
     }
 

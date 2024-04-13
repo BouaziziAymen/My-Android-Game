@@ -45,8 +45,12 @@ public class BodyDestructionCommand extends Command {
         entity.getParentGroup().getEntities().remove(entity);
         Hand hand = Invoker.scene.getHand();
         if(hand!=null){
-            if(entity.getHeir()!=null&&hand.getSelectedEntity()==entity) {
-                hand.inheritSelectedEntity(entity.getHeir());
+            if(hand.getSelectedEntity()==entity) {
+                if (entity.getHeir() != null) {
+                    hand.inheritSelectedEntity(entity.getHeir());
+                } else {
+                    hand.deselect(true);
+                }
             }
         }
 

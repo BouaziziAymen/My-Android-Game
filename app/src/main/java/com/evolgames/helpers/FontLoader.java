@@ -10,6 +10,8 @@ import android.graphics.Typeface;
 import android.util.SparseArray;
 
 import com.evolgames.activity.BitmapTextureAtlasSource;
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 
 import org.andengine.opengl.font.exception.FontException;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -20,11 +22,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 
 public class FontLoader {
-    // ===========================================================
-    // PhysicsConstants
-    // ===========================================================
-    private static final String LOADING_LETTERS_LIST =
-            "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?+-#:èé";
+
     // ===========================================================
     // Fields
     // ===========================================================
@@ -67,8 +65,8 @@ public class FontLoader {
 
         ArrayList<MyLetter> letters = new ArrayList<>();
         letters.add(createLetter(' '));
-        for (int i = 0; i < FontLoader.LOADING_LETTERS_LIST.length(); i++) {
-            char character = FontLoader.LOADING_LETTERS_LIST.charAt(i);
+        for (int i = 0; i < ResourceManager.getInstance().getLettersList().length(); i++) {
+            char character = ResourceManager.getInstance().getLettersList().charAt(i);
 
             MyLetter myLetter = createLetter(character);
             letters.add(myLetter);
@@ -115,7 +113,7 @@ public class FontLoader {
 
     public MyLetter getLetter(int fontId, char character) {
         int index =
-                (Character.isWhitespace(character)) ? 0 : LOADING_LETTERS_LIST.indexOf(character) + 1;
+                (Character.isWhitespace(character)) ? 0 : ResourceManager.getInstance().getLettersList().indexOf(character) + 1;
         return mLoadedFonts.get(fontId).get(index);
     }
 
@@ -123,7 +121,7 @@ public class FontLoader {
         Font font = mFonts.get(fontId);
         mPaint.setTypeface(font.typeFace);
         mPaint.setTextSize(font.size);
-        mPaint.getTextBounds(LOADING_LETTERS_LIST, 0, LOADING_LETTERS_LIST.length(), rect);
+        mPaint.getTextBounds(ResourceManager.getInstance().getLettersList(), 0, ResourceManager.getInstance().getLettersList().length(), rect);
         return rect.height();
     }
 

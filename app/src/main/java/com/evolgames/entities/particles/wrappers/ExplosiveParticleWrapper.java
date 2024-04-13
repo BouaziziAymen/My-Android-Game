@@ -35,7 +35,6 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
     protected BaseParticleSystem fireParticleSystem;
     protected BaseParticleSystem smokeParticleSystem;
     protected BaseParticleSystem sparkParticleSystem;
-    protected boolean followParent = true;
     private boolean alive = true;
 
     public ExplosiveParticleWrapper(
@@ -115,13 +114,6 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
 
     protected abstract DataEmitter createEmitter(float[] data, GameEntity gameEntity);
 
-    public void stopFollowingParent() {
-        followParent = false;
-    }
-
-    public void followParent() {
-        followParent = true;
-    }
 
     public void update() {
         if (parent != null && !parent.isAlive()) {
@@ -133,8 +125,7 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
             }
             return;
         }
-        Log.e("data:",followParent+"/"+parent);
-        if (followParent && parent != null) {
+        if (parent != null) {
             emitter.update();
         }
     }

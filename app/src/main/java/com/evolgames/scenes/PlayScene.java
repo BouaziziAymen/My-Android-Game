@@ -47,6 +47,7 @@ import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
+import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.physics.entities.Touch;
 import com.evolgames.scenes.entities.SceneType;
@@ -77,15 +78,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-public class PlayScene extends PhysicsScene<UserInterface<?>>
-        implements IAccelerationListener,
-        ScrollDetector.IScrollDetectorListener,
-        PinchZoomDetector.IPinchZoomDetectorListener {
+public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccelerationListener, ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener {
     public static float groundY;
     public static boolean pause = false;
     public static Plotter plotter;
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
+    private final Random random = new Random();
+    private final boolean[] motorSounds = new boolean[3];
     private PlayerAction playerAction = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private Vector2 point1, point2;
@@ -99,6 +99,8 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private boolean creating;
     private PhysicsConnector physicsConnector;
     private LayerBlock glueBlock;
+    private GameEntity glueEntity;
+    private Sprite aimSprite;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -138,7 +140,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         }
     }
 
-
     private void processHandling(TouchEvent touchEvent) {
         int pointerID = touchEvent.getPointerID();
         if (pointerID != 0) {
@@ -152,33 +153,29 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
     @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-        if (false) {
-            projectionTest(touchEvent);
-        }
-
-        if(this.playerAction==PlayerAction.Create){
+        if (this.playerAction == PlayerAction.Create) {
             ItemMetaData itemToCreate = ResourceManager.getInstance().getSelectedItemMetaData();
-            if(itemToCreate!=null) {
+            if (itemToCreate != null) {
                 if (touchEvent.isActionDown()) {
-                      creating = true;
+                    creating = true;
                 }
-                if(touchEvent.isActionUp()&&creating){
+                if (touchEvent.isActionUp() && creating) {
                     float x = touchEvent.getX();
                     float y = touchEvent.getY();
                     ToolModel toolModel = loadToolModel(itemToCreate.getFileName(), false, !itemToCreate.isUserCreated());
                     toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x, y).filter(OBJECT, OBJECT).build()));
-                    float[] bounds = toolModel.getBounds(x,y,false);
+                    float[] bounds = toolModel.getBounds(x, y, false);
                     plotter.detachChildren();
-                    boolean checkEmpty = worldFacade.checkEmpty(bounds[0]/32f,bounds[1]/32f,bounds[2]/32f,bounds[3]/32f);
+                    boolean checkEmpty = worldFacade.checkEmpty(bounds[0] / 32f, bounds[1] / 32f, bounds[2] / 32f, bounds[3] / 32f);
                     Color color;
-                    if(!checkEmpty) {
-                        getActivity().getUiController().showHint("Insufficient space to position the item.", NativeUIController.HintType.WARNING);
-                        Log.e("CheckEmpty",worldFacade.checkEmptyCallback.getGameEntity().getName());
+                    if (!checkEmpty) {
+                        getActivity().getUiController().showHint(R.string.insufficient_space, NativeUIController.HintType.WARNING);
+                        Log.e("CheckEmpty", worldFacade.checkEmptyCallback.getGameEntity().getName());
                         color = Color.RED;
                         plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
                         plotter.drawLine2(new Vector2(bounds[1], bounds[3]), new Vector2(bounds[1], bounds[2]), color, 1);
                     }
-                    if(checkEmpty) {
+                    if (checkEmpty) {
                         createTool(toolModel, false);
                     }
                     creating = false;
@@ -191,26 +188,31 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             if (this.specialAction == PlayerSpecialAction.effectMeteor) {
                 if (touchEvent.isActionDown()) {
                     setScrollerEnabled(false);
-                    createMeteorite(touchEvent.getX() / 32f, 100f);
+                    createMeteorite(touchEvent.getX() / 32f, 1000f);
+                    ResourceManager.getInstance().meteorSound.play();
                 }
                 if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
                     setScrollerEnabled(true);
                 }
-            } else if (this.specialAction == PlayerSpecialAction.effectFrost) {
+            }
+            if (this.specialAction == PlayerSpecialAction.effectFrost) {
                 processFrostEffect(touchEvent);
-            } else if (this.specialAction == PlayerSpecialAction.effectFireBolt) {
+            }
+            if (this.specialAction == PlayerSpecialAction.effectFireBolt) {
                 processExplosionEffect(touchEvent);
-            } else if (this.specialAction == PlayerSpecialAction.effectCut) {
+            }
+            if (this.specialAction == PlayerSpecialAction.effectCut) {
                 processSlicing(touchEvent);
             }
-            else if (this.specialAction == PlayerSpecialAction.effectGlue) {
+            if (this.specialAction == PlayerSpecialAction.effectGlue) {
                 processGluing(touchEvent);
             }
-            else {
+            if (!effectsActive) {
                 if (playerAction == PlayerAction.Drag || playerAction == PlayerAction.Hold || playerAction == PlayerAction.Select) {
                     processHandling(touchEvent);
                 }
             }
+
         }
         if (mPinchZoomDetector != null) {
             mPinchZoomDetector.onTouchEvent(touchEvent);
@@ -226,6 +228,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             worldFacade.frostParticleWrapper(new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
             worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
             setScrollerEnabled(false);
+            ResourceManager.getInstance().windSound.play();
         }
         if (touchEvent.isActionMove()) {
             worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
@@ -234,6 +237,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             worldFacade.getFrostParticleWrapper().setAlive(false);
             worldFacade.getFrostParticleWrapper().setSpawnEnabled(false);
             setScrollerEnabled(true);
+            ResourceManager.getInstance().windSound.pause();
         }
     }
 
@@ -242,13 +246,13 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         createRagDoll(400, 420);
         createTestUnit();
         String map = ResourceManager.getInstance().getMapString();
-        if("open".equals(map.toLowerCase())) {
+        if ("open".equalsIgnoreCase(map)) {
             createOpenGround();
         }
-        if("marble".equals(map.toLowerCase())) {
+        if ("marble".equalsIgnoreCase(map)) {
             createMarbleGround();
         }
-        if("wood".equals(map.toLowerCase())) {
+        if ("wood".equalsIgnoreCase(map)) {
             createWoodGround();
         }
         //testMesh();
@@ -296,16 +300,12 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private void bluntDamageTest() {
         if (step % 60 == 10) {
             GameEntity head = ragdoll.leftFoot;
-            List<Vector2> pts =
-                    Vector2Utils.generateRandomPointsInsidePolygon(
-                            10, head.getBlocks().get(0).getVertices().get(0), head.getBlocks().get(0), head);
+            List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(10, head.getBlocks().get(0).getVertices().get(0), head.getBlocks().get(0), head);
             for (Vector2 p : pts) {
                 EditorScene.plotter.drawPointOnEntity(p, Color.PINK, head.getMesh());
                 // 0.4f+ (float) (Math.random()*0.3f), (float) (Math.random()*0.3f) , (float)
                 // (0.1f+Math.random()*0.2f)
-                Color color =
-                        new Color(
-                                0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
+                Color color = new Color(0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
                 Color skin = new Color(head.getBlocks().get(0).getProperties().getDefaultColor());
                 skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
                 MyColorUtils.blendColors(color, color, skin);
@@ -317,49 +317,27 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
 
     private void pulverizationTest() {
         if (step == 180) {
-            ragdoll
-                    .getGameEntities()
-                    .forEach(
-                            e -> {
-                                e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
-                                this.worldFacade.destroyGameEntity(e, true, false);
-                            });
+            ragdoll.getGameEntities().forEach(e -> {
+                e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
+                this.worldFacade.destroyGameEntity(e, true, false);
+            });
         }
     }
-    private Random random = new Random();
-    private void createMeteorite(float x, float y){
-        int n = 5+random.nextInt(10);
-        float size = (float) (Math.random()*5 + 5);
+
+    private void createMeteorite(float x, float y) {
+        int n = 5 + random.nextInt(10);
+        float size = (float) (Math.random() * 5 + 5);
         float angle = (float) (Math.PI * 2 * Math.random());
-       List<Vector2> points = VerticesFactory.createPolygon(0,0,angle,size,size,n);
-        LayerProperties properties1 =
-                PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(IGNIUM));
+        List<Vector2> points = VerticesFactory.createPolygon(0, 0, angle, size, size, n);
+        LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(IGNIUM));
         properties1.setTenacity(0.1f);
         LayerBlock block = BlockFactory.createLayerBlock(points, properties1, 0);
 
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         blocks.add(block);
-        Vector2 u = new Vector2(0,-1);
-        BodyInit bodyInit =
-                new BulletInit(
-                        new TransformInit(
-                                new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(500)),
-                                x,
-                                y,
-                                0),
-                        true);
-        GameEntity meteorite =
-                GameEntityFactory.getInstance()
-                        .createGameEntity(
-                                x / 32f,
-                                y / 32f,
-                                0,
-                                false,
-                                bodyInit,
-                                blocks,
-                                BodyDef.BodyType.DynamicBody,
-                                "Meteorite",null);
+        Vector2 u = new Vector2(0, -1);
+        BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(500)), x, y, 0), true);
+        GameEntity meteorite = GameEntityFactory.getInstance().createGameEntity(x / 32f, y / 32f, 0, false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Meteorite", null);
         Projectile projectileUse = new Projectile(ProjectileType.METEOR);
         projectileUse.setActive(true);
         meteorite.getUseList().add(projectileUse);
@@ -394,34 +372,15 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
             vertices1.add(obtain(0, 15));
             vertices1.add(obtain(3, -5));
 
-            LayerProperties properties1 =
-                    PropertiesFactory.getInstance()
-                            .createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
+            LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
             properties1.setSharpness(0.5f);
             LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1);
 
             ArrayList<LayerBlock> blocks = new ArrayList<>();
             blocks.add(block1);
 
-            BodyInit bodyInit =
-                    new BulletInit(
-                            new TransformInit(
-                                    new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(80f)),
-                                    400 / 32f,
-                                    480 / 32f,
-                                    (float) (angle + Math.PI)),
-                            true);
-            GameEntity gameEntity =
-                    GameEntityFactory.getInstance()
-                            .createGameEntity(
-                                    400 / 32f,
-                                    100 / 32f,
-                                    (float) (angle + Math.PI),
-                                    false,
-                                    bodyInit,
-                                    blocks,
-                                    BodyDef.BodyType.DynamicBody,
-                                    "Projectile",null);
+            BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(80f)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 100 / 32f, (float) (angle + Math.PI), false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
             GameGroup proj = new GameGroup(GroupType.OTHER, gameEntity);
             gameEntity.getUseList().add(new Projectile(ProjectileType.SHARP_WEAPON));
             addGameGroup(proj);
@@ -447,81 +406,49 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
     private void testMesh() {
         ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, 0, 2, 2, 64);
         float[] data = MeshFactory.getInstance().computeData(list);
-        Mesh theMesh =
-                new Mesh(
-                        400,
-                        240,
-                        data,
-                        data.length / 3,
-                        DrawMode.TRIANGLES,
-                        ResourceManager.getInstance().vbom);
+        Mesh theMesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
         attachChild(theMesh);
     }
 
     private void createOpenGround() {
         PlayScene.groundY = 30f;
         List<GameEntity> entities = new ArrayList<>();
-        for(int i=-100;i<100;i++) {
-       // for(int i=2;i<3;i++) {
+        for (int i = -100; i < 100; i++) {
+            // for(int i=2;i<3;i++) {
             ArrayList<LayerBlock> blocks = new ArrayList<>();
             List<Vector2> vertices = new ArrayList<>();
             vertices.add(obtain(-200, -50));
             vertices.add(obtain(-200, 30));
             vertices.add(obtain(200, 30));
             vertices.add(obtain(200, -50));
-            blocks.add(
-                    BlockFactory.createLayerBlock(
-                            vertices,
-                            PropertiesFactory.getInstance()
-                                    .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.ASPHALT)),
-                            0,
-                            0,
-                            false));
+            blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.ASPHALT)), 0, 0, false));
 
-            BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), i*400f/32f, 0, 0);
-            GameEntity entity =
-                    GameEntityFactory.getInstance().createGameEntity(i*400f/32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part "+i,null);
+            BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), i * 400f / 32f, 0, 0);
+            GameEntity entity = GameEntityFactory.getInstance().createGameEntity(i * 400f / 32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part " + i, null);
             entities.add(entity);
         }
-        GameGroup groundGroup = new GameGroup(GroupType.GROUND,entities);
+        GameGroup groundGroup = new GameGroup(GroupType.GROUND, entities);
         this.addGameGroup(groundGroup);
         this.worldFacade.setGroundGroup(groundGroup);
     }
 
-
     private void createWoodGround() {
         PlayScene.groundY = 20f;
-        ((SmoothCamera)ResourceManager.getInstance().firstCamera)
-                .setBounds(-400,0,1200,980);
+        ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-400, 0, 1200, 980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices = new ArrayList<>();
         vertices.add(obtain(-800, -50));
         vertices.add(obtain(-800, 20));
         vertices.add(obtain(800, 20));
         vertices.add(obtain(800, -50));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
-                        0,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)), 0, 0, false));
 
         vertices = new ArrayList<>();
         vertices.add(obtain(-800, 960));
         vertices.add(obtain(-800, 20));
         vertices.add(obtain(-780, 20));
         vertices.add(obtain(-780, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
-                        1,
-                        0,
-                        false));
-
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)), 1, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -529,14 +456,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         vertices.add(obtain(800, 20));
         vertices.add(obtain(780, 20));
         vertices.add(obtain(780, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
-                        2,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)), 2, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -544,62 +464,32 @@ public class PlayScene extends PhysicsScene<UserInterface<?>>
         vertices.add(obtain(-800, 980));
         vertices.add(obtain(800, 980));
         vertices.add(obtain(800, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)),
-                        3,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.WOOD)), 3, 0, false));
 
-for(LayerBlock layerBlock:blocks){
-    layerBlock.getProperties().setDefaultColor(new Color(222f/255f,184f/255f,135/255f));
-}
-        GameGroup groundGroup =
-                GameEntityFactory.getInstance()
-                        .createGameGroupTest(
-                                blocks,
-                                new Vector2(400 / 32f, 0),
-                                BodyDef.BodyType.StaticBody,
-                                "Ground",
-                                OBJECTS_MIDDLE_CATEGORY,
-                                GroupType.GROUND);
+        for (LayerBlock layerBlock : blocks) {
+            layerBlock.getProperties().setDefaultColor(new Color(222f / 255f, 184f / 255f, 135 / 255f));
+        }
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY, GroupType.GROUND);
         this.worldFacade.setGroundGroup(groundGroup);
     }
 
     private void createMarbleGround() {
         PlayScene.groundY = 30f;
 
-        ((SmoothCamera)ResourceManager.getInstance().firstCamera)
-                .setBounds(-440,0,1240,980);
+        ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-440, 0, 1240, 980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices = new ArrayList<>();
         vertices.add(obtain(-800, -50));
         vertices.add(obtain(-800, 10));
         vertices.add(obtain(800, 10));
         vertices.add(obtain(800, -50));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        0,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 0, 0, false));
         vertices = new ArrayList<>();
         vertices.add(obtain(-780, 10));
         vertices.add(obtain(-780, 20));
         vertices.add(obtain(780, 20));
         vertices.add(obtain(780, 10));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        1,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 1, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -607,16 +497,7 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(-760, 30));
         vertices.add(obtain(760, 30));
         vertices.add(obtain(760, 20));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        2,
-                        0,
-                        false));
-
-
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 2, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -624,15 +505,7 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(-760, 30));
         vertices.add(obtain(-720, 30));
         vertices.add(obtain(-720, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        3,
-                        0,
-                        false));
-
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 3, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -640,14 +513,7 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(760, 30));
         vertices.add(obtain(720, 30));
         vertices.add(obtain(720, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        4,
-                        0,
-                        false));
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 4, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -655,16 +521,7 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(-800, 980));
         vertices.add(obtain(800, 980));
         vertices.add(obtain(800, 960));
-        blocks.add(
-                BlockFactory.createLayerBlock(
-                        vertices,
-                        PropertiesFactory.getInstance()
-                                .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)),
-                        5,
-                        0,
-                        false));
-
-
+        blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 5, 0, false));
 
 
         vertices = new ArrayList<>();
@@ -674,9 +531,9 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(780, 10));
         DecorationBlock decorationBlock = new DecorationBlock();
         DecorationProperties decorationProperties = new DecorationProperties();
-        decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
-        decorationBlock.initialization(vertices,decorationProperties,0);
-     blocks.get(1).addAssociatedBlock(decorationBlock);
+        decorationProperties.setDefaultColor(new Color(0.8f, 0.8f, 0.8f));
+        decorationBlock.initialization(vertices, decorationProperties, 0);
+        blocks.get(1).addAssociatedBlock(decorationBlock);
 
 
         vertices = new ArrayList<>();
@@ -686,20 +543,12 @@ for(LayerBlock layerBlock:blocks){
         vertices.add(obtain(760, 20));
         decorationBlock = new DecorationBlock();
         decorationProperties = new DecorationProperties();
-        decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
-        decorationBlock.initialization(vertices,decorationProperties,0);
+        decorationProperties.setDefaultColor(new Color(0.8f, 0.8f, 0.8f));
+        decorationBlock.initialization(vertices, decorationProperties, 0);
         blocks.get(2).addAssociatedBlock(decorationBlock);
 
 
-        GameGroup groundGroup =
-                GameEntityFactory.getInstance()
-                        .createGameGroupTest(
-                                blocks,
-                                new Vector2(400 / 32f, 0),
-                                BodyDef.BodyType.StaticBody,
-                                "Ground",
-                                OBJECTS_MIDDLE_CATEGORY,
-                                GroupType.GROUND);
+        GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY, GroupType.GROUND);
         this.worldFacade.setGroundGroup(groundGroup);
     }
 
@@ -756,37 +605,21 @@ for(LayerBlock layerBlock:blocks){
         // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
 
         List<Vector2> vertices3 = VerticesFactory.createRectangle(80, 80);
-        LayerProperties properties3 =
-                PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
+        LayerProperties properties3 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
         LayerBlock block3 = BlockFactory.createLayerBlock(vertices3, properties3, 1, 0);
         List<LayerBlock> blocks3 = new ArrayList<>();
         blocks3.add(block3);
-        GameGroup gameGroup =
-                GameEntityFactory.getInstance()
-                        .createGameGroupTest(
-                                blocks3,
-                                new Vector2(700 / 32f, 200 / 32f),
-                                BodyDef.BodyType.DynamicBody,
-                                GroupType.OTHER);
+        GameGroup gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks3, new Vector2(700 / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody, GroupType.OTHER);
         GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
         gameEntity3.setName("small rectangle");
 
 
         List<Vector2> vertices4 = VerticesFactory.createRectangle(80, 80);
-        LayerProperties properties4 =
-                PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
+        LayerProperties properties4 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
         LayerBlock block4 = BlockFactory.createLayerBlock(vertices4, properties4, 1, 0);
         List<LayerBlock> blocks4 = new ArrayList<>();
         blocks4.add(block4);
-        GameGroup gameGroup2 =
-                GameEntityFactory.getInstance()
-                        .createGameGroupTest(
-                                blocks4,
-                                new Vector2(100 / 32f, 200 / 32f),
-                                BodyDef.BodyType.DynamicBody,
-                                GroupType.OTHER);
+        GameGroup gameGroup2 = GameEntityFactory.getInstance().createGameGroupTest(blocks4, new Vector2(100 / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody, GroupType.OTHER);
         GameEntity gameEntity4 = gameGroup2.getGameEntityByIndex(0);
         gameEntity4.setName("small rectangle");
 
@@ -826,23 +659,23 @@ for(LayerBlock layerBlock:blocks){
             }
         }
     }
-    private GameEntity glueEntity;
+
     private void processGluing(TouchEvent touchEvent) {
 
         if (touchEvent.isActionDown()) {
             setScrollerEnabled(false);
-            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.getTouchedEntity(touchEvent, false,true);
-           if(touchData!=null) {
-               glueEntity = touchData.first;
-               point1 = touchData.second.first.cpy();
-               glueBlock = touchData.second.second;
-               point2 = new Vector2(point1);
-               line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
-               line.setColor(Color.BLUE);
-               line.setZIndex(999);
-               this.attachChild(line);
-               this.sortChildren();
-           }
+            Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.getTouchedEntity(touchEvent, false, true);
+            if (touchData != null) {
+                glueEntity = touchData.first;
+                point1 = touchData.second.first.cpy();
+                glueBlock = touchData.second.second;
+                point2 = new Vector2(point1);
+                line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
+                line.setColor(Color.BLUE);
+                line.setZIndex(999);
+                this.attachChild(line);
+                this.sortChildren();
+            }
         }
         if (touchEvent.isActionMove()) {
             if (point2 != null) {
@@ -852,18 +685,18 @@ for(LayerBlock layerBlock:blocks){
         }
         if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
             setScrollerEnabled(true);
-            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.getTouchedEntity(touchEvent, false,true);
-            if (point1 != null && point2 != null&&glueEntity!=null && touchData!=null&&touchData.first!=null && glueEntity!=touchData.first) {
-              Touch touch = worldFacade.areTouching(glueBlock,touchData.second.second);
-                if(touch!=null){
+            Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.getTouchedEntity(touchEvent, false, true);
+            if (point1 != null && point2 != null && glueEntity != null && touchData != null && touchData.first != null && glueEntity != touchData.first) {
+                Touch touch = worldFacade.areTouching(glueBlock, touchData.second.second);
+                if (touch != null) {
                     line.setPosition(point1.x, point1.y, touchData.second.first.x, touchData.second.first.y);
-                  this.worldFacade.glueEntities(glueEntity,touchData.first,touch.getPoint());
-                  ResourceManager.getInstance().glueSound.play();
-              }
+                    this.worldFacade.glueEntities(glueEntity, touchData.first, touch.getPoint());
+                    ResourceManager.getInstance().glueSound.play();
+                }
             }
             point1 = null;
             point2 = null;
-            if(line!=null) {
+            if (line != null) {
                 line.detachSelf();
             }
         }
@@ -884,44 +717,7 @@ for(LayerBlock layerBlock:blocks){
         if (specialAction == PlayerSpecialAction.FireLight) {
             getHand().setHoldingAngle(0);
         }
-
-//        Missile missile = null;
-//
-//        Hand h = PlayScene.this.getHand();
-//        if (h != null && h.getMouseJoint() != null) {
-//            if (h.getGrabbedEntity().hasUsage(Missile.class)) {
-//                missile = h.getGrabbedEntity().getUsage(Missile.class);
-//            }
-        //Missile finalMissile = missile;
-//            userInterface
-//                    .getPanel()
-//                    .allocateController(
-//                            800 - 64 / 2f,
-//                            64 / 2f,
-//                            ControlElement.Type.AnalogController,
-//                            new ControllerAction() {
-//                                @Override
-//                                public void controlMoved(float pX, float pY) {
-//                                    if (finalMissile != null) {
-//                                        finalMissile.setSteerValue(pY);
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void controlClicked() {
-//                                }
-//
-//                                @Override
-//                                public void controlReleased() {
-//                                    if (finalMissile != null) {
-//                                        finalMissile.setSteerValue(0);
-//                                    }
-//                                }
-//                            });
-//        }
-
     }
-
 
     public PlayerAction getPlayerAction() {
         return playerAction;
@@ -938,36 +734,35 @@ for(LayerBlock layerBlock:blocks){
             if (usesActive) {
                 Hand h = getHand();
                 if (h != null && h.getUsableEntity() != null) {
-                    h.getUsableEntity()
-                            .getUseList()
-                            .forEach(
-                                    u -> {
-                                        if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
-                                            if (u.getActions() != null && !u.getActions().isEmpty()) {
-                                                usageList.addAll(u.getActions());
-                                                if (this.playerAction == PlayerAction.Select) {
-                                                    usageList.removeIf(e -> !e.fromDistance);
-                                                }
-                                            }
-                                        }
-                                    });
+                    h.getUsableEntity().getUseList().forEach(u -> {
+                        if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
+                            if (u.getActions() != null && !u.getActions().isEmpty()) {
+                                usageList.addAll(u.getActions());
+                                if (this.playerAction == PlayerAction.Select) {
+                                    usageList.removeIf(e -> !e.fromDistance);
+                                }
+                            }
+                        }
+                    });
                 }
 
                 defaultAction = specialAction == null ? usageList.stream().filter(e -> e.selectableByDefault).findFirst().orElse(null) : specialAction;
-               if(hand!=null) {
-                   if (hand.hasSelectedEntity()) {
-                       usageList.add(PlayerSpecialAction.Unselect);
-                   } else if(playerAction==PlayerAction.Hold&&hand.getGrabbedEntity()!=null) {
-                       usageList.add(PlayerSpecialAction.Drop);
-                   }
-               }
+                if (hand != null) {
+                    if (hand.hasSelectedEntity()) {
+                        usageList.add(PlayerSpecialAction.Unselect);
+                    } else if (playerAction == PlayerAction.Hold && hand.getGrabbedEntity() != null) {
+                        usageList.add(PlayerSpecialAction.Drop);
+                    }
+                }
                 this.setSpecialAction(usageList.contains(defaultAction) ? defaultAction : PlayerSpecialAction.None);
             }
             if (effectsActive) {
                 usageList.add(PlayerSpecialAction.effectCut);
                 usageList.add(PlayerSpecialAction.effectGlue);
                 usageList.add(PlayerSpecialAction.effectFireBolt);
-                usageList.add(PlayerSpecialAction.effectMeteor);
+                if(ResourceManager.getInstance().getMapString().equalsIgnoreCase("open")) {
+                    usageList.add(PlayerSpecialAction.effectMeteor);
+                }
                 usageList.add(PlayerSpecialAction.effectFrost);
             }
             getActivity().getUiController().onUsagesUpdated(usageList, defaultAction, usesActive);
@@ -978,15 +773,14 @@ for(LayerBlock layerBlock:blocks){
         return ResourceManager.getInstance().activity;
     }
 
-    public Pair<GameEntity, Pair<Vector2,LayerBlock>> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
+    public Pair<GameEntity, Pair<Vector2, LayerBlock>> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
         GameEntity result = null;
         Pair<Vector2, LayerBlock> anchor = null;
         float minDis = 32f;
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
-                if (entity.getBody() != null
-                        && (includeStatic||entity.getBody().getType() == BodyDef.BodyType.DynamicBody)) {
+                if (entity.getBody() != null && (includeStatic || entity.getBody().getType() == BodyDef.BodyType.DynamicBody)) {
                     Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, withHold);
                     if (vector2LayerBlockPair != null) {
                         float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
@@ -1021,17 +815,23 @@ for(LayerBlock layerBlock:blocks){
         createItemFromFile("editor_auto_save.mut", false, false);
     }
 
-    private Sprite aimSprite;
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
+        if(playerSpecialAction==PlayerSpecialAction.effectMeteor||
+                playerSpecialAction==PlayerSpecialAction.effectFrost||
+                playerSpecialAction==PlayerSpecialAction.effectCut||
+                playerSpecialAction==PlayerSpecialAction.effectGlue||
+                playerSpecialAction==PlayerSpecialAction.effectFireBolt){
+            getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
+        }
 
-        if(playerSpecialAction==PlayerSpecialAction.AimHeavy ||playerSpecialAction==PlayerSpecialAction.FireHeavy) {
-            if(aimSprite!=null&&aimSprite.hasParent()){
+        if (playerSpecialAction == PlayerSpecialAction.AimHeavy || playerSpecialAction == PlayerSpecialAction.FireHeavy) {
+            if (aimSprite != null && aimSprite.hasParent()) {
                 aimSprite.detachSelf();
             } else {
-                getActivity().getUiController().showHint(playerSpecialAction.hint, NativeUIController.HintType.HINT);
+                getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
             }
             createAimSprite(hand.getHeldEntity(), hand.getHeldEntity());
-            if(hand.getSelectedEntity().getBody()!=null) {
+            if (hand.getSelectedEntity().getBody() != null) {
                 physicsConnector = new PhysicsConnector(aimSprite, hand.getHeldEntity().getBody());
                 getPhysicsWorld().registerPhysicsConnector(physicsConnector);
             }
@@ -1039,26 +839,26 @@ for(LayerBlock layerBlock:blocks){
             if (!aimSprite.hasParent()) {
                 attachChild(aimSprite);
             }
-        } else if(playerSpecialAction==PlayerSpecialAction.AimLight||playerSpecialAction==PlayerSpecialAction.FireLight) {
-            if(aimSprite!=null&&aimSprite.hasParent()){
+        } else if (playerSpecialAction == PlayerSpecialAction.AimLight || playerSpecialAction == PlayerSpecialAction.FireLight|| playerSpecialAction == PlayerSpecialAction.Throw) {
+            if (aimSprite != null && aimSprite.hasParent()) {
                 aimSprite.detachSelf();
-                if(this.physicsConnector!=null) {
+                if (this.physicsConnector != null) {
                     getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
                 }
             } else {
-                getActivity().getUiController().showHint(playerSpecialAction.hint, NativeUIController.HintType.HINT);
+                getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
             }
             createAimSprite(hand.getGrabbedEntity(), hand.getGrabbedEntity());
-            if(hand.getGrabbedEntity().getBody()!=null) {
-               physicsConnector = new PhysicsConnector(aimSprite, hand.getGrabbedEntity().getBody());
+            if (hand.getGrabbedEntity().getBody() != null) {
+                physicsConnector = new PhysicsConnector(aimSprite, hand.getGrabbedEntity().getBody());
                 getPhysicsWorld().registerPhysicsConnector(physicsConnector);
             }
 
             if (!aimSprite.hasParent()) {
                 attachChild(aimSprite);
             }
-        }else {
-            if(aimSprite!=null){
+        } else {
+            if (aimSprite != null) {
                 hideAimSprite(aimSprite.hasParent(), aimSprite);
                 this.aimSprite = null;
                 this.physicsConnector = null;
@@ -1071,14 +871,12 @@ for(LayerBlock layerBlock:blocks){
             }
         }
 
-        if (playerSpecialAction == PlayerSpecialAction.motorMoveForward ||
-                playerSpecialAction == PlayerSpecialAction.motorMoveBackward || playerSpecialAction == PlayerSpecialAction.motorStop) {
+        if (playerSpecialAction == PlayerSpecialAction.motorMoveForward || playerSpecialAction == PlayerSpecialAction.motorMoveBackward || playerSpecialAction == PlayerSpecialAction.motorStop) {
             if (hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
                 if (usableEntity != null && usableEntity.hasUsage(MotorControl.class)) {
                     MotorControl motorControl = usableEntity.getUsage(MotorControl.class);
-                    int state = playerSpecialAction == PlayerSpecialAction.motorMoveBackward ? -1 :
-                            playerSpecialAction == PlayerSpecialAction.motorMoveForward ? 1 : 0;
+                    int state = playerSpecialAction == PlayerSpecialAction.motorMoveBackward ? -1 : playerSpecialAction == PlayerSpecialAction.motorMoveForward ? 1 : 0;
                     motorControl.setMotorState(state);
                 }
             }
@@ -1094,16 +892,13 @@ for(LayerBlock layerBlock:blocks){
                     onUsagesUpdated();
                 }
             }
-        }
-        else if (playerSpecialAction == PlayerSpecialAction.Unselect){
-            if(this.hand!=null){
-                this.hand.deselect();
-                onUsagesUpdated();
+        } else if (playerSpecialAction == PlayerSpecialAction.Unselect) {
+            if (this.hand != null) {
+                this.hand.deselect(true);
             }
-        }
-        else if (playerSpecialAction == PlayerSpecialAction.Drop){
-            if(this.hand!=null){
-                this.hand.releaseGrabbedEntity(true);
+        } else if (playerSpecialAction == PlayerSpecialAction.Drop) {
+            if (this.hand != null) {
+                this.hand.releaseGrabbedEntity(true,true);
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
@@ -1179,18 +974,15 @@ for(LayerBlock layerBlock:blocks){
         }
     }
 
-
     @Override
-    public void onPinchZoomStarted(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pSceneTouchEvent) {
+    public void onPinchZoomStarted(PinchZoomDetector pPinchZoomDetector, TouchEvent pSceneTouchEvent) {
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         this.mPinchZoomStartedCameraZoomFactor = cam.getZoomFactor();
         this.mScrollDetector.setEnabled(false);
     }
 
     @Override
-    public void onPinchZoom(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
+    public void onPinchZoom(PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
 
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         float zf = mPinchZoomStartedCameraZoomFactor * pZoomFactor;
@@ -1198,21 +990,18 @@ for(LayerBlock layerBlock:blocks){
     }
 
     @Override
-    public void onPinchZoomFinished(
-            PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
+    public void onPinchZoomFinished(PinchZoomDetector pPinchZoomDetector, TouchEvent pTouchEvent, float pZoomFactor) {
         mScrollDetector.setEnabled(true);
         onScroll(mScrollDetector, pTouchEvent.getPointerID(), 0, 0);
     }
 
     @Override
-    public void onScrollStarted(
-            ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+    public void onScrollStarted(ScrollDetector pScollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
         mPinchZoomDetector.setEnabled(false);
     }
 
     @Override
-    public void onScroll(
-            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+    public void onScroll(ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
 
         SmoothCamera cam = (SmoothCamera) this.mCamera;
 
@@ -1227,8 +1016,7 @@ for(LayerBlock layerBlock:blocks){
     }
 
     @Override
-    public void onScrollFinished(
-            ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
+    public void onScrollFinished(ScrollDetector pScrollDetector, int pPointerID, float pDistanceX, float pDistanceY) {
         mPinchZoomDetector.setEnabled(true);
     }
 
@@ -1264,34 +1052,32 @@ for(LayerBlock layerBlock:blocks){
         this.effectsActive = effectsActive;
     }
 
-
-    private void checkMotorSounds(){
+    private void checkMotorSounds() {
         HashSet<Integer> sounds = new HashSet<>();
-        for(GameGroup gameGroup:gameGroups){
-            for(GameEntity gameEntity: gameGroup.getEntities()){
-                if(gameEntity.hasUsage(MotorControl.class)){
+        for (GameGroup gameGroup : gameGroups) {
+            for (GameEntity gameEntity : gameGroup.getEntities()) {
+                if (gameEntity.hasUsage(MotorControl.class)) {
                     MotorControl motorControl = gameEntity.getUsage(MotorControl.class);
-                    if(motorControl.isRunning()){
+                    if (motorControl.isRunning()) {
                         sounds.add(motorControl.getMotorSound());
                     }
                 }
             }
         }
-        for(int i=0;i<3;i++){
-            if(sounds.contains(i)){
-                if(!motorSounds[i]){
+        for (int i = 0; i < 3; i++) {
+            if (sounds.contains(i)) {
+                if (!motorSounds[i]) {
                     motorSounds[i] = true;
                     ResourceManager.getInstance().motorSounds.get(i).play();
                 }
             } else {
-                if(motorSounds[i]){
+                if (motorSounds[i]) {
                     ResourceManager.getInstance().motorSounds.get(i).stop();
                     motorSounds[i] = false;
                 }
             }
         }
     }
-    private final boolean[] motorSounds = new boolean[3];
 
     public void onSelectedEntitySpared() {
         hideAimSprite(this.aimSprite != null, this.aimSprite);

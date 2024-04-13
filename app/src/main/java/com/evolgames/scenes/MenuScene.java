@@ -2,6 +2,7 @@ package com.evolgames.scenes;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
@@ -17,6 +18,7 @@ import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.MenuUserInterface;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.input.touch.TouchEvent;
 
 import java.util.ArrayList;
@@ -30,6 +32,14 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         super(pCamera, SceneType.MENU);
     }
 
+    private void createEyes(){
+        int[] playerAnimationFrames = {0, 1, 2, 3,4}; // indices of frames in spritesheet
+        long[] playerFrameDurations = {800, 100, 150, 100, 100}; // duration of each frame in milliseconds
+        AnimatedSprite playerSprite = new AnimatedSprite(0, 2, ResourceManager.getInstance().evilEyesTextureRegion, ResourceManager.getInstance().vbom);
+       playerSprite.setScale(0.3f);
+        playerSprite.animate(playerFrameDurations, playerAnimationFrames, true);
+        ragdoll.head.getMesh().attachChild(playerSprite);
+    }
     @Override
     public void populate() {
         List<Vector2> vertices1 = VerticesFactory.createRectangle(240, 80);
@@ -53,6 +63,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
 
         createRagDoll(415, 460);
+        createEyes();
         jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);
 
     }

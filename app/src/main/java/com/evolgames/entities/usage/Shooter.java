@@ -5,6 +5,8 @@ import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
 import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
+import android.util.Pair;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.activity.ResourceManager;
@@ -202,6 +204,7 @@ public class Shooter extends Use {
 
         if (rounds <= 0) {
             startReload();
+            ResourceManager.getInstance().gunEmptySound.play();
         }
     }
 
@@ -304,7 +307,7 @@ public class Shooter extends Use {
             list.add(PlayerSpecialAction.None);
             list.add(PlayerSpecialAction.FireLight);
             list.add(PlayerSpecialAction.AimLight);
-            if(isLoaded()) {
+            if(isLoaded().first) {
                 list.add(PlayerSpecialAction.Trigger);
             }
             return list;
@@ -315,7 +318,7 @@ public class Shooter extends Use {
                 list.add(PlayerSpecialAction.FireHeavy);
             } else {
                 list.add(PlayerSpecialAction.AimHeavy);
-                if (isLoaded()) {
+                if (isLoaded().first) {
                     list.add(PlayerSpecialAction.Trigger);
                 }
             }
@@ -347,8 +350,9 @@ public class Shooter extends Use {
         createFireSources(physicsScene.getWorldFacade());
     }
 
-    public boolean isLoaded() {
-        return loaded;
+    public Pair<Boolean,Float> isLoaded() {
+        float loadedIn = Math.max(0,reloadTime-loadingTimer);
+        return new Pair<>(loaded,loadedIn);
     }
 
     public void createFireSources(WorldFacade worldFacade) {

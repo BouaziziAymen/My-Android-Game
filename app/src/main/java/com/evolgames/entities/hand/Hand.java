@@ -2,11 +2,13 @@ package com.evolgames.entities.hand;
 
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.evolgames.activity.NativeUIController;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
@@ -24,6 +26,7 @@ import com.evolgames.entities.usage.Slasher;
 import com.evolgames.entities.usage.Smasher;
 import com.evolgames.entities.usage.Stabber;
 import com.evolgames.entities.usage.Throw;
+import com.evolgames.gameengine.R;
 import com.evolgames.scenes.PlayScene;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MathUtils;
@@ -71,7 +74,7 @@ public class Hand {
     public void grab(GameEntity entity, TouchEvent touchEvent, Vector2 anchor) {
         this.follow = true;
         boolean grabbedOtherEntity = this.grabbedEntity != entity;
-        releaseGrabbedEntity(false);
+        releaseGrabbedEntity(false,true);
         this.grabbedEntity = entity;
 
         if (grabbedOtherEntity) {
@@ -149,22 +152,22 @@ public class Hand {
         }
     }
 
-    public void releaseGrabbedEntity(boolean updateUsages) {
+    public void releaseGrabbedEntity(boolean updateUsages, boolean deactivateProjectiles) {
         if (grabbedEntity == null || mouseJoint == null) {
             return;
         }
         this.playScene.onGrabbedEntityReleased();
         Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
-        onGrabbedEntityReleased(updateUsages);
+        onGrabbedEntityReleased(updateUsages,deactivateProjectiles);
     }
 
-    private void onGrabbedEntityReleased(boolean updateUsages) {
+    private void onGrabbedEntityReleased(boolean updateUsages, boolean deactivateProjectiles) {
         if (grabbedEntity.getBody() != null) {
             grabbedEntity.getBody().setBullet(false);
         }
         grabbedEntity.getUseList().forEach(u ->
                 {
-                    if (u instanceof Projectile || u instanceof Stabber) {
+                    if ((deactivateProjectiles&&u instanceof Projectile) || u instanceof Stabber) {
                         u.setActive(false);
                     }
 
@@ -202,7 +205,7 @@ public class Hand {
                     }
                 } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
                     if (grabbedEntity != null) {
-                        releaseGrabbedEntity(true);
+                        releaseGrabbedEntity(true,true);
                         this.follow = false;
                         playScene.setScrollerEnabled(true);
                         playScene.setScrollerEnabled(true);
@@ -325,8 +328,15 @@ public class Hand {
                             if(grabbedEntity!=null) {
                                 if (grabbedEntity.hasUsage(Shooter.class)) {
                                     Shooter shooter = grabbedEntity.getUsage(Shooter.class);
-                                    if (shooter.isLoaded()) {
+                                    Pair<Boolean, Float> loaded = shooter.isLoaded();
+                                    if (loaded.first) {
                                         shooter.onTriggerPulled(playScene);
+                                    } else {
+                                        float reloadTime = loaded.second; // Assuming the second element represents the reload time
+                                        @SuppressLint("DefaultLocale")
+                                        String reloadHint = String.format(ResourceManager.getInstance().activity.getString(R.string.gun_reloading_warning), reloadTime);
+                                        ResourceManager.getInstance().activity.getUiController().showHint(reloadHint, NativeUIController.HintType.WARNING);
+                                        ResourceManager.getInstance().gunEmptySound.play();
                                     }
                                 }
                                 if (grabbedEntity.hasUsage(FlameThrower.class)) {
@@ -364,17 +374,16 @@ public class Hand {
                                killTopOfStack();
                                 holding = false;
                             }
-                            deselect();
+                            deselect(false);
                         }
                         select(touchData.first);
                     } else {
-                        deselect();
+                        deselect(true);
                         if (this.isHolding()) {
                           killTopOfStack();
                             holding = false;
                         }
                     }
-                    playScene.onUsagesUpdated();
                     ResourceManager.getInstance().activity.getUiController().resetSelectButton();
                 }
             }
@@ -385,8 +394,15 @@ public class Hand {
                     if (playScene.getSpecialAction() == PlayerSpecialAction.FireHeavy) {
                         if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
                             Shooter shooter = selectedEntity.getUsage(Shooter.class);
-                            if (shooter.isLoaded()) {
+                            Pair<Boolean, Float> loaded = shooter.isLoaded();
+                            if (loaded.first) {
                                 shooter.onTriggerPulled(playScene);
+                            } else {
+                                float reloadTime = loaded.second; // Assuming the second element represents the reload time
+                                @SuppressLint("DefaultLocale")
+                                String reloadHint = String.format(ResourceManager.getInstance().activity.getString(R.string.gun_reloading_warning), reloadTime);
+                                ResourceManager.getInstance().activity.getUiController().showHint(reloadHint, NativeUIController.HintType.WARNING);
+                                ResourceManager.getInstance().gunEmptySound.play();
                             }
                         }
                     }
@@ -433,7 +449,7 @@ public class Hand {
         return false;
     }
 
-    public void deselect() {
+    public void deselect(boolean updateUsages) {
         if(selectedEntity==null){
             return;
         }
@@ -444,11 +460,15 @@ public class Hand {
         }
         this.selectedEntity = null;
         this.playScene.onSelectedEntitySpared();
+        if(updateUsages){
+            this.playScene.onUsagesUpdated();
+        }
     }
 
     private void select(GameEntity entity) {
         entity.outlineEntity();
         this.selectedEntity = entity;
+        this.playScene.onUsagesUpdated();
     }
 
     private void updateUsagesOnEntityReleased() {
@@ -503,7 +523,7 @@ public class Hand {
 
     public void launchRocket() {
         Rocket rocket = getUsableEntity().getUsage(Rocket.class);
-        releaseGrabbedEntity(true);
+        releaseGrabbedEntity(true,false);
         rocket.onLaunch(playScene, true);
     }
 
@@ -624,11 +644,12 @@ public class Hand {
     }
 
     public void doThrow() {
+        if(grabbedEntity==null||grabbedEntity.getBody()==null){
+            return;
+        }
         Throw throwable = grabbedEntity.getUsage(Throw.class);
         throwable.processThrow(this);
-        this.mouseJoint = null;
-        this.grabbedEntity = null;
-        playScene.onUsagesUpdated();
+   releaseGrabbedEntity(true,false);
     }
 
     private void moveToStab() {
@@ -682,7 +703,7 @@ public class Hand {
 
     public void onMouseJointDestroyed(MouseJoint mouseJoint) {
         if (this.onAction) {
-            onGrabbedEntityReleased(true);
+            onGrabbedEntityReleased(true,true);
             this.onAction = false;
         } else {
             if(this.mouseJoint == mouseJoint){

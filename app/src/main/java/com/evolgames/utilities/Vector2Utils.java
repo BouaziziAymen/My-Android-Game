@@ -65,7 +65,7 @@ public class Vector2Utils {
     }
 
     public static Vector2 pickRandomPoint(Vector2 start, Vector2 end) {
-        float normalizedDistance = (float) (start.dst(end) / 4f * Math.abs(random.nextGaussian()));
+        float normalizedDistance = (float) (start.dst(end)/4f * Math.abs(1+random.nextGaussian()));
         Vector2 u = end.cpy().sub(start).nor();
         float x = start.x + normalizedDistance * u.x;
         float y = start.y + normalizedDistance * u.y;

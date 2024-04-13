@@ -10,7 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 
-import com.evolgames.entities.usage.MotorControl;
+import com.evolgames.gameengine.R;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.helpers.MyLetter;
@@ -23,8 +23,6 @@ import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.sprite.batch.SpriteBatch;
-import org.andengine.opengl.font.Font;
-import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -67,7 +65,7 @@ public class ResourceManager {
     public TiledTextureRegion windowCloseTextureRegion;
     public TiledTextureRegion layerButtonTextureRegion;
     public TiledTextureRegion removeTextureRegion;
-    public Font font;
+
     public TiledTextureRegion mainButtonTextureRegion;
     public TiledTextureRegion largeLampTextureRegion;
     public TextureRegion trailTextureRegion;
@@ -88,7 +86,7 @@ public class ResourceManager {
     public TiledTextureRegion add1;
     public TiledTextureRegion minus1;
     public TextureRegion slotTextureRegion;
-    public TiledTextureRegion smallButtonTextureRegion,plusButtonTextureRegion;
+    public TiledTextureRegion smallButtonTextureRegion, plusButtonTextureRegion;
     public TiledTextureRegion simpleButtonTextureRegion;
     public TiledTextureRegion onoffTextureRegion;
     public Engine engine;
@@ -130,7 +128,7 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound, bluntSound,glueSound;
+    public Sound slashSound, bluntSound, glueSound, gunEmptySound;
     public TextureRegion aimCircleTextureRegion;
     public TextureRegion focusTextureRegion;
     public TiledTextureRegion helpBigButton;
@@ -159,9 +157,10 @@ public class ResourceManager {
     public TiledTextureRegion projDragTextureRegion;
     public TiledTextureRegion showHideTextureRegion;
     public TextureRegion playTextureRegion;
-    public Music mMusic;
-    public Sound onSound, offSound;
+    public Music mMusic, windSound;
+    public Sound onSound, offSound, meteorSound;
     public TextureRegion frostParticle;
+    public ArrayList<Sound> motorSounds;
     private FontLoader fontLoader;
     private BuildableBitmapTextureAtlas texture;
     private Map<ItemCategory, List<ItemMetaData>> itemsMap;
@@ -169,7 +168,12 @@ public class ResourceManager {
     private ItemMetaData selectedItemMetaData;
     private String mapString;
     private boolean sound, music;
-    public ArrayList<Sound> motorSounds;
+    private String lettersList;
+    public TiledTextureRegion evilEyesTextureRegion;
+
+    public String getLettersList() {
+        return lettersList;
+    }
 
     public static ResourceManager getInstance() {
         return ResourceManager.INSTANCE;
@@ -213,7 +217,7 @@ public class ResourceManager {
     }
 
     public void setMusic(boolean music) {
-        if(music){
+        if (music) {
             this.mMusic.play();
         } else {
             this.mMusic.pause();
@@ -241,19 +245,6 @@ public class ResourceManager {
     }
 
     public void loadFonts() {
-        this.font =
-                FontFactory.create(
-                        this.activity.getFontManager(),
-                        this.activity.getTextureManager(),
-                        256,
-                        256,
-                        Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL),
-                        8,
-                        true,
-                        Color.WHITE_ABGR_PACKED_INT);
-        this.font.load();
-        this.font.prepareLetters(
-                "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzéè.,!?".toCharArray());
     }
 
     public MyLetter getLetter(int fontId, char character) {
@@ -530,6 +521,11 @@ public class ResourceManager {
                         this.gameTextureAtlas, this.activity.getAssets(), "shapes/projdrag.png");
 
 
+        this.evilEyesTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameTextureAtlas, this.activity.getAssets(), "evileyes.png", 5, 1);
+
+
         this.scaleButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "boards/scale.png", 1, 3);
@@ -661,6 +657,7 @@ public class ResourceManager {
                             this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
+        this.lettersList = ResourceManager.getInstance().activity.getString(R.string.editor_letters);
         fontLoader.loadFont(
                 0,
                 Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD),
@@ -668,7 +665,8 @@ public class ResourceManager {
                 Color.WHITE_ABGR_PACKED_INT,
                 true);
         fontLoader.loadFont(
-                1, Typeface.create(Typeface.SERIF, Typeface.BOLD), 15, Color.WHITE_ABGR_PACKED_INT, true);
+                1, Typeface.create(Typeface.SERIF, Typeface.BOLD), 15, Color.WHITE_ABGR_PACKED_INT,
+                true);
         fontLoader.loadFont(
                 2,
                 Typeface.create(Typeface.SERIF, Typeface.BOLD_ITALIC),
@@ -771,13 +769,23 @@ public class ResourceManager {
             motorSounds.add(motor2);
             motorSounds.add(motor3);
 
-
-
             slashSound =
                     SoundFactory.createSoundFromAsset(
                             this.activity.getSoundManager(),
                             this.activity,
                             "slash.wav");
+            gunEmptySound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "gun_empty.wav");
+
+            meteorSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "meteor.wav");
+
 
             onSound =
                     SoundFactory.createSoundFromAsset(
@@ -821,7 +829,14 @@ public class ResourceManager {
                 mMusic = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "music_main.mp3");
                 mMusic.setLooping(true); // Loop the music
                 mMusic.setVolume(0.2f);
-                if(music){
+                if (music) {
+                    mMusic.play();
+                }
+
+                windSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "wind.mp3");
+                windSound.setLooping(true); // Loop the music
+
+                if (music) {
                     mMusic.play();
                 }
             } catch (IOException e) {
@@ -883,8 +898,9 @@ public class ResourceManager {
     public void setSelectedItemMetaData(ItemMetaData selectedItemMetaData) {
         this.selectedItemMetaData = selectedItemMetaData;
     }
-    public void tryPlaySound(Sound sound, float volume){
-        if(this.sound) {
+
+    public void tryPlaySound(Sound sound, float volume) {
+        if (this.sound) {
             sound.setVolume(volume);
             sound.play();
         }

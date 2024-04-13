@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">Mutiler</string>
+    <string name="validator_too_long">Trop long !</string>
+    <string name="validator_too_short">Trop court !</string>
+    <string name="validator_invalid_name">Nom invalide</string>
+    <string name="validator_float_range">%1$.2f .. %2$.2f</string>
+    <string name="validator_invalid_number">Nombre invalide !</string>
+    <string name="validator_field_cannot_be_empty">Le champ ne peut pas être vide !</string>
+    <string name="go_create">Créer nouveau</string>
+    <string name="go_edit">Éditer</string>
+    <string name="cancel">Annuler</string>
+    <string name="save_settings">Enregistrer</string>
+    <string name="throw_hint">"Appuyez à l'intérieur du cercle pour viser et lancer."</string>
+    <string name="fire_light_hint">Appuyez à l\'intérieur du cercle pour viser et tirer.</string>
+    <string name="aim_light_hint">Appuyez à l\'intérieur du cercle pour viser.</string>
+    <string name="fire_heavy_hint">Appuyez à l\'intérieur du cercle pour viser et tirer.</string>
+    <string name="aim_heavy_hint">Appuyez à l\'intérieur du cercle pour viser.</string>
+    <string name="effect_cut_hint">Faites glisser en ligne pour découper à travers tout.</string>
+    <string name="effect_glue_hint">"Appuyez sur un élément, puis sur un autre le touchant, pour les coller ensemble."</string>
+    <string name="effect_fire_hint">Appuyez n\'importe où pour allumer un éclair de feu.</string>
+    <string name="effect_meteor_hint">Appuyez n\'importe où pour cibler et frapper avec une météorite.</string>
+    <string name="effect_frost_hint">Appuyez n\'importe où pour déclencher une averse glaciale.</string>
+    <string name="insufficient_space">Espace insuffisant pour positionner l\'élément.</string>
+    <string name="gun_reloading_warning">Rechargement de l\'arme. Chargé en %.1f secondes.</string>
+
+    <string name="edit_existing">Modifier l\'existante</string>
+    <string name="item_name_hint">Nom de l\'article</string>
+    <string name="item_type_hint">Type d\'article</string>
+    <string name="choose_template">Vous ne voulez pas commencer à partir de zéro ? Choisissez un modèle</string>
+    <string name="template_hint">Modèle (Facultatif)</string>
+    <string name="item_name">Nom de l\'article</string>
+    <string name="send_for_review">Envoyer pour révision</string>
+    <string name="continue_creating">Continuer..</string>
+    <string name="create_new">Créer Nouveau</string>
+
+    <string name="scenario_help_1">Pour créer un élément, commencez par cliquer sur le bouton Éléments. Ensuite, sélectionnez l\'élément désiré et cliquez n\'importe où sur l\'écran.</string>
+    <string name="scenario_help_2">Vous avez la possibilité de basculer entre le fait de faire glisser et de maintenir à tout moment.</string>
+    <string name="scenario_help_3">Pour zoomer avant et arrière, utilisez un geste de pincement avec deux doigts. Pour faire défiler la carte horizontalement, faites glisser votre doigt sur l\'écran.</string>
+    <string name="scenario_help_4">Lorsque vous faites glisser un élément, vous pouvez le déplacer et le déposer à l\'emplacement désiré.</string>
+    <string name="scenario_help_5">Alternativement, maintenez un élément verticalement pour le préparer à l\'utilisation.</string>
+    <string name="scenario_help_6">Pour sélectionner un élément, activez le bouton de sélection puis cliquez sur l\'élément.</string>
+    <string name="scenario_help_7">Choisissez comment vous souhaitez utiliser un élément. Certaines utilisations, telles que les déclencheurs, s\'activent immédiatement après la sélection.</string>
+    <string name="scenario_help_8">Sélectionnez un élément et spécifiez son utilisation s\'il peut être utilisé sans être maintenu.</string>
+    <string name="scenario_help_9">Utilisez le bouton miroir pour inverser l\'orientation d\'un élément.</string>
+
+
+    <string name="rating">Vous avez apprécié le jeu ? Votre notation 5 étoiles alimente notre progression et améliore votre expérience.</string>
+    <string name="bad_review">N\'hésitez pas à visiter Google Play pour nous évaluer ou laisser un avis. N\'oubliez pas, si vous avez besoin d\'un remboursement, faites-le nous savoir !</string>
+
+    <string name="sound_setting">Son</string>
+    <string name="music_setting">Musique</string>
+    <string name="map_options">Options de la carte</string>
+    <string name="open_map_option_hint">Carte ouverte</string>
+    <string name="wood_house_option_hint">Maison en bois</string>
+    <string name="marble_house_option_hint">Maison en marbre</string>
+
+    <string name="category_sword">Épées</string>
+    <string name="category_axe">Haches</string>
+    <string name="category_spear">Lances</string>
+    <string name="category_produce">Produits</string>
+    <string name="category_bullet">Balles</string>
+    <string name="category_shell">Obus</string>
+    <string name="category_knife">Couteaux</string>
+    <string name="category_other">Autre</string>
+    <string name="category_mace">Masses</string>
+    <string name="category_grenade">Grenades</string>
+    <string name="category_gun">Fusils</string>
+    <string name="category_heavy_weapon">Armes Lourdes</string>
+    <string name="category_projectile">Projectiles</string>
+    <string name="category_rocket">Rockets</string>
+    <string name="category_arrow">Flèches</string>
+    <string name="category_bow">Arcs</string>
+
+    <string name="editor_help_1">Pour commencer, cliquez sur le bouton crayon et ajoutez un corps à votre conception.</string>
+    <string name="editor_help_2">Connectez les corps avec des articulations. Il existe quatre types : révolute, élastique, soudé et prismatique. N\'oubliez pas de configurer chaque articulation.</string>
+    <string name="editor_help_3">Personnalisez les propriétés physiques de chaque couche en utilisant les paramètres de la couche.</string>
+    <string name="editor_help_4">Améliorez vos couches en les décorant avec des graphiques qui n\'ont aucun impact physique.</string>
+    <string name="editor_help_5">Concevez une arme en créant un indicateur de projectile, en le reliant à un indicateur d\'étui pour définir le comportement du projectile, puis en reliant les deux à un type d\'utilisation de tir.</string>
+    <string name="editor_help_6">Incorporez des images dans votre conception et ajustez leur taille ou leur orientation selon vos besoins. Utilisez le bouton de pipe pour extraire les couleurs de l\'image.</string>
+
+
+</resources>

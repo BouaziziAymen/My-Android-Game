@@ -77,7 +77,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         ItemCategory itemCategory = dataHeader.get(groupPosition);
-        holder.textView.setText(itemCategory.name);
+        holder.textView.setText(inflater.getContext().getString(itemCategory.nameId));
 
         return convertView;
     }

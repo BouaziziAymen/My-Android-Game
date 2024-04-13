@@ -120,8 +120,10 @@ class OptionsListAdaptor extends RecyclerView.Adapter<OptionsListAdaptor.OptionV
                     other.button.setState(Button.State.NORMAL);
                 }
             }
-            PlayerSpecialAction action = playerSpecialActionList.get(getBindingAdapterPosition());
-            listener.onClick(button, action);
+            if(getBindingAdapterPosition()>=0&&getBindingAdapterPosition()<playerSpecialActionList.size()) {
+                PlayerSpecialAction action = playerSpecialActionList.get(getBindingAdapterPosition());
+                listener.onClick(button, action);
+            }
         }
     }
 

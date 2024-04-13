@@ -2,8 +2,8 @@ package com.evolgames.entities.basics;
 
 public enum SpecialEntityType {
     Default,
-    Head,
-    UpperTorso,
+    Head(true),
+    UpperTorso(true),
     LowerTorso,
     UpperArmRight,
     UpperArmLeft,
@@ -16,5 +16,10 @@ public enum SpecialEntityType {
     LowerLegRight,
     LowerLegLeft,
     RightFoot,
-    LeftFoot
+    LeftFoot;
+    public final boolean vital;
+    SpecialEntityType(){vital = false;}
+    SpecialEntityType(boolean vital){
+        this.vital = vital;
+    }
 }

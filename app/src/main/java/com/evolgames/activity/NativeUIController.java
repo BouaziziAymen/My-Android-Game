@@ -227,6 +227,22 @@ public class NativeUIController implements INativeUIController {
     public enum HintType{
         WARNING, HINT
     }
+    public void showHint(int hintString, HintType hintType){
+        gameActivity.runOnUiThread(() -> {
+            int hintIconId = 0;
+            switch (hintType){
+                case WARNING:
+                    hintIconId = R.drawable.warning_icon;
+                    break;
+                case HINT:
+                    hintIconId = R.drawable.lightbulb_icon;
+                    break;
+            }
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.showHint(gameActivity.getString(hintString),hintIconId);
+        });
+    }
+
     public void showHint(String text, HintType hintType){
         gameActivity.runOnUiThread(() -> {
             int hintIconId = 0;

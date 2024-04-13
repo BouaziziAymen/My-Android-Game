@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:background="@android:color/white"
         android:padding="8dp"
-        android:text="Please visit google play and rate us or send us a review."
+        android:text="@string/bad_review"
         android:textColor="#333"
         android:textSize="16sp"
         android:textStyle="bold" />

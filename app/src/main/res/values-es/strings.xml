@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Mutilar</string>
+    <string name="validator_too_long">¡Demasiado largo!</string>
+    <string name="validator_too_short">¡Demasiado corto!</string>
+    <string name="validator_invalid_name">Nombre inválido</string>
+    <string name="validator_float_range">%1$.2f .. %2$.2f</string>
+    <string name="validator_invalid_number">¡Número inválido!</string>
+    <string name="validator_field_cannot_be_empty">¡El campo no puede estar vacío!</string>
+    <string name="go_create">Crear nuevo</string>
+    <string name="go_edit">Editar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save_settings">Guardar</string>
+    <string name="throw_hint">"Toca dentro del círculo para apuntar y lanzar."</string>
+    <string name="fire_light_hint">Toca dentro del círculo para apuntar y disparar.</string>
+    <string name="aim_light_hint">Toca dentro del círculo para apuntar.</string>
+    <string name="fire_heavy_hint">Toca dentro del círculo para apuntar y disparar.</string>
+    <string name="aim_heavy_hint">Toca dentro del círculo para apuntar.</string>
+    <string name="effect_cut_hint">Desliza en línea para cortar todo.</string>
+    <string name="effect_glue_hint">"Toca un ítem, luego otro que lo toque, para unirlos."</string>
+    <string name="effect_fire_hint">Toca en cualquier lugar para encender un rayo de fuego.</string>
+    <string name="effect_meteor_hint">Toca en cualquier lugar para apuntar y golpear con un meteorito.</string>
+    <string name="effect_frost_hint">Toca en cualquier lugar para desatar un aguacero helado.</string>
+    <string name="insufficient_space">Espacio insuficiente para colocar el ítem.</string>
+    <string name="gun_reloading_warning">Recargando arma. Cargada en %.1f segundos.</string>
+
+    <string name="edit_existing">Editar existente</string>
+    <string name="item_name_hint">Nombre del ítem</string>
+    <string name="item_type_hint">Tipo de ítem</string>
+    <string name="choose_template">¿No quieres empezar desde cero? Elige una plantilla</string>
+    <string name="template_hint">Plantilla (Opcional)</string>
+    <string name="item_name">Nombre del ítem</string>
+    <string name="send_for_review">Enviar para revisión</string>
+    <string name="continue_creating">Continuar..</string>
+    <string name="create_new">Crear nuevo</string>
+
+    <string name="scenario_help_1">Para crear un ítem, primero, haz clic en el botón de Ítems. Luego, selecciona el ítem deseado y haz clic en cualquier lugar de la pantalla.</string>
+    <string name="scenario_help_2">Tienes la opción de alternar entre arrastrar y sostener en cualquier momento.</string>
+    <string name="scenario_help_3">Para hacer zoom, utiliza el gesto de pellizcar con dos dedos. Para desplazarte por el mapa horizontalmente, arrastra el dedo por la pantalla.</string>
+    <string name="scenario_help_4">Cuando arrastras un ítem, puedes soltarlo en la ubicación deseada.</string>
+    <string name="scenario_help_5">Alternativamente, sostén un ítem verticalmente para prepararlo para su uso.</string>
+    <string name="scenario_help_6">Para seleccionar un ítem, activa el botón de selección y luego haz clic en el ítem.</string>
+    <string name="scenario_help_7">Elige cómo quieres utilizar un ítem. Algunos usos, como los disparadores, se activan inmediatamente al seleccionarlos.</string>
+    <string name="scenario_help_8">Selecciona un ítem y especifica su uso si puede utilizarse sin ser sostenido.</string>
+    <string name="scenario_help_9">Utiliza el botón de espejo para voltear la orientación de un ítem.</string>
+
+    <string name="rating">¿Disfrutaste el juego? Tu calificación de 5 estrellas impulsa nuestro progreso y mejora tu experiencia.</string>
+    <string name="bad_review">No dudes en visitar Google Play para calificarnos o dejar una reseña. Y recuerda, si necesitas un reembolso, ¡avísanos!</string>
+
+    <string name="sound_setting">Sonido</string>
+    <string name="music_setting">Música</string>
+    <string name="map_options">Opciones del mapa</string>
+    <string name="open_map_option_hint">Mapa abierto</string>
+    <string name="wood_house_option_hint">Casa de madera</string>
+    <string name="marble_house_option_hint">Casa de mármol</string>
+
+    <string name="category_sword">Espadas</string>
+    <string name="category_axe">Hachas</string>
+    <string name="category_spear">Lanzas</string>
+    <string name="category_produce">Productos</string>
+    <string name="category_bullet">Balas</string>
+    <string name="category_shell">Cartuchos</string>
+    <string name="category_knife">Cuchillos</string>
+    <string name="category_other">Otros</string>
+    <string name="category_mace">Mazas</string>
+    <string name="category_grenade">Granadas</string>
+    <string name="category_gun">Armas de fuego</string>
+    <string name="category_heavy_weapon">Armas pesadas</string>
+    <string name="category_projectile">Proyectiles</string>
+    <string name="category_rocket">Cohetes</string>
+    <string name="category_arrow">Flechas</string>
+    <string name="category_bow">Arcos</string>
+
+    <string name="editor_help_1">Para empezar, haz clic en el botón de lápiz y agrega un cuerpo a tu diseño.</string>
+    <string name="editor_help_2">Conecta los cuerpos con articulaciones. Hay cuatro tipos: revoluta, elástica, soldada y prismática. Recuerda configurar cada articulación.</string>
+    <string name="editor_help_3">Personaliza las propiedades físicas de cada capa usando los ajustes de capa.</string>
+    <string name="editor_help_4">Mejora tus capas decorándolas con gráficos que no tienen impacto físico.</string>
+    <string name="editor_help_5">Diseña un arma creando un indicador de proyectil, conectándolo a un indicador de casquillo para definir el comportamiento del proyectil y luego vinculándolo a un tipo de uso de disparo.</string>
+    <string name="editor_help_6">Incorpora imágenes en tu diseño y ajusta su tamaño u orientación según sea necesario. Usa el botón de tubo para extraer colores de la imagen.</string>
+
+</resources>

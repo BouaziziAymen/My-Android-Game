@@ -34,12 +34,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CreateItemDialog extends DialogFragment {
 
     private AutoCompleteTextView itemTemplateAutoComplete;
     private String[] itemNames;
+    private String selectedType;
 
     private void setupTemplatesAutoComplete(ItemCategory category) {
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
@@ -63,12 +65,15 @@ public class CreateItemDialog extends DialogFragment {
 
 
         AutoCompleteTextView itemTypeAutoComplete = dialogLayout.findViewById(R.id.itemTypeAutoComplete);
-        String[] types = Arrays.stream(ItemCategory.values()).map(Enum::name).toArray(String[]::new);
+        String[] typesRaw = Arrays.stream(ItemCategory.values()).map(Enum::name).toArray(String[]::new);
+        String[] types = Arrays.stream(ItemCategory.values()).map(e-> requireContext().getString(e.nameId)).toArray(String[]::new);
         ArrayAdapter<String> itemTypesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, types);
         itemTypeAutoComplete.setAdapter(itemTypesAdapter);
+
+
         itemTypeAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
-            String type = (String) parent.getItemAtPosition(position);
-            ItemCategory category = ItemCategory.fromName(type);
+            this.selectedType = typesRaw[position];
+            ItemCategory category = ItemCategory.fromName(this.selectedType);
             setupTemplatesAutoComplete(category);
         });
 
@@ -95,7 +100,7 @@ public class CreateItemDialog extends DialogFragment {
         });
 
         TextView linkTextView = dialogLayout.findViewById(R.id.linkTextView);
-        String linkText = "Or Edit Existing";
+        String linkText = requireActivity().getString(R.string.edit_existing);
         SpannableString spannableString = new SpannableString(linkText);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
@@ -144,11 +149,10 @@ public class CreateItemDialog extends DialogFragment {
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             // Perform input validation
-            String itemTypeText = itemTypeAutoComplete.getText().toString().trim();
             String itemNameText = itemNameEditText.getText().toString().trim();
             String itemTemplateText = itemTemplateAutoComplete.getText().toString().trim();
 
-            boolean isTypeInvalid = (itemTypeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(itemTypeText)));
+            boolean isTypeInvalid = (selectedType.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(selectedType)));
             boolean isTemplateInvalid = !itemTemplateText.isEmpty() && Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
             boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
@@ -171,7 +175,7 @@ public class CreateItemDialog extends DialogFragment {
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
-                ((GameActivity) requireActivity()).getUiController().onProceedToCreate(itemNameText, itemTypeText, itemTemplateText);
+                ((GameActivity) requireActivity()).getUiController().onProceedToCreate(itemNameText, this.selectedType, itemTemplateText);
                 // Or perform other actions here
             }
         });

@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.blocks.AssociatedBlock;
 import com.evolgames.entities.blocks.Block;
+import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
@@ -454,9 +455,22 @@ public class GameEntity extends EntityWithBody {
         }
         if (fireParticleWrapper != null) {
             scene.getWorldFacade().removeFireParticleWrapper(fireParticleWrapper);
-            fireParticleWrapper.detach();
+            fireParticleWrapper.detachDirect();
         }
         dispose();
+    }
+    public float checkBurnDamage(){
+        float totalBurn = 0f;
+        for(LayerBlock layerBlock:layerBlocks){
+            if(layerBlock.getBlockGrid()!=null) {
+                for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
+                  if(coatingBlock.getProperties().getBurnRatio()>0f){
+                      totalBurn = totalBurn + (float)coatingBlock.getProperties().getBurnRatio()*coatingBlock.getArea();
+                  }
+                }
+            }
+        }
+        return totalBurn/getArea();
     }
 
     public void createJuiceSources() {
@@ -731,7 +745,6 @@ public class GameEntity extends EntityWithBody {
             mesh = MeshFactory.getInstance().createMosaicMesh(mesh.getX(), mesh.getY(), mesh.getRotation(), layerBlocks);
             mesh.setZIndex(mirrorMesh.getZIndex());
             mesh.setVisible(false);
-            scene.attachChild(mesh);
             mirrorCreated = true;
         }
         scene.sortChildren();

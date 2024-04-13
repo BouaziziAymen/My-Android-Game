@@ -1,5 +1,7 @@
 package com.evolgames.entities.ragdoll;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.JointEdge;
@@ -150,7 +152,9 @@ public class RagDoll extends GameGroup {
                 entities.add(current);
                 for (JointEdge edge : current.getBody().getJointList()) {
                     GameEntity entity = (GameEntity) edge.other.getUserData();
-                    if (entity != null) if (!entities.contains(entity)) deque.push(entity);
+                    if (entity != null&&!entities.contains(entity)){
+                        deque.push(entity);
+                    }
                 }
             }
         }
@@ -175,7 +179,15 @@ public class RagDoll extends GameGroup {
         lowerArmL = null;
         rightHand = null;
         leftHand = null;
-
+        boolean burned = true;
+        for(GameEntity e:entities){
+            if(e.getType()!=null&&e.getType().vital && e.checkBurnDamage()<0.5f){
+                burned = false;
+            }
+        }
+        if(burned){
+            return;
+        }
         for (GameEntity e : entities) {
             switch (e.getType()) {
                 case Default:
@@ -251,7 +263,8 @@ public class RagDoll extends GameGroup {
 
     public void onBlunt(int finalNumberOfPoints) {
         bluntTrauma+= finalNumberOfPoints;
-        if(bluntTrauma>200){
+        Log.d("Blunt Trauma",""+bluntTrauma);
+        if(bluntTrauma>1000){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

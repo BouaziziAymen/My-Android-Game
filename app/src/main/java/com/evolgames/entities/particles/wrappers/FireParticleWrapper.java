@@ -113,9 +113,10 @@ public class FireParticleWrapper implements Fire {
         ResourceManager.getInstance()
                 .activity
                 .runOnUpdateThread(
-                        () -> {
-                           this.particleSystem.detachSelf();
-                        });
+                        () -> this.particleSystem.detachSelf());
+    }
+    public void detachDirect(){
+     this.particleSystem.detachSelf();
     }
 
 }

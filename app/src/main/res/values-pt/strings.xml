@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">Mutilar</string>
+    <string name="validator_too_long">Muito longo!</string>
+    <string name="validator_too_short">Muito curto!</string>
+    <string name="validator_invalid_name">Nome inválido</string>
+    <string name="validator_float_range">%1$.2f .. %2$.2f</string>
+    <string name="validator_invalid_number">Número inválido!</string>
+    <string name="validator_field_cannot_be_empty">Campo não pode estar vazio!</string>
+    <string name="go_create">Criar novo</string>
+    <string name="go_edit">Editar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save_settings">Salvar</string>
+    <string name="throw_hint">"Toque dentro do círculo para mirar e atirar."</string>
+    <string name="fire_light_hint">Toque dentro do círculo para mirar e atirar.</string>
+    <string name="aim_light_hint">Toque dentro do círculo para mirar.</string>
+    <string name="fire_heavy_hint">Toque dentro do círculo para mirar e atirar.</string>
+    <string name="aim_heavy_hint">Toque dentro do círculo para mirar.</string>
+    <string name="effect_cut_hint">Deslize em linha para cortar tudo.</string>
+    <string name="effect_glue_hint">"Toque em um item e depois em outro que o toque para uni-los."</string>
+    <string name="effect_fire_hint">Toque em qualquer lugar para iniciar um raio de fogo.</string>
+    <string name="effect_meteor_hint">Toque em qualquer lugar para mirar e atingir com um meteoro.</string>
+    <string name="effect_frost_hint">Toque em qualquer lugar para desencadear uma chuva congelante.</string>
+    <string name="insufficient_space">Espaço insuficiente para posicionar o item.</string>
+    <string name="gun_reloading_warning">Arma recarregando. Carregada em %.1f segundos.</string>
+
+    <string name="edit_existing">Editar existente</string>
+    <string name="item_name_hint">Nome do item</string>
+    <string name="item_type_hint">Tipo de item</string>
+    <string name="choose_template">Não quer começar do zero? Escolha um modelo</string>
+    <string name="template_hint">Modelo (Opcional)</string>
+    <string name="item_name">Nome do item</string>
+    <string name="send_for_review">Enviar para revisão</string>
+    <string name="continue_creating">Continuar..</string>
+    <string name="create_new">Criar novo</string>
+
+    <string name="scenario_help_1">Para criar um item, primeiro, clique no botão Itens. Em seguida, selecione o item desejado e clique em qualquer lugar na tela.</string>
+    <string name="scenario_help_2">Você tem a opção de alternar entre arrastar e segurar a qualquer momento.</string>
+    <string name="scenario_help_3">Para dar zoom, use um gesto de pinça com dois dedos. Para rolar o mapa horizontalmente, arraste o dedo pela tela.</string>
+    <string name="scenario_help_4">Ao arrastar um item, você pode arrastá-lo e soltá-lo na localização desejada.</string>
+    <string name="scenario_help_5">Alternativamente, segure um item verticalmente para prepará-lo para uso.</string>
+    <string name="scenario_help_6">Para selecionar um item, ative o botão de seleção e clique no item.</string>
+    <string name="scenario_help_7">Escolha como você deseja usar um item. Algumas utilizações, como gatilhos, são ativadas imediatamente após a seleção.</string>
+    <string name="scenario_help_8">Selecione um item e especifique seu uso se puder ser utilizado sem ser segurado.</string>
+    <string name="scenario_help_9">Use o botão de espelho para inverter a orientação de um item.</string>
+
+    <string name="rating">Você gostou do jogo? Sua avaliação com 5 estrelas alimenta nosso progresso e melhora sua experiência.</string>
+    <string name="bad_review">Não hesite em visitar a Google Play para nos avaliar ou deixar uma avaliação. E lembre-se, se precisar de um reembolso, nos avise!</string>
+
+    <string name="sound_setting">Som</string>
+    <string name="music_setting">Música</string>
+    <string name="map_options">Opções do mapa</string>
+    <string name="open_map_option_hint">Mapa aberto</string>
+    <string name="wood_house_option_hint">Casa de madeira</string>
+    <string name="marble_house_option_hint">Casa de mármore</string>
+
+    <string name="category_sword">Espadas</string>
+    <string name="category_axe">Machados</string>
+    <string name="category_spear">Lanças</string>
+    <string name="category_produce">Produtos</string>
+    <string name="category_bullet">Balas</string>
+    <string name="category_shell">Conchas</string>
+    <string name="category_knife">Facas</string>
+    <string name="category_other">Outro</string>
+    <string name="category_mace">Maças</string>
+    <string name="category_grenade">Granadas</string>
+    <string name="category_gun">Armas de Fogo</string>
+    <string name="category_heavy_weapon">Armas Pesadas</string>
+    <string name="category_projectile">Projéteis</string>
+    <string name="category_rocket">Foguetes</string>
+    <string name="category_arrow">Setas</string>
+    <string name="category_bow">Arcos</string>
+
+    <string name="editor_help_1">Para começar, clique no botão lápis e adicione um corpo ao seu design.</string>
+    <string name="editor_help_2">Conecte corpos com articulações. Existem quatro tipos: revoluta, elástica, soldada e prismática. Lembre-se de configurar cada articulação.</string>
+    <string name="editor_help_3">Personalize as propriedades físicas de cada camada usando as configurações da camada.</string>
+    <string name="editor_help_4">Aprimore suas camadas decorando-as com gráficos que não têm impacto físico.</string>
+    <string name="editor_help_5">Projete uma arma criando um indicador de projétil, conectando-o a um indicador de estojo para definir o comportamento do projétil e, em seguida, vinculando ambos a um tipo de uso de tiro.</string>
+    <string name="editor_help_6">Incorpore imagens ao seu design e ajuste seu tamanho ou orientação conforme necessário. Use o botão de tubo para extrair cores da imagem.</string>
+
+</resources>

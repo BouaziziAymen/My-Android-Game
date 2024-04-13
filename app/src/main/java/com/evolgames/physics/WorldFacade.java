@@ -118,42 +118,32 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
+    public static Color frostColor = new Color(172f / 255f, 213f / 255f, 243f / 255f);
+    public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     private final Set<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final Set<PulverizationParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final Set<ExplosiveParticleWrapper> explosivesParticleWrappers = new HashSet<>();
     private final List<Fire> flames = new ArrayList<>();
-
     private final List<TimedCommand> timedCommands = new ArrayList<>();
     private final List<Touch> touches = new ArrayList<>();
     private final List<Explosion> explosions = new ArrayList<>();
-
-    private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback =
-            new SimpleDetectionRayCastCallback();
+    private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback = new SimpleDetectionRayCastCallback();
     private final FluxRayCastCallback fluxRayCastCallback = new FluxRayCastCallback();
     private final FluxInnerRayCastCallback fluxInnerRayCastCallback = new FluxInnerRayCastCallback();
-    private final BlockIntersectionCallback blockIntersectionCallback =
-            new BlockIntersectionCallback();
+    private final BlockIntersectionCallback blockIntersectionCallback = new BlockIntersectionCallback();
     private final GameEntityQueryCallBack queryCallBack = new GameEntityQueryCallBack();
-public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     private final BlockQueryCallBack blockQueryCallBack = new BlockQueryCallBack();
     private final LinearRayCastCallback rayCastCallback = new LinearRayCastCallback();
     private final DetectionRayCastCallback detectionRayCastCallback = new DetectionRayCastCallback();
     private final CutRayCastCallback cutRayCastCallback = new CutRayCastCallback();
     private final GameEntityContactListener contactListener;
-
     private final PhysicsWorld physicsWorld;
     private final PhysicsScene<?> scene;
-
-
     Random random = new Random();
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
     private FrostParticleWrapper frostParticleWrapper;
-
-    public FrostParticleWrapper getFrostParticleWrapper() {
-        return frostParticleWrapper;
-    }
 
     public WorldFacade(PhysicsScene<?> scene) {
         this.scene = scene;
@@ -167,6 +157,74 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         physicsWorld.setContinuousPhysics(true);
     }
 
+    private static void processPenetrationSound(LayerBlock layerBlock, float collisionImpulse) {
+        MaterialFactory.MaterialAcousticType materialAcousticType = MaterialFactory.getInstance().getMaterialAcousticType(layerBlock.getProperties().getMaterialNumber());
+        if (materialAcousticType == null) {
+            return;
+        }
+        Sound sound = null;
+        switch (materialAcousticType) {
+            case SOFT:
+                sound = ResourceManager.getInstance().penetrationSounds.get(0).getSound();
+                break;
+            case METAL:
+                if (Math.random() < 0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(3).getSound();
+                } else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(6).getSound();
+                }
+                break;
+            case HARD_METAL:
+                if (Math.random() < 0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(4).getSound();
+                } else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(5).getSound();
+                }
+                break;
+            case WOOD:
+                if (Math.random() < 0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(11).getSound();
+                } else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(12).getSound();
+                }
+                break;
+            case ROCK:
+                if (Math.random() < 0.5f) {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(9).getSound();
+                } else {
+                    sound = ResourceManager.getInstance().penetrationSounds.get(10).getSound();
+                }
+                break;
+            case GLASS:
+                sound = ResourceManager.getInstance().penetrationSounds.get(8).getSound();
+                break;
+            default:
+                break;
+        }
+
+        if (sound != null) {
+            ResourceManager.getInstance().tryPlaySound(sound, calculateVolumeRatio(collisionImpulse));
+        }
+    }
+
+    public static float calculateVolumeRatio(float impulse) {
+        // Calculate the volume ratio using a logarithmic scale
+        float volumeRatio = (float) (1 - Math.exp(-impulse / 1000f));
+
+        // Ensure the volume ratio is within the valid range [0, 1]
+        if (volumeRatio < 0) {
+            volumeRatio = 0;
+        } else if (volumeRatio > 1) {
+            volumeRatio = 1;
+        }
+
+        return volumeRatio;
+    }
+
+    public FrostParticleWrapper getFrostParticleWrapper() {
+        return frostParticleWrapper;
+    }
+
     public void onStep() {
         List<TimedCommand> list = new ArrayList<>(timedCommands);
         for (Iterator<TimedCommand> iterator = list.iterator(); iterator.hasNext(); ) {
@@ -177,19 +235,21 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             }
         }
         clearExplosions();
-        this.contactListener
-                .getNonCollidingEntities()
-                .removeIf(pair -> pair.first == null || pair.second == null || !pair.first.isAlive() || !pair.second.isAlive());
+        this.contactListener.getNonCollidingEntities().removeIf(pair -> pair.first == null || pair.second == null || !pair.first.isAlive() || !pair.second.isAlive());
 
         clearPulverizationWrappers();
         clearLiquidWrappers();
-        if(frostParticleWrapper!=null&&!frostParticleWrapper.isAlive()&&frostParticleWrapper.isAllParticlesExpired()){
+        if (frostParticleWrapper != null && !frostParticleWrapper.isAlive() && frostParticleWrapper.isAllParticlesExpired()) {
             frostParticleWrapper.getParticleSystem().detachSelf();
             frostParticleWrapper = null;
         }
 
-        for (ExplosiveParticleWrapper explosiveParticleWrapper : explosivesParticleWrappers) {
+        ArrayList<ExplosiveParticleWrapper> copy = new ArrayList<>(explosivesParticleWrappers);
+        for (ExplosiveParticleWrapper explosiveParticleWrapper : copy) {
             explosiveParticleWrapper.update();
+            if (!explosiveParticleWrapper.isAlive() && explosiveParticleWrapper.isAllParticlesExpired()) {
+                explosivesParticleWrappers.remove(explosiveParticleWrapper);
+            }
         }
 
         if (false) {
@@ -234,67 +294,54 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         float x = body.getPosition().x;
         float y = body.getPosition().y;
         float rot = body.getAngle();
-        ArrayList<GameEntity> splinters =
-                GameEntityFactory.getInstance()
-                        .createSplinterEntities(
-                                x,
-                                y,
-                                rot,
-                                BlockUtils.getDivisionGroups(splinterBlocks),
-                                body.getLinearVelocity(),
-                                body.getAngularVelocity(),
-                                parentEntity.getName(),
-                                parentEntity);
+        ArrayList<GameEntity> splinters = GameEntityFactory.getInstance().createSplinterEntities(x, y, rot, BlockUtils.getDivisionGroups(splinterBlocks), body.getLinearVelocity(), body.getAngularVelocity(), parentEntity.getName(), parentEntity);
         HashSet<Pair<GameEntity>> setOfPairs = new HashSet<>();
 
-        splinters.forEach(
-                splinter -> {
-                    for (Pair<GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
-                        if (pair.first == parentEntity) {
-                            setOfPairs.add(new Pair<>(splinter, pair.second));
-                        } else if (pair.second == parentEntity) {
-                            setOfPairs.add(new Pair<>(splinter, pair.first));
-                        }
-                    }
+        splinters.forEach(splinter -> {
+            for (Pair<GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
+                if (pair.first == parentEntity) {
+                    setOfPairs.add(new Pair<>(splinter, pair.second));
+                } else if (pair.second == parentEntity) {
+                    setOfPairs.add(new Pair<>(splinter, pair.first));
+                }
+            }
 
-                    for (LayerBlock layerBlock : splinter.getBlocks()) {
-                        Iterator<? extends AssociatedBlock<?, ?>> iterator =
-                                layerBlock.getAssociatedBlocks().iterator();
-                        while (iterator.hasNext()) {
-                            AssociatedBlock<?, ?> associatedBlock = iterator.next();
-                            if (associatedBlock instanceof JointBlock) {
-                                JointBlock jointBlock = (JointBlock) associatedBlock;
-                                if (jointBlock.isNotAborted()) {
-                                    if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
-                                        Hand h = scene
-                                                .getHand();
-                                        if (h.getGrabbedEntity() == parentEntity) {
-                                            if ((h.isFollow() || h.isHolding() || h.isDragging())&&!h.isOnAction()) {
-                                                recreateJoint(jointBlock, splinter);
-                                            } else {
-                                                h.onMouseJointDestroyed((MouseJoint) jointBlock.getJoint());
-                                            }
-                                        }
-                                    } else {
+            for (LayerBlock layerBlock : splinter.getBlocks()) {
+                Iterator<? extends AssociatedBlock<?, ?>> iterator = layerBlock.getAssociatedBlocks().iterator();
+                while (iterator.hasNext()) {
+                    AssociatedBlock<?, ?> associatedBlock = iterator.next();
+                    if (associatedBlock instanceof JointBlock) {
+                        JointBlock jointBlock = (JointBlock) associatedBlock;
+                        if (jointBlock.isNotAborted()) {
+                            if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
+                                Hand h = scene.getHand();
+                                if (h.getGrabbedEntity() == parentEntity) {
+                                    if ((h.isFollow() || h.isHolding() || h.isDragging()) && !h.isOnAction()) {
                                         recreateJoint(jointBlock, splinter);
+                                    } else {
+                                        h.onMouseJointDestroyed((MouseJoint) jointBlock.getJoint());
                                     }
-                                } else {
-                                    iterator.remove();
                                 }
+                            } else {
+                                recreateJoint(jointBlock, splinter);
                             }
+                        } else {
+                            iterator.remove();
                         }
                     }
-                    parentEntity.getParentGroup().addGameEntity(splinter);
-                    if (parentEntity.getType() == SpecialEntityType.Head) {
-                        if (GeometryUtils.isPointInPolygon(0, 9, splinter.getBlocks().get(0).getVertices())) {
-                            splinter.setType(SpecialEntityType.Head);
-                            ((RagDoll) parentEntity.getParentGroup()).setHead(splinter);
-                        }
-                    } else splinter.setType(parentEntity.getType());
-                    if (splinter.getArea() < PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA) {
-                        this.scheduleGameEntityToDestroy(splinter, (int) splinter.getArea());
-                    }
-                });
+                }
+            }
+            parentEntity.getParentGroup().addGameEntity(splinter);
+            if (parentEntity.getType() == SpecialEntityType.Head) {
+                if (GeometryUtils.isPointInPolygon(0, 9, splinter.getBlocks().get(0).getVertices())) {
+                    splinter.setType(SpecialEntityType.Head);
+                    ((RagDoll) parentEntity.getParentGroup()).setHead(splinter);
+                }
+            } else splinter.setType(parentEntity.getType());
+            if (splinter.getArea() < PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA) {
+                this.scheduleGameEntityToDestroy(splinter, (int) splinter.getArea());
+            }
+        });
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
 
@@ -305,25 +352,16 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
         GameEntity intact = jointBlock.getBrother().getEntity();
         jointBlock.setEntity(splinter);
-        Invoker.addJointCreationCommand(
-                jointBlock.prepareJointDef(),
-                jointBlock.getJointType() == JointDef.JointType.MouseJoint
-                        ? splinter.getParentGroup()
-                        : intact.getParentGroup(),
-                jointBlock.getPosition() == JointBlock.Position.A ? splinter : intact,
-                jointBlock.getPosition() == JointBlock.Position.B ? splinter : intact,
-                jointBlock);
+        Invoker.addJointCreationCommand(jointBlock.prepareJointDef(), jointBlock.getJointType() == JointDef.JointType.MouseJoint ? splinter.getParentGroup() : intact.getParentGroup(), jointBlock.getPosition() == JointBlock.Position.A ? splinter : intact, jointBlock.getPosition() == JointBlock.Position.B ? splinter : intact, jointBlock);
     }
 
-    public Vector2 detectFirstIntersectionPointWithLayerBlock(
-            Vector2 first, Vector2 second, LayerBlock layerBlock) {
+    public Vector2 detectFirstIntersectionPointWithLayerBlock(Vector2 first, Vector2 second, LayerBlock layerBlock) {
         this.blockIntersectionCallback.reset(layerBlock);
         physicsWorld.rayCast(blockIntersectionCallback, first, second);
         return blockIntersectionCallback.getIntersectionPoint();
     }
 
-    public Vector2 detectFirstIntersectionPointWithExceptions(
-            Vector2 first, Vector2 second, List<GameEntity> excepted) {
+    public Vector2 detectFirstIntersectionPointWithExceptions(Vector2 first, Vector2 second, List<GameEntity> excepted) {
         simpleDetectionRayCastCallback.reset();
         simpleDetectionRayCastCallback.resetExcepted();
         excepted.forEach(simpleDetectionRayCastCallback::addExcepted);
@@ -331,16 +369,14 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return simpleDetectionRayCastCallback.getIntersectionPoint();
     }
 
-    public ImpactData detectFirstIntersectionDataInner(
-            Vector2 first, Vector2 second, GameEntity restricted) {
+    public ImpactData detectFirstIntersectionDataInner(Vector2 first, Vector2 second, GameEntity restricted) {
         fluxInnerRayCastCallback.reset();
         fluxInnerRayCastCallback.setRestricted(restricted);
         physicsWorld.rayCast(fluxInnerRayCastCallback, first, second);
         return fluxInnerRayCastCallback.getImpactData();
     }
 
-    public ImpactData detectFirstIntersectionData(
-            Vector2 first, Vector2 second, GameEntity excepted) {
+    public ImpactData detectFirstIntersectionData(Vector2 first, Vector2 second, GameEntity excepted) {
         fluxRayCastCallback.reset();
         fluxRayCastCallback.setExcepted(excepted);
         physicsWorld.rayCast(fluxRayCastCallback, first, second);
@@ -351,118 +387,61 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         flames.add(fireParticleWrapper);
     }
 
-    public void createJuiceSource(
-            GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut) {
+    public void createJuiceSource(GameEntity parentEntity, LayerBlock layerBlock, final FreshCut freshCut) {
         if (layerBlock.getLiquidQuantity() <= 0) {
             return;
         }
-        int lowerRate =
-                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
-        int higherRate =
-                (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
+        int lowerRate = (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessLowerPressure() * freshCut.getLength());
+        int higherRate = (int) (BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessUpperPressure() * freshCut.getLength());
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
         Runnable onBleeding;
-        if(parentEntity.getParentGroup().getGroupType()==GroupType.DOLL){
-            RagDoll ragDoll = ((RagDoll)parentEntity.getParentGroup());
-            if(ragDoll.isBodyPart(parentEntity)){
-               onBleeding = ragDoll::onBleeding;
+        if (parentEntity.getParentGroup().getGroupType() == GroupType.DOLL) {
+            RagDoll ragDoll = ((RagDoll) parentEntity.getParentGroup());
+            if (ragDoll.isBodyPart(parentEntity)) {
+                onBleeding = ragDoll::onBleeding;
             } else {
                 onBleeding = null;
             }
         } else {
             onBleeding = null;
         }
-        LiquidParticleWrapper particleWrapper =
-                scene
-                        .getWorldFacade()
-                        .createLiquidParticleWrapper(
-                                parentEntity,
-                                freshCut,
-                                layerBlock.getProperties().getJuiceColor(),
-                                layerBlock.getProperties().getFlammability(),
-                                lowerRate,
-                                higherRate);
-        SpawnAction spawnAction =
-                (Particle<UncoloredSprite> p) -> {
-                    freshCut.decrementLimit();
-                    if(onBleeding!=null){
-                        onBleeding.run();
-                    }
-                    if (freshCut.getLimit() <= 0) {
-                        particleWrapper.finishSelf();
-                    }
-                };
+        LiquidParticleWrapper particleWrapper = scene.getWorldFacade().createLiquidParticleWrapper(parentEntity, freshCut, layerBlock.getProperties().getJuiceColor(), layerBlock.getProperties().getFlammability(), lowerRate, higherRate);
+        SpawnAction spawnAction = (Particle<UncoloredSprite> p) -> {
+            freshCut.decrementLimit();
+            if (onBleeding != null) {
+                onBleeding.run();
+            }
+            if (freshCut.getLimit() <= 0) {
+                particleWrapper.finishSelf();
+            }
+        };
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
     }
 
-    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(
-            GameEntity parentEntity,
-            FreshCut freshCut,
-            Color color,
-            float flammability,
-            final int lowerRate,
-            final int higherRate) {
+    private LiquidParticleWrapper liquidParticleWrapperFromFreshCut(GameEntity parentEntity, FreshCut freshCut, Color color, float flammability, final int lowerRate, final int higherRate) {
         if (freshCut instanceof SegmentFreshCut) {
             SegmentFreshCut sfc = (SegmentFreshCut) freshCut;
-            return new SegmentLiquidParticleWrapper(
-                    parentEntity,
-                    new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y},
-                    sfc.getSplashVelocity(),
-                    color, flammability,
-                    lowerRate,
-                    higherRate);
+            return new SegmentLiquidParticleWrapper(parentEntity, new float[]{sfc.first.x, sfc.first.y, sfc.second.x, sfc.second.y}, sfc.getSplashVelocity(), color, flammability, lowerRate, higherRate);
 
         } else {
             PointsFreshCut pfc = (PointsFreshCut) freshCut;
-            float[] data =
-                    Utils.mapPointsToArray(
-                            pfc.getPoints().stream().map(CutPoint::getPoint).collect(Collectors.toList()));
-            float[] weights =
-                    Utils.mapWeightsToArray(
-                            pfc.getPoints().stream().map(CutPoint::getWeight).collect(Collectors.toList()));
-            return new ClusterLiquidParticleWrapper(
-                    parentEntity, color, flammability, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
+            float[] data = Utils.mapPointsToArray(pfc.getPoints().stream().map(CutPoint::getPoint).collect(Collectors.toList()));
+            float[] weights = Utils.mapWeightsToArray(pfc.getPoints().stream().map(CutPoint::getWeight).collect(Collectors.toList()));
+            return new ClusterLiquidParticleWrapper(parentEntity, color, flammability, data, weights, pfc.getSplashVelocity(), lowerRate, higherRate);
         }
     }
 
-    public static Color frostColor =  new Color(172f/255f, 213f/255f, 243f/255f);
-    public void frostParticleWrapper(
-            Vector2 begin, Vector2 end,
-            final int lowerRate,
-            final int higherRate) {
-        frostParticleWrapper = new FrostParticleWrapper(
-                new float[]{begin.x, begin.y, end.x, end.y},
-                frostColor,
-                0,
-                lowerRate,
-                higherRate);
+    public void frostParticleWrapper(Vector2 begin, Vector2 end, final int lowerRate, final int higherRate) {
+        frostParticleWrapper = new FrostParticleWrapper(new float[]{begin.x, begin.y, end.x, end.y}, frostColor, 0, lowerRate, higherRate);
         scene.attachChild(frostParticleWrapper.getParticleSystem());
     }
 
-    public SegmentExplosiveParticleWrapper createFireSource(
-            GameEntity entity,
-            Vector2 v1,
-            Vector2 v2,
-            float velocityMeter,
-            float fireRatio,
-            float smokeRatio,
-            float sparkRatio,
-            float intensity,
-            float heatRatio, float inFireSize, float finFireSize) {
+    public SegmentExplosiveParticleWrapper createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float velocityMeter, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float heatRatio, float inFireSize, float finFireSize) {
         Vector2 dir = v1.cpy().sub(v2).nor();
         Vector2 normal = new Vector2(-dir.y, dir.x);
-        SegmentExplosiveParticleWrapper explosiveParticleWrapper =
-                new SegmentExplosiveParticleWrapper(
-                        entity,
-                        new float[]{v1.x, v1.y, v2.x, v2.y},
-                        normal.cpy().mul(32f * velocityMeter),
-                        fireRatio,
-                        smokeRatio,
-                        sparkRatio,
-                        intensity,
-                        heatRatio, inFireSize, finFireSize);
+        SegmentExplosiveParticleWrapper explosiveParticleWrapper = new SegmentExplosiveParticleWrapper(entity, new float[]{v1.x, v1.y, v2.x, v2.y}, normal.cpy().mul(32f * velocityMeter), fireRatio, smokeRatio, sparkRatio, intensity, heatRatio, inFireSize, finFireSize);
 
         if (explosiveParticleWrapper.getFireParticleSystem() != null) {
             scene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
@@ -482,27 +461,9 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return explosiveParticleWrapper;
     }
 
-    public DataExplosiveParticleWrapper createPointFireSource(
-            GameEntity parent,
-            float[] data,
-            float velocity,
-            float fireRatio,
-            float smokeRatio,
-            float sparkRatio,
-            float particles,
-            float temperature, float inFireSize, float finFireSize,
-            boolean trackFireParticles) {
+    public DataExplosiveParticleWrapper createPointFireSource(GameEntity parent, float[] data, float velocity, float fireRatio, float smokeRatio, float sparkRatio, float particles, float temperature, float inFireSize, float finFireSize, boolean trackFireParticles) {
 
-        DataExplosiveParticleWrapper explosiveParticleWrapper =
-                new DataExplosiveParticleWrapper(
-                        parent,
-                        data,
-                        velocity,
-                        fireRatio,
-                        smokeRatio,
-                        sparkRatio,
-                        particles,
-                        temperature, inFireSize, finFireSize);
+        DataExplosiveParticleWrapper explosiveParticleWrapper = new DataExplosiveParticleWrapper(parent, data, velocity, fireRatio, smokeRatio, sparkRatio, particles, temperature, inFireSize, finFireSize);
 
         if (explosiveParticleWrapper.getFireParticleSystem() != null) {
             scene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
@@ -524,14 +485,8 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return explosiveParticleWrapper;
     }
 
-    public LiquidParticleWrapper createLiquidParticleWrapper(
-            GameEntity parentEntity,
-            final FreshCut freshCut,
-            Color color, float flammability,
-            int lowerRate,
-            int higherRate) {
-        LiquidParticleWrapper liquidSource =
-                liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, flammability, lowerRate, higherRate);
+    public LiquidParticleWrapper createLiquidParticleWrapper(GameEntity parentEntity, final FreshCut freshCut, Color color, float flammability, int lowerRate, int higherRate) {
+        LiquidParticleWrapper liquidSource = liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, flammability, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
         liquidSource.getParticleSystem().setZIndex(5);
         scene.attachChild(liquidSource.getParticleSystem());
@@ -539,20 +494,16 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return liquidSource;
     }
 
-    public HashSet<GameEntity> findEntitiesInZone(
-            float rx, float ry, float halfWidth, float halfHeight) {
+    public HashSet<GameEntity> findEntitiesInZone(float rx, float ry, float halfWidth, float halfHeight) {
 
         queryCallBack.reset();
-        physicsWorld.QueryAABB(
-                queryCallBack, rx - halfWidth, ry - halfHeight, rx + halfWidth, ry + halfHeight);
+        physicsWorld.QueryAABB(queryCallBack, rx - halfWidth, ry - halfHeight, rx + halfWidth, ry + halfHeight);
         return queryCallBack.getEntities();
     }
 
-    public boolean checkEmpty(
-            float lx, float ux, float ly, float uy) {
+    public boolean checkEmpty(float lx, float ux, float ly, float uy) {
         checkEmptyCallback.reset();
-        physicsWorld.QueryAABB(
-                checkEmptyCallback, lx, ly, ux, uy);
+        physicsWorld.QueryAABB(checkEmptyCallback, lx, ly, ux, uy);
         return checkEmptyCallback.isEmpty();
     }
 
@@ -570,34 +521,12 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return null;
     }
 
-    public void createExplosion(
-            GameEntity source,
-            float x,
-            float y,
-            float fireRatio,
-            float smokeRatio,
-            float sparkRatio,
-            float particles,
-            float force,
-            float heat,
-            float speedRatio, float inFirePartSize, float finFirePartSize) {
-        Explosion explosion =
-                new Explosion(
-                        scene,
-                        source,
-                        new Vector2(x, y),
-                        particles,
-                        force,
-                        speedRatio,
-                        heat,
-                        fireRatio,
-                        smokeRatio,
-                        sparkRatio, inFirePartSize, finFirePartSize);
+    public void createExplosion(GameEntity source, float x, float y, float fireRatio, float smokeRatio, float sparkRatio, float particles, float force, float heat, float speedRatio, float inFirePartSize, float finFirePartSize) {
+        Explosion explosion = new Explosion(scene, source, new Vector2(x, y), particles, force, speedRatio, heat, fireRatio, smokeRatio, sparkRatio, inFirePartSize, finFirePartSize);
         explosions.add(explosion);
 
-        Sound sound = ResourceManager.getInstance()
-                .getProjectileSound("explosion1").getSound();
-        ResourceManager.getInstance().tryPlaySound(sound,1f);
+        Sound sound = ResourceManager.getInstance().getProjectileSound("explosion1").getSound();
+        ResourceManager.getInstance().tryPlaySound(sound, 1f);
     }
 
     private void updateLiquidWrappers() {
@@ -606,9 +535,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             if (liquidSource.getParticleSystem().hasParent()) {
                 liquidSource.getParticleSystem().getParticles();
                 for (Particle<?> p : liquidSource.getParticleSystem().getParticles()) {
-                    if (p != null
-                            && !p.isExpired()
-                            && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
+                    if (p != null && !p.isExpired() && Math.random() < PhysicsConstants.STAINING_PROBABILITY) {
                         Vector2 position = new Vector2(p.getEntity().getX(), p.getEntity().getY());
                         float halfWidth = p.getEntity().getWidth() / 32f / 2f;
                         float halfHeight = p.getEntity().getHeight() / 32f / 2f;
@@ -638,16 +565,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                                     Vector2 localPoint = obtain(body.getLocalPoint(rPosition)).mul(32);
                                     List<LayerBlock> blocks = entity.getBlocks();
                                     for (int i = blocks.size() - 1; i >= 0; i--) {
-                                        boolean applied =
-                                                applyLiquidStain(
-                                                        entity,
-                                                        localPoint.x,
-                                                        localPoint.y,
-                                                        blocks.get(i),
-                                                        liquidSource.getColor(),
-                                                        liquidSource.getFlammability(),
-                                                        random.nextInt(14),
-                                                        false);
+                                        boolean applied = applyLiquidStain(entity, localPoint.x, localPoint.y, blocks.get(i), liquidSource.getColor(), liquidSource.getFlammability(), random.nextInt(14), false);
                                         if (applied) {
                                             affected = true;
                                             break;
@@ -676,8 +594,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     }
 
     private void clearPulverizationWrappers() {
-        Iterator<PulverizationParticleWrapper> iterator =
-                powderParticleWrappers.iterator();
+        Iterator<PulverizationParticleWrapper> iterator = powderParticleWrappers.iterator();
         while (iterator.hasNext()) {
             PulverizationParticleWrapper particleWrapper = iterator.next();
             particleWrapper.update();
@@ -761,18 +678,14 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                         continue;
                     }
                     Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
-                    CoatingBlock nearestCoatingBlock =
-                            block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
+                    CoatingBlock nearestCoatingBlock = block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
                     recycle(localPosition);
 
                     if (nearestCoatingBlock != null) {
                         double sparkTemperature = fire.getParticleTemperature(p);
                         nearestCoatingBlock.onSpark(sparkTemperature);
 
-                        PhysicsUtils.transferHeatByConvection(
-                                nearestCoatingBlock.getProperties().getHeatResistance(),
-                                sparkTemperature,
-                                nearestCoatingBlock);
+                        PhysicsUtils.transferHeatByConvection(nearestCoatingBlock.getProperties().getHeatResistance(), sparkTemperature, nearestCoatingBlock);
                     }
                 }
             }
@@ -793,8 +706,8 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             }
     }
 
-    private void frostConvection(){
-        if(frostParticleWrapper==null||!frostParticleWrapper.isAlive()){
+    private void frostConvection() {
+        if (frostParticleWrapper == null || !frostParticleWrapper.isAlive()) {
             return;
         }
         for (Particle<UncoloredSprite> p : frostParticleWrapper.getParticleSystem().getParticles()) {
@@ -827,8 +740,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                     continue;
                 }
                 Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
-                CoatingBlock nearestCoatingBlock =
-                        block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
+                CoatingBlock nearestCoatingBlock = block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
                 recycle(localPosition);
 
                 if (nearestCoatingBlock != null) {
@@ -876,10 +788,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
 
         float[] normalImpulses = impulse.getNormalImpulses();
         float[] tangentImpulses = impulse.getTangentImpulses();
-        float impulseValue =
-                (float)
-                        Math.sqrt(
-                                normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
+        float impulseValue = (float) Math.sqrt(normalImpulses[0] * normalImpulses[0] + tangentImpulses[0] * tangentImpulses[0]);
         if (Float.isInfinite(impulseValue)) {
             return;
         }
@@ -904,7 +813,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 equivalentFound = true;
             }
         }
-        if (!equivalentFound&&contact.getWorldManifold().getNumberOfContactPoints()>0) {
+        if (!equivalentFound && contact.getWorldManifold().getNumberOfContactPoints() > 0) {
             Touch newTouch = new Touch(block1, block2, body1, body2, contact.getWorldManifold().getPoints()[0].cpy());
             touches.add(newTouch);
         }
@@ -917,10 +826,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             return;
         }
         Vector2 penetrationPoint = contact.getWorldManifold().getPoints()[0];
-        if (Float.isInfinite(penetrationPoint.x)
-                || Float.isInfinite(penetrationPoint.y)
-                || Float.isNaN(penetrationPoint.x)
-                || Float.isNaN(penetrationPoint.y)) {
+        if (Float.isInfinite(penetrationPoint.x) || Float.isInfinite(penetrationPoint.y) || Float.isNaN(penetrationPoint.x) || Float.isNaN(penetrationPoint.y)) {
             return;
         }
 
@@ -929,9 +835,9 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
 
 
         boolean penetrationHappened = false;
-              if(computePenetration) {
-                  penetrationHappened = computePenetrationImpact(contact, entity1, entity2, block1, block2);
-              }
+        if (computePenetration) {
+            penetrationHappened = computePenetrationImpact(contact, entity1, entity2, block1, block2);
+        }
 
         if (!penetrationHappened) {
             if (entity1.hasActiveUsage(Stabber.class)) {
@@ -985,52 +891,30 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return m1 * v1 - m2 * v2;
     }
 
-    private Vector2 detectIntersectionWithEntity(
-            GameEntity entity, Vector2 worldBegin, Vector2 worldEnd) {
+    private Vector2 detectIntersectionWithEntity(GameEntity entity, Vector2 worldBegin, Vector2 worldEnd) {
         detectionRayCastCallback.reset();
         detectionRayCastCallback.setEntity(entity);
         physicsWorld.rayCast(detectionRayCastCallback, worldBegin, worldEnd);
         return detectionRayCastCallback.getIntersectionPoint();
     }
 
-    private void drawData(
-            TopographyData topographyDataTable, float factor, Vector2 normal, Color color) {
+    private void drawData(TopographyData topographyDataTable, float factor, Vector2 normal, Color color) {
         float[][] data = topographyDataTable.getData();
         for (float[] datum : data) {
             float inf = datum[0];
             float sup = datum[1];
-            Vector2 p1 =
-                    topographyDataTable
-                            .getBase()
-                            .cpy()
-                            .add(normal.x * inf * factor, normal.y * inf * factor)
-                            .mul(32f);
-            Vector2 p2 =
-                    topographyDataTable
-                            .getBase()
-                            .cpy()
-                            .add(normal.x * sup * factor, normal.y * sup * factor)
-                            .mul(32f);
+            Vector2 p1 = topographyDataTable.getBase().cpy().add(normal.x * inf * factor, normal.y * inf * factor).mul(32f);
+            Vector2 p2 = topographyDataTable.getBase().cpy().add(normal.x * sup * factor, normal.y * sup * factor).mul(32f);
 
             PlayScene.plotter.drawLine2(p1, p2, color != null ? color : Utils.getRandomColor(), 3);
         }
     }
 
-    private boolean computePenetrationImpact(
-            Contact contact,
-            GameEntity entity1,
-            GameEntity entity2,
-            LayerBlock block1,
-            LayerBlock block2) {
+    private boolean computePenetrationImpact(Contact contact, GameEntity entity1, GameEntity entity2, LayerBlock block1, LayerBlock block2) {
 
         GameEntity penetrator = entity1.hasActiveUsage(Penetrating.class) ? entity1 : entity2;
 
-        Penetrating penetration =
-                penetrator.hasActiveUsage(Stabber.class)
-                        ? penetrator.getUsage(Stabber.class)
-                        : penetrator.hasActiveUsage(Projectile.class)
-                        ? penetrator.getActiveUsage(Projectile.class)
-                        : penetrator.getActiveUsage(Smasher.class);
+        Penetrating penetration = penetrator.hasActiveUsage(Stabber.class) ? penetrator.getUsage(Stabber.class) : penetrator.hasActiveUsage(Projectile.class) ? penetrator.getActiveUsage(Projectile.class) : penetrator.getActiveUsage(Smasher.class);
         GameEntity penetrated = penetrator == entity1 ? entity2 : entity1;
         LayerBlock penetratorBlock = penetrator == entity1 ? block1 : block2;
 
@@ -1044,17 +928,12 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         Vector2 normal = obtain(V1.x, V1.y).nor();
         Vector2 tangent = obtain(-normal.y, normal.x);
 
-        final float collisionImpulse =
-                computeCollisionImpulse(V1, V2, normal, m1, m2);
+        final float collisionImpulse = computeCollisionImpulse(V1, V2, normal, m1, m2);
         final float collisionEnergy = computeCollisionEnergy(V1, V2, normal, m1, m2);
         if (collisionEnergy < 10 || Float.isNaN(collisionEnergy) || Float.isInfinite(collisionEnergy)) {
             return false;
         }
-        Log.e("Penetration",
-                "-----------$ Begin penetration, energy:"
-                        + collisionImpulse
-                        + "/ bullet:"
-                        + penetrator.getBody().isBullet());
+        Log.e("Penetration", "-----------$ Begin penetration, energy:" + collisionImpulse + "/ bullet:" + penetrator.getBody().isBullet());
 
         final float range = 10f;
         final float dL = 0.05f;
@@ -1079,14 +958,12 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         while (true) {
             pDS.set(pds0x + i * dTx * sign, pds0y + i * dTy * sign);
             pDE.set(pde0x + i * dTx * sign, pde0y + i * dTy * sign);
-            Vector2 interPenetrator =
-                    i == 0 ? penetrationPoint.cpy() : detectIntersectionWithEntity(penetrator, pDS, pDE);
+            Vector2 interPenetrator = i == 0 ? penetrationPoint.cpy() : detectIntersectionWithEntity(penetrator, pDS, pDE);
 
             if (interPenetrator != null) {
                 p1.set(interPenetrator.x + normal.x * BACKOFF, interPenetrator.y + normal.y * BACKOFF);
                 p2.set(interPenetrator.x - normal.x * range, interPenetrator.y - normal.y * range);
-                TopographyData penTopographyData =
-                        findIntervalsExclusiveToOneEntity(penetrator, interPenetrator, normal, p1, p2);
+                TopographyData penTopographyData = findIntervalsExclusiveToOneEntity(penetrator, interPenetrator, normal, p1, p2);
                 penTopographyData.setCenter(i == 0);
                 if (sign == 1) {
                     penetratorData.add(penTopographyData);
@@ -1101,8 +978,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 }
                 p1.set(interPenetrator.x - normal.x * BACKOFF, interPenetrator.y - normal.y * BACKOFF);
                 p2.set(interPenetrator.x + normal.x * range, interPenetrator.y + normal.y * range);
-                TopographyData envTopographyData =
-                        findIntervalsExceptingOneEntity(penetrator, interPenetrator, normal, p1, p2);
+                TopographyData envTopographyData = findIntervalsExceptingOneEntity(penetrator, interPenetrator, normal, p1, p2);
                 if (sign == 1) {
                     environmentData.add(envTopographyData);
                 } else {
@@ -1128,8 +1004,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             PlayScene.plotter.detachChildren();
             drawPenetrationData(penetrationPoint.cpy(), normal.cpy(), penetratorData, environmentData);
             if (contact.getWorldManifold().getNumberOfContactPoints() == 2) {
-                PlayScene.plotter.drawPoint(
-                        contact.getWorldManifold().getPoints()[1].cpy().mul(32f), Color.GREEN, 4f);
+                PlayScene.plotter.drawPoint(contact.getWorldManifold().getPoints()[1].cpy().mul(32f), Color.GREEN, 4f);
             }
             // GameScene.pause = false;
         }
@@ -1142,7 +1017,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         float penetrationEnergy;
         float advance;
         while (true) {
-            advance = (step+1) * dN;
+            advance = (step + 1) * dN;
             penetrationEnergy = 0;
             boolean depleted = false;
             for (int index = 0; index < environmentData.size(); index++) {
@@ -1150,8 +1025,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                     LayerProperties properties = leadingBlocks.get(index).getProperties();
                     float sharpness = properties.getSharpness();
                     float hardness = properties.getHardness();
-                    Float dEnergy =
-                            environmentData.get(index).getImpulseForAdvance(advance, dN, sharpness, hardness);
+                    Float dEnergy = environmentData.get(index).getImpulseForAdvance(advance, dN, sharpness, hardness);
                     if (dEnergy == null) {
                         depleted = true;
                         penetrationEnergy = collisionEnergy;
@@ -1172,46 +1046,18 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             }
             if (depleted || collisionEnergy - penetrationEnergy < 0) {
                 float actualAdvance = step * dN;
-                penetration.onImpulseConsumed(
-                        this,
-                        contact,
-                        penetrationPoint.cpy(),
-                        normal,
-                        actualAdvance,
-                        penetrator,
-                        penetrated,
-                        environmentData,
-                        penetratorData,
-                        (float) Math.sqrt(collisionEnergy), penetratorBlock);
-                Log.e("Penetration",
-                        "-----------$ On energy consumed, penetrationEnergy:"
-                                + penetrationEnergy
-                                + " advance:"
-                                + actualAdvance);
+                penetration.onImpulseConsumed(this, contact, penetrationPoint.cpy(), normal, actualAdvance, penetrator, penetrated, environmentData, penetratorData, (float) Math.sqrt(collisionEnergy), penetratorBlock);
+                Log.e("Penetration", "-----------$ On energy consumed, penetrationEnergy:" + penetrationEnergy + " advance:" + actualAdvance);
                 return true;
             }
             step++;
         }
         Log.e("Penetration", "-----------$ On free, advance:" + advance);
-        penetration.onFree(
-                this,
-                contact,
-                penetrationPoint.cpy(),
-                normal,
-                advance,
-                penetrator,
-                penetrated,
-                environmentData,
-                penetratorData,
-                collisionImpulse, penetratorBlock);
+        penetration.onFree(this, contact, penetrationPoint.cpy(), normal, advance, penetrator, penetrated, environmentData, penetratorData, collisionImpulse, penetratorBlock);
         return true;
     }
 
-    private void drawPenetrationData(
-            Vector2 point,
-            Vector2 normal,
-            List<TopographyData> penetratorData,
-            List<TopographyData> environmentData) {
+    private void drawPenetrationData(Vector2 point, Vector2 normal, List<TopographyData> penetratorData, List<TopographyData> environmentData) {
         for (int j = 0; j < environmentData.size(); j++) {
             float ratio = j / (float) environmentData.size();
             Color c = new Color(ratio, 1f - ratio, 0f);
@@ -1251,8 +1097,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         penetrator.getBody().setLinearVelocity(0, 0);
     }
 
-    public void mergeEntities(
-            GameEntity receiver, GameEntity traveler, Vector2 advance, Vector2 impactWorldPoint) {
+    public void mergeEntities(GameEntity receiver, GameEntity traveler, Vector2 advance, Vector2 impactWorldPoint) {
 
         Vector2 localA = receiver.getBody().getLocalPoint(impactWorldPoint).cpy();
         Vector2 localB = traveler.getBody().getLocalPoint(impactWorldPoint.cpy().add(advance)).cpy();
@@ -1273,8 +1118,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         scene.sortChildren();
     }
 
-    public void glueEntities(
-            GameEntity entity1, GameEntity entity2, Vector2 point){
+    public void glueEntities(GameEntity entity1, GameEntity entity2, Vector2 point) {
         Vector2 localA = entity1.getBody().getLocalPoint(point).cpy();
         Vector2 localB = entity2.getBody().getLocalPoint(point).cpy();
 
@@ -1288,9 +1132,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         addJointToCreate(jointDef, entity1, entity2, -777777);
     }
 
-
-    private void computeShatterImpact(
-            Contact contact, float impulse, GameEntity entity1, GameEntity entity2) {
+    private void computeShatterImpact(Contact contact, float impulse, GameEntity entity1, GameEntity entity2) {
 
 
         final int numberOfContactPoints = contact.getWorldManifold().getNumberOfContactPoints();
@@ -1304,10 +1146,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         else {
             point = points[0].add(points[1]).mul(0.5f);
         }
-        if (Float.isInfinite(point.x)
-                || Float.isInfinite(point.y)
-                || Float.isNaN(point.x)
-                || Float.isNaN(point.y)) {
+        if (Float.isInfinite(point.x) || Float.isInfinite(point.y) || Float.isNaN(point.x) || Float.isNaN(point.y)) {
             return;
         }
 
@@ -1324,24 +1163,21 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         physicsWorld.rayCast(rayCastCallback, end, begin);
     }
 
-    private TopographyData findIntervalsExclusiveToOneEntity(
-            GameEntity exclusive, Vector2 origin, Vector2 direction, Vector2 begin, Vector2 end) {
+    private TopographyData findIntervalsExclusiveToOneEntity(GameEntity exclusive, Vector2 origin, Vector2 direction, Vector2 begin, Vector2 end) {
         rayCastCallback.reset();
         rayCastCallback.setExclusive(exclusive);
         linearTopographicScan(begin, end);
         return computeIntervals(origin, direction, begin, end);
     }
 
-    private TopographyData findIntervalsExceptingOneEntity(
-            GameEntity excepted, Vector2 center, Vector2 direction, Vector2 begin, Vector2 end) {
+    private TopographyData findIntervalsExceptingOneEntity(GameEntity excepted, Vector2 center, Vector2 direction, Vector2 begin, Vector2 end) {
         rayCastCallback.reset();
         rayCastCallback.setExcepted(excepted);
         linearTopographicScan(begin, end);
         return computeIntervals(center, direction, begin, end);
     }
 
-    private TopographyData computeIntervals(
-            final Vector2 origin, Vector2 base, Vector2 begin, Vector2 end) {
+    private TopographyData computeIntervals(final Vector2 origin, Vector2 base, Vector2 begin, Vector2 end) {
         ArrayList<ArrayList<Flag>> flags = rayCastCallback.getFlags();
         ArrayList<LayerBlock> blocks = rayCastCallback.getCoveredBlocks();
         ArrayList<GameEntity> entities = rayCastCallback.getCoveredEntities();
@@ -1411,12 +1247,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    public void performScanFlux(
-            Vector2 sourceWorldPoint,
-            GameEntity gameEntity,
-            FluxInterface fluxInterface,
-            final int precision,
-            boolean draw) {
+    public void performScanFlux(Vector2 sourceWorldPoint, GameEntity gameEntity, FluxInterface fluxInterface, final int precision, boolean draw) {
 
         // find lower and higher angles
         float minAngle = Float.MAX_VALUE;
@@ -1430,11 +1261,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             for (Vector2 v : block.getVertices()) {
                 joker.set(v.x / 32f, v.y / 32f);
                 Vector2 worldPoint = obtain(gameEntity.getBody().getWorldPoint(joker));
-                float angle =
-                        (float)
-                                (MathUtils.radiansToDegrees
-                                        * Math.atan2(
-                                        worldPoint.x - sourceWorldPoint.x, worldPoint.y - sourceWorldPoint.y));
+                float angle = (float) (MathUtils.radiansToDegrees * Math.atan2(worldPoint.x - sourceWorldPoint.x, worldPoint.y - sourceWorldPoint.y));
                 if (angle < minAngle) {
                     minAngle = angle;
                     low = worldPoint;
@@ -1452,26 +1279,18 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             float dAngle = angleDifference / precision;
             Vector2 lowDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
             if (fluxInterface != null) {
-                fluxInterface.computeFluxEffect(
-                        lowBlock, gameEntity, lowDirection, sourceWorldPoint, low, dAngle);
+                fluxInterface.computeFluxEffect(lowBlock, gameEntity, lowDirection, sourceWorldPoint, low, dAngle);
             }
             recycle(lowDirection);
             for (int i = 1; i < precision; i++) {
                 Vector2 direction = obtain(low.x - sourceWorldPoint.x, low.y - sourceWorldPoint.y).nor();
                 float angle = i * dAngle;
                 GeometryUtils.rotateVectorDeg(direction, -angle);
-                Vector2 detectionEnd =
-                        obtain(sourceWorldPoint.x + direction.x * 200, sourceWorldPoint.y + direction.y * 200);
+                Vector2 detectionEnd = obtain(sourceWorldPoint.x + direction.x * 200, sourceWorldPoint.y + direction.y * 200);
                 Vector2 target = detectIntersectionWithEntity(gameEntity, sourceWorldPoint, detectionEnd);
                 recycle(detectionEnd);
                 if (target != null && fluxInterface != null) {
-                    fluxInterface.computeFluxEffect(
-                            detectionRayCastCallback.getLayerBlock(),
-                            gameEntity,
-                            direction,
-                            sourceWorldPoint,
-                            target,
-                            dAngle);
+                    fluxInterface.computeFluxEffect(detectionRayCastCallback.getLayerBlock(), gameEntity, direction, sourceWorldPoint, target, dAngle);
                     recycle(target);
                 }
                 recycle(direction);
@@ -1479,11 +1298,9 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                     EditorScene.plotter.drawPoint(target.cpy().mul(32f), Color.RED, 1, 1);
                 }
             }
-            Vector2 highDirection =
-                    obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
+            Vector2 highDirection = obtain(high.x - sourceWorldPoint.x, high.y - sourceWorldPoint.y).nor();
             if (fluxInterface != null) {
-                fluxInterface.computeFluxEffect(
-                        highBlock, gameEntity, highDirection, sourceWorldPoint, high, dAngle);
+                fluxInterface.computeFluxEffect(highBlock, gameEntity, highDirection, sourceWorldPoint, high, dAngle);
             }
             recycle(highDirection);
             if (draw) {
@@ -1495,8 +1312,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    public void performFlux(
-            Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
+    public void performFlux(Vector2 sourceWorldPoint, ImpactInterface impactInterface, GameEntity source) {
         Vector2 v = new Vector2(1, 0);
         List<ImpactData> list = new ArrayList<>();
         float phi = (float) (Math.random() * 360);
@@ -1516,8 +1332,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 }
             }
         }
-        Map<GameEntity, List<ImpactData>> res =
-                list.stream().collect(Collectors.groupingBy(ImpactData::getGameEntity));
+        Map<GameEntity, List<ImpactData>> res = list.stream().collect(Collectors.groupingBy(ImpactData::getGameEntity));
         if (impactInterface != null) {
             res.forEach(impactInterface::processImpacts);
         }
@@ -1532,7 +1347,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
         line.setColor(block.getProperties().isJuicy() ? block.getProperties().getJuiceColor() : Color.BLACK);
         gameEntity.getMesh().attachChild(line);
-        processPenetrationSound(block,innerCut.getLength()*10);
+        processPenetrationSound(block, innerCut.getLength() * 10);
         if (block.getProperties().isJuicy()) {
             scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
         }
@@ -1542,8 +1357,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         this.performScreenCut(worldPoint1, worldPoint2, null, Float.MAX_VALUE);
     }
 
-    public void performScreenCut(
-            Vector2 worldPoint1, Vector2 worldPoint2, GameEntity excepted, float hardness) {
+    public void performScreenCut(Vector2 worldPoint1, Vector2 worldPoint2, GameEntity excepted, float hardness) {
         Vector2 u = worldPoint2.cpy().sub(worldPoint1).nor();
         final float L = 10;
         Vector2 L1 = worldPoint1.cpy().sub(u.x * L, u.y * L);
@@ -1585,9 +1399,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 p1 = body.getLocalPoint(worldPoint1).cpy().mul(32f);
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
 
-                SegmentFreshCut fc =
-                        new SegmentFreshCut(
-                                p1, p2, true, block.getProperties().getJuicinessDensity(), splashVelocity);
+                SegmentFreshCut fc = new SegmentFreshCut(p1, p2, true, block.getProperties().getJuicinessDensity(), splashVelocity);
                 block.addFreshCut(fc);
                 createInnerCut(fc, entity, block);
             } else if (firstInside) {
@@ -1595,13 +1407,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 p2 = body.getLocalPoint(list.get(list.size() - 1).getPoint()).cpy().mul(32f);
                 Vector2 V = p1.cpy().sub(p2);
                 if (V.len() > 4) {
-                    SegmentFreshCut fc =
-                            new SegmentFreshCut(
-                                    p1,
-                                    p2.add(V.nor()),
-                                    true,
-                                    block.getProperties().getJuicinessDensity(),
-                                    splashVelocity);
+                    SegmentFreshCut fc = new SegmentFreshCut(p1, p2.add(V.nor()), true, block.getProperties().getJuicinessDensity(), splashVelocity);
                     block.addFreshCut(fc);
                     createInnerCut(fc, entity, block);
                 }
@@ -1610,21 +1416,12 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 p2 = body.getLocalPoint(worldPoint2).cpy().mul(32f);
                 Vector2 V = p2.cpy().sub(p1);
                 if (V.len() > 4) {
-                    SegmentFreshCut fc =
-                            new SegmentFreshCut(
-                                    p1.add(V.nor()),
-                                    p2,
-                                    true,
-                                    block.getProperties().getJuicinessDensity(),
-                                    splashVelocity);
+                    SegmentFreshCut fc = new SegmentFreshCut(p1.add(V.nor()), p2, true, block.getProperties().getJuicinessDensity(), splashVelocity);
                     block.addFreshCut(fc);
                     createInnerCut(fc, entity, block);
                 }
             } else {
-                List<Flag> cutList =
-                        list.stream()
-                                .filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2)
-                                .collect(Collectors.toList());
+                List<Flag> cutList = list.stream().filter(e -> e.getFraction() >= f1 && e.getFraction() <= f2).collect(Collectors.toList());
                 // perform the cut
                 if (cutList.size() >= 2) {
                     p1 = list.get(0).getPoint();
@@ -1643,23 +1440,18 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    public void applyBluntTrauma(
-            float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
+    public void applyBluntTrauma(float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
 
-        int numberOfPoints =Math.min(10,
-                (int)
-                        (impulse
-                                / (5f*PhysicsConstants.TENACITY_FACTOR * layerBlock.getTenacity())));
+        float trauma = impulse / (5f * TENACITY_FACTOR * layerBlock.getTenacity());
+        int numberOfPoints = Math.min(10, (int) trauma);
 
-        List<Vector2> pts =
-                Vector2Utils.generateRandomPointsInsidePolygon(
-                        numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
+        List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
 
         Runnable onBlunt;
-        if(gameEntity.getParentGroup().getGroupType()==GroupType.DOLL){
-            RagDoll ragDoll = ((RagDoll)gameEntity.getParentGroup());
-            if(ragDoll.isBodyPart(gameEntity)){
-                onBlunt = ()->ragDoll.onBlunt(numberOfPoints);
+        if (gameEntity.getParentGroup().getGroupType() == GroupType.DOLL) {
+            RagDoll ragDoll = ((RagDoll) gameEntity.getParentGroup());
+            if (ragDoll.isBodyPart(gameEntity)) {
+                onBlunt = () -> ragDoll.onBlunt((int) trauma);
             } else {
                 onBlunt = null;
             }
@@ -1667,17 +1459,23 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             onBlunt = null;
         }
 
+        boolean applied = false;
         for (Vector2 p : pts) {
             Color color = new Color(layerBlock.getProperties().getJuiceColor());
             Color skin = new Color(layerBlock.getProperties().getDefaultColor());
             skin.setAlpha(0.8f);
-               MyColorUtils.blendColors(color, color, skin);
-               if(onBlunt!=null){
-                   onBlunt.run();
-               }
-            this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 0f, 14, false);
+            MyColorUtils.blendColors(color, color, skin);
+            if (onBlunt != null) {
+                onBlunt.run();
+            }
+            boolean res = this.applyStain(gameEntity, p.x, p.y, layerBlock, color, 0f, 14, false);
+            if (res) {
+                applied = true;
+            }
         }
-        gameEntity.redrawStains();
+        if (applied) {
+            gameEntity.redrawStains();
+        }
     }
 
     private int getStainPriorityFromIndex(int index) {
@@ -1688,36 +1486,17 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    public boolean applyLiquidStain(
-            GameEntity gameEntity,
-            float x,
-            float y,
-            LayerBlock concernedBlock,
-            Color color, float flammability,
-            int index,
-            boolean superpose) {
+    public boolean applyLiquidStain(GameEntity gameEntity, float x, float y, LayerBlock concernedBlock, Color color, float flammability, int index, boolean superpose) {
         return applyStain(gameEntity, x, y, concernedBlock, color, flammability, index, superpose);
     }
 
-    public boolean applyStain(
-            GameEntity gameEntity,
-            float x,
-            float y,
-            LayerBlock concernedBlock,
-            Color color,
-            float flammability,
-            int index,
-            boolean superpose) {
+    public boolean applyStain(GameEntity gameEntity, float x, float y, LayerBlock concernedBlock, Color color, float flammability, int index, boolean superpose) {
         Vector2 localPosition = new Vector2(x, y);
 
         float angle = random.nextInt(360);
-        StainBlock stainBlock =
-                BlockFactory.createStainBlock(
-                        localPosition, angle, concernedBlock.getVertices(), index, color, flammability);
+        StainBlock stainBlock = BlockFactory.createStainBlock(localPosition, angle, concernedBlock.getVertices(), index, color, flammability);
 
-        if (stainBlock != null
-                && stainBlock.isNotAborted()
-                && (superpose || !gameEntity.isNonValidStainPosition(concernedBlock, stainBlock))) {
+        if (stainBlock != null && stainBlock.isNotAborted() && (superpose || !gameEntity.isNonValidStainPosition(concernedBlock, stainBlock))) {
             stainBlock.setId(index);
             stainBlock.setPriority(this.getStainPriorityFromIndex(index));
             gameEntity.addStain(concernedBlock, stainBlock);
@@ -1759,8 +1538,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             cutPerformed = true;
 
 
-            ResourceManager.getInstance().tryPlaySound(
-                    ResourceManager.getInstance().slashSound,calculateVolumeRatio(10*cut.getLength()));
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().slashSound, calculateVolumeRatio(10 * cut.getLength()));
 
             Iterator<LayerBlock> iterator = block.createIterator();
             while (iterator.hasNext()) {
@@ -1783,8 +1561,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    public void computePenetrationPoints(
-            Vector2 normal, float advance, List<TopographyData> envData, float collisionImpulse) {
+    public void computePenetrationPoints(Vector2 normal, float advance, List<TopographyData> envData, float collisionImpulse) {
         List<PenetrationPoint> allPenPoints = new ArrayList<>();
         for (TopographyData topographyData : envData) {
             List<PenetrationPoint> dataPenPoints = new ArrayList<>();
@@ -1792,42 +1569,17 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
                 float inf = topographyData.getData()[i][0];
                 float sup = topographyData.getData()[i][1];
                 if (advance > inf) {
-                    Vector2 point =
-                            topographyData
-                                    .getBase()
-                                    .cpy()
-                                    .add((inf + 0.02f) * normal.x, (inf + 0.02f) * normal.y);
-                    PenetrationPoint pe =
-                            new PenetrationPoint(
-                                    topographyData.getEntities()[i],
-                                    topographyData.getBlocks()[i],
-                                    point,
-                                    inf,
-                                    advance - inf,
-                                    true);
+                    Vector2 point = topographyData.getBase().cpy().add((inf + 0.02f) * normal.x, (inf + 0.02f) * normal.y);
+                    PenetrationPoint pe = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, inf, advance - inf, true);
                     dataPenPoints.add(pe);
                 }
                 if (advance > sup) {
-                    Vector2 point =
-                            topographyData
-                                    .getBase()
-                                    .cpy()
-                                    .add((sup - 0.05f) * normal.x, (sup - 0.05f) * normal.y);
-                    PenetrationPoint ps =
-                            new PenetrationPoint(
-                                    topographyData.getEntities()[i],
-                                    topographyData.getBlocks()[i],
-                                    point,
-                                    sup,
-                                    sup - inf,
-                                    false);
+                    Vector2 point = topographyData.getBase().cpy().add((sup - 0.05f) * normal.x, (sup - 0.05f) * normal.y);
+                    PenetrationPoint ps = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, sup, sup - inf, false);
                     dataPenPoints.add(ps);
                 }
             }
-            Collection<List<PenetrationPoint>> res =
-                    dataPenPoints.stream()
-                            .collect(Collectors.groupingBy(PenetrationPoint::getBlock))
-                            .values();
+            Collection<List<PenetrationPoint>> res = dataPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock)).values();
             for (List<PenetrationPoint> list : res) {
                 Collections.sort(list);
                 PenetrationPoint enteringPoint = list.get(0);
@@ -1839,61 +1591,32 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             }
         }
 
-        Map<GameEntity, List<PenetrationPoint>> groupedByEntity =
-                allPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getEntity));
+        Map<GameEntity, List<PenetrationPoint>> groupedByEntity = allPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getEntity));
 
         for (Map.Entry<GameEntity, List<PenetrationPoint>> entry : groupedByEntity.entrySet()) {
-            Map<LayerBlock, List<PenetrationPoint>> res =
-                    entry.getValue().stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock));
+            Map<LayerBlock, List<PenetrationPoint>> res = entry.getValue().stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock));
             GameEntity entity = entry.getKey();
             for (Map.Entry<LayerBlock, List<PenetrationPoint>> entryByBlock : res.entrySet()) {
                 LayerBlock layerBlock = entryByBlock.getKey();
 
 
-                List<CutPoint> enterBleedingPoints =
-                        entryByBlock.getValue().stream()
-                                .filter(PenetrationPoint::isEntering)
-                                .map(
-                                        p ->
-                                                new CutPoint(
-                                                        entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),
-                                                        p.getWeight()))
-                                .collect(Collectors.toList());
+                List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
                     float length = enterBleedingPoints.size();
-                    int limit =
-                            (int)
-                                    Math.ceil(
-                                            length * BLEEDING_CONSTANT
-                                                    * layerBlock.getProperties().getJuicinessDensity());
+                    int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
                     processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
-                        FreshCut freshCut =
-                                new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse*5f));
+                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse * 5f));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
                 }
-                List<CutPoint> leavingBleedingPoints =
-                        entryByBlock.getValue().stream()
-                                .filter(p -> !p.isEntering())
-                                .map(
-                                        p ->
-                                                new CutPoint(
-                                                        entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f),
-                                                        p.getWeight()))
-                                .collect(Collectors.toList());
+                List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
                     float length = (float) leavingBleedingPoints.size();
-                    int value =
-                            (int)
-                                    Math.ceil(
-                                            length
-                                                    * layerBlock.getProperties().getJuicinessDensity()
-                                                    * BLEEDING_CONSTANT);
+                    int value = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
-                        FreshCut freshCut =
-                                new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
+                        FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
@@ -1902,87 +1625,17 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
     }
 
-    private static void processPenetrationSound(LayerBlock layerBlock, float collisionImpulse) {
-        MaterialFactory.MaterialAcousticType materialAcousticType
-                = MaterialFactory.getInstance().getMaterialAcousticType(layerBlock.getProperties().getMaterialNumber());
-        if(materialAcousticType==null){
-            return;
-        }
-        Sound sound = null;
-        switch (materialAcousticType){
-            case SOFT:
-                sound = ResourceManager.getInstance().penetrationSounds.get(0).getSound();
-                break;
-            case METAL:
-                if(Math.random()<0.5f) {
-                   sound = ResourceManager.getInstance().penetrationSounds.get(3).getSound();
-                }
-                else {
-                    sound = ResourceManager.getInstance().penetrationSounds.get(6).getSound();
-                }
-                break;
-            case HARD_METAL:
-                if(Math.random()<0.5f) {
-                   sound = ResourceManager.getInstance().penetrationSounds.get(4).getSound();
-                }
-                else {
-                    sound = ResourceManager.getInstance().penetrationSounds.get(5).getSound();
-                }
-                break;
-            case WOOD:
-                if(Math.random()<0.5f) {
-                    sound = ResourceManager.getInstance().penetrationSounds.get(11).getSound();
-                }
-                else {
-                   sound = ResourceManager.getInstance().penetrationSounds.get(12).getSound();
-                }
-                break;
-            case ROCK:
-                if(Math.random()<0.5f) {
-                    sound = ResourceManager.getInstance().penetrationSounds.get(9).getSound();
-                }
-                else {
-                    sound = ResourceManager.getInstance().penetrationSounds.get(10).getSound();
-                }
-                break;
-            case GLASS:
-                   sound =  ResourceManager.getInstance().penetrationSounds.get(8).getSound();
-                break;
-            default:
-             break;
-        }
-
-        if(sound!=null){
-            ResourceManager.getInstance().tryPlaySound(sound,calculateVolumeRatio(collisionImpulse));
-        }
-    }
-    public static float calculateVolumeRatio(float impulse) {
-        // Calculate the volume ratio using a logarithmic scale
-        float volumeRatio = (float) (1 - Math.exp(-impulse/1000f));
-
-        // Ensure the volume ratio is within the valid range [0, 1]
-        if (volumeRatio < 0) {
-            volumeRatio = 0;
-        } else if (volumeRatio > 1) {
-            volumeRatio = 1;
-        }
-
-        return volumeRatio;
-    }
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {
         if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody() == null) {
             return;
         }
-        LayerBlock nearest =
-                BlockUtils.getNearestBlock(
-                        gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f), gameEntity.getBlocks());
+        LayerBlock nearest = BlockUtils.getNearestBlock(gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f), gameEntity.getBlocks());
         if (nearest != null) {
             applyOnePointImpactToEntity(nearest, energy, gameEntity, worldPoint);
         }
     }
 
-    private void applyOnePointImpactToEntity(
-            LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
+    private void applyOnePointImpactToEntity(LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
         if (impulse < 10) {
             return;
         }
@@ -1991,8 +1644,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
         Vector2 localPoint = gameEntity.getBody().getLocalPoint(worldPoint).cpy().mul(32f);
         if (block.getProperties().isJuicy()) {
-            this.applyBluntTrauma(
-                    localPoint.x, localPoint.y, impulse, gameEntity, block);
+            this.applyBluntTrauma(localPoint.x, localPoint.y, impulse, gameEntity, block);
         }
         if (gameEntity.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
@@ -2017,26 +1669,19 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         Body body = gameEntity.getBody();
         for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
             coatingBlock.setPulverized(true);
-            coatingBlock
-                    .getTriangles()
-                    .forEach(
-                            vector2 -> {
-                                Vector2 worldVector = body.getWorldPoint(vector2.mul(1 / 32f)).cpy().mul(32f);
-                                vector2.set(worldVector);
-                            });
+            coatingBlock.getTriangles().forEach(vector2 -> {
+                Vector2 worldVector = body.getWorldPoint(vector2.mul(1 / 32f)).cpy().mul(32f);
+                vector2.set(worldVector);
+            });
         }
-        ArrayList<? extends AssociatedBlock<?, ?>> copy =
-                new ArrayList<>(layerBlock.getAssociatedBlocks());
-        copy.forEach(
-                associatedBlock -> {
-                    if (associatedBlock instanceof JointBlock) {
-                        JointBlock jointBlock = (JointBlock) associatedBlock;
-                        jointBlock.setAborted(true);
-                    }
-                });
-        PulverizationParticleWrapper pulverizationParticleWrapper =
-                new PulverizationParticleWrapper(
-                        this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
+        ArrayList<? extends AssociatedBlock<?, ?>> copy = new ArrayList<>(layerBlock.getAssociatedBlocks());
+        copy.forEach(associatedBlock -> {
+            if (associatedBlock instanceof JointBlock) {
+                JointBlock jointBlock = (JointBlock) associatedBlock;
+                jointBlock.setAborted(true);
+            }
+        });
+        PulverizationParticleWrapper pulverizationParticleWrapper = new PulverizationParticleWrapper(this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
         powderParticleWrappers.add(pulverizationParticleWrapper);
         scene.attachChild(pulverizationParticleWrapper.getParticleSystem());
     }
@@ -2053,13 +1698,12 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     }
 
     public void applyImpactHeat(float heatRatio, List<ImpactData> impactData) {
-        impactData.forEach(
-                impact -> {
-                    impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
-                        coatingBlock.onHeatWave(heatRatio / impact.getDistanceFromSource());
+        impactData.forEach(impact -> {
+            impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {
+                coatingBlock.onHeatWave(heatRatio / impact.getDistanceFromSource());
 
-                    }));
-                });
+            }));
+        });
     }
 
     private void computeInternalConduction(CoatingBlock coatingBlock) {
@@ -2070,8 +1714,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             float area1 = coatingBlock.getArea();
             float area2 = other.getArea();
             float length = (float) (area1 <= area2 ? Math.sqrt(area1) : Math.sqrt(area2));
-            PhysicsUtils.transferHeatByConduction(
-                    length, coatingBlock, other);
+            PhysicsUtils.transferHeatByConduction(length, coatingBlock, other);
         }
     }
 
@@ -2088,12 +1731,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         this.ground = ground;
     }
 
-    private void addJointBlocks(
-            GameEntity entity1,
-            GameEntity entity2,
-            JointBlock jointBlock1,
-            JointBlock jointBlock2,
-            JointDef jointDef, boolean mirror) {
+    private void addJointBlocks(GameEntity entity1, GameEntity entity2, JointBlock jointBlock1, JointBlock jointBlock2, JointDef jointDef, boolean mirror) {
         Vector2 anchorA = new Vector2();
         Vector2 anchorB = new Vector2();
 
@@ -2108,8 +1746,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
             case MouseJoint:
                 MouseJointDef mouseJointDef = ((MouseJointDef) jointDef);
                 Vector2 anchor = mouseJointDef.target.cpy().mul(32f);
-                float[] pos =
-                        entity2.getMesh().convertSceneCoordinatesToLocalCoordinates(anchor.x, anchor.y);
+                float[] pos = entity2.getMesh().convertSceneCoordinatesToLocalCoordinates(anchor.x, anchor.y);
                 anchorB.set(pos[0], pos[1]);
 
             case LineJoint:
@@ -2131,27 +1768,11 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         }
         String jointUniqueId = UUID.randomUUID().toString();
 
-        jointBlock1.initialization(
-                entity1,
-                jointUniqueId,
-                jointDef.type,
-                new ArrayList<>(Collections.singletonList(anchorA)),
-                new JointBlockProperties(jointDef),
-                0,
-                JointBlock.Position.A,
-                jointBlock2);
+        jointBlock1.initialization(entity1, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorA)), new JointBlockProperties(jointDef), 0, JointBlock.Position.A, jointBlock2);
         LayerBlock layerBlock1 = BlockUtils.getNearestBlock(anchorA, entity1.getBlocks());
         layerBlock1.addAssociatedBlock(jointBlock1);
 
-        jointBlock2.initialization(
-                entity2,
-                jointUniqueId,
-                jointDef.type,
-                new ArrayList<>(Collections.singletonList(anchorB)),
-                new JointBlockProperties(jointDef),
-                0,
-                JointBlock.Position.B,
-                jointBlock1);
+        jointBlock2.initialization(entity2, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorB)), new JointBlockProperties(jointDef), 0, JointBlock.Position.B, jointBlock1);
         LayerBlock layerBlock2 = BlockUtils.getNearestBlock(anchorB, entity2.getBlocks());
         layerBlock2.addAssociatedBlock(jointBlock2);
         if (mirror) {
@@ -2160,16 +1781,8 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     }
 
 
-    public void addJointToRecreate(
-            JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock jointBlock) {
-        Invoker.addJointCreationCommand(
-                jointDef,
-                GroupType.GROUND.equals(entity1.getParentGroup().getGroupType())
-                        ? entity2.getParentGroup()
-                        : entity1.getParentGroup(),
-                entity1,
-                entity2,
-                jointBlock);
+    public void addJointToRecreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, JointBlock jointBlock) {
+        Invoker.addJointCreationCommand(jointDef, GroupType.GROUND.equals(entity1.getParentGroup().getGroupType()) ? entity2.getParentGroup() : entity1.getParentGroup(), entity1, entity2, jointBlock);
     }
 
     /**
@@ -2181,14 +1794,13 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         jointBlock1.setJointId(jointId);
         jointBlock2.setJointId(jointId);
         this.addJointBlocks(entity1, entity2, jointBlock1, jointBlock2, jointDef, mirror);
-        Invoker.addJointCreationCommand(
-                jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
+        Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
         return jointBlock1;
     }
 
-    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId){
-        return addJointToCreate(jointDef,entity1,entity2,jointId,false);
-}
+    public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
+        return addJointToCreate(jointDef, entity1, entity2, jointId, false);
+    }
 
     public Vector2 getAirVelocity(Vector2 worldPoint) {
         sum.set(0, 0);
@@ -2210,8 +1822,7 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         this.contactListener.removeNonCollidingPair(entity1, entity2);
     }
 
-    public boolean doNotOverlap(
-            List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
+    public boolean doNotOverlap(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
         for (int i = 0; i < penData.size(); i++) {
             if (envData.get(i).doesOverlap(penData.get(i), actualAdvance)) {
                 return false;
@@ -2220,20 +1831,16 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return true;
     }
 
-    public List<GameEntity> findOverlappingEntities(
-            List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
+    public List<GameEntity> findOverlappingEntities(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
 
         HashSet<TopographyData.Overlap> overlaps = new HashSet<>();
         for (int i = 0; i < penData.size(); i++) {
             overlaps.addAll(envData.get(i).findOverlaps(penData.get(i), actualAdvance));
         }
-        return new ArrayList<>(overlaps.stream()
-                .collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity))
-                .keySet());
+        return new ArrayList<>(overlaps.stream().collect(Collectors.groupingBy(TopographyData.Overlap::getGameEntity)).keySet());
     }
 
-    public List<GameEntity> findReachedEntities(
-            List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
+    public List<GameEntity> findReachedEntities(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
         HashSet<GameEntity> entities = new HashSet<>();
         for (int i = 0; i < penData.size(); i++) {
             entities.addAll(envData.get(i).findReachedEntities(penData.get(i), actualAdvance));
@@ -2253,9 +1860,9 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return scene;
     }
 
-    public Touch areTouching(GameEntity entity1, GameEntity entity2){
-        for(Touch touch:touches){
-            if(entity1!=null&&entity2!=null&&entity1.getBody()!=null&&entity2.getBody()!=null) {
+    public Touch areTouching(GameEntity entity1, GameEntity entity2) {
+        for (Touch touch : touches) {
+            if (entity1 != null && entity2 != null && entity1.getBody() != null && entity2.getBody() != null) {
                 if (touch.isEquivalent(entity1.getBody(), entity2.getBody())) {
                     return touch;
                 }
@@ -2264,10 +1871,10 @@ public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
         return null;
     }
 
-    public Touch areTouching(LayerBlock layerBlock1, LayerBlock layerBlock2){
-        for(Touch touch:touches){
-            if(layerBlock1!=null&&layerBlock2!=null) {
-                if (touch.isEquivalent(layerBlock1,layerBlock2)) {
+    public Touch areTouching(LayerBlock layerBlock1, LayerBlock layerBlock2) {
+        for (Touch touch : touches) {
+            if (layerBlock1 != null && layerBlock2 != null) {
+                if (touch.isEquivalent(layerBlock1, layerBlock2)) {
                     return touch;
                 }
             }
