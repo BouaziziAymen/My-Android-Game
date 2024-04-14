@@ -108,10 +108,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         plotter = new Plotter();
         this.attachChild(plotter);
         this.mScrollDetector = new SurfaceScrollDetector(this);
-
         this.mPinchZoomDetector = new PinchZoomDetector(this);
-
-
     }
 
     @Override
@@ -474,44 +471,44 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     private void createMarbleGround() {
-        PlayScene.groundY = 30f;
+        PlayScene.groundY = 60f;
 
         ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-440, 0, 1240, 980);
         ArrayList<LayerBlock> blocks = new ArrayList<>();
         List<Vector2> vertices = new ArrayList<>();
         vertices.add(obtain(-800, -50));
-        vertices.add(obtain(-800, 10));
-        vertices.add(obtain(800, 10));
+        vertices.add(obtain(-800, 20));
+        vertices.add(obtain(800, 20));
         vertices.add(obtain(800, -50));
         blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 0, 0, false));
         vertices = new ArrayList<>();
-        vertices.add(obtain(-780, 10));
         vertices.add(obtain(-780, 20));
+        vertices.add(obtain(-780, 40));
+        vertices.add(obtain(780, 40));
         vertices.add(obtain(780, 20));
-        vertices.add(obtain(780, 10));
         blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 1, 0, false));
 
 
         vertices = new ArrayList<>();
-        vertices.add(obtain(-760, 20));
-        vertices.add(obtain(-760, 30));
-        vertices.add(obtain(760, 30));
-        vertices.add(obtain(760, 20));
+        vertices.add(obtain(-760, 40));
+        vertices.add(obtain(-760, 60));
+        vertices.add(obtain(760, 60));
+        vertices.add(obtain(760, 40));
         blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 2, 0, false));
 
 
         vertices = new ArrayList<>();
         vertices.add(obtain(-760, 960));
-        vertices.add(obtain(-760, 30));
-        vertices.add(obtain(-720, 30));
+        vertices.add(obtain(-760, 60));
+        vertices.add(obtain(-720, 60));
         vertices.add(obtain(-720, 960));
         blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 3, 0, false));
 
 
         vertices = new ArrayList<>();
         vertices.add(obtain(760, 960));
-        vertices.add(obtain(760, 30));
-        vertices.add(obtain(720, 30));
+        vertices.add(obtain(760, 60));
+        vertices.add(obtain(720, 60));
         vertices.add(obtain(720, 960));
         blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.MARBLE)), 4, 0, false));
 
@@ -525,10 +522,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
 
         vertices = new ArrayList<>();
-        vertices.add(obtain(-780, 10));
-        vertices.add(obtain(-780, 11));
-        vertices.add(obtain(780, 11));
-        vertices.add(obtain(780, 10));
+        vertices.add(obtain(-780, 20));
+        vertices.add(obtain(-780, 21));
+        vertices.add(obtain(780, 21));
+        vertices.add(obtain(780, 20));
         DecorationBlock decorationBlock = new DecorationBlock();
         DecorationProperties decorationProperties = new DecorationProperties();
         decorationProperties.setDefaultColor(new Color(0.8f, 0.8f, 0.8f));
@@ -537,10 +534,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
 
         vertices = new ArrayList<>();
-        vertices.add(obtain(-760, 20));
-        vertices.add(obtain(-760, 21));
-        vertices.add(obtain(760, 21));
-        vertices.add(obtain(760, 20));
+        vertices.add(obtain(-760, 40));
+        vertices.add(obtain(-760, 41));
+        vertices.add(obtain(760, 41));
+        vertices.add(obtain(760, 40));
         decorationBlock = new DecorationBlock();
         decorationProperties = new DecorationProperties();
         decorationProperties.setDefaultColor(new Color(0.8f, 0.8f, 0.8f));

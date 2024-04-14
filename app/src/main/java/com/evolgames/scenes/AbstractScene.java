@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public abstract class AbstractScene<T extends UserInterface<?>> extends Scene implements IOnSceneTouchListener {
     protected final Camera mCamera;
-    private Vector2 cameraPositionBeforeChase = new Vector2();
+    private final Vector2 cameraPositionBeforeChase = new Vector2();
 
     private final HUD hud;
     private final SceneType sceneName;

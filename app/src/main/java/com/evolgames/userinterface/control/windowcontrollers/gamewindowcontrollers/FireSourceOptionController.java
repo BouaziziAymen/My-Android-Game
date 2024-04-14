@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.FireSourceProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.view.inputs.Quantity;
@@ -32,12 +33,11 @@ public class FireSourceOptionController extends SettingsWindowController<FireSou
             int primaryKey,
             int secondaryKey,
             int length,
-            float minX,
             String key,
             FireSourceOptionController.FloatConsumer consumer) {
 
         TitledQuantity<FireSourceOptionController> ratioQuantity =
-                new TitledQuantity<>(title, length, key, 1, minX);
+                new TitledQuantity<>(title, length, key, 1, true);
 
         Quantity<FireSourceOptionController> quantityField = ratioQuantity.getAttachment();
         ratioQuantity
@@ -62,34 +62,34 @@ public class FireSourceOptionController extends SettingsWindowController<FireSou
         super.init();
         SectionField<FireSourceOptionController> explosiveSettingsSection =
                 new SectionField<>(
-                        1, "Fire Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.fire_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
         particlesQuantityField =
                 this.createQuantity(
-                        "Particles:", 1, 1, 10, 60, "b", (q) -> fireSourceProperties.setParticles(q));
+                        ResourceManager.getInstance().getString(R.string.particle_density_title), 1, 1, 10, "b", (q) -> fireSourceProperties.setParticles(q));
         speedQuantityField =
-                this.createQuantity("Speed:", 1, 2, 10, 40, "b", (q) -> fireSourceProperties.setSpeedRatio(q));
+                this.createQuantity( ResourceManager.getInstance().getString(R.string.particle_speed_title), 1, 2, 10, "b", (q) -> fireSourceProperties.setSpeedRatio(q));
 
         heatQuantityField =
-                this.createQuantity("Heat:", 1, 3, 10, 40, "r", (q) -> fireSourceProperties.setHeatRatio(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.explosion_heat_title), 1, 3, 10, "r", (q) -> fireSourceProperties.setHeatRatio(q));
         fireRatioQuantityField =
                 this.createQuantity(
-                        "Fire:", 1, 4, 10, 40, "r", (q) -> fireSourceProperties.setFireRatio(q));
+                        ResourceManager.getInstance().getString(R.string.fire_title), 1, 4, 10, "r", (q) -> fireSourceProperties.setFireRatio(q));
         smokeRatioQuantityField =
                 this.createQuantity(
-                        "Smoke:", 1, 5, 10, 50, "t", (q) -> fireSourceProperties.setSmokeRatio(q));
+                        ResourceManager.getInstance().getString(R.string.smoke_title), 1, 5, 10, "t", (q) -> fireSourceProperties.setSmokeRatio(q));
         sparkRatioQuantityField =
                 this.createQuantity(
-                        "Sparks:", 1, 6, 10, 50, "g", (q) -> fireSourceProperties.setSparkRatio(q));
+                        ResourceManager.getInstance().getString(R.string.sparks_title), 1, 6, 10, "g", (q) -> fireSourceProperties.setSparkRatio(q));
 
         inPartSizeQuantityField =
                 this.createQuantity(
-                        "In. Part. Size:", 1, 7, 10, 50, "g", (q) -> fireSourceProperties.setInFirePartSize(q));
+                        ResourceManager.getInstance().getString(R.string.particle_initial_size), 1, 7, 10, "g", (q) -> fireSourceProperties.setInFirePartSize(q));
 
         finPartSizeQuantityField =
                 this.createQuantity(
-                        "Fin. Part. Size:", 1, 8, 10, 50, "g", (q) -> fireSourceProperties.setFinFirePartSize(q));
+                        ResourceManager.getInstance().getString(R.string.particle_final_size), 1, 8, 10, "g", (q) -> fireSourceProperties.setFinFirePartSize(q));
 
         window.createScroller();
         updateLayout();

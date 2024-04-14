@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.AdvancedWindowController;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointSettingsWindowController;
@@ -15,7 +17,7 @@ public class JointOptionWindow
         extends AbstractOneLevelSectionedAdvancedWindow<SimplePrimary<?>, SimpleSecondary<?>> {
     public JointOptionWindow(float pX, float pY, JointSettingsWindowController controller) {
         super(pX, pY, 10, 7, true, controller);
-        SimpleTitleField titleField = new SimpleTitleField("Joint Settings:");
+        SimpleTitleField titleField = new SimpleTitleField(ResourceManager.getInstance().getString(R.string.joint_settings_title));
         titleField.setPadding(5);
         addPrimary(titleField);
         controller.init();

@@ -1,11 +1,14 @@
 package com.evolgames.userinterface.view;
 
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
+
 public class Strings {
     public static final String DECORATION_DELETE_CONFIRM =
-            "Are you sure you want to delete decoration, %s on %s?";
+            ResourceManager.getInstance().getString(R.string.decoration_delete_confirm_message);
     public static String LAYER_DELETE_CONFIRM =
-            "Are you sure you want to delete layer, %s on %s?";
-    public static String BODY_DELETE_CONFIRM = "Are you sure you want to delete this body, %s?";
-    public static String JOINT_DELETE_CONFIRM = "Are you sure you want to delete this joint, %s?";
-    public static String ITEM_DELETE_CONFIRM = "Are you sure you want to delete item, %s?";
+            ResourceManager.getInstance().getString(R.string.layer_delete_confirm_message);
+    public static String BODY_DELETE_CONFIRM = ResourceManager.getInstance().getString(R.string.body_delete_confirm_message);
+    public static String JOINT_DELETE_CONFIRM = ResourceManager.getInstance().getString(R.string.joint_delete_confirm_message);
+    public static String ITEM_DELETE_CONFIRM = ResourceManager.getInstance().getString(R.string.item_delete_confirm_message);
 }

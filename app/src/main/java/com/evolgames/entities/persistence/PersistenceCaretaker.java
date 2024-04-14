@@ -198,9 +198,10 @@ public class PersistenceCaretaker {
         //resetMaterialsBasicValues();
         //addSymbolToTheEndOfItems();
      // scaleToolBody("Main Battle Tank#",2f,13);
-     scaleTool("Archery Target#",1.333f);
+//     scaleTool("Archery Target#",1.333f);
        // mirrorTool("Rocket 2#");
         // moveLayersTransformation();
+    //    asIsTransformation();
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -243,6 +244,11 @@ public class PersistenceCaretaker {
             }
         }
     }
+    private void asIsTransformation() {
+        VersioningHelper.applyTreatment(toolModel -> {
+        }, (ItemMetaData e) ->true);
+    }
+
     private void scaleToolBody(String toolName, float scale, int bodyId) {
         VersioningHelper.applyTreatment(toolModel -> {
             String name = toolModel.getProperties().getToolName();
@@ -591,7 +597,7 @@ public class PersistenceCaretaker {
                                 motorControlProperties.getJointIds()));
             }
             usageElement.appendChild(propertiesElement);
-            usageElement.setAttribute(USAGE_TYPE_TAG, usageModel.getType().getName());
+            usageElement.setAttribute(USAGE_TYPE_TAG, usageModel.getType().name());
             usageListElement.appendChild(usageElement);
         }
         bodyElement.appendChild(usageListElement);
@@ -1015,7 +1021,7 @@ public class PersistenceCaretaker {
                                                                     .getFireSourceModelListIds()
                                                                     .contains(p.getFireSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Flame Thrower")) {
+                } else if (e.getType() == BodyUsageCategory.FLAME_THROWER) {
                     FlameThrowerProperties flameThrowerProperties =
                             (FlameThrowerProperties) e.getProperties();
                     flameThrowerProperties
@@ -1028,7 +1034,7 @@ public class PersistenceCaretaker {
                                                                     .getFireSourceIds()
                                                                     .contains(p.getFireSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Shooter") || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER || e.getType() == BodyUsageCategory.BOW) {
+                } else if (e.getType()==BodyUsageCategory.SHOOTER||e.getType()==BodyUsageCategory.SHOOTER_CONTINUOUS || e.getType() == BodyUsageCategory.ROCKET_LAUNCHER || e.getType() == BodyUsageCategory.BOW) {
                     RangedProperties rangedProperties = (RangedProperties) e.getProperties();
                     rangedProperties
                             .getProjectileModelList()
@@ -1037,7 +1043,7 @@ public class PersistenceCaretaker {
                                             .filter(
                                                     p -> rangedProperties.getProjectileIds().contains(p.getProjectileId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().startsWith("Liquid Container")) {
+                } else if (e.getType() == BodyUsageCategory.LIQUID_CONTAINER) {
                     LiquidContainerProperties liquidContainerProperties =
                             (LiquidContainerProperties) e.getProperties();
                     liquidContainerProperties
@@ -1050,7 +1056,7 @@ public class PersistenceCaretaker {
                                                                     .getLiquidSourceIds()
                                                                     .contains(p.getLiquidSourceId()))
                                             .collect(Collectors.toList()));
-                } else if (e.getType().toString().contains("Bomb")) {
+                } else if (e.getType()==BodyUsageCategory.TIME_BOMB||e.getType()==BodyUsageCategory.IMPACT_BOMB) {
                     BombUsageProperties bombUsageProperties = (BombUsageProperties) e.getProperties();
                     bombUsageProperties
                             .getBombModelList()
@@ -1395,141 +1401,146 @@ public class PersistenceCaretaker {
 
     private UsageModel<?> readUsageModel(Element usageElement) throws PersistenceException {
         Element propertiesElement = (Element) usageElement.getElementsByTagName(PROPERTIES_TAG).item(0);
-        BodyUsageCategory bodyUsageCategory =
-                BodyModel.allCategories.stream()
-                        .filter(bm -> bm.getName().equals(usageElement.getAttribute(USAGE_TYPE_TAG)))
-                        .findFirst()
-                        .get();
-        UsageModel<Properties> usageModel = new UsageModel<>("", bodyUsageCategory);
-        List<Integer> usageProjectileIds;
-        List<Integer> usageBombIds;
-        List<Integer> usageSensitiveLayersIds;
-        List<Integer> usageFireSourceIds;
-        List<Integer> usageLiquidSourceIds;
-        List<Integer> usageMotorJointIds;
-        switch (bodyUsageCategory) {
-            case SHOOTER:
-                usageProjectileIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                ShooterProperties rangedShooterProperties =
-                        loadProperties(propertiesElement, ShooterProperties.class);
-                rangedShooterProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(rangedShooterProperties);
-                break;
-            case SHOOTER_CONTINUOUS:
-                usageProjectileIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                ContinuousShooterProperties rangedAutomaticProperties =
-                        loadProperties(propertiesElement, ContinuousShooterProperties.class);
-                rangedAutomaticProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(rangedAutomaticProperties);
-                break;
-            case BOW:
-                usageProjectileIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                BowProperties bowProperties =
-                        loadProperties(propertiesElement, BowProperties.class);
-                bowProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(bowProperties);
-                break;
-            case TIME_BOMB:
-                TimeBombUsageProperties timeBombUsageProperties =
-                        loadProperties(propertiesElement, TimeBombUsageProperties.class);
-                usageModel.setProperties(timeBombUsageProperties);
-                usageBombIds =
-                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
-                timeBombUsageProperties.setBombIds(usageBombIds);
-                break;
-            case IMPACT_BOMB:
-                ImpactBombUsageProperties impactBombUsageProperties =
-                        loadProperties(propertiesElement, ImpactBombUsageProperties.class);
-                usageModel.setProperties(impactBombUsageProperties);
-                usageBombIds =
-                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
-                usageSensitiveLayersIds =
-                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG));
-                impactBombUsageProperties.setBombIds(usageBombIds);
-                impactBombUsageProperties.setSensitiveLayers(usageSensitiveLayersIds);
-                break;
-            case SLASHER:
-                SlashProperties slashProperties = loadProperties(propertiesElement, SlashProperties.class);
-                usageModel.setProperties(slashProperties);
-                break;
-            case BLUNT:
-                break;
-            case STABBER:
-                StabProperties stabProperties = loadProperties(propertiesElement, StabProperties.class);
-                usageModel.setProperties(stabProperties);
-                break;
-            case THROWING:
-                ThrowProperties throwProperties = loadProperties(propertiesElement, ThrowProperties.class);
-                usageModel.setProperties(throwProperties);
-                break;
-            case FLAME_THROWER:
-                FlameThrowerProperties flameThrowerProperties =
-                        loadProperties(propertiesElement, FlameThrowerProperties.class);
-                usageFireSourceIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
-                flameThrowerProperties.setFireSourceIds(usageFireSourceIds);
-                usageModel.setProperties(flameThrowerProperties);
-                break;
-            case ROCKET:
-                RocketProperties rocketProperties =
-                        loadProperties(propertiesElement, RocketProperties.class);
-                usageFireSourceIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
-                rocketProperties.setFireSourceModelListIds(usageFireSourceIds);
-                usageModel.setProperties(rocketProperties);
-                break;
-            case MISSILE:
-                MissileProperties missileProperties =
-                        loadProperties(propertiesElement, MissileProperties.class);
-                usageFireSourceIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
-                missileProperties.setFireSourceModelListIds(usageFireSourceIds);
-                usageModel.setProperties(missileProperties);
-                break;
-            case LIQUID_CONTAINER:
-                LiquidContainerProperties liquidContainerProperties =
-                        loadProperties(propertiesElement, LiquidContainerProperties.class);
-                usageLiquidSourceIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_LIQUID_SOURCES_TAG));
-                liquidContainerProperties.setLiquidSourceIds(usageLiquidSourceIds);
-                usageModel.setProperties(liquidContainerProperties);
-                break;
-            case ROCKET_LAUNCHER:
-                usageProjectileIds =
-                        convertStringToIntList(
-                                propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
-                RocketLauncherProperties rocketLauncherProperties =
-                        loadProperties(propertiesElement, RocketLauncherProperties.class);
-                rocketLauncherProperties.setProjectileIds(usageProjectileIds);
-                usageModel.setProperties(rocketLauncherProperties);
-                break;
-            case HEAVY:
-                HeavyProperties heavyProperties =
-                        loadProperties(propertiesElement, HeavyProperties.class);
-                usageModel.setProperties(heavyProperties);
-                break;
-            case MOTOR_CONTROL:
-                MotorControlProperties motorControlProperties =
-                        loadProperties(propertiesElement, MotorControlProperties.class);
-                usageMotorJointIds =
-                        convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_JOINTS_TAG));
-                motorControlProperties.setJointIds(usageMotorJointIds);
-                usageModel.setProperties(motorControlProperties);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
+        try {
+            BodyUsageCategory bodyUsageCategory =
+                    BodyModel.allCategories.stream()
+                            .filter(bm -> bm.name().equals(usageElement.getAttribute(USAGE_TYPE_TAG)))
+                            .findFirst()
+                            .get();
+            UsageModel<Properties> usageModel = new UsageModel<>("", bodyUsageCategory);
+            List<Integer> usageProjectileIds;
+            List<Integer> usageBombIds;
+            List<Integer> usageSensitiveLayersIds;
+            List<Integer> usageFireSourceIds;
+            List<Integer> usageLiquidSourceIds;
+            List<Integer> usageMotorJointIds;
+            switch (bodyUsageCategory) {
+                case SHOOTER:
+                    usageProjectileIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                    ShooterProperties rangedShooterProperties =
+                            loadProperties(propertiesElement, ShooterProperties.class);
+                    rangedShooterProperties.setProjectileIds(usageProjectileIds);
+                    usageModel.setProperties(rangedShooterProperties);
+                    break;
+                case SHOOTER_CONTINUOUS:
+                    usageProjectileIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                    ContinuousShooterProperties rangedAutomaticProperties =
+                            loadProperties(propertiesElement, ContinuousShooterProperties.class);
+                    rangedAutomaticProperties.setProjectileIds(usageProjectileIds);
+                    usageModel.setProperties(rangedAutomaticProperties);
+                    break;
+                case BOW:
+                    usageProjectileIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                    BowProperties bowProperties =
+                            loadProperties(propertiesElement, BowProperties.class);
+                    bowProperties.setProjectileIds(usageProjectileIds);
+                    usageModel.setProperties(bowProperties);
+                    break;
+                case TIME_BOMB:
+                    TimeBombUsageProperties timeBombUsageProperties =
+                            loadProperties(propertiesElement, TimeBombUsageProperties.class);
+                    usageModel.setProperties(timeBombUsageProperties);
+                    usageBombIds =
+                            convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
+                    timeBombUsageProperties.setBombIds(usageBombIds);
+                    break;
+                case IMPACT_BOMB:
+                    ImpactBombUsageProperties impactBombUsageProperties =
+                            loadProperties(propertiesElement, ImpactBombUsageProperties.class);
+                    usageModel.setProperties(impactBombUsageProperties);
+                    usageBombIds =
+                            convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_BOMBS_TAG));
+                    usageSensitiveLayersIds =
+                            convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_SENSITIVE_LAYERS_TAG));
+                    impactBombUsageProperties.setBombIds(usageBombIds);
+                    impactBombUsageProperties.setSensitiveLayers(usageSensitiveLayersIds);
+                    break;
+                case SLASHER:
+                    SlashProperties slashProperties = loadProperties(propertiesElement, SlashProperties.class);
+                    usageModel.setProperties(slashProperties);
+                    break;
+                case BLUNT:
+                    break;
+                case STABBER:
+                    StabProperties stabProperties = loadProperties(propertiesElement, StabProperties.class);
+                    usageModel.setProperties(stabProperties);
+                    break;
+                case THROWING:
+                    ThrowProperties throwProperties = loadProperties(propertiesElement, ThrowProperties.class);
+                    usageModel.setProperties(throwProperties);
+                    break;
+                case FLAME_THROWER:
+                    FlameThrowerProperties flameThrowerProperties =
+                            loadProperties(propertiesElement, FlameThrowerProperties.class);
+                    usageFireSourceIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+                    flameThrowerProperties.setFireSourceIds(usageFireSourceIds);
+                    usageModel.setProperties(flameThrowerProperties);
+                    break;
+                case ROCKET:
+                    RocketProperties rocketProperties =
+                            loadProperties(propertiesElement, RocketProperties.class);
+                    usageFireSourceIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+                    rocketProperties.setFireSourceModelListIds(usageFireSourceIds);
+                    usageModel.setProperties(rocketProperties);
+                    break;
+                case MISSILE:
+                    MissileProperties missileProperties =
+                            loadProperties(propertiesElement, MissileProperties.class);
+                    usageFireSourceIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_FIRE_SOURCES_TAG));
+                    missileProperties.setFireSourceModelListIds(usageFireSourceIds);
+                    usageModel.setProperties(missileProperties);
+                    break;
+                case LIQUID_CONTAINER:
+                    LiquidContainerProperties liquidContainerProperties =
+                            loadProperties(propertiesElement, LiquidContainerProperties.class);
+                    usageLiquidSourceIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_LIQUID_SOURCES_TAG));
+                    liquidContainerProperties.setLiquidSourceIds(usageLiquidSourceIds);
+                    usageModel.setProperties(liquidContainerProperties);
+                    break;
+                case ROCKET_LAUNCHER:
+                    usageProjectileIds =
+                            convertStringToIntList(
+                                    propertiesElement.getAttribute(USAGE_PROPERTIES_PROJECTILES_TAG));
+                    RocketLauncherProperties rocketLauncherProperties =
+                            loadProperties(propertiesElement, RocketLauncherProperties.class);
+                    rocketLauncherProperties.setProjectileIds(usageProjectileIds);
+                    usageModel.setProperties(rocketLauncherProperties);
+                    break;
+                case HEAVY:
+                    HeavyProperties heavyProperties =
+                            loadProperties(propertiesElement, HeavyProperties.class);
+                    usageModel.setProperties(heavyProperties);
+                    break;
+                case MOTOR_CONTROL:
+                    MotorControlProperties motorControlProperties =
+                            loadProperties(propertiesElement, MotorControlProperties.class);
+                    usageMotorJointIds =
+                            convertStringToIntList(propertiesElement.getAttribute(USAGE_PROPERTIES_JOINTS_TAG));
+                    motorControlProperties.setJointIds(usageMotorJointIds);
+                    usageModel.setProperties(motorControlProperties);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + bodyUsageCategory);
+            }
+            return usageModel;
+        } catch (Throwable t){
+            System.out.println("Hello");
+            return null;
         }
-        return usageModel;
     }
 
     private CasingModel readAmmoModel(Element ammoElement, int bodyId, int ammoId)

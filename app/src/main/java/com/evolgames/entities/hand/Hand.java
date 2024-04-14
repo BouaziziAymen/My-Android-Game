@@ -200,7 +200,7 @@ public class Hand {
         if (selectedEntity == null) {
             if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
                 if (touchEvent.isActionMove()) {
-                    if (mouseJoint != null&& grabbedEntity!=null && follow) {
+                    if (mouseJoint != null&& grabbedEntity!=null && grabbedEntity.getBody()!=null && follow) {
                         moveHand(touchEvent);
                     }
                 } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {

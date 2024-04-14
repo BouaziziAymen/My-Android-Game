@@ -88,7 +88,7 @@ public class ResourceManager {
     public TextureRegion slotTextureRegion;
     public TiledTextureRegion smallButtonTextureRegion, plusButtonTextureRegion;
     public TiledTextureRegion simpleButtonTextureRegion;
-    public TiledTextureRegion onoffTextureRegion;
+    public TiledTextureRegion onOffTextureRegion;
     public Engine engine;
     public TiledTextureRegion decaleTextureRegion;
     public TiledTextureRegion optionsCenterTextureRegion;
@@ -170,6 +170,7 @@ public class ResourceManager {
     private boolean sound, music;
     private String lettersList;
     public TiledTextureRegion evilEyesTextureRegion;
+    private HashMap<String, Integer> itemsTranslationMap;
 
     public String getLettersList() {
         return lettersList;
@@ -568,7 +569,7 @@ public class ResourceManager {
         this.longButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "longfourbutton.png", 1, 2);
-        this.onoffTextureRegion =
+        this.onOffTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.gameTextureAtlas, this.activity.getAssets(), "onoff.png", 2, 1);
         this.panel = new ArrayList<>();
@@ -657,7 +658,7 @@ public class ResourceManager {
                             this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
-        this.lettersList = ResourceManager.getInstance().activity.getString(R.string.editor_letters);
+        this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜ\n";
         fontLoader.loadFont(
                 0,
                 Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD),
@@ -875,6 +876,7 @@ public class ResourceManager {
 
     public void setItemsMap(Map<ItemCategory, List<ItemMetaData>> itemsMap) {
         this.itemsMap = itemsMap;
+        this.fillItemNamesTranslation();
     }
 
     public ItemMetaData getEditorItem() {
@@ -904,5 +906,103 @@ public class ResourceManager {
             sound.setVolume(volume);
             sound.play();
         }
+    }
+
+    public void fillItemNamesTranslation(){
+        itemsTranslationMap = new HashMap<>();
+        itemsTranslationMap.put("Dirk#", R.string.dirk);
+        itemsTranslationMap.put("Knife#", R.string.knife);
+        itemsTranslationMap.put("Throwing Knife 1#", R.string.throwing_knife_1);
+        itemsTranslationMap.put("Throwing Knife 2#", R.string.throwing_knife_2);
+        itemsTranslationMap.put("Rocket 1#", R.string.rocket_1);
+        itemsTranslationMap.put("Rocket 2#", R.string.rocket_2);
+        itemsTranslationMap.put("Claymore#", R.string.claymore);
+        itemsTranslationMap.put("Egyptian#", R.string.egyptian);
+        itemsTranslationMap.put("Falchion#", R.string.falchion);
+        itemsTranslationMap.put("Flaming Sword#", R.string.flaming_sword);
+        itemsTranslationMap.put("Gladius#", R.string.gladius);
+        itemsTranslationMap.put("Jian#", R.string.jian);
+        itemsTranslationMap.put("Katana#", R.string.katana);
+        itemsTranslationMap.put("Longsword#", R.string.longsword);
+        itemsTranslationMap.put("Rapier#", R.string.rapier);
+        itemsTranslationMap.put("Sabre#", R.string.sabre);
+        itemsTranslationMap.put("Archery Target#", R.string.archery_target);
+        itemsTranslationMap.put("Chair 1#", R.string.chair_1);
+        itemsTranslationMap.put("Chair 2#", R.string.chair_2);
+        itemsTranslationMap.put("Chair 3#", R.string.chair_3);
+        itemsTranslationMap.put("Dragon#", R.string.dragon);
+        itemsTranslationMap.put("My Petrol Container#", R.string.my_petrol_container);
+        itemsTranslationMap.put("Pandora's Jar#", R.string.pandoras_jar);
+        itemsTranslationMap.put("Petrol Container#", R.string.petrol_container);
+        itemsTranslationMap.put("Table 1#", R.string.table_1);
+        itemsTranslationMap.put("Table 2#", R.string.table_2);
+        itemsTranslationMap.put("Table 3#", R.string.table_3);
+        itemsTranslationMap.put("Tutorial", R.string.tutorial);
+        itemsTranslationMap.put("Frag. Grenade 1#", R.string.frag_grenade_1);
+        itemsTranslationMap.put("Frag. Grenade 2#", R.string.frag_grenade_2);
+        itemsTranslationMap.put("Frag. Grenade 3#", R.string.frag_grenade_3);
+        itemsTranslationMap.put("Frag. Grenade 4#", R.string.frag_grenade_4);
+        itemsTranslationMap.put("Incendiary Bomb#", R.string.incendiary_bomb);
+        itemsTranslationMap.put("Molotov Bomb#", R.string.molotov_bomb);
+        itemsTranslationMap.put("Heavy Machine Gun#", R.string.heavy_machine_gun);
+        itemsTranslationMap.put("Howitzer#", R.string.howitzer);
+        itemsTranslationMap.put("Mini Main Battle Tank#", R.string.mini_main_battle_tank);
+        itemsTranslationMap.put("Baseball Bat#", R.string.baseball_bat);
+        itemsTranslationMap.put("Cudgel#", R.string.cudgel);
+        itemsTranslationMap.put("Flanged Mace 2#", R.string.flanged_mace_2);
+        itemsTranslationMap.put("Flanged Mace#", R.string.flanged_mace);
+        itemsTranslationMap.put("Morning Star#", R.string.morning_star);
+        itemsTranslationMap.put("Warhammer#", R.string.warhammer);
+        itemsTranslationMap.put("Assault Rifle 1#", R.string.assault_rifle_1);
+        itemsTranslationMap.put("Assault Rifle 2#", R.string.assault_rifle_2);
+        itemsTranslationMap.put("Assault Rifle 3#", R.string.assault_rifle_3);
+        itemsTranslationMap.put("Flame Thrower 1#", R.string.flame_thrower_1);
+        itemsTranslationMap.put("Machine Gun 1#", R.string.machine_gun_1);
+        itemsTranslationMap.put("Machine Gun 2#", R.string.machine_gun_2);
+        itemsTranslationMap.put("Pistol 1#", R.string.pistol_1);
+        itemsTranslationMap.put("Pistol 2#", R.string.pistol_2);
+        itemsTranslationMap.put("Pistol 3#", R.string.pistol_3);
+        itemsTranslationMap.put("Revolver#", R.string.revolver);
+        itemsTranslationMap.put("Rifle 1#", R.string.rifle_1);
+        itemsTranslationMap.put("Rifle 2#", R.string.rifle_2);
+        itemsTranslationMap.put("Rocket Launcher 1#", R.string.rocket_launcher_1);
+        itemsTranslationMap.put("Rocket Launcher 2#", R.string.rocket_launcher_2);
+        itemsTranslationMap.put("Submachine Gun 1#", R.string.submachine_gun_1);
+        itemsTranslationMap.put("Submachine Gun 2#", R.string.submachine_gun_2);
+        itemsTranslationMap.put("Javelin#", R.string.javelin);
+        itemsTranslationMap.put("Pike#", R.string.pike);
+        itemsTranslationMap.put("Pilum#", R.string.pilum);
+        itemsTranslationMap.put("Spear#", R.string.spear);
+        itemsTranslationMap.put("Bazooka Rocket#", R.string.bazooka_rocket);
+        itemsTranslationMap.put("RPG Rocket#", R.string.rpg_rocket);
+        itemsTranslationMap.put("Shell 120mm#", R.string.shell_120mm);
+        itemsTranslationMap.put("Shell 155mm#", R.string.shell_155mm);
+        itemsTranslationMap.put("Bow 2#", R.string.bow_2);
+        itemsTranslationMap.put("Bow#", R.string.bow);
+        itemsTranslationMap.put("Longbow#", R.string.longbow);
+        itemsTranslationMap.put("Arrow 1#", R.string.arrow_1);
+        itemsTranslationMap.put("Arrow 2#", R.string.arrow_2);
+        itemsTranslationMap.put("Arrow 3#", R.string.arrow_3);
+        itemsTranslationMap.put("Battle Axe#", R.string.battle_axe);
+        itemsTranslationMap.put("Bearded Axe#", R.string.bearded_axe);
+        itemsTranslationMap.put("Francisca#", R.string.francisca);
+        itemsTranslationMap.put("Apple", R.string.apple);
+        itemsTranslationMap.put("Kiwi", R.string.kiwi);
+        itemsTranslationMap.put("Lemon", R.string.lemon);
+        itemsTranslationMap.put("Melon", R.string.melon);
+        itemsTranslationMap.put("Orange", R.string.orange);
+        itemsTranslationMap.put("Pear", R.string.pear);
+        itemsTranslationMap.put("Watermelon", R.string.watermelon);
+        itemsTranslationMap.put("Bullet 0.50 BMG#", R.string.bullet_0_50_bmg);
+        itemsTranslationMap.put("Bullet 5mm#", R.string.bullet_5mm);
+        itemsTranslationMap.put("Bullet 7mm#", R.string.bullet_7mm);
+        itemsTranslationMap.put("Bullet 9mm", R.string.bullet_9mm);
+    }
+
+    public Integer getTranslatedItemStringId(String name){
+        if(itemsTranslationMap.containsKey(name)){
+            return itemsTranslationMap.get(name);
+        }
+        return -1;
     }
 }

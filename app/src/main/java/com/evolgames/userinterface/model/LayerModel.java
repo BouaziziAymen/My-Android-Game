@@ -43,12 +43,6 @@ public class LayerModel extends PointsModel<LayerProperties> {
         this.properties.setLayerName("Layer" + layerId);
         this.bodyModel = bodyModel;
     }
-
-    @Override
-    public String toString() {
-        return "Layer:" + bodyId + "/" + getLayerId() + "/" + Arrays.toString(getPoints().toArray());
-    }
-
     public int getBodyId() {
         return bodyId;
     }

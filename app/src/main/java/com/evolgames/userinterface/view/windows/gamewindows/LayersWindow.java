@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.view.basics.Text;
@@ -19,7 +20,7 @@ public class LayersWindow
     public LayersWindow(float pX, float pY, LayerWindowController controller) {
         super(pX, pY, 8, 9, true, controller);
         layerWindowController = controller;
-        Text text = new Text("Bodies:", 2);
+        Text text = new Text(ResourceManager.getInstance().getString(R.string.bodies_title), 2);
         LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal, 5f);
         mainField.addToLayout(text);
 

@@ -1,6 +1,7 @@
 package com.evolgames.scenes;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.view.UserInterface;
 

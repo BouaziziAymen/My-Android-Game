@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.JointWindowController;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
@@ -13,7 +15,7 @@ public class JointsWindow extends AbstractZeroLevelSectionedAdvancedWindow<Joint
     public JointsWindow(float pX, float pY, JointWindowController controller) {
         super(pX, pY, 6, 8, true, controller);
         jointWindowController = controller;
-        Text text = new Text("Joints:", 2);
+        Text text = new Text(ResourceManager.getInstance().getString(R.string.joints_title), 2);
         text.setPadding(5);
         layout.addDummySection(text);
         createScroller();

@@ -86,8 +86,6 @@ public class FireSourceModel extends ProperModel<FireSourceProperties> {
         fireSourceInfo.setHeat(this.properties.getHeatRatio());
         fireSourceInfo.setParticles(this.properties.getParticles());
         fireSourceInfo.setSpeed(this.properties.getSpeedRatio());
-        fireSourceInfo.setInFirePartSize(this.properties.getInFirePartSize());
-        fireSourceInfo.setFinFirePartSize(this.properties.getFinFirePartSize());
         fireSourceInfo.setMuzzleEntity(this.muzzleEntity);
         fireSourceInfo.setExtent(this.properties.getExtent());
         return fireSourceInfo;

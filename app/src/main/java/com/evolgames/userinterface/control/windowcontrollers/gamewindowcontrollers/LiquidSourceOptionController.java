@@ -4,6 +4,7 @@ import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.Liquid;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.LiquidSourceProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ProperModel;
@@ -32,7 +33,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
         super.init();
         SectionField<LiquidSourceOptionController> liquidTypeSection =
                 new SectionField<>(
-                        1, "Liquid", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.liquid_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(liquidTypeSection);
 
         createLiquidButtons();
@@ -46,7 +47,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
     public void createSealBodiesButtons() {
         SectionField<LiquidSourceOptionController> liquidSealSection =
                 new SectionField<>(
-                        2, "Seal", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        2, ResourceManager.getInstance().getString(R.string.seal_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(liquidSealSection);
         ToolModel toolModel = this.editorUserInterface.getToolModel();
         if (toolModel == null) return;

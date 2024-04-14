@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.CasingProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.model.ProperModel;
 import com.evolgames.userinterface.model.toolmodels.CasingModel;
@@ -42,7 +43,7 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
         super.init();
         SectionField<CasingOptionController> generalSettingsSection =
                 new SectionField<>(
-                        1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.velocity_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(generalSettingsSection);
         onPrimaryButtonClicked(generalSettingsSection);
 
@@ -75,7 +76,7 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
         window.addSecondary(rotationQuantitySimpleSecondary);
 
         TitledQuantity<CasingOptionController> titledEjectionSpeedQuantity =
-                new TitledQuantity<>("Lin. Velocity:", 10, "b", 5, 85);
+                new TitledQuantity<>("Lin. Velocity:", 10, "b", 5, true);
         ejectionSpeedQuantity = titledEjectionSpeedQuantity.getAttachment();
         titledEjectionSpeedQuantity
                 .getAttachment()
@@ -109,9 +110,6 @@ public class CasingOptionController extends SettingsWindowController<CasingPrope
     public void onSubmitSettings() {
         super.onSubmitSettings();
         itemWindowController.onResume();
-        // ProjectileModel projectileModel = (ProjectileModel) model;
-        //  userInterface.getItemWindowController().changeItemName(model.getModelName(),
-        // projectileModel.getBodyId(), projectileModel.getProjectileId());
     }
 
     private void setRotationSpeed(float speed) {

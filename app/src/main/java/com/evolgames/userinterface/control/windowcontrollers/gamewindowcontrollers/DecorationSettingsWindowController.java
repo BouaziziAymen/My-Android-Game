@@ -3,6 +3,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.DecorationProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.behaviors.actions.Action;
@@ -34,7 +35,7 @@ public class DecorationSettingsWindowController
     @Override
     public void init() {
         TitledTextField<DecorationSettingsWindowController> decorationNameField =
-                new TitledTextField<>("Decoration Name:", 12);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.decoration_name_title), 12,0);
         decorationNameTextField = decorationNameField.getAttachment();
 
         decorationNameTextField.setBehavior(
@@ -78,7 +79,7 @@ public class DecorationSettingsWindowController
         linearLayout.addToLayout(colorSelectionButton);
         linearLayout.addToLayout(colorSlotForDecoration);
         TitledField<LinearLayout> colorSelectionField =
-                new TitledField<>("Select Color:", linearLayout);
+                new TitledField<>(ResourceManager.getInstance().getString(R.string.select_color_title), linearLayout);
         colorSelectionButton.setBehavior(
                 new ButtonBehavior<DecorationSettingsWindowController>(this, colorSelectionButton) {
                     @Override

@@ -149,14 +149,6 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return Objects.requireNonNull(getLayerModelById(layerId)).createDecoration();
     }
 
-    public String toString() {
-        String s = "Body" + bodyId + ": \n";
-        for (int i = 0; i < layers.size(); i++) {
-            s += layers.get(i).toString() + "\n";
-        }
-        return s;
-    }
-
     void removeLayer(int layerId) {
         layers.remove(getLayerModelById(layerId));
     }

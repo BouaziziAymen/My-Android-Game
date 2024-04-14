@@ -32,6 +32,8 @@ public class ThreeLevelSectionedAdvancedWindowController<
     public void onSecondaryButtonClicked(Secondary secondary) {
         secondary.getSection().setActive(true);
         updateLayout();
+
+
     }
 
     @Override

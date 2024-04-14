@@ -1,7 +1,11 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
 import com.evolgames.userinterface.view.ShiftText;
+import com.evolgames.userinterface.view.basics.Dummy;
+import com.evolgames.userinterface.view.basics.Element;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 import com.evolgames.userinterface.view.layouts.TwoLevelSectionLayout;
@@ -17,16 +21,14 @@ public class OptionsWindow
 
     public OptionsWindow(float pX, float pY, OptionsWindowController controller) {
         super(pX, pY, 5, 6, false, controller);
-        Text text = new Text("Settings:", 2);
-        LinearLayout mainField = new LinearLayout(LinearLayout.Direction.Horizontal);
-        mainField.addToLayout(text);
-        text.setPadding(20);
+        Text text = new Text("", 2);
+        Element mainField = new Dummy();
         layout.addDummySection(mainField);
         mainField.setPadding(5);
 
         addShiftingText(controller);
-
         controller.init();
+        this.setDepth(10);
     }
 
     private void addShiftingText(OptionsWindowController controller) {
@@ -36,7 +38,7 @@ public class OptionsWindow
         shiftingText.setDepth(3);
         shiftingText.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
         shiftingText.setText(
-                "Hi humans of the underworld! Today I would like to tell you about an experience. THIS IS IMPORTANT!!");
+                ResourceManager.getInstance().getString(R.string.info_message_editor));
     }
 
     @Override

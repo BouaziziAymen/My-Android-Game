@@ -7,6 +7,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.model.ItemCategory;
@@ -95,8 +96,14 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         }
         ItemCategory itemCategory = dataHeader.get(groupPosition);
         ItemMetaData itemMetaData = Objects.requireNonNull(listHashMap.get(itemCategory)).get(childPosition);
-        holder.textView.setText(itemMetaData.getName());
-
+        int itemNameTranslationId = ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName());
+        String itemDisplayedName;
+        if (itemNameTranslationId != -1) {
+            itemDisplayedName = inflater.getContext().getString(itemNameTranslationId);
+        } else {
+            itemDisplayedName = itemMetaData.getName();
+        }
+        holder.textView.setText(itemDisplayedName);
         return convertView;
     }
 
@@ -109,7 +116,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     public void onGroupExpanded(int groupPosition) {
         // Collapse the last expanded group
         if (lastExpandedGroupPosition != -1 && groupPosition != lastExpandedGroupPosition) {
-           listView.collapseGroup(lastExpandedGroupPosition);
+            listView.collapseGroup(lastExpandedGroupPosition);
         }
         lastExpandedGroupPosition = groupPosition;
         super.onGroupExpanded(groupPosition);

@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.CreationZoneController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
@@ -76,8 +77,8 @@ public class OptionsWindowController
                 break;
             case SCALE_IMAGE_SETTINGS:
                 openWindow();
-                window.addPrimary(createOnOffField(0, "Fixed Ratio :", (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
-                dimensionsText = new Text("!!!", 2);
+                window.addPrimary(createOnOffField(0, ResourceManager.getInstance().getString(R.string.fixed_ratio_title), (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
+                dimensionsText = new Text("", 2);
                 window.addPrimary(new SimplePrimary<>(1, this.dimensionsText));
                 break;
             case REMOVE_POINT_SETTINGS:
@@ -97,7 +98,7 @@ public class OptionsWindowController
                 linearLayout.addToLayout(pipeColorSlot);
                 pipeColorSlot.setColor(0, 0, 0);
                 TitledField<LinearLayout> colorSelectionField =
-                        new TitledField<>("Piped Color:", linearLayout);
+                        new TitledField<>(ResourceManager.getInstance().getString(R.string.piped_color_title), linearLayout);
                 colorValidatedButton.setBehavior(
                         new ButtonBehavior<OptionsWindowController>(this, colorValidatedButton) {
                             @Override
@@ -123,7 +124,7 @@ public class OptionsWindowController
                 window.addPrimary(createReferenceOption(0));
                 ButtonWithText<OptionsWindowController> createReferenceButton =
                         new ButtonWithText<>(
-                                "Reference",
+                                ResourceManager.getInstance().getString(R.string.turn_to_reference_title),
                                 2,
                                 ResourceManager.getInstance().simpleButtonTextureRegion,
                                 Button.ButtonType.OneClick,
@@ -151,7 +152,7 @@ public class OptionsWindowController
                 openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createDirectionBoard(1));
-                window.addPrimary(createOnOffField(2, "Same :", (b) -> creationZoneController.setSameShape(b), () -> creationZoneController.isSameShape()));
+                window.addPrimary(createOnOffField(2, ResourceManager.getInstance().getString(R.string.same_layer_title), (b) -> creationZoneController.setSameShape(b), () -> creationZoneController.isSameShape()));
                 break;
             case SHIFT_SETTINGS:
                 openWindow();
@@ -168,7 +169,7 @@ public class OptionsWindowController
             case POLYGON_CREATION_SETTINGS:
                 openWindow();
                 TitledTextField<OptionsWindowController> polygonPointNumberField =
-                        new TitledTextField<>("Number Of Points:", 4, 5, 120);
+                        new TitledTextField<>(ResourceManager.getInstance().getString(R.string.number_of_points_title), 4, 5);
                 polygonPointNumberTextField = polygonPointNumberField.getAttachment();
 
                 polygonPointNumberTextField.setBehavior(
@@ -204,8 +205,8 @@ public class OptionsWindowController
 
                 TitledButton<OptionsWindowController> fixedRadiusButton =
                         new TitledButton<>(
-                                "Fixed Radius:",
-                                ResourceManager.getInstance().onoffTextureRegion,
+                                ResourceManager.getInstance().getString(R.string.fixed_radius_title),
+                                ResourceManager.getInstance().onOffTextureRegion,
                                 Button.ButtonType.Selector,
                                 5f);
                 SimplePrimary<TitledButton<?>> fixedRadiusField = new SimplePrimary<>(1, fixedRadiusButton);
@@ -236,7 +237,7 @@ public class OptionsWindowController
                 }
 
                 TitledTextField<OptionsWindowController> polygonRadiusField =
-                        new TitledTextField<>("Radius:", 4, 5, 48);
+                        new TitledTextField<>(ResourceManager.getInstance().getString(R.string.radius_title), 4, 5);
                 polygonRadiusTextField = polygonRadiusField.getAttachment();
 
                 polygonRadiusTextField.setBehavior(
@@ -276,7 +277,7 @@ public class OptionsWindowController
                 openWindow();
                 ButtonWithText<OptionsWindowController> addImageButton =
                         new ButtonWithText<>(
-                                "Add Image",
+                                ResourceManager.getInstance().getString(R.string.add_image_title),
                                 2,
                                 ResourceManager.getInstance().simpleButtonTextureRegion,
                                 Button.ButtonType.OneClick,
@@ -300,7 +301,7 @@ public class OptionsWindowController
 
                 ButtonWithText<OptionsWindowController> mirrorImageButton =
                         new ButtonWithText<>(
-                                "Mirror Image",
+                                ResourceManager.getInstance().getString(R.string.mirror_image_title),
                                 2,
                                 ResourceManager.getInstance().simpleButtonTextureRegion,
                                 Button.ButtonType.OneClick,
@@ -383,7 +384,7 @@ public class OptionsWindowController
                     }
                 });
 
-        TitledField<ButtonBoard> centerMagnetField = new TitledField<>("Magnet:", magnetBoard, 8);
+        TitledField<ButtonBoard> centerMagnetField = new TitledField<>(ResourceManager.getInstance().getString(R.string.magnet_title), magnetBoard, 8);
         if (editorUserInterface.getCreationZoneController().isCenterMagnet()) {
             button1.updateState(Button.State.PRESSED);
         }
@@ -450,7 +451,7 @@ public class OptionsWindowController
                     public void informControllerButtonReleased() {
                     }
                 });
-        TitledField<ButtonBoard> directionField = new TitledField<>("Direction:", magnetBoard, 8);
+        TitledField<ButtonBoard> directionField = new TitledField<>(ResourceManager.getInstance().getString(R.string.direction_title), magnetBoard, 8);
 
         return new SimplePrimary<>(primaryId, directionField);
     }
@@ -458,8 +459,8 @@ public class OptionsWindowController
     private SimplePrimary<TitledButton<?>> createReferenceOption(int primaryKey) {
         TitledButton<OptionsWindowController> referenceButton =
                 new TitledButton<>(
-                        "Reference :",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.reference_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f);
         SimplePrimary<TitledButton<?>> referenceField =
@@ -495,7 +496,7 @@ public class OptionsWindowController
         TitledButton<OptionsWindowController> onOffButton =
                 new TitledButton<>(
                         title,
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f);
         SimplePrimary<TitledButton<?>> onOffField =
@@ -530,8 +531,8 @@ public class OptionsWindowController
     private SimplePrimary<TitledButton<?>> createMoveLimitsOption(int primaryKey) {
         TitledButton<OptionsWindowController> button =
                 new TitledButton<>(
-                        "Limits :",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.move_limits_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f);
         SimplePrimary<TitledButton<?>> moveLimitsField = new SimplePrimary<>(primaryKey, button);
@@ -563,8 +564,8 @@ public class OptionsWindowController
     private SimplePrimary<TitledButton<?>> createCongruenceOption(int primaryKey) {
         TitledButton<OptionsWindowController> button =
                 new TitledButton<>(
-                        "Congruent Anchors :",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.congruent_anchors_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f);
         SimplePrimary<TitledButton<?>> congruenceField = new SimplePrimary<>(primaryKey, button);
@@ -608,13 +609,13 @@ public class OptionsWindowController
         float height = imageShape.getHeight();
         String text = "";
         if (settingsType == SettingsType.SCALE_IMAGE_SETTINGS) {
-            text = String.format("Width=%.2f, Height=%.2f", width, height);
+            text = String.format(ResourceManager.getInstance().getString(R.string.width_2f_height_2f), width, height);
         }
         if (settingsType == SettingsType.ROTATE_IMAGE_SETTINGS) {
-            text = String.format("Rot=%.2f", rot);
+            text = String.format(ResourceManager.getInstance().getString(R.string.rot_2f), rot);
         }
         if (settingsType == SettingsType.MOVE_IMAGE_SETTINGS) {
-            text = String.format("(X=%.2f, Y=%.2f)", x, y);
+            text = String.format(ResourceManager.getInstance().getString(R.string.x_2f_y_2f), x, y);
         }
         if (dimensionsText != null) {
             dimensionsText.updateText(text);

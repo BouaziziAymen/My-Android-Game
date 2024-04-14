@@ -285,7 +285,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         ResourceManager.getInstance().hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
 
-        mainButtonBoard = new ButtonBoard(0, 460, LinearLayout.Direction.Vertical, 0);
+        mainButtonBoard = new ButtonBoard(0, 480, LinearLayout.Direction.Vertical, -3);
         mainButtonBoardController = new MainButtonBoardController(mainButtonBoard, this);
         addElement(mainButtonBoard);
         Button<MainButtonBoardController> button10 =

@@ -7,6 +7,7 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.LayerProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -142,10 +143,10 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         window.setVisible(false);
         SectionField<LayerSettingsWindowController> sectionField =
                 new SectionField<>(
-                        1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.general_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(sectionField);
         TitledTextField<LayerSettingsWindowController> layerNameField =
-                new TitledTextField<>("Layer Name:", 10);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.layer_name_title), 10,0);
         layerNameTextField = layerNameField.getAttachment();
 
         layerNameTextField.setBehavior(
@@ -180,7 +181,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         linearLayout.addToLayout(colorSelectionButton);
         linearLayout.addToLayout(colorSlotForLayer);
         TitledField<LinearLayout> colorSelectionField =
-                new TitledField<>("Select Color:", linearLayout);
+                new TitledField<>(ResourceManager.getInstance().getString(R.string.select_color_title), linearLayout);
         colorSelectionButton.setBehavior(
                 new ButtonBehavior<LayerSettingsWindowController>(this, colorSelectionButton) {
                     @Override
@@ -204,7 +205,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         SectionField<LayerSettingsWindowController> materialsSection =
                 new SectionField<>(
-                        2, "Material", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        2, ResourceManager.getInstance().getString(R.string.material_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(materialsSection);
 
         for (int i = 0; i < MaterialFactory.getInstance().materials.size(); i++) {
@@ -235,11 +236,11 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         SectionField<LayerSettingsWindowController> propertiesSection =
                 new SectionField<>(
-                        3, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        3, ResourceManager.getInstance().getString(R.string.properties_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(propertiesSection);
 
         TitledTextField<LayerSettingsWindowController> densityField =
-                new TitledTextField<>("Density:", 5, 5, 76);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.density_title), 5, 5);
         densityTextField = densityField.getAttachment();
 
         densityField
@@ -275,7 +276,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
         TitledQuantity<LayerSettingsWindowController> titledBouncinessQuantity =
-                new TitledQuantity<>("Bounciness:", 10, "b", 5, 76);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.bounciness_title), 10, "b", 5, true);
         bouncinessQuantity = titledBouncinessQuantity.getAttachment();
         titledBouncinessQuantity
                 .getAttachment()
@@ -294,7 +295,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 .setChangeAction(() -> layerProperty.setRestitution(bouncinessQuantity.getRatio()));
 
         TitledQuantity<LayerSettingsWindowController> titledFrictionQuantity =
-                new TitledQuantity<>("Friction:", 10, "r", 5, 76);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.friction_title), 10, "r", 5, true);
         frictionQuantity = titledFrictionQuantity.getAttachment();
         titledFrictionQuantity
                 .getAttachment()
@@ -313,7 +314,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 .setChangeAction(() -> layerProperty.setFriction(frictionQuantity.getRatio()));
 
         TitledQuantity<LayerSettingsWindowController> titledTenacityQuantity =
-                new TitledQuantity<>("Ten:", 20, "t", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.tenacity_title), 20, "t", 5, true);
         tenacityQuantity = titledTenacityQuantity.getAttachment();
         titledTenacityQuantity
                 .getAttachment()
@@ -336,7 +337,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
         TitledQuantity<LayerSettingsWindowController> titledHardnessQuantity =
-                new TitledQuantity<>("Hrd:", 20, "t", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.hardness_title), 20, "t", 5, true);
         hardnessQuantity = titledHardnessQuantity.getAttachment();
         titledHardnessQuantity
                 .getAttachment()
@@ -358,7 +359,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         secId++;
         TitledQuantity<LayerSettingsWindowController> titledSharpnessQuantity =
-                new TitledQuantity<>("Sharpness:", 10, "t", 5, 76);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.sharpness_title), 10, "t", 5, true);
         sharpnessQuantity = titledSharpnessQuantity.getAttachment();
         titledSharpnessQuantity
                 .getAttachment()
@@ -378,7 +379,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         secId++;
         TitledQuantity<LayerSettingsWindowController> titledHeatResistanceQuantity =
-                new TitledQuantity<>("Heat Res:", 10, "g", 5, 76);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.heat_resistance_title), 10, "g", 5, true);
         heatResistanceQuantity = titledHeatResistanceQuantity.getAttachment();
         titledHeatResistanceQuantity
                 .getAttachment()
@@ -400,8 +401,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         secId++;
         TitledButton<LayerSettingsWindowController> juicyButton =
                 new TitledButton<>(
-                        "Juicy",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.juicy_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f, true, 1);
 
@@ -424,7 +425,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         juicyButton.getAttachment().getBehavior().setPushAction(() -> layerProperty.setJuicy(true));
         juicyButton.getAttachment().getBehavior().setReleaseAction(() -> layerProperty.setJuicy(false));
 
-        ButtonWithText<LayerSettingsWindowController> button = new ButtonWithText<>("Liquid", 2, ResourceManager.getInstance().mainButtonTextureRegion, Button.ButtonType.Selector, true);
+        ButtonWithText<LayerSettingsWindowController> button = new ButtonWithText<>(ResourceManager.getInstance().getString(R.string.liquid_title), 2, ResourceManager.getInstance().mainButtonTextureRegion, Button.ButtonType.Selector, true);
         SimpleTertiary<ButtonWithText<LayerSettingsWindowController>> juiceTypeSection =
                 new SimpleTertiary<>(
                         3, secId, 0, button);
@@ -470,7 +471,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         Sub2SectionField<LayerSettingsWindowController> juicePropertiesSection =
                 new Sub2SectionField<>(
-                        3, secId, 2, "Properties", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        3, secId, 2, ResourceManager.getInstance().getString(R.string.properties_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addTertiary(juicePropertiesSection);
 
 
@@ -484,7 +485,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         linearLayout.addToLayout(juiceColorSelectionButton);
         linearLayout.addToLayout(colorSlotForJuice);
         TitledField<LinearLayout> juiceColorTitledLayout =
-                new TitledField<>("Color:", linearLayout);
+                new TitledField<>(ResourceManager.getInstance().getString(R.string.color_title), linearLayout);
         juiceColorSelectionButton.setBehavior(
                 new ButtonBehavior<LayerSettingsWindowController>(this, juiceColorSelectionButton) {
                     @Override
@@ -513,7 +514,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
 
         juicinessQuantity =
-                new TitledQuantity<>("Juiciness:", 10, "g", 5);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.juiciness_title), 10, "g", 5);
         juicinessQuantity
                 .getAttachment()
                 .setBehavior(
@@ -533,7 +534,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         () -> layerProperty.setJuicinessDensity(juicinessQuantity.getAttachment().getRatio()));
 
         juiceLowerRateQuantity =
-                new TitledQuantity<>("Lower Rate:", 10, "b", 5, 75);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.lower_rate_title), 10, "b", 5, true);
         juiceLowerRateQuantity
                 .getAttachment()
                 .setBehavior(
@@ -567,12 +568,12 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
                             @Override
                             public String getError() {
-                                return "lower rate under upper rate !";
+                                return ResourceManager.getInstance().getString(R.string.rate_validation_message);
                             }
                         });
 
         juiceUpperRateQuantity =
-                new TitledQuantity<>("Upper Rate:", 10, "r", 5, 75);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.upper_rate_title), 10, "r", 5, true);
         juiceUpperRateQuantity
                 .getAttachment()
                 .setBehavior(
@@ -606,13 +607,13 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
                             @Override
                             public String getError() {
-                                return "upper rate above lower rate";
+                                return ResourceManager.getInstance().getString(R.string.rate_validation_message);
                             }
                         });
 
 
         juiceFlammabilityQuantity =
-                new TitledQuantity<>("Flammability:", 10, "r", 5, 90);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.flammability_title), 10, "r", 5, true);
         juiceFlammabilityQuantity
                 .getAttachment()
                 .setBehavior(
@@ -638,8 +639,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 //-------------------------
         TitledButton<LayerSettingsWindowController> combustibleButton =
                 new TitledButton<>(
-                        "Combustible ",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.combustible_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f, true, 1);
 
@@ -672,7 +673,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 .setReleaseAction(() -> layerProperty.setCombustible(false));
 
         TitledTextField<LayerSettingsWindowController> ignitionTemperatureField =
-                new TitledTextField<>("Ignition Temperature:", 5, 5, 140);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.ignition_temperature_title), 5, 5);
         ignitionTextField = ignitionTemperatureField.getAttachment();
         ignitionTemperatureField
                 .getAttachment()
@@ -706,7 +707,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
         TitledTextField<LayerSettingsWindowController> energyField =
-                new TitledTextField<>("Energy:", 8, 5, 50);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.energy_title), 8, 5);
         energyTextField = energyField.getAttachment();
 
         energyField
@@ -743,7 +744,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                         });
 
         TitledTextField<LayerSettingsWindowController> flameTemperatureField =
-                new TitledTextField<>("Flame Temperature:", 5, 5, 128);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.flame_temperature_title), 5, 5);
         flameTemperatureTextField = flameTemperatureField.getAttachment();
 
         flameTemperatureField
@@ -782,8 +783,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         TitledButton<LayerSettingsWindowController> flammableButton =
                 new TitledButton<>(
-                        "Flammable:",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.flammable_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f, true, 1);
 
@@ -815,7 +816,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
                 .setReleaseAction(() -> layerProperty.setFlammable(false));
 
         TitledQuantity<LayerSettingsWindowController> titledFlammabilityQuantity =
-                new TitledQuantity<>("Flammability:", 10, "r", 5, 90);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.flammability_title), 10, "r", 5, true);
         flammabilityQuantity = titledFlammabilityQuantity.getAttachment();
         titledFlammabilityQuantity
                 .getAttachment()
@@ -835,10 +836,6 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
         window.createScroller();
         updateLayout();
-    }
-
-    private String getMaterialNameByIndex(int i) {
-        return MaterialFactory.getInstance().getMaterialByIndex(i).getName();
     }
 
     private String getLiquidNameByIndex(int i) {

@@ -63,7 +63,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
         worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
 
         createRagDoll(415, 460);
-        createEyes();
+
         jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);
 
     }
@@ -81,8 +81,11 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
             this.attachChild(flux.getParticleSystem());
             this.sortChildren();
         }
+        if(step==90){
+            createEyes();
+        }
         if (step > 10 && Math.random() < 0.05f) {
-            jarGroup.getGameEntityByIndex(0).getBody().setAngularVelocity((Math.random() < 0.5f ? 1 : -1) * 0.5f);
+            jarGroup.getGameEntityByIndex(0).getBody().setAngularVelocity((Math.random() < 0.5f ? 1 : -1) * 0.25f);
         }
 
     }

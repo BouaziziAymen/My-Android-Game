@@ -293,7 +293,7 @@ public class RocketLauncher extends Use {
                                                         p.getSmokeRatio(),
                                                         p.getSparkRatio(),
                                                         1f,
-                                                        0.2f, p.getInFirePartSize(), p.getFinFirePartSize());
+                                                        0.2f, 1f, 0f);
                                 fireSource.setSpawnEnabled(false);
                                 this.projInfFireSourceMap.put(p, fireSource);
                             }

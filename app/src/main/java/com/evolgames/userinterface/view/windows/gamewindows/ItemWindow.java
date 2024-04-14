@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.view.windows.gamewindows;
 
+import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ItemWindowController;
 import com.evolgames.userinterface.view.basics.Text;
 import com.evolgames.userinterface.view.layouts.LinearLayout;
@@ -21,7 +23,7 @@ public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyFiel
     public ItemWindow(float pX, float pY, ItemWindowController controller) {
         super(pX, pY, 8, 8, true, controller);
         this.itemWindowController = controller;
-        Text text = new Text("Tool Indicators:", 2);
+        Text text = new Text(ResourceManager.getInstance().getString(R.string.indicators_title), 2);
         text.setPadding(5);
         layout.addDummySection(text);
         createScroller();

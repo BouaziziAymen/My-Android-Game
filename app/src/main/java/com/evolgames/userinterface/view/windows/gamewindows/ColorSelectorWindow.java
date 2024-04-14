@@ -23,8 +23,8 @@ public class ColorSelectorWindow extends AbstractLinearLayoutAdvancedWindow<Line
         this.selector = new ColorSelector(0, 2 * 32 - 2, controller);
         selector.setLowerBottomX(5 * 32 / 2f - selector.getWidth() / 2);
 
-        this.valueSelector = new TitledQuantity<>("Value:", 10, "b", 0, 52);
-        this.alphaSelector = new TitledQuantity<>("Opacity:", 10, "b", 0, 52);
+        this.valueSelector = new TitledQuantity<>("Value:", 10, "b", 0, true);
+        this.alphaSelector = new TitledQuantity<>("Opacity:", 10, "b", 0, true);
 
         valueSelector.setRatio(1f);
         alphaSelector.setRatio(1f);

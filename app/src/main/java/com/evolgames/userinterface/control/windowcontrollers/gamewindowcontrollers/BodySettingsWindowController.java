@@ -22,6 +22,7 @@ import com.evolgames.entities.properties.usage.SmashProperties;
 import com.evolgames.entities.properties.usage.StabProperties;
 import com.evolgames.entities.properties.usage.ThrowProperties;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
@@ -227,8 +228,8 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createMotorBrakesField(int primaryKey, int secondaryKey, MotorControlProperties motorControlProperties) {
         TitledButton<BodySettingsWindowController> motorBrakesButton =
                 new TitledButton<>(
-                        "Brakes :",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.brakes_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f, true, 1);
 
@@ -254,7 +255,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createNumberOfRoundsTextField(String title,
                                                int primaryKey, int secondaryKey, RangedProperties rangedProperties) {
         TitledTextField<BodySettingsWindowController> roundsField =
-                new TitledTextField<>(title, 5, 5, 76);
+                new TitledTextField<>(title, 5, 5);
         roundsTextField = roundsField.getAttachment();
 
         roundsField
@@ -350,10 +351,10 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         window.setVisible(false);
         SectionField<BodySettingsWindowController> sectionField =
                 new SectionField<>(
-                        1, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1,  ResourceManager.getInstance().getString(R.string.general_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(sectionField);
         TitledTextField<BodySettingsWindowController> bodyNameField =
-                new TitledTextField<>("Body Name:", 10);
+                new TitledTextField<>( ResourceManager.getInstance().getString(R.string.body_name_title), 10,0);
         bodyNameTextField = bodyNameField.getAttachment();
 
         bodyNameTextField.setBehavior(
@@ -391,7 +392,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         SectionField<BodySettingsWindowController> categorySection =
                 new SectionField<>(
-                        2, "Category", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        2,  ResourceManager.getInstance().getString(R.string.usage_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(categorySection);
         if (this.bodyModel != null) {
             BodyModel.allCategories.forEach(
@@ -429,7 +430,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER);
 
                             createReloadTimeField(primaryId, 1, shooterProperties);
-                            createNumberOfRoundsTextField("Rounds", primaryId, 2, shooterProperties);
+                            createNumberOfRoundsTextField( ResourceManager.getInstance().getString(R.string.rounds_title), primaryId, 2, shooterProperties);
                             createProjectilesField(primaryId, 3, shooterProperties);
                             break;
                         case SHOOTER_CONTINUOUS:
@@ -437,7 +438,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                                     bodyModel.getUsageModelProperties(BodyUsageCategory.SHOOTER_CONTINUOUS);
                             createReloadTimeField(primaryId, 0, automaticProperties);
                             createFireRateField(primaryId, 1, automaticProperties);
-                            createNumberOfRoundsTextField("Rounds:", primaryId, 2, automaticProperties);
+                            createNumberOfRoundsTextField( ResourceManager.getInstance().getString(R.string.rounds_title), primaryId, 2, automaticProperties);
                             createProjectilesField(primaryId, 3, automaticProperties);
                             break;
                         case BOW:
@@ -536,7 +537,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createFireRateField(int primaryId, int secondaryId, ContinuousShooterProperties shooterProperties) {
         TitledQuantity<BodySettingsWindowController> titledFireRateQuantity =
-                new TitledQuantity<>("Fire Rate:", 16, "r", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.fire_rate_title), 16, "r", 5, true);
         fireRateQuantityField = titledFireRateQuantity.getAttachment();
         titledFireRateQuantity
                 .getAttachment()
@@ -561,7 +562,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createMotorForwardSpeedField(int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
         TitledQuantity<BodySettingsWindowController> titledForwardSpeedField =
-                new TitledQuantity<>("Frd. Speed:", 16, "r", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.speed_forward), 16, "r", 5, true);
         forwardSpeedQuantityField = titledForwardSpeedField.getAttachment();
         titledForwardSpeedField
                 .getAttachment()
@@ -585,7 +586,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createMotorBackwardSpeedField(int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
         TitledQuantity<BodySettingsWindowController> titledBackwardSpeedField =
-                new TitledQuantity<>("Brd. Speed:", 16, "b", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.speed_backward), 16, "b", 5, true);
         backwardSpeedQuantityField = titledBackwardSpeedField.getAttachment();
         titledBackwardSpeedField
                 .getAttachment()
@@ -609,7 +610,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createRocketPowerField(int primaryId, int secondaryId, RocketProperties rocketProperties) {
         TitledQuantity<BodySettingsWindowController> titledMotorPowerQuantity =
-                new TitledQuantity<>("Power:", 16, "r", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.power_title), 16, "r", 5, true);
         rocketPowerQuantityField = titledMotorPowerQuantity.getAttachment();
         titledMotorPowerQuantity
                 .getAttachment()
@@ -633,7 +634,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createMissileControlField(int primaryId, int secondaryId, MissileProperties missileProperties) {
         TitledQuantity<BodySettingsWindowController> titledMissileControlQuantity =
-                new TitledQuantity<>("Control:", 16, "r", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.control_title), 16, "r", 5, true);
         missileControlQuantityField = titledMissileControlQuantity.getAttachment();
         titledMissileControlQuantity
                 .getAttachment()
@@ -658,7 +659,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createRocketFuelField(
             int primaryId, int secondaryId, RocketProperties rocketProperties) {
         TitledTextField<BodySettingsWindowController> rocketFuelField =
-                new TitledTextField<>("Fuel:", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.fuel_title), 6, 5);
         rocketFuelTextField = rocketFuelField.getAttachment();
 
         rocketFuelField
@@ -699,7 +700,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createZIndexField(
             int primaryId, int secondaryId) {
         TitledTextField<BodySettingsWindowController> zIndexField =
-                new TitledTextField<>("Z Index:", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.z_index_title), 6, 5);
         zIndexTextField = zIndexField.getAttachment();
 
         zIndexField
@@ -744,7 +745,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createReloadTimeField(
             int primaryId, int secondaryId, RangedProperties rangedProperties) {
         TitledTextField<BodySettingsWindowController> reloadTimeField =
-                new TitledTextField<>("Reload Time:", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.reload_time_title), 6, 5);
         rangedManualReloadTimeTextField = reloadTimeField.getAttachment();
 
         reloadTimeField
@@ -788,7 +789,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createMotorPowerField(
             int primaryId, int secondaryId, MotorControlProperties motorControlProperties) {
         TitledTextField<BodySettingsWindowController> motorPowerField =
-                new TitledTextField<>("Power (HP):", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.power_hp_title), 6, 5);
         motorPowerTextField = motorPowerField.getAttachment();
 
         motorPowerField
@@ -831,7 +832,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createTimeBombDelayField(
             int primaryId, int secondaryId, BombUsageProperties bombUsageProperties) {
         TitledTextField<BodySettingsWindowController> bombDelayField =
-                new TitledTextField<>("Delay:", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.delay_title), 6, 5);
         bombDelayTextField = bombDelayField.getAttachment();
 
         bombDelayField
@@ -868,7 +869,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createBombMinImpactField(
             int primaryId, int secondaryId, ImpactBombUsageProperties bombUsageProperties) {
         TitledTextField<BodySettingsWindowController> minImpactField =
-                new TitledTextField<>("Min Impact:", 6, 5, 80);
+                new TitledTextField<>(ResourceManager.getInstance().getString(R.string.min_impact_title), 6, 5);
         bombMinImpactTextField = minImpactField.getAttachment();
 
         minImpactField
@@ -912,7 +913,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Projectiles",
+                        ResourceManager.getInstance().getString(R.string.projectiles_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(projectileField);
@@ -932,7 +933,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Joint",
+                        ResourceManager.getInstance().getString(R.string.joint_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(motorJointField);
@@ -951,7 +952,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Safety",
+                        ResourceManager.getInstance().getString(R.string.safety_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(safetyField);
@@ -968,7 +969,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Fire Sources",
+                        ResourceManager.getInstance().getString(R.string.fire_sources_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(fireSourcesField);
@@ -1022,7 +1023,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Liquid Sources",
+                        ResourceManager.getInstance().getString(R.string.liquid_sources_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(liquidSourcesField);
@@ -1306,7 +1307,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private void createCategoryCheckBox(BodyUsageCategory bodyUsageCategory, boolean pressed) {
         TitledButton<BodySettingsWindowController> categoryCheckbox =
                 new TitledButton<>(
-                        bodyUsageCategory.getName(),
+                        ResourceManager.getInstance().getString(bodyUsageCategory.nameStringId),
                         ResourceManager.getInstance().checkBoxTextureRegion,
                         Button.ButtonType.Selector,
                         5f,
@@ -1342,7 +1343,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Bombs",
+                        ResourceManager.getInstance().getString(R.string.bombs_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(projectileField);
@@ -1395,7 +1396,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Fire Sources",
+                        ResourceManager.getInstance().getString(R.string.fire_sources_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(fireSourcesField);
@@ -1449,13 +1450,13 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new SecondarySectionField<>(
                         primaryId,
                         secondaryId,
-                        "Sensitive Layers",
+                        ResourceManager.getInstance().getString(R.string.sensitive_layers_title),
                         ResourceManager.getInstance().mainButtonTextureRegion,
                         this);
         window.addSecondary(sensitiveLayersField);
         List<LayerModel> layers = new ArrayList<>(bodyModel.getLayers());
         LayerModel allPlaceholder = new LayerModel(bodyModel.getBodyId(), -1, bodyModel);
-        allPlaceholder.setModelName("All");
+        allPlaceholder.setModelName(ResourceManager.getInstance().getString(R.string.all_placeholder));
         layers.add(0, allPlaceholder);
 
         for (LayerModel layerModel : layers) {

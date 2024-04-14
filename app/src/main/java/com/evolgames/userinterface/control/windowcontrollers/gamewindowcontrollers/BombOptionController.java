@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.BombProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.NumericValidator;
@@ -23,8 +24,6 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
     private Quantity<BombOptionController> fireRatioQuantityField;
     private Quantity<BombOptionController> smokeRatioQuantityField;
     private Quantity<BombOptionController> sparkRatioQuantityField;
-    private Quantity<BombOptionController> inPartSizeQuantityField;
-    private Quantity<BombOptionController> finPartSizeQuantityField;
     private Quantity<BombOptionController> speedQuantityField;
     private Quantity<BombOptionController> particlesQuantityField;
     private Quantity<BombOptionController> heatQuantityField;
@@ -44,7 +43,7 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
             FloatConsumer consumer) {
 
         TitledQuantity<BombOptionController> ratioQuantity =
-                new TitledQuantity<>(title, length, key, 1, minX);
+                new TitledQuantity<>(title, length, key, 1, true);
 
         Quantity<BombOptionController> quantityField = ratioQuantity.getAttachment();
         ratioQuantity
@@ -69,15 +68,15 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
         super.init();
         SectionField<BombOptionController> explosiveSettingsSection =
                 new SectionField<>(
-                        1, "Explosive Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.explosive_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
         particlesQuantityField =
-                this.createQuantity("Particles:", 1, 1, 10, 60, "b", (q) -> bombProperties.setParticles(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.particle_density_title), 1, 1, 10, 60, "b", (q) -> bombProperties.setParticles(q));
         speedQuantityField =
-                this.createQuantity("Speed:", 1, 2, 10, 40, "b", (q) -> bombProperties.setSpeed(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.particle_speed_title), 1, 2, 10, 40, "b", (q) -> bombProperties.setSpeed(q));
 
-        TitledTextField<BombOptionController> forceField = new TitledTextField<>("Force:", 8, 5, 60);
+        TitledTextField<BombOptionController> forceField = new TitledTextField<>(ResourceManager.getInstance().getString(R.string.explosion_force), 8, 5);
         forceTextField = forceField.getAttachment();
         forceField
                 .getAttachment()
@@ -110,20 +109,13 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
                         });
 
         heatQuantityField =
-                this.createQuantity("Heat:", 1, 4, 10, 40, "r", (q) -> bombProperties.setHeat(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.explosion_heat_title), 1, 4, 10, 40, "r", (q) -> bombProperties.setHeat(q));
         fireRatioQuantityField =
-                this.createQuantity("Fire:", 1, 5, 10, 40, "r", (q) -> bombProperties.setFireRatio(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.fire_title), 1, 5, 10, 40, "r", (q) -> bombProperties.setFireRatio(q));
         smokeRatioQuantityField =
-                this.createQuantity("Smoke:", 1, 6, 10, 50, "t", (q) -> bombProperties.setSmokeRatio(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.smoke_title), 1, 6, 10, 50, "t", (q) -> bombProperties.setSmokeRatio(q));
         sparkRatioQuantityField =
-                this.createQuantity("Sparks:", 1, 7, 10, 50, "g", (q) -> bombProperties.setSparkRatio(q));
-        inPartSizeQuantityField =
-                this.createQuantity(
-                        "In. Part. Size:", 1, 8, 10, 80, "g", (q) -> bombProperties.setInParticleSize(q));
-
-        finPartSizeQuantityField =
-                this.createQuantity(
-                        "Fin. Part. Size:", 1, 9, 10, 80, "g", (q) -> bombProperties.setFinParticleSize(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.sparks_title), 1, 7, 10, 50, "g", (q) -> bombProperties.setSparkRatio(q));
 
         window.createScroller();
         updateLayout();
@@ -144,8 +136,6 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
         this.setSpeedRatio(bombProperties.getSpeed());
         this.setForceRatio(bombProperties.getForce());
         this.setHeatRatio(bombProperties.getHeat());
-        this.setInPartSizeRatio(bombProperties.getInParticleSize());
-        this.setFinPartSizeRatio(bombProperties.getFinParticleSize());
     }
 
     @Override
@@ -158,14 +148,6 @@ public class BombOptionController extends SettingsWindowController<BombPropertie
     public void onCancelSettings() {
         super.onCancelSettings();
         itemWindowController.onResume();
-    }
-
-    private void setInPartSizeRatio(float ratio) {
-        inPartSizeQuantityField.updateRatio(ratio);
-    }
-
-    private void setFinPartSizeRatio(float ratio) {
-        finPartSizeQuantityField.updateRatio(ratio);
     }
 
     private void setFireRatio(float fireRatio) {

@@ -14,11 +14,13 @@ import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ItemCategory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class NativeUIController implements INativeUIController {
     private final GameActivity gameActivity;

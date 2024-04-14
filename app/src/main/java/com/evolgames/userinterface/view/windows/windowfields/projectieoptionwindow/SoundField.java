@@ -5,21 +5,20 @@ import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.ProjectileOptionController;
 import com.evolgames.userinterface.view.inputs.Button;
 import com.evolgames.userinterface.view.inputs.ButtonWithText;
+import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.sections.basic.SimpleTertiary;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 
-public class SoundField extends SimpleTertiary<ButtonWithText<ProjectileOptionController>> {
+public class SoundField extends SimpleSecondary<ButtonWithText<ProjectileOptionController>> {
 
     public SoundField(
             String soundName,
             int bodyFieldKey,
             int layerFieldKey,
-            int decorationFieldKey,
             ProjectileOptionController controller) {
         super(
                 bodyFieldKey,
                 layerFieldKey,
-                decorationFieldKey,
                 new ButtonWithText<>(
                         soundName,
                         2,
@@ -32,12 +31,12 @@ public class SoundField extends SimpleTertiary<ButtonWithText<ProjectileOptionCo
                 new ButtonBehavior<ProjectileOptionController>(controller, main) {
                     @Override
                     public void informControllerButtonClicked() {
-                        controller.onTertiaryButtonClicked(SoundField.this);
+                        controller.onSecondaryButtonClicked(SoundField.this);
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        controller.onTertiaryButtonReleased(SoundField.this);
+                        controller.onSecondaryButtonClicked(SoundField.this);
                     }
                 });
     }

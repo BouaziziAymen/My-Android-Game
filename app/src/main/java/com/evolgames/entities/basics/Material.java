@@ -48,7 +48,7 @@ public class Material {
             float flammability,
             double energy) {
         this.juiceIndex = juiceIndex;
-        float[] values = MaterialFactory.materialProperties.get(name);
+        float[] values = MaterialFactory.materialProperties.get(index);
         this.density = values[0] * 4;
         this.restitution = values[1];
         this.friction = values[2];

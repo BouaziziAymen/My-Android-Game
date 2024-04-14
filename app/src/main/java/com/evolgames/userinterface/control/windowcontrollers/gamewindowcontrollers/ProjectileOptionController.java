@@ -6,6 +6,7 @@ import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.entities.properties.Explosive;
 import com.evolgames.entities.properties.ProjectileProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -48,10 +49,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class ProjectileOptionController extends SettingsWindowController<ProjectileProperties> {
     private final EditorScene editorScene;
-    private final AlphaNumericValidator projectileNameValidator = new AlphaNumericValidator(8, 5);
     private final Hashtable<String, ToolModel> missileTable;
     private final Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable;
-    private TextField<ProjectileOptionController> projectileNameField;
     private ProjectileProperties projectileProperties;
     private ProjectileModel projectileModel;
     private Quantity<ProjectileOptionController> velocityQuantity;
@@ -81,7 +80,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
         SectionField<ProjectileOptionController> bodyASection =
                 new SectionField<>(
-                        0, "Projectile:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        0, ResourceManager.getInstance().getString(R.string.projectile_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(bodyASection);
 
         List<ItemMetaData> files = new ArrayList<>();
@@ -107,7 +106,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
         SectionField<ProjectileOptionController> shellSection =
                 new SectionField<>(
-                        1, "Shell:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.casing_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(shellSection);
 
         List<CasingModel> ammoModels =
@@ -152,7 +151,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private void createProjectileToolButton(ItemMetaData itemMetaData, int missileId) {
         ButtonWithText<ProjectileOptionController> missileButton =
                 new ButtonWithText<>(
-                        itemMetaData.getName(),
+                        ResourceManager.getInstance().getString(ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName())),
                         2,
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
@@ -231,12 +230,9 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         setFireSound(this.projectileProperties.getFireSound());
         setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
         setRecoil(this.projectileProperties.getRecoil());
-        setProjectileName(projectileModel.getModelName());
         if (projectileModel.getProperties().getMissileFile() != null) {
             setMissileName(projectileModel.getProperties().getMissileFile());
         }
-        setPartInitSize(this.projectileProperties.getInFirePartSize());
-        setPartFinSize(this.projectileProperties.getFinFirePartSize());
         setIntensity(this.projectileProperties.getParticles());
         setFireRatio(this.projectileProperties.getFireRatio());
         setSmokeRatio(this.projectileProperties.getSmokeRatio());
@@ -255,81 +251,31 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private void setBody(int bodyId) {
     }
 
-    @Override
-    public void onTertiaryButtonClicked(SimpleTertiary<?> simpleTertiary) {
-        super.onTertiaryButtonClicked(simpleTertiary);
-        int primaryKey = simpleTertiary.getPrimaryKey();
-        int secondaryKey = simpleTertiary.getSecondaryKey();
-        if (simpleTertiary.getPrimaryKey() == 2 && simpleTertiary.getSecondaryKey() == 1) {
-            GameSound gameSound =   this.sounds
-                    .get(simpleTertiary.getTertiaryKey());
-        ResourceManager.getInstance().tryPlaySound(gameSound.getSound(),1f);
-            projectileProperties.setFireSound(gameSound.getTitle());
-            for (int i = 0; i < window.getLayout().getTertiariesSize(primaryKey, secondaryKey); i++) {
-                SimpleTertiary<?> element =
-                        window.getLayout().getTertiaryByIndex(primaryKey, secondaryKey, i);
-                if (element.getTertiaryKey() != simpleTertiary.getTertiaryKey()) {
-                    Element main = element.getMain();
-                    if (main instanceof ButtonWithText) {
-                        ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public void init() {
         super.init();
         SectionField<ProjectileOptionController> sectionField =
                 new SectionField<>(
-                        2, "General Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        2, ResourceManager.getInstance().getString(R.string.shot_sound_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(sectionField);
-        TitledTextField<ProjectileOptionController> layerNameField =
-                new TitledTextField<>("Projectile Name:", 10);
-        projectileNameField = layerNameField.getAttachment();
 
-        projectileNameField.setBehavior(
-                new TextFieldBehavior<ProjectileOptionController>(
-                        this,
-                        projectileNameField,
-                        Keyboard.KeyboardType.AlphaNumeric,
-                        projectileNameValidator) {
-                    @Override
-                    protected void informControllerTextFieldTapped() {
-                        ProjectileOptionController.super.onTextFieldTapped(projectileNameField);
-                    }
-
-                    @Override
-                    protected void informControllerTextFieldReleased() {
-                        ProjectileOptionController.super.onTextFieldReleased(projectileNameField);
-                    }
-                });
-        projectileNameField
-                .getBehavior()
-                .setReleaseAction(() -> model.setModelName(projectileNameField.getTextString()));
-        FieldWithError fieldWithError = new FieldWithError(layerNameField);
-        SimpleSecondary<FieldWithError> secondaryElement1 = new SimpleSecondary<>(2, 0, fieldWithError);
-        window.addSecondary(secondaryElement1);
  //TODO wire with the new sound map
         sounds =  ResourceManager.getInstance().getProjectileSounds();
-        SecondarySectionField<ProjectileOptionController> projectileShotSoundSection =
-                new SecondarySectionField<>(
-                        2, 1, "Shot Sound", ResourceManager.getInstance().mainButtonTextureRegion, this);
-        window.addSecondary(projectileShotSoundSection);
+
         for (int i = 0; i < sounds.size(); i++) {
             GameSound gameSound = sounds.get(i);
-            SoundField soundField = new SoundField(gameSound.getTitle(), 2, 1, i, this);
-            window.addTertiary(soundField);
+            SoundField soundField = new SoundField(gameSound.getTitle(), 2,  i, this);
+            window.addSecondary(soundField);
         }
 
         SectionField<ProjectileOptionController> typeSection =
                 new SectionField<>(
-                        3, "Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        3, ResourceManager.getInstance().getString(R.string.velocity_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(typeSection);
 
         TitledQuantity<ProjectileOptionController> titleVelocityQuantity =
-                new TitledQuantity<>("Velocity:", 16, "r", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.lin_velocity_title), 16, "r", 5, true);
         velocityQuantity = titleVelocityQuantity.getAttachment();
         titleVelocityQuantity
                 .getAttachment()
@@ -350,7 +296,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                         () -> this.projectileProperties.setMuzzleVelocity(velocityQuantity.getRatio()));
 
         TitledQuantity<ProjectileOptionController> titledRecoilQuantity =
-                new TitledQuantity<>("Recoil:", 10, "b", 5, 50);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.recoil_title), 10, "b", 5, true);
         recoilQuantity = titledRecoilQuantity.getAttachment();
         titledRecoilQuantity
                 .getAttachment()
@@ -386,14 +332,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                         model.getModelName(), projectileModel.getProjectileField().getPrimaryKey(), projectileModel.getProjectileField().getSecondaryKey());
     }
 
-    private void setProjectileName(String name) {
-        projectileNameField.getBehavior().setTextValidated(name);
-    }
 
     private void setFireSound(String sound) {
        int n = window.getLayout().getTertiariesSize(2,1);
        for(int i=0;i<n;i++){
-          SoundField soundField = (SoundField) window.getLayout().getTertiaryByIndex(2, 1, i);
+          SoundField soundField = (SoundField) window.getLayout().getSecondaryByIndex(2, i);
          String name =  soundField.getSoundFieldControl().getTitle();
          if(name.equals(sound)) {
              soundField.getSoundFieldControl().updateState(Button.State.PRESSED);
@@ -408,7 +351,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     }
 
     private void setMissileName(String fileName) {
-        ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName + ".Xml");
+        ButtonWithText<ProjectileOptionController> selectedButton = missileButtonsTable.get(fileName + ".xml");
         if (selectedButton != null) {
             missileButtonsTable.forEach((key, value) -> value.release());
             selectedButton.click();
@@ -436,7 +379,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         }
         SectionField<ProjectileOptionController> explosiveSection =
                 new SectionField<>(
-                        4, "Explosive", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        4, ResourceManager.getInstance().getString(R.string.explosive_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSection);
         Arrays.stream(Explosive.values()).forEach(this::createCategoryCheckBox);
     }
@@ -469,6 +412,29 @@ public class ProjectileOptionController extends SettingsWindowController<Project
                                 ProjectileOptionController.this.onExplosiveButtonReleased(explosiveField);
                             }
                         });
+    }
+
+    @Override
+    public void onSecondaryButtonClicked(SimpleSecondary<?> simpleSecondary) {
+        super.onSecondaryButtonClicked(simpleSecondary);
+        int primaryKey = simpleSecondary.getPrimaryKey();
+        int secondaryKey = simpleSecondary.getSecondaryKey();
+        if (simpleSecondary.getPrimaryKey() == 2) {
+            GameSound gameSound =   this.sounds
+                    .get(secondaryKey);
+            ResourceManager.getInstance().tryPlaySound(gameSound.getSound(),1f);
+            projectileProperties.setFireSound(gameSound.getTitle());
+            for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
+                SimpleSecondary<?> element =
+                        window.getLayout().getSecondaryByIndex(primaryKey, i);
+                if (element.getSecondaryKey() != secondaryKey) {
+                    Element main = element.getMain();
+                    if (main instanceof ButtonWithText) {
+                        ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
+                    }
+                }
+            }
+        }
     }
 
     private void onExplosiveButtonPressed(
@@ -511,11 +477,11 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
         SectionField<ProjectileOptionController> explosiveSettingsSection =
                 new SectionField<>(
-                        5, "Explosive Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        5, ResourceManager.getInstance().getString(R.string.explosive_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
         TitledQuantity<ProjectileOptionController> titledFireRatioQuantity =
-                new TitledQuantity<>("Fire:", 10, "r", 5, 70);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.fire_title), 10, "r", 5, true);
 
         fireRatioQuantityField = titledFireRatioQuantity.getAttachment();
         titledFireRatioQuantity
@@ -537,7 +503,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
         // -----
         TitledQuantity<ProjectileOptionController> titledSmokeRatioQuantity =
-                new TitledQuantity<>("Smoke:", 10, "t", 5, 70);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.smoke_title), 10, "t", 5, true);
         smokeRatioQuantityField = titledSmokeRatioQuantity.getAttachment();
         titledSmokeRatioQuantity
                 .getAttachment()
@@ -556,7 +522,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         window.addSecondary(smokeRatioElement);
         // -----
         TitledQuantity<ProjectileOptionController> titledSparkRatioQuantity =
-                new TitledQuantity<>("Sparks:", 10, "g", 5, 70);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.sparks_title), 10, "g", 5, true);
         sparkRatioQuantityField = titledSparkRatioQuantity.getAttachment();
         titledSparkRatioQuantity
                 .getAttachment()
@@ -576,7 +542,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
         // -----
         TitledQuantity<ProjectileOptionController> titledIntensityQuantity =
-                new TitledQuantity<>("Part. Density:", 10, "b", 5, 70);
+                new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.particle_density_title), 10, "b", 5, true);
         intensityQuantityField = titledIntensityQuantity.getAttachment();
         titledIntensityQuantity
                 .getAttachment()
@@ -593,47 +559,6 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         SimpleSecondary<FieldWithError> intensityElement =
                 new SimpleSecondary<>(5, 3, intensityFieldWithError);
         window.addSecondary(intensityElement);
-
-
-        // -----
-        TitledQuantity<ProjectileOptionController> titledInitialSizeQuantity =
-                new TitledQuantity<>("Init Size:", 10, "b", 5, 70);
-        inSizeQuantityField = titledInitialSizeQuantity.getAttachment();
-        titledInitialSizeQuantity
-                .getAttachment()
-                .setBehavior(
-                        new QuantityBehavior<ProjectileOptionController>(this, inSizeQuantityField) {
-                            @Override
-                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-                                ProjectileOptionController.this.projectileProperties.setInFirePartSize(
-                                        quantity.getRatio());
-                            }
-                        });
-
-        FieldWithError inSizeFieldWithError = new FieldWithError(titledInitialSizeQuantity);
-        SimpleSecondary<FieldWithError> inSizeElement =
-                new SimpleSecondary<>(5, 4, inSizeFieldWithError);
-        window.addSecondary(inSizeElement);
-
-        // -----
-        TitledQuantity<ProjectileOptionController> titledFinalSizeQuantity =
-                new TitledQuantity<>("Fin. Part. Size:", 10, "b", 5, 70);
-        finSizeQuantityField = titledFinalSizeQuantity.getAttachment();
-        titledFinalSizeQuantity
-                .getAttachment()
-                .setBehavior(
-                        new QuantityBehavior<ProjectileOptionController>(this, finSizeQuantityField) {
-                            @Override
-                            public void informControllerQuantityUpdated(Quantity<?> quantity) {
-                                ProjectileOptionController.this.projectileProperties.setFinFirePartSize(
-                                        quantity.getRatio());
-                            }
-                        });
-
-        FieldWithError finSizeFieldWithError = new FieldWithError(titledFinalSizeQuantity);
-        SimpleSecondary<FieldWithError> finSizeElement =
-                new SimpleSecondary<>(5, 5, finSizeFieldWithError);
-        window.addSecondary(finSizeElement);
     }
 
     private void onExplosiveOptionsChanged() {

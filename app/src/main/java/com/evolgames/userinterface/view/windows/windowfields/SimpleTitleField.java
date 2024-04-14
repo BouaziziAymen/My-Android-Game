@@ -5,6 +5,6 @@ import com.evolgames.userinterface.view.sections.basic.SimplePrimary;
 
 public class SimpleTitleField extends SimplePrimary<Text> {
     public SimpleTitleField(String title) {
-        super(0, new Text(title, 2));
+        super(-1, new Text(title, 2));
     }
 }

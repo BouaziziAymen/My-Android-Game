@@ -11,8 +11,6 @@ public class BombProperties extends Properties {
     private float speed = 0.2f;
     private float heat = 0.2f;
     private float particles = 0.5f;
-    private float inParticleSize = 1f;
-    private float finParticleSize = 0f;
 
     public BombProperties() {
     }
@@ -81,19 +79,4 @@ public class BombProperties extends Properties {
         this.particles = particles;
     }
 
-    public float getInParticleSize() {
-        return inParticleSize;
-    }
-
-    public void setInParticleSize(float inParticleSize) {
-        this.inParticleSize = inParticleSize;
-    }
-
-    public float getFinParticleSize() {
-        return finParticleSize;
-    }
-
-    public void setFinParticleSize(float finParticleSize) {
-        this.finParticleSize = finParticleSize;
-    }
 }

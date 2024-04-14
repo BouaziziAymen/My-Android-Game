@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.control.buttonboardcontrollers;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.gameengine.R;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
@@ -168,7 +169,7 @@ public class MainButtonBoardController extends ButtonBoardController {
 
     public void onHomeButtonReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
-        editorUserInterface.doWithConfirm("Are you sure you want to quit?", () -> {
+        editorUserInterface.doWithConfirm(ResourceManager.getInstance().getString(R.string.quit_confirmation_message), () -> {
             editorUserInterface.getScene().goToScene(SceneType.MENU);
         });
     }

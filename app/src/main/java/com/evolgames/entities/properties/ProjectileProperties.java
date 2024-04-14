@@ -16,8 +16,6 @@ public class ProjectileProperties extends Properties {
     private float fireRatio;
     private float sparkRatio;
     private float particles;
-    private float inFirePartSize = 0.5f;
-    private float finFirePartSize = 0.2f;
     private String missileFile = "";
 
     private boolean assetsMissile;
@@ -118,22 +116,6 @@ public class ProjectileProperties extends Properties {
 
     public void setParticles(float particles) {
         this.particles = particles;
-    }
-
-    public float getInFirePartSize() {
-        return inFirePartSize;
-    }
-
-    public void setInFirePartSize(float inFirePartSize) {
-        this.inFirePartSize = inFirePartSize;
-    }
-
-    public float getFinFirePartSize() {
-        return finFirePartSize;
-    }
-
-    public void setFinFirePartSize(float finFirePartSize) {
-        this.finFirePartSize = finFirePartSize;
     }
 
     public String getMissileFile() {

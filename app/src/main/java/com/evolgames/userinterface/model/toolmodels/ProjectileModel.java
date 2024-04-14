@@ -96,8 +96,6 @@ public class ProjectileModel extends ProperModel<ProjectileProperties> {
             pi.setCasingInfo(this.casingModel.toCasingInfo(mirrored, this.muzzleEntity));
         }
         pi.setMissileFile(this.properties.getMissileFile());
-        pi.setInFirePartSize(this.properties.getInFirePartSize());
-        pi.setFinFirePartSize(this.properties.getFinFirePartSize());
         pi.setAssetsMissile(this.properties.isAssetsMissile());
         pi.setId(this.projectileId);
         return pi;

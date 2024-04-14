@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.ToolProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.userinterface.control.validators.AlphaNumericValidator;
@@ -31,8 +32,8 @@ public class ItemSaveWindowController extends SettingsWindowController<ToolPrope
             String[] itemNames = items.stream().map(ItemMetaData::getName).toArray(String[]::new);
             boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(input.toLowerCase()));
             return !nameExists;
-        }, "Name already exists.");
-        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>("Title", 20);
+        }, ResourceManager.getInstance().getString(R.string.name_already_exists_validation_message));
+        TitledTextField<ItemSaveWindowController> titledTextField = new TitledTextField<>(ResourceManager.getInstance().getString(R.string.item_name_title), 20,0);
         this.titleTextField = titledTextField.getAttachment();
         titleTextField.setBehavior(
                 new TextFieldBehavior<ItemSaveWindowController>(

@@ -2,6 +2,7 @@ package com.evolgames.userinterface.control.windowcontrollers.gamewindowcontroll
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.DragProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.userinterface.model.ProperModel;
@@ -29,12 +30,11 @@ public class DragOptionController extends SettingsWindowController<DragPropertie
             int primaryKey,
             int secondaryKey,
             int length,
-            float minX,
             String key,
             DragOptionController.FloatConsumer consumer) {
 
         TitledQuantity<DragOptionController> ratioQuantity =
-                new TitledQuantity<>(title, length, key, 1, minX);
+                new TitledQuantity<>(title, length, key, 1, true);
 
         Quantity<DragOptionController> quantityField = ratioQuantity.getAttachment();
         ratioQuantity
@@ -60,16 +60,16 @@ public class DragOptionController extends SettingsWindowController<DragPropertie
         super.init();
         SectionField<DragOptionController> explosiveSettingsSection =
                 new SectionField<>(
-                        1, "Drag Settings", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.air_drag_settings_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         window.addPrimary(explosiveSettingsSection);
 
         this.dragRatioQuantityField =
-                this.createQuantity("Magnitude:", 1, 1, 10, 60, "b", (q) -> dragProperties.setMagnitude(q));
+                this.createQuantity(ResourceManager.getInstance().getString(R.string.magnitude_title), 1, 1, 10, "b", (q) -> dragProperties.setMagnitude(q));
 
         TitledButton<DragOptionController> symmetricalButton =
                 new TitledButton<>(
-                        "Symmetrical",
-                        ResourceManager.getInstance().onoffTextureRegion,
+                        ResourceManager.getInstance().getString(R.string.symmetrical_title),
+                        ResourceManager.getInstance().onOffTextureRegion,
                         Button.ButtonType.Selector,
                         5f);
 

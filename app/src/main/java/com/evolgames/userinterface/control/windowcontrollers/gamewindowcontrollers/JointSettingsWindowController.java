@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.properties.JointProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.OutlineController;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
@@ -167,14 +168,14 @@ public class JointSettingsWindowController
         }
         SectionField<JointSettingsWindowController> bodyASection =
                 new SectionField<>(
-                        1, "BodyA:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        1, ResourceManager.getInstance().getString(R.string.body_a_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         Color bodyAColor = Colors.palette1_joint_a_color;
         bodyASection.getMain().setTextColor(bodyAColor);
         window.addPrimary(bodyASection);
 
         SectionField<JointSettingsWindowController> bodyBSection =
                 new SectionField<>(
-                        2, "BodyB:", ResourceManager.getInstance().mainButtonTextureRegion, this);
+                        2, ResourceManager.getInstance().getString(R.string.body_b_title), ResourceManager.getInstance().mainButtonTextureRegion, this);
         Color bodyBColor = Colors.palette1_joint_b_color;
         bodyBSection.getMain().setTextColor(bodyBColor);
         window.addPrimary(bodyBSection);
@@ -318,8 +319,8 @@ public class JointSettingsWindowController
 
             TitledButton<JointSettingsWindowController> revoluteLimitsButton =
                     new TitledButton<>(
-                            "Has Limits:",
-                            ResourceManager.getInstance().onoffTextureRegion,
+                            ResourceManager.getInstance().getString(R.string.has_limits_title),
+                            ResourceManager.getInstance().onOffTextureRegion,
                             Button.ButtonType.Selector,
                             5f);
             revoluteLimitsField = new SimplePrimary<>(3, revoluteLimitsButton);
@@ -345,7 +346,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> lowerAngleField =
-                    new TitledTextField<>("Lower Angle:", 6, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.lower_angle_title), 6, 5);
             revoluteLowerAngleTextField = lowerAngleField.getAttachment();
 
             revoluteLowerAngleTextField.setBehavior(
@@ -380,7 +381,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> upperAngleField =
-                    new TitledTextField<>("Upper Angle:", 6, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.upper_angle_title), 6, 5);
             revoluteUpperAngleTextField = upperAngleField.getAttachment();
 
             revoluteUpperAngleTextField.setBehavior(
@@ -416,8 +417,8 @@ public class JointSettingsWindowController
 
             TitledButton<JointSettingsWindowController> hasMotorButton =
                     new TitledButton<>(
-                            "Has Motor:",
-                            ResourceManager.getInstance().onoffTextureRegion,
+                            ResourceManager.getInstance().getString(R.string.has_motor_title),
+                            ResourceManager.getInstance().onOffTextureRegion,
                             Button.ButtonType.Selector,
                             5f);
 
@@ -442,7 +443,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> speedField =
-                    new TitledTextField<>("Speed:", 7, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.speed_title), 7, 5);
             revoluteSpeedTextField = speedField.getAttachment();
             revoluteSpeedTextField.setBehavior(
                     new TextFieldBehavior<JointSettingsWindowController>(
@@ -474,7 +475,7 @@ public class JointSettingsWindowController
             window.addSecondary(speedElement);
 
             TitledTextField<JointSettingsWindowController> torqueField =
-                    new TitledTextField<>("Torque:", 9, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.torque_title), 9, 5);
             revoluteMaxTorqueTextField = torqueField.getAttachment();
             revoluteMaxTorqueTextField.setBehavior(
                     new TextFieldBehavior<JointSettingsWindowController>(
@@ -506,7 +507,7 @@ public class JointSettingsWindowController
         }
         if (jointModel.getProperties().getJointType() == JointDef.JointType.DistanceJoint) {
             TitledQuantity<JointSettingsWindowController> titledDampingQuantity =
-                    new TitledQuantity<>("Damping:", 10, "b", 5, 76);
+                    new TitledQuantity<>(ResourceManager.getInstance().getString(R.string.damping_title), 10, "b", 5, true);
             dampingQuantity = titledDampingQuantity.getAttachment();
             titledDampingQuantity
                     .getAttachment()
@@ -525,7 +526,7 @@ public class JointSettingsWindowController
                     .setChangeAction(() -> jointModel.getProperties().setDampingRatio(dampingQuantity.getRatio()));
 
             TitledTextField<JointSettingsWindowController> frequencyField =
-                    new TitledTextField<>("Frequency:", 4, 5, 120);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.frequency_title), 4, 5);
             frequencyTextField = frequencyField.getAttachment();
 
             frequencyTextField.setBehavior(
@@ -551,7 +552,7 @@ public class JointSettingsWindowController
                             () -> jointModel.getProperties().setFrequencyHz(Float.parseFloat(frequencyTextField.getTextString())));
             //
             TitledTextField<JointSettingsWindowController> lengthField =
-                    new TitledTextField<>("Length:", 4, 5, 120);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.length_title), 4, 5);
             lengthTextField = lengthField.getAttachment();
 
             lengthTextField.setBehavior(
@@ -581,7 +582,7 @@ public class JointSettingsWindowController
             PrismaticJointShape prismaticJointShape = (PrismaticJointShape) jointModel.getJointShape();
 
             TitledTextField<JointSettingsWindowController> directionAngleField =
-                    new TitledTextField<>("Direction Angle:", 4, 5, 120);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.direction_angle_title), 4, 5);
             prismaticDirectionAngleTextField = directionAngleField.getAttachment();
 
             prismaticDirectionAngleTextField.setBehavior(
@@ -621,8 +622,8 @@ public class JointSettingsWindowController
 
             TitledButton<JointSettingsWindowController> prismaticLimitsButton =
                     new TitledButton<>(
-                            "Has Limits:",
-                            ResourceManager.getInstance().onoffTextureRegion,
+                            ResourceManager.getInstance().getString(R.string.has_limits_title),
+                            ResourceManager.getInstance().onOffTextureRegion,
                             Button.ButtonType.Selector,
                             5f);
             prismaticLimitsField = new SimplePrimary<>(5, prismaticLimitsButton);
@@ -648,7 +649,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> lowerLimitField =
-                    new TitledTextField<>("Lower Limit :", 4, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.lower_limit_title), 4, 5);
             prismaticLowerLimitTextField = lowerLimitField.getAttachment();
 
             prismaticLowerLimitTextField.setBehavior(
@@ -682,7 +683,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> upperLimitField =
-                    new TitledTextField<>("Upper Limit :", 4, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.upper_limit_title), 4, 5);
             prismaticUpperLimitTextField = upperLimitField.getAttachment();
 
             prismaticUpperLimitTextField.setBehavior(
@@ -717,8 +718,8 @@ public class JointSettingsWindowController
 
             TitledButton<JointSettingsWindowController> hasMotorButton =
                     new TitledButton<>(
-                            "Has Motor:",
-                            ResourceManager.getInstance().onoffTextureRegion,
+                            ResourceManager.getInstance().getString(R.string.has_motor_title),
+                            ResourceManager.getInstance().onOffTextureRegion,
                             Button.ButtonType.Selector,
                             5f);
 
@@ -743,7 +744,7 @@ public class JointSettingsWindowController
                             });
 
             TitledTextField<JointSettingsWindowController> speedField =
-                    new TitledTextField<>("Speed:", 7, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.speed_title), 7, 5);
             prismaticSpeedTextField = speedField.getAttachment();
             prismaticSpeedTextField.setBehavior(
                     new TextFieldBehavior<JointSettingsWindowController>(
@@ -773,7 +774,7 @@ public class JointSettingsWindowController
             window.addSecondary(speedElement);
 
             TitledTextField<JointSettingsWindowController> forceField =
-                    new TitledTextField<>("Force:", 9, 5, 85);
+                    new TitledTextField<>(ResourceManager.getInstance().getString(R.string.force_title), 9, 5);
             prismaticMaxForceTextField = forceField.getAttachment();
             prismaticMaxForceTextField.setBehavior(
                     new TextFieldBehavior<JointSettingsWindowController>(
