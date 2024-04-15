@@ -120,7 +120,7 @@ public class FlameThrower extends Use {
                                                         p.getSmokeRatio(),
                                                         p.getSparkRatio(),
                                                         p.getParticles(),
-                                                        0.5f, p.getInFirePartSize(), p.getFinFirePartSize());
+                                                        p.getHeat(), p.getInFirePartSize(), p.getFinFirePartSize());
                                 fireSource.setSpawnEnabled(this.on);
                                 this.flameThrowerInfFireSourceMap.put(p, fireSource);
                             }

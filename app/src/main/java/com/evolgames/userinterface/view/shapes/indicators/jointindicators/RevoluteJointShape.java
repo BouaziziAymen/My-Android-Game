@@ -208,6 +208,8 @@ public class RevoluteJointShape extends JointShape {
         this.updateEnd(modelEnd.x, modelEnd.y);
         if (model.getProperties().isEnableLimit()) {
             this.showLimitsElements();
+        } else {
+            this.hideLimitsElements();
         }
         this.updateReferenceAngleIndicator(
                 (float) (model.getProperties().getReferenceAngle() / (2 * Math.PI) * 360));

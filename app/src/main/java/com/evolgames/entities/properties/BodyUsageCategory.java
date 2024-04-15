@@ -1,41 +1,37 @@
 package com.evolgames.entities.properties;
 
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
 
 public enum BodyUsageCategory {
 
-    HEAVY(R.string.heavy_usage, "Heavy Options", 10),
-    SHOOTER(R.string.shooter_usage, "Ranged Options", 1),
-    SHOOTER_CONTINUOUS(R.string.shooter_continuous, "Ranged Options", 1),
-    BOW(R.string.bow_usage, "Bow Options", 1),
-    TIME_BOMB(R.string.time_bomb_usage, "Bomb Options", 2),
-    IMPACT_BOMB(R.string.impact_bomb_usage, "Bomb Options", 2),
-    SLASHER(R.string.slashing_usage, "Slashing Options", 3),
-    BLUNT(R.string.blunt_usage, "Blunt Options", 4),
-    STABBER(R.string.stabbing_usage, "Stabbing Options", 5),
-    THROWING(R.string.throwing_usage, "Throwing Options", 6),
-    FLAME_THROWER(R.string.flame_thrower_usage, "Flame Thr. Options", 7),
-    ROCKET(R.string.rocket_usage, "Rocket. Options", 8),
-    MISSILE(R.string.missile_usage, "Missile. Options", 8),
-    LIQUID_CONTAINER(R.string.liquid_container_usage, "Container. Options", 9),
-    ROCKET_LAUNCHER(R.string.rocket_launcher_usage, "Rock. Launch. Options", 7),
-    MOTOR_CONTROL(R.string.motor_control_usage,"Motor. Cont. Options",11);
+    HEAVY(R.string.heavy_usage, 10,false),
+    SHOOTER(R.string.shooter_usage, 1,true),
+    SHOOTER_CONTINUOUS(R.string.shooter_continuous, 1,true),
+    BOW(R.string.bow_usage, 1,true),
+    ROCKET_LAUNCHER(R.string.rocket_launcher_usage, 1,true),
+    TIME_BOMB(R.string.time_bomb_usage, 2,true),
+    IMPACT_BOMB(R.string.impact_bomb_usage, 2,true),
+    SLASHER(R.string.slashing_usage, 3,false),
+    BLUNT(R.string.blunt_usage, 4,false),
+    STABBER(R.string.stabbing_usage, 5,false),
+    THROWING(R.string.throwing_usage, 6,false),
+    FLAME_THROWER(R.string.flame_thrower_usage, 1,true),
+    ROCKET(R.string.rocket_usage, 8,true),
+    MISSILE(R.string.missile_usage, 8,true),
+    LIQUID_CONTAINER(R.string.liquid_container_usage, 9,true),
+    MOTOR_CONTROL(R.string.motor_control_usage, 11,true);
     public final int nameStringId;
     final int group;
-    private final String optionsTitle;
+    public final boolean hasOptions;
 
-    BodyUsageCategory(int nameStringId, String optionsTitle, int group) {
+    BodyUsageCategory(int nameStringId, int group, boolean hasOptions) {
         this.nameStringId = nameStringId;
         this.group = group;
-        this.optionsTitle = optionsTitle;
+        this.hasOptions = hasOptions;
     }
     public int getGroup() {
         return group;
     }
 
-    public String getOptionsTitle() {
-        return optionsTitle;
-    }
 
 }

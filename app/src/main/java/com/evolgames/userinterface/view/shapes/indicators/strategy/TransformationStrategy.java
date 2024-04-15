@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 public abstract class TransformationStrategy {
     protected final PointsModel<?> shapePointsModel;
     protected final List<Vector2> originalPoints;
-    protected final List<Vector2> originalReferencePoints;
+    protected final Vector2 center;
     private final boolean append;
 
     public TransformationStrategy(PointsModel<?> shapePointsModel, boolean append) {
         this.shapePointsModel = shapePointsModel;
         this.originalPoints = shapePointsModel.getPoints().stream().map(Vector2::cpy).collect(Collectors.toList());
-        this.originalReferencePoints = shapePointsModel.getReferencePoints().stream().map(Vector2::cpy).collect(Collectors.toList());
+        this.center = shapePointsModel.getCenter();
         this.append = append;
     }
 
@@ -34,13 +34,14 @@ public abstract class TransformationStrategy {
     public void transform() {
         List<Vector2> newPoints = collect(transformPoints(), originalPoints);
         if (testPoints(newPoints)) {
-            List<Vector2> newReferencePoints = collect(transformReferencePoints(), originalReferencePoints);
+
             shapePointsModel.getPointsShape().detachPointImages();
-            shapePointsModel.getPointsShape().detachReferencePointImages();
+            shapePointsModel.getPointsShape().detachReferencePointImage();
             shapePointsModel.setPoints(newPoints);
-            shapePointsModel.setReferencePoints(newReferencePoints);
-            for(Vector2 v:newReferencePoints) {
-                shapePointsModel.getPointsShape().createReferencePointImage(v);
+            if(center!=null) {
+                Vector2 newCenter = transformCenter();
+                shapePointsModel.setCenter(newCenter);
+                shapePointsModel.getPointsShape().createReferencePointImage(newCenter);
             }
             shapePointsModel.getPointsShape().onModelUpdated();
         }
@@ -50,5 +51,5 @@ public abstract class TransformationStrategy {
 
     protected abstract List<Vector2> transformPoints();
 
-    protected abstract List<Vector2> transformReferencePoints();
+    protected abstract Vector2 transformCenter();
 }

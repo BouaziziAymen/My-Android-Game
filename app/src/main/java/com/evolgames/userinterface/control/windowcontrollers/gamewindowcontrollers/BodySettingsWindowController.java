@@ -57,7 +57,7 @@ import com.evolgames.userinterface.view.windows.windowfields.TitledTextField;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,9 +100,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     private SecondarySectionField<BodySettingsWindowController> sensitiveLayersField;
     private TextField<BodySettingsWindowController> motorPowerTextField;
     private SimpleSecondary<TitledButton<BodySettingsWindowController>> brakesField;
+    private LinkedList<BodyUsageCategory> bodyCategoriesCopy;
 
     public BodySettingsWindowController() {
-        Hashtable<String, ButtonWithText<ProjectileOptionController>> missileButtonsTable = new Hashtable<>();
     }
 
     public void setLayerWindowController(LayerWindowController layerWindowController) {
@@ -114,10 +114,18 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         this.editorUserInterface = editorUserInterface;
     }
 
+    private List<Object> propertiesCopyList;
+    private BodyProperties bodyPropertiesCopy;
     void onModelUpdated(ProperModel<BodyProperties> model) {
         super.onModelUpdated(model);
         setBodyName(model.getModelName());
         this.bodyModel = (BodyModel) model;
+        bodyCategoriesCopy = bodyModel.getUsageModels().stream().map(UsageModel::getType).collect(Collectors.toCollection(LinkedList::new));
+        bodyPropertiesCopy = (BodyProperties) model.getProperties().clone();
+        propertiesCopyList = new LinkedList<>();
+        for(UsageModel<?> usageModel:this.bodyModel.getUsageModels()){
+            propertiesCopyList.add(usageModel.getProperties().clone());
+        }
 
         createCategorySection();
         updateUsageSettings();
@@ -127,6 +135,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         .collect(Collectors.toList())) {
             updateUsageCategoryFields(usageCategory);
         }
+
         setZIndex(bodyModel.getProperties().getZIndex());
         updateScroller();
     }
@@ -169,10 +178,6 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 setBombMinImpact(impactBombUsageProperties.getMinImpact());
                 break;
             case SLASHER:
-                UsageModel<SlashProperties> slashPropertiesUsageModel =
-                        this.bodyModel.getUsageModel(usageCategory);
-                SlashProperties slashUsageProperties = slashPropertiesUsageModel.getProperties();
-                // setSlashSpeed(slashUsageProperties.getSpeed());
                 break;
             case MOTOR_CONTROL:
                 UsageModel<MotorControlProperties> motorControlPropertiesUsageModel =
@@ -190,6 +195,9 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             case THROWING:
                 break;
             case FLAME_THROWER:
+                UsageModel<FlameThrowerProperties> flameThrowerPropertiesUsageModel =
+                        this.bodyModel.getUsageModel(usageCategory);
+                FlameThrowerProperties flameThrowerProperties = flameThrowerPropertiesUsageModel.getProperties();
                 break;
             case ROCKET:
                 UsageModel<RocketProperties> rocketPropertiesUsageModel =
@@ -415,12 +423,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         this.bodyModel.getUsageModels().stream()
                                 .map(UsageModel::getType)
                                 .collect(Collectors.toList());
-                if (bodyCategories.contains(bodyUsageCategory)) {
+                if (bodyCategories.contains(bodyUsageCategory)&&bodyUsageCategory.hasOptions) {
                     int primaryId = BodyModel.allCategories.indexOf(bodyUsageCategory) + 3;
                     SectionField<BodySettingsWindowController> bodyUsageField =
                             new SectionField<>(
                                     primaryId,
-                                    bodyUsageCategory.getOptionsTitle(),
+                                   ResourceManager.getInstance().getString(bodyUsageCategory.nameStringId),
                                     ResourceManager.getInstance().mainButtonTextureRegion,
                                     this);
                     window.addPrimary(bodyUsageField);
@@ -909,13 +917,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createProjectilesField(
             int primaryId, int secondaryId, RangedProperties rangedProperties) {
-        SecondarySectionField<BodySettingsWindowController> projectileField =
-                new SecondarySectionField<>(
-                        primaryId,
-                        secondaryId,
-                        ResourceManager.getInstance().getString(R.string.projectiles_title),
-                        ResourceManager.getInstance().mainButtonTextureRegion,
-                        this);
+        SecondarySectionField<BodySettingsWindowController> projectileField = new SecondarySectionField<>(
+                primaryId,
+                secondaryId,
+                ResourceManager.getInstance().getString(R.string.projectiles_title),
+                ResourceManager.getInstance().mainButtonTextureRegion,
+                this);
         window.addSecondary(projectileField);
         List<ProjectileModel> projectiles =
                 editorUserInterface.getToolModel().getBodies().stream()
@@ -965,14 +972,13 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createFlameThrowerFireSourceField(
             int primaryId, int secondaryId, FlameThrowerProperties flameThrowerProperties) {
-        SecondarySectionField<BodySettingsWindowController> fireSourcesField =
-                new SecondarySectionField<>(
-                        primaryId,
-                        secondaryId,
-                        ResourceManager.getInstance().getString(R.string.fire_sources_title),
-                        ResourceManager.getInstance().mainButtonTextureRegion,
-                        this);
-        window.addSecondary(fireSourcesField);
+        SecondarySectionField<BodySettingsWindowController> flameThrowerFireSourcesField = new SecondarySectionField<>(
+                primaryId,
+                secondaryId,
+                ResourceManager.getInstance().getString(R.string.fire_sources_title),
+                ResourceManager.getInstance().mainButtonTextureRegion,
+                this);
+        window.addSecondary(flameThrowerFireSourcesField);
         List<FireSourceModel> fireSources =
                 editorUserInterface.getToolModel().getBodies().stream()
                         .map(BodyModel::getFireSourceModels)
@@ -1004,12 +1010,16 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, fireSourceButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        flameThrowerProperties.getFireSources().add(fireSourceModel);
+                        if(!flameThrowerProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
+                            flameThrowerProperties.getFireSourceIds().add(fireSourceModel.getFireSourceId());
+                        }
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        flameThrowerProperties.getFireSources().remove(fireSourceModel);
+                        if (flameThrowerProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
+                            flameThrowerProperties.getFireSourceIds().removeIf(e->e==fireSourceModel.getFireSourceId());
+                        }
                     }
                 });
         if (flameThrowerProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
@@ -1058,12 +1068,16 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, liquidSourceButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        liquidContainerProperties.getLiquidSourceModelList().add(liquidSourceModel);
+                        if(!liquidContainerProperties.getLiquidSourceIds().contains(liquidSourceModel.getLiquidSourceId())) {
+                            liquidContainerProperties.getLiquidSourceIds().add(liquidSourceModel.getLiquidSourceId());
+                        }
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        liquidContainerProperties.getLiquidSourceModelList().remove(liquidSourceModel);
+                        if(liquidContainerProperties.getLiquidSourceIds().contains(liquidSourceModel.getLiquidSourceId())) {
+                            liquidContainerProperties.getLiquidSourceIds().removeIf(e->e==liquidSourceModel.getLiquidSourceId());
+                        }
                     }
                 });
         if (liquidContainerProperties.getLiquidSourceIds().contains(liquidSourceModel.getLiquidSourceId())) {
@@ -1092,12 +1106,16 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, projectileButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        rangedProperties.getProjectileModelList().add(projectileModel);
+                        if(!rangedProperties.getProjectileIds().contains(projectileModel.getProjectileId())) {
+                            rangedProperties.getProjectileIds().add(projectileModel.getProjectileId());
+                        }
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        rangedProperties.getProjectileModelList().remove(projectileModel);
+                        if(rangedProperties.getProjectileIds().contains(projectileModel.getProjectileId())) {
+                            rangedProperties.getProjectileIds().removeIf(e->e == projectileModel.getProjectileId());
+                        }
                     }
                 });
         if (rangedProperties.getProjectileIds().contains(projectileModel.getProjectileId())) {
@@ -1197,7 +1215,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
         }
         onUsageAdded(e);
         updateUsageSettings();
-        updateUsageCategoryFields(e);
+        for (BodyUsageCategory usageCategory :
+                this.bodyModel.getUsageModels().stream()
+                        .map(UsageModel::getType)
+                        .collect(Collectors.toList())) {
+            updateUsageCategoryFields(usageCategory);
+        }
         onLayoutChanged();
     }
 
@@ -1255,13 +1278,13 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
             UsageModel<RocketProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
             RocketProperties properties = usage.getProperties();
-            properties.setFireSourceModelListIds(new ArrayList<>());
+            properties.setFireSourceIds(new ArrayList<>());
         }
         if (e == BodyUsageCategory.MISSILE) {
             UsageModel<MissileProperties> usage = new UsageModel<>("", e);
             bodyModel.getUsageModels().add(usage);
             MissileProperties properties = usage.getProperties();
-            properties.setFireSourceModelListIds(new ArrayList<>());
+            properties.setFireSourceIds(new ArrayList<>());
         }
         if (e == BodyUsageCategory.LIQUID_CONTAINER) {
             UsageModel<LiquidContainerProperties> usage = new UsageModel<>("", e);
@@ -1302,6 +1325,12 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
     public void onCancelSettings() {
         super.onCancelSettings();
         layerWindowController.onResume();
+        int i = 0;
+        bodyModel.getUsageModels().removeIf(e->!bodyCategoriesCopy.contains(e.getType()));
+        bodyModel.setProperties(bodyPropertiesCopy);
+        for(Object properties: propertiesCopyList){
+            bodyModel.getUsageModels().get(i++).setProperties(properties);
+        }
     }
 
     private void createCategoryCheckBox(BodyUsageCategory bodyUsageCategory, boolean pressed) {
@@ -1339,14 +1368,13 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
 
     private void createBombsField(
             int primaryId, int secondaryId, BombUsageProperties bombUsageProperties) {
-        SecondarySectionField<BodySettingsWindowController> projectileField =
-                new SecondarySectionField<>(
-                        primaryId,
-                        secondaryId,
-                        ResourceManager.getInstance().getString(R.string.bombs_title),
-                        ResourceManager.getInstance().mainButtonTextureRegion,
-                        this);
-        window.addSecondary(projectileField);
+        SecondarySectionField<BodySettingsWindowController> bombsField = new SecondarySectionField<>(
+                primaryId,
+                secondaryId,
+                ResourceManager.getInstance().getString(R.string.bombs_title),
+                ResourceManager.getInstance().mainButtonTextureRegion,
+                this);
+        window.addSecondary(bombsField);
         List<BombModel> bombModelList =
                 editorUserInterface.getToolModel().getBodies().stream()
                         .map(BodyModel::getBombModels)
@@ -1376,16 +1404,20 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, bombButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        bombUsageProperties.getBombModelList().add(bombModel);
+                        if(!bombUsageProperties.getBombIds().contains(bombModel.getBombId())) {
+                            bombUsageProperties.getBombIds().add(bombModel.getBombId());
+                        }
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        bombUsageProperties.getBombModelList().remove(bombModel);
+                        if(bombUsageProperties.getBombIds().contains(bombModel.getBombId())) {
+                            bombUsageProperties.getBombIds().removeIf(e->e == bombModel.getBombId());
+                        }
                     }
                 });
-        if (bombUsageProperties.getBombModelList().stream()
-                .anyMatch(b -> bombModel.getBombId() == b.getBombId())) {
+        if (bombUsageProperties.getBombIds().stream()
+                .anyMatch(b -> bombModel.getBombId() == b)) {
             bombButton.updateState(Button.State.PRESSED);
         }
     }
@@ -1430,15 +1462,19 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                 new ButtonBehavior<BodySettingsWindowController>(this, fireSourceButton) {
                     @Override
                     public void informControllerButtonClicked() {
-                        rocketProperties.getFireSourceModelList().add(fireSourceModel);
+                        if(!rocketProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
+                            rocketProperties.getFireSourceIds().add(fireSourceModel.getFireSourceId());
+                        }
                     }
 
                     @Override
                     public void informControllerButtonReleased() {
-                        rocketProperties.getFireSourceModelList().remove(fireSourceModel);
+                        if(rocketProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
+                            rocketProperties.getFireSourceIds().removeIf(e->e==fireSourceModel.getFireSourceId());
+                        }
                     }
                 });
-        if (rocketProperties.getFireSourceModelList().contains(fireSourceModel)) {
+        if (rocketProperties.getFireSourceIds().contains(fireSourceModel.getFireSourceId())) {
             fireSourceButton.updateState(Button.State.PRESSED);
         }
     }

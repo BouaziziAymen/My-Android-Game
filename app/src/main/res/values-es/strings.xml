@@ -154,6 +154,7 @@
     <string name="bearded_axe">Hacha barbuda</string>
     <string name="francisca">Francisca</string>
     <string name="apple">Manzana</string>
+    <string name="pumpkin">Calabaza</string>
     <string name="kiwi">Kiwi</string>
     <string name="lemon">Limón</string>
     <string name="melon">Melón</string>
@@ -315,7 +316,7 @@
     <string name="particle_initial_size">Tamaño inicial :</string>
     <string name="particle_final_size">Tamaño final :</string>
     <string name="seal_title">Sellar</string>
-    <string name="air_drag_settings_title">Configuración de arrastre de aire</string>
+    <string name="air_drag_settings_title">Configuración de arrastre</string>
     <string name="magnitude_title">Magnitud :</string>
     <string name="symmetrical_title">Simétrico</string>
     <string name="add_image_title">Agregar imagen</string>
@@ -326,14 +327,12 @@
     <string name="radius_title">Radio :</string>
     <string name="magnet_title">Imán :</string>
     <string name="direction_title">Dirección :</string>
-    <string name="reference_title">Referencia :</string>
     <string name="move_limits_title">Límites de movimiento :</string>
     <string name="congruent_anchors_title">Anclajes congruentes :</string>
     <string name="name_already_exists_validation_message">El nombre ya existe.</string>
     <string name="item_name_title">Título</string>
     <string name="fixed_ratio_title">Relación fija :</string>
     <string name="piped_color_title">Color tubular :</string>
-    <string name="turn_to_reference_title">Convertir en referencia</string>
     <string name="same_layer_title">Misma capa :</string>
     <string name="width_2f_height_2f">Ancho=%.2f, Altura=%.2f</string>
     <string name="rot_2f">Rot=%.2f</string>

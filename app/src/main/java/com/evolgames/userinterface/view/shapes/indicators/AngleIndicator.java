@@ -39,12 +39,15 @@ public abstract class AngleIndicator extends TurnAroundIndicator {
     public void updateEnd(float x, float y) {
         super.updateEnd(x, y);
         updateLimit(end.x, end.y);
+        if(begin.dst(x,y)>5f){
+            validated = true;
+        }
     }
 
     public void updateDirection(Vector2 direction) {
         this.direction = direction;
-        end = begin.cpy().add(direction.x * length, direction.y * length);
-        updateEnd(end.x, end.y);
+        this.end = begin.cpy().add(direction.x * length, direction.y * length);
+        super.updateEnd(end.x, end.y);
     }
 
     public void turnAround(float dA) {

@@ -40,7 +40,7 @@ public class PhysicsConstants {
     }
 
     public static float getTenacityFromRatio(float ratio) {
-        return ratio * 10f;
+        return 0.1f+ratio * 10f;
     }
 
     public static float getRotationSpeedFromRatio(float ratio) {
@@ -48,7 +48,7 @@ public class PhysicsConstants {
     }
 
     public static float getTenacityRatio(float tenacity) {
-        return (tenacity) / (10f);
+        return (tenacity-0.1f) / (10f);
     }
 
     public static float getParticleVelocity(float speedRatio) {

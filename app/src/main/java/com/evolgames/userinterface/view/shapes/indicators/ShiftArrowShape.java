@@ -39,8 +39,11 @@ public class ShiftArrowShape extends LineShape {
                     }
 
                     @Override
-                    protected List<Vector2> transformReferencePoints() {
-                        return transform(originalReferencePoints);
+                    protected Vector2 transformCenter() {
+                        Vector2 displacement = Vector2Pool.obtain(end).sub(begin);
+                        float ix = center.x + displacement.x;
+                        float iy = center.y + displacement.y;
+                       return new Vector2(ix,iy);
                     }
                 };
     }

@@ -225,6 +225,7 @@ public class RocketLauncher extends Use {
         JointModel jointModel = new JointModel(rocketModel.getJointCounter().getAndIncrement(), JointDef.JointType.WeldJoint);
 
         GameGroup rocketGroup = physicsScene.createTool(rocketModel, muzzleEntity.isMirrored());
+        muzzleEntity.setZIndex(1);
         rocketGroup.getEntities().forEach(entity -> {
             physicsScene.getWorldFacade().addNonCollidingPair(entity, muzzleEntity);
             entity.setZIndex(muzzleEntity.getZIndex() - 1);
@@ -249,7 +250,7 @@ public class RocketLauncher extends Use {
         this.rockets.put(projectileInfo, rocket);
 
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
-        physicsScene.sortChildren();
+
 
         if (rocketEntity.hasUsage(Bomb.class)) {
             Bomb bomb = rocketEntity.getUsage(Bomb.class);

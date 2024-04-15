@@ -31,6 +31,7 @@ public class BodyCreationCommand extends Command {
         entity.setBody(body);
         entity.setVisible(true);
         Invoker.scene.attachChild(entity.getMesh());
+        Invoker.scene.sortChildren();
         body.setLinearDamping(DEFAULT_DAMPING);
         body.setAngularDamping(DEFAULT_DAMPING);
         bodyInit.initialize(body);

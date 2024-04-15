@@ -74,6 +74,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     private TitledQuantity<LayerSettingsWindowController> juiceUpperRateQuantity;
     private TitledQuantity<LayerSettingsWindowController> juiceFlammabilityQuantity;
     private Quantity<LayerSettingsWindowController> heatResistanceQuantity;
+    private ColoredProperties copy;
 
     public void setColorSelectorController(ColorSelectorWindowController colorSelectorController) {
         this.colorSelectorController = colorSelectorController;
@@ -100,6 +101,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
         super.onModelUpdated(model);
 
         this.layerProperty = model.getProperties();
+        this.copy = layerProperty.clone();
 
         for (int i = 0; i < window.getLayout().getPrimariesSize(); i++) {
             SimplePrimary<?> element = window.getLayout().getPrimaryByIndex(i);
@@ -190,7 +192,7 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
 
                     @Override
                     public void informControllerButtonReleased() {
-                        ColoredProperties props = ((ColoredProperties) model.getProperties());
+                        ColoredProperties props = model.getProperties();
                         if (colorSelectorController != null) {
                             colorSelectorController.bindProperties(
                                     props);
@@ -1073,6 +1075,8 @@ public class LayerSettingsWindowController extends SettingsWindowController<Laye
     @Override
     public void onCancelSettings() {
         super.onCancelSettings();
+        model.setProperties(copy);
+        editorUserInterface.getToolModel().updateMesh();
         layerWindowController.onResume();
     }
 

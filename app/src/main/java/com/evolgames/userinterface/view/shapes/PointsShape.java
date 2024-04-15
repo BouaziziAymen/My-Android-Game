@@ -14,18 +14,21 @@ import java.util.ArrayList;
 
 public class PointsShape extends OutlineShape<PointsModel<?>> {
     private final ArrayList<ModelPointImage> pointImages;
-    private final ArrayList<ReferencePointImage> referencePointImages;
+    private ReferencePointImage referencePointImage;
     private boolean pointsVisible;
     private boolean outlineVisible;
 
     public PointsShape(EditorUserInterface editorUserInterface) {
         super(editorUserInterface);
         pointImages = new ArrayList<>();
-        referencePointImages = new ArrayList<>();
+        referencePointImage = null;
         setDepth(-10);
         updateZoom(editorUserInterface.getZoomFactor());
     }
 
+    public ReferencePointImage getReferencePointImage() {
+      return referencePointImage;
+    }
     public ModelPointImage getPointImage(Vector2 p) {
         for (ModelPointImage pointImage : pointImages) {
             if (pointImage.getPoint() == p) {
@@ -37,7 +40,7 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
 
 
     public ArrayList<PointImage> getMovablePointImages() {
-        return new ArrayList<>(pointImages);
+            return new ArrayList<>(pointImages);
     }
 
     @Override
@@ -46,11 +49,11 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
         updateOutlineShape();
     }
 
-    public void detachReferencePointImages() {
-        for (ReferencePointImage pointImage : referencePointImages) {
-            editorUserInterface.detachReference(pointImage);
+    public void detachReferencePointImage() {
+        if (referencePointImage!=null) {
+            editorUserInterface.detachReference(referencePointImage);
         }
-        referencePointImages.clear();
+     referencePointImage = null;
     }
 
     public void detachPointImages() {
@@ -102,19 +105,17 @@ public class PointsShape extends OutlineShape<PointsModel<?>> {
     }
 
     public void createReferencePointImage(Vector2 center) {
-        if (referencePointImages.stream().map(PointImage::getPoint).anyMatch(e -> e == center)) {
-            return;
-        }
-        ReferencePointImage centerPointImage = new ReferencePointImage(center);
-        referencePointImages.add(centerPointImage);
-        centerPointImage.setScale(scaleX, scaleY);
-        editorUserInterface.addReferencePoint(centerPointImage);
-        centerPointImage.updateZoom(editorUserInterface.getZoomFactor());
+        referencePointImage = new ReferencePointImage(center);
+        referencePointImage.setScale(scaleX, scaleY);
+        editorUserInterface.addReferencePoint(referencePointImage);
+        referencePointImage.updateZoom(editorUserInterface.getZoomFactor());
     }
 
     @Override
     public void dispose() {
-        referencePointImages.forEach(p -> editorUserInterface.detachReference(p));
+     if(referencePointImage!=null){
+         editorUserInterface.detachReference(referencePointImage);
+     }
 
         if (lineLoop != null) {
             lineLoop.detachSelf();

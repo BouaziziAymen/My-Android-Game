@@ -466,7 +466,7 @@ public class ItemWindowController
 
     public void onProjectileAborted(ProjectileModel projectileModel) {
         if (selectedSecondaryField != null
-                && projectileModel.getProjectileId() == selectedSecondaryField.getSecondaryKey()) {
+                && projectileModel.getProjectileId() == selectedSecondaryField.getModelId()) {
             window
                     .getLayout()
                     .removeSecondary(
@@ -476,6 +476,55 @@ public class ItemWindowController
             editorUserInterface
                     .getToolModel()
                     .removeProjectile(projectileModel.getBodyId(), projectileModel.getProjectileId());
+            editorUserInterface.getToolModel().getProjectileCounter().decrementAndGet();
+            updateLayout();
+            selectedSecondaryField = null;
+        }
+    }
+
+
+    public void onLiquidSourceAborted(LiquidSourceModel liquidSourceModel) {
+        if (selectedSecondaryField != null
+                && liquidSourceModel.getLiquidSourceId() == selectedSecondaryField.getModelId()) {
+            window
+                    .getLayout()
+                    .removeSecondary(
+                            selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+            detachLiquidSourceShape(liquidSourceModel);
+            liquidSourceOptionController.onModelUpdated(null);
+            editorUserInterface.getToolModel().removeLiquidSource(liquidSourceModel.getBodyId(), liquidSourceModel.getLiquidSourceId());
+            editorUserInterface.getToolModel().getLiquidSourceCounter().decrementAndGet();
+            updateLayout();
+            selectedSecondaryField = null;
+        }
+    }
+    public void onDragAborted(DragModel dragModel) {
+        if (selectedSecondaryField != null
+                && dragModel.getDragId() == selectedSecondaryField.getModelId()) {
+            window
+                    .getLayout()
+                    .removeSecondary(
+                            selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+            detachDragShape(dragModel);
+            dragOptionController.onModelUpdated(null);
+            editorUserInterface.getToolModel().removeDrag(dragModel.getBodyId(), dragModel.getDragId());
+            editorUserInterface.getToolModel().getDragCounter().decrementAndGet();
+            updateLayout();
+            selectedSecondaryField = null;
+        }
+    }
+
+    public void onFireSourceAborted(FireSourceModel fireSourceModel) {
+        if (selectedSecondaryField != null
+                && fireSourceModel.getFireSourceId() == selectedSecondaryField.getModelId()) {
+            window
+                    .getLayout()
+                    .removeSecondary(
+                            selectedSecondaryField.getPrimaryKey(), selectedSecondaryField.getSecondaryKey());
+            detachFireSourceShape(fireSourceModel);
+            fireSourceOptionController.onModelUpdated(null);
+            editorUserInterface.getToolModel().removeFireSource(fireSourceModel.getBodyId(), fireSourceModel.getFireSourceId());
+            editorUserInterface.getToolModel().getFireSourceCounter().decrementAndGet();
             updateLayout();
             selectedSecondaryField = null;
         }
@@ -483,7 +532,7 @@ public class ItemWindowController
 
     public void onAmmoAborted(CasingModel ammoModel) {
         if (selectedSecondaryField != null
-                && ammoModel.getCasingId() == selectedSecondaryField.getSecondaryKey()) {
+                && ammoModel.getCasingId() == selectedSecondaryField.getModelId()) {
             window
                     .getLayout()
                     .removeSecondary(
@@ -491,6 +540,7 @@ public class ItemWindowController
             detachAmmoModelShape(ammoModel);
             projectileOptionController.onModelUpdated(null);
             editorUserInterface.getToolModel().removeAmmo(ammoModel.getBodyId(), ammoModel.getCasingId());
+            editorUserInterface.getToolModel().getAmmoCounter().decrementAndGet();
             updateLayout();
             selectedSecondaryField = null;
         }

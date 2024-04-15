@@ -43,4 +43,13 @@ public class RangedProperties extends Properties {
     public void setReloadTime(float reloadTime) {
         this.reloadTime = reloadTime;
     }
+
+    @Override
+    public Object clone() {
+        RangedProperties cloned = (RangedProperties) super.clone();
+        // Deep copy of the list
+        cloned.projectileIds = new ArrayList<>(this.projectileIds);
+        return cloned;
+    }
+
 }

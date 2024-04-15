@@ -44,6 +44,7 @@ import com.evolgames.userinterface.view.shapes.indicators.jointindicators.Revolu
 import com.evolgames.userinterface.view.shapes.indicators.jointindicators.WeldJointShape;
 import com.evolgames.userinterface.view.shapes.points.ModelPointImage;
 import com.evolgames.userinterface.view.shapes.points.PointImage;
+import com.evolgames.userinterface.view.shapes.points.ReferencePointImage;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.DecorationField;
 import com.evolgames.userinterface.view.windows.windowfields.layerwindow.LayerField;
 
@@ -198,7 +199,15 @@ public class CreationZoneController extends Controller {
         if (layerWindowController.getSelectedPointsModel() != null) {
             float distance = 32 / editorUserInterface.getZoomFactor();
             Vector2 point = null;
-            for (Vector2 p : layerWindowController.getSelectedPointsModel().getPoints()) {
+            List<Vector2> points;
+            if (isReferenceEnabled()) {
+                List<Vector2> vector2s = new ArrayList<>();
+                vector2s.add(layerWindowController.getSelectedPointsModel().getCenter());
+                points = vector2s;
+            } else {
+                points = layerWindowController.getSelectedPointsModel().getPoints();
+            }
+            for (Vector2 p : points) {
                 float d = p.dst(x, y);
                 if (d < distance) {
                     point = p;
@@ -207,10 +216,15 @@ public class CreationZoneController extends Controller {
             }
 
             if (point != null) {
-                layerWindowController.getSelectedPointsModel().remove(point);
-                ModelPointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
-                layerWindowController.getSelectedPointsModel().getPointsShape().removeElement(p);
-                layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
+                layerWindowController.getSelectedPointsModel().remove(point,isReferenceEnabled());
+                if(isReferenceEnabled()){
+                    ReferencePointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getReferencePointImage();
+                    editorUserInterface.removeReferencePoint(p);
+                } else {
+                    ModelPointImage p = layerWindowController.getSelectedPointsModel().getPointsShape().getPointImage(point);
+                    layerWindowController.getSelectedPointsModel().getPointsShape().removeElement(p);
+                    layerWindowController.getSelectedPointsModel().getPointsShape().onModelUpdated();
+                }
             }
         }
     }
@@ -218,10 +232,19 @@ public class CreationZoneController extends Controller {
     private void processAbortedIndicators() {
         if (indicatorArrow != null && indicatorArrow.isAborted()) {
             editorScene.setHudLocked(false);
-            if (action == CreationAction.PROJECTILE) {
+            if (indicatorArrow instanceof ProjectileShape) {
                 itemWindowController.onProjectileAborted(((ProjectileShape) indicatorArrow).getModel());
-            } else if (action == CreationAction.AMMO) {
+            } else if (indicatorArrow instanceof CasingShape) {
                 itemWindowController.onAmmoAborted(((CasingShape) indicatorArrow).getModel());
+            }
+            else if (indicatorArrow instanceof FireSourceShape) {
+                itemWindowController.onFireSourceAborted(((FireSourceShape) indicatorArrow).getModel());
+            }
+            else if (indicatorArrow instanceof LiquidSourceShape) {
+                itemWindowController.onLiquidSourceAborted(((LiquidSourceShape) indicatorArrow).getModel());
+            }
+            else if (indicatorArrow instanceof DragShape) {
+                itemWindowController.onDragAborted(((DragShape) indicatorArrow).getModel());
             }
         }
     }
@@ -490,9 +513,8 @@ public class CreationZoneController extends Controller {
                 return;
             }
             Vector2 center = new Vector2(x, y);
-
             indicatorArrow = (fixedRadiusForPolygon) ? new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon, radiusForPolygon) : new PolygonArrowShape(center, layerWindowController.getSelectedPointsModel(), editorScene, numberOfPointsForPolygon);
-            selectedPointsModel.getReferencePoints().add(center);
+
             editorScene.setHudLocked(true);
             return;
         }
@@ -520,7 +542,9 @@ public class CreationZoneController extends Controller {
             }
 
             shapePointsModel.setPoints(selectedLayerPointsModel.getPoints().stream().map(Vector2::new).collect(Collectors.toList()));
-            shapePointsModel.setReferencePoints(selectedLayerPointsModel.getReferencePoints().stream().map(Vector2::new).collect(Collectors.toList()));
+            if(selectedLayerPointsModel.getCenter()!=null) {
+                shapePointsModel.setCenter(new Vector2(selectedLayerPointsModel.getCenter()));
+            }
             indicatorArrow = new MirrorArrowShape(new Vector2(x, y), shapePointsModel, editorScene, isSameShape(), isInvertShape());
             editorScene.setHudLocked(true);
         }

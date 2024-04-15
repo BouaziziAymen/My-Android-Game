@@ -658,7 +658,7 @@ public class ResourceManager {
                             this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
-        this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜ\n";
+        this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜîÎ";
         fontLoader.loadFont(
                 0,
                 Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD),
@@ -946,7 +946,7 @@ public class ResourceManager {
         itemsTranslationMap.put("Molotov Bomb#", R.string.molotov_bomb);
         itemsTranslationMap.put("Heavy Machine Gun#", R.string.heavy_machine_gun);
         itemsTranslationMap.put("Howitzer#", R.string.howitzer);
-        itemsTranslationMap.put("Mini Main Battle Tank#", R.string.mini_main_battle_tank);
+        itemsTranslationMap.put("Mini Tank#", R.string.mini_main_battle_tank);
         itemsTranslationMap.put("Baseball Bat#", R.string.baseball_bat);
         itemsTranslationMap.put("Cudgel#", R.string.cudgel);
         itemsTranslationMap.put("Flanged Mace 2#", R.string.flanged_mace_2);
@@ -989,6 +989,7 @@ public class ResourceManager {
         itemsTranslationMap.put("Apple", R.string.apple);
         itemsTranslationMap.put("Kiwi", R.string.kiwi);
         itemsTranslationMap.put("Lemon", R.string.lemon);
+        itemsTranslationMap.put("Pumpkin", R.string.pumpkin);
         itemsTranslationMap.put("Melon", R.string.melon);
         itemsTranslationMap.put("Orange", R.string.orange);
         itemsTranslationMap.put("Pear", R.string.pear);

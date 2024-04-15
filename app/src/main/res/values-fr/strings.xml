@@ -156,6 +156,7 @@
     <string name="bearded_axe">Hache barbue</string>
     <string name="francisca">Francisque</string>
     <string name="apple">Pomme</string>
+    <string name="pumpkin">Citrouille</string>
     <string name="kiwi">Kiwi</string>
     <string name="lemon">Citron</string>
     <string name="melon">Melon</string>
@@ -244,7 +245,7 @@
     <string name="brakes_title">Freins :</string>
     <string name="body_name_title">Nom du corps :</string>
     <string name="usage_title">Utilisation</string>
-    <string name="rounds_title">Ronds</string>
+    <string name="rounds_title">Ronds :</string>
     <string name="fire_rate_title">Cadence de tir :</string>
     <string name="speed_forward">+ Vitesse :</string>
     <string name="speed_backward">- Vitesse :</string>
@@ -319,7 +320,7 @@
     <string name="particle_initial_size">Taille initiale :</string>
     <string name="particle_final_size">Taille finale :</string>
     <string name="seal_title">Sceller</string>
-    <string name="air_drag_settings_title">Paramètres de traînée d\'air</string>
+    <string name="air_drag_settings_title">Paramètres de traînée</string>
     <string name="magnitude_title">Magnitude :</string>
     <string name="symmetrical_title">Symétrique</string>
     <string name="add_image_title">Ajouter une image</string>
@@ -330,7 +331,6 @@
     <string name="radius_title">Rayon :</string>
     <string name="magnet_title">Aimant :</string>
     <string name="direction_title">Direction :</string>
-    <string name="reference_title">Référence :</string>
     <string name="move_limits_title">Limites de déplacement :</string>
     <string name="congruent_anchors_title">Ancres congruentes :</string>
     <string name="name_already_exists_validation_message">Le nom existe déjà.</string>
@@ -354,7 +354,6 @@
     <string name="decoration_name_title">Nom de la décoration :</string>
     <string name="fixed_ratio_title">Ratio fixe :</string>
     <string name="piped_color_title">Couleur canalisée :</string>
-    <string name="turn_to_reference_title">Transformer en référence</string>
     <string name="same_layer_title">Même couche :</string>
     <string name="width_2f_height_2f">Largeur=%.2f, Hauteur=%.2f</string>
     <string name="rot_2f">Rot=%.2f</string>

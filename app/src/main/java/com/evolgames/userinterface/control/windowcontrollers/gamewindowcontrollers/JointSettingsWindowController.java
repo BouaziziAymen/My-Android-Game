@@ -181,8 +181,6 @@ public class JointSettingsWindowController
         window.addPrimary(bodyBSection);
         if (toolModel != null) {
             ArrayList<BodyModel> bodies = new ArrayList<>(toolModel.getBodies());
-            bodies.add(0, editorScene.getGroundModel());
-
             for (int i = 0; i < bodies.size(); i++) {
                 BodyModel bodyModel = bodies.get(i);
                 ButtonWithText<JointSettingsWindowController> bodyButton =
@@ -230,7 +228,7 @@ public class JointSettingsWindowController
 
                             @Override
                             public void informControllerButtonReleased() {
-                                onSecondBodyButtonReleased(bodyModel, bodyField);
+                                onSecondBodyButtonReleased(bodyField);
                             }
                         });
             }
@@ -247,7 +245,6 @@ public class JointSettingsWindowController
     }
 
     private void onSecondBodyButtonReleased(
-            BodyModel bodyModel,
             SimpleSecondary<ButtonWithText<JointSettingsWindowController>> bodyField) {
         bodyField.getMain().release();
         this.jointModel.setBodyModel2(null);

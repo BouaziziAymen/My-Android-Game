@@ -216,6 +216,8 @@ public class PrismaticJointShape extends JointShape {
         this.updateEnd(end.x, end.y);
         if (model.getProperties().isEnableLimit()) {
             this.showLimitsElements();
+        } else {
+            this.hideLimitsElements();
         }
         this.updateLowerLimit(model.getProperties().getLowerTranslation() * 32f);
         this.updateUpperLimit(model.getProperties().getUpperTranslation() * 32f);

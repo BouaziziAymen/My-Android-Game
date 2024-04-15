@@ -162,7 +162,7 @@ public class ColorSelectorWindowController
     public void bindProperties(ColoredProperties coloredProperties) {
         this.editorUserInterface.shade(window);
         this.coloredProperties = coloredProperties;
-        copy = (ColoredProperties) coloredProperties.clone();
+        copy = coloredProperties.clone();
         window.getSelector().getMesh().setColor(coloredProperties.getDefaultColor());
         if (coloredProperties.getColorSquareId() != -1) {
             Button<?> slot = window.getPanel().getColorSlotById(coloredProperties.getColorSquareId());

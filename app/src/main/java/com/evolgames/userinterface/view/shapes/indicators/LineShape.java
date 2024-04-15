@@ -20,7 +20,6 @@ public class LineShape {
     protected float mRed = 1, mGreen = 1, mBlue = 1;
     protected boolean visible = true;
     private boolean congruentEndpoints = false;
-    private boolean indicatorsVisible;
 
     public LineShape(Vector2 begin, EditorScene scene) {
         creationScene = scene;
@@ -87,7 +86,6 @@ public class LineShape {
     }
 
     protected void onExtremityUpdated() {
-        validated = true;
         direction = Vector2Pool.obtain(end).sub(begin).nor();
         drawLine();
     }
@@ -99,6 +97,13 @@ public class LineShape {
     }
 
     public void updateEnd(float x, float y) {
+        if(begin.dst(end)>5f) {
+            validated = true;
+        }
+        setEnd(x, y);
+    }
+
+    protected void setEnd(float x, float y) {
         end.set(x, y);
         this.onExtremityUpdated();
     }

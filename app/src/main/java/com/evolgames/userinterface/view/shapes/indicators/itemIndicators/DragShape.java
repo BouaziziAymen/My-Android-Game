@@ -200,12 +200,12 @@ public class DragShape extends AngleIndicator implements MovablesContainer {
 
     public void bindModel(DragModel model) {
         this.model = model;
+        model.setDragShape(this);
         Vector2 begin = model.getProperties().getDragOrigin();
         updateBegin(begin.x, begin.y);
         updateDirection(model.getProperties().getDragNormal());
         this.extent1 = model.getProperties().getExtent1();
         this.extent2 = model.getProperties().getExtent2();
-        model.setDragShape(this);
         updateExtent();
         this.drawSelf();
     }

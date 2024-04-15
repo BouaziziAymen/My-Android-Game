@@ -36,16 +36,19 @@ public class RotateArrowShape extends FixedLengthArrowShape {
                         ArrayList<Vector2> newPoints = new ArrayList<>();
                         float angle = (float) Math.atan2(direction.y, direction.x);
                         for (Vector2 p : points) {
-                            Vector2 pp = p.cpy();
-                            GeometryUtils.rotate(pp, angle, rotationCenter);
-                            newPoints.add(pp);
+                            Vector2 pCopy = p.cpy();
+                            GeometryUtils.rotate(pCopy, angle, rotationCenter);
+                            newPoints.add(pCopy);
                         }
                         return newPoints;
                     }
 
                     @Override
-                    protected List<Vector2> transformReferencePoints() {
-                        return transform(originalReferencePoints);
+                    protected Vector2 transformCenter() {
+                        float angle = (float) Math.atan2(direction.y, direction.x);
+                        Vector2 pCopy = center.cpy();
+                          GeometryUtils.rotate(pCopy,angle, rotationCenter);
+                          return pCopy;
                     }
                 };
     }

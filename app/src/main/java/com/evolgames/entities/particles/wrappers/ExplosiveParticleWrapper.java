@@ -12,9 +12,9 @@ import org.andengine.entity.sprite.UncoloredSprite;
 
 public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
 
-    private static final float RATE_MIN = 30 * 4;
-    private static final float RATE_MAX = 40 * 4;
-    private static final int PARTICLES_MAX = 200 * 4;
+    private static final float RATE_MIN = 60;
+    private static final float RATE_MAX = 70;
+    private static final int PARTICLES_MAX = 300;
     private static final float RATE_MIN_SMOKE = 5;
     private static final float RATE_MAX_SMOKE = 10;
     private static final int PARTICLES_MAX_SMOKE = 50;

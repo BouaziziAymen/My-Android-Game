@@ -34,4 +34,12 @@ public class LiquidContainerProperties extends Properties {
     public void setLiquidSourceIds(List<Integer> liquidSourceIds) {
         this.liquidSourceIds = liquidSourceIds;
     }
+
+    @Override
+    public Object clone() {
+        LiquidContainerProperties cloned = (LiquidContainerProperties) super.clone();
+        // Deep copy of the list
+        cloned.liquidSourceIds = new ArrayList<>(this.liquidSourceIds);
+        return cloned;
+    }
 }

@@ -59,10 +59,14 @@ public class ToolUtils {
         Vector2 center = GeometryUtils.calculateCenter(list);
         for (LayerModel layerModel : bodyModel.getLayers()) {
             scalePoints(center, layerModel.getPoints(), scale);
-            scalePoints(center, layerModel.getReferencePoints(), scale);
+            if(layerModel.getCenter()!=null) {
+                scalePoint(center, layerModel.getCenter(), scale);
+            }
             for (DecorationModel decorationModel : layerModel.getDecorations()) {
                 scalePoints(center, decorationModel.getPoints(), scale);
-                scalePoints(center, decorationModel.getReferencePoints(), scale);
+                if(decorationModel.getCenter()!=null) {
+                    scalePoint(center, decorationModel.getCenter(), scale);
+                }
             }
         }
     }

@@ -18,11 +18,13 @@ import com.evolgames.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.userinterface.view.windows.windowfields.SectionField;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LiquidSourceOptionController extends SettingsWindowController<LiquidSourceProperties> {
 
     private ItemWindowController itemWindowController;
     private LiquidSourceProperties liquidSourceProperties;
+    private LiquidSourceProperties copy;
 
     public void setItemWindowController(ItemWindowController itemWindowController) {
         this.itemWindowController = itemWindowController;
@@ -110,7 +112,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
     }
 
     public void createLiquidButtons() {
-        ArrayList<Liquid> liquids = Materials.liquids;
+        List<Liquid> liquids = Materials.liquids;
         for (int i = 0; i < liquids.size(); i++) {
             ButtonWithText<LiquidSourceOptionController> liquidButton =
                     new ButtonWithText<>(
@@ -120,7 +122,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
                             Button.ButtonType.Selector,
                             true);
 
-            SimpleSecondary<ButtonWithText<?>> liquidField = new SimpleSecondary<>(1, i, liquidButton);
+            SimpleSecondary<ButtonWithText<?>> liquidField = new SimpleSecondary<>(1, liquids.get(i).getLiquidId(), liquidButton);
             window.addSecondary(liquidField);
             liquidButton.setBehavior(
                     new ButtonBehavior<LiquidSourceOptionController>(this, liquidButton) {
@@ -131,9 +133,14 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
 
                         @Override
                         public void informControllerButtonReleased() {
+                            LiquidSourceOptionController.this.onLiquidButtonReleased(liquidField);
                         }
                     });
         }
+    }
+
+    private void onLiquidButtonReleased(SimpleSecondary<ButtonWithText<?>> liquidField) {
+
     }
 
     private void setLiquidNumber(int index) {
@@ -159,8 +166,8 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
 
         for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
             SimpleSecondary<?> element = window.getLayout().getSecondaryByIndex(primaryKey, i);
-            if (element.getSecondaryKey() != secondaryKey) {
                 Element main = element.getMain();
+            if (element.getSecondaryKey() != secondaryKey) {
                 if (main instanceof ButtonWithText) {
                     ((ButtonWithText<?>) main).updateState(Button.State.NORMAL);
                 }
@@ -178,6 +185,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
             return;
         }
         this.liquidSourceProperties = model.getProperties();
+        this.copy = (LiquidSourceProperties) this.liquidSourceProperties.clone();
         this.setLiquidNumber(model.getProperties().getLiquid());
         resetLayout();
         createSealBodiesButtons();
@@ -200,6 +208,7 @@ public class LiquidSourceOptionController extends SettingsWindowController<Liqui
     @Override
     public void onCancelSettings() {
         super.onCancelSettings();
+        this.model.setProperties(copy);
         itemWindowController.onResume();
     }
 

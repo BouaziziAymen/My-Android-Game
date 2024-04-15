@@ -50,7 +50,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     private final SurfaceScrollDetector mScrollDetector;
     private final PinchZoomDetector mPinchZoomDetector;
     private float mPinchZoomStartedCameraZoomFactor;
-    private BodyModel groundModel;
     private boolean hudLocked;
 
     public EditorScene(Camera camera) {
@@ -61,10 +60,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         this.mPinchZoomDetector = new PinchZoomDetector(this);
     }
 
-    public BodyModel getGroundModel() {
-        return groundModel;
-    }
-
     @Override
     public void populate() {
 
@@ -72,8 +67,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     }
 
     private void init() {
-        this.groundModel = new BodyModel(-1);
-        this.groundModel.setModelName("Ground");
 
         Entity background = new Entity();
         this.setBackground(new EntityBackground(0.3f, 0.3f, 0.3f, background));

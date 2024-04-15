@@ -63,6 +63,7 @@ public class OptionsWindowController
                 closeWindow();
                 break;
             case PROJECTILE_SETTINGS:
+            case MOVE_POINT_SETTINGS:
                 break;
             case MOVE_TOOL_POINT_SETTING:
             case MOVE_JOINT_POINT_SETTINGS:
@@ -83,7 +84,6 @@ public class OptionsWindowController
                 break;
             case REMOVE_POINT_SETTINGS:
                 openWindow();
-                window.addPrimary(createReferenceOption(0));
                 break;
             case PIPE_SETTINGS:
                 openWindow();
@@ -116,33 +116,6 @@ public class OptionsWindowController
             case INSERT_POINT_SETTINGS:
                 openWindow();
                 window.addPrimary(createMagnetBoard(0));
-                window.addPrimary(createReferenceOption(1));
-
-                break;
-            case MOVE_POINT_SETTINGS:
-                openWindow();
-                window.addPrimary(createReferenceOption(0));
-                ButtonWithText<OptionsWindowController> createReferenceButton =
-                        new ButtonWithText<>(
-                                ResourceManager.getInstance().getString(R.string.turn_to_reference_title),
-                                2,
-                                ResourceManager.getInstance().simpleButtonTextureRegion,
-                                Button.ButtonType.OneClick,
-                                true);
-                createReferenceButton.setBehavior(
-                        new ButtonBehavior<OptionsWindowController>(this, createReferenceButton) {
-                            @Override
-                            public void informControllerButtonClicked() {
-                            }
-
-                            @Override
-                            public void informControllerButtonReleased() {
-                                creationZoneController.createReferencePoint();
-                            }
-                        });
-                SimplePrimary<ButtonWithText<OptionsWindowController>> referenceElement =
-                        new SimplePrimary<>(1, createReferenceButton);
-                window.addPrimary(referenceElement);
                 break;
             case ROTATE_SETTINGS:
                 openWindow();
@@ -454,42 +427,6 @@ public class OptionsWindowController
         TitledField<ButtonBoard> directionField = new TitledField<>(ResourceManager.getInstance().getString(R.string.direction_title), magnetBoard, 8);
 
         return new SimplePrimary<>(primaryId, directionField);
-    }
-
-    private SimplePrimary<TitledButton<?>> createReferenceOption(int primaryKey) {
-        TitledButton<OptionsWindowController> referenceButton =
-                new TitledButton<>(
-                        ResourceManager.getInstance().getString(R.string.reference_title),
-                        ResourceManager.getInstance().onOffTextureRegion,
-                        Button.ButtonType.Selector,
-                        5f);
-        SimplePrimary<TitledButton<?>> referenceField =
-                new SimplePrimary<>(primaryKey, referenceButton);
-        referenceButton
-                .getAttachment()
-                .setBehavior(
-                        new ButtonBehavior<OptionsWindowController>(this, referenceButton.getAttachment()) {
-                            @Override
-                            public void informControllerButtonClicked() {
-                                creationZoneController.setReference(true);
-                                onPrimaryButtonClicked(referenceField);
-                            }
-
-                            @Override
-                            public void informControllerButtonReleased() {
-                                creationZoneController.setReference(false);
-                                onPrimaryButtonReleased(referenceField);
-                            }
-                        });
-
-        if (creationZoneController.isReferenceEnabled()) {
-            referenceButton.getAttachment().updateState(Button.State.PRESSED);
-            if (referenceField.getSection() != null) onPrimaryButtonClicked(referenceField);
-        } else {
-            referenceButton.getAttachment().updateState(Button.State.NORMAL);
-            if (referenceField.getSection() != null) onPrimaryButtonReleased(referenceField);
-        }
-        return referenceField;
     }
 
     private SimplePrimary<TitledButton<?>> createOnOffField(int primaryKey, String title, BooleanProcessor processor, BooleanSupplier tester) {

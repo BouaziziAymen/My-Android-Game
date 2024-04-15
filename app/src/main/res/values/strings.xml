@@ -153,6 +153,7 @@
         <string name="bearded_axe">Bearded Axe</string>
         <string name="francisca">Francisca</string>
         <string name="apple">Apple</string>
+        <string name="pumpkin">Pumpkin</string>
         <string name="kiwi">Kiwi</string>
         <string name="lemon">Lemon</string>
         <string name="melon">Melon</string>
@@ -326,13 +327,10 @@
     <string name="radius_title">Radius:</string>
     <string name="magnet_title">Magnet:</string>
     <string name="direction_title">Direction:</string>
-    <string name="reference_title">Reference:</string>
     <string name="move_limits_title">Move Limits:</string>
     <string name="congruent_anchors_title">Congruent Anchors:</string>
-
     <string name="fixed_ratio_title">Fixed Ratio:</string>
     <string name="piped_color_title">Piped Color:</string>
-    <string name="turn_to_reference_title">Turn To Reference</string>
     <string name="same_layer_title">Same Layer:</string>
     <string name="width_2f_height_2f">Width=%.2f, Height=%.2f</string>
     <string name="rot_2f">Rot=%.2f</string>

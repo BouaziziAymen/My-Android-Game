@@ -64,7 +64,7 @@ public class Material {
         this.JuicinessLowerPressure = jlp;
         this.JuicinessUpperPressure = jup;
         this.JuicinessDensity = jd;
-        this.juiceColor = Materials.getLiquidByIndex(juiceIndex).getDefaultColor();
+        this.juiceColor = new Color(Materials.getLiquidByIndex(juiceIndex).getDefaultColor());
         this.juiceFlammability = Materials.getLiquidByIndex(juiceIndex).getFlammability();
         this.combustible = combustible;
         this.ignitionTemperature = ignitionTemperature;

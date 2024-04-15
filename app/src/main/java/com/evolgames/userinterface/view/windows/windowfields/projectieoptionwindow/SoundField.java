@@ -36,7 +36,7 @@ public class SoundField extends SimpleSecondary<ButtonWithText<ProjectileOptionC
 
                     @Override
                     public void informControllerButtonReleased() {
-                        controller.onSecondaryButtonClicked(SoundField.this);
+                        controller.onSecondaryButtonReleased(SoundField.this);
                     }
                 });
     }

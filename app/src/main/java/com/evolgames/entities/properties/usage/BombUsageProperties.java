@@ -46,4 +46,12 @@ public class BombUsageProperties extends Properties {
     public void setSafetyJoint(int safetyJoint) {
         this.safetyJoint = safetyJoint;
     }
+
+    @Override
+    public Object clone() {
+        BombUsageProperties cloned = (BombUsageProperties) super.clone();
+        // Deep copy of the list
+        cloned.bombIds = new ArrayList<>(this.bombIds);
+        return cloned;
+    }
 }

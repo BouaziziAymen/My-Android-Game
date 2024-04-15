@@ -38,6 +38,7 @@ import com.evolgames.utilities.GeometryUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -73,7 +74,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         projectileModels = new ArrayList<>();
         casingModels = new ArrayList<>();
         properties = new BodyProperties();
-        usageModels = new ArrayList<>();
+        usageModels = new LinkedList<>();
         bombModels = new ArrayList<>();
         dragModels = new ArrayList<>();
         fireSourceModels = new ArrayList<>();
@@ -170,7 +171,7 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         return casingModels;
     }
 
-    public List<UsageModel<?>> getUsageModels() {
+    public List<UsageModel<? extends Properties>> getUsageModels() {
         return usageModels;
     }
 

@@ -10,7 +10,7 @@ public class DecorationSettingsWindow extends SettingsWindow {
 
     public DecorationSettingsWindow(
             float pX, float pY, DecorationSettingsWindowController controller) {
-        super(pX, pY, 8, 8, controller);
+        super(pX, pY, 8, 9, controller);
         SimpleTitleField titleField = new SimpleTitleField(ResourceManager.getInstance().getString(R.string.decoration_settings_title));
         titleField.setPadding(5);
         addPrimary(titleField);

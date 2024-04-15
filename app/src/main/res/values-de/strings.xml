@@ -154,6 +154,7 @@
     <string name="bearded_axe">Bärtige Axt</string>
     <string name="francisca">Francisca</string>
     <string name="apple">Apfel</string>
+    <string name="pumpkin">Kürbis</string>
     <string name="kiwi">Kiwi</string>
     <string name="lemon">Zitrone</string>
     <string name="melon">Melone</string>
@@ -326,7 +327,6 @@
     <string name="radius_title">Radius :</string>
     <string name="magnet_title">Magnet :</string>
     <string name="direction_title">Richtung :</string>
-    <string name="reference_title">Referenz :</string>
     <string name="move_limits_title">Bewegungsgrenzen :</string>
     <string name="congruent_anchors_title">Kongruente Anker :</string>
     <string name="name_already_exists_validation_message">Name existiert bereits.</string>
@@ -351,7 +351,6 @@
     <string name="decoration_name_title">Dekorationsname:</string>
     <string name="fixed_ratio_title">Festes Verhältnis :</string>
     <string name="piped_color_title">Gepfeifte Farbe :</string>
-    <string name="turn_to_reference_title">In Referenz umwandeln</string>
     <string name="same_layer_title">Gleiche Ebene :</string>
     <string name="width_2f_height_2f">Breite=%.2f, Höhe=%.2f</string>
     <string name="rot_2f">Rot=%.2f</string>

@@ -2,6 +2,9 @@ package org.andengine.entity;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.UpdateHandlerList;
@@ -18,9 +21,6 @@ import org.andengine.util.adt.list.SmartList;
 import org.andengine.util.adt.transformation.Transformation;
 import org.andengine.util.algorithm.collision.EntityCollisionChecker;
 import org.andengine.util.call.ParameterCallable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -67,36 +67,49 @@ public class Entity implements IEntity {
     protected int mTag = IEntity.TAG_DEFAULT;
 
     protected int mZIndex = IEntity.ZINDEX_DEFAULT;
+
+    private IEntity mParent;
+
     protected SmartList<IEntity> mChildren;
+    private EntityModifierList mEntityModifiers;
+    private UpdateHandlerList mUpdateHandlers;
+
     protected Color mColor = new Color(Color.WHITE);
+
     protected float mX;
     protected float mY;
+
     protected float mOffsetCenterX = IEntity.OFFSET_CENTER_X_DEFAULT;
     protected float mOffsetCenterY = IEntity.OFFSET_CENTER_Y_DEFAULT;
     protected float mLocalOffsetCenterX;
     protected float mLocalOffsetCenterY;
+
     protected float mWidth;
     protected float mHeight;
+
     protected float mRotation = IEntity.ROTATION_DEFAULT;
+
     protected float mRotationCenterX = IEntity.ROTATION_CENTER_X_DEFAULT;
     protected float mRotationCenterY = IEntity.ROTATION_CENTER_Y_DEFAULT;
     protected float mLocalRotationCenterX;
     protected float mLocalRotationCenterY;
+
     protected float mScaleX = IEntity.SCALE_X_DEFAULT;
     protected float mScaleY = IEntity.SCALE_Y_DEFAULT;
+
     protected float mScaleCenterX = IEntity.SCALE_CENTER_X_DEFAULT;
     protected float mScaleCenterY = IEntity.SCALE_CENTER_Y_DEFAULT;
     protected float mLocalScaleCenterX;
     protected float mLocalScaleCenterY;
+
     protected float mSkewX = IEntity.SKEW_X_DEFAULT;
     protected float mSkewY = IEntity.SKEW_Y_DEFAULT;
+
     protected float mSkewCenterX = IEntity.SKEW_CENTER_X_DEFAULT;
     protected float mSkewCenterY = IEntity.SKEW_CENTER_Y_DEFAULT;
     protected float mLocalSkewCenterX;
     protected float mLocalSkewCenterY;
-    private IEntity mParent;
-    private EntityModifierList mEntityModifiers;
-    private UpdateHandlerList mUpdateHandlers;
+
     private boolean mLocalToParentTransformationDirty = true;
     private boolean mParentToLocalTransformationDirty = true;
 
@@ -273,16 +286,16 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getY() {
+        return this.mY;
+    }
+
+    @Override
     public void setX(final float pX) {
         this.mX = pX;
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getY() {
-        return this.mY;
     }
 
     @Override
@@ -312,13 +325,6 @@ public class Entity implements IEntity {
         return this.mWidth;
     }
 
-    @Override
-    public void setWidth(final float pWidth) {
-        this.mWidth = pWidth;
-
-        this.updateLocalCenterXs();
-    }
-
     @Deprecated
     @Override
     public float getWidthScaled() {
@@ -326,8 +332,21 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public void setWidth(final float pWidth) {
+        this.mWidth = pWidth;
+
+        this.updateLocalCenterXs();
+    }
+
+    @Override
     public float getHeight() {
         return this.mHeight;
+    }
+
+    @Deprecated
+    @Override
+    public float getHeightScaled() {
+        return this.mHeight * this.mScaleY;
     }
 
     @Override
@@ -335,12 +354,6 @@ public class Entity implements IEntity {
         this.mHeight = pHeight;
 
         this.updateLocalCenterYs();
-    }
-
-    @Deprecated
-    @Override
-    public float getHeightScaled() {
-        return this.mHeight * this.mScaleY;
     }
 
     @Override
@@ -357,6 +370,11 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getOffsetCenterY() {
+        return this.mOffsetCenterY;
+    }
+
+    @Override
     public void setOffsetCenterX(final float pOffsetCenterX) {
         this.mOffsetCenterX = pOffsetCenterX;
 
@@ -364,11 +382,6 @@ public class Entity implements IEntity {
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getOffsetCenterY() {
-        return this.mOffsetCenterY;
     }
 
     @Override
@@ -398,6 +411,11 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public boolean isRotated() {
+        return this.mRotation != 0;
+    }
+
+    @Override
     public void setRotation(final float pRotation) {
         this.mRotation = pRotation;
 
@@ -406,13 +424,13 @@ public class Entity implements IEntity {
     }
 
     @Override
-    public boolean isRotated() {
-        return this.mRotation != 0;
+    public float getRotationCenterX() {
+        return this.mRotationCenterX;
     }
 
     @Override
-    public float getRotationCenterX() {
-        return this.mRotationCenterX;
+    public float getRotationCenterY() {
+        return this.mRotationCenterY;
     }
 
     @Override
@@ -423,11 +441,6 @@ public class Entity implements IEntity {
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getRotationCenterY() {
-        return this.mRotationCenterY;
     }
 
     @Override
@@ -462,16 +475,16 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getScaleY() {
+        return this.mScaleY;
+    }
+
+    @Override
     public void setScaleX(final float pScaleX) {
         this.mScaleX = pScaleX;
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getScaleY() {
-        return this.mScaleY;
     }
 
     @Override
@@ -502,6 +515,11 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getScaleCenterY() {
+        return this.mScaleCenterY;
+    }
+
+    @Override
     public void setScaleCenterX(final float pScaleCenterX) {
         this.mScaleCenterX = pScaleCenterX;
 
@@ -509,11 +527,6 @@ public class Entity implements IEntity {
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getScaleCenterY() {
-        return this.mScaleCenterY;
     }
 
     @Override
@@ -548,16 +561,16 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getSkewY() {
+        return this.mSkewY;
+    }
+
+    @Override
     public void setSkewX(final float pSkewX) {
         this.mSkewX = pSkewX;
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getSkewY() {
-        return this.mSkewY;
     }
 
     @Override
@@ -588,6 +601,11 @@ public class Entity implements IEntity {
     }
 
     @Override
+    public float getSkewCenterY() {
+        return this.mSkewCenterY;
+    }
+
+    @Override
     public void setSkewCenterX(final float pSkewCenterX) {
         this.mSkewCenterX = pSkewCenterX;
 
@@ -595,11 +613,6 @@ public class Entity implements IEntity {
 
         this.mLocalToParentTransformationDirty = true;
         this.mParentToLocalTransformationDirty = true;
-    }
-
-    @Override
-    public float getSkewCenterY() {
-        return this.mSkewCenterY;
     }
 
     @Override
@@ -657,29 +670,9 @@ public class Entity implements IEntity {
         return this.mColor.getRed();
     }
 
-    /**
-     * @param pRed from <code>0.0f</code> to <code>1.0f</code>
-     */
-    @Override
-    public void setRed(final float pRed) {
-        if (this.mColor.setRedChecking(pRed)) { // TODO Is this check worth it?
-            this.onUpdateColor();
-        }
-    }
-
     @Override
     public float getGreen() {
         return this.mColor.getGreen();
-    }
-
-    /**
-     * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
-     */
-    @Override
-    public void setGreen(final float pGreen) {
-        if (this.mColor.setGreenChecking(pGreen)) { // TODO Is this check worth it?
-            this.onUpdateColor();
-        }
     }
 
     @Override
@@ -687,29 +680,9 @@ public class Entity implements IEntity {
         return this.mColor.getBlue();
     }
 
-    /**
-     * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
-     */
-    @Override
-    public void setBlue(final float pBlue) {
-        if (this.mColor.setBlueChecking(pBlue)) { // TODO Is this check worth it?
-            this.onUpdateColor();
-        }
-    }
-
     @Override
     public float getAlpha() {
         return this.mColor.getAlpha();
-    }
-
-    /**
-     * @param pAlpha from <code>0.0f</code> (transparent) to <code>1.0f</code> (opaque)
-     */
-    @Override
-    public void setAlpha(final float pAlpha) {
-        if (this.mColor.setAlphaChecking(pAlpha)) { // TODO Is this check worth it?
-            this.onUpdateColor();
-        }
     }
 
     @Override
@@ -732,9 +705,49 @@ public class Entity implements IEntity {
     }
 
     /**
-     * @param pRed   from <code>0.0f</code> to <code>1.0f</code>
+     * @param pRed from <code>0.0f</code> to <code>1.0f</code>
+     */
+    @Override
+    public void setRed(final float pRed) {
+        if (this.mColor.setRedChecking(pRed)) { // TODO Is this check worth it?
+            this.onUpdateColor();
+        }
+    }
+
+    /**
      * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
-     * @param pBlue  from <code>0.0f</code> to <code>1.0f</code>
+     */
+    @Override
+    public void setGreen(final float pGreen) {
+        if (this.mColor.setGreenChecking(pGreen)) { // TODO Is this check worth it?
+            this.onUpdateColor();
+        }
+    }
+
+    /**
+     * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
+     */
+    @Override
+    public void setBlue(final float pBlue) {
+        if (this.mColor.setBlueChecking(pBlue)) { // TODO Is this check worth it?
+            this.onUpdateColor();
+        }
+    }
+
+    /**
+     * @param pAlpha from <code>0.0f</code> (transparent) to <code>1.0f</code> (opaque)
+     */
+    @Override
+    public void setAlpha(final float pAlpha) {
+        if (this.mColor.setAlphaChecking(pAlpha)) { // TODO Is this check worth it?
+            this.onUpdateColor();
+        }
+    }
+
+    /**
+     * @param pRed from <code>0.0f</code> to <code>1.0f</code>
+     * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
+     * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
      */
     @Override
     public void setColor(final float pRed, final float pGreen, final float pBlue) {
@@ -744,9 +757,9 @@ public class Entity implements IEntity {
     }
 
     /**
-     * @param pRed   from <code>0.0f</code> to <code>1.0f</code>
+     * @param pRed from <code>0.0f</code> to <code>1.0f</code>
      * @param pGreen from <code>0.0f</code> to <code>1.0f</code>
-     * @param pBlue  from <code>0.0f</code> to <code>1.0f</code>
+     * @param pBlue from <code>0.0f</code> to <code>1.0f</code>
      * @param pAlpha from <code>0.0f</code> (transparent) to <code>1.0f</code> (opaque)
      */
     @Override
@@ -827,7 +840,7 @@ public class Entity implements IEntity {
         for (int i = 0; i < childCount; i++) {
             final IEntity child = this.mChildren.get(i);
             if (pEntityMatcher.matches(child)) {
-                return (S) child;
+                return (S)child;
             }
 
             final S childQueryFirst = child.queryFirstForSubclass(pEntityMatcher);
@@ -1483,7 +1496,7 @@ public class Entity implements IEntity {
 
     /**
      * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-     * @param pCamera  the currently active {@link Camera} i.e. to be used for culling.
+     * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
      */
     protected void preDraw(final GLState pGLState, final Camera pCamera) {
 
@@ -1491,7 +1504,7 @@ public class Entity implements IEntity {
 
     /**
      * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-     * @param pCamera  the currently active {@link Camera} i.e. to be used for culling.
+     * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
      */
     protected void draw(final GLState pGLState, final Camera pCamera) {
 
@@ -1499,7 +1512,7 @@ public class Entity implements IEntity {
 
     /**
      * @param pGLState the currently active {@link GLState} i.e. to apply transformations to.
-     * @param pCamera  the currently active {@link Camera} i.e. to be used for culling.
+     * @param pCamera the currently active {@link Camera} i.e. to be used for culling.
      */
     protected void postDraw(final GLState pGLState, final Camera pCamera) {
 
@@ -1587,55 +1600,51 @@ public class Entity implements IEntity {
         }
     }
 
-    protected synchronized void onManagedDraw(final GLState pGLState, final Camera pCamera) {
-        try {
-            pGLState.pushModelViewGLMatrix();
-            {
-                this.onApplyTransformations(pGLState);
+    protected void onManagedDraw(final GLState pGLState, final Camera pCamera) {
 
-                final SmartList<IEntity> children = this.mChildren;
-                if ((children == null) || !this.mChildrenVisible) {
-                    /* Draw only self. */
-                    this.preDraw(pGLState, pCamera);
-                    this.draw(pGLState, pCamera);
-                    this.postDraw(pGLState, pCamera);
-                } else {
-                    if (this.mChildrenSortPending) {
-                        ZIndexSorter.getInstance().sort(this.mChildren);
-                        this.mChildrenSortPending = false;
-                    }
+        pGLState.pushModelViewGLMatrix();
+        {
+            this.onApplyTransformations(pGLState);
 
-                    final int childCount = children.size();
-                    int i = 0;
+            final SmartList<IEntity> children = this.mChildren;
+            if ((children == null) || !this.mChildrenVisible) {
+                /* Draw only self. */
+                this.preDraw(pGLState, pCamera);
+                this.draw(pGLState, pCamera);
+                this.postDraw(pGLState, pCamera);
+            } else {
+                if (this.mChildrenSortPending) {
+                    ZIndexSorter.getInstance().sort(this.mChildren);
+                    this.mChildrenSortPending = false;
+                }
 
-                    { /* Draw children behind this Entity. */
-                        for (; i < childCount; i++) {
-                            final IEntity child = children.get(i);
-                            if (child.getZIndex() < 0) {
-                                child.onDraw(pGLState, pCamera);
-                            } else {
-                                break;
-                            }
-                        }
-                    }
+                final int childCount = children.size();
+                int i = 0;
 
-                    /* Draw self. */
-                    this.preDraw(pGLState, pCamera);
-                    this.draw(pGLState, pCamera);
-                    this.postDraw(pGLState, pCamera);
-
-                    { /* Draw children in front of this Entity. */
-                        for (; i < children.size(); i++) {
-                            children.get(i).onDraw(pGLState, pCamera);
+                { /* Draw children behind this Entity. */
+                    for (; i < childCount; i++) {
+                        final IEntity child = children.get(i);
+                        if (child.getZIndex() < 0) {
+                            child.onDraw(pGLState, pCamera);
+                        } else {
+                            break;
                         }
                     }
                 }
+
+                /* Draw self. */
+                this.preDraw(pGLState, pCamera);
+                this.draw(pGLState, pCamera);
+                this.postDraw(pGLState, pCamera);
+
+                { /* Draw children in front of this Entity. */
+                    for (; i < childCount; i++) {
+                        children.get(i).onDraw(pGLState, pCamera);
+                    }
+                }
             }
-            pGLState.popModelViewGLMatrix();
-        } catch (Throwable t) {
-            Log.e("Error in draw entity", String.valueOf(t));
-            throw t;
         }
+        pGLState.popModelViewGLMatrix();
     }
 
     protected void onManagedUpdate(final float pSecondsElapsed) {

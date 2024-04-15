@@ -32,8 +32,8 @@ public class MirrorArrowShape extends DoubleInvertedArrowsShape {
                     }
 
                     @Override
-                    protected List<Vector2> transformReferencePoints() {
-                        return transform(originalReferencePoints);
+                    protected Vector2 transformCenter() {
+                         return GeometryUtils.mirrorPoint(center, begin, end);
                     }
                 };
     }

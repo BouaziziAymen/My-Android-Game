@@ -20,7 +20,7 @@ public class PolygonArrowShape extends ArrowShape {
             Vector2 begin, PointsModel<?> shapePointsModel, EditorScene scene, int numberOfPoints) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
-        this.shapePointsModel.getReferencePoints().clear();
+        this.shapePointsModel.setCenter(begin.cpy());
         this.numberOfPoints = numberOfPoints;
         this.fixedRadius = false;
         radius = 0;
@@ -34,7 +34,7 @@ public class PolygonArrowShape extends ArrowShape {
             float radius) {
         super(begin, scene);
         this.shapePointsModel = shapePointsModel;
-        this.shapePointsModel.getReferencePoints().clear();
+        this.shapePointsModel.setCenter(begin.cpy());
         this.numberOfPoints = numberOfPoints;
         this.fixedRadius = true;
         this.radius = radius;
@@ -50,9 +50,10 @@ public class PolygonArrowShape extends ArrowShape {
                 VerticesFactory.createPolygon(begin.x, begin.y, angle, d, d, numberOfPoints);
         if (shapePointsModel.testPoints(newPoints)) {
             shapePointsModel.getPointsShape().detachPointImages();
-            shapePointsModel.getPointsShape().detachReferencePointImages();
+            shapePointsModel.getPointsShape().detachReferencePointImage();
             super.updateEnd(x, y);
-            shapePointsModel.getPointsShape().createReferencePointImage(begin);
+            Vector2 p = begin.cpy();
+            shapePointsModel.getPointsShape().createReferencePointImage(p);
             shapePointsModel.setPoints(newPoints);
             shapePointsModel.getPointsShape().onModelUpdated();
         }

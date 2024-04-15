@@ -118,5 +118,6 @@ public class CasingShape extends AngleIndicator implements MovablesContainer {
         Vector2 begin = model.getProperties().getAmmoOrigin();
         updateBegin(begin.x, begin.y);
         updateDirection(model.getProperties().getAmmoDirection());
+        this.drawSelf();
     }
 }

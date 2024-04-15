@@ -26,4 +26,12 @@ public class FlameThrowerProperties extends Properties {
     public void setFireSourceIds(List<Integer> fireSourceIds) {
         this.fireSourceIds = fireSourceIds;
     }
+
+    @Override
+    public Object clone() {
+        FlameThrowerProperties cloned = (FlameThrowerProperties) super.clone();
+        // Deep copy of the list
+        cloned.fireSourceIds = new ArrayList<>(this.fireSourceIds);
+        return cloned;
+    }
 }

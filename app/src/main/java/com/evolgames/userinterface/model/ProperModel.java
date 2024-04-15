@@ -16,4 +16,7 @@ public abstract class ProperModel<T extends Properties> extends Model {
     public void setProperties(T property) {
         properties = property;
     }
+    public void setProperties(Object property) {
+        properties = (T) property;
+    }
 }

@@ -25,7 +25,9 @@ public abstract class ColoredProperties extends Properties {
     @Override
     public ColoredProperties clone() {
         ColoredProperties cloned = (ColoredProperties) super.clone();
-        cloned.defaultColor = this.defaultColor;
+        if(cloned.defaultColor!=null) {
+            cloned.defaultColor = new Color(this.defaultColor);
+        }
         return cloned;
     }
 }

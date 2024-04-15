@@ -76,6 +76,11 @@ public class GeometryUtils {
         }
         return result;
     }
+    public static Vector2 mirrorPoint(Vector2 point, Vector2 begin, Vector2 end) {
+        Vector2 v = point.cpy().sub(begin);
+        Vector2 direction = end.cpy().sub(begin);
+        return begin.cpy().add(GeometryUtils.vectorRotated(direction, v));
+    }
 
     public static Vector2 vectorRotated(Vector2 mirrorDirection, Vector2 point) {
         float angle = (float) (-Math.atan2(mirrorDirection.y, mirrorDirection.x) + Math.atan2(point.y, point.x));

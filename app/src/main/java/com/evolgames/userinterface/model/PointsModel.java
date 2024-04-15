@@ -11,12 +11,12 @@ import java.util.List;
 public abstract class PointsModel<T extends Properties> extends OutlineModel<T> {
 
     private List<Vector2> points;
-    private List<Vector2> referencePoints;
+
+    private Vector2 center;
 
     PointsModel(String name) {
         super(name);
         this.points = new ArrayList<>();
-        this.referencePoints = new ArrayList<>();
     }
 
     public abstract boolean testMove(Vector2 movedPoint, float dx, float dy);
@@ -58,16 +58,18 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
         updateOutlinePoints();
     }
 
-    public void remove(Vector2 point) {
-        points.remove(point);
-        updateOutlinePoints();
+    public void remove(Vector2 point, boolean ref) {
+        if(!ref) {
+            points.remove(point);
+            updateOutlinePoints();
+        }
     }
 
-    public List<Vector2> getReferencePoints() {
-        return referencePoints;
+    public Vector2 getCenter() {
+        return center;
     }
 
-    public void setReferencePoints(List<Vector2> newReferencePoints) {
-        this.referencePoints = newReferencePoints;
+    public void setCenter(Vector2 center) {
+        this.center = center;
     }
 }

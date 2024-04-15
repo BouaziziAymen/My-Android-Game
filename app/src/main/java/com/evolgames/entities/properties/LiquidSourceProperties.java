@@ -8,7 +8,6 @@ public class LiquidSourceProperties extends Properties {
     private Vector2 liquidSourceDirection;
     private float extent = 0.05f;
     private int liquid;
-
     private int sealBodyId;
 
     @SuppressWarnings("unused")

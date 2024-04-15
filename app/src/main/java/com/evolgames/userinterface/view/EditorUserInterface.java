@@ -204,7 +204,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                 new DecorationSettingsWindow(0, 0, decorationSettingsWindowController);
         addElement(decorationSettingsWindow);
         decorationSettingsWindow.setPosition(
-                800 - layerSettingsWindow.getWidth() - 12, 480 - decorationSettingsWindow.getHeight());
+                800 - decorationSettingsWindow.getWidth() - 12, 480 - decorationSettingsWindow.getHeight());
 
         decorationSettingsWindow.setVisible(false);
 
@@ -911,7 +911,9 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                     layerModel.setPointsShape(pointsShape);
                 }
                 layerModel.getPointsShape().updateOutlineShape();
-                layerModel.getReferencePoints().forEach(refPoint -> layerModel.getPointsShape().createReferencePointImage(refPoint));
+                if(layerModel.getCenter()!=null) {
+                    layerModel.getPointsShape().createReferencePointImage(layerModel.getCenter());
+                }
                 addElement(layerModel.getPointsShape());
                 for (DecorationModel decorationModel : layerModel.getDecorations()) {
                     if (decorationModel.getPointsShape() == null) {
@@ -1131,6 +1133,10 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     public void addReferencePoint(ReferencePointImage centerPointImage) {
         addElement(centerPointImage);
         creationZone.getReferencePointImageArrayList().add(centerPointImage);
+    }
+    public void removeReferencePoint(ReferencePointImage centerPointImage) {
+        removeElement(centerPointImage);
+        creationZone.getReferencePointImageArrayList().remove(centerPointImage);
     }
 
     public void detachReference(ReferencePointImage centerPointImage) {

@@ -22,13 +22,13 @@ public class FixedLengthArrowShape extends ArrowShape {
     public void updateEnd(float x, float y) {
         direction = Vector2Pool.obtain(x, y).cpy().sub(begin).nor();
         Vector2 v = Vector2Pool.obtain(direction).mul(length);
-        super.updateEnd(begin.x + v.x, begin.y + v.y);
+        setEnd(begin.x + v.x, begin.y + v.y);
     }
 
     @Override
     public void updateBegin(float x, float y) {
         Vector2 v = Vector2Pool.obtain(direction).mul(length);
         super.updateBegin(x, y);
-        super.updateEnd(begin.x + v.x, begin.y + v.y);
+        setEnd(begin.x + v.x, begin.y + v.y);
     }
 }

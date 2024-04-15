@@ -63,6 +63,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private Quantity<ProjectileOptionController> inSizeQuantityField;
     private Quantity<ProjectileOptionController> finSizeQuantityField;
     private List<GameSound> sounds;
+    private ProjectileProperties copy;
 
     public ProjectileOptionController(EditorScene editorScene) {
         this.editorScene = editorScene;
@@ -193,6 +194,9 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
                     @Override
                     public void informControllerButtonReleased() {
+                        if(projectileModel.getProperties().getMissileFile().equals(itemMetaData.getFileName())) {
+                            projectileModel.getProperties().setMissileFile("");
+                        }
                     }
                 });
     }
@@ -226,6 +230,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         updateMissileSelectionFields();
         updateCasingSelectionFields();
         this.projectileProperties = model.getProperties();
+        this.copy = (ProjectileProperties) projectileProperties.clone();
         setBody(projectileModel.getBodyId());
         setFireSound(this.projectileProperties.getFireSound());
         setMuzzleVelocity(this.projectileProperties.getMuzzleVelocity());
@@ -334,12 +339,14 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
 
     private void setFireSound(String sound) {
-       int n = window.getLayout().getTertiariesSize(2,1);
+       int n = window.getLayout().getSecondariesSize(2);
        for(int i=0;i<n;i++){
           SoundField soundField = (SoundField) window.getLayout().getSecondaryByIndex(2, i);
          String name =  soundField.getSoundFieldControl().getTitle();
          if(name.equals(sound)) {
              soundField.getSoundFieldControl().updateState(Button.State.PRESSED);
+         } else {
+             soundField.getSoundFieldControl().updateState(Button.State.NORMAL);
          }
        }
     }
@@ -347,6 +354,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     @Override
     public void onCancelSettings() {
         super.onCancelSettings();
+        this.projectileModel.setProperties(copy);
         this.itemWindowController.onResume();
     }
 
@@ -419,6 +427,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         super.onSecondaryButtonClicked(simpleSecondary);
         int primaryKey = simpleSecondary.getPrimaryKey();
         int secondaryKey = simpleSecondary.getSecondaryKey();
+
         if (simpleSecondary.getPrimaryKey() == 2) {
             GameSound gameSound =   this.sounds
                     .get(secondaryKey);
@@ -466,6 +475,19 @@ public class ProjectileOptionController extends SettingsWindowController<Project
 
     private void onExplosiveButtonReleased(SimpleSecondary<?> categoryField) {
         super.onSecondaryButtonReleased(categoryField);
+    }
+
+    @Override
+    public void onSecondaryButtonReleased(SimpleSecondary<?> simpleSecondary) {
+        super.onSecondaryButtonReleased(simpleSecondary);
+
+        if (simpleSecondary.getPrimaryKey() == 2) {
+            GameSound gameSound = this.sounds
+                    .get(simpleSecondary.getSecondaryKey());
+          if(projectileProperties.getFireSound().equals(gameSound.getTitle())) {
+              projectileProperties.setFireSound("");
+          }
+        }
     }
 
     private void createExplosiveSettings() {
