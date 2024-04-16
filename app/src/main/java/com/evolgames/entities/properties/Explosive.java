@@ -1,25 +1,22 @@
 package com.evolgames.entities.properties;
 
+import com.evolgames.gameengine.R;
+
 public enum Explosive {
-    OTHER("Other", 0f, 0f, 0f),
-    POWDER("Black Powder", 0.7f, 0.2f, 0.1f),
-    SMOKELESS_POWDER("Smokeless Powder", 0.7f, 0f, 0.3f);
-    final String name;
+    OTHER(R.string.other, 0f, 0f, 0f),
+    POWDER(R.string.black_powder, 0.7f, 0.2f, 0.1f),
+    SMOKELESS_POWDER(R.string.smokeless_powder, 0.7f, 0f, 0.3f);
+    public final int stringId;
     final float fireRatio;
     final float smokeRatio;
     final float SparkRatio;
 
-    Explosive(String name, float fireRatio, float smokeRatio, float sparkRatio) {
-        this.name = name;
+    Explosive(int stringId, float fireRatio, float smokeRatio, float sparkRatio) {
+        this.stringId = stringId;
         this.fireRatio = fireRatio;
         this.smokeRatio = smokeRatio;
         SparkRatio = sparkRatio;
     }
-
-    public String getName() {
-        return name;
-    }
-
     public float getFireRatio() {
         return fireRatio;
     }

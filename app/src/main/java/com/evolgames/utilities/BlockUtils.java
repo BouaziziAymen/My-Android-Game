@@ -27,6 +27,7 @@ import com.evolgames.entities.cut.ShatterData;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.entities.properties.ColoredProperties;
+import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.helpers.CutFlag;
 import com.evolgames.helpers.ElementCouple;
@@ -1023,10 +1024,14 @@ public class BlockUtils {
 
             for (DecorationModel decorationModel : layerModel.getDecorations()) {
                 DecorationBlock decorationBlock = new DecorationBlock();
+                DecorationProperties decorationProperties = decorationModel.getProperties().clone();
+                if (!decorationModel.isShow()) {
+                    decorationProperties.setDefaultColor(Color.TRANSPARENT);
+                }
                 if (decorationModel.getOutlinePoints() != null) {
                     decorationBlock.initialization(
                             Utils.translatedPoints(decorationModel.getOutlinePoints(), center),
-                            decorationModel.getProperties(),
+                            decorationProperties,
                             decorationModel.getDecorationId());
                     block.addAssociatedBlock(decorationBlock);
                 }

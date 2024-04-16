@@ -64,7 +64,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
 
         createRagDoll(415, 460);
 
-        jarGroup = createItemFromFile("evil_jar_latest.xml", 300, 200, true, false);
+        jarGroup = createItemFromFile("evil_jar_latest#.xml", 300, 200, true, false);
 
     }
 

@@ -269,7 +269,7 @@ public class GameEntity extends EntityWithBody {
         float minDis = Float.MAX_VALUE;
         LayerBlock layerBlock = null;
         for (LayerBlock block : layerBlocks) {
-            LayerProperties layerProperties = (LayerProperties) block.getProperties();
+            LayerProperties layerProperties = block.getProperties();
             if (layerProperties.getSharpness() > 0.0f && withHold) {
                 continue;
             }
@@ -426,10 +426,12 @@ public class GameEntity extends EntityWithBody {
     }
 
     public void dispose() {
-        if (batch != null) {
-            batch.dispose();
-            batch.detachSelf();
-        }
+        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+            if (batch != null) {
+                batch.dispose();
+                batch.detachSelf();
+            }
+        });
     }
 
     public Vector2 getCenter() {

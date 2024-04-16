@@ -20,8 +20,6 @@ public class LayerModel extends PointsModel<LayerProperties> {
     private final int bodyId;
     private final int layerId;
     private LayerField field;
-    private boolean show = true;
-
     public LayerModel(
             int bodyId, int layerId, String layerName, LayerProperties properties, BodyModel bodyModel) {
         super(layerName);
@@ -157,15 +155,4 @@ public class LayerModel extends PointsModel<LayerProperties> {
         this.field = field;
     }
 
-    public void show() {
-        this.show = true;
-    }
-
-    public void hide() {
-        this.show = false;
-    }
-
-    public boolean isShow() {
-        return show;
-    }
 }

@@ -75,4 +75,5 @@ public class DecorationModel extends PointsModel<DecorationProperties> {
     public LayerModel getLayerModel() {
         return layerModel;
     }
+
 }

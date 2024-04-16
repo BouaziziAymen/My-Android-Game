@@ -2,6 +2,7 @@ package com.evolgames.entities.persistence;
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.helpers.ItemMetaData;
+import com.evolgames.helpers.XmlHelper;
 import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.model.LayerModel;
@@ -27,7 +28,7 @@ public class VersioningHelper {
             try {
                 ToolModel toolModel = persistenceCaretaker.loadToolModel(item.getFileName(), true, !item.isUserCreated());
                 transform.transform(toolModel);
-                persistenceCaretaker.saveToolModel(toolModel, item.getFileName(), "version\\");
+                persistenceCaretaker.saveToolModel(toolModel,  XmlHelper.convertToXmlFormat(toolModel.getProperties().getToolName()), "version\\");
             } catch (IOException | PersistenceException | SAXException |
                      ParserConfigurationException | TransformerException e) {
                 throw new RuntimeException(e);

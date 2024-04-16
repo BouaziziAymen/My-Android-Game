@@ -211,6 +211,9 @@ public class Shooter extends Use {
 
     private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
         GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        if(muzzleEntity.getBody()==null){
+            return;
+        }
 
         Vector2 begin = projectileInfo.getProjectileOrigin();
         Vector2 end = projectileInfo.getProjectileEnd();

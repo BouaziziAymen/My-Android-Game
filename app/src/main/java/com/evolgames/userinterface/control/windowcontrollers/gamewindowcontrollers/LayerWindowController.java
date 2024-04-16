@@ -574,4 +574,16 @@ public class LayerWindowController
         layerModel.hide();
         editorUserInterface.getToolModel().updateMesh();
     }
+
+
+    public void onDecorationShowHideButtonClicked(DecorationField decorationField) {
+        DecorationModel decorationModel = getDecorationModel(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(),decorationField.getTertiaryKey());
+        decorationModel.show();
+        editorUserInterface.getToolModel().updateMesh();
+    }
+    public void onDecorationShowHideButtonReleased(DecorationField decorationField) {
+        DecorationModel decorationModel = getDecorationModel(decorationField.getPrimaryKey(), decorationField.getSecondaryKey(),decorationField.getTertiaryKey());
+        decorationModel.hide();
+        editorUserInterface.getToolModel().updateMesh();
+    }
 }

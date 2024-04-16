@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Verstümmeln</string>
     <string name="validator_too_long">Zu lang!</string>
     <string name="validator_too_short">Zu kurz!</string>
     <string name="validator_invalid_name">Ungültiger Name</string>
@@ -165,6 +164,9 @@
     <string name="bullet_5mm">Patrone 5mm</string>
     <string name="bullet_7mm">Patrone 7mm</string>
     <string name="bullet_9mm">Patrone 9mm</string>
+    <string name="petrol_canister">Benzinkanister</string>
+    <string name="kerosene_canister">Kerosinkanister</string>
+
 
     <string name="rubber">Gummi</string>
     <string name="plastic">Kunststoff</string>
@@ -327,7 +329,7 @@
     <string name="radius_title">Radius :</string>
     <string name="magnet_title">Magnet :</string>
     <string name="direction_title">Richtung :</string>
-    <string name="move_limits_title">Bewegungsgrenzen :</string>
+    <string name="move_limits_title">Grenzen :</string>
     <string name="congruent_anchors_title">Kongruente Anker :</string>
     <string name="name_already_exists_validation_message">Name existiert bereits.</string>
     <string name="item_name_title">Titel</string>
@@ -356,4 +358,25 @@
     <string name="rot_2f">Rot=%.2f</string>
     <string name="x_2f_y_2f">(X=%.2f, Y=%.2f)</string>
     <string name="quit_confirmation_message">Möchten Sie wirklich beenden?</string>
+
+    <string name="blood">Blut</string>
+    <string name="petrol">Benzin</string>
+    <string name="juice">Saft</string>
+    <string name="kerosene">Kerosin</string>
+    <string name="other">Andere</string>
+    <string name="black_powder">Schwarzpulver</string>
+    <string name="smokeless_powder">Rauchloses Pulver</string>
+
+    <string name="created_by_me">Von mir erstellt</string>
+    <string name="created_by_creator">Vom Ersteller</string>
+
+    <string name="slash_hint">Nähere dich und tippe, um eine schneidende Bewegung auszuführen.</string>
+    <string name="stab_hint">Nähere dich und tippe, um eine Stichaktion auszuführen.</string>
+    <string name="bludgeon_hint">Nähere dich und tippe, um einen stumpfen Schlag auszuführen.</string>
+
+    <string name="trigger_time_bomb_hint">Drücken Sie die Auslösetaste, um den Bombentimer zu starten.</string>
+    <string name="trigger_impact_bomb_hint">Drücken Sie die Auslösetaste, um die Sicherung der Aufschlagbombe zu entschärfen.</string>
+    <string name="trigger_rocket_launcher_hint">Tippe auf den Auslöser, um zu starten.</string>
+    <string name="unseal_hint">Tippe auf die "Ein"-Taste, um zu öffnen, und auf die "Aus"-Taste, um zu schließen.</string>
+    <string name="rocket_launch_hint">Tippe auf die Ein-Taste, um zu starten.</string>
 </resources>

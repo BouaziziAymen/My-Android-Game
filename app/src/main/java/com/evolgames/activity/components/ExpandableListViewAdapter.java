@@ -85,14 +85,15 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+        ItemViewHolder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.exp_list_body, parent, false);
-            holder = new ViewHolder();
-            holder.textView = convertView.findViewById(R.id.itemsElementTextView);
+            holder = new ItemViewHolder();
+            holder.itemNameTextView = convertView.findViewById(R.id.itemsElementTextView);
+            holder.itemCreatorTextView = convertView.findViewById(R.id.itemCreatorTextView);
             convertView.setTag(holder);
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            holder = (ItemViewHolder) convertView.getTag();
         }
         ItemCategory itemCategory = dataHeader.get(groupPosition);
         ItemMetaData itemMetaData = Objects.requireNonNull(listHashMap.get(itemCategory)).get(childPosition);
@@ -103,7 +104,8 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         } else {
             itemDisplayedName = itemMetaData.getName();
         }
-        holder.textView.setText(itemDisplayedName);
+        holder.itemNameTextView.setText(itemDisplayedName);
+        holder.itemCreatorTextView.setText(itemMetaData.isUserCreated()?inflater.getContext().getString(R.string.created_by_me):inflater.getContext().getString(R.string.created_by_creator));
         return convertView;
     }
 
@@ -124,5 +126,9 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
 
     private static class ViewHolder {
         TextView textView;
+    }
+    private static class ItemViewHolder {
+        TextView itemNameTextView;
+        TextView itemCreatorTextView;
     }
 }

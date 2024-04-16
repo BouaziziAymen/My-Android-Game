@@ -34,22 +34,38 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CreateItemDialog extends DialogFragment {
 
     private AutoCompleteTextView itemTemplateAutoComplete;
-    private String[] itemNames;
+    private Item[] items;
     private String selectedType;
+    private String selectedTemplate;
 
     private void setupTemplatesAutoComplete(ItemCategory category) {
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
         List<ItemMetaData> items = map.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-        itemNames = items.stream().filter(e -> e.getItemCategory() == category).map(ItemMetaData::getName).toArray(String[]::new);
-        ArrayAdapter<String> userItemNamesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, itemNames);
+
+        this.items = items.stream().filter(e -> e.getItemCategory() == category).map(e->{
+            int itemNameTranslationId = ResourceManager.getInstance().getTranslatedItemStringId(e.getName());
+            String itemDisplayedName;
+            if (itemNameTranslationId != -1) {
+                itemDisplayedName = requireContext().getString(itemNameTranslationId);
+            } else {
+                itemDisplayedName = e.getName();
+            }
+            return new Item(itemDisplayedName,e.getName());
+        }).toArray(Item[]::new);
+        ArrayAdapter<Item> userItemNamesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, this.items);
         itemTemplateAutoComplete.setAdapter(userItemNamesAdapter);
         itemTemplateAutoComplete.setEnabled(true);
+
+        itemTemplateAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
+            Item item = userItemNamesAdapter.getItem(position);
+            assert item != null;
+            this.selectedTemplate = item.getTitle();
+        });
     }
 
     @Override
@@ -61,20 +77,20 @@ public class CreateItemDialog extends DialogFragment {
         // Inflate and set the layout for the dialog.
         // Pass null as the parent view because it's going in the dialog layout.
         View dialogLayout = inflater.inflate(R.layout.new_item_dialog, null);
-        itemNames = new String[0];
-
 
         AutoCompleteTextView itemTypeAutoComplete = dialogLayout.findViewById(R.id.itemTypeAutoComplete);
-        String[] typesRaw = Arrays.stream(ItemCategory.values()).map(Enum::name).toArray(String[]::new);
-        String[] types = Arrays.stream(ItemCategory.values()).map(e-> requireContext().getString(e.nameId)).toArray(String[]::new);
-        ArrayAdapter<String> itemTypesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, types);
+        Item[] types = Arrays.stream(ItemCategory.values()).map(e -> new Item(requireContext().getString(e.nameId), e.name())).toArray(Item[]::new);
+        ArrayAdapter<Item> itemTypesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, types);
+
         itemTypeAutoComplete.setAdapter(itemTypesAdapter);
 
 
         itemTypeAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
-            this.selectedType = typesRaw[position];
-            ItemCategory category = ItemCategory.fromName(this.selectedType);
+            Item item = itemTypesAdapter.getItem(position);
+            assert item != null;
+            ItemCategory category = ItemCategory.fromName(item.getTitle());
             setupTemplatesAutoComplete(category);
+            this.selectedType = category.name();
         });
 
         itemTemplateAutoComplete = dialogLayout.findViewById(R.id.itemTemplateAutoComplete);
@@ -150,11 +166,11 @@ public class CreateItemDialog extends DialogFragment {
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             // Perform input validation
             String itemNameText = itemNameEditText.getText().toString().trim();
-            String itemTemplateText = itemTemplateAutoComplete.getText().toString().trim();
+            String typeText = itemTypeAutoComplete.getText().toString().trim();
 
-            boolean isTypeInvalid = (selectedType!=null&&selectedType.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(selectedType)));
-            boolean isTemplateInvalid = !itemTemplateText.isEmpty() && Arrays.stream(itemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemTemplateText.toLowerCase()));
-            boolean nameExists = Arrays.stream(itemNames).map(String::toLowerCase).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
+            boolean isTypeInvalid = typeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(selectedType));
+            boolean isTemplateInvalid = !selectedTemplate.isEmpty() && Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equals(selectedTemplate));
+            boolean nameExists = Arrays.stream(items).map(Item::getTitle).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
             if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {
                 // Show error message if any field is empty
@@ -175,7 +191,7 @@ public class CreateItemDialog extends DialogFragment {
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
-                ((GameActivity) requireActivity()).getUiController().onProceedToCreate(itemNameText, this.selectedType, itemTemplateText);
+                ((GameActivity) requireActivity()).getUiController().onProceedToCreate(itemNameText, this.selectedType, this.selectedTemplate);
                 // Or perform other actions here
             }
         });

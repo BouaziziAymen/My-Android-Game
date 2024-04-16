@@ -279,7 +279,9 @@ public class WorldFacade implements ContactObserver {
             LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
             liquidParticleWrapper.update();
             if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
-                liquidParticleWrapper.getParticleSystem().detachSelf();
+                if(liquidParticleWrapper.getParticleSystem().hasParent()) {
+                    liquidParticleWrapper.detach();
+                }
                 wrapperIterator.remove();
             }
         }
@@ -1112,7 +1114,8 @@ public class WorldFacade implements ContactObserver {
         jointDef.collideConnected = false;
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
         addJointToCreate(jointDef, receiver, traveler, -2);
-
+        freeze(receiver);
+        
         scheduleGameEntityToDestroy(traveler, 1200);
         traveler.setZIndex(receiver.getZIndex() - 1);
         scene.sortChildren();
@@ -1450,7 +1453,7 @@ public class WorldFacade implements ContactObserver {
         Runnable onBlunt;
         if (gameEntity.getParentGroup().getGroupType() == GroupType.DOLL) {
             RagDoll ragDoll = ((RagDoll) gameEntity.getParentGroup());
-            if (ragDoll.isBodyPart(gameEntity)) {
+            if (ragDoll.isBluntSensitiveBodyPart(gameEntity)) {
                 onBlunt = () -> ragDoll.onBlunt((int) trauma);
             } else {
                 onBlunt = null;

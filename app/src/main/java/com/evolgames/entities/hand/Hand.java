@@ -156,7 +156,7 @@ public class Hand {
         if (grabbedEntity == null || mouseJoint == null) {
             return;
         }
-        this.playScene.onGrabbedEntityReleased();
+        this.playScene.onGrabbedEntityReleased(updateUsages);
         Invoker.addJointDestructionCommand(grabbedEntity.getParentGroup(), mouseJoint);
         onGrabbedEntityReleased(updateUsages,deactivateProjectiles);
     }
@@ -199,29 +199,30 @@ public class Hand {
         }
         if (selectedEntity == null) {
             if (this.playScene.getPlayerAction() == PlayerAction.Drag) {
+                PlayScene.Selection touchData = this.playScene.getDraggedEntity(touchEvent);
                 if (touchEvent.isActionMove()) {
-                    if (mouseJoint != null&& grabbedEntity!=null && grabbedEntity.getBody()!=null && follow) {
+                    if (mouseJoint != null && grabbedEntity != null && grabbedEntity.getBody() != null && follow) {
                         moveHand(touchEvent);
                     }
                 } else if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
                     if (grabbedEntity != null) {
-                        releaseGrabbedEntity(true,true);
+                        releaseGrabbedEntity(true, true);
                         this.follow = false;
                         playScene.setScrollerEnabled(true);
                         playScene.setScrollerEnabled(true);
                         return true;
                     }
                 } else if (touchEvent.isActionDown()) {
-                    Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
-                    if (touchData != null && touchData.first != null) {
-                        grab(touchData.first, touchEvent, touchData.second.first);
+
+                    if (touchData != null && touchData.gameEntity != null) {
+                        grab(touchData.gameEntity, touchEvent, touchData.anchor);
                         playScene.setScrollerEnabled(false);
                         playScene.setZoomEnabled(false);
                         this.follow = true;
                     }
                 }
             } else if (this.playScene.getPlayerAction() == PlayerAction.Hold) {
-                Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.playScene.getTouchedEntity(touchEvent, true,false);
+              PlayScene.Selection selection = this.playScene.getHeldEntity(touchEvent);
                 if (touchEvent.isActionMove()) {
                     if (follow) {
                         if (mouseJoint != null) {
@@ -230,7 +231,7 @@ public class Hand {
                     } else {
                         if (grabbedEntity != null) {
                             if (this.playScene.getSpecialAction() == PlayerSpecialAction.FireLight) {
-                                if ((this.grabbedEntity.hasUsage(Shooter.class, FlameThrower.class) && (touchData == null || touchData.first != grabbedEntity))) {
+                                if ((this.grabbedEntity.hasUsage(Shooter.class, FlameThrower.class) && (selection == null || selection.gameEntity != grabbedEntity))) {
                                     doAim(touchEvent, grabbedEntity.isMirrored());
                                 }
                             }
@@ -263,7 +264,7 @@ public class Hand {
                         case Smash:
                             break;
                         case FireLight:
-                            if (grabbedEntity!=null&&grabbedEntity.hasUsage(Shooter.class)) {
+                            if (grabbedEntity != null && grabbedEntity.hasUsage(Shooter.class)) {
                                 Shooter shooter = grabbedEntity.getUsage(Shooter.class);
                                 shooter.onTriggerReleased();
                             }
@@ -274,10 +275,10 @@ public class Hand {
                             break;
                     }
                 } else if (touchEvent.isActionDown()) {
-                        if (touchData != null && touchData.first != null) {
-                            if(touchData.first==grabbedEntity||playScene.getSpecialAction()==PlayerSpecialAction.None) {
-                            if (!touchData.first.hasUsage(Heavy.class)) {
-                                grab(touchData.first, touchEvent, touchData.second.first);
+                    if (selection != null && selection.gameEntity != null) {
+                        if (selection.gameEntity == grabbedEntity || playScene.getSpecialAction() == PlayerSpecialAction.None) {
+                            if (!selection.gameEntity.hasUsage(Heavy.class)) {
+                                grab(selection.gameEntity, touchEvent, selection.anchor);
                                 holdEntity();
                                 onEntityHeld();
                                 playScene.setScrollerEnabled(false);
@@ -294,16 +295,16 @@ public class Hand {
                         case SwitchOff:
                             break;
                         case Slash:
-                            if (touchData != null && touchData.first != grabbedEntity) {
+                            if (selection != null && selection.gameEntity != grabbedEntity) {
                                 Vector2 target =
                                         new Vector2(
                                                 touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
                                                 touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                                moveToSlash(target, touchData.first);
+                                moveToSlash(target, selection.gameEntity);
                             }
                             break;
                         case Stab:
-                            if (touchData != null && touchData.first != grabbedEntity) {
+                            if (selection != null && selection.gameEntity != grabbedEntity) {
                                 moveToStab();
                             }
                             break;
@@ -316,7 +317,7 @@ public class Hand {
 
                             break;
                         case Smash:
-                            if (touchData != null && touchData.first != grabbedEntity) {
+                            if (selection != null && selection.gameEntity != grabbedEntity) {
                                 Vector2 smashTarget =
                                         new Vector2(
                                                 touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
@@ -325,7 +326,7 @@ public class Hand {
                             }
                             break;
                         case FireLight:
-                            if(grabbedEntity!=null) {
+                            if (grabbedEntity != null) {
                                 if (grabbedEntity.hasUsage(Shooter.class)) {
                                     Shooter shooter = grabbedEntity.getUsage(Shooter.class);
                                     Pair<Boolean, Float> loaded = shooter.isLoaded();
@@ -360,15 +361,15 @@ public class Hand {
         }
 
         if (this.playScene.getPlayerAction() == PlayerAction.Select) {
-            Pair<GameEntity, Pair<Vector2, LayerBlock>>  touchData = this.playScene.getTouchedEntity(touchEvent, false,false);
+           PlayScene.Selection touchData = this.playScene.getSelectedEntity(touchEvent);
             if (touchEvent.isActionMove()) {
 
             } else if (touchEvent.isActionDown()) {
 
             } else if (touchEvent.isActionUp()) {
                 playScene.setScrollerEnabled(true);
-                if (touchData != null && touchData.first != null) {
-                    if (selectedEntity != touchData.first) {
+                if (touchData != null && touchData.gameEntity != null) {
+                    if (selectedEntity != touchData.gameEntity) {
                         if (selectedEntity != null) {
                             if (this.isHolding()) {
                                killTopOfStack();
@@ -376,7 +377,7 @@ public class Hand {
                             }
                             deselect(false);
                         }
-                        select(touchData.first);
+                        select(touchData.gameEntity);
                     } else {
                         deselect(true);
                         if (this.isHolding()) {

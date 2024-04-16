@@ -10,6 +10,7 @@ import java.util.List;
 
 public abstract class PointsModel<T extends Properties> extends OutlineModel<T> {
 
+    protected boolean show = true;
     private List<Vector2> points;
 
     private Vector2 center;
@@ -71,5 +72,17 @@ public abstract class PointsModel<T extends Properties> extends OutlineModel<T> 
 
     public void setCenter(Vector2 center) {
         this.center = center;
+    }
+
+    public void show() {
+        this.show = true;
+    }
+
+    public void hide() {
+        this.show = false;
+    }
+
+    public boolean isShow() {
+        return show;
     }
 }

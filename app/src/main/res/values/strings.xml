@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Mutilate</string>
+    <string name="app_name" translatable="false">Doll Madness Craft</string>
     <string name="validator_too_long">Too long !</string>
     <string name="validator_too_short">Too Short !</string>
     <string name="validator_invalid_name">Invalid Name</string>
@@ -164,6 +164,8 @@
         <string name="bullet_5mm">Bullet 5mm</string>
         <string name="bullet_7mm">Bullet 7mm</string>
         <string name="bullet_9mm">Bullet 9mm</string>
+        <string name="petrol_canister">Petrol Canister</string>
+       <string name="kerosene_canister">Kerosene Canister</string>
 
 
     <string name="rubber">Rubber</string>
@@ -327,7 +329,7 @@
     <string name="radius_title">Radius:</string>
     <string name="magnet_title">Magnet:</string>
     <string name="direction_title">Direction:</string>
-    <string name="move_limits_title">Move Limits:</string>
+    <string name="move_limits_title">Limits :</string>
     <string name="congruent_anchors_title">Congruent Anchors:</string>
     <string name="fixed_ratio_title">Fixed Ratio:</string>
     <string name="piped_color_title">Piped Color:</string>
@@ -355,4 +357,23 @@
     <string name="name_already_exists_validation_message">Name already exists.</string>
     <string name="item_name_title">Title</string>
     <string name="quit_confirmation_message">Are you sure you want to quit?</string>
+    <string name="blood">Blood</string>
+    <string name="petrol">Petrol</string>
+    <string name="juice">Juice</string>
+    <string name="kerosene">Kerosene</string>
+    <string name="other">Other</string>
+    <string name="black_powder">Black Powder</string>
+    <string name="smokeless_powder">Smokeless Powder</string>
+
+    <string name="created_by_me">By Me</string>
+    <string name="created_by_creator">By Creator</string>
+    <string name="slash_hint">Approach and tap to make a slashing motion.</string>
+    <string name="stab_hint">Get near and tap to execute a stabbing action.</string>
+    <string name="bludgeon_hint">Approach and tap to deliver a blunt strike.</string>
+
+    <string name="trigger_time_bomb_hint">Tap the trigger button to initiate bomb timer.</string>
+    <string name="trigger_impact_bomb_hint">Press the trigger button to disarm the impact bomb safety.</string>
+    <string name="trigger_rocket_launcher_hint">Tap the trigger to launch.</string>
+    <string name="unseal_hint">Tap the "on" button to open and the "off" button to close.</string>
+    <string name="rocket_launch_hint">Tap the "on" button to launch.</string>
 </resources>

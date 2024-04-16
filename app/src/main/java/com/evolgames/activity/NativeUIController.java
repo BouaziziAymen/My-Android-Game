@@ -13,6 +13,8 @@ import com.evolgames.scenes.PlayScene;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ItemCategory;
 
+import org.andengine.audio.sound.Sound;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -44,6 +46,7 @@ public class NativeUIController implements INativeUIController {
     public void onHomeButtonPressed() {
         resetUI();
         gameActivity.runOnUpdateThread(() -> {
+          ResourceManager.getInstance().motorSounds.forEach(Sound::stop);
             ((AbstractScene<?>) mainScene.getChildScene()).onPause();
             mainScene.goToScene(SceneType.MENU);
         });

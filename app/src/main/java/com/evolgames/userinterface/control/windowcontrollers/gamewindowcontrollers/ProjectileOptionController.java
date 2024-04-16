@@ -150,9 +150,10 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     }
 
     private void createProjectileToolButton(ItemMetaData itemMetaData, int missileId) {
+        int translatedNameStringId = ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName());
         ButtonWithText<ProjectileOptionController> missileButton =
                 new ButtonWithText<>(
-                        ResourceManager.getInstance().getString(ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName())),
+                        translatedNameStringId!=-1?ResourceManager.getInstance().getString(translatedNameStringId):itemMetaData.getName(),
                         2,
                         ResourceManager.getInstance().simpleButtonTextureRegion,
                         Button.ButtonType.Selector,
@@ -395,7 +396,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
     private void createCategoryCheckBox(Explosive explosive) {
         TitledButton<ProjectileOptionController> explosiveCheckBox =
                 new TitledButton<>(
-                        explosive.getName(),
+                        ResourceManager.getInstance().getString(explosive.stringId),
                         ResourceManager.getInstance().checkBoxTextureRegion,
                         Button.ButtonType.Selector,
                         5f,

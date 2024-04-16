@@ -138,5 +138,14 @@ public abstract class LiquidParticleWrapper {
         }
     }
 
-
+    public void detachDirect() {
+        if(this.particleSystem!=null){
+          particleSystem.detachSelf();
+        }
+    }
+    public void detach() {
+        if(this.particleSystem!=null){
+            ResourceManager.getInstance().activity.runOnUpdateThread(particleSystem::detachSelf);
+        }
+    }
 }

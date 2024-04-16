@@ -40,6 +40,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
 import com.evolgames.entities.usage.Bomb;
 import com.evolgames.entities.usage.Bow;
+import com.evolgames.entities.usage.ImpactBomb;
 import com.evolgames.entities.usage.LiquidContainer;
 import com.evolgames.entities.usage.MotorControl;
 import com.evolgames.entities.usage.Projectile;
@@ -47,6 +48,7 @@ import com.evolgames.entities.usage.ProjectileType;
 import com.evolgames.entities.usage.Rocket;
 import com.evolgames.entities.usage.RocketLauncher;
 import com.evolgames.entities.usage.Shooter;
+import com.evolgames.entities.usage.TimeBomb;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.physics.entities.Touch;
@@ -74,6 +76,7 @@ import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -101,6 +104,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     private LayerBlock glueBlock;
     private GameEntity glueEntity;
     private Sprite aimSprite;
+    private GameEntity usableEntity;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -661,11 +665,11 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
         if (touchEvent.isActionDown()) {
             setScrollerEnabled(false);
-            Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.getTouchedEntity(touchEvent, false, true);
+            Selection touchData = this.getTappedEntity(touchEvent);
             if (touchData != null) {
-                glueEntity = touchData.first;
-                point1 = touchData.second.first.cpy();
-                glueBlock = touchData.second.second;
+                glueEntity = touchData.gameEntity;
+                point1 = touchData.anchor.cpy();
+                glueBlock = touchData.layerBlock;
                 point2 = new Vector2(point1);
                 line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
                 line.setColor(Color.BLUE);
@@ -682,12 +686,12 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         }
         if (touchEvent.isActionUp() || touchEvent.isActionCancel() || touchEvent.isActionOutside()) {
             setScrollerEnabled(true);
-            Pair<GameEntity, Pair<Vector2, LayerBlock>> touchData = this.getTouchedEntity(touchEvent, false, true);
-            if (point1 != null && point2 != null && glueEntity != null && touchData != null && touchData.first != null && glueEntity != touchData.first) {
-                Touch touch = worldFacade.areTouching(glueBlock, touchData.second.second);
+            Selection touchData = this.getTappedEntity(touchEvent);
+            if (point1 != null && point2 != null && glueEntity != null && touchData != null && touchData.gameEntity != null && glueEntity != touchData.gameEntity) {
+                Touch touch = worldFacade.areTouching(glueBlock, touchData.layerBlock);
                 if (touch != null) {
-                    line.setPosition(point1.x, point1.y, touchData.second.first.x, touchData.second.first.y);
-                    this.worldFacade.glueEntities(glueEntity, touchData.first, touch.getPoint());
+                    line.setPosition(point1.x, point1.y, touchData.anchor.x, touchData.anchor.y);
+                    this.worldFacade.glueEntities(glueEntity, touchData.gameEntity, touch.getPoint());
                     ResourceManager.getInstance().glueSound.play();
                 }
             }
@@ -757,10 +761,32 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                 usageList.add(PlayerSpecialAction.effectCut);
                 usageList.add(PlayerSpecialAction.effectGlue);
                 usageList.add(PlayerSpecialAction.effectFireBolt);
-                if(ResourceManager.getInstance().getMapString().equalsIgnoreCase("open")) {
+                if (ResourceManager.getInstance().getMapString().equalsIgnoreCase("open")) {
                     usageList.add(PlayerSpecialAction.effectMeteor);
                 }
                 usageList.add(PlayerSpecialAction.effectFrost);
+            }
+            if (hand != null && usableEntity != hand.getUsableEntity() && hand.getUsableEntity() != null) {
+                if (usageList.contains(PlayerSpecialAction.Trigger)) {
+                    if (hand.getUsableEntity().hasUsage(TimeBomb.class)) {
+                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_time_bomb_hint), NativeUIController.HintType.HINT);
+                    }
+                    if (hand.getUsableEntity().hasUsage(ImpactBomb.class)) {
+                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_impact_bomb_hint), NativeUIController.HintType.HINT);
+                    }
+                    if (hand.getUsableEntity().hasUsage(RocketLauncher.class)) {
+                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_rocket_launcher_hint), NativeUIController.HintType.HINT);
+                    }
+                }
+                if (usageList.contains(PlayerSpecialAction.SwitchOn)) {
+                    if (hand.getUsableEntity().hasUsage(LiquidContainer.class)) {
+                        getActivity().getUiController().showHint(getActivity().getString(R.string.unseal_hint), NativeUIController.HintType.HINT);
+                    }
+                    if (hand.getUsableEntity().hasUsage(Rocket.class)) {
+                        getActivity().getUiController().showHint(getActivity().getString(R.string.rocket_launch_hint), NativeUIController.HintType.HINT);
+                    }
+                }
+                usableEntity = hand.getUsableEntity();
             }
             getActivity().getUiController().onUsagesUpdated(usageList, defaultAction, usesActive);
         });
@@ -770,30 +796,84 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         return ResourceManager.getInstance().activity;
     }
 
-    public Pair<GameEntity, Pair<Vector2, LayerBlock>> getTouchedEntity(TouchEvent touchEvent, boolean withHold, boolean includeStatic) {
-        GameEntity result = null;
-        Pair<Vector2, LayerBlock> anchor = null;
-        float minDis = 32f;
+    public Selection getSelectedEntity(TouchEvent touchEvent) {
+        List<Selection> list = new ArrayList<>();
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
-                if (entity.getBody() != null && (includeStatic || entity.getBody().getType() == BodyDef.BodyType.DynamicBody)) {
-                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, withHold);
+                if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
                     if (vector2LayerBlockPair != null) {
                         float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
-                        if (dis < minDis) {
-                            minDis = dis;
-                            result = entity;
-                            anchor = vector2LayerBlockPair;
+                        if (dis < 32f) {
+                            list.add(new Selection(entity, vector2LayerBlockPair.second, dis, vector2LayerBlockPair.first));
                         }
                     }
                 }
             }
         }
-        if (result != null) {
-            return new Pair<>(result, anchor);
+        list.sort(new SelectionComparator());
+        return list.stream().findFirst().orElse(null);
+    }
+
+    public Selection getHeldEntity(TouchEvent touchEvent) {
+        List<Selection> list = new ArrayList<>();
+        for (GameGroup gameGroup : getGameGroups()) {
+            for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
+                GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, true);
+                    if (vector2LayerBlockPair != null) {
+                        float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
+                        if (dis < 32f) {
+                            list.add(new Selection(entity, vector2LayerBlockPair.second, dis, vector2LayerBlockPair.first));
+                        }
+                    }
+                }
+            }
         }
-        return null;
+        list.sort(new HoldingComparator());
+        return list.stream().findFirst().orElse(null);
+    }
+
+    public Selection getDraggedEntity(TouchEvent touchEvent) {
+        List<Selection> list = new ArrayList<>();
+        for (GameGroup gameGroup : getGameGroups()) {
+            for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
+                GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
+                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
+                    if (vector2LayerBlockPair != null) {
+                        float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
+                        if (dis < 32f) {
+                            list.add(new Selection(entity, vector2LayerBlockPair.second, dis, vector2LayerBlockPair.first));
+                        }
+                    }
+                }
+            }
+        }
+        list.sort(new HoldingComparator());
+        return list.stream().findFirst().orElse(null);
+    }
+
+    public Selection getTappedEntity(TouchEvent touchEvent) {
+        List<Selection> list = new ArrayList<>();
+        for (GameGroup gameGroup : getGameGroups()) {
+            for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
+                GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (entity.getBody() != null) {
+                    Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
+                    if (vector2LayerBlockPair != null) {
+                        float dis = vector2LayerBlockPair.first.dst(touchEvent.getX(), touchEvent.getY());
+                        if (dis < 32f) {
+                            list.add(new Selection(entity, vector2LayerBlockPair.second, dis, vector2LayerBlockPair.first));
+                        }
+                    }
+                }
+            }
+        }
+        list.sort(new TappingComparator());
+        return list.stream().findFirst().orElse(null);
     }
 
     public void lockSaving() {
@@ -813,53 +893,25 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
-        if(playerSpecialAction==PlayerSpecialAction.effectMeteor||
-                playerSpecialAction==PlayerSpecialAction.effectFrost||
-                playerSpecialAction==PlayerSpecialAction.effectCut||
-                playerSpecialAction==PlayerSpecialAction.effectGlue||
-                playerSpecialAction==PlayerSpecialAction.effectFireBolt){
+        if (playerSpecialAction == PlayerSpecialAction.effectMeteor ||
+                playerSpecialAction == PlayerSpecialAction.effectFrost ||
+                playerSpecialAction == PlayerSpecialAction.effectCut ||
+                playerSpecialAction == PlayerSpecialAction.effectGlue ||
+                playerSpecialAction == PlayerSpecialAction.effectFireBolt) {
+            getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
+        }
+        if (playerSpecialAction == PlayerSpecialAction.Stab || playerSpecialAction == PlayerSpecialAction.Slash || playerSpecialAction == PlayerSpecialAction.Smash) {
             getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
         }
 
         if (playerSpecialAction == PlayerSpecialAction.AimHeavy || playerSpecialAction == PlayerSpecialAction.FireHeavy) {
-            if (aimSprite != null && aimSprite.hasParent()) {
-                aimSprite.detachSelf();
-            } else {
-                getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
-            }
-            createAimSprite(hand.getHeldEntity(), hand.getHeldEntity());
-            if (hand.getSelectedEntity().getBody() != null) {
-                physicsConnector = new PhysicsConnector(aimSprite, hand.getHeldEntity().getBody());
-                getPhysicsWorld().registerPhysicsConnector(physicsConnector);
-            }
-
-            if (!aimSprite.hasParent()) {
-                attachChild(aimSprite);
-            }
-        } else if (playerSpecialAction == PlayerSpecialAction.AimLight || playerSpecialAction == PlayerSpecialAction.FireLight|| playerSpecialAction == PlayerSpecialAction.Throw) {
-            if (aimSprite != null && aimSprite.hasParent()) {
-                aimSprite.detachSelf();
-                if (this.physicsConnector != null) {
-                    getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
-                }
-            } else {
-                getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
-            }
-            createAimSprite(hand.getGrabbedEntity(), hand.getGrabbedEntity());
-            if (hand.getGrabbedEntity().getBody() != null) {
-                physicsConnector = new PhysicsConnector(aimSprite, hand.getGrabbedEntity().getBody());
-                getPhysicsWorld().registerPhysicsConnector(physicsConnector);
-            }
-
-            if (!aimSprite.hasParent()) {
-                attachChild(aimSprite);
-            }
+            getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
+            createAimSprite(hand.getHeldEntity());
+        } else if (playerSpecialAction == PlayerSpecialAction.AimLight || playerSpecialAction == PlayerSpecialAction.FireLight || playerSpecialAction == PlayerSpecialAction.Throw) {
+            getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
+            createAimSprite(hand.getGrabbedEntity());
         } else {
-            if (aimSprite != null) {
-                hideAimSprite(aimSprite.hasParent(), aimSprite);
-                this.aimSprite = null;
-                this.physicsConnector = null;
-            }
+            hideAimSprite();
         }
 
         if (playerSpecialAction == PlayerSpecialAction.FireHeavy || playerSpecialAction == PlayerSpecialAction.AimHeavy) {
@@ -895,7 +947,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Drop) {
             if (this.hand != null) {
-                this.hand.releaseGrabbedEntity(true,true);
+                this.hand.releaseGrabbedEntity(true, true);
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Trigger) {
             if (this.hand != null) {
@@ -951,13 +1003,22 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         }
     }
 
-    private void createAimSprite(GameEntity hand, GameEntity hand1) {
-        aimSprite = new Sprite(hand.getX(), hand1.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
+    private void createAimSprite(GameEntity entity) {
+        if (aimSprite != null) {
+            hideAimSprite();
+        }
+        aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
         aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        this.attachChild(aimSprite);
         aimSprite.setAlpha(0.01f);
         aimSprite.setWidth(32 * 16);
         aimSprite.setHeight(32 * 16);
         aimSprite.setZIndex(-1);
+        if (entity.getBody() != null) {
+            physicsConnector = new PhysicsConnector(aimSprite, entity.getBody());
+            getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+        }
+
     }
 
     private void resetTouchHold() {
@@ -1077,19 +1138,84 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     public void onSelectedEntitySpared() {
-        hideAimSprite(this.aimSprite != null, this.aimSprite);
+        hideAimSprite();
     }
 
-    private void hideAimSprite(boolean aimSprite, Sprite aimSprite1) {
-        if (aimSprite) {
-            aimSprite1.detachSelf();
+    private void hideAimSprite() {
+        if (aimSprite != null && aimSprite.hasParent()) {
+            aimSprite.detachSelf();
             if (this.physicsConnector != null) {
                 getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
             }
         }
     }
 
-    public void onGrabbedEntityReleased() {
-        hideAimSprite(this.aimSprite != null, this.aimSprite);
+    public void onGrabbedEntityReleased(boolean usagesUpdated) {
+        if (usagesUpdated) {
+            hideAimSprite();
+        }
+    }
+
+    public static class Selection {
+        public GameEntity gameEntity;
+        public Vector2 anchor;
+        LayerBlock layerBlock;
+        float distance;
+        int uses;
+        int zIndex;
+
+        public Selection(GameEntity gameEntity, LayerBlock layerBlock, float distance, Vector2 anchor) {
+            this.gameEntity = gameEntity;
+            this.layerBlock = layerBlock;
+            this.distance = distance;
+            this.anchor = anchor;
+            this.uses = gameEntity.getUseList().size();
+            this.zIndex = gameEntity.getZIndex();
+        }
+    }
+
+    static class SelectionComparator implements Comparator<Selection> {
+        @Override
+        public int compare(Selection s1, Selection s2) {
+            // First compare by number of uses
+            int compareByUses = Integer.compare(s2.uses, s1.uses);
+            if (compareByUses != 0) {
+                return compareByUses;
+            }
+
+            // If uses are equal, compare by z-index
+            int compareByZIndex = Integer.compare(s2.zIndex, s1.zIndex);
+            if (compareByZIndex != 0) {
+                return compareByZIndex;
+            }
+
+            // If z-index are equal, compare by distance
+            return Float.compare(s1.distance, s2.distance);
+        }
+    }
+
+    static class HoldingComparator implements Comparator<Selection> {
+        @Override
+        public int compare(Selection s1, Selection s2) {
+
+            // first compare by z-index only if the entities belong to different groups
+            if (s1.gameEntity.getParentGroup() != s2.gameEntity.getParentGroup()) {
+                int compareByZIndex = Integer.compare(s2.zIndex, s1.zIndex);
+                if (compareByZIndex != 0) {
+                    return compareByZIndex;
+                }
+            }
+
+            // If z-index are equal, compare by distance
+            return Float.compare(s1.distance, s2.distance);
+        }
+    }
+
+    static class TappingComparator implements Comparator<Selection> {
+        @Override
+        public int compare(Selection s1, Selection s2) {
+            // compare by distance
+            return Float.compare(s1.distance, s2.distance);
+        }
     }
 }

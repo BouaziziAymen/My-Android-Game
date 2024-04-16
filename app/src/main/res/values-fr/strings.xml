@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Mutiler</string>
     <string name="validator_too_long">Trop long !</string>
     <string name="validator_too_short">Trop court !</string>
     <string name="validator_invalid_name">Nom invalide</string>
@@ -167,6 +166,8 @@
     <string name="bullet_5mm">Balle 5mm</string>
     <string name="bullet_7mm">Balle 7mm</string>
     <string name="bullet_9mm">Balle 9mm</string>
+    <string name="petrol_canister">Bidon d\'essence</string>
+    <string name="kerosene_canister">Bidon de kérosène</string>
 
 
     <string name="rubber">Caoutchouc</string>
@@ -331,7 +332,7 @@
     <string name="radius_title">Rayon :</string>
     <string name="magnet_title">Aimant :</string>
     <string name="direction_title">Direction :</string>
-    <string name="move_limits_title">Limites de déplacement :</string>
+    <string name="move_limits_title">Limites :</string>
     <string name="congruent_anchors_title">Ancres congruentes :</string>
     <string name="name_already_exists_validation_message">Le nom existe déjà.</string>
     <string name="item_name_title">Titre</string>
@@ -359,4 +360,26 @@
     <string name="rot_2f">Rot=%.2f</string>
     <string name="x_2f_y_2f">(X=%.2f, Y=%.2f)</string>
     <string name="quit_confirmation_message">Êtes-vous sûr de vouloir quitter ?</string>
+
+    <string name="blood">Sang</string>
+    <string name="petrol">Essence</string>
+    <string name="juice">Jus</string>
+    <string name="kerosene">Kérosène</string>
+    <string name="other">Autre</string>
+    <string name="black_powder">Poudre noire</string>
+    <string name="smokeless_powder">Poudre sans fumée</string>
+
+    <string name="created_by_me">Par moi</string>
+    <string name="created_by_creator">Par le créateur</string>
+
+    <string name="slash_hint">Approchez et touchez pour effectuer un mouvement de coupe.</string>
+    <string name="stab_hint">Approchez et touchez pour exécuter une action de poignardage.</string>
+    <string name="bludgeon_hint">Approchez et touchez pour effectuer une frappe contondante.</string>
+
+    <string name="trigger_time_bomb_hint">Appuyez sur le bouton de déclenchement pour démarrer le minuteur de la bombe.</string>
+    <string name="trigger_impact_bomb_hint">Appuyez sur le bouton de déclenchement pour désarmer la sécurité de la bombe à impact.</string>
+    <string name="trigger_rocket_launcher_hint">Appuyez sur la gâchette pour lancer.</string>
+    <string name="unseal_hint">Appuyez sur le bouton "on" pour ouvrir et sur le bouton "off" pour fermer.</string>
+    <string name="rocket_launch_hint">Appuyez sur le bouton "on" pour lancer.</string>
+
 </resources>

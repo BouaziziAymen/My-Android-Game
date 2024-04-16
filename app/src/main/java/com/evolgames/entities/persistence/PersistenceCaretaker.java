@@ -202,7 +202,7 @@ public class PersistenceCaretaker {
 //     scaleTool("Archery Target#",1.333f);
        // mirrorTool("Rocket 2#");
         // moveLayersTransformation();
-        asIsTransformation();
+        //asIsTransformation();
     }
 
     private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
@@ -247,14 +247,10 @@ public class PersistenceCaretaker {
     }
     private void asIsTransformation() {
         VersioningHelper.applyTreatment(toolModel -> {
-            for(BodyModel bodyModel:toolModel.getBodies()){
-                for(LayerModel layerModel:bodyModel.getLayers()){
-                    if(layerModel.getProperties().isJuicy()){
-                        layerModel.getProperties().setJuiceIndex(2);
-                    }
-                }
-            }
-        }, (ItemMetaData e) ->e.getItemCategory()==ItemCategory.PRODUCE);
+           if(!toolModel.getProperties().getToolName().endsWith("#")){
+               toolModel.getProperties().setToolName(toolModel.getProperties().getToolName()+"#");
+           }
+        }, (ItemMetaData e) ->true);
     }
 
     private void scaleToolBody(String toolName, float scale, int bodyId) {

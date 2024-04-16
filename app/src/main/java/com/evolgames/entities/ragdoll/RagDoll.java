@@ -259,11 +259,13 @@ public class RagDoll extends GameGroup {
        return Arrays.asList(rightFoot,leftFoot,lowerLegR,lowerLegL,upperLegR,upperLegL,upperTorso,upperArmR,upperArmL,
                 lowerArmR,lowerArmL,rightHand,leftHand,head).contains(parentEntity);
     }
+    public boolean isBluntSensitiveBodyPart(GameEntity parentEntity) {
+        return Arrays.asList(upperTorso,head).contains(parentEntity);
+    }
 
 
     public void onBlunt(int finalNumberOfPoints) {
         bluntTrauma+= finalNumberOfPoints;
-        Log.d("Blunt Trauma",""+bluntTrauma);
         if(bluntTrauma>1000){
             if(head!=null) {
                 this.alive = false;
@@ -274,7 +276,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBleeding() {
         bloodLost++;
-        if(bloodLost>200){
+        if(bloodLost>400){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

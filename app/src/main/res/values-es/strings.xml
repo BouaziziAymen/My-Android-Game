@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Mutilar</string>
     <string name="validator_too_long">¡Demasiado largo!</string>
     <string name="validator_too_short">¡Demasiado corto!</string>
     <string name="validator_invalid_name">Nombre inválido</string>
@@ -165,6 +164,8 @@
     <string name="bullet_5mm">Bala 5mm</string>
     <string name="bullet_7mm">Bala 7mm</string>
     <string name="bullet_9mm">Bala 9mm</string>
+    <string name="petrol_canister">Bidón de gasolina</string>
+    <string name="kerosene_canister">Bidón de queroseno</string>
 
     <string name="rubber">Caucho</string>
     <string name="plastic">Plástico</string>
@@ -327,7 +328,7 @@
     <string name="radius_title">Radio :</string>
     <string name="magnet_title">Imán :</string>
     <string name="direction_title">Dirección :</string>
-    <string name="move_limits_title">Límites de movimiento :</string>
+    <string name="move_limits_title">Límites :</string>
     <string name="congruent_anchors_title">Anclajes congruentes :</string>
     <string name="name_already_exists_validation_message">El nombre ya existe.</string>
     <string name="item_name_title">Título</string>
@@ -355,4 +356,25 @@
     <string name="layer_settings_title">Configuraciones de la capa:</string>
     <string name="decoration_name_title">Nombre de la decoración:</string>
     <string name="quit_confirmation_message">¿Estás seguro de que quieres salir?</string>
+
+    <string name="blood">Sangre</string>
+    <string name="petrol">Gasolina</string>
+    <string name="juice">Jugo</string>
+    <string name="kerosene">Queroseno</string>
+    <string name="other">Otro</string>
+    <string name="black_powder">Pólvora Negra</string>
+    <string name="smokeless_powder">Pólvora sin Humo</string>
+
+    <string name="created_by_me">Por mí</string>
+    <string name="created_by_creator">Por el creador</string>
+
+    <string name="slash_hint">Acércate y toca para hacer un movimiento de corte.</string>
+    <string name="stab_hint">Acércate y toca para ejecutar una acción de apuñalamiento.</string>
+    <string name="bludgeon_hint">Acércate y toca para realizar un golpe contundente.</string>
+
+    <string name="trigger_time_bomb_hint">Toque el botón de gatillo para iniciar el temporizador de la bomba.</string>
+    <string name="trigger_impact_bomb_hint">Presione el botón de gatillo para desactivar la seguridad de la bomba de impacto.</string>
+    <string name="trigger_rocket_launcher_hint">Toque el gatillo para lanzar.</string>
+    <string name="unseal_hint">Toque el botón "encender" para abrir y el botón "apagar" para cerrar.</string>
+    <string name="rocket_launch_hint">Toque el botón de encendido para lanzar.</string>
 </resources>

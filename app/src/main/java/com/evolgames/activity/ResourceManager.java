@@ -658,7 +658,7 @@ public class ResourceManager {
                             this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
-        this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜîÎ";
+        this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:'äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜîÎ";
         fontLoader.loadFont(
                 0,
                 Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD),
@@ -931,13 +931,10 @@ public class ResourceManager {
         itemsTranslationMap.put("Chair 2#", R.string.chair_2);
         itemsTranslationMap.put("Chair 3#", R.string.chair_3);
         itemsTranslationMap.put("Dragon#", R.string.dragon);
-        itemsTranslationMap.put("My Petrol Container#", R.string.my_petrol_container);
         itemsTranslationMap.put("Pandora's Jar#", R.string.pandoras_jar);
-        itemsTranslationMap.put("Petrol Container#", R.string.petrol_container);
         itemsTranslationMap.put("Table 1#", R.string.table_1);
         itemsTranslationMap.put("Table 2#", R.string.table_2);
         itemsTranslationMap.put("Table 3#", R.string.table_3);
-        itemsTranslationMap.put("Tutorial", R.string.tutorial);
         itemsTranslationMap.put("Frag. Grenade 1#", R.string.frag_grenade_1);
         itemsTranslationMap.put("Frag. Grenade 2#", R.string.frag_grenade_2);
         itemsTranslationMap.put("Frag. Grenade 3#", R.string.frag_grenade_3);
@@ -986,18 +983,20 @@ public class ResourceManager {
         itemsTranslationMap.put("Battle Axe#", R.string.battle_axe);
         itemsTranslationMap.put("Bearded Axe#", R.string.bearded_axe);
         itemsTranslationMap.put("Francisca#", R.string.francisca);
-        itemsTranslationMap.put("Apple", R.string.apple);
-        itemsTranslationMap.put("Kiwi", R.string.kiwi);
-        itemsTranslationMap.put("Lemon", R.string.lemon);
-        itemsTranslationMap.put("Pumpkin", R.string.pumpkin);
-        itemsTranslationMap.put("Melon", R.string.melon);
-        itemsTranslationMap.put("Orange", R.string.orange);
-        itemsTranslationMap.put("Pear", R.string.pear);
-        itemsTranslationMap.put("Watermelon", R.string.watermelon);
+        itemsTranslationMap.put("Apple#", R.string.apple);
+        itemsTranslationMap.put("Kiwi#", R.string.kiwi);
+        itemsTranslationMap.put("Lemon#", R.string.lemon);
+        itemsTranslationMap.put("Pumpkin#", R.string.pumpkin);
+        itemsTranslationMap.put("Melon#", R.string.melon);
+        itemsTranslationMap.put("Orange#", R.string.orange);
+        itemsTranslationMap.put("Pear#", R.string.pear);
+        itemsTranslationMap.put("Watermelon#", R.string.watermelon);
         itemsTranslationMap.put("Bullet 0.50 BMG#", R.string.bullet_0_50_bmg);
         itemsTranslationMap.put("Bullet 5mm#", R.string.bullet_5mm);
         itemsTranslationMap.put("Bullet 7mm#", R.string.bullet_7mm);
-        itemsTranslationMap.put("Bullet 9mm", R.string.bullet_9mm);
+        itemsTranslationMap.put("Bullet 9mm#", R.string.bullet_9mm);
+        itemsTranslationMap.put("Petrol Canister#", R.string.petrol_canister);
+        itemsTranslationMap.put("Kerosene Canister#", R.string.kerosene_canister);
     }
 
     public Integer getTranslatedItemStringId(String name){

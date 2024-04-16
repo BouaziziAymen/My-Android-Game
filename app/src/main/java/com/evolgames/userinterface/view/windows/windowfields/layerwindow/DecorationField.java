@@ -1,6 +1,7 @@
 package com.evolgames.userinterface.view.windows.windowfields.layerwindow;
 
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.LayerWindowController;
 import com.evolgames.userinterface.view.inputs.Button;
@@ -13,6 +14,7 @@ public class DecorationField extends TertiaryLinearLayout {
     private final ButtonWithText<LayerWindowController> mDecorationControl;
     private final Button<LayerWindowController> decorationRemoveButton;
     private final Button<LayerWindowController> decorationOptionsButton;
+    private final Button<LayerWindowController> decorationShowHideButton;
     private boolean visibleFields;
 
     public DecorationField(
@@ -76,6 +78,25 @@ public class DecorationField extends TertiaryLinearLayout {
                         controller.onDecorationRemoveButtonReleased(DecorationField.this);
                     }
                 });
+
+        decorationShowHideButton =
+                new Button<>(
+                        ResourceManager.getInstance().showHideTextureRegion, Button.ButtonType.Selector, true);
+        addToLayout(decorationShowHideButton);
+        decorationShowHideButton.setBehavior(
+                new ButtonBehavior<LayerWindowController>(controller, decorationShowHideButton) {
+                    @Override
+                    public void informControllerButtonClicked() {
+                        controller.onDecorationShowHideButtonClicked(DecorationField.this);
+                    }
+
+                    @Override
+                    public void informControllerButtonReleased() {
+                        controller.onDecorationShowHideButtonReleased(DecorationField.this);
+                    }
+                });
+        decorationShowHideButton.updateState(Button.State.PRESSED);
+
         this.setHeight(decorationRemoveButton.getHeight());
     }
 
@@ -91,14 +112,18 @@ public class DecorationField extends TertiaryLinearLayout {
         this.visibleFields = true;
         this.decorationOptionsButton.setVisible(true);
         this.decorationRemoveButton.setVisible(true);
+        this.decorationShowHideButton.setVisible(true);
+
         this.decorationOptionsButton.setGone(false);
         this.decorationRemoveButton.setGone(false);
+        this.decorationShowHideButton.setGone(false);
     }
 
     public void hideFields() {
         this.visibleFields = false;
         this.decorationOptionsButton.setGone(true);
         this.decorationRemoveButton.setGone(true);
+        this.decorationShowHideButton.setGone(true);
     }
 
     @Override

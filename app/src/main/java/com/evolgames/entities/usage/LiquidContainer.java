@@ -95,7 +95,16 @@ public class LiquidContainer extends Use {
 
     @Override
     public void dynamicMirror(PhysicsScene<?> physicsScene) {
-
+        liquidSourceInfoList.forEach(liquidSourceInfo -> {
+            liquidSourceInfo.getLiquidSourceOrigin().set(GeometryUtils.mirrorPoint(liquidSourceInfo.getLiquidSourceOrigin()));
+            liquidSourceInfo.getLiquidDirection().x = -liquidSourceInfo.getLiquidDirection().x;
+        });
+        if(this.liquidSourceInfoHashMap!=null){
+            for(LiquidParticleWrapper liquidParticleWrapper:liquidSourceInfoHashMap.values()){
+                liquidParticleWrapper.detachDirect();
+            }
+        }
+        createLiquidSources(physicsScene.getWorldFacade());
     }
 
     public void createLiquidSources(WorldFacade worldFacade) {
