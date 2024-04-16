@@ -903,8 +903,9 @@ public class ResourceManager {
         this.selectedItemMetaData = selectedItemMetaData;
     }
 
-    public void tryPlaySound(Sound sound, float volume) {
+    public void tryPlaySound(Sound sound, float volume, int priority) {
         if (this.sound) {
+            sound.setPriority(priority);
             sound.setVolume(volume);
             sound.play();
         }

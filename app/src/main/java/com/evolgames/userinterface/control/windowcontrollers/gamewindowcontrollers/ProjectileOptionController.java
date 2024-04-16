@@ -432,7 +432,7 @@ public class ProjectileOptionController extends SettingsWindowController<Project
         if (simpleSecondary.getPrimaryKey() == 2) {
             GameSound gameSound =   this.sounds
                     .get(secondaryKey);
-            ResourceManager.getInstance().tryPlaySound(gameSound.getSound(),1f);
+            ResourceManager.getInstance().tryPlaySound(gameSound.getSound(),1f,1);
             projectileProperties.setFireSound(gameSound.getTitle());
             for (int i = 0; i < window.getLayout().getSecondariesSize(primaryKey); i++) {
                 SimpleSecondary<?> element =

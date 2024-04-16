@@ -204,6 +204,7 @@ public class Shooter extends Use {
 
         if (rounds <= 0) {
             startReload();
+            ResourceManager.getInstance().gunEmptySound.setPriority(3);
             ResourceManager.getInstance().gunEmptySound.play();
         }
     }
@@ -300,7 +301,8 @@ public class Shooter extends Use {
         );
 
         Sound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound()).getSound();
-      ResourceManager.getInstance().tryPlaySound(sound,1f);
+
+      ResourceManager.getInstance().tryPlaySound(sound,1f,3);
     }
 
     @Override

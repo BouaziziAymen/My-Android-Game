@@ -1,7 +1,5 @@
 package com.evolgames.entities.ragdoll;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.JointEdge;
@@ -38,6 +36,7 @@ public class RagDoll extends GameGroup {
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
     private int bloodLost, bluntTrauma;
+    private boolean dead;
 
     public RagDoll(PhysicsScene<?> scene, GameEntity... entities) {
         super(GroupType.DOLL, entities);
@@ -49,11 +48,10 @@ public class RagDoll extends GameGroup {
         rightFoot.getBody().applyTorque(torque);
     }
 
-    private void onUpdate(float pSecondsElapsed) {
+    private void onUpdate() {
         if (head == null || head.getBody() == null || !head.isAlive()) {
             return;
         }
-
         detectGround();
         this.performAction();
     }
@@ -93,7 +91,16 @@ public class RagDoll extends GameGroup {
     public void onStep(float timeStep) {
         super.onStep(timeStep);
         findBodyParts();
-        onUpdate(timeStep);
+        onUpdate();
+        if(!alive && !dead){
+            dead = true;
+          for(GameEntity gameEntity:getEntities()){
+              gameEntity.getBlocks().forEach(layerBlock -> {
+                  layerBlock.getProperties().setJuicinessLowerPressure(0.1f);
+                  layerBlock.getProperties().setJuicinessUpperPressure(0.1f);
+              });
+          }
+        }
     }
 
     private void detectGround() {
@@ -262,8 +269,6 @@ public class RagDoll extends GameGroup {
     public boolean isBluntSensitiveBodyPart(GameEntity parentEntity) {
         return Arrays.asList(upperTorso,head).contains(parentEntity);
     }
-
-
     public void onBlunt(int finalNumberOfPoints) {
         bluntTrauma+= finalNumberOfPoints;
         if(bluntTrauma>1000){
@@ -276,7 +281,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBleeding() {
         bloodLost++;
-        if(bloodLost>1000){
+        if(bloodLost>300){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

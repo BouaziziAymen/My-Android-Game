@@ -56,6 +56,8 @@ public class Hand {
     private MouseJointDef mouseJointDef;
     private int zIndex;
 
+
+    @SuppressWarnings("unused")
     public Hand() {
     }
 
@@ -454,7 +456,8 @@ public class Hand {
         if(selectedEntity==null){
             return;
         }
-        selectedEntity.hideOutline();
+        final GameEntity selected = this.selectedEntity;
+        ResourceManager.getInstance().activity.runOnUpdateThread(selected::hideOutline);
         if (selectedEntity.hasUsage(Shooter.class)) {
             Shooter shooter = selectedEntity.getUsage(Shooter.class);
             shooter.onTriggerReleased();
@@ -467,6 +470,7 @@ public class Hand {
     }
 
     private void select(GameEntity entity) {
+        releaseGrabbedEntity(false,true);
         entity.outlineEntity();
         this.selectedEntity = entity;
         this.playScene.onUsagesUpdated();

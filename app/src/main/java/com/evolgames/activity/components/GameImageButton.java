@@ -78,7 +78,7 @@ public class GameImageButton extends FrameLayout {
                     if (onPressed != null) {
                         onPressed.run();
                     }
-                    ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f);
+                    ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f,4);
                     performClick(); // Handle click event
                     return true;
                 case MotionEvent.ACTION_UP:
@@ -101,14 +101,14 @@ public class GameImageButton extends FrameLayout {
                     if (state == Button.State.PRESSED) {
                         button.setImageResource(R.drawable.button_released);
                         this.state = Button.State.NORMAL;
-                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().offSound,1f);
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().offSound,1f,4);
                         if (onReleased != null) {
                             onReleased.run();
                         }
                     } else if (state == Button.State.NORMAL)  {
                         button.setImageResource(R.drawable.button_clicked_two);
                         this.state = Button.State.PRESSED;
-                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f);
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().onSound,1f,4);
                         if (onPressed != null) {
                             onPressed.run();
                         }

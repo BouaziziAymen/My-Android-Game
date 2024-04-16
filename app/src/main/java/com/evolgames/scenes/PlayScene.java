@@ -80,6 +80,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccelerationListener, ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener {
     public static float groundY;
@@ -732,18 +733,20 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         getActivity().runOnUiThread(() -> {
             List<PlayerSpecialAction> usageList = new ArrayList<>();
             PlayerSpecialAction defaultAction = null;
+            Hand h = getHand();
             if (usesActive) {
-                Hand h = getHand();
-                if (h != null && h.getUsableEntity() != null) {
-                    h.getUsableEntity().getUseList().forEach(u -> {
-                        if (this.playerAction == PlayerAction.Hold || hand.hasSelectedEntity()) {
+                if (h != null && h.hasSelectedEntity()) {
+                    h.getSelectedEntity().getUseList().forEach(u -> {
+                            if (u.getActions() != null && !u.getActions().isEmpty()) {
+                                usageList.addAll(u.getActions().stream().filter(e->e.fromDistance).collect(Collectors.toList()));
+                            }
+                    });
+                }
+                else if (playerAction==PlayerAction.Hold && h != null && h.getGrabbedEntity() != null) {
+                    h.getGrabbedEntity().getUseList().forEach(u -> {
                             if (u.getActions() != null && !u.getActions().isEmpty()) {
                                 usageList.addAll(u.getActions());
-                                if (this.playerAction == PlayerAction.Select) {
-                                    usageList.removeIf(e -> !e.fromDistance);
-                                }
                             }
-                        }
                     });
                 }
 
@@ -1092,10 +1095,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
     public void setChaseActive(boolean chaseActive) {
         this.chaseActive = chaseActive;
-    }
-
-    public boolean isUsesActive() {
-        return usesActive;
     }
 
     public void setUsesActive(boolean usesActive) {

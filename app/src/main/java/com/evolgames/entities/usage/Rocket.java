@@ -68,7 +68,7 @@ public class Rocket extends Use {
             }
         }
         if(withSound) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().getProjectileSound("missile1").getSound(),1f);
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().getProjectileSound("missile1").getSound(),1f,4);
         }
     }
 

@@ -196,12 +196,10 @@ public class NativeUIController implements INativeUIController {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
         playScene.setUsesActive(true);
         playScene.setEffectsActive(false);
-       // playScene.onUsagesUpdated();
     }
 
     public void onUsesReleased() {
-        PlayScene playScene = ((PlayScene) mainScene.getChildScene());
-        playScene.setUsesActive(false);
+
     }
 
     public void onEffectsClicked() {

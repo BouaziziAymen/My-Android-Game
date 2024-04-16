@@ -66,7 +66,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         worldFacade.freeze(penetrator);
         hand.getHandControlStack().peek().setDead(true);
         if(actualAdvance<0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse));
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse),2);
         }
         this.setActive(false);
     }
@@ -90,7 +90,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
         if(actualAdvance<0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse));
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse),2);
         }
         setActive(false);
     }
