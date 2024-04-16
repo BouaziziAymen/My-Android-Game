@@ -769,21 +769,21 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             if (hand != null && usableEntity != hand.getUsableEntity() && hand.getUsableEntity() != null) {
                 if (usageList.contains(PlayerSpecialAction.Trigger)) {
                     if (hand.getUsableEntity().hasUsage(TimeBomb.class)) {
-                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_time_bomb_hint), NativeUIController.HintType.HINT);
+                        getActivity().getUiController().showHint(R.string.trigger_time_bomb_hint, NativeUIController.HintType.HINT);
                     }
                     if (hand.getUsableEntity().hasUsage(ImpactBomb.class)) {
-                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_impact_bomb_hint), NativeUIController.HintType.HINT);
+                        getActivity().getUiController().showHint(R.string.trigger_impact_bomb_hint, NativeUIController.HintType.HINT);
                     }
                     if (hand.getUsableEntity().hasUsage(RocketLauncher.class)) {
-                        getActivity().getUiController().showHint(getActivity().getString(R.string.trigger_rocket_launcher_hint), NativeUIController.HintType.HINT);
+                        getActivity().getUiController().showHint(R.string.trigger_rocket_launcher_hint, NativeUIController.HintType.HINT);
                     }
                 }
                 if (usageList.contains(PlayerSpecialAction.SwitchOn)) {
                     if (hand.getUsableEntity().hasUsage(LiquidContainer.class)) {
-                        getActivity().getUiController().showHint(getActivity().getString(R.string.unseal_hint), NativeUIController.HintType.HINT);
+                        getActivity().getUiController().showHint(R.string.unseal_hint, NativeUIController.HintType.HINT);
                     }
                     if (hand.getUsableEntity().hasUsage(Rocket.class)) {
-                        getActivity().getUiController().showHint(getActivity().getString(R.string.rocket_launch_hint), NativeUIController.HintType.HINT);
+                        getActivity().getUiController().showHint(R.string.rocket_launch_hint, NativeUIController.HintType.HINT);
                     }
                 }
                 usableEntity = hand.getUsableEntity();

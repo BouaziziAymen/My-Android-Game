@@ -68,6 +68,7 @@ public class GameActivity extends BaseGameActivity {
     public static final String MAP_KEY = "GameMap";
     public static final String SOUND_KEY = "Sound";
     public static final String MUSIC_KEY = "Music";
+    public static final String HINTS_KEY = "Hints";
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final String DEVELOPER_EMAIL = "aymendotbouazizi@gmail.com";
     private static final String EMAIL_SUBJECT = "Mutilate : Item";
@@ -417,6 +418,7 @@ public class GameActivity extends BaseGameActivity {
         saveStringToPreferences(MAP_KEY, ResourceManager.getInstance().getMapString());
         saveBooleanToPreferences(SOUND_KEY, ResourceManager.getInstance().isSound());
         saveBooleanToPreferences(MUSIC_KEY, ResourceManager.getInstance().isMusic());
+        saveBooleanToPreferences(HINTS_KEY, ResourceManager.getInstance().isHints());
     }
 
     public void showHelpDialog() {

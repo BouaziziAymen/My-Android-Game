@@ -233,6 +233,9 @@ public class NativeUIController implements INativeUIController {
         WARNING, HINT
     }
     public void showHint(int hintString, HintType hintType){
+        if(!ResourceManager.getInstance().isHints()&&hintType!=HintType.WARNING){
+            return;
+        }
         gameActivity.runOnUiThread(() -> {
             int hintIconId = 0;
             switch (hintType){
@@ -249,6 +252,9 @@ public class NativeUIController implements INativeUIController {
     }
 
     public void showHint(String text, HintType hintType){
+        if(!ResourceManager.getInstance().isHints()&&hintType!=HintType.WARNING){
+            return;
+        }
         gameActivity.runOnUiThread(() -> {
             int hintIconId = 0;
             switch (hintType){

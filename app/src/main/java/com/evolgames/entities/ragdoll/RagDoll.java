@@ -276,7 +276,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBleeding() {
         bloodLost++;
-        if(bloodLost>400){
+        if(bloodLost>1000){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

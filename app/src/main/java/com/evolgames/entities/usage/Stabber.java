@@ -82,7 +82,6 @@ public class Stabber extends MeleeUse implements Penetrating {
         moveToStabHandControl.setTarget(handWorldPoint.add(normal.cpy().mul(possibleAdvance)));
         penetrator.getBody().setFixedRotation(true);
         this.setActive(false);
-        contact.setEnabled(false);
     }
 
     @Override
@@ -115,12 +114,6 @@ public class Stabber extends MeleeUse implements Penetrating {
         worldFacade.computePenetrationPoints(normal, possibleAdvance, envData, collisionImpulse);
         setActive(false);
         penetrator.getBody().setFixedRotation(true);
-        contact.setEnabled(false);
-    }
-
-    private float getMassFraction(GameEntity penetrator, GameEntity stabbedEntity) {
-        return penetrator.getBody().getMass()
-                / (penetrator.getBody().getMass() + stabbedEntity.getBody().getMass());
     }
 
     @Override

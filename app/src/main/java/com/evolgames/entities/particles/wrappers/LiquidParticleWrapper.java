@@ -77,12 +77,8 @@ public abstract class LiquidParticleWrapper {
     public void update() {
         timer++;
         if (splashVelocity != null) {
-            float percentage = EaseStrongInOut.getInstance().getPercentage(timer, 30);
-            velocityInitializer
-                    .getIndependentVelocity()
-                    .set(
-                            (float) (splashVelocity.x * (percentage + Math.random() * 0.1f)),
-                            (float) (splashVelocity.y * (percentage + Math.random() * 0.1f)));
+            splashVelocity.mul(0.95f);
+            velocityInitializer.getIndependentVelocity().set(splashVelocity.x, splashVelocity.y);
         }
         if (!parent.isAlive()) {
             this.particleSystem.setParticlesSpawnEnabled(false);

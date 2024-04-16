@@ -1,5 +1,6 @@
 package com.evolgames.activity;
 
+import static com.evolgames.activity.GameActivity.HINTS_KEY;
 import static com.evolgames.activity.GameActivity.MAP_KEY;
 import static com.evolgames.activity.GameActivity.MUSIC_KEY;
 import static com.evolgames.activity.GameActivity.SOUND_KEY;
@@ -167,7 +168,7 @@ public class ResourceManager {
     private ItemMetaData editorItem;
     private ItemMetaData selectedItemMetaData;
     private String mapString;
-    private boolean sound, music;
+    private boolean sound, music, hints;
     private String lettersList;
     public TiledTextureRegion evilEyesTextureRegion;
     private HashMap<String, Integer> itemsTranslationMap;
@@ -230,6 +231,7 @@ public class ResourceManager {
         this.mapString = activity.loadStringFromPreferences(MAP_KEY, "Wood");
         this.sound = activity.loadBooleanFromPreferences(SOUND_KEY, true);
         this.music = activity.loadBooleanFromPreferences(MUSIC_KEY, true);
+        this.hints = activity.loadBooleanFromPreferences(HINTS_KEY, true);
     }
 
     public void loadBatches() {
@@ -1004,5 +1006,13 @@ public class ResourceManager {
             return itemsTranslationMap.get(name);
         }
         return -1;
+    }
+
+    public boolean isHints() {
+        return hints;
+    }
+
+    public void setHints(boolean hints) {
+        this.hints = hints;
     }
 }

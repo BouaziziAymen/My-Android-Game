@@ -46,6 +46,7 @@
     <string name="rating">Enjoyed the game? Your 5-star rating fuels our progress and enhances your experience.</string>
     <string name="bad_review">Feel free to visit Google Play to rate us or leave a review. Remember, if you ever need a refund, just let us know!</string>
 
+    <string name="hint_setting">Hints</string>
     <string name="sound_setting">Sound</string>
     <string name="music_setting">Music</string>
     <string name="map_options">Map Options</string>
