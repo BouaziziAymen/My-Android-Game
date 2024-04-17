@@ -75,10 +75,10 @@ public class SceneSerializer {
             PlayScene playScene = (PlayScene) abstractScene;
             this.playerAction = playScene.getPlayerAction();
             this.playerSpecialAction = playScene.getSpecialAction();
-            if(playScene.getHand().getGrabbedEntity()!=null) {
+            if(playScene.getHand()!=null&&playScene.getHand().getGrabbedEntity()!=null) {
                 this.grabbedEntityUniqueId = playScene.getHand().getGrabbedEntity().getUniqueID();
             }
-            if(playScene.getHand().getSelectedEntity()!=null) {
+            if(playScene.getHand()!=null&&playScene.getHand().getSelectedEntity()!=null) {
                 this.selectedEntityUniqueId = playScene.getHand().getSelectedEntity().getUniqueID();
             }
         }

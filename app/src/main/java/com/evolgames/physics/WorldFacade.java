@@ -1019,6 +1019,7 @@ public class WorldFacade implements ContactObserver {
 
         int step = 0;
         float penetrationEnergy;
+        float pPenetrationEnergy = 0;
         float advance;
         while (true) {
             advance = (step + 1) * dN;
@@ -1041,22 +1042,20 @@ public class WorldFacade implements ContactObserver {
             }
 
 
-            if (step > 100) {
+            if (step > 100||pPenetrationEnergy==penetrationEnergy) {
                 break;
             }
 
-            if (step % 100 == 0) {
-                Log.e("Penetration", "-----------Step:" + step);
-            }
             if (depleted || collisionEnergy - penetrationEnergy < 0) {
                 float actualAdvance = step * dN;
                 penetration.onImpulseConsumed(this, contact, penetrationPoint.cpy(), normal, actualAdvance, penetrator, penetrated, environmentData, penetratorData, (float) Math.sqrt(collisionEnergy), penetratorBlock);
-                Log.e("Penetration", "-----------$ On energy consumed, penetrationEnergy:" + penetrationEnergy + " advance:" + actualAdvance);
+                Log.d("Penetration", "-----------$ On energy consumed, penetrationEnergy:" + penetrationEnergy + " advance:" + actualAdvance);
                 return true;
             }
             step++;
+            pPenetrationEnergy = penetrationEnergy;
         }
-        Log.e("Penetration", "-----------$ On free, advance:" + advance);
+        Log.d("Penetration", "-----------$ On free, advance:" + advance);
         penetration.onFree(this, contact, penetrationPoint.cpy(), normal, advance, penetrator, penetrated, environmentData, penetratorData, collisionImpulse, penetratorBlock);
         return true;
     }
@@ -1607,7 +1606,7 @@ public class WorldFacade implements ContactObserver {
 
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = (float) (Math.pow(enterBleedingPoints.size(),1.5f) * advance);
+                    float length = (float) (Math.pow(enterBleedingPoints.size(),2f) * MathUtils.diminishedIncrease(advance,1f));
                     int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
                     processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
@@ -1618,7 +1617,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float)  Math.pow(leavingBleedingPoints.size(),1.5f) * advance;
+                    float length = (float)  Math.pow(leavingBleedingPoints.size(),2f)  * MathUtils.diminishedIncrease(advance,0.1f);
                     int value = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
@@ -1701,7 +1700,7 @@ public class WorldFacade implements ContactObserver {
             List<ImpactData> layerImpacts = impactDataList.stream()
                     .filter(impactData -> impactData.getImpactedBlock() == layerBlock)
                     .collect(Collectors.toList());
-            float impactEnergy = (float) layerImpacts.stream().mapToDouble(ImpactData::getImpactImpulse).sum();
+            final float impactEnergy = (float) layerImpacts.stream().mapToDouble(ImpactData::getImpactImpulse).sum();
             List<Vector2> localCenters = layerImpacts.stream().map(ImpactData::getLocalImpactPoint).collect(Collectors.toList());
             Vector2 localCenter = GeometryUtils.calculateCenterScatter(localCenters);
             ShatterVisitor shatterVisitor = new ShatterVisitor(impactEnergy,localCenter,scene.getWorldFacade(),gameEntity);
@@ -1710,6 +1709,7 @@ public class WorldFacade implements ContactObserver {
              allSplinters.addAll(splinters);
                 shatterPerformed = true;
             } else {
+                applyStrain(layerBlock,impactEnergy);
                allSplinters.add(layerBlock);
             }
         }
@@ -1722,13 +1722,7 @@ public class WorldFacade implements ContactObserver {
            this.destroyGameEntity(gameEntity, false, false);
         }
     }
-    private void applyStrain(LayerBlock layerBlock, List<ImpactData> impacts) {
-        float energy =
-                (float)
-                        impacts.stream()
-                                .filter(e -> e.getImpactedBlock() == layerBlock)
-                                .mapToDouble(ImpactData::getImpactImpulse)
-                                .sum();
+    private void applyStrain(LayerBlock layerBlock,float energy) {
         LayerProperties properties = layerBlock.getProperties();
         float ratio =
                 (float) Math.min(0.1f, 0.002f * energy / (Math.pow(layerBlock.getTenacity(), 10)));

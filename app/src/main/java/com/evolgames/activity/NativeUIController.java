@@ -40,6 +40,11 @@ public class NativeUIController implements INativeUIController {
         ((PlayScene) mainScene.getChildScene()).setPlayerAction(PlayerAction.Create);
     }
 
+    public void onItemButtonReleased() {
+        ResourceManager.getInstance().setSelectedItemMetaData(null);
+        ((PlayScene) mainScene.getChildScene()).stopCreating();
+    }
+
     @Override
     public void onHomeButtonPressed() {
         resetUI();

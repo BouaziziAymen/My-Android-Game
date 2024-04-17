@@ -222,16 +222,13 @@ public class PlayUIFragment extends Fragment {
         List<ItemCategory> listDataHeader = new ArrayList<>(ResourceManager.getInstance().getItemsMap().keySet());
         listDataHeader.removeIf(e->e.nonCreatable);
         listDataHeader.sort(Comparator.comparing(ItemCategory::name));
-        this.expandableListViewAdapter = new ExpandableListViewAdapter(inflater, listDataHeader, map,itemsExpandableListView);
+        this.expandableListViewAdapter = new ExpandableListViewAdapter(this,inflater, listDataHeader, map,itemsExpandableListView);
         itemsExpandableListView.setAdapter(expandableListViewAdapter);
 
         // Set the onChildClickListener
         itemsExpandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             // Reset the color of the previously clicked item if any
-            if (lastClickedLayout != null) {
-                // Reset the color of the previously clicked item
-                lastClickedLayout.setBackgroundResource(R.drawable.bg_items_element);
-            }
+            resetClickedItem();
 
             // Store the current clicked layout
             LinearLayout clickedLayout = v.findViewById(R.id.itemsElementLayout);
@@ -247,6 +244,7 @@ public class PlayUIFragment extends Fragment {
             return true;
         });
     }
+
 
     public void resetClickedItem() {
         if(lastClickedLayout!=null) {

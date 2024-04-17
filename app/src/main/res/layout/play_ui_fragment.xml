@@ -26,7 +26,8 @@
 
         <TextView
             android:id="@+id/hintText"
-            android:layout_width="400dp"
+            android:maxWidth="400dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
             android:textColor="#FFFFFF"

@@ -20,6 +20,7 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -266,6 +267,10 @@ public class GameActivity extends BaseGameActivity {
     @Override
     protected synchronized void onResume() {
         super.onResume();
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     @Override
@@ -329,6 +334,8 @@ public class GameActivity extends BaseGameActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hideStatusBar();
+
         setContentView(R.layout.activity_main);
         FrameLayout gameContainer = this.findViewById(R.id.game_container);
         gameContainer.addView(mRenderSurfaceView, 0);
@@ -340,6 +347,13 @@ public class GameActivity extends BaseGameActivity {
         this.createItemDialog = new CreateItemDialog();
         this.editItemDialog = new EditItemDialog();
         this.optionsDialog = new OptionsDialog();
+    }
+
+    private void hideStatusBar() {
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 
     public void showOptionsDialog() {

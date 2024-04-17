@@ -77,7 +77,7 @@ public abstract class LiquidParticleWrapper {
     public void update() {
         timer++;
         if (splashVelocity != null) {
-            splashVelocity.mul(0.95f);
+            splashVelocity.mul(0.9f);
             velocityInitializer.getIndependentVelocity().set(splashVelocity.x, splashVelocity.y);
         }
         if (!parent.isAlive()) {

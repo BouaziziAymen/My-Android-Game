@@ -7,6 +7,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
@@ -22,13 +23,15 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     private final Map<ItemCategory, List<ItemMetaData>> listHashMap;
     private final LayoutInflater inflater;
     private final ExpandableListView listView;
+    private final PlayUIFragment playUIFragment;
     private int lastExpandedGroupPosition = -1;
 
-    public ExpandableListViewAdapter(LayoutInflater inflater, List<ItemCategory> dataHeader, Map<ItemCategory, List<ItemMetaData>> listHashMap, ExpandableListView itemsExpandableListView) {
+    public ExpandableListViewAdapter(PlayUIFragment playUIFragment, LayoutInflater inflater, List<ItemCategory> dataHeader, Map<ItemCategory, List<ItemMetaData>> listHashMap, ExpandableListView itemsExpandableListView) {
         this.dataHeader = dataHeader;
         this.listHashMap = listHashMap;
         this.inflater = inflater;
         this.listView = itemsExpandableListView;
+        this.playUIFragment = playUIFragment;
     }
 
     @Override
@@ -122,6 +125,8 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         }
         lastExpandedGroupPosition = groupPosition;
         super.onGroupExpanded(groupPosition);
+        playUIFragment.resetClickedItem();
+        ((GameActivity) playUIFragment.requireActivity()).getUiController().onItemButtonReleased();
     }
 
     private static class ViewHolder {

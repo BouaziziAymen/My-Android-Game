@@ -185,8 +185,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                     if (checkEmpty) {
                         createTool(toolModel, false);
                     }
-                    creating = false;
-                    this.playerAction = PlayerAction.Drag;
+                    stopCreating();
                     ResourceManager.getInstance().activity.getUiController().onItemCreated();
                 }
             }
@@ -228,6 +227,11 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         } else {
             mScrollDetector.onTouchEvent(touchEvent);
         }
+    }
+
+    public void stopCreating() {
+        creating = false;
+        this.playerAction = PlayerAction.Drag;
     }
 
     private void processFrostEffect(TouchEvent touchEvent) {
@@ -332,7 +336,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
     private void createMeteorite(float x, float y) {
         int n = 5 + random.nextInt(10);
-        float size = (float) (Math.random() * 5 + 5);
+        float size = (float) (Math.random() * 2 + 4);
         float angle = (float) (Math.PI * 2 * Math.random());
         List<Vector2> points = VerticesFactory.createPolygon(0, 0, angle, size, size, n);
         LayerProperties properties1 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(IGNIUM));
