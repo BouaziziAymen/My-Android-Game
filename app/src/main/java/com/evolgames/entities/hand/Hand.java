@@ -654,7 +654,9 @@ public class Hand {
         }
         Throw throwable = grabbedEntity.getUsage(Throw.class);
         throwable.processThrow(this);
-   releaseGrabbedEntity(true,false);
+    releaseGrabbedEntity(true,false);
+    ResourceManager.getInstance().activity.getUiController().resetTouchHold();
+    playScene.setPlayerAction(PlayerAction.Drag);
     }
 
     private void moveToStab() {
@@ -781,5 +783,13 @@ public class Hand {
 
     public boolean isOnAction() {
         return onAction;
+    }
+
+    public void setGrabbedEntity(GameEntity grabbedEntity) {
+        this.grabbedEntity = grabbedEntity;
+    }
+
+    public void setSelectedEntity(GameEntity selectedEntity) {
+        this.selectedEntity = selectedEntity;
     }
 }

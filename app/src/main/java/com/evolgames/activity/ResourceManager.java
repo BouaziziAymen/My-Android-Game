@@ -1000,6 +1000,14 @@ public class ResourceManager {
         itemsTranslationMap.put("Bullet 9mm#", R.string.bullet_9mm);
         itemsTranslationMap.put("Petrol Canister#", R.string.petrol_canister);
         itemsTranslationMap.put("Kerosene Canister#", R.string.kerosene_canister);
+
+        itemsTranslationMap.put("Cup 1#", R.string.cup_1);
+        itemsTranslationMap.put("Cup 2#", R.string.cup_2);
+        itemsTranslationMap.put("Cup 3#", R.string.cup_3);
+        itemsTranslationMap.put("Milk Bottle#", R.string.milk_bottle);
+        itemsTranslationMap.put("Water Bottle#", R.string.water_bottle);
+        itemsTranslationMap.put("Iron Ball#", R.string.iron_ball);
+        itemsTranslationMap.put("Glass#", R.string.a_glass);
     }
 
     public Integer getTranslatedItemStringId(String name){

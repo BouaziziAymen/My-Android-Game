@@ -377,4 +377,14 @@
     <string name="trigger_rocket_launcher_hint">Toque el gatillo para lanzar.</string>
     <string name="unseal_hint">Toque el botón "encender" para abrir y el botón "apagar" para cerrar.</string>
     <string name="rocket_launch_hint">Toque el botón de encendido para lanzar.</string>
+
+    <string name="water">Agua</string>
+    <string name="milk">Leche</string>
+    <string name="cup_1">Vaso 1</string>
+    <string name="cup_2">Vaso 2</string>
+    <string name="cup_3">Vaso 3</string>
+    <string name="milk_bottle">Botella de leche</string>
+    <string name="water_bottle">Botella de agua</string>
+    <string name="iron_ball">Bola de hierro</string>
+    <string name="a_glass">Vaso</string>
 </resources>

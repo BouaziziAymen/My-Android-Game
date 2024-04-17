@@ -6,6 +6,8 @@ public class Item {
     private String titleTranslated;
     private String title;
 
+    private Object data;
+
     public Item(String titleTranslated, String title) {
         this.titleTranslated = titleTranslated;
         this.title = title;
@@ -23,5 +25,13 @@ public class Item {
     @Override
     public String toString() {
         return titleTranslated;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 }

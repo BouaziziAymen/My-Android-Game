@@ -382,4 +382,15 @@
     <string name="unseal_hint">Appuyez sur le bouton "on" pour ouvrir et sur le bouton "off" pour fermer.</string>
     <string name="rocket_launch_hint">Appuyez sur le bouton "on" pour lancer.</string>
 
+    <string name="water">Eau</string>
+    <string name="milk">Lait</string>
+    <string name="cup_1">Tasse 1</string>
+    <string name="cup_2">Tasse 2</string>
+    <string name="cup_3">Tasse 3</string>
+    <string name="milk_bottle">Bouteille de lait</string>
+    <string name="water_bottle">Bouteille d\'eau</string>
+    <string name="iron_ball">Boule de fer</string>
+    <string name="a_glass">Verre</string>
+
+
 </resources>

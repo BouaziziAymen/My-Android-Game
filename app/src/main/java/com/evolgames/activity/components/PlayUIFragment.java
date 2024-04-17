@@ -142,17 +142,15 @@ public class PlayUIFragment extends Fragment {
         mirrorButton.setOnReleased(() -> ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked());
     }
 
-    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction, boolean usesActive) {
+    public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction) {
         if(optionsList.isEmpty()){
             optionsRecyclerView.setVisibility(View.INVISIBLE);
             usesButton.setState(Button.State.DISABLED);
             usesButton.setIcon(R.drawable.usages_icon_empty);
         } else {
-            if(usesActive) {
-                usesButton.setState(Button.State.PRESSED);
-                usesButton.setIcon(R.drawable.usages_icon);
-                optionsRecyclerView.setVisibility(View.VISIBLE);
-            }
+            usesButton.setState(Button.State.PRESSED);
+            usesButton.setIcon(R.drawable.usages_icon);
+            optionsRecyclerView.setVisibility(View.VISIBLE);
         }
         optionsListAdaptor.setPlayerSpecialActionList(optionsList, selectedAction);
     }

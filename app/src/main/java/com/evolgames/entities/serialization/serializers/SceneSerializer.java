@@ -50,6 +50,10 @@ public class SceneSerializer {
     private PlayerAction playerAction;
     private PlayerSpecialAction playerSpecialAction;
 
+    private String grabbedEntityUniqueId;
+    private String selectedEntityUniqueId;
+
+
     @SuppressWarnings("unused")
     SceneSerializer() {
     }
@@ -71,6 +75,12 @@ public class SceneSerializer {
             PlayScene playScene = (PlayScene) abstractScene;
             this.playerAction = playScene.getPlayerAction();
             this.playerSpecialAction = playScene.getSpecialAction();
+            if(playScene.getHand().getGrabbedEntity()!=null) {
+                this.grabbedEntityUniqueId = playScene.getHand().getGrabbedEntity().getUniqueID();
+            }
+            if(playScene.getHand().getSelectedEntity()!=null) {
+                this.selectedEntityUniqueId = playScene.getHand().getSelectedEntity().getUniqueID();
+            }
         }
     }
 
@@ -209,6 +219,14 @@ public class SceneSerializer {
             }
         }
         worldFacadeSerializer.afterCreate(scene);
+        if(scene instanceof PlayScene){
+            PlayScene playScene = (PlayScene) scene;
+
+            playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
+            playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
+            playScene.setPlayerAction(this.playerAction);
+            playScene.onOptionSelected(this.playerSpecialAction);
+        }
         scene.sortChildren();
     }
 

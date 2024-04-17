@@ -16,13 +16,11 @@ import com.evolgames.userinterface.model.ItemCategory;
 import org.andengine.audio.sound.Sound;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class NativeUIController implements INativeUIController {
     private final GameActivity gameActivity;
@@ -73,7 +71,7 @@ public class NativeUIController implements INativeUIController {
     public void onUsagesUpdated(List<PlayerSpecialAction> usageList, PlayerSpecialAction selected, boolean usesActive) {
         gameActivity.runOnUiThread(() -> {
             PlayUIFragment playUIFragment = gameActivity.getGameUIFragment();
-            playUIFragment.setOptionsList(usageList, selected, usesActive);
+            playUIFragment.setOptionsList(usageList, selected);
         });
     }
 
@@ -152,7 +150,7 @@ public class NativeUIController implements INativeUIController {
             ItemMetaData newItemMetaData = new ItemMetaData();
             newItemMetaData.setToolName(itemNameText);
             newItemMetaData.setItemCategory(ItemCategory.fromName(itemTypeText));
-            if (!itemTemplateText.isEmpty()) {
+            if (itemTemplateText!=null&&!itemTemplateText.isEmpty()) {
                 Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
                         .filter(e -> e.getName().equalsIgnoreCase(itemTemplateText)).findFirst();
                 res.ifPresent(itemMetaData -> newItemMetaData.setTemplateFilename(res.get().getFileName()));

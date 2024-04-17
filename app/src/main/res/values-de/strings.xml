@@ -379,4 +379,15 @@
     <string name="trigger_rocket_launcher_hint">Tippe auf den Auslöser, um zu starten.</string>
     <string name="unseal_hint">Tippe auf die "Ein"-Taste, um zu öffnen, und auf die "Aus"-Taste, um zu schließen.</string>
     <string name="rocket_launch_hint">Tippe auf die Ein-Taste, um zu starten.</string>
+
+    <string name="water">Wasser</string>
+    <string name="milk">Milch</string>
+    <string name="cup_1">Tasse 1</string>
+    <string name="cup_2">Tasse 2</string>
+    <string name="cup_3">Tasse 3</string>
+    <string name="milk_bottle">Milchflasche</string>
+    <string name="water_bottle">Wasserflasche</string>
+    <string name="iron_ball">Eisenkugel</string>
+    <string name="a_glass">Glas</string>
+
 </resources>

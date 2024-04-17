@@ -169,7 +169,7 @@ public class CreateItemDialog extends DialogFragment {
             String typeText = itemTypeAutoComplete.getText().toString().trim();
 
             boolean isTypeInvalid = typeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(selectedType));
-            boolean isTemplateInvalid = !selectedTemplate.isEmpty() && Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equals(selectedTemplate));
+            boolean isTemplateInvalid = selectedTemplate!=null&&!selectedTemplate.isEmpty() && Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equals(selectedTemplate));
             boolean nameExists = Arrays.stream(items).map(Item::getTitle).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
             boolean isNameEmpty = itemNameText.isEmpty();
             if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {

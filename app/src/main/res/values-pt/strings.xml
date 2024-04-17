@@ -378,4 +378,14 @@
     <string name="unseal_hint">Toque no botão "ligar" para abrir e no botão "desligar" para fechar.</string>
     <string name="rocket_launch_hint">Toque no botão "ligar" para lançar.</string>
 
+    <string name="water">Água</string>
+    <string name="milk">Leite</string>
+    <string name="cup_1">Copo 1</string>
+    <string name="cup_2">Copo 2</string>
+    <string name="cup_3">Copo 3</string>
+    <string name="milk_bottle">Garrafa de leite</string>
+    <string name="water_bottle">Garrafa de água</string>
+    <string name="iron_ball">Bola de ferro</string>
+    <string name="a_glass">Copo</string>
+
 </resources>

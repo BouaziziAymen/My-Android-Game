@@ -9,7 +9,10 @@ import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.constraintlayout.helper.widget.Layer;
+
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.NativeUIController;
@@ -77,6 +80,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -169,13 +173,14 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                     float[] bounds = toolModel.getBounds(x, y, false);
                     plotter.detachChildren();
                     boolean checkEmpty = worldFacade.checkEmpty(bounds[0] / 32f, bounds[1] / 32f, bounds[2] / 32f, bounds[3] / 32f);
-                    Color color;
+
                     if (!checkEmpty) {
                         getActivity().getUiController().showHint(R.string.insufficient_space, NativeUIController.HintType.WARNING);
                         Log.e("CheckEmpty", worldFacade.checkEmptyCallback.getGameEntity().getName());
-                        color = Color.RED;
-                        plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
-                        plotter.drawLine2(new Vector2(bounds[1], bounds[3]), new Vector2(bounds[1], bounds[2]), color, 1);
+                        drawItem(worldFacade.checkEmptyCallback.getGameEntity());
+//                        Color color = Color.RED;
+//                        plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
+//                        plotter.drawLine2(new Vector2(bounds[1], bounds[3]), new Vector2(bounds[1], bounds[2]), color, 1);
                     }
                     if (checkEmpty) {
                         createTool(toolModel, false);
@@ -245,8 +250,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
     @Override
     public void populate() {
-        createRagDoll(400, 420);
-        createTestUnit();
+       createRagDoll(400, 300);
         String map = ResourceManager.getInstance().getMapString();
         if ("open".equalsIgnoreCase(map)) {
             createOpenGround();
@@ -358,6 +362,21 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             EditorScene.plotter.drawPoint(proj, Color.GREEN, 3);
             EditorScene.plotter.drawPoint(p, Color.YELLOW, 3);
             EditorScene.plotter.drawLine2(proj, p, Color.GREEN, 3);
+        }
+    }
+
+    private void drawItem(GameEntity entity) {
+        if(entity==null||entity.getBody()==null) {
+            return;
+        }
+        for(LayerBlock layerBlock:entity.getBlocks()) {
+            Body body = entity.getBody();
+            List<Vector2> points = new ArrayList<>();
+            for(Vector2 v: layerBlock.getVertices()){
+                Vector2 p = body.getWorldPoint(v.cpy().mul(1/32f)).cpy().mul(32f);
+                points.add(p);
+            }
+            PlayScene.plotter.drawPolygon(points, Color.RED);
         }
     }
 
@@ -552,85 +571,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
         GameGroup groundGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks, new Vector2(400 / 32f, 0), BodyDef.BodyType.StaticBody, "Ground", OBJECTS_MIDDLE_CATEGORY, GroupType.GROUND);
         this.worldFacade.setGroundGroup(groundGroup);
-    }
-
-    private void createTestUnit() {
-/*        List<Vector2> vertices1 = VerticesFactory.createRectangle(60, 60);
-        LayerProperties properties1 =
-                PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
-        LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1, 0);
-        List<LayerBlock> blocks = new ArrayList<>();
-        blocks.add(block1);
-
-        gameGroup1 =
-                GameEntityFactory.getInstance()
-                        .createGameGroupTest(
-                                blocks,
-                                new Vector2(100f / 32f, 200 / 32f),
-                                BodyDef.BodyType.DynamicBody,
-                                GroupType.OTHER);
-
-        GameEntity gameEntity1 = gameGroup1.getGameEntityByIndex(0);
-        gameEntity1.setCenter(new Vector2());
-        gameEntity1.setName("test");
-
-        List<Vector2> vertices2 = VerticesFactory.createRectangle(20, 200);
-        LayerProperties properties2 =
-                PropertiesFactory.getInstance()
-                        .createProperties(MaterialFactory.getInstance().getMaterialByIndex(1));
-        LayerBlock block2 = BlockFactory.createLayerBlock(vertices2, properties2, 1, 0);
-        List<LayerBlock> blocks2 = new ArrayList<>();
-        blocks2.add(block2);
-        BodyInit bodyInit =
-                new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), 100f / 32f, 200 / 32f, 0);
-        GameEntity gameEntity2 =
-                GameEntityFactory.getInstance()
-                        .createGameEntity(
-                                100f / 32f,
-                                200 / 32f,
-                                0f,
-                                false,
-                                bodyInit,
-                                blocks2,
-                                BodyDef.BodyType.DynamicBody,
-                                "test 2");
-        gameEntity2.setCenter(new Vector2());
-        gameGroup1.addGameEntity(gameEntity2);
-        RevoluteJointDef revoluteJointDef = new RevoluteJointDef();
-        revoluteJointDef.localAnchorA.set(0, 0);
-        revoluteJointDef.localAnchorB.set(0, 2f);
-        revoluteJointDef.collideConnected = false;
-        this.worldFacade.addJointToCreate(revoluteJointDef, gameEntity1, gameEntity2);
-         gameEntity1.setCenter(new Vector2());
-        */
-        // this.worldFacade.addNonCollidingPair(gameEntity1,gameEntity2);
-
-        List<Vector2> vertices3 = VerticesFactory.createRectangle(80, 80);
-        LayerProperties properties3 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
-        LayerBlock block3 = BlockFactory.createLayerBlock(vertices3, properties3, 1, 0);
-        List<LayerBlock> blocks3 = new ArrayList<>();
-        blocks3.add(block3);
-        GameGroup gameGroup = GameEntityFactory.getInstance().createGameGroupTest(blocks3, new Vector2(700 / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody, GroupType.OTHER);
-        GameEntity gameEntity3 = gameGroup.getGameEntityByIndex(0);
-        gameEntity3.setName("small rectangle");
-
-
-        List<Vector2> vertices4 = VerticesFactory.createRectangle(80, 80);
-        LayerProperties properties4 = PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.IRON));
-        LayerBlock block4 = BlockFactory.createLayerBlock(vertices4, properties4, 1, 0);
-        List<LayerBlock> blocks4 = new ArrayList<>();
-        blocks4.add(block4);
-        GameGroup gameGroup2 = GameEntityFactory.getInstance().createGameGroupTest(blocks4, new Vector2(100 / 32f, 200 / 32f), BodyDef.BodyType.DynamicBody, GroupType.OTHER);
-        GameEntity gameEntity4 = gameGroup2.getGameEntityByIndex(0);
-        gameEntity4.setName("small rectangle");
-
-        if (false) {
-            for (LayerBlock layerBlock : gameEntity3.getBlocks()) {
-                Collections.shuffle(layerBlock.getBlockGrid().getCoatingBlocks());
-                layerBlock.getBlockGrid().getCoatingBlocks().forEach(g -> g.setTemperature(4000));
-            }
-        }
     }
 
     private void processSlicing(TouchEvent touchEvent) {
@@ -895,7 +835,15 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         createItemFromFile("editor_auto_save.mut", false, false);
     }
 
+    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.AimLight,
+            PlayerSpecialAction.AimHeavy,
+            PlayerSpecialAction.Shoot_Arrow,
+            PlayerSpecialAction.FireHeavy,
+            PlayerSpecialAction.FireLight);
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
+        if(!aimSet.contains(playerSpecialAction)){
+            hideAimSprite();
+        }
         if (playerSpecialAction == PlayerSpecialAction.effectMeteor ||
                 playerSpecialAction == PlayerSpecialAction.effectFrost ||
                 playerSpecialAction == PlayerSpecialAction.effectCut ||
@@ -913,8 +861,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         } else if (playerSpecialAction == PlayerSpecialAction.AimLight || playerSpecialAction == PlayerSpecialAction.FireLight || playerSpecialAction == PlayerSpecialAction.Throw) {
             getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
             createAimSprite(hand.getGrabbedEntity());
-        } else {
-            hideAimSprite();
         }
 
         if (playerSpecialAction == PlayerSpecialAction.FireHeavy || playerSpecialAction == PlayerSpecialAction.AimHeavy) {
@@ -1007,6 +953,9 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     private void createAimSprite(GameEntity entity) {
+        if(entity==null){
+            return;
+        }
         if (aimSprite != null) {
             hideAimSprite();
         }
@@ -1183,9 +1132,11 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             }
 
             // If uses are equal, compare by z-index
-            int compareByZIndex = Integer.compare(s2.zIndex, s1.zIndex);
-            if (compareByZIndex != 0) {
-                return compareByZIndex;
+            if(s2.distance<8f&&s1.distance<8f) {
+                int compareByZIndex = Integer.compare(s2.zIndex, s1.zIndex);
+                if (compareByZIndex != 0) {
+                    return compareByZIndex;
+                }
             }
 
             // If z-index are equal, compare by distance

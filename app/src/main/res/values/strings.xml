@@ -377,4 +377,14 @@
     <string name="trigger_rocket_launcher_hint">Tap the trigger to launch.</string>
     <string name="unseal_hint">Tap the "on" button to open and the "off" button to close.</string>
     <string name="rocket_launch_hint">Tap the "on" button to launch.</string>
+
+    <string name="water">Water</string>
+    <string name="milk">Milk</string>
+    <string name="cup_1">Cup 1</string>
+    <string name="cup_2">Cup 2</string>
+    <string name="cup_3">Cup 3</string>
+    <string name="milk_bottle">Milk Bottle</string>
+    <string name="water_bottle">Water Bottle</string>
+    <string name="iron_ball">Iron Ball</string>
+    <string name="a_glass">Glass</string>
 </resources>

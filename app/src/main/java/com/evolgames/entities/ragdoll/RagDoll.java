@@ -96,8 +96,8 @@ public class RagDoll extends GameGroup {
             dead = true;
           for(GameEntity gameEntity:getEntities()){
               gameEntity.getBlocks().forEach(layerBlock -> {
-                  layerBlock.getProperties().setJuicinessLowerPressure(0.1f);
-                  layerBlock.getProperties().setJuicinessUpperPressure(0.1f);
+                  layerBlock.getProperties().setJuicinessLowerPressure( layerBlock.getProperties().getJuicinessLowerPressure()/3f);
+                  layerBlock.getProperties().setJuicinessUpperPressure( layerBlock.getProperties().getJuicinessUpperPressure()/3f);
               });
           }
         }
@@ -281,7 +281,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBleeding() {
         bloodLost++;
-        if(bloodLost>300){
+        if(bloodLost>500){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

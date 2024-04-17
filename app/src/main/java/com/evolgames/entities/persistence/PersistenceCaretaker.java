@@ -205,8 +205,7 @@ public class PersistenceCaretaker {
         //asIsTransformation();
     }
 
-    private void resetMaterialsBasicValues() {// Replace getContext() with your actual context retrieval method
-
+    private void resetMaterialsBasicValues() {
         VersioningHelper.applyTreatmentToLayers(layerModel -> {
             LayerProperties props = layerModel.getProperties();
             int materialNumber = props.getMaterialNumber();

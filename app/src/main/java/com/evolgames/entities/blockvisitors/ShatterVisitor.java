@@ -12,7 +12,9 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.utilities.BlockUtils;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ShatterVisitor extends BreakVisitor<LayerBlock> {
     private final Vector2 localImpactPoint;
@@ -32,7 +34,7 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
 
     private void processBlock(LayerBlock layerBlock, boolean isFirst) {
         float pulverizationImpulse;
-        if (layerBlock.getBlockArea() < 5 * MINIMUM_STABLE_SPLINTER_AREA && availableImpulse > (pulverizationImpulse = calculatePulverizationImpulse(layerBlock))) {
+        if (layerBlock.getBlockArea() < 10 * MINIMUM_STABLE_SPLINTER_AREA && availableImpulse > (pulverizationImpulse = calculatePulverizationImpulse(layerBlock))) {
             layerBlock.setAborted(true);
             layerBlock
                     .getBlockGrid()
@@ -65,18 +67,15 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
             totalRatio += ratio * coatingBlock.getArea() / layerBlock.getBlockArea();
         }
         totalRatio /= layerBlock.getBlockGrid().getCoatingBlocks().size();
-        return (float)
-                (50000f
-                        * Math.sqrt(
-                        PhysicsConstants.TENACITY_FACTOR
+        return PhysicsConstants.TENACITY_FACTOR
                                 * layerBlock.getTenacity()
                                 * PhysicsConstants.PULVERIZATION_CONSTANT
                                 * totalRatio
-                                * layerBlock.getBlockArea()));
+                                * layerBlock.getBlockArea();
     }
 
     @Override
-    public void visitTheElement(LayerBlock cutBlock) {
+    public List<LayerBlock> visitTheElement(LayerBlock cutBlock) {
         ArrayDeque<LayerBlock> deque = new ArrayDeque<>();
         deque.push(cutBlock);
         while (!deque.isEmpty()) {
@@ -99,16 +98,18 @@ public class ShatterVisitor extends BreakVisitor<LayerBlock> {
 
             deque.pop();
         }
+        List<LayerBlock> splinters = new ArrayList<>();
         Iterator<LayerBlock> iterator = cutBlock.createIterator();
         while (iterator.hasNext()) {
             LayerBlock bl = iterator.next();
             if (bl.isNotAborted()) {
-                splintersBlocks.add(bl);
+                splinters.add(bl);
             } else {
                 abortedBlocks.add(bl);
             }
             bl.getChildren().clear();
         }
+        return splinters;
     }
 
     public boolean isExhausted() {

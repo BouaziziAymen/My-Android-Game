@@ -9,6 +9,8 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
 import android.util.Log;
 
+import androidx.constraintlayout.helper.widget.Layer;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -34,8 +36,8 @@ import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
 import com.evolgames.entities.blockvisitors.BreakVisitor;
-import com.evolgames.entities.blockvisitors.GameEntityMultiShatterVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
+import com.evolgames.entities.blockvisitors.ShatterVisitor;
 import com.evolgames.entities.commandtemplate.EntityDestructionCommand;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.commandtemplate.TimedCommand;
@@ -341,7 +343,7 @@ public class WorldFacade implements ContactObserver {
                 }
             } else splinter.setType(parentEntity.getType());
             if (splinter.getArea() < PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA) {
-                this.scheduleGameEntityToDestroy(splinter, (int) splinter.getArea());
+                this.scheduleGameEntityToDestroy(splinter, (int) (splinter.getArea()));
             }
         });
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
@@ -1605,18 +1607,18 @@ public class WorldFacade implements ContactObserver {
 
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = enterBleedingPoints.size() *enterBleedingPoints.size() * advance;
+                    float length = (float) (Math.pow(enterBleedingPoints.size(),1.5f) * advance);
                     int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
                     processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
-                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse * 5f));
+                        FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse));
                         this.createJuiceSource(entity, layerBlock, freshCut);
                         layerBlock.addFreshCut(freshCut);
                     }
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float) leavingBleedingPoints.size()*leavingBleedingPoints.size() * advance;
+                    float length = (float)  Math.pow(leavingBleedingPoints.size(),1.5f) * advance;
                     int value = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
@@ -1689,17 +1691,50 @@ public class WorldFacade implements ContactObserver {
         scene.attachChild(pulverizationParticleWrapper.getParticleSystem());
     }
 
-    public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactData) {
-        BreakVisitor<GameEntity> visitor = new GameEntityMultiShatterVisitor(impactData, this);
-        visitor.visitTheElement(gameEntity);
-        if (visitor.isShatterPerformed()) {
-            if (visitor.getSplintersBlocks().size() > 0) {
-                computeSplinters(visitor.getSplintersBlocks(), gameEntity);
+    public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactDataList) {
+
+        Iterator<LayerBlock> iterator = new ArrayList<>(gameEntity.getBlocks()).iterator();
+        List<LayerBlock> allSplinters = new ArrayList<>();
+        boolean shatterPerformed = false;
+        while (iterator.hasNext()) {
+            LayerBlock layerBlock = iterator.next();
+            List<ImpactData> layerImpacts = impactDataList.stream()
+                    .filter(impactData -> impactData.getImpactedBlock() == layerBlock)
+                    .collect(Collectors.toList());
+            float impactEnergy = (float) layerImpacts.stream().mapToDouble(ImpactData::getImpactImpulse).sum();
+            List<Vector2> localCenters = layerImpacts.stream().map(ImpactData::getLocalImpactPoint).collect(Collectors.toList());
+            Vector2 localCenter = GeometryUtils.calculateCenterScatter(localCenters);
+            ShatterVisitor shatterVisitor = new ShatterVisitor(impactEnergy,localCenter,scene.getWorldFacade(),gameEntity);
+            List<LayerBlock> splinters = shatterVisitor.visitTheElement(layerBlock);
+            if(shatterVisitor.isShatterPerformed()){
+             allSplinters.addAll(splinters);
+                shatterPerformed = true;
+            } else {
+               allSplinters.add(layerBlock);
             }
-            this.destroyGameEntity(gameEntity, false, false);
+        }
+
+
+       if (shatterPerformed) {
+           if (allSplinters.size() > 0) {
+              computeSplinters(allSplinters, gameEntity);
+           }
+           this.destroyGameEntity(gameEntity, false, false);
         }
     }
-
+    private void applyStrain(LayerBlock layerBlock, List<ImpactData> impacts) {
+        float energy =
+                (float)
+                        impacts.stream()
+                                .filter(e -> e.getImpactedBlock() == layerBlock)
+                                .mapToDouble(ImpactData::getImpactImpulse)
+                                .sum();
+        LayerProperties properties = layerBlock.getProperties();
+        float ratio =
+                (float) Math.min(0.1f, 0.002f * energy / (Math.pow(layerBlock.getTenacity(), 10)));
+        float newTenacity = layerBlock.getTenacity() * (1f - ratio);
+        properties.setTenacity(newTenacity);
+    }
     public void applyImpactHeat(float heatRatio, List<ImpactData> impactData) {
         impactData.forEach(impact -> {
             impact.getImpactedBlock().getBlockGrid().getCoatingBlocks().forEach((coatingBlock -> {

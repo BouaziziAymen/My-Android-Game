@@ -82,7 +82,7 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.destroyGameEntity(penetrator, false, false);
         }
 
-        if (projectileType == ProjectileType.SHARP_WEAPON) {
+        if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(consumedImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
@@ -126,7 +126,7 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.addNonCollidingPair(gameEntity, penetrator);
         }
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
-        if (projectileType == ProjectileType.SHARP_WEAPON) {
+        if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(5f*collisionImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {

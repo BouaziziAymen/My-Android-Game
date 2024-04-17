@@ -37,6 +37,9 @@ import java.util.stream.Collectors;
 
 public class EditItemDialog extends DialogFragment {
 
+    private String selectedItem;
+    private String selectedItemFile;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -76,7 +79,11 @@ public class EditItemDialog extends DialogFragment {
 
 
         Button shareButton = dialogLayout.findViewById(R.id.shareButton);
-        shareButton.setOnClickListener(v -> ((GameActivity) requireActivity()).sendEmailWithAttachment(""));
+        shareButton.setOnClickListener(v ->{
+            if(selectedItemFile!=null&&!selectedItemFile.isEmpty()){
+                ((GameActivity) requireActivity()).sendEmailWithAttachment(selectedItemFile);
+            }
+        } );
 
 
         builder.setView(dialogLayout)
@@ -90,10 +97,29 @@ public class EditItemDialog extends DialogFragment {
 
         AutoCompleteTextView itemNameAutoComplete = dialogLayout.findViewById(R.id.itemNameAutoComplete);
         Map<ItemCategory, List<ItemMetaData>> map = ResourceManager.getInstance().getItemsMap();
-        List<ItemMetaData> items = map.values().stream().flatMap(Collection::stream).filter(e -> BuildConfig.DEBUG || e.isUserCreated()).collect(Collectors.toList());
-        String[] userItemNames = items.stream().map(ItemMetaData::getName).toArray(String[]::new);
-        ArrayAdapter<String> userItemNamesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, userItemNames);
+        List<ItemMetaData> itemMetaData = map.values().stream().flatMap(Collection::stream).filter(e -> BuildConfig.DEBUG || e.isUserCreated()).collect(Collectors.toList());
+        Item[] items = itemMetaData.stream().map(e-> {
+            int translatedStringId = ResourceManager.getInstance().getTranslatedItemStringId(e.getName());
+            String translatedString;
+            if(translatedStringId!=-1) {
+                translatedString  = ResourceManager.getInstance().getString(translatedStringId);
+            } else {
+                translatedString = e.getName();
+            }
+           Item item =  new Item(translatedString,e.getName());
+            item.setData(e.getFileName());
+            return item;
+        }).toArray(Item[]::new);
+
+        ArrayAdapter<Item> userItemNamesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, items);
         itemNameAutoComplete.setAdapter(userItemNamesAdapter);
+
+        itemNameAutoComplete.setOnItemClickListener((parent, view, position, id) -> {
+            Item item = userItemNamesAdapter.getItem(position);
+            assert item != null;
+            this.selectedItem = item.getTitle();
+            this.selectedItemFile = (String) item.getData();
+        });
 
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Enable or disable EditText based on checkbox state
@@ -110,9 +136,8 @@ public class EditItemDialog extends DialogFragment {
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             // Perform input validation
-            String itemNameText = itemNameAutoComplete.getText().toString().trim();
-            boolean invalidName = !checkBox.isChecked() && Arrays.stream(userItemNames).map(String::toLowerCase).noneMatch(e -> e.equals(itemNameText.toLowerCase()));
-            boolean isNameEmpty = itemNameText.isEmpty();
+            boolean invalidName = !checkBox.isChecked() && selectedItem!=null&&Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equalsIgnoreCase(selectedItem));
+            boolean isNameEmpty = selectedItem==null||selectedItem.isEmpty();
             if (invalidName || isNameEmpty) {
                 // Show error message if any field is empty
                 List<String> list = new ArrayList<>();
@@ -126,7 +151,7 @@ public class EditItemDialog extends DialogFragment {
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
-                ((GameActivity) requireActivity()).getUiController().onProceedToEdit(itemNameText);
+                ((GameActivity) requireActivity()).getUiController().onProceedToEdit(selectedItem);
             }
         });
 
