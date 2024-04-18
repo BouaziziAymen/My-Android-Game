@@ -839,7 +839,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         createItemFromFile("editor_auto_save.mut", false, false);
     }
 
-    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.AimLight,
+    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.SingleShot,PlayerSpecialAction.AimLight,
             PlayerSpecialAction.AimHeavy,
             PlayerSpecialAction.Shoot_Arrow,
             PlayerSpecialAction.FireHeavy,
@@ -897,6 +897,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         } else if (playerSpecialAction == PlayerSpecialAction.Unselect) {
             if (this.hand != null) {
                 this.hand.deselect(true);
+                setScrollerEnabled(true);
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Drop) {
             if (this.hand != null) {
@@ -922,6 +923,14 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                     shooter.onTriggerPulled(this);
                     onUsagesUpdated();
                 }
+            }
+        }
+        else if(playerSpecialAction == PlayerSpecialAction.SingleShot){
+            if (usableEntity != null && usableEntity.hasUsage(Shooter.class)) {
+                Shooter shooter = usableEntity.getUsage(Shooter.class);
+                shooter.onTriggerPulled(this);
+                shooter.onTriggerReleased();
+                onUsagesUpdated();
             }
         } else if (playerSpecialAction == PlayerSpecialAction.SwitchOn) {
             if (this.hand != null) {

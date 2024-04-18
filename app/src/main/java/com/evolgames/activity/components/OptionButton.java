@@ -15,6 +15,7 @@ public class OptionButton extends FrameLayout {
     private ImageView button;
     private ImageView icon;
     private Button.State state;
+    private boolean oneClick;
 
     public OptionButton(Context context) {
         super(context);
@@ -37,46 +38,68 @@ public class OptionButton extends FrameLayout {
         icon = findViewById(R.id.icon);
     }
 
+    public void setOneClick(boolean oneClick) {
+        this.oneClick = oneClick;
+    }
+
     public void setIcon(int resourceId) {
         icon.setImageResource(resourceId);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                if (state == Button.State.NORMAL) {
-                    button.setImageResource(R.drawable.warp_selected);
-                    this.state = Button.State.PRESSED;
-                }
+        if (!oneClick) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (state == Button.State.NORMAL) {
+                        button.setImageResource(R.drawable.warp_selected);
+                        this.state = Button.State.PRESSED;
+                    }
+                    performClick(); // Handle click event
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_MOVE:
+                    // Handle touch move event
+                    return true; // Consume the event
+                default:
+                    return super.onTouchEvent(event);
+            }
+        } else {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                button.setImageResource(R.drawable.warp_selected);
+                this.state = Button.State.PRESSED;
+                return true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                button.setImageResource(R.drawable.warp);
+                this.state = Button.State.NORMAL;
                 performClick(); // Handle click event
                 return true;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_MOVE:
-                // Handle touch move event
-                return true; // Consume the event
-            default:
-                return super.onTouchEvent(event);
+            } else {
+                button.setImageResource(R.drawable.warp);
+                this.state = Button.State.NORMAL;
+                return false;
+            }
         }
     }
 
-    @Override
-    public boolean performClick() {
-        // Call the superclass method first
-        boolean handled = super.performClick();
+        @Override
+        public boolean performClick () {
+            // Call the superclass method first
+            boolean handled = super.performClick();
 
-        // Handle the click event here if needed
+            // Handle the click event here if needed
 
-        return handled;
-    }
-
-    public void setState(Button.State state) {
-        this.state = state;
-        if (this.state == Button.State.PRESSED) {
-            button.setImageResource(R.drawable.warp_selected);
-        } else {
-            button.setImageResource(R.drawable.warp);
+            return handled;
         }
-    }
 
-}
+        public void setState (Button.State state){
+            this.state = state;
+            if (this.state == Button.State.PRESSED) {
+                button.setImageResource(R.drawable.warp_selected);
+            } else {
+                button.setImageResource(R.drawable.warp);
+            }
+        }
+
+    }

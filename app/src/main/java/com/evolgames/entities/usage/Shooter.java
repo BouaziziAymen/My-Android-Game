@@ -5,10 +5,12 @@ import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
 import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.evolgames.activity.NativeUIController;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
@@ -20,6 +22,7 @@ import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
+import com.evolgames.gameengine.R;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.Init;
@@ -151,6 +154,7 @@ public class Shooter extends Use {
         if (this.loading) {
             this.loadingTimer += deltaTime;
             if (this.loadingTimer > this.reloadTime) {
+                ((PlayScene)worldFacade.getPhysicsScene()).onUsagesUpdated();
                 this.loaded = true;
                 this.rounds = this.maxRounds;
                 this.loading = false;
@@ -313,7 +317,7 @@ public class Shooter extends Use {
             list.add(PlayerSpecialAction.FireLight);
             list.add(PlayerSpecialAction.AimLight);
             if(isLoaded().first) {
-                list.add(PlayerSpecialAction.Trigger);
+                list.add(PlayerSpecialAction.SingleShot);
             }
             return list;
         } else {

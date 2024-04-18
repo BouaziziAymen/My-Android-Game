@@ -36,6 +36,7 @@ class OptionsListAdaptor extends RecyclerView.Adapter<OptionsListAdaptor.OptionV
         PlayerSpecialAction playerSpecialAction = playerSpecialActionList.get(position);
         holder.button.setState(selectedAction == playerSpecialActionList.get(position) ? Button.State.PRESSED : Button.State.NORMAL);
         holder.itemImage.setImageResource(playerSpecialAction.iconId);
+        holder.button.setOneClick(playerSpecialAction.oneClick);
         viewHolderList.add(holder);
     }
 

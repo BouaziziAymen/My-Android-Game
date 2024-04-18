@@ -10,14 +10,16 @@ import com.evolgames.entities.basics.GameEntity;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class GameEntityContactListener implements ContactListener {
     private final ContactObserver observer;
-    private final HashSet<Pair<GameEntity>> nonCollidingEntities;
+    private final Set<Pair<GameEntity>> nonCollidingEntities;
 
     public GameEntityContactListener(ContactObserver observer) {
         this.observer = observer;
-        this.nonCollidingEntities = new HashSet<>();
+        this.nonCollidingEntities = new CopyOnWriteArraySet<>();
     }
 
     public void addNonCollidingPair(GameEntity entity1, GameEntity entity2) {
@@ -64,7 +66,7 @@ public class GameEntityContactListener implements ContactListener {
         observer.processImpactAfterSolve(contact, impulse);
     }
 
-    public HashSet<Pair<GameEntity>> getNonCollidingEntities() {
+    public Set<Pair<GameEntity>> getNonCollidingEntities() {
         return nonCollidingEntities;
     }
 
