@@ -165,4 +165,13 @@ public class ColorSelector
     public void setValue(float value) {
         this.value = value;
     }
+
+    public void bindColor(org.andengine.util.adt.color.Color color) {
+        this.getMesh().setColor(color);
+        this.red = color.getRed();
+        this.green = color.getGreen();
+        this.blue = color.getBlue();
+        this.alpha = color.getAlpha();
+        updateColorHSV();
+    }
 }

@@ -303,7 +303,6 @@ public class GameActivity extends BaseGameActivity {
         }
     }
 
-
     public NativeUIController getUiController() {
         return uiController;
     }

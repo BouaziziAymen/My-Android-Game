@@ -58,7 +58,7 @@ public class Rocket extends Use {
 
     public void onLaunch(PlayScene playScene, boolean withSound) {
         if(playScene.isChaseActive()) {
-            playScene.chaseEntity(rocketBodyEntity);
+            playScene.chaseEntity(rocketBodyEntity,true);
         }
         this.on = true;
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {

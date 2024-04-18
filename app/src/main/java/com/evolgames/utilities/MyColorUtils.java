@@ -11,7 +11,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 
 public class MyColorUtils {
-    public static final Color bloodColor = new Color(175 / 256f, 17 / 256f, 28 / 256f);
+    public static final Color bloodColor = new Color(175 / 256f, 17 / 256f, 28 / 256f,0.8f);
     private static final ArrayList<Color> gradient;
     private static final float[] limits = new float[]{0, 500, 1000, 6000, 12000, 100000};
   public static Color frostColor =  new Color(172f/255f, 213f/255f, 243f/255f);

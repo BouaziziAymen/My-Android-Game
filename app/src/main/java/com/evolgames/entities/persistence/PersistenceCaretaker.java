@@ -1,5 +1,6 @@
 package com.evolgames.entities.persistence;
 
+import static com.evolgames.entities.factories.MaterialFactory.GLASS;
 import static com.evolgames.utilities.ToolUtils.scalePoint;
 import static com.evolgames.utilities.ToolUtils.scalePoints;
 
@@ -12,6 +13,7 @@ import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.Material;
 import com.evolgames.entities.factories.MaterialFactory;
+import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.properties.BodyProperties;
 import com.evolgames.entities.properties.BodyUsageCategory;
 import com.evolgames.entities.properties.BombProperties;
@@ -246,9 +248,17 @@ public class PersistenceCaretaker {
     }
     private void asIsTransformation() {
         VersioningHelper.applyTreatment(toolModel -> {
-           if(!toolModel.getProperties().getToolName().endsWith("#")){
-               toolModel.getProperties().setToolName(toolModel.getProperties().getToolName()+"#");
-           }
+         for(BodyModel bodyModel:toolModel.getBodies()){
+             for(LayerModel layerModel:bodyModel.getLayers()){
+                 LayerProperties properties = layerModel.getProperties();
+                 if(properties.isJuicy()){
+                     properties.setJuiceColor(Materials.getLiquidByIndex(properties.getJuiceIndex()).getDefaultColor());
+                 }
+                 if(properties.getMaterialNumber()==GLASS){
+                     properties.getDefaultColor().setAlpha(0.5f);
+                 }
+             }
+         }
         }, (ItemMetaData e) ->true);
     }
 

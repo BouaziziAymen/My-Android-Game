@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.persistence.PersistenceException;
@@ -82,7 +83,7 @@ public class Bow extends Use {
         if (bowString.hasParent()) {
             bowString.detachSelf();
         }
-        muzzle.getMuzzleEntity().getMesh().attachChild(bowString);
+        muzzle.getTheMuzzleEntity().getMesh().attachChild(bowString);
         bowString.detachChildren();
         if (upper != null && lower != null && middle != null) {
             if (loaded) {
@@ -147,10 +148,10 @@ public class Bow extends Use {
 
     private void loadArrows(WorldFacade worldFacade) {
         this.arrows = new HashMap<>();
-        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getMuzzleEntity() != null && muzzle.getMuzzleEntity().getBody() != null);
+        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getTheMuzzleEntity() != null && muzzle.getTheMuzzleEntity().getBody() != null);
         if (allBodiesReady) {
             for (ProjectileInfo projectileInfo : projectileInfoList) {
-                if (projectileInfo.getMuzzle().getMuzzleEntity().getBody() != null) {
+                if (projectileInfo.getMuzzle()!=null&&projectileInfo.getMuzzle().getTheMuzzleEntity().getBody() != null) {
                     this.createArrow(projectileInfo, worldFacade.getPhysicsScene());
                 }
             }
@@ -161,9 +162,11 @@ public class Bow extends Use {
 
     private void fire(int index, PlayScene playScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
-
+        if(projectileInfo.getMuzzle()==null){
+            return;
+        }
         GameGroup arrowGroup = Objects.requireNonNull(arrows.get(projectileInfo));
-        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
         if (muzzleEntity.getBody() == null || arrowGroup.getGameEntityByIndex(0).getBody() == null) {
             return;
         }
@@ -195,7 +198,7 @@ public class Bow extends Use {
         arrowGroup.getGameEntityByIndex(0).getBody().setLinearVelocity(muzzleVelocityVector);
         computeRecoil(projectileInfo, arrowGroup, muzzleEntity);
         if(playScene.isChaseActive()) {
-            playScene.chaseEntity(arrowGroup.getGameEntityByIndex(0));
+            playScene.chaseEntity(arrowGroup.getGameEntityByIndex(0),true);
         }
 
     }
@@ -228,7 +231,7 @@ public class Bow extends Use {
                  SAXException e) {
             return;
         }
-        GameEntity bowBodyEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        GameEntity bowBodyEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
         Vector2 begin = projectileInfo.getProjectileOrigin();
         Vector2 end = projectileInfo.getProjectileEnd();
         Vector2 localDir = end.cpy().sub(projectileInfo.getProjectileOrigin()).nor();
@@ -313,7 +316,21 @@ public class Bow extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        return !(ratio < 0.9f);
+        boolean lowerOk = false;
+        boolean upperOk = false;
+        for(LayerBlock layerBlock:heir.getBlocks()){
+            if(GeometryUtils.isPointInPolygon(this.lower,layerBlock.getVertices())){
+                lowerOk = true;
+            }
+            if(GeometryUtils.isPointInPolygon(this.upper,layerBlock.getVertices())){
+                upperOk = true;
+            }
+        }
+        boolean inherit = lowerOk&&upperOk;
+        if(inherit) {
+            drawBowstring();
+        }
+        return inherit&&ratio>0.666f;
     }
 
     public Map<ProjectileInfo, GameGroup> getArrows() {

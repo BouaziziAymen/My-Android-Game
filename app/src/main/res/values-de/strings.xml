@@ -9,6 +9,7 @@
     <string name="go_edit">Bearbeiten</string>
     <string name="cancel">Abbrechen</string>
     <string name="save_settings">Speichern</string>
+    <string name="motor_hint">Verwenden Sie die Vorwärts-, Rückwärts- und Stopp-Tasten, um den Motor zu steuern.</string>
     <string name="throw_hint">"Tippen Sie innerhalb des Kreises, um zu zielen und zu werfen."</string>
     <string name="fire_light_hint">Tippen Sie innerhalb des Kreises, um zu zielen und zu schießen.</string>
     <string name="aim_light_hint">Tippen Sie innerhalb des Kreises, um zu zielen.</string>

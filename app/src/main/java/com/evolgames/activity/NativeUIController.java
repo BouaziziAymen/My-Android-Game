@@ -186,6 +186,9 @@ public class NativeUIController implements INativeUIController {
 
     public void onTrackButtonClicked() {
         PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+        if(playScene.getHand().hasSelectedEntity()){
+            playScene.chaseEntity(playScene.getHand().getSelectedEntity(),false);
+        }
         playScene.setChaseActive(true);
     }
 
@@ -230,6 +233,14 @@ public class NativeUIController implements INativeUIController {
     public void onHelpPressed() {
         gameActivity.showHelpDialog();
     }
+
+    public void onRefreshButtonClicked() {
+        gameActivity.runOnUpdateThread(()->{
+            PlayScene playScene = ((PlayScene) mainScene.getChildScene());
+            playScene.refresh();
+        });
+    }
+
     public enum HintType{
         WARNING, HINT
     }

@@ -33,6 +33,7 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
     private final SceneType sceneName;
     protected T userInterface;
     private GameEntity chasedEntity;
+    private boolean returnToStart;
 
     public AbstractScene(Camera pCamera, SceneType sceneName) {
         this.mCamera = pCamera;
@@ -123,7 +124,8 @@ public void resetChasedEntity(){
     this.chasedEntity = null;
     ResourceManager.getInstance().firstCamera.setChaseEntity(null);
 }
-    public void chaseEntity(GameEntity entity) {
+    public void chaseEntity(GameEntity entity,boolean returnToStart) {
+        this.returnToStart = returnToStart;
         this.cameraPositionBeforeChase.set(mCamera.getCenterX(),mCamera.getCenterY());
         if (entity == null) {
             return;
@@ -134,7 +136,7 @@ public void resetChasedEntity(){
 
     public void releaseChasedEntity() {
      resetChasedEntity();
-        if(cameraPositionBeforeChase!=null) {
+        if(cameraPositionBeforeChase!=null&&returnToStart) {
             ((SmoothCamera)ResourceManager.getInstance().firstCamera).setCenterDirect(cameraPositionBeforeChase.x, cameraPositionBeforeChase.y);
         }
     }

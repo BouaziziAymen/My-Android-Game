@@ -5,11 +5,11 @@ import android.hardware.SensorManager;
 public class PhysicsConstants {
     public static final float TENACITY_FACTOR = 10f;
     public static final float MINIMUM_STABLE_SPLINTER_AREA = 50f;
-    public static final float PENETRATION_CONSTANT = 50000000f;
+    public static final float PENETRATION_CONSTANT = 10000000f;
     public static final float PULVERIZATION_CONSTANT = 100 * 3 * 3.41f;
     public static final int FLUX_PRECISION = 360;
     public static final float BACKOFF = 0.05f;
-    public static final float BLEEDING_CONSTANT = 5f;
+    public static final float BLEEDING_CONSTANT = 1f;
     public static final float LIQUID_DENSITY_CONSTANT = 50f;
     public static final float STAINING_PROBABILITY = 0.1f;
     public static final float MIN_PROJECTILE_VELOCITY = 10f;
@@ -21,7 +21,7 @@ public class PhysicsConstants {
     public static final float EXPLOSION_FORCE_THRESHOLD = 100f;
     public static final int EXPLOSION_LIFESPAN = 8;
     public static final int PULVERIZATION_DURATION = 10;
-    public static final float HEAT_CONSTANT = 40000f;
+    public static final float HEAT_CONSTANT = 60000f;
     public static final int BOMB_IMPACT_FACTOR = 10;
     public static float gravity = -3 * SensorManager.GRAVITY_EARTH;
     public static float ambient_temperature = 60;
@@ -44,7 +44,7 @@ public class PhysicsConstants {
     }
 
     public static float getRotationSpeedFromRatio(float ratio) {
-        return (100f+600f*ratio)* 2f * (float)Math.PI/60f;
+        return (50+400f*ratio)* 2f * (float)Math.PI/60f;
     }
 
     public static float getTenacityRatio(float tenacity) {

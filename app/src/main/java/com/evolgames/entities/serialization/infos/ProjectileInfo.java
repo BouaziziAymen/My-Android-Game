@@ -54,7 +54,7 @@ public class ProjectileInfo {
 
     public void setMuzzle(Muzzle muzzle) {
         this.muzzle = muzzle;
-        this.muzzleEntityUniqueId = muzzle.getMuzzleEntity().getUniqueID();
+        this.muzzleEntityUniqueId = muzzle.getTheMuzzleEntity().getUniqueID();
     }
 
     public Vector2 getProjectileOrigin() {

@@ -270,6 +270,12 @@ public class Hand {
                                 Shooter shooter = grabbedEntity.getUsage(Shooter.class);
                                 shooter.onTriggerReleased();
                             }
+                            if (grabbedEntity!=null&&grabbedEntity.hasUsage(FlameThrower.class)) {
+                                FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
+                                if (flameThrower.isOn()) {
+                                    flameThrower.onTriggerReleased();
+                                }
+                            }
                             break;
                         case Guide:
                             break;
@@ -346,8 +352,6 @@ public class Hand {
                                     FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
                                     if (!flameThrower.isOn()) {
                                         flameThrower.onTriggerPulled();
-                                    } else {
-                                        flameThrower.onTriggerReleased();
                                     }
                                 }
                             }

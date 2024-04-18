@@ -7,6 +7,8 @@ import com.evolgames.userinterface.view.basics.Panel;
 import com.evolgames.userinterface.view.inputs.bounds.RectangularBounds;
 import com.evolgames.userinterface.view.layouts.BoxLayout;
 
+import org.andengine.util.adt.color.Color;
+
 public class ColorPanel extends Panel {
     public static int N = 6;
     public static int NUMBER_SQUARES = 8;

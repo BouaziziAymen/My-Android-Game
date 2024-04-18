@@ -115,11 +115,11 @@ public class RocketLauncher extends Use {
 
     private void loadRockets(WorldFacade worldFacade) {
         this.rockets = new HashMap<>();
-        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getMuzzleEntity() != null && muzzle.getMuzzleEntity().getBody() != null);
+        boolean allBodiesReady = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).allMatch(muzzle -> muzzle != null && muzzle.getTheMuzzleEntity() != null && muzzle.getTheMuzzleEntity().getBody() != null);
         if (allBodiesReady) {
             initialized = true;
             for (ProjectileInfo projectileInfo : projectileInfoList) {
-                if (projectileInfo.getMuzzle().getMuzzleEntity().getBody() != null) {
+                if (projectileInfo.getMuzzle()!=null&&projectileInfo.getMuzzle().getTheMuzzleEntity().getBody() != null) {
                     this.createRocket(projectileInfo, worldFacade.getPhysicsScene());
                 }
             }
@@ -148,7 +148,7 @@ public class RocketLauncher extends Use {
             }
         });
 
-        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
         if (muzzleEntity == null || muzzleEntity.getBody() == null) {
             return;
         }
@@ -199,7 +199,7 @@ public class RocketLauncher extends Use {
                  SAXException e) {
             return;
         }
-        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
 
         Vector2 end = projectileInfo.getProjectileEnd();
         Vector2 localDir = end.cpy().sub(projectileInfo.getProjectileOrigin()).nor();
@@ -286,7 +286,7 @@ public class RocketLauncher extends Use {
                                 ExplosiveParticleWrapper fireSource =
                                         worldFacade
                                                 .createFireSource(
-                                                        p.getMuzzle().getMuzzleEntity(),
+                                                        p.getMuzzle().getTheMuzzleEntity(),
                                                         e.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                         e.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                         -100f,

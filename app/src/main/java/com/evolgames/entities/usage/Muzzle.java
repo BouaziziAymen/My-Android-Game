@@ -29,7 +29,7 @@ public class Muzzle extends Use {
         return projectileInfoUniqueId;
     }
 
-    public GameEntity getMuzzleEntity() {
+    public GameEntity getTheMuzzleEntity() {
         return muzzleEntity;
     }
 
@@ -61,6 +61,7 @@ public class Muzzle extends Use {
         if (ratio > 0.9f) {
             this.muzzleEntity = biggestSplinter;
             if(this.projectileInfo!=null){
+                projectileInfo.setMuzzle(this);
                 projectileInfo.setUpdatedMuzzle(true);
             }
             return true;

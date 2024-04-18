@@ -5,12 +5,10 @@ import static com.evolgames.physics.CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
 import static com.evolgames.physics.PhysicsConstants.getEffectiveFireRate;
 import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 
-import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
-import com.evolgames.activity.NativeUIController;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
@@ -22,7 +20,6 @@ import com.evolgames.entities.properties.usage.ContinuousShooterProperties;
 import com.evolgames.entities.properties.usage.RangedProperties;
 import com.evolgames.entities.properties.usage.ShooterProperties;
 import com.evolgames.entities.serialization.infos.ProjectileInfo;
-import com.evolgames.gameengine.R;
 import com.evolgames.physics.PhysicsConstants;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.Init;
@@ -193,7 +190,7 @@ public class Shooter extends Use {
 
     private void fire(int index, PhysicsScene<?> physicsScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
-        if (projectileInfo.getMuzzle() != null && !projectileInfo.getMuzzle().isActive()) {
+        if (projectileInfo.getMuzzle() == null || !projectileInfo.getMuzzle().isActive()) {
             return;
         }
         ToolModel missileModel = this.missileModels.get(index);
@@ -215,7 +212,7 @@ public class Shooter extends Use {
 
 
     private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
-        GameEntity muzzleEntity = projectileInfo.getMuzzle().getMuzzleEntity();
+        GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
         if(muzzleEntity.getBody()==null){
             return;
         }
@@ -336,7 +333,7 @@ public class Shooter extends Use {
     }
 
     public GameEntity getMuzzleEntity() {
-        return projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst().get().getMuzzleEntity();
+        return projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst().get().getTheMuzzleEntity();
     }
 
     @Override
@@ -384,7 +381,7 @@ public class Shooter extends Use {
                                     ExplosiveParticleWrapper fireSource =
                                             worldFacade
                                                     .createFireSource(
-                                                            p.getMuzzle().getMuzzleEntity(),
+                                                            p.getMuzzle().getTheMuzzleEntity(),
                                                             end.cpy().sub(axisExtent * nor.x, axisExtent * nor.y),
                                                             end.cpy().add(axisExtent * nor.x, axisExtent * nor.y),
                                                             PhysicsConstants.getProjectileVelocity(p.getMuzzleVelocity())

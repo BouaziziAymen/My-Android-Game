@@ -99,6 +99,7 @@ public class ColorSelectorWindowController
     public void onOpacityUpdated(float ratio) {
         ColorSelector colorSelector = window.getSelector();
         colorSelector.setAlpha(ratio);
+        colorSelector.updateColorHSV();
         onColorUpdated();
     }
 
@@ -163,11 +164,14 @@ public class ColorSelectorWindowController
         this.editorUserInterface.shade(window);
         this.coloredProperties = coloredProperties;
         copy = coloredProperties.clone();
-        window.getSelector().getMesh().setColor(coloredProperties.getDefaultColor());
+
+        window.getSelector().bindColor(coloredProperties.getDefaultColor());
+        updateSelectors();
+      //  window.getSelector().getMesh().setColor(coloredProperties.getDefaultColor());
         if (coloredProperties.getColorSquareId() != -1) {
             Button<?> slot = window.getPanel().getColorSlotById(coloredProperties.getColorSquareId());
             if (slot != null) {
-                onColorSlotClicked(slot);
+                //onColorSlotClicked(slot);
                 slot.updateState(Button.State.PRESSED);
             }
         } else {

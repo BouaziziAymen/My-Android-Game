@@ -387,4 +387,5 @@
     <string name="water_bottle">Water Bottle</string>
     <string name="iron_ball">Iron Ball</string>
     <string name="a_glass">Glass</string>
+    <string name="motor_hint">Utilize the forward, backward, and stop buttons to maneuver the motor.</string>
 </resources>

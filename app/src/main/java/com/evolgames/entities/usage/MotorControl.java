@@ -25,8 +25,9 @@ public class MotorControl extends Use {
     private float backwardSpeed;
     private float power;
     private int motorState;
-
     private int motorSound;
+
+    private boolean mirrored;
 
     @SuppressWarnings("unused")
     public MotorControl() {
@@ -34,8 +35,8 @@ public class MotorControl extends Use {
 
     public MotorControl(UsageModel<?> e, List<JointBlock> jointBlocks, boolean mirrored) {
         MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
-        this.forwardSpeed = PhysicsConstants.getRotationSpeedFromRatio(mirrored ? motorControlProperties.getForwardSpeed() : motorControlProperties.getBackwardSpeed());
-        this.backwardSpeed = PhysicsConstants.getRotationSpeedFromRatio(mirrored ? motorControlProperties.getBackwardSpeed() : motorControlProperties.getForwardSpeed());
+        this.forwardSpeed = PhysicsConstants.getRotationSpeedFromRatio(!mirrored ? motorControlProperties.getForwardSpeed() : motorControlProperties.getBackwardSpeed());
+        this.backwardSpeed = PhysicsConstants.getRotationSpeedFromRatio(!mirrored ? motorControlProperties.getBackwardSpeed() : motorControlProperties.getForwardSpeed());
         this.brakes = motorControlProperties.isBrakes();
         this.power = motorControlProperties.getPower() * 735 * 4;
         this.jointBlocks = jointBlocks;
@@ -48,6 +49,7 @@ public class MotorControl extends Use {
         } else {
             motorSound = 2;
         }
+        this.mirrored = mirrored;
     }
 
 
@@ -73,7 +75,7 @@ public class MotorControl extends Use {
                     && JointCreationCommand.isJointDefReady(jointBlock.getEntity().getBody(), jointBlock.getBrother().getEntity().getBody())) {
                 if (jointBlock.getJointType() == JointDef.JointType.RevoluteJoint) {
                     RevoluteJoint motor = (RevoluteJoint) jointBlock.getJoint();
-                    if (motorState == 1) {
+                    if (motorState == (mirrored?-1:1)) {
                         if (brakes) {
                             motor.enableLimit(false);
                         }
@@ -81,7 +83,7 @@ public class MotorControl extends Use {
                         motor.setMotorSpeed(forwardSpeed);
                         motor.setMaxMotorTorque(power);
                     }
-                    if (motorState == -1) {
+                    if (motorState == (mirrored?1:-1)) {
                         if (brakes) {
                             motor.enableLimit(false);
                         }
@@ -119,6 +121,7 @@ public class MotorControl extends Use {
         float backwardSpeed = this.backwardSpeed;
         this.backwardSpeed = this.forwardSpeed;
         this.forwardSpeed = backwardSpeed;
+        this.mirrored = !mirrored;
     }
 
     @Override

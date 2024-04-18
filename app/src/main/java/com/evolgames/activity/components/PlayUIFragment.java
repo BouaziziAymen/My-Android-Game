@@ -45,6 +45,7 @@ public class PlayUIFragment extends Fragment {
     private View hintLayout;
     private ImageView hintIcon;
     private TextView hintText;
+    private GameImageButton refreshButton;
 
     public PlayUIFragment() {
         // Required empty public constructor
@@ -104,6 +105,9 @@ public class PlayUIFragment extends Fragment {
 
         effectsButton = rightLayout.findViewById(R.id.effects_button);
         setupEffectsButton(effectsButton);
+
+        refreshButton = topLayout.findViewById(R.id.refresh_button);
+        setupRefreshButton(refreshButton);
 
         hintLayout = fragment.findViewById(R.id.hintLayout);
         hintIcon = hintLayout.findViewById(R.id.hintIcon);
@@ -171,6 +175,13 @@ public class PlayUIFragment extends Fragment {
             ((GameActivity) getActivity()).getUiController().onUsesClicked();
         });
     }
+
+    private void setupRefreshButton(GameImageButton refreshButton) {
+        refreshButton.setOnPressed(() -> {
+            ((GameActivity) getActivity()).getUiController().onRefreshButtonClicked();
+        });
+    }
+
 
     private void setupEffectsButton(GameImageButton effectsButton) {
         effectsButton.setOnReleased(() -> {

@@ -3,6 +3,7 @@ package com.evolgames.entities.serialization.serializers;
 import static com.evolgames.entities.blocks.JointBlock.Position.A;
 import static com.evolgames.entities.blocks.JointBlock.Position.B;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.blocks.AssociatedBlock;
@@ -34,6 +35,8 @@ import com.evolgames.scenes.AbstractScene;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.scenes.PlayScene;
 
+import org.andengine.engine.camera.SmoothCamera;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,8 @@ public class SceneSerializer {
 
     private String grabbedEntityUniqueId;
     private String selectedEntityUniqueId;
+
+    private float camX, camY;
 
 
     @SuppressWarnings("unused")
@@ -82,6 +87,8 @@ public class SceneSerializer {
                 this.selectedEntityUniqueId = playScene.getHand().getSelectedEntity().getUniqueID();
             }
         }
+        this.camX = abstractScene.getCamera().getCenterX();
+        this.camY = abstractScene.getCamera().getCenterY();
     }
 
     private static void reloadRocket(PhysicsScene<?> scene, Rocket rocket) {
@@ -221,12 +228,12 @@ public class SceneSerializer {
         worldFacadeSerializer.afterCreate(scene);
         if(scene instanceof PlayScene){
             PlayScene playScene = (PlayScene) scene;
-
             playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
             playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
             playScene.setPlayerAction(this.playerAction);
             playScene.onOptionSelected(this.playerSpecialAction);
         }
+        ((SmoothCamera)ResourceManager.getInstance().firstCamera).setCenterDirect(camX,camY);
         scene.sortChildren();
     }
 

@@ -9,6 +9,7 @@
     <string name="go_edit">Éditer</string>
     <string name="cancel">Annuler</string>
     <string name="save_settings">Enregistrer</string>
+    <string name="motor_hint">Utilisez les boutons d\'avance, de recul et d\'arrêt pour manœuvrer le moteur.</string>
     <string name="throw_hint">"Appuyez à l'intérieur du cercle pour viser et lancer."</string>
     <string name="fire_light_hint">Appuyez à l\'intérieur du cercle pour viser et tirer.</string>
     <string name="aim_light_hint">Appuyez à l\'intérieur du cercle pour viser.</string>

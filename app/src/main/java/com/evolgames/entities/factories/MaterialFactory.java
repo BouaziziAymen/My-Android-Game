@@ -121,7 +121,7 @@ public class MaterialFactory {
         Material plastic = new Material(getString(R.string.plastic), PLASTIC, new Color(1.0f, 0.0f, 0.0f), 0.5f, 0, 0.0f, 0.0f, 0.0f, true, 600, 600, false, 0f, 300);
         Material wood = new Material(getString(R.string.wood), WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f, true, 500, 700, false, 0f, 500);
         Material hardWood = new Material(getString(R.string.hard_wood), HARD_WOOD, new Color(0.545f, 0.271f, 0.075f), 0.6f, 0, 0.0f, 0.0f, 0.0f, true, 600, 700, false, 0f, 400);
-        Material glass = new Material(getString(R.string.glass), GLASS, new Color(1.0f, 1.0f, 1.0f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
+        Material glass = new Material(getString(R.string.glass), GLASS, new Color(1.0f, 1.0f, 1.0f,0.5f), 0.7f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material copper = new Material(getString(R.string.copper), COPPER, new Color(0.722f, 0.451f, 0.2f), 0.8f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material steel = new Material(getString(R.string.steel), STEEL, new Color(0.7f, 0.7f, 0.7f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);
         Material hardSteel = new Material(getString(R.string.hard_steel), HARD_STEEL, new Color(0.75f, 0.75f, 0.75f), 0.9f, 0, 0.0f, 0.0f, 0.0f, false, 0.0, 0.0, false, 0.0f, 0.0);

@@ -452,6 +452,9 @@ public class GameEntity extends EntityWithBody {
 
     public void detach() {
         mesh.detachSelf();
+        if(outlined){
+            hideOutline();
+        }
         if (mirrorMesh != null) {
             mirrorMesh.detachSelf();
         }

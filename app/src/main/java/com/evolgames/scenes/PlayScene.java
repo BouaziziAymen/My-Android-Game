@@ -275,6 +275,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         if (this.userInterface != null) {
             this.userInterface.detachSelf();
         }
+        this.hideAimSprite();
         this.hand = null;
         this.worldFacade.getTimedCommands().clear();
     }
@@ -284,6 +285,13 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         this.savingBox.onScenePause();
         this.savingBox.saveSelf();
         this.detach();
+    }
+
+    public void refresh(){
+      detach();
+      this.populate();
+      ((SmoothCamera)this.mCamera).setCenterDirect(400,240);
+
     }
 
     @Override
@@ -296,11 +304,14 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
     private void destroyEntities() {
         for (GameGroup gameGroup : this.getGameGroups()) {
-            this.getGameGroups().remove(gameGroup);
             for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                this.worldFacade.destroyGameEntity(gameEntity, true, false);
+                gameEntity.detach();
+                worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
             }
         }
+        worldFacade.detachLiquidWrappers();
+        this.hand = null;
+        this.gameGroups.clear();
     }
 
     @Override
@@ -436,6 +447,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     private void createOpenGround() {
+        ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-Float.MAX_VALUE, 0, Float.MAX_VALUE, Float.MAX_VALUE);
         PlayScene.groundY = 30f;
         List<GameEntity> entities = new ArrayList<>();
         for (int i = -100; i < 100; i++) {
@@ -725,6 +737,9 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                         getActivity().getUiController().showHint(R.string.trigger_rocket_launcher_hint, NativeUIController.HintType.HINT);
                     }
                 }
+                if(usageList.contains(PlayerSpecialAction.motorStop)){
+                    getActivity().getUiController().showHint(R.string.motor_hint, NativeUIController.HintType.HINT);
+                }
                 if (usageList.contains(PlayerSpecialAction.SwitchOn)) {
                     if (hand.getUsableEntity().hasUsage(LiquidContainer.class)) {
                         getActivity().getUiController().showHint(R.string.unseal_hint, NativeUIController.HintType.HINT);
@@ -883,8 +898,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                 }
             }
         }
-
-
         if (playerSpecialAction == PlayerSpecialAction.Shoot_Arrow) {
             if (this.hand != null) {
                 GameEntity usableEntity = hand.getUsableEntity();
