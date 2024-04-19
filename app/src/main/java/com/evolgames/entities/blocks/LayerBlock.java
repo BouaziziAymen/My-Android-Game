@@ -240,7 +240,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
         }
         int n = 0;
         for(CoatingBlock coatingBlock:blockGrid.getCoatingBlocks()){
-            if(coatingBlock.getTemperature()<=-40){
+            if(coatingBlock.getTemperature()<=-30){
                 n++;
             }
         }

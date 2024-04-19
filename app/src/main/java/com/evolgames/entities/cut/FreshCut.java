@@ -1,11 +1,13 @@
 package com.evolgames.entities.cut;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 
 public abstract class FreshCut {
     protected Vector2 splashVelocity;
     private float length;
     private int limit;
+    private boolean frozen;
 
     public FreshCut() {
     }
@@ -30,5 +32,13 @@ public abstract class FreshCut {
 
     public Vector2 getSplashVelocity() {
         return splashVelocity;
+    }
+
+    public boolean isFrozen() {
+        return frozen;
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
     }
 }

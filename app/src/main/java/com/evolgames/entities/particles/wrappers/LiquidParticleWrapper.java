@@ -3,6 +3,7 @@ package com.evolgames.entities.particles.wrappers;
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.initializers.GameEntityAttachedVelocityInitializer;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
@@ -16,7 +17,6 @@ import org.andengine.entity.particle.initializer.GravityParticleInitializer;
 import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
-import org.andengine.util.modifier.ease.EaseStrongInOut;
 
 public abstract class LiquidParticleWrapper {
     private final DataEmitter emitter;
@@ -27,7 +27,8 @@ public abstract class LiquidParticleWrapper {
     private final float flammability;
     private final Color color;
     private boolean alive = true;
-    private int timer = 0;
+    private FreshCut freshCut;
+    private boolean isDepleted = false;
 
     public LiquidParticleWrapper(
             GameEntity gameEntity,
@@ -75,25 +76,24 @@ public abstract class LiquidParticleWrapper {
     protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights, GameEntity gameEntity);
 
     public void update() {
-        timer++;
-        if (splashVelocity != null) {
+        if (freshCut != null) {
+            this.particleSystem.setParticlesSpawnEnabled(parent.isAlive() && !freshCut.isFrozen());
+        }
+        if (!parent.isAlive()||isDepleted) {
+            this.particleSystem.setParticlesSpawnEnabled(false);
+        }
+        if (isAlive()&&splashVelocity != null) {
             splashVelocity.mul(0.9f);
             velocityInitializer.getIndependentVelocity().set(splashVelocity.x, splashVelocity.y);
         }
-        if (!parent.isAlive()) {
-            this.particleSystem.setParticlesSpawnEnabled(false);
-            if (isAllParticlesExpired()) {
-                ResourceManager.getInstance()
-                        .activity
-                        .runOnUpdateThread(
-                                particleSystem::detachSelf);
-            }
-            return;
+
+        if (!isAlive()&&isAllParticlesExpired()) {
+            ResourceManager.getInstance()
+                    .activity
+                    .runOnUpdateThread(
+                            particleSystem::detachSelf);
         }
         if (isAlive()) {
-            if (!this.particleSystem.isParticlesSpawnEnabled()) {
-                this.particleSystem.setParticlesSpawnEnabled(true);
-            }
             emitter.update();
         }
     }
@@ -112,7 +112,8 @@ public abstract class LiquidParticleWrapper {
     }
 
     public void finishSelf() {
-        particleSystem.setParticlesSpawnEnabled(false);
+        this.particleSystem.setParticlesSpawnEnabled(false);
+        this.isDepleted = true;
         this.alive = false;
     }
 
@@ -135,13 +136,22 @@ public abstract class LiquidParticleWrapper {
     }
 
     public void detachDirect() {
-        if(this.particleSystem!=null){
-          particleSystem.detachSelf();
+        if (this.particleSystem != null) {
+            particleSystem.detachSelf();
         }
     }
+
     public void detach() {
-        if(this.particleSystem!=null){
+        if (this.particleSystem != null) {
             ResourceManager.getInstance().activity.runOnUpdateThread(particleSystem::detachSelf);
         }
+    }
+
+    public void setFreshCut(FreshCut freshCut) {
+        this.freshCut = freshCut;
+    }
+
+    public void setDepleted(boolean depleted) {
+        isDepleted = depleted;
     }
 }

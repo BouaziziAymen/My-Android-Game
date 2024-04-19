@@ -271,7 +271,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBlunt(int finalNumberOfPoints) {
         bluntTrauma+= finalNumberOfPoints;
-        if(bluntTrauma>1000){
+        if(bluntTrauma>500){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);
@@ -281,7 +281,7 @@ public class RagDoll extends GameGroup {
     }
     public void onBleeding() {
         bloodLost++;
-        if(bloodLost>1000){
+        if(bloodLost>2000){
             if(head!=null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);

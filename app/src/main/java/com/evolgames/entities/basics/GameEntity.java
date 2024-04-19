@@ -226,6 +226,9 @@ public class GameEntity extends EntityWithBody {
 
         for(LayerBlock layerBlock:layerBlocks){
             if(layerBlock.isFrozen()){
+                for(FreshCut freshCut:layerBlock.getFreshCuts()){
+                    freshCut.setFrozen(true);
+                }
               for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
                   if(associatedBlock instanceof JointBlock){
                       JointBlock jointBlock = (JointBlock) associatedBlock;
@@ -241,6 +244,9 @@ public class GameEntity extends EntityWithBody {
                   }
               }
             } else {
+                for(FreshCut freshCut:layerBlock.getFreshCuts()){
+                    freshCut.setFrozen(false);
+                }
                 for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
                     if(associatedBlock instanceof JointBlock){
                         JointBlock jointBlock = (JointBlock) associatedBlock;

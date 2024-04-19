@@ -34,7 +34,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     private float impactFactor() {
-        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 10f : 1f;
+        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 100f : 10f;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class Projectile extends Use implements Penetrating {
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                worldFacade.applyPointImpact(obtain(point), 10f * impactFactor() * consumedImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrated);
             }
         });
         if (projectileType == ProjectileType.SHARP_WEAPON) {
@@ -131,7 +131,7 @@ public class Projectile extends Use implements Penetrating {
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
-                worldFacade.applyPointImpact(obtain(point), 10f * impactFactor() * collisionImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), impactFactor() * collisionImpulse * massFraction, penetrated);
             }
         });
         onImpact(collisionImpulse * 4, penetrator, penetratorBlock);
