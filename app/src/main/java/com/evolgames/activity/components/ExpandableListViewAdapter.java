@@ -100,14 +100,8 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         }
         ItemCategory itemCategory = dataHeader.get(groupPosition);
         ItemMetaData itemMetaData = Objects.requireNonNull(listHashMap.get(itemCategory)).get(childPosition);
-        int itemNameTranslationId = ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName());
-        String itemDisplayedName;
-        if (itemNameTranslationId != -1) {
-            itemDisplayedName = inflater.getContext().getString(itemNameTranslationId);
-        } else {
-            itemDisplayedName = itemMetaData.getName();
-        }
-        holder.itemNameTextView.setText(itemDisplayedName);
+
+        holder.itemNameTextView.setText(itemMetaData.getDisplayName());
         holder.itemCreatorTextView.setText(itemMetaData.isUserCreated()?inflater.getContext().getString(R.string.created_by_me):inflater.getContext().getString(R.string.created_by_creator));
         return convertView;
     }

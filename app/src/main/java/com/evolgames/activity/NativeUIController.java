@@ -185,7 +185,14 @@ public class NativeUIController implements INativeUIController {
         helper.fillItemsMapFromAssets(map);
         helper.fillItemsMapFromInternalStorage(map);
         map.values().forEach(list -> list.sort(Comparator.comparing(ItemMetaData::getName)));
+        ResourceManager.getInstance().fillItemNamesTranslation();
         ResourceManager.getInstance().setItemsMap(map);
+        for (List<ItemMetaData> list : map.values()) {
+            for(ItemMetaData itemMetaData:list){
+                itemMetaData.setDisplayName(gameActivity.getString(ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName())));
+            }
+            list.sort(Comparator.comparing(ItemMetaData::getDisplayName));
+        }
     }
 
     @Override

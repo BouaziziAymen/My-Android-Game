@@ -878,7 +878,6 @@ public class ResourceManager {
 
     public void setItemsMap(Map<ItemCategory, List<ItemMetaData>> itemsMap) {
         this.itemsMap = itemsMap;
-        this.fillItemNamesTranslation();
     }
 
     public ItemMetaData getEditorItem() {

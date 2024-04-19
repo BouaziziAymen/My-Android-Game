@@ -8,6 +8,7 @@ public class ItemMetaData {
     private ItemCategory itemCategory;
     private boolean userCreated;
     private String templateName;
+    private String displayName;
 
     public String getFileName() {
         return fileName;
@@ -47,5 +48,13 @@ public class ItemMetaData {
 
     public String getTemplateName() {
         return templateName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 }
