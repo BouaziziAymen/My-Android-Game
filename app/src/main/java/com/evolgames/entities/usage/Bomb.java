@@ -66,12 +66,10 @@ public abstract class Bomb extends Use {
             Vector2 pos =
                     bombInfo
                             .getBombPosition();
-            Vector2 worldPos = body.getWorldPoint(pos).cpy();
-
             worldFacade.createExplosion(
                     bombInfo.getCarrierEntity(),
-                    worldPos.x,
-                    worldPos.y,
+                    pos.x,
+                    pos.y,
                     bombInfo.getFireRatio(),
                     bombInfo.getSmokeRatio(),
                     bombInfo.getSparkRatio(),

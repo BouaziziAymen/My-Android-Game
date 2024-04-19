@@ -389,4 +389,17 @@
     <string name="iron_ball">Bola de ferro</string>
     <string name="a_glass">Copo</string>
 
+    <string name="send_item_instructions">Após enviar o e-mail manualmente, você procederá a enviar o item para revisão pelo desenvolvedor. Por favor, certifique-se de que seu design esteja finalizado e totalmente funcional. Obrigado por sua contribuição.</string>
+    <string name="proceed">Prosseguir</string>
+
+    <string name="latest_item">Último item</string>
+    <string name="choose_a_name_validation">Por favor, insira um nome para este item.</string>
+    <string name="name_already_exists_validation">Este nome já está em uso. Por favor, escolha outro.</string>
+    <string name="choose_a_valid_type_validation">Por favor, selecione um tipo válido das opções fornecidas.</string>
+    <string name="choose_a_valid_template_validation">Por favor, escolha um modelo válido das opções disponíveis.</string>
+    <string name="choose_an_item_validation">Por favor, faça uma seleção da lista de itens.</string>
+    <string name="item_doesn_t_exist_validation">O item selecionado não existe. Por favor, escolha outro.</string>
+    <string name="firework">Fogos de artifício</string>
+
+
 </resources>

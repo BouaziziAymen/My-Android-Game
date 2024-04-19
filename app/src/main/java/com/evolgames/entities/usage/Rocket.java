@@ -57,6 +57,14 @@ public class Rocket extends Use {
 
 
     public void onLaunch(PlayScene playScene, boolean withSound) {
+        if(this.rocketBodyEntity!=null){
+            this.rocketBodyEntity.getUseList().forEach(use -> {
+                if(use instanceof TimeBomb){
+                    TimeBomb timeBomb = (TimeBomb) use;
+                    timeBomb.onTriggered(playScene.getWorldFacade());
+                }
+            });
+        }
         if(playScene.isChaseActive()) {
             playScene.chaseEntity(rocketBodyEntity,true);
         }

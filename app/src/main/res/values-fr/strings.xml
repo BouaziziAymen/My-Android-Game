@@ -393,5 +393,15 @@
     <string name="iron_ball">Boule de fer</string>
     <string name="a_glass">Verre</string>
 
+    <string name="send_item_instructions">Après avoir envoyé l\'email manuellement, vous procéderez à soumettre l\'élément pour examen par le développeur. Veuillez vous assurer que votre conception est finalisée et entièrement fonctionnelle. Merci pour votre contribution.</string>
+    <string name="proceed">Procéder</string>
 
+    <string name="latest_item">Dernier élément</string>
+    <string name="choose_a_name_validation">Veuillez entrer un nom pour cet élément.</string>
+    <string name="name_already_exists_validation">Ce nom est déjà utilisé. Veuillez en choisir un différent.</string>
+    <string name="choose_a_valid_type_validation">Veuillez sélectionner un type valide parmi les options fournies.</string>
+    <string name="choose_a_valid_template_validation">Veuillez choisir un modèle valide parmi les options disponibles.</string>
+    <string name="choose_an_item_validation">Veuillez faire une sélection dans la liste des éléments.</string>
+    <string name="item_doesn_t_exist_validation">L\'élément sélectionné n\'existe pas. Veuillez en choisir un autre.</string>
+    <string name="firework">Feu d\'artifice</string>
 </resources>

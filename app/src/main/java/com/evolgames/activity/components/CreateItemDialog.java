@@ -170,21 +170,21 @@ public class CreateItemDialog extends DialogFragment {
 
             boolean isTypeInvalid = typeText.isEmpty() || Arrays.stream(ItemCategory.values()).map(Enum::name).noneMatch(e -> e.equals(selectedType));
             boolean isTemplateInvalid = selectedTemplate!=null&&!selectedTemplate.isEmpty() && Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equals(selectedTemplate));
-            boolean nameExists = Arrays.stream(items).map(Item::getTitle).anyMatch(e -> e.equals(itemNameText.toLowerCase()));
+            boolean nameExists = Arrays.stream(items).map(Item::getTitle).anyMatch(e -> e.equals(itemNameText));
             boolean isNameEmpty = itemNameText.isEmpty();
             if (isTypeInvalid || isNameEmpty || nameExists || isTemplateInvalid) {
                 // Show error message if any field is empty
                 List<String> list = new ArrayList<>();
                 if (isNameEmpty) {
-                    list.add("Choose a name.");
+                    list.add(getString(R.string.choose_a_name_validation));
                 } else if (nameExists) {
-                    list.add("Name already exists.");
+                    list.add(getString(R.string.name_already_exists_validation));
                 }
                 if (isTypeInvalid) {
-                    list.add("Choose a valid type");
+                    list.add(getString(R.string.choose_a_valid_type_validation));
                 }
                 if (isTemplateInvalid) {
-                    list.add("Choose a valid template.");
+                    list.add(getString(R.string.choose_a_valid_template_validation));
                 }
                 String msg = String.join(" ", list);
                 Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();

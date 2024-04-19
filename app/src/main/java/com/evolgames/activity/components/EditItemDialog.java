@@ -1,5 +1,7 @@
 package com.evolgames.activity.components;
 
+import static com.evolgames.activity.NativeUIController.LATEST;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Color;
@@ -39,6 +41,7 @@ public class EditItemDialog extends DialogFragment {
 
     private String selectedItem;
     private String selectedItemFile;
+    private boolean continueLatest;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -74,14 +77,13 @@ public class EditItemDialog extends DialogFragment {
 
         CheckBox checkBox = dialogLayout.findViewById(R.id.continueCheckbox);
 
-
         // Set listener for checkbox state change
 
 
         Button shareButton = dialogLayout.findViewById(R.id.shareButton);
         shareButton.setOnClickListener(v ->{
             if(selectedItemFile!=null&&!selectedItemFile.isEmpty()){
-                ((GameActivity) requireActivity()).sendEmailWithAttachment(selectedItemFile);
+                ((GameActivity) requireActivity()).showProceedToSend(selectedItemFile);
             }
         } );
 
@@ -121,11 +123,16 @@ public class EditItemDialog extends DialogFragment {
             this.selectedItemFile = (String) item.getData();
         });
 
+        String latest = ((GameActivity) requireActivity()).loadStringFromPreferences(LATEST);
+        if(latest.isEmpty()){
+            checkBox.setEnabled(false);
+        }
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Enable or disable EditText based on checkbox state
             itemNameAutoComplete.setEnabled(!isChecked);
+            this.continueLatest = isChecked;
             if (isChecked) {
-                itemNameAutoComplete.setText("Latest Item");
+                itemNameAutoComplete.setText(latest);
             } else {
                 itemNameAutoComplete.setText("");
             }
@@ -138,20 +145,20 @@ public class EditItemDialog extends DialogFragment {
             // Perform input validation
             boolean invalidName = !checkBox.isChecked() && selectedItem!=null&&Arrays.stream(items).map(Item::getTitle).noneMatch(e -> e.equalsIgnoreCase(selectedItem));
             boolean isNameEmpty = selectedItem==null||selectedItem.isEmpty();
-            if (invalidName || isNameEmpty) {
+            if (!continueLatest&&(invalidName || isNameEmpty)) {
                 // Show error message if any field is empty
                 List<String> list = new ArrayList<>();
                 if (isNameEmpty) {
-                    list.add("Choose a name.");
+                    list.add(getString(R.string.choose_an_item_validation));
                 } else {
-                    list.add("Item doesn't exist.");
+                    list.add(getString(R.string.item_doesn_t_exist_validation));
                 }
                 String msg = String.join(" ", list);
                 Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
             } else {
                 // Valid inputs, dismiss the dialog
                 alertDialog.dismiss();
-                ((GameActivity) requireActivity()).getUiController().onProceedToEdit(selectedItem);
+                ((GameActivity) requireActivity()).getUiController().onProceedToEdit(selectedItem,continueLatest);
             }
         });
 

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class NativeUIController implements INativeUIController {
+    public static final String LATEST = "Latest Item";
     private final GameActivity gameActivity;
     private MainScene mainScene;
 
@@ -132,10 +133,16 @@ public class NativeUIController implements INativeUIController {
     }
 
     @Override
-    public void onProceedToEdit(String itemNameText) {
+    public void onProceedToEdit(String itemNameText, boolean continueLatest) {
         gameActivity.runOnUpdateThread(() -> {
+            final String item;
+            if(continueLatest){
+                item = gameActivity.loadStringFromPreferences(LATEST);
+            } else {
+                item = itemNameText;
+            }
             Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
-                    .filter(e -> e.getName().equalsIgnoreCase(itemNameText)).findFirst();
+                    .filter(e -> e.getName().equalsIgnoreCase(item)).findFirst();
             if (res.isPresent()) {
                 ItemMetaData itemMetaData = new ItemMetaData();
                 itemMetaData.setFileName(res.get().getFileName());
@@ -152,6 +159,7 @@ public class NativeUIController implements INativeUIController {
     @Override
     public void onProceedToCreate(String itemNameText, String itemTypeText, String itemTemplateText) {
         gameActivity.runOnUpdateThread(() -> {
+            gameActivity.saveStringToPreferences(LATEST,itemNameText);
             ItemMetaData newItemMetaData = new ItemMetaData();
             newItemMetaData.setToolName(itemNameText);
             newItemMetaData.setItemCategory(ItemCategory.fromName(itemTypeText));
@@ -161,6 +169,7 @@ public class NativeUIController implements INativeUIController {
                 res.ifPresent(itemMetaData -> newItemMetaData.setTemplateFilename(res.get().getFileName()));
                 newItemMetaData.setUserCreated(res.get().isUserCreated());
             }
+            newItemMetaData.setToolName(itemNameText);
             ResourceManager.getInstance().setEditorItem(newItemMetaData);
             ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(newItemMetaData.getName()));
             mainScene.goToScene(SceneType.EDITOR);

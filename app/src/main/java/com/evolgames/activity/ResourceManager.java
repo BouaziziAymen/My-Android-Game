@@ -1008,6 +1008,7 @@ public class ResourceManager {
         itemsTranslationMap.put("Water Bottle#", R.string.water_bottle);
         itemsTranslationMap.put("Iron Ball#", R.string.iron_ball);
         itemsTranslationMap.put("Glass#", R.string.a_glass);
+        itemsTranslationMap.put("Firework#", R.string.firework);
     }
 
     public Integer getTranslatedItemStringId(String name){

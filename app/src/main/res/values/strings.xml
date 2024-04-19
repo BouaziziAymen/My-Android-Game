@@ -388,4 +388,16 @@
     <string name="iron_ball">Iron Ball</string>
     <string name="a_glass">Glass</string>
     <string name="motor_hint">Utilize the forward, backward, and stop buttons to maneuver the motor.</string>
+
+    <string name="send_item_instructions">After manually sending the email, you\'ll proceed to submit the item for developer review. Please ensure that your design is finalized and fully functional. Thank you for your contribution.</string>
+    <string name="proceed">Proceed</string>
+    <string name="latest_item">Latest Item</string>
+    <string name="choose_a_name_validation">Please enter a name for this item.</string>
+    <string name="name_already_exists_validation">This name is already in use. Please pick a different one.</string>
+    <string name="choose_a_valid_type_validation">Please select a valid type from the options provided.</string>
+    <string name="choose_a_valid_template_validation">Please choose a valid template from the available options.</string>
+    <string name="choose_an_item_validation">Please make a selection from the list of items.</string>
+    <string name="item_doesn_t_exist_validation">The selected item does not exist. Please choose another one.</string>
+    <string name="firework">Firework</string>
+
 </resources>

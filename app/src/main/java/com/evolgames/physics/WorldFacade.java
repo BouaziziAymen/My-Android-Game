@@ -347,10 +347,13 @@ public class WorldFacade implements ContactObserver {
                     splinter.setType(SpecialEntityType.Head);
                     ((RagDoll) parentEntity.getParentGroup()).setHead(splinter);
                 }
-            } else splinter.setType(parentEntity.getType());
+            } else {
+                splinter.setType(parentEntity.getType());
+            }
             if (splinter.getArea() < PhysicsConstants.MINIMUM_STABLE_SPLINTER_AREA) {
                 this.scheduleGameEntityToDestroy(splinter, (int) (splinter.getArea()));
             }
+            splinter.setZIndex(parentEntity.getZIndex());
         });
         this.contactListener.getNonCollidingEntities().addAll(setOfPairs);
     }
@@ -531,7 +534,7 @@ public class WorldFacade implements ContactObserver {
         return null;
     }
 
-    public void createExplosion(GameEntity source, float x, float y, float fireRatio, float smokeRatio, float sparkRatio, float particles, float force, float heat, float speedRatio, float inFirePartSize, float finFirePartSize) {
+    public void  createExplosion(GameEntity source, float x, float y, float fireRatio, float smokeRatio, float sparkRatio, float particles, float force, float heat, float speedRatio, float inFirePartSize, float finFirePartSize) {
         Explosion explosion = new Explosion(scene, source, new Vector2(x, y), particles, force, speedRatio, heat, fireRatio, smokeRatio, sparkRatio, inFirePartSize, finFirePartSize);
         explosions.add(explosion);
 
@@ -1120,8 +1123,6 @@ public class WorldFacade implements ContactObserver {
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
         addJointToCreate(jointDef, receiver, traveler, -2);
         freeze(receiver);
-        
-        scheduleGameEntityToDestroy(traveler, 1200);
         traveler.setZIndex(receiver.getZIndex() - 1);
         scene.sortChildren();
     }
@@ -1610,7 +1611,7 @@ public class WorldFacade implements ContactObserver {
 
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = (float) (enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum());
+                    float length = (float) (enterBleedingPoints.size()*enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.05f)).sum());
                     int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
                     processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
@@ -1621,7 +1622,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float) (enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum()*0.01f);
+                    float length = (float) (leavingBleedingPoints.size()*leavingBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.05f)).sum()*0.01f);
                     int value = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());
@@ -1709,12 +1710,11 @@ public class WorldFacade implements ContactObserver {
             Vector2 localCenter = GeometryUtils.calculateCenterScatter(localCenters);
             ShatterVisitor shatterVisitor = new ShatterVisitor(impactEnergy,localCenter,scene.getWorldFacade(),gameEntity);
             List<LayerBlock> splinters = shatterVisitor.visitTheElement(layerBlock);
+            allSplinters.addAll(splinters);
             if(shatterVisitor.isShatterPerformed()){
-             allSplinters.addAll(splinters);
                 shatterPerformed = true;
             } else {
                 applyStrain(layerBlock,impactEnergy);
-               allSplinters.add(layerBlock);
             }
         }
 

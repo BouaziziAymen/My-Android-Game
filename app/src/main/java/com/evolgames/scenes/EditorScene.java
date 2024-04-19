@@ -97,7 +97,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
             toolModel.getProperties().setToolName(itemMetaData.getName());
             toolModel.setCategory(itemMetaData.getItemCategory());
         } else {
-            toolModel.setModelName(itemMetaData.getName());
+            toolModel.getProperties().setToolName(itemMetaData.getName());
         }
         init();
 

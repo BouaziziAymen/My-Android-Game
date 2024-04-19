@@ -27,7 +27,7 @@ public interface INativeUIController {
 
     void onEditorClicked();
 
-    void onProceedToEdit(String itemNameText);
+    void onProceedToEdit(String itemNameText, boolean continueLatest);
 
     void onProceedToCreate(String itemNameText, String itemTypeText, String itemTemplateText);
 

@@ -391,4 +391,15 @@
     <string name="iron_ball">Eisenkugel</string>
     <string name="a_glass">Glas</string>
 
+    <string name="send_item_instructions">Nachdem Sie die E-Mail manuell gesendet haben, senden Sie den Artikel zur Überprüfung an den Entwickler. Bitte stellen Sie sicher, dass Ihr Design endgültig ist und voll funktionsfähig ist. Vielen Dank für Ihren Beitrag.</string>
+    <string name="proceed">Fortfahren</string>
+
+    <string name="latest_item">Neuestes Element</string>
+    <string name="choose_a_name_validation">Bitte geben Sie einen Namen für dieses Element ein.</string>
+    <string name="name_already_exists_validation">Dieser Name wird bereits verwendet. Bitte wählen Sie einen anderen.</string>
+    <string name="choose_a_valid_type_validation">Bitte wählen Sie einen gültigen Typ aus den angegebenen Optionen.</string>
+    <string name="choose_a_valid_template_validation">Bitte wählen Sie eine gültige Vorlage aus den verfügbaren Optionen.</string>
+    <string name="choose_an_item_validation">Bitte treffen Sie eine Auswahl aus der Liste der Elemente.</string>
+    <string name="item_doesn_t_exist_validation">Das ausgewählte Element existiert nicht. Bitte wählen Sie ein anderes.</string>
+    <string name="firework">Feuerwerk</string>
 </resources>

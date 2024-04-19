@@ -20,10 +20,10 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -432,6 +432,32 @@ public class GameActivity extends BaseGameActivity {
         saveBooleanToPreferences(SOUND_KEY, ResourceManager.getInstance().isSound());
         saveBooleanToPreferences(MUSIC_KEY, ResourceManager.getInstance().isMusic());
         saveBooleanToPreferences(HINTS_KEY, ResourceManager.getInstance().isHints());
+    }
+
+    public void showProceedToSend(String selectedItemFile){
+        // Create an AlertDialog.Builder object
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+// Set the message
+        builder.setMessage(R.string.send_item_instructions);
+
+// Set the positive button (Proceed)
+        builder.setPositiveButton(R.string.proceed, (dialog, id) -> {
+            // Proceed action here
+            sendEmailWithAttachment(selectedItemFile);
+        });
+
+// Set the negative button (Cancel)
+        builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
+            // Cancel action here
+            dialog.dismiss();
+        });
+
+// Create the AlertDialog
+        AlertDialog dialog = builder.create();
+
+// Show the dialog
+        dialog.show();
     }
 
     public void showHelpDialog() {

@@ -388,4 +388,18 @@
     <string name="water_bottle">Botella de agua</string>
     <string name="iron_ball">Bola de hierro</string>
     <string name="a_glass">Vaso</string>
+
+    <string name="send_item_instructions">Después de enviar manualmente el correo electrónico, procederás a enviar el elemento para su revisión por parte del desarrollador. Asegúrate de que tu diseño esté finalizado y completamente funcional. Gracias por tu contribución.</string>
+    <string name="proceed">Continuar</string>
+
+    <string name="latest_item">Último elemento</string>
+    <string name="choose_a_name_validation">Por favor, ingrese un nombre para este elemento.</string>
+    <string name="name_already_exists_validation">Este nombre ya está en uso. Por favor, elija uno diferente.</string>
+    <string name="choose_a_valid_type_validation">Por favor, seleccione un tipo válido de las opciones proporcionadas.</string>
+    <string name="choose_a_valid_template_validation">Por favor, elija una plantilla válida de las opciones disponibles.</string>
+    <string name="choose_an_item_validation">Por favor, haga una selección de la lista de elementos.</string>
+    <string name="item_doesn_t_exist_validation">El elemento seleccionado no existe. Por favor, elija otro.</string>
+    <string name="firework">Fuego artificial</string>
+
+
 </resources>
