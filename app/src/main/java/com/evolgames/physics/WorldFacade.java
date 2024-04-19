@@ -1610,7 +1610,7 @@ public class WorldFacade implements ContactObserver {
 
                 List<CutPoint> enterBleedingPoints = entryByBlock.getValue().stream().filter(PenetrationPoint::isEntering).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!enterBleedingPoints.isEmpty()) {
-                    float length = (float) (enterBleedingPoints.size()*enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.5f)).sum());
+                    float length = (float) (enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum());
                     int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
                     processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
@@ -1621,7 +1621,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float) (enterBleedingPoints.size()*enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),0.5f)).sum()*0.01f);
+                    float length = (float) (enterBleedingPoints.stream().mapToDouble(e->MathUtils.diminishedIncrease(e.getWeight(),1f)).sum()*0.01f);
                     int value = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (value >= 1 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(leavingBleedingPoints, length, value, normal.cpy());

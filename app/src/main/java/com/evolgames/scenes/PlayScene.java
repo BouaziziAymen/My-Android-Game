@@ -460,9 +460,21 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             vertices.add(obtain(200, -50));
             blocks.add(BlockFactory.createLayerBlock(vertices, PropertiesFactory.getInstance().createProperties(MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.ASPHALT)), 0, 0, false));
 
+            vertices = new ArrayList<>();
+            vertices.add(obtain(-100, 30));
+            vertices.add(obtain(-100, 29));
+            vertices.add(obtain(100, 29));
+            vertices.add(obtain(100, 30 ));
+            DecorationBlock decorationBlock = new DecorationBlock();
+            DecorationProperties decorationProperties = new DecorationProperties();
+            decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
+            decorationBlock.initialization(vertices, decorationProperties, 0);
+            blocks.get(0).addAssociatedBlock(decorationBlock);
+
             BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), i * 400f / 32f, 0, 0);
             GameEntity entity = GameEntityFactory.getInstance().createGameEntity(i * 400f / 32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part " + i, null);
             entities.add(entity);
+
         }
         GameGroup groundGroup = new GameGroup(GroupType.GROUND, entities);
         this.addGameGroup(groundGroup);

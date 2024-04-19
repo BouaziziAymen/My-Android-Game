@@ -127,7 +127,7 @@ public class Projectile extends Use implements Penetrating {
         }
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
         if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {
-            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(5f*collisionImpulse * massFraction), obtain(point));
+            penetrated.getBody().applyLinearImpulse(normal.cpy().mul(collisionImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {

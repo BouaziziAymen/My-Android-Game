@@ -228,8 +228,10 @@ public class SceneSerializer {
         worldFacadeSerializer.afterCreate(scene);
         if(scene instanceof PlayScene){
             PlayScene playScene = (PlayScene) scene;
-            playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
-            playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
+            if(playScene.getHand()!=null) {
+                playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
+                playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
+            }
             playScene.setPlayerAction(this.playerAction);
             playScene.onOptionSelected(this.playerSpecialAction);
         }

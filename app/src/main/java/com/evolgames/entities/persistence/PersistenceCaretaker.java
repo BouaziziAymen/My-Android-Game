@@ -204,7 +204,7 @@ public class PersistenceCaretaker {
 //     scaleTool("Archery Target#",1.333f);
        // mirrorTool("Rocket 2#");
         // moveLayersTransformation();
-        //asIsTransformation();
+      //  asIsTransformation();
     }
 
     private void resetMaterialsBasicValues() {
@@ -252,7 +252,7 @@ public class PersistenceCaretaker {
              for(LayerModel layerModel:bodyModel.getLayers()){
                  LayerProperties properties = layerModel.getProperties();
                  if(properties.isJuicy()){
-                     properties.setJuiceColor(Materials.getLiquidByIndex(properties.getJuiceIndex()).getDefaultColor());
+                     properties.getJuiceColor().setAlpha(0.1f);
                  }
                  if(properties.getMaterialNumber()==GLASS){
                      properties.getDefaultColor().setAlpha(0.5f);
