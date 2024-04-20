@@ -184,9 +184,10 @@ public class GameActivity extends BaseGameActivity {
         ResourceManager.getInstance().create(this, this.getEngine(), camera, this.getVertexBufferObjectManager());
         ResourceManager.getInstance().loadPreferences();
         ResourceManager.getInstance().loadFonts();
-        ResourceManager.getInstance().loadImages();
+        //ResourceManager.getInstance().loadEditorImages();
+        ResourceManager.getInstance().loadGameImages();
         ResourceManager.getInstance().loadGameAudio();
-        ResourceManager.getInstance().loadBatches();
+       // ResourceManager.getInstance().loadBatches();
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 

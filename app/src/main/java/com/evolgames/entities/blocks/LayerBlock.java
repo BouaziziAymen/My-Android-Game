@@ -215,14 +215,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
         return freshCuts;
     }
 
-    public int getLiquidQuantity() {
-        return liquidQuantity;
-    }
-
-    public void setLiquidQuantity(int liquidQuantity) {
-        this.liquidQuantity = liquidQuantity;
-    }
-
     @Override
     public void mirror() {
         super.mirror();
@@ -251,5 +243,13 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
             return MaterialFactory.getInstance().getMaterialByIndex(MaterialFactory.CLAY).getTenacity();
         }
         return getProperties().getTenacity();
+    }
+
+    public void setLiquidQuantity(int liquidQuantity) {
+        this.liquidQuantity = liquidQuantity;
+    }
+
+    public int getLiquidQuantity() {
+        return liquidQuantity;
     }
 }

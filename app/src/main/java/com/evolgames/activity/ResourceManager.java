@@ -25,7 +25,6 @@ import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
@@ -56,8 +55,8 @@ public class ResourceManager {
     public TextureRegion diskTextureRegion;
     public Camera firstCamera;
     public VertexBufferObjectManager vbom;
-    public BuildableBitmapTextureAtlas gameTextureAtlas;
-    public BitmapTextureAtlas texturedMesh;
+    public BuildableBitmapTextureAtlas uiTextureAtlas;
+    public BuildableBitmapTextureAtlas gameplayTextureAtlas;
     public TiledTextureRegion stainTextureRegions;
     public TextureRegion liquidParticle;
     public TiledTextureRegion button;
@@ -237,12 +236,12 @@ public class ResourceManager {
     public void loadBatches() {
         hudBatcher =
                 new SpriteBatch(
-                        ResourceManager.getInstance().gameTextureAtlas,
+                        ResourceManager.getInstance().uiTextureAtlas,
                         10000,
                         ResourceManager.getInstance().vbom);
         sceneBatcher =
                 new SpriteBatch(
-                        ResourceManager.getInstance().gameTextureAtlas,
+                        ResourceManager.getInstance().uiTextureAtlas,
                         10000,
                         ResourceManager.getInstance().vbom);
     }
@@ -253,81 +252,110 @@ public class ResourceManager {
     public MyLetter getLetter(int fontId, char character) {
         return fontLoader.getLetter(fontId, character);
     }
-
-    public void loadImages() {
+    public void loadGameImages(){
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-
-        this.texturedMesh =
-                new BitmapTextureAtlas(
-                        activity.getTextureManager(), 256, 128, TextureOptions.REPEATING_BILINEAR);
-        this.stainTextureRegions =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.texturedMesh, this.activity, "stainbw.png", 0, 0, 15, 1);
-        this.texturedMesh.load();
-
-        this.texture = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048);
-
-        this.gameTextureAtlas =
+        this.gameplayTextureAtlas =
                 new BuildableBitmapTextureAtlas(
                         this.activity.getTextureManager(),
-                        2048,
-                        2048,
+                        512,
+                        512,
                         BitmapTextureFormat.RGBA_8888,
                         TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
+        this.stainTextureRegions =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "stainbw.png", 15, 1);
         this.liquidParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
         this.frostParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/frost.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/frost.png");
         this.dotParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/dot.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/dot.png");
         this.smokeParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/smoke.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/smoke.png");
         this.plasmaParticle3 =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/f3.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/f3.png");
         this.plasmaParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/plasma.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/plasma.png");
         this.pixelParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "particle/pixel.png");
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/pixel.png");
+
+        this.evilEyesTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "evileyes.png", 5, 1);
+
+        this.playTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "play.png");
+
+        this.focusTextureRegion =
+                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
+                        this.gameplayTextureAtlas, this.activity.getAssets(), "focus.png");
+
+
+        try {
+            this.gameplayTextureAtlas.build(new BlackPawnTextureAtlasBuilder<>(2, 0, 1));
+            this.gameplayTextureAtlas.load();
+
+        } catch (ITextureAtlasBuilder.TextureAtlasBuilderException e) {
+            throw new RuntimeException("Error while loading game textures", e);
+        }
+
+    }
+
+
+    private void loadUserInterfaceImages() {
+        BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+        this.texture = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048);
+
+        this.uiTextureAtlas =
+                new BuildableBitmapTextureAtlas(
+                        this.activity.getTextureManager(),
+                        1024,
+                        1024,
+                        BitmapTextureFormat.RGBA_8888,
+                        TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+
+
         this.button =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);
 
         this.revoluteTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/revolute.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/revolute.png", 1, 3);
         this.weldTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/weld.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/weld.png", 1, 3);
         this.distanceTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/distance.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/distance.png", 1, 3);
         this.prismaticTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/prismatic.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/prismatic.png", 1, 3);
         this.moveJointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/movejoint.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/movejoint.png", 1, 3);
 
         this.drawBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/drawoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/drawoption.png", 2, 1);
         this.jointBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/jointoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/jointoption.png", 2, 1);
         this.imageBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/imageoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/imageoption.png", 2, 1);
         this.collisionBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas,
+                        this.uiTextureAtlas,
                         this.activity.getAssets(),
                         "main_board/collisionoption.png",
                         2,
@@ -335,250 +363,239 @@ public class ResourceManager {
 
         this.helpBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/questionoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/questionoption.png", 2, 1);
 
         this.saveBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/saveoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/saveoption.png", 2, 1);
 
         this.homeBigButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "main_board/homeoption.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "main_board/homeoption.png", 2, 1);
 
 
         this.optionsPointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/point.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/point.png", 1, 2);
         this.optionsVerTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/hor.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/hor.png", 1, 2);
         this.optionsHorTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/ver.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/ver.png", 1, 2);
         this.optionsDirTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/dir.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/dir.png", 1, 2);
 
         this.optionsCenterTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/center.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/center.png", 1, 2);
 
         this.optionsMagnetTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/magnet.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/magnet.png", 1, 2);
         this.optionsLinesTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "options/lines.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "options/lines.png", 1, 2);
 
         this.window = new ArrayList<>();
         for (int i = 0; i <= 17; i++) {
             this.window.add(
                     BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                            this.gameTextureAtlas, this.activity.getAssets(), "windows/w" + i + ".png"));
+                            this.uiTextureAtlas, this.activity.getAssets(), "windows/w" + i + ".png"));
         }
         this.windowFoldTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "windows/Buttons/fold.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "windows/Buttons/fold.png", 1, 3);
         this.windowCloseTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "windows/Buttons/close.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "windows/Buttons/close.png", 1, 3);
         this.layerButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "layerbutton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "layerbutton.png", 1, 2);
         this.removeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "removeround.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "removeround.png", 1, 2);
         this.showHideTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "showhide.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "showhide.png", 1, 2);
         this.mainButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "bodybutton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "bodybutton.png", 1, 2);
         this.largeLampTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "decorbutton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "decorbutton.png", 1, 2);
         this.trailTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "scroller/middle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "scroller/middle.png");
         this.upperTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "scroller/upper.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "scroller/upper.png");
         this.lowerTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "scroller/lower.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "scroller/lower.png");
         this.addTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "add.png", 3, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "add.png", 3, 1);
         this.add1 =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "addgreen.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "addgreen.png", 1, 3);
         this.minus1 =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "minusred.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "minusred.png", 1, 3);
 
         this.infoBlueButton =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "infoblue.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "infoblue.png", 1, 3);
 
         this.upButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
+                        this.uiTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
         this.downButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
+                        this.uiTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
         this.rotationAntiClockTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "rotationanticlock.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "rotationanticlock.png", 1, 3);
         this.rotationClockTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "rotationclock.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "rotationclock.png", 1, 3);
 
         this.upButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "uparrowblack.png", 1, 3));
+                        this.uiTextureAtlas, this.activity.getAssets(), "uparrowblack.png", 1, 3));
         this.downButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "downarrowblack.png", 1, 3));
+                        this.uiTextureAtlas, this.activity.getAssets(), "downarrowblack.png", 1, 3));
         this.smallOptionsTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "smalloptions.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "smalloptions.png", 1, 2);
         this.colorSelectorTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "colorchart.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "colorchart.png");
 
         this.keyboardButtons = new ArrayList<>();
         this.keyboardButtons.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbl.png", 1, 2));
+                        this.uiTextureAtlas, this.activity.getAssets(), "keyboard/sbl.png", 1, 2));
         this.keyboardButtons.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbm.png", 1, 2));
+                        this.uiTextureAtlas, this.activity.getAssets(), "keyboard/sbm.png", 1, 2));
         this.keyboardButtons.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "keyboard/sbr.png", 1, 2));
+                        this.uiTextureAtlas, this.activity.getAssets(), "keyboard/sbr.png", 1, 2));
         this.keyboardButtons.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "keyboard/bb.png", 1, 2));
+                        this.uiTextureAtlas, this.activity.getAssets(), "keyboard/bb.png", 1, 2));
         this.keyboardButtons.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "keyboard/mb.png", 1, 2));
+                        this.uiTextureAtlas, this.activity.getAssets(), "keyboard/mb.png", 1, 2));
         this.slotTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "slot.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "slot.png");
         this.slotInnerTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "slotinner.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "slotinner.png");
 
-        this.playTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "play.png");
         this.diskTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/circle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/circle.png");
         this.centeredDiskTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/centercircle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/centercircle.png");
         this.doubleDiskTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/doublecircle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/doublecircle.png");
         this.diamondTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/diamond.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/diamond.png");
         this.emptySquareTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/square.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/square.png");
         this.doubleSquareTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/doublesquare.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/doublesquare.png");
         this.targetCircleTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/targetcircle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/targetcircle.png");
         this.aimCircleTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/aimcircle.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/aimcircle.png");
 
-        this.focusTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "focus.png");
 
         this.targetShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/target.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/target.png");
         this.bombShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/bomb.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/bomb.png");
         this.specialPointShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/specialpoint.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/specialpoint.png");
         this.casingShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/casing.png");
         this.fireShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/fire.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/fire.png");
         this.liquidShapeTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/liquid.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/liquid.png");
         this.projectileDragTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "shapes/projdrag.png");
-
-
-        this.evilEyesTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "evileyes.png", 5, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "shapes/projdrag.png");
 
 
         this.scaleButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/scale.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/scale.png", 1, 3);
         this.rotateImageButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
         this.pipeButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/pipebutton.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/pipebutton.png", 1, 3);
         this.moveImageButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/moveimage.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/moveimage.png", 1, 3);
 
         this.targetButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/target.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/target.png", 1, 3);
 
         this.controlButton =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "controllers/control.png");
+                        this.uiTextureAtlas, this.activity.getAssets(), "controllers/control.png");
 
         this.panelButtonTextureRegion1 =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "panel/panelButton1.png", 3, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "panel/panelButton1.png", 3, 1);
         this.panelButtonTextureRegion2 =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "panel/panelButton2.png", 3, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "panel/panelButton2.png", 3, 1);
         this.smallButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "smallButton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "smallButton.png", 1, 2);
 
         this.plusButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "smallButtonPlus.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "smallButtonPlus.png", 1, 2);
 
 
         this.simpleButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "simplefourbutton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "simplefourbutton.png", 1, 2);
         this.longButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "longfourbutton.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "longfourbutton.png", 1, 2);
         this.onOffTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "onoff.png", 2, 1);
+                        this.uiTextureAtlas, this.activity.getAssets(), "onoff.png", 2, 1);
         this.panel = new ArrayList<>();
         for (int i = 0; i < 3; i++)
             panel.add(
                     BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                            this.gameTextureAtlas, this.activity.getAssets(), "panel/p" + i + ".png"));
+                            this.uiTextureAtlas, this.activity.getAssets(), "panel/p" + i + ".png"));
 
         this.quantity = new HashMap<>();
 
@@ -590,7 +607,7 @@ public class ResourceManager {
                 Objects.requireNonNull(this.quantity.get(key))
                         .add(
                                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                                        this.gameTextureAtlas,
+                                        this.uiTextureAtlas,
                                         this.activity.getAssets(),
                                         "quantity/" + letters.charAt(k) + i + ".png"));
             }
@@ -599,65 +616,61 @@ public class ResourceManager {
         this.scrollerKnobTextureRegion = createEmptyTextureRegion(10, 100);
         this.squareTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "colorslot.png", 1, 2);
+                        this.uiTextureAtlas, this.activity.getAssets(), "colorslot.png", 1, 2);
 
         this.addPointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/insert.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/insert.png", 1, 3);
         this.movePointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/movepoint.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/movepoint.png", 1, 3);
         this.removePointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/remove.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/remove.png", 1, 3);
         this.addPolygonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/polygon.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/polygon.png", 1, 3);
         this.mirrorTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/mirror.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/mirror.png", 1, 3);
         this.rotateTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/rotate.png", 1, 3);
         this.decaleTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
 
 
         this.ammoTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/ammo.png", 1, 3);
         this.bombTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/bomb.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/bomb.png", 1, 3);
         this.specialPointTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/specialpoint.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/specialpoint.png", 1, 3);
         this.fireSourceTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/firesource.png", 1, 3);
         this.liquidSourceTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/liquidsource.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/liquidsource.png", 1, 3);
         this.projDragTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "boards/projdrag.png", 1, 3);
+                        this.uiTextureAtlas, this.activity.getAssets(), "boards/projdrag.png", 1, 3);
 
 
         this.checkBoxTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);
-        this.arcadeRedTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameTextureAtlas, this.activity.getAssets(), "buttons/arcade_red.png", 2, 1);
-
-        this.fontLoader = new FontLoader(gameTextureAtlas);
+                        this.uiTextureAtlas, this.activity.getAssets(), "checkbox.png", 1, 3);
+        this.fontLoader = new FontLoader(uiTextureAtlas);
 
         this.buttonRegionsA = new ArrayList<>();
         for (int i = 0; i <= 4; i++) {
             this.buttonRegionsA.add(
                     BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                            this.gameTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
+                            this.uiTextureAtlas, this.activity.getAssets(), "button/b" + i + ".png"));
         }
 
         this.lettersList = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,_!?¿+-#:'äöüßÄÖÜáéíóúñÁÉÍÓÚÑâêôçãõÉÈÀÇÊÂÛôÔèàçêâûŒœÇèÉÊêÀÂÛÔôÉéûÈÇáÁíÍóÓúÚñÑâÂêÊôÔàÀçÇãÃõÕéÉèÈíÍúÚüÜöÖäÄßÜîÎ";
@@ -684,8 +697,8 @@ public class ResourceManager {
                 true);
 
         try {
-            this.gameTextureAtlas.build(new BlackPawnTextureAtlasBuilder<>(2, 0, 1));
-            this.gameTextureAtlas.load();
+            this.uiTextureAtlas.build(new BlackPawnTextureAtlasBuilder<>(2, 0, 1));
+            this.uiTextureAtlas.load();
 
         } catch (ITextureAtlasBuilder.TextureAtlasBuilderException e) {
             throw new RuntimeException("Error while loading game textures", e);
@@ -711,7 +724,7 @@ public class ResourceManager {
         canvas.drawRect(0, 0, bitmap.getWidth(), bitmap.getHeight(), backgroundPaint);
 
         return BitmapTextureAtlasTextureRegionFactory.createFromSource(
-                gameTextureAtlas, new BitmapTextureAtlasSource(bitmap));
+                uiTextureAtlas, new BitmapTextureAtlasSource(bitmap));
     }
 
     public void create(

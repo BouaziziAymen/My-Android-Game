@@ -133,7 +133,7 @@ public class SerializationManager {
         output.close();
     }
 
-    public void deserialize(PhysicsScene<?> scene, String fileName) throws FileNotFoundException, RuntimeException {
+    public void deserialize(PhysicsScene scene, String fileName) throws FileNotFoundException, RuntimeException {
         FileInputStream fileInputStream = ResourceManager.getInstance().activity.openFileInput(fileName);
         Input input = new Input(fileInputStream);
         SceneSerializer sceneSerializer = kryo.readObject(input, SceneSerializer.class);

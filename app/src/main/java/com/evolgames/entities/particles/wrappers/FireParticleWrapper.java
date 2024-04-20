@@ -16,22 +16,21 @@ import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
 import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FireParticleWrapper implements Fire {
+public class FireParticleWrapper extends MyParticleWrapper implements Fire {
     private static final float RATE_MIN = 60;
     private static final float RATE_MAX = 100;
     private static final int PARTICLES_MAX = 150;
-    private final GameEntity gameEntity;
+    private final FireEmitter emitter;
     public BatchedSpriteParticleSystem particleSystem;
-    public FireEmitter emitter;
     private ColorParticleModifier<UncoloredSprite> colorModifier;
 
     public FireParticleWrapper(GameEntity entity) {
-        this.gameEntity = entity;
+        this.parent = entity;
         this.emitter = new FireEmitter(entity);
-
         float area = 0;
         for (LayerBlock b : entity.getBlocks()) {
             area += b.getBlockArea();
@@ -57,19 +56,50 @@ public class FireParticleWrapper implements Fire {
         setFlameColor();
     }
 
-    public void update() {
-        this.emitter.onStep();
-        this.setFlameColor();
+    @Override
+    public void attachTo(Scene scene) {
+        this.particleSystem.setZIndex(5);
+        scene.attachChild(this.particleSystem);
     }
 
-    public ParticleSystem<?> getParticleSystem() {
-        return particleSystem;
+
+    @Override
+    public void update() {
+        if(!alive){
+            return;
+        }
+        if(this.emitter!=null) {
+        this.emitter.update();
+    }
+        if (detached) {
+            if (isAllParticlesExpired()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+            }
+        } else {
+            this.setFlameColor();
+        }
+    }
+    @Override
+    public void detach() {
+        this.detached = true;
+        this.setSpawnEnabled(false);
+    }
+    public void setSpawnEnabled(boolean b) {
+        this.particleSystem.setParticlesSpawnEnabled(b);
+    }
+    @Override
+    public void detachDirect() {
+        if(alive) {
+            this.alive = false;
+            this.particleSystem.detachSelf();
+            this.particleSystem.dispose();
+        }
     }
 
     private void setFlameColor() {
         float totalTemp =
                 (float)
-                        gameEntity.getBlocks().stream()
+                        parent.getBlocks().stream()
                                 .flatMapToDouble(
                                         b ->
                                                 b.getBlockGrid().getCoatingBlocks().stream()
@@ -77,7 +107,7 @@ public class FireParticleWrapper implements Fire {
                                 .sum();
         int count =
                 (int)
-                        gameEntity.getBlocks().stream()
+                        parent.getBlocks().stream()
                                 .flatMap(b -> b.getBlockGrid().getCoatingBlocks().stream())
                                 .count();
         float temperature = totalTemp / count;
@@ -109,14 +139,15 @@ public class FireParticleWrapper implements Fire {
     public double getParticleTemperature(Particle<?> particle) {
         return ((CoatingBlock) particle.getEntity().getUserData()).getFlameTemperature();
     }
-    public void detach(){
-        ResourceManager.getInstance()
-                .activity
-                .runOnUpdateThread(
-                        () -> this.particleSystem.detachSelf());
-    }
-    public void detachDirect(){
-     this.particleSystem.detachSelf();
-    }
 
+
+    @Override
+    public boolean isAllParticlesExpired() {
+        for (Particle<?> particle : particleSystem.getParticles()) {
+            if (particle != null && !particle.isExpired()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -68,7 +68,7 @@ public class Slasher extends MeleeUse {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
 
     }
 

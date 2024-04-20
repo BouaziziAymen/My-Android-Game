@@ -21,7 +21,7 @@ import java.util.List;
 
 public class Invoker {
 
-    public static PhysicsScene<?> scene;
+    public static PhysicsScene scene;
 
     public static synchronized void onStep() {
 
@@ -120,7 +120,7 @@ public class Invoker {
         entity.getCommands().add(new CustomCommand(runnable));
     }
 
-    public static void setScene(PhysicsScene<?> scene) {
+    public static void setScene(PhysicsScene scene) {
         Invoker.scene = scene;
     }
 

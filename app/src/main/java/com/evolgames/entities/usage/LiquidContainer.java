@@ -7,6 +7,7 @@ import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.serialization.infos.LiquidSourceInfo;
@@ -30,7 +31,7 @@ public class LiquidContainer extends Use {
     public LiquidContainer() {
     }
 
-    public LiquidContainer(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public LiquidContainer(UsageModel<?> usageModel, PhysicsScene physicsScene, boolean mirrored) {
         this.liquidSourceInfoList =
                 ((LiquidContainerProperties) usageModel.getProperties()).getLiquidSourceModelList().stream()
                         .map(m -> m.toLiquidSourceInfo(mirrored))
@@ -94,7 +95,7 @@ public class LiquidContainer extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         liquidSourceInfoList.forEach(liquidSourceInfo -> {
             liquidSourceInfo.getLiquidSourceOrigin().set(GeometryUtils.mirrorPoint(liquidSourceInfo.getLiquidSourceOrigin()));
             liquidSourceInfo.getLiquidDirection().x = -liquidSourceInfo.getLiquidDirection().x;
@@ -159,9 +160,8 @@ public class LiquidContainer extends Use {
         if (ratio < 0.9f) {
             return false;
         }
-        this.liquidSourceInfoList.forEach(liquidSourceInfo -> {
-            liquidSourceInfo.setContainerEntity(heir);
-        });
+        this.liquidSourceInfoList.forEach(liquidSourceInfo -> liquidSourceInfo.setContainerEntity(heir));
+        this.liquidSourceInfoHashMap.values().forEach(LiquidParticleWrapper::detach);
         return true;
     }
 }

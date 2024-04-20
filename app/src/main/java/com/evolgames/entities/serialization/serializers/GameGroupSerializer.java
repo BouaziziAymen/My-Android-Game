@@ -36,7 +36,7 @@ public class GameGroupSerializer {
         gameEntitySerializerList.forEach(GameEntitySerializer::afterLoad);
     }
 
-    public GameGroup create(PhysicsScene<?> scene) {
+    public GameGroup create(PhysicsScene scene) {
         this.afterLoad();
         GameGroup gameGroup = null;
         switch (groupType) {
@@ -56,7 +56,7 @@ public class GameGroupSerializer {
         return gameGroup;
     }
 
-    private void afterCreate(PhysicsScene<?> scene, GameGroup gameGroup) {
+    private void afterCreate(PhysicsScene scene, GameGroup gameGroup) {
         for (GameEntitySerializer gameEntitySerializer : gameEntitySerializerList) {
             GameEntity gameEntity = gameEntitySerializer.create();
             gameEntitySerializer.afterCreate(gameEntity);

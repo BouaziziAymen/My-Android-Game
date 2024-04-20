@@ -52,7 +52,7 @@ public class Muzzle extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
 
     }
 

@@ -12,7 +12,6 @@ import com.evolgames.activity.NativeUIController;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
-import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.usage.Bow;
 import com.evolgames.entities.usage.FlameThrower;
@@ -84,7 +83,6 @@ public class Hand {
         }
 
         mouseJointDef = new MouseJointDef();
-        entity.setHangedPointerId(touchEvent.getPointerID());
         mouseJointDef.dampingRatio = 0.5f;
         mouseJointDef.frequencyHz = 5f;
         mouseJointDef.maxForce = 100000;

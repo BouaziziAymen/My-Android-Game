@@ -15,7 +15,7 @@ public class Missile extends Rocket {
     public Missile() {
     }
 
-    public Missile(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public Missile(UsageModel<?> usageModel, PhysicsScene physicsScene, boolean mirrored) {
         super(usageModel, physicsScene, mirrored);
         MissileProperties missileProperties = ((MissileProperties) usageModel.getProperties());
         this.control = missileProperties.getControl();

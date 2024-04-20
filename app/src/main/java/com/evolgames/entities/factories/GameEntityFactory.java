@@ -50,13 +50,13 @@ import java.util.stream.Collectors;
 
 public class GameEntityFactory {
     private static final GameEntityFactory INSTANCE = new GameEntityFactory();
-    private PhysicsScene<?> scene;
+    private PhysicsScene scene;
 
     public static GameEntityFactory getInstance() {
         return INSTANCE;
     }
 
-    public void create(PhysicsScene<?> scene) {
+    public void create(PhysicsScene scene) {
         this.scene = scene;
     }
     public GameEntity createGameEntity(

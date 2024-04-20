@@ -117,7 +117,7 @@ public class MotorControl extends Use {
 
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         float backwardSpeed = this.backwardSpeed;
         this.backwardSpeed = this.forwardSpeed;
         this.forwardSpeed = backwardSpeed;

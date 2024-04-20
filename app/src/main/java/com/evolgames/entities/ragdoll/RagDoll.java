@@ -7,15 +7,17 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.basics.SpecialEntityType;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.scenes.PhysicsScene;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 public class RagDoll extends GameGroup {
 
-    transient private final PhysicsScene<?> scene;
+    transient private final PhysicsScene scene;
     transient public GameEntity head;
     transient public GameEntity upperTorso;
     transient public GameEntity upperArmR;
@@ -23,7 +25,6 @@ public class RagDoll extends GameGroup {
     transient public GameEntity lowerLegR;
     transient public GameEntity leftFoot;
     transient public GameEntity rightFoot;
-    transient GameEntity lowerTorso;
     transient GameEntity lowerArmR;
     transient GameEntity upperArmL;
     transient GameEntity lowerArmL;
@@ -35,10 +36,11 @@ public class RagDoll extends GameGroup {
     transient Balancer[] balancers = new Balancer[6];
     private boolean leftLegReadyToStand;
     private boolean rightLegReadyToStand;
-    private int bloodLost, bluntTrauma;
-    private boolean dead;
+    private int bluntTrauma;
+    private boolean torsoReadyToStand;
+    private boolean leftUpperLegStraight,rightUpperLegStraight;
 
-    public RagDoll(PhysicsScene<?> scene, GameEntity... entities) {
+    public RagDoll(PhysicsScene scene, GameEntity... entities) {
         super(GroupType.DOLL, entities);
         this.scene = scene;
     }
@@ -48,13 +50,6 @@ public class RagDoll extends GameGroup {
         rightFoot.getBody().applyTorque(torque);
     }
 
-    private void onUpdate() {
-        if (head == null || head.getBody() == null || !head.isAlive()) {
-            return;
-        }
-        detectGround();
-        this.performAction();
-    }
 
     private void performAction() {
         boolean[] active = new boolean[]{true, true, true, true, true, true};
@@ -63,7 +58,7 @@ public class RagDoll extends GameGroup {
             if (balancer == null || balancer.getEntity() == null || !((GameEntity) balancer.getEntity()).isAlive() || balancer.getEntity().isFrozen()) {
                 active[i] = false;
                 if (i == 1) {
-                    Arrays.fill(active,1,active.length,false);
+                    Arrays.fill(active, 1, active.length, false);
                     break;
                 }
                 if (i == 2) {
@@ -76,7 +71,7 @@ public class RagDoll extends GameGroup {
                 }
             }
         }
-        if (leftLegReadyToStand && rightLegReadyToStand) {
+        if (leftLegReadyToStand && rightLegReadyToStand && torsoReadyToStand && leftUpperLegStraight && rightUpperLegStraight) {
             for (int i = 0; i < balancers.length; i++) {
                 Balancer balancer = balancers[i];
                 if (active[i]) {
@@ -90,16 +85,39 @@ public class RagDoll extends GameGroup {
     @Override
     public void onStep(float timeStep) {
         super.onStep(timeStep);
-        findBodyParts();
-        onUpdate();
-        if(!alive && !dead){
-            dead = true;
-          for(GameEntity gameEntity:getEntities()){
-              gameEntity.getBlocks().forEach(layerBlock -> {
-                  layerBlock.getProperties().setJuicinessLowerPressure( layerBlock.getProperties().getJuicinessLowerPressure()/3f);
-                  layerBlock.getProperties().setJuicinessUpperPressure( layerBlock.getProperties().getJuicinessUpperPressure()/3f);
-              });
-          }
+
+            HashSet<GameEntity> entities = findBodyParts();
+            if (head == null || upperTorso == null) {
+               return;
+            }
+        if (alive) {
+            checkBurn(entities);
+            checkBlood(entities);
+            detectGround();
+            this.performAction();
+        }
+    }
+    private void checkBlood(HashSet<GameEntity> entities) {
+        float blood = 0;
+        for(GameEntity e:entities){
+            for(LayerBlock layerBlock:e.getBlocks()){
+                blood+=layerBlock.getLiquidQuantity();
+            }
+        }
+        if(blood<400){
+            alive = false;
+        }
+    }
+
+    private void checkBurn(HashSet<GameEntity> entities) {
+        boolean burned = true;
+        for (GameEntity e : entities) {
+            if (e.getType() != null && e.getType().vital && e.checkBurnDamage() < 0.5f) {
+                burned = false;
+            }
+        }
+        if (burned) {
+            alive = false;
         }
     }
 
@@ -112,6 +130,32 @@ public class RagDoll extends GameGroup {
             rightLegReadyToStand = false;
         }
 
+
+        if (upperTorso != null && upperTorso.getBody() != null) {
+            Body upperTorsoBody = upperTorso.getBody();
+        if(Math.abs(upperTorsoBody.getAngle())<Math.PI/6){
+            torsoReadyToStand = true;
+        } else {
+            torsoReadyToStand = false;
+        }
+        }
+        if (upperLegR != null && upperLegR.getBody() != null) {
+            Body upperLegRBody = upperLegR.getBody();
+            if(Math.abs(upperLegRBody.getAngle())<Math.PI/6){
+                rightUpperLegStraight = true;
+            } else {
+                rightUpperLegStraight = false;
+            }
+        }
+
+        if (upperLegL != null && upperLegL.getBody() != null) {
+            Body upperLegLBody = upperLegL.getBody();
+            if(Math.abs(upperLegLBody.getAngle())<Math.PI/6){
+                leftUpperLegStraight = true;
+            } else {
+                leftUpperLegStraight = false;
+            }
+        }
         if (leftFoot != null && leftFoot.getBody() != null) {
             Body leftFootBody = leftFoot.getBody();
             Vector2 tip1 = leftFootBody.getWorldPoint(new Vector2(0, 0).mul(1 / 32f)).cpy();
@@ -145,34 +189,25 @@ public class RagDoll extends GameGroup {
         }
     }
 
-    public void findBodyParts() {
+    public HashSet<GameEntity> findBodyParts() {
         HashSet<GameEntity> entities = new HashSet<>();
         ArrayDeque<GameEntity> deque = new ArrayDeque<>();
         if (this.head == null) {
-            return;
+            return entities;
         }
         deque.push(head);
         while (!deque.isEmpty()) {
             GameEntity current = deque.pop();
-
             if (current.getBody() != null && current.isAlive()) {
                 entities.add(current);
                 for (JointEdge edge : current.getBody().getJointList()) {
                     GameEntity entity = (GameEntity) edge.other.getUserData();
-                    if (entity != null&&!entities.contains(entity)){
+                    if (entity != null && !entities.contains(entity)) {
                         deque.push(entity);
                     }
                 }
             }
         }
-        alive = false;
-        for (GameEntity e : entities) {
-            if (e.getType() == SpecialEntityType.UpperTorso) {
-                alive = true;
-                break;
-            }
-        }
-        lowerTorso = null;
         upperTorso = null;
         upperLegR = null;
         upperLegL = null;
@@ -186,15 +221,6 @@ public class RagDoll extends GameGroup {
         lowerArmL = null;
         rightHand = null;
         leftHand = null;
-        boolean burned = true;
-        for(GameEntity e:entities){
-            if(e.getType()!=null&&e.getType().vital && e.checkBurnDamage()<0.5f){
-                burned = false;
-            }
-        }
-        if(burned){
-            return;
-        }
         for (GameEntity e : entities) {
             switch (e.getType()) {
                 case Default:
@@ -206,9 +232,6 @@ public class RagDoll extends GameGroup {
                     if (balancers[1] == null) {
                         balancers[1] = new Balancer(upperTorso, (float) (Math.PI / 4), 0);
                     }
-                    break;
-                case LowerTorso:
-                    lowerTorso = e;
                     break;
                 case UpperArmRight:
                     upperArmR = e;
@@ -260,33 +283,30 @@ public class RagDoll extends GameGroup {
                     break;
             }
         }
+        return entities;
     }
 
     public boolean isBodyPart(GameEntity parentEntity) {
-       return Arrays.asList(rightFoot,leftFoot,lowerLegR,lowerLegL,upperLegR,upperLegL,upperTorso,upperArmR,upperArmL,
-                lowerArmR,lowerArmL,rightHand,leftHand,head).contains(parentEntity);
+        return Arrays.asList(rightFoot, leftFoot, lowerLegR, lowerLegL, upperLegR, upperLegL, upperTorso, upperArmR, upperArmL,
+                lowerArmR, lowerArmL, rightHand, leftHand, head).contains(parentEntity);
     }
+
     public boolean isBluntSensitiveBodyPart(GameEntity parentEntity) {
-        return Arrays.asList(upperTorso,head).contains(parentEntity);
+        return Arrays.asList(upperTorso, head).contains(parentEntity);
     }
+
     public void onBlunt(int finalNumberOfPoints) {
-        bluntTrauma+= finalNumberOfPoints;
-        if(bluntTrauma>500){
-            if(head!=null) {
+        bluntTrauma += finalNumberOfPoints;
+        if (bluntTrauma > 500) {
+            if (head != null) {
                 this.alive = false;
                 head.setType(SpecialEntityType.Default);
                 head = null;
             }
         }
     }
-    public void onBleeding() {
-        bloodLost++;
-        if(bloodLost>2000){
-            if(head!=null) {
-                this.alive = false;
-                head.setType(SpecialEntityType.Default);
-                head = null;
-            }
-        }
+
+    private void redistributeBlood(Set<GameEntity> parts) {
+
     }
 }

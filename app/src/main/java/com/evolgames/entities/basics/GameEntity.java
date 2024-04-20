@@ -37,19 +37,16 @@ import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
-import com.evolgames.utilities.MathUtils;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.LineStrip;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.shader.constants.ShaderProgramConstants;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -65,14 +62,14 @@ public class GameEntity extends EntityWithBody {
 
     private Body mirrorBody;
     private boolean mirrorCreated = false;
-    private PhysicsScene<?> scene;
+    private PhysicsScene scene;
     private List<Use> useList;
     private String name;
     private GameGroup parentGroup;
     private Vector2 center;
     private FireParticleWrapper fireParticleWrapper;
     private boolean isFireSetup;
-    private TexturedMeshBatch batch;
+    private TexturedMeshBatch stainBatcher;
     private int stainDataLimit;
     private boolean isBatcherSetup = false;
     private SpecialEntityType type = SpecialEntityType.Default;
@@ -90,7 +87,7 @@ public class GameEntity extends EntityWithBody {
     private GameEntity heir;
 
     public GameEntity(
-            MosaicMesh mesh, PhysicsScene<?> scene, String entityName, List<LayerBlock> layerBlocks) {
+            MosaicMesh mesh, PhysicsScene scene, String entityName, List<LayerBlock> layerBlocks) {
         super();
         this.mesh = mesh;
         this.scene = scene;
@@ -117,16 +114,16 @@ public class GameEntity extends EntityWithBody {
             PhysicsConnector physicsConnector = new PhysicsConnector(outline, body);
             scene.getPhysicsWorld().registerPhysicsConnector(physicsConnector);
             for (LayerBlock layerBlock : layerBlocks) {
-                drawPolygon(layerBlock.getVertices(),outline, Color.WHITE);
+                drawPolygon(layerBlock.getVertices(), outline, Color.WHITE);
             }
         }
         scene.attachChild(outline);
-        outline.setZIndex(mesh.getZIndex()-1);
+        outline.setZIndex(mesh.getZIndex() - 1);
         outline.setVisible(true);
         scene.sortChildren();
     }
 
-    public void drawPolygon(List<Vector2> polygon,Entity entity, Color color) {
+    public void drawPolygon(List<Vector2> polygon, Entity entity, Color color) {
         LineStrip lineStrip = new LineStrip(0, 0, polygon.size() + 1, ResourceManager.getInstance().vbom);
         lineStrip.setColor(color);
         lineStrip.setLineWidth(3f);
@@ -145,11 +142,11 @@ public class GameEntity extends EntityWithBody {
         outline.detachSelf();
     }
 
-    public PhysicsScene<?> getScene() {
+    public PhysicsScene getScene() {
         return scene;
     }
 
-    public void setScene(PhysicsScene<?> scene) {
+    public void setScene(PhysicsScene scene) {
         this.scene = scene;
     }
 
@@ -168,43 +165,59 @@ public class GameEntity extends EntityWithBody {
         this.parentGroup = parentGroup;
     }
 
-    public FireParticleWrapper getFireParticleWrapperWithPolygonEmitter() {
+    public FireParticleWrapper getFireParticleWrapper() {
         return fireParticleWrapper;
     }
 
-    public boolean isFireSetup() {
-        return isFireSetup;
+    private void checkFire() {
+        for (LayerBlock block : this.getBlocks()) {
+            if (block.getBlockGrid() == null) {
+                continue;
+            }
+            for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
+                if (grain.isOnFire()) {
+                    if (!this.isFireSetup) {
+                        this.isFireSetup = true;
+                        this.fireParticleWrapper = new FireParticleWrapper(this);
+                        this.fireParticleWrapper.attachTo(scene);
+                        this.scene.sortChildren();
+                        this.scene.getWorldFacade().addFlame(this.getFireParticleWrapper());
+                    }
+                }
+            }
+        }
+        if (isFireSetup) {
+            fireParticleWrapper.update();
+        }
     }
 
-    public void setupFire() {
-        isFireSetup = true;
-        fireParticleWrapper = new FireParticleWrapper(this);
-        scene.attachChild(fireParticleWrapper.getParticleSystem());
-        scene.sortChildren();
-    }
 
     private void setupBatcher() {
-        isBatcherSetup = true;
-        float area = 0;
-        for (LayerBlock b : layerBlocks) {
-            area += b.getBlockArea();
+        try {
+            isBatcherSetup = true;
+            float area = 0;
+            for (LayerBlock b : layerBlocks) {
+                area += b.getBlockArea();
+            }
+            int stainLimit = (int) (area / 32);
+            if (stainLimit < 1) {
+                stainLimit = 1;
+            }
+            stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
+            stainBatcher =
+                    new TexturedMeshBatch(
+                            ResourceManager.getInstance().gameplayTextureAtlas,
+                            stainDataLimit + 12,
+                            ResourceManager.getInstance().vbom);
+            mesh.attachChild(stainBatcher);
+        } catch (Throwable t) {
+            Log.d("Unable to create batch", t.toString());
         }
-        int stainLimit = (int) (area / 32);
-        if (stainLimit < 1) {
-            stainLimit = 1;
-        }
-        stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
-        batch =
-                new TexturedMeshBatch(
-                        ResourceManager.getInstance().texturedMesh,
-                        stainDataLimit + 12,
-                        ResourceManager.getInstance().vbom);
-        mesh.attachChild(batch);
     }
 
     private void updateAssociatedBlocks() {
         for (LayerBlock block : this.getBlocks()) {
-            List<AssociatedBlock<?,?>> copy = new ArrayList<>(block.getAssociatedBlocks());
+            List<AssociatedBlock<?, ?>> copy = new ArrayList<>(block.getAssociatedBlocks());
             for (AssociatedBlock<?, ?> associatedBlock : copy) {
                 associatedBlock.onStep(this);
             }
@@ -220,44 +233,42 @@ public class GameEntity extends EntityWithBody {
             use.onStep(timeStep, scene.getWorldFacade());
         }
 
-        if (isFireSetup) {
-            fireParticleWrapper.update();
-        }
+        checkFire();
 
-        for(LayerBlock layerBlock:layerBlocks){
-            if(layerBlock.isFrozen()){
-                for(FreshCut freshCut:layerBlock.getFreshCuts()){
+        for (LayerBlock layerBlock : layerBlocks) {
+            if (layerBlock.isFrozen()) {
+                for (FreshCut freshCut : layerBlock.getFreshCuts()) {
                     freshCut.setFrozen(true);
                 }
-              for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
-                  if(associatedBlock instanceof JointBlock){
-                      JointBlock jointBlock = (JointBlock) associatedBlock;
-                      if(jointBlock.getJointType()== JointDef.JointType.RevoluteJoint&&!jointBlock.isFrozen()){
-                          RevoluteJoint revoluteJoint = (RevoluteJoint) jointBlock.getJoint();
-                          if(!jointBlock.isFrozen()) {
-                              jointBlock.setFrozen(true);
-                              jointBlock.getBrother().setFrozen(true);
-                              revoluteJoint.setLimits(revoluteJoint.getJointAngle(), revoluteJoint.getJointAngle());
-                              revoluteJoint.enableLimit(true);
-                          }
-                      }
-                  }
-              }
+                for (AssociatedBlock<?, ?> associatedBlock : layerBlock.getAssociatedBlocks()) {
+                    if (associatedBlock instanceof JointBlock) {
+                        JointBlock jointBlock = (JointBlock) associatedBlock;
+                        if (jointBlock.getJointType() == JointDef.JointType.RevoluteJoint && !jointBlock.isFrozen()) {
+                            RevoluteJoint revoluteJoint = (RevoluteJoint) jointBlock.getJoint();
+                            if (!jointBlock.isFrozen()) {
+                                jointBlock.setFrozen(true);
+                                jointBlock.getBrother().setFrozen(true);
+                                revoluteJoint.setLimits(revoluteJoint.getJointAngle(), revoluteJoint.getJointAngle());
+                                revoluteJoint.enableLimit(true);
+                            }
+                        }
+                    }
+                }
             } else {
-                for(FreshCut freshCut:layerBlock.getFreshCuts()){
+                for (FreshCut freshCut : layerBlock.getFreshCuts()) {
                     freshCut.setFrozen(false);
                 }
-                for(AssociatedBlock<?,?> associatedBlock:layerBlock.getAssociatedBlocks()){
-                    if(associatedBlock instanceof JointBlock){
+                for (AssociatedBlock<?, ?> associatedBlock : layerBlock.getAssociatedBlocks()) {
+                    if (associatedBlock instanceof JointBlock) {
                         JointBlock jointBlock = (JointBlock) associatedBlock;
-                        if(jointBlock.getJointType()== JointDef.JointType.RevoluteJoint&& jointBlock.getPosition()== JointBlock.Position.A){
+                        if (jointBlock.getJointType() == JointDef.JointType.RevoluteJoint && jointBlock.getPosition() == JointBlock.Position.A) {
                             RevoluteJoint revoluteJoint = (RevoluteJoint) jointBlock.getJoint();
                             RevoluteJointDef revoluteJointDef = (RevoluteJointDef) jointBlock.getProperties().getJointDef();
-                          if(jointBlock.isFrozen()){
-                              jointBlock.setFrozen(false);
-                              revoluteJoint.enableLimit(revoluteJointDef.enableLimit);
-                              revoluteJoint.setLimits(revoluteJointDef.lowerAngle,revoluteJointDef.upperAngle);
-                          }
+                            if (jointBlock.isFrozen()) {
+                                jointBlock.setFrozen(false);
+                                revoluteJoint.enableLimit(revoluteJointDef.enableLimit);
+                                revoluteJoint.setLimits(revoluteJointDef.lowerAngle, revoluteJointDef.upperAngle);
+                            }
                         }
                     }
                 }
@@ -265,11 +276,11 @@ public class GameEntity extends EntityWithBody {
         }
     }
 
-   public boolean isFrozen(){
+    public boolean isFrozen() {
         return getBlocks().get(0).isFrozen();
     }
 
-    public Pair<Vector2,LayerBlock> computeTouch(TouchEvent touch, boolean withHold) {
+    public Pair<Vector2, LayerBlock> computeTouch(TouchEvent touch, boolean withHold) {
         Vector2 t =
                 this.body.getLocalPoint(new Vector2(touch.getX() / 32f, touch.getY() / 32f)).cpy().mul(32f);
         Vector2 result = null;
@@ -291,7 +302,7 @@ public class GameEntity extends EntityWithBody {
             }
         }
         if (result != null) {
-            return new Pair<>(body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f),layerBlock);
+            return new Pair<>(body.getWorldPoint(result.cpy().mul(1 / 32f)).cpy().mul(32f), layerBlock);
         }
         return null;
     }
@@ -392,11 +403,11 @@ public class GameEntity extends EntityWithBody {
     }
 
     public void redrawStains() {
-        if (batch == null || !changed) {
+        if (stainBatcher == null || !changed) {
             return;
         }
 
-        batch.reset();
+        stainBatcher.reset();
         ArrayList<StainBlock> allStains = getStains();
         int stainDataCount = getStainDataCount(allStains);
         while (stainDataCount > stainDataLimit) {
@@ -419,7 +430,7 @@ public class GameEntity extends EntityWithBody {
                             .map(e -> (StainBlock) e).sorted(Comparator.comparing(StainBlock::getPriority)).collect(Collectors.toList());
             for (StainBlock stain : stainBlocks) {
                 Color color = stain.getProperties().getColor();
-                batch.draw(
+                stainBatcher.draw(
                         stain.getTextureRegion(),
                         stain.getData(),
                         color.getRed(),
@@ -428,18 +439,10 @@ public class GameEntity extends EntityWithBody {
                         color.getAlpha());
             }
         }
-        batch.submit();
+        stainBatcher.submit();
         changed = false;
     }
 
-    public void dispose() {
-        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
-            if (batch != null) {
-                batch.dispose();
-                batch.detachSelf();
-            }
-        });
-    }
 
     public Vector2 getCenter() {
         return center;
@@ -458,31 +461,40 @@ public class GameEntity extends EntityWithBody {
     }
 
     public void detach() {
-        mesh.detachSelf();
-        if(outlined){
-            hideOutline();
+        if (stainBatcher != null) {
+            stainBatcher.detachSelf();
+            stainBatcher.dispose();
         }
+        if (this.mesh != null) {
+            this.mesh.dispose();
+            this.mesh.detachSelf();
+        }
+
         if (mirrorMesh != null) {
             mirrorMesh.detachSelf();
+            this.mirrorMesh.dispose();
         }
-        if (fireParticleWrapper != null) {
-            scene.getWorldFacade().removeFireParticleWrapper(fireParticleWrapper);
-            fireParticleWrapper.detachDirect();
+        if (outlined) {
+            hideOutline();
         }
-        dispose();
+
+        scene.getWorldFacade().onEntityDetached(this);
+
+
     }
-    public float checkBurnDamage(){
+
+    public float checkBurnDamage() {
         float totalBurn = 0f;
-        for(LayerBlock layerBlock:layerBlocks){
-            if(layerBlock.getBlockGrid()!=null) {
+        for (LayerBlock layerBlock : layerBlocks) {
+            if (layerBlock.getBlockGrid() != null) {
                 for (CoatingBlock coatingBlock : layerBlock.getBlockGrid().getCoatingBlocks()) {
-                  if(coatingBlock.getProperties().getBurnRatio()>0f){
-                      totalBurn = totalBurn + (float)coatingBlock.getProperties().getBurnRatio()*coatingBlock.getArea();
-                  }
+                    if (coatingBlock.getProperties().getBurnRatio() > 0f) {
+                        totalBurn = totalBurn + (float) coatingBlock.getProperties().getBurnRatio() * coatingBlock.getArea();
+                    }
                 }
             }
         }
-        return totalBurn/getArea();
+        return totalBurn / getArea();
     }
 
     public void createJuiceSources() {
@@ -598,9 +610,6 @@ public class GameEntity extends EntityWithBody {
             }
         }
         return null;
-    }
-
-    public void setHangedPointerId(int hangedPointerId) {
     }
 
     public List<Use> getUseList() {
@@ -719,11 +728,11 @@ public class GameEntity extends EntityWithBody {
 
         body.setActive(false);
         mesh.detachSelf();
-        if(outline!=null) {
+        if (outline != null) {
             outline.detachSelf();
         }
         if (isBatcherSetup) {
-            batch.detachSelf();
+            stainBatcher.detachSelf();
         }
         if (mirrorCreated) {
             mirrorBody.setActive(true);
@@ -739,7 +748,7 @@ public class GameEntity extends EntityWithBody {
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
 
-            if(outlined) {
+            if (outlined) {
                 Entity jokerOutline = outline;
                 outline = mirrorOutline;
                 mirrorOutline = jokerOutline;
@@ -761,7 +770,7 @@ public class GameEntity extends EntityWithBody {
         }
         scene.sortChildren();
         if (isBatcherSetup) {
-            mesh.attachChild(batch);
+            mesh.attachChild(stainBatcher);
         }
         changed = true;
         redrawStains();
@@ -841,11 +850,11 @@ public class GameEntity extends EntityWithBody {
         this.zIndex = i;
     }
 
-    public void setHeir(GameEntity heir) {
-        this.heir = heir;
-    }
-
     public GameEntity getHeir() {
         return heir;
+    }
+
+    public void setHeir(GameEntity heir) {
+        this.heir = heir;
     }
 }

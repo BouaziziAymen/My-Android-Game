@@ -141,7 +141,7 @@ public abstract class Bomb extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         this.getBombInfoList().forEach(bombInfo -> {
             bombInfo.getBombPosition().set(GeometryUtils.mirrorPoint(bombInfo.getBombPosition()));
         });

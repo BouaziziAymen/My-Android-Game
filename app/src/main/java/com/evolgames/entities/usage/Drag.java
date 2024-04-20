@@ -62,7 +62,7 @@ public class Drag extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
             dragInfo.getDragOrigin().set(GeometryUtils.mirrorPoint(dragInfo.getDragOrigin()));
     }
 

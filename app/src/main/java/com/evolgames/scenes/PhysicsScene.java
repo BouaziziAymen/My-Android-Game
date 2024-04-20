@@ -64,7 +64,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractScene<T> {
+public abstract class PhysicsScene extends AbstractScene {
 
     protected final WorldFacade worldFacade;
     protected final List<GameGroup> gameGroups = new CopyOnWriteArrayList<>();
@@ -221,7 +221,7 @@ public abstract class PhysicsScene<T extends UserInterface<?>> extends AbstractS
 
 
 
-    public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene physicsScene, boolean mirrored) {
         bodies.forEach(bodyModel -> {
             Vector2 center = bodyModel.getGameEntity().getCenter();
             bodyModel.getDragModels().forEach(dragModel -> {

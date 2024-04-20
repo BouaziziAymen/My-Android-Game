@@ -12,6 +12,7 @@
     <!-- To handle the reselection within the app on Android 14 (API level 34) -->
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <application
+        android:largeHeap="true"
         android:allowBackup="true"
         android:debuggable="true"
         android:hardwareAccelerated="true"

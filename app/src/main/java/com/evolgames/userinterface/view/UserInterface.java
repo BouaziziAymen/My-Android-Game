@@ -64,13 +64,13 @@ public abstract class UserInterface<T extends AbstractScene> extends Container
 
     protected UserInterface(T scene) {
         this.scene = scene;
-        scene.getHud().attachChild(ResourceManager.getInstance().hudBatcher);
-        scene.attachChild(ResourceManager.getInstance().sceneBatcher);
     }
 
     public void detachSelf() {
         ResourceManager.getInstance().hudBatcher.detachSelf();
         ResourceManager.getInstance().sceneBatcher.detachSelf();
+        ResourceManager.getInstance().hudBatcher.dispose();
+        ResourceManager.getInstance().sceneBatcher.dispose();
     }
 
     @Override

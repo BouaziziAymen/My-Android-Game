@@ -6,6 +6,7 @@ import com.evolgames.entities.particles.emitters.ClusterEmitter;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.utilities.GeometryUtils;
 
+import org.andengine.entity.scene.Scene;
 import org.andengine.util.adt.color.Color;
 
 public class ClusterLiquidParticleWrapper extends LiquidParticleWrapper {
@@ -26,4 +27,5 @@ public class ClusterLiquidParticleWrapper extends LiquidParticleWrapper {
         Vector2 center = GeometryUtils.calculateCentroid(emitterData);
         return new ClusterEmitter(gameEntity, center.x, center.y, emitterData, weights);
     }
+
 }

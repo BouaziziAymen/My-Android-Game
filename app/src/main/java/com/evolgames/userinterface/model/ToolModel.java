@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class ToolModel extends ProperModel<ToolProperties> implements Serializable {
 
-    private final AbstractScene<?> scene;
+    private final AbstractScene scene;
     private final AtomicInteger bodyCounter = new AtomicInteger();
     private final AtomicInteger jointCounter = new AtomicInteger();
     private final AtomicInteger projectileCounter = new AtomicInteger();
@@ -53,7 +53,7 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
     private ImageShapeModel imageShapeModel;
     private ItemCategory category;
 
-    public ToolModel(AbstractScene<?> gameScene) {
+    public ToolModel(AbstractScene gameScene) {
         super("");
         scene = gameScene;
         bodies = new ArrayList<>();

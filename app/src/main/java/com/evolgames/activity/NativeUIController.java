@@ -51,7 +51,7 @@ public class NativeUIController implements INativeUIController {
         resetUI();
         gameActivity.runOnUpdateThread(() -> {
           ResourceManager.getInstance().motorSounds.forEach(Sound::stop);
-            ((AbstractScene<?>) mainScene.getChildScene()).onPause();
+            ((AbstractScene) mainScene.getChildScene()).onPause();
             mainScene.goToScene(SceneType.MENU);
         });
 

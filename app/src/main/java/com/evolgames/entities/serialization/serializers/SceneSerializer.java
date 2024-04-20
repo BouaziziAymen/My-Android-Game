@@ -63,17 +63,17 @@ public class SceneSerializer {
     SceneSerializer() {
     }
 
-    public SceneSerializer(AbstractScene<?> abstractScene) {
+    public SceneSerializer(AbstractScene abstractScene) {
         this.gameGroupSerializers = new ArrayList<>();
         if (abstractScene instanceof PhysicsScene) {
-            PhysicsScene<?> physicsScene = (PhysicsScene<?>) abstractScene;
+            PhysicsScene physicsScene = (PhysicsScene) abstractScene;
             physicsScene
                     .getGameGroups()
                     .forEach(gameGroup -> gameGroupSerializers.add(new GameGroupSerializer(gameGroup)));
             this.worldFacadeSerializer = new WorldFacadeSerializer(physicsScene.getWorldFacade());
         }
         if (abstractScene instanceof PhysicsScene) {
-            PhysicsScene<?> physicsScene = (PhysicsScene<?>) abstractScene;
+            PhysicsScene physicsScene = (PhysicsScene) abstractScene;
             this.hand = physicsScene.getHand();
         }
         if (abstractScene instanceof PlayScene) {
@@ -91,7 +91,7 @@ public class SceneSerializer {
         this.camY = abstractScene.getCamera().getCenterY();
     }
 
-    private static void reloadRocket(PhysicsScene<?> scene, Rocket rocket) {
+    private static void reloadRocket(PhysicsScene scene, Rocket rocket) {
         for (FireSourceInfo fireSourceInfo : rocket.getFireSourceInfoList()) {
             fireSourceInfo.setMuzzleEntity(GameEntitySerializer.entities.get(fireSourceInfo.getMuzzleEntityUniqueId()));
         }
@@ -115,7 +115,7 @@ public class SceneSerializer {
         }
     }
 
-    public void create(PhysicsScene<?> scene) {
+    public void create(PhysicsScene scene) {
         List<GameGroup> gameGroups = new ArrayList<>();
         for (GameGroupSerializer gameGroupSerializer : gameGroupSerializers) {
             GameGroup gameGroup = gameGroupSerializer.create(scene);
@@ -155,7 +155,7 @@ public class SceneSerializer {
         }
     }
 
-    public void afterCreate(PhysicsScene<?> scene) {
+    public void afterCreate(PhysicsScene scene) {
         //reset the non colliding pairs
         this.worldFacadeSerializer
                 .getNonCollidingPairs()
@@ -239,7 +239,7 @@ public class SceneSerializer {
         scene.sortChildren();
     }
 
-    private void reloadGameEntityUses(PhysicsScene<?> scene, GameEntity gameEntity) {
+    private void reloadGameEntityUses(PhysicsScene scene, GameEntity gameEntity) {
         if (gameEntity.hasUsage(Shooter.class)) {
             Shooter shooter = gameEntity.getUsage(Shooter.class);
             shooter.getProjectileInfoList().forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));

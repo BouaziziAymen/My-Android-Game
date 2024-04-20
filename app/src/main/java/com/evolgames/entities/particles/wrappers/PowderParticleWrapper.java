@@ -2,6 +2,7 @@ package com.evolgames.entities.particles.wrappers;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.particles.emitters.PolygonEmitter;
@@ -17,29 +18,30 @@ import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
 import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public class PulverizationParticleWrapper {
+public class PowderParticleWrapper extends MyParticleWrapper {
     private static final float RATE_MIN = 1000;
     private static final float RATE_MAX = 1000;
     private static final int PARTICLES_MAX = 1000;
     public BatchedSpriteParticleSystem particleSystem;
-    public PolygonEmitter emitter;
+
     private int step = 0;
     private boolean alive = true;
 
-    public PulverizationParticleWrapper(
-            WorldFacade worldFacade, LayerBlock layerBlock, Vector2 bodyVelocity) {
-
-        this.emitter = new PolygonEmitter(layerBlock.getBlockGrid().getCoatingBlocks(), CoatingBlock::isPulverized);
+    public PowderParticleWrapper(
+            WorldFacade worldFacade, GameEntity gameEntity, LayerBlock layerBlock, Vector2 bodyVelocity) {
+        this.parent = gameEntity;
+        PolygonEmitter emitter = new PolygonEmitter(layerBlock.getBlockGrid().getCoatingBlocks(), CoatingBlock::isPulverized);
         float ratio = layerBlock.getBlockArea() / (32f * 32f);
 
         this.particleSystem =
                 new PulverizationParticleSystem(
-                        this.emitter,
-                        PulverizationParticleWrapper.RATE_MIN * ratio,
-                        PulverizationParticleWrapper.RATE_MAX * ratio,
-                        (int) (PulverizationParticleWrapper.PARTICLES_MAX * ratio + 1));
+                        emitter,
+                        PowderParticleWrapper.RATE_MIN * ratio,
+                        PowderParticleWrapper.RATE_MAX * ratio,
+                        (int) (PowderParticleWrapper.PARTICLES_MAX * ratio + 1));
 
         AirFieldVelocityInitializer velocityInitializer =
                 new AirFieldVelocityInitializer(worldFacade, bodyVelocity);
@@ -56,11 +58,6 @@ public class PulverizationParticleWrapper {
         gravity.setAccelerationY(-3 * 10 * 32);
         this.particleSystem.addParticleInitializer(gravity);
     }
-
-    public BatchedSpriteParticleSystem getParticleSystem() {
-        return particleSystem;
-    }
-
     public boolean isAllParticlesExpired() {
         for (Particle<?> particle : particleSystem.getParticles()) {
             if (particle != null && !particle.isExpired()) {
@@ -70,26 +67,37 @@ public class PulverizationParticleWrapper {
         return true;
     }
 
+    @Override
+    public void attachTo(Scene scene) {
+        this.particleSystem.setZIndex(this.parent.getZIndex());
+        scene.attachChild(this.particleSystem);
+    }
+
     public void update() {
-        if (!isAlive()) {
+        if (!alive) {
             return;
         }
-        if (step > PhysicsConstants.PULVERIZATION_DURATION) {
-            particleSystem.setParticlesSpawnEnabled(false);
-            this.alive = false;
+        if (detached) {
+            if (isAllParticlesExpired()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+            }
+        } else {
+            if (step > PhysicsConstants.PULVERIZATION_DURATION) {
+                particleSystem.setParticlesSpawnEnabled(false);
+                this.alive = false;
+            }
         }
-
         step++;
     }
 
-    public void finishSelf() {
-        ResourceManager.getInstance()
-                .activity
-                .runOnUpdateThread(
-                        () -> particleSystem.detachSelf());
+    @Override
+    public void detach() {
+
     }
 
-    public boolean isAlive() {
-        return alive;
+    @Override
+    public void detachDirect() {
+
     }
+
 }

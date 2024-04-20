@@ -51,7 +51,7 @@ public class ImpactBomb extends Bomb {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         super.dynamicMirror(physicsScene);
     }
 

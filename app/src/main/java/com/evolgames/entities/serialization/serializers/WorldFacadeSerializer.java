@@ -21,10 +21,10 @@ public class WorldFacadeSerializer {
 
     public WorldFacadeSerializer(WorldFacade worldFacade) {
         this.timedCommandList = worldFacade.getTimedCommands();
-        this.nonCollidingPairs = worldFacade.getNonCollidingPairs().stream().map(p -> new Pair<>(p.first.getUniqueID(), p.second.getUniqueID())).collect(Collectors.toList());
+        this.nonCollidingPairs = worldFacade.getNonCollidingPairs().stream().filter(e->e.first!=null&&e.second!=null).map(p -> new Pair<>(p.first.getUniqueID(), p.second.getUniqueID())).collect(Collectors.toList());
     }
 
-    public void afterCreate(PhysicsScene<?> physicsScene) {
+    public void afterCreate(PhysicsScene physicsScene) {
         for (TimedCommand timedCommand : this.timedCommandList) {
             if (timedCommand instanceof EntityDestructionCommand) {
                 EntityDestructionCommand entityDestructionCommand = (EntityDestructionCommand) timedCommand;

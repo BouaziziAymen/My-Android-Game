@@ -9,10 +9,10 @@ import org.andengine.entity.primitive.LineStrip;
 
 public class Grid {
 
-    private final AbstractScene<?> editorScene;
+    private final AbstractScene editorScene;
     private LineChain lineChain;
 
-    public Grid(AbstractScene<?> editorScene) {
+    public Grid(AbstractScene editorScene) {
         this.editorScene = editorScene;
         update();
     }

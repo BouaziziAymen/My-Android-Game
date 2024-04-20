@@ -28,7 +28,7 @@ public class FlameThrower extends Use {
     public FlameThrower() {
     }
 
-    public FlameThrower(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public FlameThrower(UsageModel<?> usageModel, PhysicsScene physicsScene, boolean mirrored) {
         this.fireSourceInfoList =
                 ((FlameThrowerProperties) usageModel.getProperties()).getFireSources().stream()
                         .map(fireSourceModel -> fireSourceModel.toFireSourceInfo(mirrored))
@@ -77,7 +77,7 @@ public class FlameThrower extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         fireSourceInfoList.forEach(fireSourceInfo -> {
             fireSourceInfo.getFireSourceOrigin().set(GeometryUtils.mirrorPoint(fireSourceInfo.getFireSourceOrigin()));
             fireSourceInfo.getFireDirection().x = -fireSourceInfo.getFireDirection().x;
@@ -90,9 +90,8 @@ public class FlameThrower extends Use {
         if (ratio < 0.9f) {
             return false;
         }
-        this.fireSourceInfoList.forEach(fireSourceInfo -> {
-            fireSourceInfo.setMuzzleEntity(heir);
-        });
+        this.fireSourceInfoList.forEach(fireSourceInfo -> fireSourceInfo.setMuzzleEntity(heir));
+        this.flameThrowerInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         return true;
     }
 

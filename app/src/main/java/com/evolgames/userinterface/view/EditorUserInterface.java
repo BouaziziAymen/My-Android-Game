@@ -146,6 +146,8 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             CreationZoneController creationZoneController,
             KeyboardController keyboardController) {
         super(editorScene);
+        scene.getHud().attachChild(ResourceManager.getInstance().hudBatcher);
+        scene.attachChild(ResourceManager.getInstance().sceneBatcher);
 
         ResourceManager.getInstance().hudBatcher.setZIndex(10000000);
         ResourceManager.getInstance().sceneBatcher.setZIndex(1000000);

@@ -23,9 +23,9 @@ public abstract class Use {
         this.active = active;
     }
 
-    public abstract void dynamicMirror(PhysicsScene<?> physicsScene);
+    public abstract void dynamicMirror(PhysicsScene physicsScene);
 
-    public void onAfterMirror(PhysicsScene<?> scene) {
+    public void onAfterMirror(PhysicsScene scene) {
 
     }
 

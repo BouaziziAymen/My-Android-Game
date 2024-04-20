@@ -19,7 +19,7 @@ public class Heavy extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
     }
 
     @Override

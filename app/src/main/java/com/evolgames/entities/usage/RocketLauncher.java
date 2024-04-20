@@ -191,7 +191,7 @@ public class RocketLauncher extends Use {
         muzzleEntity.getBody().applyLinearImpulse(impulse, beginProjected);
     }
 
-    private void createRocket(ProjectileInfo projectileInfo, PhysicsScene<?> physicsScene) {
+    private void createRocket(ProjectileInfo projectileInfo, PhysicsScene physicsScene) {
         ToolModel rocketModel;
         try {
             rocketModel = ToolUtils.getProjectileModel(projectileInfo.getMissileFile(), projectileInfo.isAssetsMissile());
@@ -302,7 +302,7 @@ public class RocketLauncher extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         projectileInfoList.forEach(projectileInfo -> {
             projectileInfo.getProjectileOrigin().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileOrigin()));
             projectileInfo.getProjectileEnd().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileEnd()));
@@ -319,6 +319,7 @@ public class RocketLauncher extends Use {
         if (ratio < 0.9f) {
             return false;
         }
+        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

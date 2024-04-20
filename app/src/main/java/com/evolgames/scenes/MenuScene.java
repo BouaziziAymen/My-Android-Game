@@ -15,31 +15,35 @@ import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.entities.particles.wrappers.FluxParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.scenes.entities.SceneType;
-import com.evolgames.userinterface.view.MenuUserInterface;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.sprite.AnimatedSprite;
-import org.andengine.input.touch.TouchEvent;
+import org.andengine.entity.sprite.ButtonSprite;
+import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MenuScene extends PhysicsScene<MenuUserInterface> {
+public class MenuScene extends PhysicsScene {
     private FluxParticleWrapper flux;
     private GameGroup jarGroup;
-
     public MenuScene(Camera pCamera) {
         super(pCamera, SceneType.MENU);
     }
 
-    private void createEyes(){
-        int[] playerAnimationFrames = {0, 1, 2, 3,4}; // indices of frames in spritesheet
+    private void createEyes() {
+        int[] playerAnimationFrames = {0, 1, 2, 3, 4}; // indices of frames in spritesheet
         long[] playerFrameDurations = {800, 100, 150, 100, 100}; // duration of each frame in milliseconds
         AnimatedSprite playerSprite = new AnimatedSprite(0, 2, ResourceManager.getInstance().evilEyesTextureRegion, ResourceManager.getInstance().vbom);
-       playerSprite.setScale(0.3f);
+        playerSprite.setScale(0.3f);
         playerSprite.animate(playerFrameDurations, playerAnimationFrames, true);
         ragdoll.head.getMesh().attachChild(playerSprite);
     }
+
     @Override
     public void populate() {
         List<Vector2> vertices1 = VerticesFactory.createRectangle(240, 80);
@@ -66,6 +70,34 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
 
         jarGroup = createItemFromFile("pandora's_jar#.xml", 300, 200, true, false);
 
+
+        ButtonSprite playText = new ButtonSprite(400, 100, ResourceManager.getInstance().playTextureRegion, ResourceManager.getInstance().vbom);
+
+        playText.setOnClickListener((pButtonSprite, pTouchAreaLocalX, pTouchAreaLocalY) -> {
+            // Scale out animation
+            IEntityModifier modifier = new SequenceEntityModifier(
+                    new ScaleModifier(0.1f, 1.0f, 0.8f),
+                    new ScaleModifier(0.1f, 0.8f, 1.0f)
+            );
+            pButtonSprite.registerEntityModifier(modifier);
+
+            // Perform event 'x' after animation completes
+            modifier.addModifierListener(new IEntityModifier.IEntityModifierListener() {
+                @Override
+                public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {}
+
+                @Override
+                public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                    goToScene(SceneType.PLAY);
+                }
+            });
+        });
+
+
+        playText.setZIndex(2);
+        attachChild(playText);
+        registerTouchArea(playText);
+        sortChildren();
     }
 
     @Override
@@ -81,7 +113,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
             this.attachChild(flux.getParticleSystem());
             this.sortChildren();
         }
-        if(step==90){
+        if (step == 10) {
             createEyes();
         }
         if (step > 10 && Math.random() < 0.05f) {
@@ -92,9 +124,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
 
     @Override
     public void detach() {
-        if (this.userInterface != null) {
-            this.userInterface.detachSelf();
-        }
+
     }
 
     @Override
@@ -109,12 +139,7 @@ public class MenuScene extends PhysicsScene<MenuUserInterface> {
 
     @Override
     public void createUserInterface() {
-        this.userInterface = new MenuUserInterface(this);
-    }
 
-    @Override
-    protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-        userInterface.onTouchHud(hudTouchEvent);
     }
 
     public void goToScene(SceneType sceneType) {

@@ -669,8 +669,8 @@ public class BlockUtils {
         }
         block2.setPolarity(Polarity.YANG);
         int liquidQuantity = block.getLiquidQuantity();
-        block1.setLiquidQuantity((int) (liquidQuantity * block1.getBlockArea() / block.getBlockArea()));
-        block2.setLiquidQuantity((int) (liquidQuantity * block2.getBlockArea() / block.getBlockArea()));
+        block1.setLiquidQuantity((int)Math.floor(liquidQuantity * block1.getBlockArea() / block.getBlockArea()));
+        block2.setLiquidQuantity((int)Math.floor(liquidQuantity * block2.getBlockArea() / block.getBlockArea()));
 
         BlockUtils.divideAssociatedBlocks(block1, block2, block.getAssociatedBlocks(), cut);
         block1.refillGrid();

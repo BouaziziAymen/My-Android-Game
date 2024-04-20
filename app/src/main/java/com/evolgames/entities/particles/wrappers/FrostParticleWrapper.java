@@ -1,11 +1,9 @@
 package com.evolgames.entities.particles.wrappers;
 
 import com.evolgames.activity.ResourceManager;
-import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.emitters.SegmentEmitter;
 import com.evolgames.entities.particles.modifiers.AlphaParticleModifier;
-import com.evolgames.entities.particles.modifiers.SmoothRotationModifier;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 
 import org.andengine.entity.particle.Particle;
@@ -15,10 +13,11 @@ import org.andengine.entity.particle.initializer.GravityParticleInitializer;
 import org.andengine.entity.particle.initializer.RotationParticleInitializer;
 import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
 import org.andengine.entity.particle.initializer.VelocityParticleInitializer;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FrostParticleWrapper {
+public class FrostParticleWrapper extends MyParticleWrapper {
     private final BaseParticleSystem particleSystem;
     private final Color color;
     private final DataEmitter emitter;
@@ -29,7 +28,7 @@ public class FrostParticleWrapper {
             float startVelocity,
             int lowerRate,
             int higherRate) {
-         emitter = createEmitter(data);
+        emitter = createEmitter(data);
         this.color = color;
 
         this.particleSystem =
@@ -78,9 +77,40 @@ public class FrostParticleWrapper {
         return particleSystem;
     }
 
-    public void finishSelf() {
-        particleSystem.setParticlesSpawnEnabled(false);
-        this.alive = false;
+    @Override
+    public void attachTo(Scene scene) {
+         particleSystem.setZIndex(5);
+         scene.attachChild(particleSystem);
+    }
+
+    @Override
+    public void update() {
+        if(!alive){
+            return;
+        }
+        if(this.emitter!=null) {
+            this.emitter.update();
+        }
+        if (detached) {
+            if (isAllParticlesExpired()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+            }
+        }
+    }
+
+    @Override
+    public void detach() {
+        this.detached = true;
+        this.setSpawnEnabled(false);
+    }
+
+    @Override
+    public void detachDirect() {
+        if(alive) {
+            this.alive = false;
+            this.particleSystem.detachSelf();
+            this.particleSystem.dispose();
+        }
     }
 
     public boolean isAllParticlesExpired() {

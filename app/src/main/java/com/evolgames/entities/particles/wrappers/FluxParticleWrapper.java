@@ -10,19 +10,21 @@ import com.evolgames.entities.particles.modifiers.BezierModifier;
 import com.evolgames.entities.particles.systems.FireParticleSystem;
 
 import org.andengine.entity.particle.BatchedSpriteParticleSystem;
+import org.andengine.entity.particle.Particle;
 import org.andengine.entity.particle.ParticleSystem;
 import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.ColorParticleModifier;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public class FluxParticleWrapper {
+public class FluxParticleWrapper extends MyParticleWrapper{
     private static final float RATE_MIN = 30 * 30;
     private static final float RATE_MAX = 50 * 30;
     private static final int PARTICLES_MAX = 750 * 30;
-    private final BatchedSpriteParticleSystem energyParticleSystem;
+    private final BatchedSpriteParticleSystem particleSystem;
     private final RelativePolygonEmitter startEmitter;
     private final RelativePolygonEmitter endEmitter;
     private final BezierModifier bezierModifier;
@@ -42,7 +44,7 @@ public class FluxParticleWrapper {
         }
         float ratio = area / (32f * 32f);
 
-        this.energyParticleSystem =
+        this.particleSystem =
                 new FireParticleSystem(
                         this.startEmitter,
                         FluxParticleWrapper.RATE_MIN * ratio,
@@ -51,39 +53,83 @@ public class FluxParticleWrapper {
                         ResourceManager.getInstance().plasmaParticle);
 
         final float lifespan = 1f;
-        this.energyParticleSystem.setZIndex(source.getZIndex() - 1);
+        this.particleSystem.setZIndex(source.getZIndex() - 1);
         this.bezierModifier = new BezierModifier(this.endEmitter, lifespan);
-        this.energyParticleSystem.addParticleModifier(this.bezierModifier);
-        this.energyParticleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
-        this.energyParticleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.1f));
-        this.energyParticleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan - 0.5f, lifespan, 0.1f, 0.05f));
-        this.energyParticleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan, 0.9f, 0.4f));
-        setFluxColor(Color.BLACK, Color.BLACK);
+        this.particleSystem.addParticleModifier(this.bezierModifier);
+        this.particleSystem.addParticleInitializer(new ExpireParticleInitializer<>(lifespan));
+        this.particleSystem.addParticleInitializer(new AlphaParticleInitializer<>(0.1f));
+        this.particleSystem.addParticleModifier(new AlphaParticleModifier<>(lifespan - 0.5f, lifespan, 0.1f, 0.05f));
+        this.particleSystem.addParticleModifier(new ScaleParticleModifier<>(0f, lifespan, 0.9f, 0.4f));
+        setFluxColor();
         update();
     }
 
     public ParticleSystem<?> getParticleSystem() {
-        return this.energyParticleSystem;
+        return this.particleSystem;
+    }
+
+    @Override
+    public void attachTo(Scene scene) {
+
     }
 
     public void update() {
-        this.startEmitter.onStep();
-        this.endEmitter.onStep();
+        if(this.endEmitter!=null) {
+            this.endEmitter.update();
+        }
+        if(this.startEmitter!=null){
+            this.startEmitter.update();
+        }
+        if (detached) {
+            if (isAllParticlesExpired()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+            }
+        } else {
+            bezierModifier.transform(new Vector2(source.getX(), source.getY()), new Vector2(target.getX(), target.getY()));
+        }
+        }
 
-        bezierModifier.transform(new Vector2(source.getX(), source.getY()), new Vector2(target.getX(), target.getY()));
+    @Override
+    public void detach() {
+        this.detached = true;
+        this.setSpawnEnabled(false);
     }
 
-    private void setFluxColor(Color color1, Color color2) {
+    @Override
+    public void detachDirect() {
+        if(alive) {
+            this.alive = false;
+            this.particleSystem.detachSelf();
+            this.particleSystem.dispose();
+        }
+    }
+
+    public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
+        if (particleSystem != null) {
+            this.particleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
+        }
+    }
+
+    private void setFluxColor() {
         ColorParticleModifier<UncoloredSprite> colorModifier = new ColorParticleModifier<>(
                 0f,
                 0.3f,
-                color1.getRed(),
-                color2.getRed(),
-                color1.getGreen(),
-                color2.getGreen(),
-                color1.getBlue(),
-                color2.getBlue());
-        this.energyParticleSystem.addParticleModifier(colorModifier);
+                Color.BLACK.getRed(),
+                Color.BLACK.getRed(),
+                Color.BLACK.getGreen(),
+                Color.BLACK.getGreen(),
+                Color.BLACK.getBlue(),
+                Color.BLACK.getBlue());
+        this.particleSystem.addParticleModifier(colorModifier);
+    }
+    @Override
+    public boolean isAllParticlesExpired() {
+        for (Particle<?> particle : this.particleSystem.getParticles()) {
+            if (particle != null && !particle.isExpired()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

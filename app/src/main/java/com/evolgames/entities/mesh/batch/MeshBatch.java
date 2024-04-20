@@ -66,38 +66,6 @@ public class MeshBatch extends Shape {
     // ===========================================================
 
     public MeshBatch(
-            final int pCapacity, final VertexBufferObjectManager pVertexBufferObjectManager) {
-        this(pCapacity, pVertexBufferObjectManager, DrawType.STATIC);
-    }
-
-    public MeshBatch(
-            final int pCapacity,
-            final VertexBufferObjectManager pVertexBufferObjectManager,
-            final DrawType pDrawType) {
-        this(
-                pCapacity,
-                new HighPerformanceMeshBatchVertexBufferObject(
-                        pVertexBufferObjectManager,
-                        pCapacity,
-                        pDrawType,
-                        true,
-                        MeshBatch.VERTEXBUFFEROBJECTATTRIBUTES_DEFAULT));
-    }
-
-    public MeshBatch(
-            final int pCapacity,
-            HighPerformanceMeshBatchVertexBufferObject pSpriteBatchVertexBufferObject) {
-        this(pCapacity, pSpriteBatchVertexBufferObject, PositionColorShaderProgram.getInstance());
-    }
-
-    public MeshBatch(
-            final int pCapacity,
-            HighPerformanceMeshBatchVertexBufferObject pSpriteBatchVertexBufferObject,
-            final ShaderProgram pShaderProgram) {
-        this(0, 0, pCapacity, pSpriteBatchVertexBufferObject, pShaderProgram);
-    }
-
-    public MeshBatch(
             final float pX,
             final float pY,
             final int pCapacity,

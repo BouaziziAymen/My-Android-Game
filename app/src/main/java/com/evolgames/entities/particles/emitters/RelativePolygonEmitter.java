@@ -24,7 +24,7 @@ public class RelativePolygonEmitter extends PolygonEmitter {
         this.gameEntity = entity;
     }
 
-    public void onStep() {
+    public void update() {
         this.randomPointPicker.calculateWeights();
         if (Math.abs(positionX - gameEntity.getX()) > 1
                 || Math.abs(positionY - gameEntity.getY()) > 1

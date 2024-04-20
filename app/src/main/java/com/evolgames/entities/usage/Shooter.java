@@ -67,7 +67,7 @@ public class Shooter extends Use {
     public Shooter() {
     }
 
-    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene<?> physicsScene, boolean heavy, boolean mirrored) {
+    public Shooter(UsageModel<?> rangedUsageModel, PhysicsScene physicsScene, boolean heavy, boolean mirrored) {
         this.type = rangedUsageModel.getType();
         this.isHeavy = heavy;
         RangedProperties rangedProperties = (RangedProperties) rangedUsageModel.getProperties();
@@ -116,7 +116,7 @@ public class Shooter extends Use {
         }
     }
 
-    public void onTriggerPulled(PhysicsScene<?> physicsScene) {
+    public void onTriggerPulled(PhysicsScene physicsScene) {
         if (readyToFire) {
             for (int i = 0, projectileInfoListSize = projectileInfoList.size(); i < projectileInfoListSize; i++) {
                 fire(i, physicsScene);
@@ -188,7 +188,7 @@ public class Shooter extends Use {
     }
 
 
-    private void fire(int index, PhysicsScene<?> physicsScene) {
+    private void fire(int index, PhysicsScene physicsScene) {
         ProjectileInfo projectileInfo = this.projectileInfoList.get(index);
         if (projectileInfo.getMuzzle() == null || !projectileInfo.getMuzzle().isActive()) {
             return;
@@ -211,7 +211,7 @@ public class Shooter extends Use {
     }
 
 
-    private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene<?> physicsScene) {
+    private void createProjectile(ProjectileInfo projectileInfo, ToolModel missileModel, PhysicsScene physicsScene) {
         GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
         if(muzzleEntity.getBody()==null){
             return;
@@ -337,7 +337,7 @@ public class Shooter extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         projectileInfoList.forEach(projectileInfo -> {
             projectileInfo.getProjectileOrigin().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileOrigin()));
             projectileInfo.getProjectileEnd().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileEnd()));
@@ -401,7 +401,11 @@ public class Shooter extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
-        return !(ratio < 0.9f);
+        if (ratio < 0.9f) {
+            return false;
+        }
+        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
+        createFireSources(heir.getScene().getWorldFacade());
+        return true;
     }
-
 }

@@ -7,12 +7,13 @@ import com.evolgames.userinterface.view.UserInterface;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
 
-public class MainScene extends AbstractScene<UserInterface<?>> {
+public class MainScene extends AbstractScene {
 
-    protected AbstractScene<?> scene;
+    protected AbstractScene scene;
 
     public MainScene(Camera pCamera) {
         super(pCamera, SceneType.MAIN);
@@ -82,10 +83,6 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
     }
 
     @Override
-    protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-    }
-
-    @Override
     public void detach() {
         if (this.scene != null) {
             this.scene.detach();
@@ -96,16 +93,9 @@ public class MainScene extends AbstractScene<UserInterface<?>> {
         ((EditorScene) scene).addImage();
     }
 
-    @Override
-    public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-        return false;
-    }
-
     public void goToScene(SceneType sceneType) {
         changeScene(sceneType, true);
         ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", "");
         scene.createUserInterface();
     }
-
-
 }

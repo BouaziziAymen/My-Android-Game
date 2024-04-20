@@ -9,7 +9,7 @@ import com.evolgames.scenes.PlayScene;
 
 public class Explosion {
 
-    private final PhysicsScene<?> scene;
+    private final PhysicsScene scene;
     private final Vector2 center;
     private final Runnable runnable;
     private final float heatRatio;
@@ -24,7 +24,7 @@ public class Explosion {
     private int count = 0;
     private boolean fireWorkCreated = false;
 
-    public Explosion(PhysicsScene<?> scene, GameEntity source, Vector2 center, float particlesRatio, float force, float speedRatio, float heatRatio, float fireRatio, float smokeRatio, float sparkRatio, float inParticleSizeRatio, float finParticleSizeRatio) {
+    public Explosion(PhysicsScene scene, GameEntity source, Vector2 center, float particlesRatio, float force, float speedRatio, float heatRatio, float fireRatio, float smokeRatio, float sparkRatio, float inParticleSizeRatio, float finParticleSizeRatio) {
         this.scene = scene;
         this.source = source;
         this.center = center;
@@ -84,7 +84,7 @@ public class Explosion {
             }, source);
         }
         if (time > PhysicsConstants.EXPLOSION_LIFESPAN) {
-            this.explosionParticleWrapper.stopFinal();
+            this.explosionParticleWrapper.detach();
             if (scene instanceof PlayScene) {
                 ((PlayScene) scene).unlockSaving();
             }

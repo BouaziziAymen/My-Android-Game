@@ -222,7 +222,7 @@ public class Bow extends Use {
         muzzleEntity.getBody().applyLinearImpulse(impulse, beginProjected);
     }
 
-    private void createArrow(ProjectileInfo projectileInfo, PhysicsScene<?> physicsScene) {
+    private void createArrow(ProjectileInfo projectileInfo, PhysicsScene physicsScene) {
 
         ToolModel arrowModel;
         try {
@@ -299,7 +299,7 @@ public class Bow extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         projectileInfoList.forEach(projectileInfo -> {
             projectileInfo.getProjectileOrigin().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileOrigin()));
             projectileInfo.getProjectileEnd().set(GeometryUtils.mirrorPoint(projectileInfo.getProjectileEnd()));
@@ -309,7 +309,7 @@ public class Bow extends Use {
     }
 
     @Override
-    public void onAfterMirror(PhysicsScene<?> scene) {
+    public void onAfterMirror(PhysicsScene scene) {
         super.onAfterMirror(scene);
         drawBowstring();
     }

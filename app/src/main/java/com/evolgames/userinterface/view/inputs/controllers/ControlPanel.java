@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ControlPanel {
     private final ArrayList<ControlElement> registeredElements;
     private final Camera camera;
-    private final AbstractScene<?> scene;
+    private final AbstractScene scene;
     private final AtomicInteger controlIdCounter;
 
-    public ControlPanel(AbstractScene<?> scene) {
+    public ControlPanel(AbstractScene scene) {
         this.camera = scene.getCamera();
         this.scene = scene;
         this.registeredElements = new ArrayList<>();

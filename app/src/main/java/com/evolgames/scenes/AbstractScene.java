@@ -1,8 +1,5 @@
 package com.evolgames.scenes;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
@@ -10,7 +7,6 @@ import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.persistence.PersistenceException;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.view.UserInterface;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
@@ -25,13 +21,12 @@ import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-public abstract class AbstractScene<T extends UserInterface<?>> extends Scene implements IOnSceneTouchListener {
+public abstract class AbstractScene extends Scene {
     protected final Camera mCamera;
     private final Vector2 cameraPositionBeforeChase = new Vector2();
 
     private final HUD hud;
     private final SceneType sceneName;
-    protected T userInterface;
     private GameEntity chasedEntity;
     private boolean returnToStart;
 
@@ -45,7 +40,6 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
-        setOnSceneTouchListener(this);
     }
 
     public SceneType getSceneName() {
@@ -85,48 +79,20 @@ public abstract class AbstractScene<T extends UserInterface<?>> extends Scene im
         return hud;
     }
 
-    public T getUserInterface() {
-        return userInterface;
-    }
-
     public abstract void createUserInterface();
-
-    @Override
-    protected void onManagedUpdate(float pSecondsElapsed) {
-        super.onManagedUpdate(pSecondsElapsed);
-        if (userInterface != null) {
-            userInterface.step();
-        }
-    }
-
-
-    protected abstract void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent);
-
-    @Override
-    public boolean onSceneTouchEvent(Scene pScene, TouchEvent touchEvent) {
-        float[] cameraSceneCoordinatesFromSceneCoordinates =
-                mCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
-        TouchEvent hudTouchEvent =
-                TouchEvent.obtain(
-                        cameraSceneCoordinatesFromSceneCoordinates[0],
-                        cameraSceneCoordinatesFromSceneCoordinates[1],
-                        touchEvent.getAction(),
-                        touchEvent.getPointerID(),
-                        touchEvent.getMotionEvent());
-        this.processTouchEvent(touchEvent, hudTouchEvent);
-        return false;
-    }
 
     public GameEntity getChasedEntity() {
         return chasedEntity;
     }
-public void resetChasedEntity(){
-    this.chasedEntity = null;
-    ResourceManager.getInstance().firstCamera.setChaseEntity(null);
-}
-    public void chaseEntity(GameEntity entity,boolean returnToStart) {
+
+    public void resetChasedEntity() {
+        this.chasedEntity = null;
+        ResourceManager.getInstance().firstCamera.setChaseEntity(null);
+    }
+
+    public void chaseEntity(GameEntity entity, boolean returnToStart) {
         this.returnToStart = returnToStart;
-        this.cameraPositionBeforeChase.set(mCamera.getCenterX(),mCamera.getCenterY());
+        this.cameraPositionBeforeChase.set(mCamera.getCenterX(), mCamera.getCenterY());
         if (entity == null) {
             return;
         }
@@ -135,9 +101,9 @@ public void resetChasedEntity(){
     }
 
     public void releaseChasedEntity() {
-     resetChasedEntity();
-        if(cameraPositionBeforeChase!=null&&returnToStart) {
-            ((SmoothCamera)ResourceManager.getInstance().firstCamera).setCenterDirect(cameraPositionBeforeChase.x, cameraPositionBeforeChase.y);
+        resetChasedEntity();
+        if (cameraPositionBeforeChase != null && returnToStart) {
+            ((SmoothCamera) ResourceManager.getInstance().firstCamera).setCenterDirect(cameraPositionBeforeChase.x, cameraPositionBeforeChase.y);
         }
     }
 }

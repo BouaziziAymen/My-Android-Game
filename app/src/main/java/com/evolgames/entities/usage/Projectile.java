@@ -47,7 +47,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
 
     }
 

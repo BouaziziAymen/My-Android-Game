@@ -15,21 +15,18 @@ import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.initializer.GravityParticleInitializer;
 import org.andengine.entity.particle.initializer.ScaleParticleInitializer;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 import org.andengine.util.adt.color.Color;
 
-public abstract class LiquidParticleWrapper {
-    private final DataEmitter emitter;
+public abstract class LiquidParticleWrapper extends MyParticleWrapper{
     private final BaseParticleSystem particleSystem;
     private final GameEntityAttachedVelocityInitializer velocityInitializer;
-    private final GameEntity parent;
     private final Vector2 splashVelocity;
     private final float flammability;
     private final Color color;
-    private boolean alive = true;
+    private final DataEmitter emitter;
     private FreshCut freshCut;
-    private boolean isDepleted = false;
-
     public LiquidParticleWrapper(
             GameEntity gameEntity,
             float[] data, float[] weights, Color color,
@@ -39,9 +36,9 @@ public abstract class LiquidParticleWrapper {
             int higherRate) {
         this.splashVelocity = splashVelocity;
         this.emitter = createEmitter(data, weights, gameEntity);
-        this.parent = gameEntity;
         this.color = color;
         this.flammability = flammability;
+        this.parent = gameEntity;
 
         this.particleSystem =
                 new BaseParticleSystem(
@@ -75,26 +72,11 @@ public abstract class LiquidParticleWrapper {
 
     protected abstract DataEmitter createEmitter(float[] emitterData, float[] weights, GameEntity gameEntity);
 
-    public void update() {
-        if (freshCut != null) {
-            this.particleSystem.setParticlesSpawnEnabled(parent.isAlive() && !freshCut.isFrozen());
-        }
-        if (!parent.isAlive()||isDepleted) {
-            this.particleSystem.setParticlesSpawnEnabled(false);
-        }
-        if (isAlive()&&splashVelocity != null) {
+
+    private void updateSplashVelocity() {
+        if(splashVelocity!=null) {
             splashVelocity.mul(0.9f);
             velocityInitializer.getIndependentVelocity().set(splashVelocity.x, splashVelocity.y);
-        }
-
-        if (!isAlive()&&isAllParticlesExpired()) {
-            ResourceManager.getInstance()
-                    .activity
-                    .runOnUpdateThread(
-                            particleSystem::detachSelf);
-        }
-        if (isAlive()) {
-            emitter.update();
         }
     }
 
@@ -111,47 +93,62 @@ public abstract class LiquidParticleWrapper {
         return particleSystem;
     }
 
-    public void finishSelf() {
-        this.particleSystem.setParticlesSpawnEnabled(false);
-        this.isDepleted = true;
-        this.alive = false;
-    }
-
-    public boolean isAllParticlesExpired() {
-        for (Particle<UncoloredSprite> p : getParticleSystem().getParticles())
-            if (p != null && !p.isExpired()) {
-                return false;
-            }
-        return true;
-    }
-
-    public boolean isAlive() {
-        return alive;
-    }
-
-    public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
-        if (this.particleSystem != null) {
-            this.particleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
-        }
-    }
-
-    public void detachDirect() {
-        if (this.particleSystem != null) {
-            particleSystem.detachSelf();
-        }
-    }
-
-    public void detach() {
-        if (this.particleSystem != null) {
-            ResourceManager.getInstance().activity.runOnUpdateThread(particleSystem::detachSelf);
-        }
-    }
-
     public void setFreshCut(FreshCut freshCut) {
         this.freshCut = freshCut;
     }
 
-    public void setDepleted(boolean depleted) {
-        isDepleted = depleted;
+
+    @Override
+    public void update() {
+        if(!alive){
+            return;
+        }
+        if(this.emitter!=null) {
+            this.emitter.update();
+        }
+        if(!detached) {
+            if (freshCut != null){
+             setSpawnEnabled(!freshCut.isFrozen());
+            }
+            updateSplashVelocity();
+        } else {
+                if (isAllParticlesExpired()) {
+                    ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+                }
+        }
+    }
+    @Override
+    public void attachTo(Scene scene) {
+         scene.attachChild(particleSystem);
+         this.particleSystem.setZIndex(5);
+    }
+
+    @Override
+    public void detach() {
+          this.detached = true;
+          this.setSpawnEnabled(false);
+    }
+
+    @Override
+    public void detachDirect() {
+        if(alive) {
+            this.alive = false;
+            this.particleSystem.detachSelf();
+            this.particleSystem.dispose();
+        }
+    }
+
+    @Override
+    public boolean isAllParticlesExpired() {
+        for (Particle<?> particle : particleSystem.getParticles()) {
+            if (particle != null && !particle.isExpired()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setSpawnEnabled(boolean b) {
+        this.particleSystem.setParticlesSpawnEnabled(b);
     }
 }

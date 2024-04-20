@@ -35,7 +35,9 @@ public class LiquidSourceInfo {
 
     public void setContainerEntity(GameEntity containerEntity) {
         this.containerEntity = containerEntity;
-        this.containerEntityUniqueId = containerEntity.getUniqueID();
+        if(this.containerEntity!=null) {
+            this.containerEntityUniqueId = containerEntity.getUniqueID();
+        }
     }
 
     public String getSealEntityUniqueId() {
@@ -68,6 +70,8 @@ public class LiquidSourceInfo {
 
     public void setSealEntity(GameEntity sealEntity) {
         this.sealEntity = sealEntity;
-        this.sealEntityUniqueId = sealEntity.getUniqueID();
+        if(this.sealEntityUniqueId!=null) {
+            this.sealEntityUniqueId = sealEntity.getUniqueID();
+        }
     }
 }

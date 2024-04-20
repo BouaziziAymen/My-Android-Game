@@ -35,7 +35,7 @@ public class Rocket extends Use {
     public Rocket() {
     }
 
-    public Rocket(UsageModel<?> usageModel, PhysicsScene<?> physicsScene, boolean mirrored) {
+    public Rocket(UsageModel<?> usageModel, PhysicsScene physicsScene, boolean mirrored) {
         RocketProperties rocketProperties = ((RocketProperties) usageModel.getProperties());
         this.fireSourceInfoList =
                 rocketProperties
@@ -162,7 +162,7 @@ public class Rocket extends Use {
     }
 
     @Override
-    public void dynamicMirror(PhysicsScene<?> physicsScene) {
+    public void dynamicMirror(PhysicsScene physicsScene) {
         fireSourceInfoList.forEach(fireSourceInfo -> {
             fireSourceInfo.getFireSourceOrigin().set(GeometryUtils.mirrorPoint(fireSourceInfo.getFireSourceOrigin()));
             fireSourceInfo.getFireDirection().x = -fireSourceInfo.getFireDirection().x;
@@ -179,14 +179,9 @@ public class Rocket extends Use {
             return false;
         }
         this.rocketBodyEntity = heir;
-        this.fireSourceInfoList.forEach(fireSourceInfo -> {
-            fireSourceInfo.setMuzzleEntity(heir);
-        });
-        this.rocketFireSourceInfMap.values().forEach(
-                ExplosiveParticleWrapper::detach
-        );
+        this.fireSourceInfoList.forEach(fireSourceInfo -> fireSourceInfo.setMuzzleEntity(heir));
+        this.rocketFireSourceInfMap.values().forEach(ExplosiveParticleWrapper::detach);
         createFireSources(heir.getScene().getWorldFacade());
-
         return true;
     }
 

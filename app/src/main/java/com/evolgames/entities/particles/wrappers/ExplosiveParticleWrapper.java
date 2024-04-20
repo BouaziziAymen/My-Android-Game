@@ -1,16 +1,16 @@
 package com.evolgames.entities.particles.wrappers;
 
-import android.util.Log;
-
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.particles.emitters.DataEmitter;
 import com.evolgames.entities.particles.systems.BaseParticleSystem;
 
 import org.andengine.entity.particle.Particle;
+import org.andengine.entity.particle.ParticleSystem;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.UncoloredSprite;
 
-public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
+public abstract class ExplosiveParticleWrapper extends MyParticleWrapper implements Fire {
 
     private static final float RATE_MIN = 60;
     private static final float RATE_MAX = 70;
@@ -22,20 +22,20 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
     private static final float RATE_MAX_SPARK = 40;
     private static final int PARTICLES_MAX_SPARK = 40;
 
-    protected final DataEmitter emitter;
     protected final float particleDensity;
-    protected final GameEntity parent;
+
     private final float fireRatio;
     private final float smokeRatio;
     private final float sparkRatio;
     private final float velocity;
     private final float initialFlameParticleSize;
     private final float finalFlameParticleSize;
+    final protected DataEmitter emitter;
+
     protected float flameTemperature;
     protected BaseParticleSystem fireParticleSystem;
     protected BaseParticleSystem smokeParticleSystem;
     protected BaseParticleSystem sparkParticleSystem;
-    private boolean alive = true;
 
     public ExplosiveParticleWrapper(
             GameEntity gameEntity,
@@ -114,23 +114,6 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
 
     protected abstract DataEmitter createEmitter(float[] data, GameEntity gameEntity);
 
-
-    public void update() {
-        if (parent != null && !parent.isAlive()) {
-            stopFinal();
-        }
-        if (!isAlive()) {
-            if (isAllParticlesExpired()) {
-                finishSelf();
-            }
-            return;
-        }
-        if (parent != null) {
-            emitter.update();
-        }
-    }
-
-
     public void setSpawnEnabled(boolean pParticlesSpawnEnabled) {
         if (fireParticleSystem != null) {
             this.fireParticleSystem.setParticlesSpawnEnabled(pParticlesSpawnEnabled);
@@ -148,36 +131,13 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
         return fireParticleSystem;
     }
 
-    @Override
-    public BaseParticleSystem getSmokeParticleSystem() {
-        return smokeParticleSystem;
-    }
-
     public BaseParticleSystem getSparkParticleSystem() {
         return sparkParticleSystem;
     }
-
-    public void stopFinal() {
-        setSpawnEnabled(false);
-        this.alive = false;
+    public ParticleSystem<UncoloredSprite> getSmokeParticleSystem() {
+        return this.smokeParticleSystem;
     }
-
-    private void finishSelf() {
-        ResourceManager.getInstance()
-                .activity
-                .runOnUpdateThread(
-                        () -> {
-                            if (smokeParticleSystem != null) this.smokeParticleSystem.detachSelf();
-                            if (sparkParticleSystem != null) this.sparkParticleSystem.detachSelf();
-                            if (fireParticleSystem != null) this.fireParticleSystem.detachSelf();
-                        });
-    }
-
-    public void detach() {
-        stopFinal();
-        finishSelf();
-    }
-
+    @Override
     public boolean isAllParticlesExpired() {
         if (getFireParticleSystem() != null)
             for (Particle<UncoloredSprite> p : getFireParticleSystem().getParticles()) {
@@ -200,8 +160,58 @@ public abstract class ExplosiveParticleWrapper implements Fire, Smoke {
         return true;
     }
 
-    public boolean isAlive() {
-        return alive;
+    @Override
+    public void attachTo(Scene scene) {
+        if (this.fireParticleSystem != null) {
+            scene.attachChild(fireParticleSystem);
+            this.fireParticleSystem.setZIndex(5);
+        }
+        if (this.smokeParticleSystem != null) {
+            scene.attachChild(this.smokeParticleSystem);
+            this.smokeParticleSystem.setZIndex(5);
+        }
+        if (this.sparkParticleSystem != null) {
+            scene.attachChild(this.sparkParticleSystem);
+            this.sparkParticleSystem.setZIndex(5);
+        }
+    }
+    @Override
+    public void detach() {
+        this.detached = true;
+        this.setSpawnEnabled(false);
     }
 
+    @Override
+    public void detachDirect() {
+        if(alive) {
+            this.alive = false;
+            if(this.fireParticleSystem!=null) {
+                this.fireParticleSystem.detachSelf();
+                this.fireParticleSystem.dispose();
+            }
+            if(this.smokeParticleSystem!=null) {
+                this.smokeParticleSystem.detachSelf();
+                this.smokeParticleSystem.dispose();
+            }
+            if(this.sparkParticleSystem!=null) {
+                this.sparkParticleSystem.detachSelf();
+                this.sparkParticleSystem.dispose();
+            }
+        }
+    }
+
+    @Override
+    public void update() {
+        if(!alive){
+            return;
+        }
+        if(this.emitter!=null) {
+            this.emitter.update();
+        }
+        if (detached) {
+            if (isAllParticlesExpired()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(this::detachDirect);
+            }
+        }
+    }
 }

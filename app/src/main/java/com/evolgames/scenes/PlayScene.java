@@ -9,8 +9,6 @@ import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
-import androidx.constraintlayout.helper.widget.Layer;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -21,6 +19,7 @@ import com.evolgames.entities.Plotter;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
+import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -57,7 +56,6 @@ import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.physics.entities.Touch;
 import com.evolgames.scenes.entities.SceneType;
 import com.evolgames.userinterface.model.ToolModel;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.utilities.GeometryUtils;
 import com.evolgames.utilities.MyColorUtils;
 import com.evolgames.utilities.Vector2Utils;
@@ -78,7 +76,6 @@ import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -86,7 +83,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccelerationListener, ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener {
+public class PlayScene extends PhysicsScene implements IAccelerationListener, ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener {
     public static float groundY;
     public static boolean pause = false;
     public static Plotter plotter;
@@ -94,6 +91,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     private final PinchZoomDetector mPinchZoomDetector;
     private final Random random = new Random();
     private final boolean[] motorSounds = new boolean[3];
+    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.SingleShot, PlayerSpecialAction.AimLight, PlayerSpecialAction.AimHeavy, PlayerSpecialAction.Shoot_Arrow, PlayerSpecialAction.FireHeavy, PlayerSpecialAction.FireLight);
     private PlayerAction playerAction = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private Vector2 point1, point2;
@@ -158,7 +156,13 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     @Override
-    protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
+    public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
+        boolean result = super.onSceneTouchEvent(pSceneTouchEvent);
+        this.processTouchEvent(pSceneTouchEvent);
+        return false;
+    }
+
+    protected void processTouchEvent(TouchEvent touchEvent) {
         if (this.playerAction == PlayerAction.Create) {
             ItemMetaData itemToCreate = ResourceManager.getInstance().getSelectedItemMetaData();
             if (itemToCreate != null) {
@@ -245,8 +249,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
         }
         if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
-            worldFacade.getFrostParticleWrapper().setAlive(false);
-            worldFacade.getFrostParticleWrapper().setSpawnEnabled(false);
+            worldFacade.getFrostParticleWrapper().detach();
             setScrollerEnabled(true);
             ResourceManager.getInstance().windSound.pause();
         }
@@ -254,7 +257,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
 
     @Override
     public void populate() {
-       createRagDoll(400, 300);
+        createRagDoll(400, 300);
         String map = ResourceManager.getInstance().getMapString();
         if ("open".equalsIgnoreCase(map)) {
             createOpenGround();
@@ -272,9 +275,6 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     @Override
     public void detach() {
         destroyEntities();
-        if (this.userInterface != null) {
-            this.userInterface.detachSelf();
-        }
         this.hideAimSprite();
         this.hand = null;
         this.worldFacade.getTimedCommands().clear();
@@ -287,10 +287,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         this.detach();
     }
 
-    public void refresh(){
-      detach();
-      this.populate();
-      ((SmoothCamera)this.mCamera).setCenterDirect(400,240);
+    public void refresh() {
+        detach();
+        this.populate();
+        ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
 
     }
 
@@ -309,7 +309,9 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                 worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
             }
         }
-        worldFacade.detachLiquidWrappers();
+        worldFacade.cleanLiquidWrappers();
+        worldFacade.cleanPowderWrappers();
+
         this.hand = null;
         this.gameGroups.clear();
     }
@@ -339,9 +341,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     private void pulverizationTest() {
         if (step == 180) {
             ragdoll.getGameEntities().forEach(e -> {
+                if(e.getType()== SpecialEntityType.Head){
                 e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
                 this.worldFacade.destroyGameEntity(e, true, false);
-            });
+            }});
         }
     }
 
@@ -381,14 +384,14 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     private void drawItem(GameEntity entity) {
-        if(entity==null||entity.getBody()==null) {
+        if (entity == null || entity.getBody() == null) {
             return;
         }
-        for(LayerBlock layerBlock:entity.getBlocks()) {
+        for (LayerBlock layerBlock : entity.getBlocks()) {
             Body body = entity.getBody();
             List<Vector2> points = new ArrayList<>();
-            for(Vector2 v: layerBlock.getVertices()){
-                Vector2 p = body.getWorldPoint(v.cpy().mul(1/32f)).cpy().mul(32f);
+            for (Vector2 v : layerBlock.getVertices()) {
+                Vector2 p = body.getWorldPoint(v.cpy().mul(1 / 32f)).cpy().mul(32f);
                 points.add(p);
             }
             PlayScene.plotter.drawPolygon(points, Color.RED);
@@ -464,10 +467,10 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             vertices.add(obtain(-100, 30));
             vertices.add(obtain(-100, 29));
             vertices.add(obtain(100, 29));
-            vertices.add(obtain(100, 30 ));
+            vertices.add(obtain(100, 30));
             DecorationBlock decorationBlock = new DecorationBlock();
             DecorationProperties decorationProperties = new DecorationProperties();
-            decorationProperties.setDefaultColor(new Color(0.8f,0.8f,0.8f));
+            decorationProperties.setDefaultColor(new Color(0.8f, 0.8f, 0.8f));
             decorationBlock.initialization(vertices, decorationProperties, 0);
             blocks.get(0).addAssociatedBlock(decorationBlock);
 
@@ -705,16 +708,15 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             if (usesActive) {
                 if (h != null && h.hasSelectedEntity()) {
                     h.getSelectedEntity().getUseList().forEach(u -> {
-                            if (u.getActions() != null && !u.getActions().isEmpty()) {
-                                usageList.addAll(u.getActions().stream().filter(e->e.fromDistance).collect(Collectors.toList()));
-                            }
+                        if (u.getActions() != null && !u.getActions().isEmpty()) {
+                            usageList.addAll(u.getActions().stream().filter(e -> e.fromDistance).collect(Collectors.toList()));
+                        }
                     });
-                }
-                else if (playerAction==PlayerAction.Hold && h != null && h.getGrabbedEntity() != null) {
+                } else if (playerAction == PlayerAction.Hold && h != null && h.getGrabbedEntity() != null) {
                     h.getGrabbedEntity().getUseList().forEach(u -> {
-                            if (u.getActions() != null && !u.getActions().isEmpty()) {
-                                usageList.addAll(u.getActions());
-                            }
+                        if (u.getActions() != null && !u.getActions().isEmpty()) {
+                            usageList.addAll(u.getActions());
+                        }
                     });
                 }
 
@@ -749,7 +751,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                         getActivity().getUiController().showHint(R.string.trigger_rocket_launcher_hint, NativeUIController.HintType.HINT);
                     }
                 }
-                if(usageList.contains(PlayerSpecialAction.motorStop)){
+                if (usageList.contains(PlayerSpecialAction.motorStop)) {
                     getActivity().getUiController().showHint(R.string.motor_hint, NativeUIController.HintType.HINT);
                 }
                 if (usageList.contains(PlayerSpecialAction.SwitchOn)) {
@@ -866,20 +868,11 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
         createItemFromFile("editor_auto_save.mut", false, false);
     }
 
-    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.SingleShot,PlayerSpecialAction.AimLight,
-            PlayerSpecialAction.AimHeavy,
-            PlayerSpecialAction.Shoot_Arrow,
-            PlayerSpecialAction.FireHeavy,
-            PlayerSpecialAction.FireLight);
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
-        if(!aimSet.contains(playerSpecialAction)){
+        if (!aimSet.contains(playerSpecialAction)) {
             hideAimSprite();
         }
-        if (playerSpecialAction == PlayerSpecialAction.effectMeteor ||
-                playerSpecialAction == PlayerSpecialAction.effectFrost ||
-                playerSpecialAction == PlayerSpecialAction.effectCut ||
-                playerSpecialAction == PlayerSpecialAction.effectGlue ||
-                playerSpecialAction == PlayerSpecialAction.effectFireBolt) {
+        if (playerSpecialAction == PlayerSpecialAction.effectMeteor || playerSpecialAction == PlayerSpecialAction.effectFrost || playerSpecialAction == PlayerSpecialAction.effectCut || playerSpecialAction == PlayerSpecialAction.effectGlue || playerSpecialAction == PlayerSpecialAction.effectFireBolt) {
             getActivity().getUiController().showHint(playerSpecialAction.hintString, NativeUIController.HintType.HINT);
         }
         if (playerSpecialAction == PlayerSpecialAction.Stab || playerSpecialAction == PlayerSpecialAction.Slash || playerSpecialAction == PlayerSpecialAction.Smash) {
@@ -949,8 +942,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
                     onUsagesUpdated();
                 }
             }
-        }
-        else if(playerSpecialAction == PlayerSpecialAction.SingleShot){
+        } else if (playerSpecialAction == PlayerSpecialAction.SingleShot) {
             if (usableEntity != null && usableEntity.hasUsage(Shooter.class)) {
                 Shooter shooter = usableEntity.getUsage(Shooter.class);
                 shooter.onTriggerPulled(this);
@@ -991,7 +983,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
     }
 
     private void createAimSprite(GameEntity entity) {
-        if(entity==null){
+        if (entity == null) {
             return;
         }
         if (aimSprite != null) {
@@ -1170,7 +1162,7 @@ public class PlayScene extends PhysicsScene<UserInterface<?>> implements IAccele
             }
 
             // If uses are equal, compare by z-index
-            if(s2.distance<8f&&s1.distance<8f) {
+            if (s2.distance < 8f && s1.distance < 8f) {
                 int compareByZIndex = Integer.compare(s2.zIndex, s1.zIndex);
                 if (compareByZIndex != 0) {
                     return compareByZIndex;

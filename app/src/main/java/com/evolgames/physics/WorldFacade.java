@@ -9,8 +9,6 @@ import static org.andengine.extension.physics.box2d.util.Vector2Pool.recycle;
 
 import android.util.Log;
 
-import androidx.constraintlayout.helper.widget.Layer;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -35,7 +33,6 @@ import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.blocks.StainBlock;
-import com.evolgames.entities.blockvisitors.BreakVisitor;
 import com.evolgames.entities.blockvisitors.ImpactData;
 import com.evolgames.entities.blockvisitors.ShatterVisitor;
 import com.evolgames.entities.commandtemplate.EntityDestructionCommand;
@@ -62,7 +59,7 @@ import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.Fire;
 import com.evolgames.entities.particles.wrappers.FrostParticleWrapper;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
-import com.evolgames.entities.particles.wrappers.PulverizationParticleWrapper;
+import com.evolgames.entities.particles.wrappers.PowderParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.SegmentLiquidParticleWrapper;
 import com.evolgames.entities.pools.ImpactDataPool;
@@ -123,12 +120,13 @@ public class WorldFacade implements ContactObserver {
     public static Color frostColor = new Color(172f / 255f, 213f / 255f, 243f / 255f);
     public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
     private final Set<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
-    private final Set<PulverizationParticleWrapper> powderParticleWrappers = new HashSet<>();
+    private final Set<PowderParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final Set<ExplosiveParticleWrapper> explosivesParticleWrappers = new HashSet<>();
+
+    private final List<Explosion> explosions = new ArrayList<>();
     private final List<Fire> flames = new ArrayList<>();
     private final List<TimedCommand> timedCommands = new ArrayList<>();
     private final List<Touch> touches = new ArrayList<>();
-    private final List<Explosion> explosions = new ArrayList<>();
     private final SimpleDetectionRayCastCallback simpleDetectionRayCastCallback = new SimpleDetectionRayCastCallback();
     private final FluxRayCastCallback fluxRayCastCallback = new FluxRayCastCallback();
     private final FluxInnerRayCastCallback fluxInnerRayCastCallback = new FluxInnerRayCastCallback();
@@ -140,14 +138,14 @@ public class WorldFacade implements ContactObserver {
     private final CutRayCastCallback cutRayCastCallback = new CutRayCastCallback();
     private final GameEntityContactListener contactListener;
     private final PhysicsWorld physicsWorld;
-    private final PhysicsScene<?> scene;
+    private final PhysicsScene scene;
     Random random = new Random();
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
     private FrostParticleWrapper frostParticleWrapper;
 
-    public WorldFacade(PhysicsScene<?> scene) {
+    public WorldFacade(PhysicsScene scene) {
         this.scene = scene;
         physicsWorld = new PhysicsWorld(obtain(0, PhysicsConstants.gravity), false);
         contactListener = new GameEntityContactListener(this);
@@ -229,73 +227,57 @@ public class WorldFacade implements ContactObserver {
 
     public void onStep() {
         List<TimedCommand> list = new ArrayList<>(timedCommands);
-        for (Iterator<TimedCommand> iterator = list.iterator(); iterator.hasNext(); ) {
+        Iterator<TimedCommand> iterator;
+        for (iterator = list.iterator(); iterator.hasNext(); ) {
             TimedCommand timedCommand = iterator.next();
             timedCommand.update();
             if (timedCommand.isTimedOut()) {
                 iterator.remove();
             }
         }
-        clearExplosions();
-        this.contactListener.getNonCollidingEntities().removeIf(pair -> pair.first == null || pair.second == null || !pair.first.isAlive() || !pair.second.isAlive());
-
-        clearPulverizationWrappers();
-        clearLiquidWrappers();
-        if (frostParticleWrapper != null && !frostParticleWrapper.isAlive() && frostParticleWrapper.isAllParticlesExpired()) {
-            frostParticleWrapper.getParticleSystem().detachSelf();
-            frostParticleWrapper = null;
-        }
-
-        ArrayList<ExplosiveParticleWrapper> copy = new ArrayList<>(explosivesParticleWrappers);
-        for (ExplosiveParticleWrapper explosiveParticleWrapper : copy) {
-            explosiveParticleWrapper.update();
-            if (!explosiveParticleWrapper.isAlive() && explosiveParticleWrapper.isAllParticlesExpired()) {
-                explosivesParticleWrappers.remove(explosiveParticleWrapper);
-            }
-        }
 
         if (false) {
             plotTouch();
         }
+        for (LiquidParticleWrapper liquidParticleWrapper : this.liquidParticleWrappers) {
+            liquidParticleWrapper.update();
+        }
+        for (PowderParticleWrapper powderParticleWrapper : this.powderParticleWrappers) {
+            powderParticleWrapper.update();
+        }
+        for (ExplosiveParticleWrapper explosiveParticleWrapper : this.explosivesParticleWrappers) {
+            explosiveParticleWrapper.update();
+        }
+        for(Explosion explosion: this.explosions){
+            explosion.update();
+        }
+
+
         computeConduction();
         computeConvection();
-        frostConvection();
-        updateLiquidWrappers();
-        createFires();
+        computeFrosting();
+        computeStaining();
     }
 
-    private void clearExplosions() {
-        List<Explosion> explosionsCopy = new ArrayList<>(explosions);
-        for (int i = 0, explosionsCopySize = explosionsCopy.size(); i < explosionsCopySize; i++) {
-            Explosion explosion = explosionsCopy.get(i);
-            explosion.update();
-            if (!explosion.isAlive()) {
-                explosions.remove(explosion);
-            }
-        }
-    }
 
-   public void detachLiquidWrappers(){
+   public void cleanLiquidWrappers(){
         for(LiquidParticleWrapper liquidParticleWrapper:liquidParticleWrappers){
-            liquidParticleWrapper.detachDirect();
-        }
-        liquidParticleWrappers.clear();
-   }
-    private void clearLiquidWrappers() {
-        Iterator<LiquidParticleWrapper> wrapperIterator = liquidParticleWrappers.iterator();
-        while (wrapperIterator.hasNext()) {
-            LiquidParticleWrapper liquidParticleWrapper = wrapperIterator.next();
-            liquidParticleWrapper.update();
-            if (!liquidParticleWrapper.isAlive() && liquidParticleWrapper.isAllParticlesExpired()) {
-                if(liquidParticleWrapper.getParticleSystem().hasParent()) {
-                    liquidParticleWrapper.detach();
-                }
-                wrapperIterator.remove();
+            if(liquidParticleWrapper.isAlive()) {
+                liquidParticleWrapper.detachDirect();
             }
         }
+        this.liquidParticleWrappers.clear();
+   }
+    public void cleanPowderWrappers(){
+        for(PowderParticleWrapper powderParticleWrapper:powderParticleWrappers){
+            if(powderParticleWrapper.isAlive()) {
+                powderParticleWrapper.detachDirect();
+            }
+        }
+        this.powderParticleWrappers.clear();
     }
 
-    public void removeFireParticleWrapper(Fire fireParticleWrapper) {
+    public void removeFlame(Fire fireParticleWrapper) {
         flames.remove(fireParticleWrapper);
     }
 
@@ -396,7 +378,7 @@ public class WorldFacade implements ContactObserver {
         return fluxRayCastCallback.getImpactData();
     }
 
-    private void addFlame(Fire fireParticleWrapper) {
+    public void addFlame(Fire fireParticleWrapper) {
         flames.add(fireParticleWrapper);
     }
 
@@ -409,28 +391,15 @@ public class WorldFacade implements ContactObserver {
         if (lowerRate == 0 || higherRate == 0) {
             return;
         }
-        Runnable onBleeding;
-        if (parentEntity.getParentGroup().getGroupType() == GroupType.DOLL) {
-            RagDoll ragDoll = ((RagDoll) parentEntity.getParentGroup());
-            if (ragDoll.isBodyPart(parentEntity)) {
-                onBleeding = ragDoll::onBleeding;
-            } else {
-                onBleeding = null;
-            }
-        } else {
-            onBleeding = null;
-        }
         LiquidParticleWrapper particleWrapper = scene.getWorldFacade().createLiquidParticleWrapper(parentEntity, freshCut, layerBlock.getProperties().getJuiceColor(), layerBlock.getProperties().getFlammability(), lowerRate, higherRate);
         SpawnAction spawnAction = (Particle<UncoloredSprite> p) -> {
             freshCut.decrementLimit();
-            if (onBleeding != null) {
-                onBleeding.run();
-            }
-            if (freshCut.getLimit() <= 0) {
-                particleWrapper.finishSelf();
+            layerBlock.setLiquidQuantity(layerBlock.getLiquidQuantity()-1);
+            if (freshCut.getLimit() <= 0||layerBlock.getLiquidQuantity()<=0) {
+                particleWrapper.detach();
             }
         };
-       particleWrapper.setFreshCut(freshCut);
+        particleWrapper.setFreshCut(freshCut);
         particleWrapper.getParticleSystem().setSpawnAction(spawnAction);
     }
 
@@ -448,8 +417,9 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void frostParticleWrapper(Vector2 begin, Vector2 end, final int lowerRate, final int higherRate) {
-        frostParticleWrapper = new FrostParticleWrapper(new float[]{begin.x, begin.y, end.x, end.y}, frostColor, 0, lowerRate, higherRate);
-        scene.attachChild(frostParticleWrapper.getParticleSystem());
+        this.frostParticleWrapper = new FrostParticleWrapper(new float[]{begin.x, begin.y, end.x, end.y}, frostColor, 0, lowerRate, higherRate);
+        this.frostParticleWrapper.attachTo(scene);
+        this.scene.sortChildren();
     }
 
     public SegmentExplosiveParticleWrapper createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float velocityMeter, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float heatRatio, float inFireSize, float finFireSize) {
@@ -479,20 +449,9 @@ public class WorldFacade implements ContactObserver {
 
         DataExplosiveParticleWrapper explosiveParticleWrapper = new DataExplosiveParticleWrapper(parent, data, velocity, fireRatio, smokeRatio, sparkRatio, particles, temperature, inFireSize, finFireSize);
 
-        if (explosiveParticleWrapper.getFireParticleSystem() != null) {
-            scene.attachChild(explosiveParticleWrapper.getFireParticleSystem());
-            explosiveParticleWrapper.getFireParticleSystem().setZIndex(5);
-            if (trackFireParticles) {
-                this.addFlame(explosiveParticleWrapper);
-            }
-        }
-        if (explosiveParticleWrapper.getSmokeParticleSystem() != null) {
-            scene.attachChild(explosiveParticleWrapper.getSmokeParticleSystem());
-            explosiveParticleWrapper.getSmokeParticleSystem().setZIndex(5);
-        }
-        if (explosiveParticleWrapper.getSparkParticleSystem() != null) {
-            scene.attachChild(explosiveParticleWrapper.getSparkParticleSystem());
-            explosiveParticleWrapper.getSparkParticleSystem().setZIndex(5);
+        explosiveParticleWrapper.attachTo(scene);
+        if(trackFireParticles&&explosiveParticleWrapper.getFireParticleSystem()!=null){
+            this.addFlame(explosiveParticleWrapper);
         }
         this.explosivesParticleWrappers.add(explosiveParticleWrapper);
         scene.sortChildren();
@@ -502,8 +461,7 @@ public class WorldFacade implements ContactObserver {
     public LiquidParticleWrapper createLiquidParticleWrapper(GameEntity parentEntity, final FreshCut freshCut, Color color, float flammability, int lowerRate, int higherRate) {
         LiquidParticleWrapper liquidSource = liquidParticleWrapperFromFreshCut(parentEntity, freshCut, color, flammability, lowerRate, higherRate);
         liquidParticleWrappers.add(liquidSource);
-        liquidSource.getParticleSystem().setZIndex(5);
-        scene.attachChild(liquidSource.getParticleSystem());
+        liquidSource.attachTo(scene);
         scene.sortChildren();
         return liquidSource;
     }
@@ -543,7 +501,7 @@ public class WorldFacade implements ContactObserver {
         ResourceManager.getInstance().tryPlaySound(sound, 1f,4);
     }
 
-    private void updateLiquidWrappers() {
+    private void computeStaining() {
         HashSet<GameEntity> affectedEntities = new HashSet<>();
         for (LiquidParticleWrapper liquidSource : liquidParticleWrappers) {
             if (liquidSource.getParticleSystem().hasParent()) {
@@ -607,17 +565,6 @@ public class WorldFacade implements ContactObserver {
 
     }
 
-    private void clearPulverizationWrappers() {
-        Iterator<PulverizationParticleWrapper> iterator = powderParticleWrappers.iterator();
-        while (iterator.hasNext()) {
-            PulverizationParticleWrapper particleWrapper = iterator.next();
-            particleWrapper.update();
-            if (!particleWrapper.isAlive() && particleWrapper.isAllParticlesExpired()) {
-                iterator.remove();
-                particleWrapper.finishSelf();
-            }
-        }
-    }
 
     private void computeConduction() {
         for (GameGroup gameGroup : scene.getGameGroups())
@@ -634,29 +581,6 @@ public class WorldFacade implements ContactObserver {
                 }
             }
     }
-
-    private void createFires() {
-        for (GameGroup gameGroup : scene.getGameGroups())
-            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                if (!gameEntity.isAlive() || gameEntity.getName().equals("Ground")) {
-                    continue;
-                }
-                for (LayerBlock block : gameEntity.getBlocks()) {
-                    if (block.getBlockGrid() == null) {
-                        continue;
-                    }
-                    for (CoatingBlock grain : block.getBlockGrid().getCoatingBlocks()) {
-                        if (grain.isOnFire()) {
-                            if (!gameEntity.isFireSetup()) {
-                                gameEntity.setupFire();
-                                addFlame(gameEntity.getFireParticleWrapperWithPolygonEmitter());
-                            }
-                        }
-                    }
-                }
-            }
-    }
-
     private void computeConvection() {
         // convection
         List<Fire> flamesCopy = new ArrayList<>(flames);
@@ -720,7 +644,7 @@ public class WorldFacade implements ContactObserver {
             }
     }
 
-    private void frostConvection() {
+    private void computeFrosting() {
         if (frostParticleWrapper == null || !frostParticleWrapper.isAlive()) {
             return;
         }
@@ -1624,7 +1548,7 @@ public class WorldFacade implements ContactObserver {
                 }
                 List<CutPoint> leavingBleedingPoints = entryByBlock.getValue().stream().filter(p -> !p.isEntering()).map(p -> new CutPoint(entity.getBody().getLocalPoint(p.getPoint()).cpy().mul(32f), p.getWeight())).collect(Collectors.toList());
                 if (!leavingBleedingPoints.isEmpty()) {
-                    float length = (float) (leavingBleedingPoints.size())*0.05f*0.05f*32f*32f*0.025f;
+                    float length = (float) (leavingBleedingPoints.size())*0.05f*0.05f*32f*32f*0.1f;
                     length = Math.min(length,5f);
                     int limit = (int) Math.ceil(length * layerBlock.getProperties().getJuicinessDensity() * BLEEDING_CONSTANT);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
@@ -1693,9 +1617,10 @@ public class WorldFacade implements ContactObserver {
                 jointBlock.setAborted(true);
             }
         });
-        PulverizationParticleWrapper pulverizationParticleWrapper = new PulverizationParticleWrapper(this, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
-        powderParticleWrappers.add(pulverizationParticleWrapper);
-        scene.attachChild(pulverizationParticleWrapper.getParticleSystem());
+        PowderParticleWrapper powderParticleWrapper = new PowderParticleWrapper(this,gameEntity, layerBlock, gameEntity.getBody().getLinearVelocity().cpy());
+        powderParticleWrappers.add(powderParticleWrapper);
+        powderParticleWrapper.attachTo(scene);
+        scene.sortChildren();
     }
 
     public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactDataList) {
@@ -1895,7 +1820,7 @@ public class WorldFacade implements ContactObserver {
         return this.contactListener.getNonCollidingEntities();
     }
 
-    public PhysicsScene<?> getPhysicsScene() {
+    public PhysicsScene getPhysicsScene() {
         return scene;
     }
 
@@ -1919,5 +1844,24 @@ public class WorldFacade implements ContactObserver {
             }
         }
         return null;
+    }
+
+    public void onEntityDetached(GameEntity gameEntity) {
+        //This is run on UI Thread
+        for(LiquidParticleWrapper liquidParticleWrapper:this.liquidParticleWrappers){
+            if(liquidParticleWrapper.isAlive()) {
+                if (liquidParticleWrapper.getParent() == gameEntity) {
+                    liquidParticleWrapper.detachDirect();
+                }
+            }
+        }
+        if (gameEntity.getFireParticleWrapper() != null) {
+            if(gameEntity.getFireParticleWrapper().isAlive()) {
+                scene.getWorldFacade().removeFlame(gameEntity.getFireParticleWrapper());
+                gameEntity.getFireParticleWrapper().detachDirect();
+            }
+        }
+
+        liquidParticleWrappers.removeIf(element -> !element.isAlive());
     }
 }

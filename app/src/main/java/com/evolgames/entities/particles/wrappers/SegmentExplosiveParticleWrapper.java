@@ -18,6 +18,7 @@ import org.andengine.entity.particle.initializer.AlphaParticleInitializer;
 import org.andengine.entity.particle.initializer.ColorParticleInitializer;
 import org.andengine.entity.particle.initializer.ExpireParticleInitializer;
 import org.andengine.entity.particle.modifier.ScaleParticleModifier;
+import org.andengine.entity.scene.Scene;
 import org.andengine.util.adt.color.Color;
 
 public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
@@ -147,8 +148,4 @@ public class SegmentExplosiveParticleWrapper extends ExplosiveParticleWrapper {
         return smokeParticleSystem;
     }
 
-    @Override
-    public int getSmokeIndex() {
-        return 0;
-    }
 }

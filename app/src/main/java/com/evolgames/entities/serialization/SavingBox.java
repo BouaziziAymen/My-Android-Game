@@ -59,6 +59,7 @@ public class SavingBox {
         } catch (Throwable t) {
             this.savingErrorOnPause = true;
             Log.e("Saving", "Error saving scene on pause: " + t);
+            Log.e("Saving",Arrays.toString(t.getStackTrace()));
         }
     }
 

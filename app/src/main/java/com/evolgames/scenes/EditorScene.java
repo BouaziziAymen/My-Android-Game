@@ -28,10 +28,14 @@ import com.evolgames.userinterface.model.BodyModel;
 import com.evolgames.userinterface.model.ToolModel;
 import com.evolgames.userinterface.view.EditorUserInterface;
 import com.evolgames.userinterface.view.Screen;
+import com.evolgames.userinterface.view.UserInterface;
+import com.evolgames.userinterface.view.basics.Container;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.entity.Entity;
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.EntityBackground;
 import org.andengine.input.sensor.acceleration.AccelerationData;
 import org.andengine.input.sensor.acceleration.IAccelerationListener;
@@ -40,10 +44,10 @@ import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
 
-public class EditorScene extends AbstractScene<EditorUserInterface>
+public class EditorScene extends AbstractScene
         implements IAccelerationListener,
         ScrollDetector.IScrollDetectorListener,
-        PinchZoomDetector.IPinchZoomDetectorListener {
+        PinchZoomDetector.IPinchZoomDetectorListener, IOnSceneTouchListener {
 
     public static int step;
     public static Plotter plotter;
@@ -51,6 +55,7 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     private final PinchZoomDetector mPinchZoomDetector;
     private float mPinchZoomStartedCameraZoomFactor;
     private boolean hudLocked;
+    private EditorUserInterface userInterface;
 
     public EditorScene(Camera camera) {
         super(camera, SceneType.EDITOR);
@@ -201,12 +206,12 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
 
     @Override
     public void onPause() {
-        CreationAction creationAction = this.getUserInterface().getCreationZoneController().getAction();
-        Screen screen = this.getUserInterface().getSelectedScreen();
+        CreationAction creationAction =this.userInterface.getCreationZoneController().getAction();
+        Screen screen = this.userInterface.getSelectedScreen();
         ResourceManager.getInstance().activity.saveStringToPreferences("editor_creation_action", creationAction.name());
         ResourceManager.getInstance().activity.saveStringToPreferences("editor_screen", screen.name());
         ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
-        this.getUserInterface().saveToolModel();
+        userInterface.saveToolModel();
     }
 
     @Override
@@ -225,7 +230,6 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
         step++;
     }
 
-    @Override
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
         boolean hudTouched = false;
         if (touchEvent.getPointerID() == 0) {
@@ -340,4 +344,25 @@ public class EditorScene extends AbstractScene<EditorUserInterface>
     public void setHudLocked(boolean hudLocked) {
         this.hudLocked = hudLocked;
     }
+
+    public EditorUserInterface getUserInterface() {
+        return this.userInterface;
+    }
+
+    @Override
+    public boolean onSceneTouchEvent(Scene pScene, TouchEvent touchEvent) {
+        super.onSceneTouchEvent(touchEvent);
+        float[] cameraSceneCoordinatesFromSceneCoordinates =
+                mCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
+        TouchEvent hudTouchEvent =
+                TouchEvent.obtain(
+                        cameraSceneCoordinatesFromSceneCoordinates[0],
+                        cameraSceneCoordinatesFromSceneCoordinates[1],
+                        touchEvent.getAction(),
+                        touchEvent.getPointerID(),
+                        touchEvent.getMotionEvent());
+        this.processTouchEvent(touchEvent, hudTouchEvent);
+        return false;
+    }
+
 }

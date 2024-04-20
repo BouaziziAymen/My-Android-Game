@@ -152,7 +152,7 @@ public class PersistenceCaretaker {
     private static final String CATEGORY = "category";
     private DocumentBuilder docBuilder;
     private GameActivity gameActivity;
-    private AbstractScene<?> scene;
+    private AbstractScene scene;
     private File versionDir;
 
     private PersistenceCaretaker() {
@@ -182,7 +182,7 @@ public class PersistenceCaretaker {
     }
 
 
-    public void create(AbstractScene<?> editorScene) throws ParserConfigurationException {
+    public void create(AbstractScene editorScene) throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         this.scene = editorScene;
         this.gameActivity = ResourceManager.getInstance().activity;
