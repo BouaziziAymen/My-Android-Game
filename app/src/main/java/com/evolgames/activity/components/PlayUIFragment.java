@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class PlayUIFragment extends Fragment {
     private ExpandableListView itemsExpandableListView;
@@ -124,7 +125,7 @@ public class PlayUIFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL); // Ensure vertical orientation
         optionsRecyclerView.setLayoutManager(layoutManager);
-        optionsListAdaptor = new OptionsListAdaptor((optionButton, playerSpecialAction) -> ((GameActivity) getActivity()).getUiController().onOptionSelected(playerSpecialAction));
+        optionsListAdaptor = new OptionsListAdaptor((optionButton, playerSpecialAction) -> ((GameActivity) requireActivity()).getUiController().onOptionSelected(playerSpecialAction));
 
         List<PlayerSpecialAction> imageList = new ArrayList<>();
         optionsListAdaptor.setPlayerSpecialActionList(imageList, null);

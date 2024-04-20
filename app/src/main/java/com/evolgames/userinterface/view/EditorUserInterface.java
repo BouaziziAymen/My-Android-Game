@@ -89,6 +89,7 @@ import com.evolgames.userinterface.view.windows.gamewindows.LiquidSourceOptionWi
 import com.evolgames.userinterface.view.windows.gamewindows.OptionsWindow;
 import com.evolgames.userinterface.view.windows.gamewindows.ProjectileOptionWindow;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.util.adt.color.Color;
@@ -146,12 +147,6 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
             CreationZoneController creationZoneController,
             KeyboardController keyboardController) {
         super(editorScene);
-        scene.getHud().attachChild(ResourceManager.getInstance().hudBatcher);
-        scene.attachChild(ResourceManager.getInstance().sceneBatcher);
-
-        ResourceManager.getInstance().hudBatcher.setZIndex(10000000);
-        ResourceManager.getInstance().sceneBatcher.setZIndex(1000000);
-
 
         Grid grid = new Grid(editorScene);
 
@@ -284,7 +279,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         layerSettingsController.setColorSelectorController(colorSelectorWindowController);
         decorationSettingsWindowController.setColorSelectorController(colorSelectorWindowController);
 
-        ResourceManager.getInstance().hudBatcher.attachChild(colorSelector.getSelector().getMesh());
+        hudBatcher.attachChild(colorSelector.getSelector().getMesh());
 
 
         mainButtonBoard = new ButtonBoard(0, 480, LinearLayout.Direction.Vertical, -3);

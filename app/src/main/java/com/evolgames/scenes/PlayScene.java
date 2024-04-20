@@ -275,9 +275,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     @Override
     public void detach() {
         destroyEntities();
-        this.hideAimSprite();
+        this.hideAimSpriteDirect();
         this.hand = null;
         this.worldFacade.getTimedCommands().clear();
+        System.gc();
     }
 
     @Override
@@ -303,12 +304,14 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void destroyEntities() {
-        for (GameGroup gameGroup : this.getGameGroups()) {
-            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                gameEntity.detach();
-                worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
+        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+            for (GameGroup gameGroup : this.getGameGroups()) {
+                for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                    gameEntity.detach();
+                    worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
+                }
             }
-        }
+        });
         worldFacade.cleanLiquidWrappers();
         worldFacade.cleanPowderWrappers();
 
@@ -860,14 +863,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         this.savingBox.setLockedSave(false);
     }
 
-    public void goToScene(SceneType sceneType) {
-        ((MainScene) this.mParentScene).goToScene(sceneType);
-    }
-
-    public void createLastItem() {
-        createItemFromFile("editor_auto_save.mut", false, false);
-    }
-
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
         if (!aimSet.contains(playerSpecialAction)) {
             hideAimSprite();
@@ -987,7 +982,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             return;
         }
         if (aimSprite != null) {
-            hideAimSprite();
+            hideAimSpriteDirect();
         }
         aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
         aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
@@ -1120,12 +1115,23 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void hideAimSprite() {
-        if (aimSprite != null && aimSprite.hasParent()) {
-            aimSprite.detachSelf();
-            if (this.physicsConnector != null) {
-                getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
+        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+            if (aimSprite != null && aimSprite.hasParent()) {
+                aimSprite.detachSelf();
+                if (this.physicsConnector != null) {
+                    getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
+                }
             }
-        }
+        });
+    }
+
+    private void hideAimSpriteDirect() {
+            if (aimSprite != null && aimSprite.hasParent()) {
+                aimSprite.detachSelf();
+                if (this.physicsConnector != null) {
+                    getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
+                }
+            }
     }
 
     public void onGrabbedEntityReleased(boolean usagesUpdated) {

@@ -13,6 +13,7 @@ import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.factories.PropertiesFactory;
 import com.evolgames.entities.factories.VerticesFactory;
 import com.evolgames.entities.particles.wrappers.FluxParticleWrapper;
+import com.evolgames.entities.particles.wrappers.SegmentExplosiveParticleWrapper;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.scenes.entities.SceneType;
 
@@ -21,8 +22,14 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.ButtonSprite;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
@@ -31,6 +38,8 @@ import java.util.List;
 public class MenuScene extends PhysicsScene {
     private FluxParticleWrapper flux;
     private GameGroup jarGroup;
+    private SegmentExplosiveParticleWrapper fireSourece;
+
     public MenuScene(Camera pCamera) {
         super(pCamera, SceneType.MENU);
     }
@@ -46,57 +55,66 @@ public class MenuScene extends PhysicsScene {
 
     @Override
     public void populate() {
-        List<Vector2> vertices1 = VerticesFactory.createRectangle(240, 80);
-        LayerProperties properties1 =
+        Rectangle buttonBounds = new Rectangle(400, 100, 240, 80, ResourceManager.getInstance().vbom);
+        buttonBounds.setColor(Color.TRANSPARENT);
+        attachChild(buttonBounds);
+        registerTouchArea(buttonBounds);
+        Sprite playText = new Sprite(400, 100, ResourceManager.getInstance().playTextureRegion, ResourceManager.getInstance().vbom);
+        playText.setZIndex(2);
+        attachChild(playText);
+
+        setOnSceneTouchListener((pScene, pSceneTouchEvent) -> {
+            if (pSceneTouchEvent.isActionDown()) {
+                float touchX = pSceneTouchEvent.getX();
+                float touchY = pSceneTouchEvent.getY();
+                if (buttonBounds.contains(touchX, touchY)) {
+
+                    IEntityModifier modifier = new SequenceEntityModifier(
+                            new ScaleModifier(0.1f, 1.0f, 1.2f),
+                            new ScaleModifier(0.1f, 1.2f, 1.0f)
+                    );
+                    playText.registerEntityModifier(modifier);
+
+                    // Perform event 'x' after animation completes
+                    modifier.addModifierListener(new IEntityModifier.IEntityModifierListener() {
+                        @Override
+                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {}
+
+                        @Override
+                        public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                            goToScene(SceneType.PLAY);
+                        }
+                    });
+                    return true; // Consume the touch event
+                }
+            }
+            return false; // Allow other touch events to be processed
+        });
+
+        List<Vector2> vertices = VerticesFactory.createRectangle(240, 80);
+        LayerProperties properties =
                 PropertiesFactory.getInstance()
                         .createProperties(MaterialFactory.getInstance().getMaterialByIndex(2));
-        LayerBlock block1 = BlockFactory.createLayerBlock(vertices1, properties1, 1, 0);
+        LayerBlock block = BlockFactory.createLayerBlock(vertices, properties, 1, 0);
         List<LayerBlock> blocks = new ArrayList<>();
-        blocks.add(block1);
+        blocks.add(block);
 
-        GameGroup gameGroup1 = GameEntityFactory.getInstance()
+        GameGroup buttonGroup = GameEntityFactory.getInstance()
                 .createGameGroupTest(
                         blocks,
                         new Vector2(400 / 32f, 100 / 32f),
                         BodyDef.BodyType.StaticBody,
                         GroupType.OTHER);
 
-        GameEntity gameEntity1 = gameGroup1.getGameEntityByIndex(0);
-        gameEntity1.setName("Main Button");
+        GameEntity playButtonEntity = buttonGroup.getGameEntityByIndex(0);
+        playButtonEntity.setName("Main Button");
 
-        worldFacade.createFireSource(gameEntity1, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
+        this.fireSourece = worldFacade.createFireSource(playButtonEntity, new Vector2(120, 40), new Vector2(-120, 40), 100f, 0f, 1f, 0.2f, 0.1f, 1f, 1f, 1f);
 
         createRagDoll(415, 460);
 
         jarGroup = createItemFromFile("pandora's_jar#.xml", 300, 200, true, false);
 
-
-        ButtonSprite playText = new ButtonSprite(400, 100, ResourceManager.getInstance().playTextureRegion, ResourceManager.getInstance().vbom);
-
-        playText.setOnClickListener((pButtonSprite, pTouchAreaLocalX, pTouchAreaLocalY) -> {
-            // Scale out animation
-            IEntityModifier modifier = new SequenceEntityModifier(
-                    new ScaleModifier(0.1f, 1.0f, 0.8f),
-                    new ScaleModifier(0.1f, 0.8f, 1.0f)
-            );
-            pButtonSprite.registerEntityModifier(modifier);
-
-            // Perform event 'x' after animation completes
-            modifier.addModifierListener(new IEntityModifier.IEntityModifierListener() {
-                @Override
-                public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {}
-
-                @Override
-                public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                    goToScene(SceneType.PLAY);
-                }
-            });
-        });
-
-
-        playText.setZIndex(2);
-        attachChild(playText);
-        registerTouchArea(playText);
         sortChildren();
     }
 
@@ -124,14 +142,30 @@ public class MenuScene extends PhysicsScene {
 
     @Override
     public void detach() {
-
+        destroyEntities();
+        if(fireSourece!=null){
+            fireSourece.detach();
+        }
+      if(flux!=null) {
+          flux.detach();
+      }
+        System.gc();
     }
 
     @Override
     public void onPause() {
         this.detach();
     }
-
+    private void destroyEntities() {
+        for (GameGroup gameGroup : this.getGameGroups()) {
+            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+                    gameEntity.detach();
+                    worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
+                });
+            }
+        }
+    }
     @Override
     public void onResume() {
         createUserInterface();

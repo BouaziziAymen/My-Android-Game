@@ -1,8 +1,8 @@
 package com.evolgames.userinterface.view.basics;
 
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.userinterface.view.inputs.Touchable;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITextureRegion;
 
@@ -48,10 +48,10 @@ public class Image extends Element implements Limited, Touchable {
         else return mBlue;
     }
 
-    public void drawImage() {
+    public void drawImage(SpriteBatch hudBatcher) {
         if (isLimited) {
             if (limitY0 < limitY1) {
-                ResourceManager.getInstance().hudBatcher.drawLimited(
+                hudBatcher.drawLimited(
                         textureRegion,
                         getAbsoluteX(),
                         getAbsoluteY(),
@@ -66,7 +66,7 @@ public class Image extends Element implements Limited, Touchable {
             }
         } else {
             if (!isScaled()) {
-                ResourceManager.getInstance().hudBatcher.draw(
+                hudBatcher.draw(
                         textureRegion,
                         getAbsoluteX(),
                         getAbsoluteY(),
@@ -77,7 +77,7 @@ public class Image extends Element implements Limited, Touchable {
                         blue(),
                         1f);
             } else {
-                ResourceManager.getInstance().hudBatcher.draw(
+                hudBatcher.draw(
                         textureRegion,
                         getAbsoluteX(),
                         getAbsoluteY(),
@@ -94,8 +94,8 @@ public class Image extends Element implements Limited, Touchable {
     }
 
     @Override
-    public void drawSelf() {
-        drawImage();
+    public void drawSelf(SpriteBatch hudBatcher, SpriteBatch sceneBatcher) {
+        drawImage(hudBatcher);
     }
 
     @Override

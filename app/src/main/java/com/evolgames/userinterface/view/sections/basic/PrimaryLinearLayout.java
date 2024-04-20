@@ -2,6 +2,8 @@ package com.evolgames.userinterface.view.sections.basic;
 
 import com.evolgames.userinterface.view.layouts.LinearLayout;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
+
 public class PrimaryLinearLayout extends LinearLayout implements PrimaryInterface {
     private final int primaryKey;
 
@@ -16,6 +18,6 @@ public class PrimaryLinearLayout extends LinearLayout implements PrimaryInterfac
     }
 
     @Override
-    public void drawSelf() {
+    public void drawSelf(SpriteBatch hudBatcher, SpriteBatch sceneBatcher) {
     }
 }

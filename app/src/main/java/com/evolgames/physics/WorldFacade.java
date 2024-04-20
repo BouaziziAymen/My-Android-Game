@@ -499,6 +499,7 @@ public class WorldFacade implements ContactObserver {
 
         Sound sound = ResourceManager.getInstance().getProjectileSound("explosion1").getSound();
         ResourceManager.getInstance().tryPlaySound(sound, 1f,4);
+        ResourceManager.getInstance().getVibrator().vibrate(100);
     }
 
     private void computeStaining() {

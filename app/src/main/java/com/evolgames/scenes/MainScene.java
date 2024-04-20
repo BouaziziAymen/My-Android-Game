@@ -33,7 +33,7 @@ public class MainScene extends AbstractScene {
         cam.setChaseEntity(null);
         this.clearChildScene();
         if (this.scene != null) {
-            this.scene.detach();
+         this.scene.detach();
         }
 
         switch (sceneType) {

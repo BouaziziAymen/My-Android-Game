@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Vibrator;
 
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.FontLoader;
@@ -23,7 +24,6 @@ import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
@@ -35,6 +35,7 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.adt.color.Color;
 
 import java.io.IOException;
@@ -48,8 +49,6 @@ import java.util.Objects;
 public class ResourceManager {
     // single instance is created only
     private static final ResourceManager INSTANCE = new ResourceManager();
-    public SpriteBatch hudBatcher;
-    public SpriteBatch sceneBatcher;
 
     public GameActivity activity;
     public TextureRegion diskTextureRegion;
@@ -59,7 +58,7 @@ public class ResourceManager {
     public BuildableBitmapTextureAtlas gameplayTextureAtlas;
     public TiledTextureRegion stainTextureRegions;
     public TextureRegion liquidParticle;
-    public TiledTextureRegion button;
+
     public ArrayList<ITextureRegion> window;
     public TiledTextureRegion windowFoldTextureRegion;
     public TiledTextureRegion windowCloseTextureRegion;
@@ -73,8 +72,8 @@ public class ResourceManager {
     public TextureRegion lowerTextureRegion;
     public ITextureRegion scrollerKnobTextureRegion;
     public TiledTextureRegion addTextureRegion;
-    public ArrayList<TiledTextureRegion> upButtonTextureRegions = new ArrayList<>();
-    public ArrayList<TiledTextureRegion> downButtonTextureRegions = new ArrayList<>();
+    public ArrayList<TiledTextureRegion> upButtonTextureRegions;
+    public ArrayList<TiledTextureRegion> downButtonTextureRegions;
     public HashMap<String, ArrayList<ITextureRegion>> quantity;
     public ArrayList<TiledTextureRegion> keyboardButtons;
     public TiledTextureRegion smallOptionsTextureRegion;
@@ -115,7 +114,7 @@ public class ResourceManager {
     public TiledTextureRegion rotateImageButtonTextureRegion;
     public TiledTextureRegion pipeButtonTextureRegion;
     public TiledTextureRegion moveImageButtonTextureRegion;
-    public TextureRegion dotParticle, smokeParticle, plasmaParticle3, plasmaParticle;
+    public TextureRegion dotParticle, smokeParticle, plasmaParticle;
     public TextureRegion slotInnerTextureRegion;
     public TextureRegion sketchTextureRegion;
     public Bitmap sketchBitmap;
@@ -139,9 +138,7 @@ public class ResourceManager {
     public TiledTextureRegion infoBlueButton;
     public TiledTextureRegion rotationAntiClockTextureRegion;
     public TiledTextureRegion rotationClockTextureRegion;
-    public TiledTextureRegion longButtonTextureRegion;
     public TiledTextureRegion checkBoxTextureRegion;
-    public TiledTextureRegion arcadeRedTextureRegion;
     public TiledTextureRegion bombTextureRegion;
     public TiledTextureRegion specialPointTextureRegion;
     public TextureRegion targetShapeTextureRegion;
@@ -171,6 +168,11 @@ public class ResourceManager {
     private String lettersList;
     public TiledTextureRegion evilEyesTextureRegion;
     private HashMap<String, Integer> itemsTranslationMap;
+    private Vibrator vibrator;
+
+    public Vibrator getVibrator() {
+        return vibrator;
+    }
 
     public String getLettersList() {
         return lettersList;
@@ -233,19 +235,6 @@ public class ResourceManager {
         this.hints = activity.loadBooleanFromPreferences(HINTS_KEY, true);
     }
 
-    public void loadBatches() {
-        hudBatcher =
-                new SpriteBatch(
-                        ResourceManager.getInstance().uiTextureAtlas,
-                        10000,
-                        ResourceManager.getInstance().vbom);
-        sceneBatcher =
-                new SpriteBatch(
-                        ResourceManager.getInstance().uiTextureAtlas,
-                        10000,
-                        ResourceManager.getInstance().vbom);
-    }
-
     public void loadFonts() {
     }
 
@@ -277,9 +266,6 @@ public class ResourceManager {
         this.smokeParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameplayTextureAtlas, this.activity.getAssets(), "particle/smoke.png");
-        this.plasmaParticle3 =
-                BitmapTextureAtlasTextureRegionFactory.createFromAsset(
-                        this.gameplayTextureAtlas, this.activity.getAssets(), "particle/f3.png");
         this.plasmaParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameplayTextureAtlas, this.activity.getAssets(), "particle/plasma.png");
@@ -311,7 +297,7 @@ public class ResourceManager {
     }
 
 
-    private void loadUserInterfaceImages() {
+    public void loadUserInterfaceImages() {
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
         this.texture = new BuildableBitmapTextureAtlas(activity.getTextureManager(), 2048, 2048);
 
@@ -322,11 +308,6 @@ public class ResourceManager {
                         1024,
                         BitmapTextureFormat.RGBA_8888,
                         TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-
-
-        this.button =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.uiTextureAtlas, this.activity.getAssets(), "removebig.png", 1, 2);
 
         this.revoluteTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
@@ -448,9 +429,12 @@ public class ResourceManager {
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "infoblue.png", 1, 3);
 
+        this.upButtonTextureRegions = new ArrayList<>();
         this.upButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "uparrow.png", 1, 3));
+
+        this.downButtonTextureRegions = new ArrayList<>();
         this.downButtonTextureRegions.add(
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "downarrow.png", 1, 3));
@@ -585,9 +569,6 @@ public class ResourceManager {
         this.simpleButtonTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "simplefourbutton.png", 1, 2);
-        this.longButtonTextureRegion =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.uiTextureAtlas, this.activity.getAssets(), "longfourbutton.png", 1, 2);
         this.onOffTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "onoff.png", 2, 1);
@@ -639,7 +620,6 @@ public class ResourceManager {
         this.decaleTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
                         this.uiTextureAtlas, this.activity.getAssets(), "boards/decale.png", 1, 3);
-
 
         this.ammoTextureRegion =
                 BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
@@ -733,6 +713,8 @@ public class ResourceManager {
         this.engine = engine;
         this.firstCamera = firstCamera;
         this.vbom = vbom;
+        this.vibrator = (Vibrator) activity.getSystemService(BaseGameActivity.VIBRATOR_SERVICE);
+
     }
 
     public void loadGameAudio() {
@@ -1036,5 +1018,12 @@ public class ResourceManager {
 
     public void setHints(boolean hints) {
         this.hints = hints;
+    }
+
+    public void disposeOfEditorResources() {
+            if(uiTextureAtlas!=null) {
+                this.uiTextureAtlas.unload();
+                this.uiTextureAtlas = null;
+            }
     }
 }

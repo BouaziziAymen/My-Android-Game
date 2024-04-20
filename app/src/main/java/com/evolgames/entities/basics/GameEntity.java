@@ -1,5 +1,6 @@
 package com.evolgames.entities.basics;
 
+import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
@@ -209,6 +210,8 @@ public class GameEntity extends EntityWithBody {
                             ResourceManager.getInstance().gameplayTextureAtlas,
                             stainDataLimit + 12,
                             ResourceManager.getInstance().vbom);
+            stainBatcher.setBlendingEnabled(true);
+            stainBatcher.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
             mesh.attachChild(stainBatcher);
         } catch (Throwable t) {
             Log.d("Unable to create batch", t.toString());
@@ -435,8 +438,7 @@ public class GameEntity extends EntityWithBody {
                         stain.getData(),
                         color.getRed(),
                         color.getGreen(),
-                        color.getBlue(),
-                        color.getAlpha());
+                        color.getBlue(),1f);
             }
         }
         stainBatcher.submit();

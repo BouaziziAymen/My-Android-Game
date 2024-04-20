@@ -3,6 +3,7 @@ package com.evolgames.userinterface.view.inputs;
 import com.evolgames.userinterface.control.Controller;
 import com.evolgames.userinterface.control.behaviors.ButtonBehavior;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
 
 public class Button<C extends Controller> extends ClickableImage<C, ButtonBehavior<C>> {
@@ -68,10 +69,10 @@ public class Button<C extends Controller> extends ClickableImage<C, ButtonBehavi
     }
 
     @Override
-    public void drawSelf() {
+    public void drawSelf(SpriteBatch hudBatcher, SpriteBatch sceneBatcher) {
         if (!isVisible()) return;
         image.setTextureRegion(tiledTextureRegion.getTextureRegion(tileIndex));
-        image.drawSelf();
+        image.drawSelf(hudBatcher, sceneBatcher);
     }
 
     public ButtonType getType() {

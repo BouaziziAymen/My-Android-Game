@@ -1,5 +1,7 @@
 package com.evolgames.userinterface.view.basics;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
+
 import java.util.ArrayList;
 
 public class Container extends Element {
@@ -51,7 +53,7 @@ public class Container extends Element {
     }
 
     @Override
-    public void drawSelf() {
+    public void drawSelf(SpriteBatch hudBatcher, SpriteBatch sceneBatcher) {
     }
 
     @Override

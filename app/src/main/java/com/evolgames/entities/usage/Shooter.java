@@ -302,7 +302,7 @@ public class Shooter extends Use {
         );
 
         Sound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound()).getSound();
-
+        ResourceManager.getInstance().getVibrator().vibrate(50);
       ResourceManager.getInstance().tryPlaySound(sound,1f,3);
     }
 

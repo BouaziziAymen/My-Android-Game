@@ -6,6 +6,8 @@ import com.evolgames.userinterface.view.sections.Section;
 import com.evolgames.userinterface.view.windows.WindowPartIdentifier;
 import com.evolgames.userinterface.view.windows.windowfields.ErrorDisplay;
 
+import org.andengine.entity.sprite.batch.SpriteBatch;
+
 public abstract class Element implements Comparable<Element> {
     protected float mWidth;
     protected float mHeight;
@@ -117,7 +119,7 @@ public abstract class Element implements Comparable<Element> {
         this.parent = parent;
     }
 
-    public abstract void drawSelf();
+    public abstract void drawSelf(SpriteBatch hudBatcher, SpriteBatch sceneBatcher);
 
     public float getLowerBottomX() {
         return lowerBottomX;

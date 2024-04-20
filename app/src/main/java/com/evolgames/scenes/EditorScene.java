@@ -43,6 +43,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.PinchZoomDetector;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 
 public class EditorScene extends AbstractScene
         implements IAccelerationListener,
@@ -63,6 +64,7 @@ public class EditorScene extends AbstractScene
         this.mScrollDetector = new SurfaceScrollDetector(this);
 
         this.mPinchZoomDetector = new PinchZoomDetector(this);
+        this.setOnSceneTouchListener(this);
     }
 
     @Override
@@ -85,11 +87,15 @@ public class EditorScene extends AbstractScene
 
     @Override
     public void detach() {
-        this.userInterface.detachSelf();
+        userInterface.detachSelf();
+        ResourceManager.getInstance().disposeOfEditorResources();
+        System.gc();
     }
 
     @Override
     public void createUserInterface() {
+       ResourceManager.getInstance().loadUserInterfaceImages();
+
         ItemMetaData itemMetaData = ResourceManager.getInstance().getEditorItem();
         ToolModel toolModel;
         if (itemMetaData == null) {
@@ -127,6 +133,7 @@ public class EditorScene extends AbstractScene
                 new DecorationSettingsWindowController();
         OptionsWindowController optionsWindowController = new OptionsWindowController();
         CreationZoneController creationZoneController = new CreationZoneController(this);
+
 
         userInterface =
                 new EditorUserInterface(
@@ -206,6 +213,7 @@ public class EditorScene extends AbstractScene
 
     @Override
     public void onPause() {
+        ResourceManager.getInstance().disposeOfEditorResources();
         CreationAction creationAction =this.userInterface.getCreationZoneController().getAction();
         Screen screen = this.userInterface.getSelectedScreen();
         ResourceManager.getInstance().activity.saveStringToPreferences("editor_creation_action", creationAction.name());
@@ -228,6 +236,7 @@ public class EditorScene extends AbstractScene
     protected void onManagedUpdate(float pSecondsElapsed) {
         super.onManagedUpdate(pSecondsElapsed);
         step++;
+        this.userInterface.step();
     }
 
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
@@ -351,7 +360,6 @@ public class EditorScene extends AbstractScene
 
     @Override
     public boolean onSceneTouchEvent(Scene pScene, TouchEvent touchEvent) {
-        super.onSceneTouchEvent(touchEvent);
         float[] cameraSceneCoordinatesFromSceneCoordinates =
                 mCamera.getCameraSceneCoordinatesFromSceneCoordinates(touchEvent.getX(), touchEvent.getY());
         TouchEvent hudTouchEvent =
