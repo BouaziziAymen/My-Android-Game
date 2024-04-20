@@ -438,7 +438,7 @@ public class GameEntity extends EntityWithBody {
                         stain.getData(),
                         color.getRed(),
                         color.getGreen(),
-                        color.getBlue(),1f);
+                        color.getBlue(),color.getAlpha());
             }
         }
         stainBatcher.submit();
