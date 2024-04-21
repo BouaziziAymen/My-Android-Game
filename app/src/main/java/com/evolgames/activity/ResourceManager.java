@@ -25,6 +25,7 @@ import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
@@ -169,6 +170,7 @@ public class ResourceManager {
     public TiledTextureRegion evilEyesTextureRegion;
     private HashMap<String, Integer> itemsTranslationMap;
     private Vibrator vibrator;
+    public BitmapTextureAtlas texturedMesh;
 
     public Vibrator getVibrator() {
         return vibrator;
@@ -243,6 +245,18 @@ public class ResourceManager {
     }
     public void loadGameImages(){
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+
+
+        this.texturedMesh =
+                new BitmapTextureAtlas(
+                        activity.getTextureManager(), 256, 128, TextureOptions.REPEATING_BILINEAR);
+        this.stainTextureRegions =
+                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
+                        this.texturedMesh, this.activity, "stainbw.png", 0, 0, 15, 1);
+        this.texturedMesh.load();
+
+
+
         this.gameplayTextureAtlas =
                 new BuildableBitmapTextureAtlas(
                         this.activity.getTextureManager(),
@@ -251,9 +265,6 @@ public class ResourceManager {
                         BitmapTextureFormat.RGBA_8888,
                         TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
-        this.stainTextureRegions =
-                BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(
-                        this.gameplayTextureAtlas, this.activity.getAssets(), "stainbw.png", 15, 1);
         this.liquidParticle =
                 BitmapTextureAtlasTextureRegionFactory.createFromAsset(
                         this.gameplayTextureAtlas, this.activity.getAssets(), "particle/liquid.png");
@@ -1021,9 +1032,9 @@ public class ResourceManager {
     }
 
     public void disposeOfEditorResources() {
-            if(uiTextureAtlas!=null) {
-                this.uiTextureAtlas.unload();
-                this.uiTextureAtlas = null;
-            }
+        if(uiTextureAtlas!=null) {
+            this.uiTextureAtlas.unload();
+            this.uiTextureAtlas = null;
+        }
     }
 }

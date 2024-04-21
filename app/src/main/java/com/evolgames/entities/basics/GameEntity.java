@@ -207,11 +207,9 @@ public class GameEntity extends EntityWithBody {
             stainDataLimit = Math.min(3000 * 64, stainLimit * 64 * 8);
             stainBatcher =
                     new TexturedMeshBatch(
-                            ResourceManager.getInstance().gameplayTextureAtlas,
+                            ResourceManager.getInstance().texturedMesh,
                             stainDataLimit + 12,
                             ResourceManager.getInstance().vbom);
-            stainBatcher.setBlendingEnabled(true);
-            stainBatcher.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
             mesh.attachChild(stainBatcher);
         } catch (Throwable t) {
             Log.d("Unable to create batch", t.toString());
