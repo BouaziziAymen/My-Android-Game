@@ -93,14 +93,14 @@ public class Invoker {
         entity.getCommands().add(command);
     }
 
-    public static void addBodyDestructionCommand(GameEntity entity) {
+    public static void addBodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
         for (Command command : entity.getCommands()) {
             if (command instanceof BodyDestructionCommand) {
                 return;
             }
         }
 
-        Command command = new BodyDestructionCommand(entity);
+        Command command = new BodyDestructionCommand(entity,finalDestruction);
         entity.getCommands().add(command);
         entity.setAlive(false);
     }

@@ -17,7 +17,7 @@ public class ImpactBomb extends Bomb {
     private float minImpact;
     private boolean isImpacted;
 
-    @SuppressWarnings("Unused")
+    @SuppressWarnings("unused")
     public ImpactBomb() {
     }
 
@@ -46,8 +46,8 @@ public class ImpactBomb extends Bomb {
         return isImpacted && countDown <= 0;
     }
 
-    private void setImpacted(boolean impacted) {
-        isImpacted = impacted;
+    private void setImpacted() {
+        isImpacted = true;
     }
 
     @Override
@@ -72,14 +72,10 @@ public class ImpactBomb extends Bomb {
         return ratio > 0.5f;
     }
 
-    public boolean isImpacted() {
-        return isImpacted;
-    }
-
     public void onImpact(float impulse, int id, WorldFacade worldFacade) {
         if(sensitiveLayers.contains(id)) {
             if (impulse > PhysicsConstants.BOMB_IMPACT_FACTOR * this.minImpact) {
-                this.setImpacted(true);
+                this.setImpacted();
                 onStep(1/60f,worldFacade);
             }
         }

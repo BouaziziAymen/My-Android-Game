@@ -29,7 +29,7 @@ public class WorldFacadeSerializer {
             if (timedCommand instanceof EntityDestructionCommand) {
                 EntityDestructionCommand entityDestructionCommand = (EntityDestructionCommand) timedCommand;
                 GameEntity gameEntity = physicsScene.getGameEntityByUniqueId(entityDestructionCommand.getGameEntityUniqueId());
-                timedCommand.setAction(() -> physicsScene.getWorldFacade().destroyGameEntity(gameEntity, true, true));
+                timedCommand.setAction(() -> physicsScene.getWorldFacade().destroyGameEntity(gameEntity, true));
             }
         }
         physicsScene.getWorldFacade().getTimedCommands().addAll(this.timedCommandList);

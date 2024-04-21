@@ -77,11 +77,4 @@ public class Slasher extends MeleeUse {
         return !(ratio < 0.5f);
     }
 
-    public String getTargetEntityId() {
-        return targetEntityId;
-    }
-
-    public void setTargetEntity(GameEntity targetEntity) {
-        this.targetEntity = targetEntity;
-    }
 }

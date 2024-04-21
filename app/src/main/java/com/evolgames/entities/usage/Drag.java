@@ -1,20 +1,14 @@
 package com.evolgames.entities.usage;
 
-import android.util.Log;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.serialization.infos.DragInfo;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.scenes.PlayScene;
 import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.utilities.GeometryUtils;
-
-import org.andengine.util.adt.color.Color;
 
 import java.util.List;
 
@@ -63,7 +57,7 @@ public class Drag extends Use {
 
     @Override
     public void dynamicMirror(PhysicsScene physicsScene) {
-            dragInfo.getDragOrigin().set(GeometryUtils.mirrorPoint(dragInfo.getDragOrigin()));
+        dragInfo.getDragOrigin().set(GeometryUtils.mirrorPoint(dragInfo.getDragOrigin()));
     }
 
     @Override

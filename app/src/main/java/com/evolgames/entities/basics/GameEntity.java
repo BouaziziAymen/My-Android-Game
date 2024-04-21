@@ -443,15 +443,6 @@ public class GameEntity extends EntityWithBody {
         changed = false;
     }
 
-
-    public Vector2 getCenter() {
-        return center;
-    }
-
-    public void setCenter(Vector2 center) {
-        this.center = center;
-    }
-
     public boolean isAlive() {
         return alive;
     }
@@ -856,5 +847,22 @@ public class GameEntity extends EntityWithBody {
 
     public void setHeir(GameEntity heir) {
         this.heir = heir;
+    }
+
+    public void setCenter(Vector2 center) {
+        this.center = center;
+    }
+
+    public Vector2 getCenter() {
+        return center;
+    }
+
+    public void recycle() {
+        for (LayerBlock layerBlock : getBlocks()) {
+            for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
+                b.recycleSelf();
+            }
+            layerBlock.recycleSelf();
+        }
     }
 }

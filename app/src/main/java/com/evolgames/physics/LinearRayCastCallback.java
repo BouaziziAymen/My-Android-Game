@@ -54,7 +54,9 @@ public class LinearRayCastCallback implements RayCastCallback {
 
     @Override
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-        if (fixture.isSensor()) return 1;
+        if (fixture.isSensor()){
+            return 1;
+        }
         GameEntity entity = (GameEntity) fixture.getBody().getUserData();
         if (exclusive != null && entity != exclusive) {
             return 1;

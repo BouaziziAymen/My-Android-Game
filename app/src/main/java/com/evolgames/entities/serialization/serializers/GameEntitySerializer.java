@@ -34,7 +34,6 @@ public class GameEntitySerializer {
     private BodyDef.BodyType bodyType;
     private SpecialEntityType specialEntityType;
     private String name;
-    private Vector2 center;
     private String uniqueId;
     private boolean mirrored;
 
@@ -50,7 +49,6 @@ public class GameEntitySerializer {
         this.uniqueId = gameEntity.getUniqueID();
         this.zIndex = gameEntity.getZIndex();
         this.mirrored = gameEntity.isMirrored();
-        this.center = gameEntity.getCenter();
         this.specialEntityType = gameEntity.getType();
         this.useList = gameEntity.getUseList();
         this.useList.stream().filter(e -> e instanceof MeleeUse).map(e -> (MeleeUse) e).forEach(MeleeUse::prepareToSerialize);
@@ -106,7 +104,6 @@ public class GameEntitySerializer {
     }
 
     public void afterCreate(GameEntity gameEntity) {
-        gameEntity.setCenter(this.center);
         gameEntity.redrawStains();
         gameEntity.setUniqueId(this.uniqueId);
         gameEntity.setType(this.specialEntityType);

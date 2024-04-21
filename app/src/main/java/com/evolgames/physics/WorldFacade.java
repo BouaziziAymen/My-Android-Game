@@ -28,7 +28,6 @@ import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.AssociatedBlock;
-import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.CoatingBlock;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -491,7 +490,7 @@ public class WorldFacade implements ContactObserver {
 
         Sound sound = ResourceManager.getInstance().getProjectileSound("explosion1").getSound();
         ResourceManager.getInstance().tryPlaySound(sound, 1f,4);
-        ResourceManager.getInstance().getVibrator().vibrate(100);
+        ResourceManager.getInstance().vibrate(100);
     }
 
     private void computeStaining() {
@@ -859,12 +858,11 @@ public class WorldFacade implements ContactObserver {
         Vector2 normal = obtain(V1.x, V1.y).nor();
         Vector2 tangent = obtain(-normal.y, normal.x);
 
-        final float collisionImpulse = computeCollisionImpulse(V1, V2, normal, m1, m2);
         final float collisionEnergy = computeCollisionEnergy(V1, V2, normal, m1, m2);
         if (collisionEnergy < 10 || Float.isNaN(collisionEnergy) || Float.isInfinite(collisionEnergy)) {
             return false;
         }
-        Log.e("Penetration", "-----------$ Begin penetration, energy:" + collisionImpulse + "/ bullet:" + penetrator.getBody().isBullet());
+        Log.e("Penetration", "-----------$ Begin penetration, energy:" +  collisionEnergy + "/ bullet:" + penetrator.getBody().isBullet());
 
         final float range = 10f;
         final float dL = 0.01f;
@@ -980,8 +978,8 @@ public class WorldFacade implements ContactObserver {
             }
             step++;
         }
-        Log.d("Penetration", "-----------$ On free, advance:" + advance);
-        penetration.onFree(this, contact, penetrationPoint.cpy(), normal, advance, penetrator, penetrated, environmentData, penetratorData, collisionImpulse, penetratorBlock);
+        Log.d("Penetration", "-----------$ On free, advance:" + advance+" : "+collisionEnergy);
+        penetration.onFree(this, contact, penetrationPoint.cpy(), normal, advance, penetrator, penetrated, environmentData, penetratorData, (float) Math.sqrt(collisionEnergy), penetratorBlock);
         return true;
     }
 
@@ -1150,28 +1148,11 @@ public class WorldFacade implements ContactObserver {
         return topographyData;
     }
 
-    public void destroyGameEntity(GameEntity entity, boolean finalDestruction, boolean recycle) {
+    public void destroyGameEntity(GameEntity entity, boolean finalDestruction) {
         if (entity == null || !entity.isAlive() || entity.getBody() == null) {
             return;
         }
-        Invoker.addBodyDestructionCommand(entity);
-
-        if (finalDestruction) {
-            for (LayerBlock layerBlock : entity.getBlocks()) {
-                for (AssociatedBlock<?, ?> associatedBlock : layerBlock.getAssociatedBlocks()) {
-                    associatedBlock.setAborted(true);
-                }
-            }
-        }
-
-        if (recycle) {
-            for (LayerBlock layerBlock : entity.getBlocks()) {
-                for (Block<?, ?> b : layerBlock.getAssociatedBlocks()) {
-                    b.recycleSelf();
-                }
-                layerBlock.recycleSelf();
-            }
-        }
+        Invoker.addBodyDestructionCommand(entity,finalDestruction);
     }
 
     public void performScanFlux(Vector2 sourceWorldPoint, GameEntity gameEntity, FluxInterface fluxInterface, final int precision, boolean draw) {
@@ -1484,7 +1465,7 @@ public class WorldFacade implements ContactObserver {
             computeSplinters(splintersBlocks, gameEntity);
 
             gameEntity.getBody().setActive(false);
-            scene.getWorldFacade().destroyGameEntity(gameEntity, false, false);
+            scene.getWorldFacade().destroyGameEntity(gameEntity, false);
         }
     }
 
@@ -1648,7 +1629,7 @@ public class WorldFacade implements ContactObserver {
            if (allSplinters.size() > 0) {
               computeSplinters(allSplinters, gameEntity);
            }
-           this.destroyGameEntity(gameEntity, false, false);
+           this.destroyGameEntity(gameEntity, false);
         }
     }
     private void applyStrain(LayerBlock layerBlock,float energy) {

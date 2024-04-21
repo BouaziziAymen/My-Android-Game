@@ -401,5 +401,6 @@
     <string name="item_doesn_t_exist_validation">O item selecionado não existe. Por favor, escolha outro.</string>
     <string name="firework">Fogos de artifício</string>
 
+    <string name="vibration_setting">Vibração\n</string>
 
 </resources>

@@ -12,9 +12,11 @@ import java.util.Iterator;
 
 public class BodyDestructionCommand extends Command {
     private final GameEntity entity;
+    private final boolean finalDestruction;
 
-    public BodyDestructionCommand(GameEntity entity) {
+    public BodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
         this.entity = entity;
+        this.finalDestruction = finalDestruction;
     }
 
     private void destroy(Body body) {
@@ -30,6 +32,9 @@ public class BodyDestructionCommand extends Command {
         }
         physicsWorld.destroyBody(body);
         entity.hideOutline();
+        if(finalDestruction){
+            entity.recycle();
+        }
     }
 
     @Override

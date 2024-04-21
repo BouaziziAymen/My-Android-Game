@@ -400,4 +400,6 @@
     <string name="item_doesn_t_exist_validation">The selected item does not exist. Please choose another one.</string>
     <string name="firework">Firework</string>
 
+    <string name="vibration_setting">Vibration\n</string>
+
 </resources>

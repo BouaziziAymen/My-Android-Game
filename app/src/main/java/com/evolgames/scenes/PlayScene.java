@@ -130,6 +130,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         if (hand != null) {
             hand.onUpdate();
         }
+        if(false){
+            cullTest();
+        }
 
         if (false) {
             bluntDamageTest();
@@ -274,10 +277,11 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     @Override
     public void detach() {
+
         destroyEntities();
-        this.hideAimSpriteDirect();
         this.hand = null;
         this.worldFacade.getTimedCommands().clear();
+        ResourceManager.getInstance().activity.runOnUpdateThread(this::hideAimSpriteDirect);
         System.gc();
     }
 
@@ -289,7 +293,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void refresh() {
-        detach();
+        this.detach();
         this.populate();
         ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
 
@@ -304,14 +308,21 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void destroyEntities() {
-        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
             for (GameGroup gameGroup : this.getGameGroups()) {
                 for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                    gameEntity.detach();
-                    worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
+                    ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+                     gameEntity.detach();
+                     gameEntity.recycle();
+                     if(gameEntity.getBody()!=null){
+                         worldFacade.getPhysicsWorld().destroyBody(gameEntity.getBody());
+                     }
+                        if(gameEntity.getMirrorBody()!=null){
+                            worldFacade.getPhysicsWorld().destroyBody(gameEntity.getMirrorBody());
+                        }
+                    });
                 }
             }
-        });
+
         worldFacade.cleanLiquidWrappers();
         worldFacade.cleanPowderWrappers();
 
@@ -346,7 +357,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             ragdoll.getGameEntities().forEach(e -> {
                 if(e.getType()== SpecialEntityType.Head){
                 e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
-                this.worldFacade.destroyGameEntity(e, true, false);
+                this.worldFacade.destroyGameEntity(e, true);
             }});
         }
     }
@@ -364,7 +375,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         blocks.add(block);
         Vector2 u = new Vector2(0, -1);
         BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(500)), x, y, 0), true);
-        GameEntity meteorite = GameEntityFactory.getInstance().createGameEntity(x / 32f, y / 32f, 0, false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Meteorite", null);
+        GameEntity meteorite = GameEntityFactory.getInstance().createGameEntity(x / 32f, y / 32f, 0, false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Meteorite");
         Projectile projectileUse = new Projectile(ProjectileType.METEOR);
         projectileUse.setActive(true);
         meteorite.getUseList().add(projectileUse);
@@ -422,7 +433,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             blocks.add(block1);
 
             BodyInit bodyInit = new BulletInit(new TransformInit(new LinearVelocityInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), u.mul(80f)), 400 / 32f, 480 / 32f, (float) (angle + Math.PI)), true);
-            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 100 / 32f, (float) (angle + Math.PI), false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile", null);
+            GameEntity gameEntity = GameEntityFactory.getInstance().createGameEntity(400 / 32f, 100 / 32f, (float) (angle + Math.PI), false, bodyInit, blocks, BodyDef.BodyType.DynamicBody, "Projectile");
             GameGroup proj = new GameGroup(GroupType.OTHER, gameEntity);
             gameEntity.getUseList().add(new Projectile(ProjectileType.SHARP_WEAPON));
             addGameGroup(proj);
@@ -478,7 +489,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             blocks.get(0).addAssociatedBlock(decorationBlock);
 
             BodyInit bodyInit = new TransformInit(new BodyInitImpl(OBJECTS_MIDDLE_CATEGORY), i * 400f / 32f, 0, 0);
-            GameEntity entity = GameEntityFactory.getInstance().createGameEntity(i * 400f / 32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part " + i, null);
+            GameEntity entity = GameEntityFactory.getInstance().createGameEntity(i * 400f / 32f, 0, 0, false, bodyInit, blocks, BodyDef.BodyType.StaticBody, "Ground Part " + i);
             entities.add(entity);
 
         }
@@ -1204,4 +1215,19 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             return Float.compare(s1.distance, s2.distance);
         }
     }
+
+    private void cullTest(){
+        int total = 0;
+        int numberOfVisibleEntities = 0;
+        for(GameGroup gameGroup:gameGroups){
+            for(GameEntity gameEntity:gameGroup.getGameEntities()){
+                total++;
+                if(!gameEntity.getMesh().isCulled(this.mCamera)){
+                    numberOfVisibleEntities++;
+                }
+            }
+        }
+        Log.e("numberOfVisible",total+":"+numberOfVisibleEntities);
+    }
+
 }

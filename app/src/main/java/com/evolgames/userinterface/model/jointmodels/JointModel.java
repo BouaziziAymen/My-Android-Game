@@ -64,9 +64,14 @@ public class JointModel extends ProperModel<JointProperties> {
         return jointId;
     }
 
-    public JointDef createJointDef(Vector2 center1, Vector2 center2, boolean mirrored) {
-        Vector2 u1 = properties.getLocalAnchorA().cpy().sub(center1).mul(1 / 32f);
-        Vector2 u2 = properties.getLocalAnchorB().cpy().sub(center2).mul(1 / 32f);
+    public void translate(){
+        properties.getLocalAnchorA().sub(bodyModel1.calculateBodyCenter());
+        properties.getLocalAnchorB().sub(bodyModel2.calculateBodyCenter());
+    }
+
+    public JointDef createJointDef(boolean mirrored) {
+        Vector2 u1 = properties.getLocalAnchorA().cpy().mul(1 / 32f);
+        Vector2 u2 = properties.getLocalAnchorB().cpy().mul(1 / 32f);
         if (mirrored) {
             u1 = GeometryUtils.mirrorPoint(u1);
             u2 = GeometryUtils.mirrorPoint(u2);

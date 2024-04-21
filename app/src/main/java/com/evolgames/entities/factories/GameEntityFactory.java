@@ -14,13 +14,10 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.basics.SpecialEntityType;
-import com.evolgames.entities.blocks.Block;
 import com.evolgames.entities.blocks.DecorationBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.entities.cut.CutPoint;
 import com.evolgames.entities.cut.FreshCut;
-import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
@@ -46,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GameEntityFactory {
     private static final GameEntityFactory INSTANCE = new GameEntityFactory();
@@ -68,31 +64,16 @@ public class GameEntityFactory {
             List<LayerBlock> blocks,
             BodyDef.BodyType bodyType,
             String name) {
-        return createGameEntity(x,y,rot,mirrored,bodyInit,blocks,bodyType,name,null);
-    }
-    public GameEntity createGameEntity(
-            float x,
-            float y,
-            float rot,
-            boolean mirrored,
-            BodyInit bodyInit,
-            List<LayerBlock> blocks,
-            BodyDef.BodyType bodyType,
-            String name, Vector2 center) {
         Collections.sort(blocks);
 
         for (LayerBlock b : blocks) {
             b.getAssociatedBlocks().sort(BlockUtils.associatedBlockComparator);
         }
-          if(center==null){
-              center = BlockUtils.calculateBodyCenter(blocks);
-          }
         MosaicMesh mesh = MeshFactory.getInstance().createMosaicMesh(x * 32, y * 32, rot, blocks);
-        float[] bounds = BlockUtils.getBounds(mirrored, blocks, center);
+        float[] bounds = BlockUtils.getBounds(mirrored, blocks);
         mesh.setBounds(bounds);
         mesh.setCullingEnabled(true);
         GameEntity entity = new GameEntity(mesh, scene, name, blocks);
-        entity.setCenter(center);
         entity.setMirrored(mirrored);
         entity.setMesh(mesh);
         entity.setVisible(false);
@@ -168,53 +149,25 @@ public class GameEntityFactory {
         ArrayList<GameEntity> entities = new ArrayList<>();
         int splinterId = 0;
         for (ArrayList<LayerBlock> group : splintersBlocks) {
-            Vector2 newCenter =
-                    GeometryUtils.calculateCenter(
-                            group.stream().map(LayerBlock::getVertices).collect(Collectors.toList()));
-            for (LayerBlock layerBlock : group) {
-                Vector2 worldTranslation = parent.getBody().getWorldVector(newCenter.cpy().mul(1/32f));
-                layerBlock.translate(newCenter, worldTranslation);
-                for (Block<?, ?> a : layerBlock.getAssociatedBlocks()) {
-                    a.translate(newCenter, worldTranslation);
-                }
-                for (FreshCut freshCut : layerBlock.getFreshCuts()) {
-                    if (freshCut instanceof SegmentFreshCut) {
-                        SegmentFreshCut segmentFreshCut = (SegmentFreshCut) freshCut;
-                        if (segmentFreshCut.isInner()) {
-                            Utils.translatePoint(segmentFreshCut.first, newCenter);
-                            Utils.translatePoint(segmentFreshCut.second, newCenter);
-                        }
-                    }
-                    if (freshCut instanceof PointsFreshCut) {
-                        PointsFreshCut pointsFreshCut = (PointsFreshCut) freshCut;
-                        Utils.translatePoints(
-                                pointsFreshCut.getPoints().stream()
-                                        .map(CutPoint::getPoint)
-                                        .collect(Collectors.toList()),
-                                newCenter);
-                    }
-                }
-            }
+
             Filter filter =
                     parent.getBody().getFixtureList().stream()
                             .findFirst()
                             .orElseThrow(() -> new RuntimeException("Filter should exist"))
                             .getFilterData();
-
-            GeometryUtils.rotateVectorRad(newCenter, rot);
             BodyInit bodyInit =
                     new TransformInit(
                             new LinearVelocityInit(
                                     new AngularVelocityInit(new BodyInitImpl(filter), angularVelocity),
                                     linearVelocity),
-                            x + newCenter.x / 32f,
-                            y + newCenter.y / 32f,
+                            x,
+                            y,
                             rot);
             GameEntity e =
                     GameEntityFactory.getInstance()
                             .createGameEntity(
-                                    x + newCenter.x / 32f,
-                                    y + newCenter.y / 32f,
+                                    x,
+                                    y,
                                     rot,
                                     parent.isMirrored(),
                                     bodyInit,
@@ -223,7 +176,6 @@ public class GameEntityFactory {
                                     name + splinterId);
 
             e.redrawStains();
-            e.setCenter(newCenter);
             scene.sortChildren();
             entities.add(e);
             e.setParentGroup(parent.getParentGroup());

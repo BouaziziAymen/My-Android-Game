@@ -166,7 +166,7 @@ public class RocketLauncher extends Use {
         ResourceManager.getInstance().tryPlaySound( ResourceManager.getInstance()
                 .getProjectileSound(projectileInfo.getFireSound()).getSound(),1f,3);
         if (projInfFireSourceMap.containsKey(projectileInfo)) {
-            projInfFireSourceMap.get(projectileInfo).setSpawnEnabled(true);
+            Objects.requireNonNull(projInfFireSourceMap.get(projectileInfo)).setSpawnEnabled(true);
             fireOn = true;
         }
     }
@@ -183,7 +183,7 @@ public class RocketLauncher extends Use {
                         .getWorldPoint(projectileInfo.getProjectileOrigin())
                         .cpy();
         Vector2 directionProjected = endProjected.cpy().sub(beginProjected).nor();
-        float muzzleVelocity = rockets.get(projectileInfo).getPower() * 500;
+        float muzzleVelocity = Objects.requireNonNull(rockets.get(projectileInfo)).getPower() * 500;
         Vector2 muzzleVelocityVector = directionProjected.mul(muzzleVelocity);
 
         Vector2 impulse =
@@ -236,15 +236,16 @@ public class RocketLauncher extends Use {
         BodyModel bodyModel2 = new BodyModel(1);
         jointModel.setBodyModel1(bodyModel1);
         jointModel.setBodyModel2(bodyModel2);
-        jointModel.getProperties().getLocalAnchorA().set(end.cpy().mul(32f).add(muzzleEntity.getCenter()));
-        jointModel.getProperties().getLocalAnchorB().set(rocketEntity.getCenter());
+        jointModel.getProperties().getLocalAnchorA().set(end.cpy().mul(32f));
+        jointModel.getProperties().getLocalAnchorB().set(new Vector2());
         float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y) + (!muzzleEntity.isMirrored() ? Math.PI : 0));
         jointModel.getProperties().setReferenceAngle(angle);
 
         bodyModel1.setGameEntity(muzzleEntity);
         bodyModel2.setGameEntity(rocketEntity);
+        bodyModel1.setCenter(new Vector2());
+        bodyModel2.setCenter(new Vector2());
         physicsScene.createJointFromModel(jointModel, false);
-
 
         Rocket rocket = rocketEntity.getUsage(Rocket.class);
         this.rockets.put(projectileInfo, rocket);
@@ -280,7 +281,9 @@ public class RocketLauncher extends Use {
                                     || p.getSparkRatio() >= 0.1f) {
                                 Vector2 end = p.getProjectileEnd();
                                 Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
-                                Vector2 nor = new Vector2(-dir.y, dir.x);
+                                float nx = -dir.y;
+                                float ny = dir.x;
+                                Vector2 nor = new Vector2(nx,ny);
                                 Vector2 e = p.getProjectileOrigin().cpy().mul(32f);
                                 float axisExtent = 0.1f;
                                 ExplosiveParticleWrapper fireSource =

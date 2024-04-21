@@ -70,6 +70,7 @@ public class GameActivity extends BaseGameActivity {
     public static final String SOUND_KEY = "Sound";
     public static final String MUSIC_KEY = "Music";
     public static final String HINTS_KEY = "Hints";
+    public static final String VIBRATION_KEY = "Vibration";
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final String DEVELOPER_EMAIL = "aymendotbouazizi@gmail.com";
     private static final String EMAIL_SUBJECT = "Mutilate : Item";
@@ -436,6 +437,7 @@ public class GameActivity extends BaseGameActivity {
         saveBooleanToPreferences(SOUND_KEY, ResourceManager.getInstance().isSound());
         saveBooleanToPreferences(MUSIC_KEY, ResourceManager.getInstance().isMusic());
         saveBooleanToPreferences(HINTS_KEY, ResourceManager.getInstance().isHints());
+        saveBooleanToPreferences(VIBRATION_KEY, ResourceManager.getInstance().isVibration());
     }
 
     public void showProceedToSend(String selectedItemFile){

@@ -4,6 +4,7 @@ import static com.evolgames.activity.GameActivity.HINTS_KEY;
 import static com.evolgames.activity.GameActivity.MAP_KEY;
 import static com.evolgames.activity.GameActivity.MUSIC_KEY;
 import static com.evolgames.activity.GameActivity.SOUND_KEY;
+import static com.evolgames.activity.GameActivity.VIBRATION_KEY;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -165,16 +166,13 @@ public class ResourceManager {
     private ItemMetaData editorItem;
     private ItemMetaData selectedItemMetaData;
     private String mapString;
-    private boolean sound, music, hints;
+    private boolean sound, music, hints, vibration;
     private String lettersList;
     public TiledTextureRegion evilEyesTextureRegion;
     private HashMap<String, Integer> itemsTranslationMap;
     private Vibrator vibrator;
     public BitmapTextureAtlas texturedMesh;
 
-    public Vibrator getVibrator() {
-        return vibrator;
-    }
 
     public String getLettersList() {
         return lettersList;
@@ -217,6 +215,14 @@ public class ResourceManager {
         this.sound = sound;
     }
 
+    public boolean isVibration() {
+        return vibration;
+    }
+
+    public void setVibration(boolean vibration) {
+        this.vibration = vibration;
+    }
+
     public boolean isMusic() {
         return music;
     }
@@ -235,6 +241,7 @@ public class ResourceManager {
         this.sound = activity.loadBooleanFromPreferences(SOUND_KEY, true);
         this.music = activity.loadBooleanFromPreferences(MUSIC_KEY, true);
         this.hints = activity.loadBooleanFromPreferences(HINTS_KEY, true);
+        this.vibration = activity.loadBooleanFromPreferences(VIBRATION_KEY, false);
     }
 
     public void loadFonts() {
@@ -1049,4 +1056,9 @@ public class ResourceManager {
         }
     }
 
+    public void vibrate(int duration) {
+        if(this.vibration){
+            vibrator.vibrate(duration);
+        }
+    }
 }

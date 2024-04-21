@@ -143,4 +143,26 @@ public final class EntityCollisionChecker {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+
+
+	public static boolean isVisible(final Camera pCamera, final float[] bounds, final Transformation pLocalToSceneTransformation) {
+		EntityCollisionChecker.fillVertices(pCamera, EntityCollisionChecker.VERTICES_COLLISION_TMP_A);
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[0 + Constants.VERTEX_INDEX_X] = bounds[0];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[0 + Constants.VERTEX_INDEX_Y] = bounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[2 + Constants.VERTEX_INDEX_X] = bounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[2 + Constants.VERTEX_INDEX_Y] = bounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[4 + Constants.VERTEX_INDEX_X] = bounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[4 + Constants.VERTEX_INDEX_Y] = bounds[3];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[6 + Constants.VERTEX_INDEX_X] = bounds[0];
+	    EntityCollisionChecker.VERTICES_COLLISION_TMP_B[6 + Constants.VERTEX_INDEX_Y] = bounds[3];
+
+		pLocalToSceneTransformation.transform(EntityCollisionChecker.VERTICES_COLLISION_TMP_B);
+
+		return BaseCollisionChecker.checkCollision(EntityCollisionChecker.VERTICES_COLLISION_TMP_A, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT, EntityCollisionChecker.VERTICES_COLLISION_TMP_B, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT);
+	}
+
 }

@@ -68,12 +68,6 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
         return true;
     }
 
-    @Override
-    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
-        Utils.translatePoints(this.getVertices(), translationVector);
-        computeTriangles();
-    }
-
     private void createAssociated() {
         if (associatedBlocks == null) associatedBlocks = new ArrayList<>();
     }

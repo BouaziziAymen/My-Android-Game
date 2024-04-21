@@ -22,7 +22,7 @@ public class PhysicsConstants {
     public static final int EXPLOSION_LIFESPAN = 8;
     public static final int PULVERIZATION_DURATION = 10;
     public static final float HEAT_CONSTANT = 60000f;
-    public static final int BOMB_IMPACT_FACTOR = 10;
+    public static final float BOMB_IMPACT_FACTOR = 5f;
     public static float gravity = -3 * SensorManager.GRAVITY_EARTH;
     public static float ambient_temperature = 60;
 

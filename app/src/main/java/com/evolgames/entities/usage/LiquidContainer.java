@@ -7,7 +7,6 @@ import com.evolgames.entities.cut.FreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.Materials;
 import com.evolgames.entities.hand.PlayerSpecialAction;
-import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
 import com.evolgames.entities.particles.wrappers.LiquidParticleWrapper;
 import com.evolgames.entities.properties.usage.LiquidContainerProperties;
 import com.evolgames.entities.serialization.infos.LiquidSourceInfo;
@@ -100,8 +99,8 @@ public class LiquidContainer extends Use {
             liquidSourceInfo.getLiquidSourceOrigin().set(GeometryUtils.mirrorPoint(liquidSourceInfo.getLiquidSourceOrigin()));
             liquidSourceInfo.getLiquidDirection().x = -liquidSourceInfo.getLiquidDirection().x;
         });
-        if(this.liquidSourceInfoHashMap!=null){
-            for(LiquidParticleWrapper liquidParticleWrapper:liquidSourceInfoHashMap.values()){
+        if (this.liquidSourceInfoHashMap != null) {
+            for (LiquidParticleWrapper liquidParticleWrapper : liquidSourceInfoHashMap.values()) {
                 liquidParticleWrapper.detachDirect();
             }
         }
@@ -114,7 +113,9 @@ public class LiquidContainer extends Use {
                 .forEach(
                         p -> {
                             Vector2 dir = p.getLiquidDirection();
-                            Vector2 nor = new Vector2(-dir.y, dir.x);
+                            float nx = -dir.y;
+                            float ny = dir.x;
+                            Vector2 nor = new Vector2(nx, ny);
                             Vector2 e = p.getLiquidSourceOrigin().cpy().mul(32f);
                             float axisExtent = p.getExtent();
                             FreshCut freshCut = new SegmentFreshCut(e.cpy().sub(axisExtent / 2 * nor.x, axisExtent / 2 * nor.y), e.cpy().add(axisExtent / 2 * nor.x, axisExtent / 2 * nor.y), false, 1f);

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -111,7 +112,7 @@ public class Shooter extends Use {
                 this.missileModels.add(missileModel);
             } catch (PersistenceException | IOException | ParserConfigurationException |
                      SAXException e) {
-
+               e.printStackTrace();
             }
         }
     }
@@ -302,7 +303,7 @@ public class Shooter extends Use {
         );
 
         Sound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound()).getSound();
-        ResourceManager.getInstance().getVibrator().vibrate(50);
+        ResourceManager.getInstance().vibrate(50);
       ResourceManager.getInstance().tryPlaySound(sound,1f,3);
     }
 
@@ -333,7 +334,8 @@ public class Shooter extends Use {
     }
 
     public GameEntity getMuzzleEntity() {
-        return projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst().get().getTheMuzzleEntity();
+        Optional<Muzzle> result = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst();
+        return result.map(Muzzle::getTheMuzzleEntity).orElse(null);
     }
 
     @Override
@@ -375,7 +377,9 @@ public class Shooter extends Use {
                                         || p.getSparkRatio() >= 0.1f) {
                                     Vector2 end = p.getProjectileEnd().cpy().mul(32f);
                                     Vector2 dir = end.cpy().sub(p.getProjectileOrigin()).nor();
-                                    Vector2 nor = new Vector2(-dir.y, dir.x);
+                                    float nx = -dir.y;
+                                    float ny = dir.x;
+                                    Vector2 nor = new Vector2(nx,ny);
                                     int index = this.projectileInfoList.indexOf(p);
                                     float axisExtent = ToolUtils.getAxisExtent(this.missileModels.get(index), nor) / 2f;
                                     ExplosiveParticleWrapper fireSource =

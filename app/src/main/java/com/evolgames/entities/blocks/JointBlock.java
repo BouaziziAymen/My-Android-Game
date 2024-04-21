@@ -161,15 +161,6 @@ public class JointBlock extends AssociatedBlock<JointBlock, JointBlockProperties
     public void performCut(Cut cut) {
     }
 
-    @Override
-    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
-        if(this.jointType == JointDef.JointType.MouseJoint){
-            MouseJointDef mouseJointDef = (MouseJointDef) getProperties().getJointDef();
-            mouseJointDef.target.sub(worldTranslation);
-        }
-        Utils.translatePoints(this.getVertices(), translationVector);
-    }
-
     public Position getPosition() {
         return position;
     }

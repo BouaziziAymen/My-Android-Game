@@ -107,8 +107,6 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
         this.vertices = vertices;
     }
 
-    public abstract void translate(Vector2 translationVector, Vector2 worldTranslation);
-
     public List<Vector2> getTriangles() {
         if (triangles == null) {
             computeTriangles();
@@ -117,11 +115,10 @@ public abstract class Block<T extends Block<T, P>, P extends Properties> extends
     }
 
     public void recycleSelf() {
-        if (true) {
-            return;
-        }
         for (Vector2 v : getTriangles()) {
-            if (!getVertices().contains(v)) Vector2Pool.recycle(v);
+            if (!getVertices().contains(v)) {
+                Vector2Pool.recycle(v);
+            }
         }
         for (Vector2 v : getVertices()) {
             Vector2Pool.recycle(v);

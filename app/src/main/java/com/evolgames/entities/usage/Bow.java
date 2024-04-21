@@ -263,9 +263,8 @@ public class Bow extends Use {
         jointModel.setBodyModel1(bodyModel1);
         jointModel.setBodyModel2(bodyModel2);
 
-        jointModel.getProperties().getLocalAnchorA().set(begin
-                .cpy().mul(32f).add(bowBodyEntity.getCenter()));
-        jointModel.getProperties().getLocalAnchorB().set(arrowEntity.getCenter());
+        jointModel.getProperties().getLocalAnchorA().set(begin.cpy().mul(32f));
+        jointModel.getProperties().getLocalAnchorB().set(new Vector2());
         float angle = (float) (GeometryUtils.calculateAngleRadians(localDir.x, localDir.y) + (!bowBodyEntity.isMirrored() ? Math.PI : 0));
         jointModel.getProperties().setReferenceAngle(angle);
 
@@ -275,6 +274,8 @@ public class Bow extends Use {
 
         bodyModel1.setGameEntity(bowBodyEntity);
         bodyModel2.setGameEntity(arrowEntity);
+        bodyModel1.setCenter(new Vector2());
+        bodyModel2.setCenter(new Vector2());
         physicsScene.createJointFromModel(jointModel, false);
 
         this.arrows.put(projectileInfo, arrowGroup);

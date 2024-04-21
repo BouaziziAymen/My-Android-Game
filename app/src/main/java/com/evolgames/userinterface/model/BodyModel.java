@@ -225,4 +225,8 @@ public class BodyModel extends OutlineModel<BodyProperties> {
         }
         return this.center;
     }
+
+    public void setCenter(Vector2 center) {
+        this.center = center;
+    }
 }

@@ -1040,22 +1040,22 @@ public class BlockUtils {
         return blocks;
     }
 
-    public static float[] getBounds(boolean mirrored, List<LayerBlock> layerBlocks, Vector2 center) {
+    public static float[] getBounds(boolean mirrored, List<LayerBlock> layerBlocks) {
         float maxX = 0f;
         float minX = 0f;
         float maxY = 0f;
         float minY = 0f;
             for(LayerBlock layerBlock:layerBlocks){
                 for(Vector2 v:layerBlock.getVertices()){
-                    float dx = v.x - center.x;
-                    float dy = v.y - center.y;
+                    float dx = v.x;
+                    float dy = v.y;
                     if(dx<minX){minX = dx;}
                     if(dx>maxX){maxX = dx;}
                     if(dy<minY){minY = dy;}
                     if(dy>maxY){maxY = dy;}
                 }
             }
-        return new float[]{!mirrored?minX:maxX,!mirrored?maxX:minX, minY,maxY, center.x, center.y};
+        return new float[]{!mirrored?minX:maxX,!mirrored?maxX:minX, minY,maxY};
     }
 
     public static Vector2 calculateBodyCenter(List<LayerBlock> layerBlocks) {

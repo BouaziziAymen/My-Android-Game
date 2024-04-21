@@ -50,7 +50,6 @@ import com.evolgames.userinterface.model.toolmodels.DragModel;
 import com.evolgames.userinterface.model.toolmodels.FireSourceModel;
 import com.evolgames.userinterface.model.toolmodels.LiquidSourceModel;
 import com.evolgames.userinterface.model.toolmodels.ProjectileModel;
-import com.evolgames.userinterface.view.UserInterface;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.ToolUtils;
 
@@ -195,8 +194,9 @@ public abstract class PhysicsScene extends AbstractScene {
                                     bodyInit,
                                     blocks,
                                     BodyDef.BodyType.DynamicBody,
-                                    toolModel.getProperties().getToolName(),center);
+                                    toolModel.getProperties().getToolName());
             gameEntities.add(gameEntity);
+            gameEntity.setCenter(center);
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setZIndex(bodyModel.getProperties().getZIndex());
         }
@@ -223,7 +223,6 @@ public abstract class PhysicsScene extends AbstractScene {
 
     public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene physicsScene, boolean mirrored) {
         bodies.forEach(bodyModel -> {
-            Vector2 center = bodyModel.getGameEntity().getCenter();
             bodyModel.getDragModels().forEach(dragModel -> {
                 Drag drag = new Drag(dragModel, mirrored);
                 bodyModel.getGameEntity().getUseList().add(drag);
@@ -245,9 +244,9 @@ public abstract class PhysicsScene extends AbstractScene {
                                     case BOW:
                                         BowProperties bowProperties = (BowProperties) e.getProperties();
                                         if (bowProperties.getUpper() != null && bowProperties.getMiddle() != null && bowProperties.getLower() != null) {
-                                            bowProperties.getUpper().sub(center);
-                                            bowProperties.getMiddle().sub(center);
-                                            bowProperties.getLower().sub(center);
+                                            bowProperties.getUpper().sub(bodyModel.calculateBodyCenter());
+                                            bowProperties.getMiddle().sub(bodyModel.calculateBodyCenter());
+                                            bowProperties.getLower().sub(bodyModel.calculateBodyCenter());
                                         }
                                         Bow bow = new Bow(e, mirrored);
                                         bodyModel.getGameEntity().getUseList().add(bow);
@@ -323,7 +322,8 @@ public abstract class PhysicsScene extends AbstractScene {
         if (entity1 == null || entity2 == null) {
             return null;
         }
-        JointDef jointDef = jointModel.createJointDef(entity1.getCenter(), entity2.getCenter(), mirrored);
+        jointModel.translate();
+        JointDef jointDef = jointModel.createJointDef(mirrored);
 
         return getWorldFacade().addJointToCreate(jointDef, entity1, entity2, jointModel.getJointId(),mirrored);
     }

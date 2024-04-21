@@ -18,6 +18,7 @@ import com.evolgames.utilities.GeometryUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Rocket extends Use {
@@ -72,7 +73,7 @@ public class Rocket extends Use {
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size(); i < projectileInfoListSize; i++) {
             FireSourceInfo fireSourceInfo = this.fireSourceInfoList.get(i);
             if (rocketFireSourceInfMap.containsKey(fireSourceInfo)) {
-                rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(true);
+                Objects.requireNonNull(rocketFireSourceInfMap.get(fireSourceInfo)).setSpawnEnabled(true);
             }
         }
         if(withSound) {
@@ -96,7 +97,7 @@ public class Rocket extends Use {
                             Vector2 worldFireDirection = body.getWorldVector(moveDirection).cpy();
                             body.applyForce(worldFireDirection.cpy().mul(FORCE_FACTOR * power), body.getWorldCenter());
                         } else {
-                            this.rocketFireSourceInfMap.get(fireSourceInfo).setSpawnEnabled(false);
+                            Objects.requireNonNull(this.rocketFireSourceInfMap.get(fireSourceInfo)).setSpawnEnabled(false);
                         }
                     }
                 }
@@ -130,7 +131,9 @@ public class Rocket extends Use {
                     if (p.getFireRatio() >= 0.1f || p.getSmokeRatio() >= 0.1f || p.getSparkRatio() >= 0.1f) {
 
                         Vector2 dir = p.getFireDirection();
-                        Vector2 nor = new Vector2(-dir.y, dir.x);
+                        float nx = -dir.y;
+                        float ny = dir.x;
+                        Vector2 nor = new Vector2(nx, ny);
                         Vector2 e = p.getFireSourceOrigin().cpy().mul(32f);
                         float axisExtent = p.getExtent();
                         ExplosiveParticleWrapper fireSource =

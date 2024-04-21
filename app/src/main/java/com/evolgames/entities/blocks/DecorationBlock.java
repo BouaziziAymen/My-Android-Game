@@ -21,12 +21,6 @@ public final class DecorationBlock extends AssociatedBlock<DecorationBlock, Deco
     }
 
     @Override
-    public void translate(Vector2 translationVector, Vector2 worldTranslation) {
-        Utils.translatePoints(this.getVertices(), translationVector);
-        computeTriangles();
-    }
-
-    @Override
     protected DecorationBlock getThis() {
         return this;
     }

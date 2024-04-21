@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
-import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.PlayerSpecialAction;
@@ -19,10 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Smasher extends MeleeUse implements Penetrating {
-
     private transient Hand hand;
-    private int handId;
-
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
         if (this.hand != null) {
@@ -65,8 +61,8 @@ public class Smasher extends MeleeUse implements Penetrating {
         worldFacade.applyPointImpact(obtain(point), consumedImpulse * massFraction, penetrated);
         worldFacade.freeze(penetrator);
         hand.getHandControlStack().peek().setDead(true);
-        if(actualAdvance<0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse),2);
+        if (actualAdvance < 0.05f) {
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse), 2);
         }
         this.setActive(false);
     }
@@ -89,8 +85,8 @@ public class Smasher extends MeleeUse implements Penetrating {
         hand.getHandControlStack().peek().setDead(true);
         worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
-        if(actualAdvance<0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse),2);
+        if (actualAdvance < 0.05f) {
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse), 2);
         }
         setActive(false);
     }
@@ -101,13 +97,8 @@ public class Smasher extends MeleeUse implements Penetrating {
         hand.getHandControlStack().peek().setDead(true);
     }
 
-    public int getHandId() {
-        return handId;
-    }
-
     public void setHand(Hand hand) {
         this.hand = hand;
-        this.handId = hand.getMousePointerId();
     }
 
     @Override

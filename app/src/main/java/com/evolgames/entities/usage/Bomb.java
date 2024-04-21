@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointEdge;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -16,12 +15,9 @@ import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.utilities.GeometryUtils;
 
-import org.andengine.engine.camera.SmoothCamera;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -142,9 +138,7 @@ public abstract class Bomb extends Use {
 
     @Override
     public void dynamicMirror(PhysicsScene physicsScene) {
-        this.getBombInfoList().forEach(bombInfo -> {
-            bombInfo.getBombPosition().set(GeometryUtils.mirrorPoint(bombInfo.getBombPosition()));
-        });
+        this.getBombInfoList().forEach(bombInfo -> bombInfo.getBombPosition().set(GeometryUtils.mirrorPoint(bombInfo.getBombPosition())));
     }
 
     protected boolean hasSafety() {

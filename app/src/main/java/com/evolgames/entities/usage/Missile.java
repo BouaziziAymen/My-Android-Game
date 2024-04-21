@@ -43,6 +43,7 @@ public class Missile extends Rocket {
         }
     }
 
+    /** @noinspection unused*/
     public void setSteerValue(float steerValue) {
         this.steerValue = steerValue;
     }

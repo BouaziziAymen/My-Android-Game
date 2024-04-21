@@ -162,15 +162,13 @@ public class Hand {
     }
 
     private void onGrabbedEntityReleased(boolean updateUsages, boolean deactivateProjectiles) {
-        if (grabbedEntity.getBody() != null) {
+        if (grabbedEntity.getBody() != null && deactivateProjectiles) {
             grabbedEntity.getBody().setBullet(false);
         }
-        grabbedEntity.getUseList().forEach(u ->
-                {
+        grabbedEntity.getUseList().forEach(u -> {
                     if ((deactivateProjectiles&&u instanceof Projectile) || u instanceof Stabber) {
                         u.setActive(false);
                     }
-
                 }
         );
 
@@ -487,7 +485,7 @@ public class Hand {
             if (bow.isLoaded()) {
                 for (GameGroup gameGroup : bow.getArrows().values()) {
                     for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                        playScene.getWorldFacade().destroyGameEntity(gameEntity, true, false);
+                        playScene.getWorldFacade().destroyGameEntity(gameEntity, true);
                     }
                 }
             }

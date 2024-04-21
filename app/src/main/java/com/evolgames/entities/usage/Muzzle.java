@@ -14,7 +14,7 @@ public class Muzzle extends Use {
     private transient GameEntity muzzleEntity;
     private transient ProjectileInfo projectileInfo;
 
-    @SuppressWarnings("Unused")
+    @SuppressWarnings("unused")
     public Muzzle() {
     }
 

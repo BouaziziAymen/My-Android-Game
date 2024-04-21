@@ -32,6 +32,7 @@ public class Throw extends Use {
         Projectile projectile = new Projectile(ProjectileType.SHARP_WEAPON);
         hand.getGrabbedEntity().getUseList().add(projectile);
         projectile.setActive(true);
+        body.setBullet(true);
         hand.clearStack();
     }
 

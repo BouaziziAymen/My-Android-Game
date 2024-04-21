@@ -3,9 +3,7 @@ package com.evolgames.entities.usage;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -14,9 +12,6 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
 
-import org.andengine.audio.sound.Sound;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Projectile extends Use implements Penetrating {
@@ -79,7 +74,7 @@ public class Projectile extends Use implements Penetrating {
         if (projectileType == ProjectileType.BULLET) {
             penetrator.setAlive(false);
             penetrator.setVisible(false);
-            worldFacade.destroyGameEntity(penetrator, false, false);
+            worldFacade.destroyGameEntity(penetrator, false);
         }
 
         if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {

@@ -22,7 +22,6 @@ public class Stabber extends MeleeUse implements Penetrating {
 
     private Vector2 handLocalPosition;
     private transient Hand hand;
-    private int handId;
 
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
@@ -122,10 +121,6 @@ public class Stabber extends MeleeUse implements Penetrating {
         ((MoveToStabHandControl) hand.getHandControlStack().peek()).goBack();
     }
 
-    public int getHandId() {
-        return handId;
-    }
-
     public void setHandLocalPosition(Vector2 handLocalPosition) {
         this.handLocalPosition = handLocalPosition;
     }
@@ -136,7 +131,6 @@ public class Stabber extends MeleeUse implements Penetrating {
 
     public void setHand(@Nullable Hand hand) {
         this.hand = hand;
-        this.handId = hand != null ? hand.getMousePointerId() : -1;
     }
 
     @Override

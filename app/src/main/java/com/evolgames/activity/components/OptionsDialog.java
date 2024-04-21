@@ -17,6 +17,7 @@ import com.evolgames.gameengine.R;
 public class OptionsDialog extends DialogFragment {
 
     private boolean newSound;
+    private boolean newVibration;
     private boolean newMusic;
 
     private boolean newHints;
@@ -29,11 +30,13 @@ public class OptionsDialog extends DialogFragment {
         this.newMusic = ResourceManager.getInstance().isMusic();
         this.newMap = ResourceManager.getInstance().getMapString();
         this.newHints = ResourceManager.getInstance().isHints();
+        this.newVibration = ResourceManager.getInstance().isVibration();
 
         View dialogLayout = inflater.inflate(R.layout.options_dialog, null);
          CheckBox soundCheckBox = dialogLayout.findViewById(R.id.soundCheckbox);
          CheckBox musicCheckBox = dialogLayout.findViewById(R.id.musicCheckbox);
         CheckBox hintsCheckBox = dialogLayout.findViewById(R.id.hintsCheckbox);
+        CheckBox vibrationCheckbox = dialogLayout.findViewById(R.id.vibrationCheckbox);
 
          RadioButton woodOptionCheckBox = dialogLayout.findViewById(R.id.woodMapOption);
         RadioButton openOptionCheckBox = dialogLayout.findViewById(R.id.openMapOption);
@@ -42,6 +45,7 @@ public class OptionsDialog extends DialogFragment {
         soundCheckBox.setChecked(ResourceManager.getInstance().isSound());
         musicCheckBox.setChecked(ResourceManager.getInstance().isMusic());
         hintsCheckBox.setChecked(ResourceManager.getInstance().isHints());
+        vibrationCheckbox.setChecked(ResourceManager.getInstance().isVibration());
         String mapString = ResourceManager.getInstance().getMapString();
         woodOptionCheckBox.setChecked(mapString.equals("Wood"));
         openOptionCheckBox.setChecked(mapString.equals("Open"));
@@ -50,6 +54,7 @@ public class OptionsDialog extends DialogFragment {
         soundCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->{newSound = isChecked;});
         musicCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->{newMusic = isChecked;});
         hintsCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->{newHints = isChecked;});
+        vibrationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) ->{newVibration = isChecked;});
 
         woodOptionCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {if(isChecked){this.newMap = "Wood";}});
         openOptionCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {if(isChecked){this.newMap = "Open";}});
@@ -61,6 +66,7 @@ public class OptionsDialog extends DialogFragment {
                    ResourceManager.getInstance().setMusic(newMusic);
                    ResourceManager.getInstance().setSound(newSound);
                    ResourceManager.getInstance().setHints(newHints);
+                    ResourceManager.getInstance().setVibration(newVibration);
                    ResourceManager.getInstance().setMapString(newMap);
                     ((GameActivity)getActivity()).saveOptions();
                     ((GameActivity) requireActivity()).installMenuUi();

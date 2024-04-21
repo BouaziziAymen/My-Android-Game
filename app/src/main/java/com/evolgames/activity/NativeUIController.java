@@ -189,7 +189,12 @@ public class NativeUIController implements INativeUIController {
         ResourceManager.getInstance().setItemsMap(map);
         for (List<ItemMetaData> list : map.values()) {
             for(ItemMetaData itemMetaData:list){
-                itemMetaData.setDisplayName(gameActivity.getString(ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName())));
+                Integer itemTranslatedNameId = ResourceManager.getInstance().getTranslatedItemStringId(itemMetaData.getName());
+              if(itemTranslatedNameId!=-1) {
+                  itemMetaData.setDisplayName(gameActivity.getString(itemTranslatedNameId));
+              } else {
+                  itemMetaData.setDisplayName(itemMetaData.getName());
+              }
             }
             list.sort(Comparator.comparing(ItemMetaData::getDisplayName));
         }
@@ -251,10 +256,8 @@ public class NativeUIController implements INativeUIController {
     }
 
     public void onRefreshButtonClicked() {
-        gameActivity.runOnUpdateThread(()->{
             PlayScene playScene = ((PlayScene) mainScene.getChildScene());
             playScene.refresh();
-        });
     }
 
     public enum HintType{

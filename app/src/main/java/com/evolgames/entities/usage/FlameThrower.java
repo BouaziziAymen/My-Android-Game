@@ -105,7 +105,9 @@ public class FlameThrower extends Use {
                                     || p.getSparkRatio() >= 0.1f) {
 
                                 Vector2 dir = p.getFireDirection();
-                                Vector2 nor = new Vector2(-dir.y, dir.x);
+                                float ny = dir.x;
+                                float nx = -dir.y;
+                                Vector2 nor = new Vector2(nx, ny);
                                 Vector2 e = p.getFireSourceOrigin().cpy().mul(32f);
                                 float axisExtent = p.getExtent();
                                 ExplosiveParticleWrapper fireSource =

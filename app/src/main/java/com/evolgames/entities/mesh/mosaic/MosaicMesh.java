@@ -75,7 +75,7 @@ public class MosaicMesh extends ModifiedMesh {
 
     @Override
     public boolean isCulled(final Camera pCamera) {
-        return !EntityCollisionChecker.isVisible(pCamera,-(bounds[1]-bounds[0])/2f,-(bounds[3]-bounds[2])/2f,bounds[1]-bounds[0], bounds[3]-bounds[2], getLocalToSceneTransformation());
+        return !EntityCollisionChecker.isVisible(pCamera,bounds, getLocalToSceneTransformation());
     }
 
     public void setBounds(float[] bounds) {
