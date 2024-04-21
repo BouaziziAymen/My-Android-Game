@@ -155,7 +155,7 @@ public class ResourceManager {
     public TiledTextureRegion projDragTextureRegion;
     public TiledTextureRegion showHideTextureRegion;
     public TextureRegion playTextureRegion;
-    public Music mMusic, windSound;
+    public Music mMusic, windSound, clockSound;
     public Sound onSound, offSound, meteorSound;
     public TextureRegion frostParticle;
     public ArrayList<Sound> motorSounds;
@@ -831,6 +831,7 @@ public class ResourceManager {
                                 this.activity,
                                 path);
                 penetrationSounds.add(new GameSound(soundShot, "penetration" + j, GameSound.SoundType.PENETRATION));
+
             }
 
             MusicFactory.setAssetBasePath("mfx/");
@@ -838,16 +839,14 @@ public class ResourceManager {
                 mMusic = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "music_main.mp3");
                 mMusic.setLooping(true); // Loop the music
                 mMusic.setVolume(0.2f);
-                if (music) {
-                    mMusic.play();
-                }
 
                 windSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "wind.mp3");
                 windSound.setLooping(true); // Loop the music
 
-                if (music) {
-                    mMusic.play();
-                }
+                clockSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "clock.mp3");
+                clockSound.setLooping(true); // Loop the music
+
+                setMusic(this.music);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1037,4 +1036,17 @@ public class ResourceManager {
             this.uiTextureAtlas = null;
         }
     }
+
+
+    public void disposeOfPlayResources() {
+        if(texturedMesh!=null) {
+            this.texturedMesh.unload();
+            this.texturedMesh = null;
+        }
+        if(gameplayTextureAtlas!=null) {
+            this.gameplayTextureAtlas.unload();
+            this.gameplayTextureAtlas = null;
+        }
+    }
+
 }

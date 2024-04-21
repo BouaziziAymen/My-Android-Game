@@ -1,10 +1,12 @@
 package com.evolgames.physics;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
+import com.evolgames.utilities.PhysicsUtils;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 
@@ -54,9 +56,20 @@ public class LinearRayCastCallback implements RayCastCallback {
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
         if (fixture.isSensor()) return 1;
         GameEntity entity = (GameEntity) fixture.getBody().getUserData();
-        if (exclusive != null && entity != exclusive) return 1;
-        if (excepted != null && entity == excepted) return 1;
+        if (exclusive != null && entity != exclusive) {
+            return 1;
+        }
+        if (excepted != null && entity == excepted) {
+            return 1;
+        }
 
+        if(excepted!=null){
+            Filter filter = fixture.getFilterData();
+            Filter penetratorFilter = excepted.getBody().getFixtureList().get(0).getFilterData();
+            if(!PhysicsUtils.doFixturesCollide(filter,penetratorFilter)){
+                return 1;
+            }
+        }
         LayerBlock block = (LayerBlock) fixture.getUserData();
         Vector2 Point = Vector2Pool.obtain(point);
         FlagType type = (direction) ? FlagType.Entering : FlagType.Leaving;

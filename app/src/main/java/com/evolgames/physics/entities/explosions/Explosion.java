@@ -101,4 +101,8 @@ public class Explosion {
     public float getVelocity() {
         return velocity;
     }
+
+    public GameEntity getCarrierEntity() {
+        return this.source;
+    }
 }

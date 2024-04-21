@@ -210,7 +210,6 @@ public class PlayUIFragment extends Fragment {
             if (touchHoldState == TouchHoldState.HOLD) {
                 touchHoldState = TouchHoldState.TOUCH;
                 touchHoldButton.setIcon(R.drawable.drag_icon);
-                usesButton.setState(Button.State.NORMAL);
             } else {
                 touchHoldState = TouchHoldState.HOLD;
                 touchHoldButton.setIcon(R.drawable.grab_icon);

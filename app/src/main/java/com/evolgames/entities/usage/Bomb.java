@@ -57,7 +57,7 @@ public abstract class Bomb extends Use {
     protected abstract boolean isCountDone();
 
 
-    private void detonate(WorldFacade worldFacade) {
+    protected void detonate(WorldFacade worldFacade) {
         for (BombInfo bombInfo : bombInfoList) {
             Body body = bombInfo.getCarrierEntity().getBody();
             if (body == null) {

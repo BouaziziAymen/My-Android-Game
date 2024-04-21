@@ -1,5 +1,6 @@
 package com.evolgames.entities.usage;
 
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.properties.usage.TimeBombUsageProperties;
 import com.evolgames.physics.WorldFacade;
@@ -31,6 +32,19 @@ public class TimeBomb extends Bomb {
         if (active && alive) {
             countDown -= deltaTime;
         }
+    }
+
+    @Override
+    protected void detonate(WorldFacade worldFacade) {
+        super.detonate(worldFacade);
+        ResourceManager.getInstance().clockSound.pause();
+    }
+
+    @Override
+    protected void removeSafety(WorldFacade worldFacade) {
+        super.removeSafety(worldFacade);
+        ResourceManager.getInstance().clockSound.seekTo(0);
+        ResourceManager.getInstance().clockSound.play();
     }
 
     @Override

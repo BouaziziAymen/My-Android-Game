@@ -226,18 +226,8 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void onStep() {
-        List<TimedCommand> list = new ArrayList<>(timedCommands);
-        Iterator<TimedCommand> iterator;
-        for (iterator = list.iterator(); iterator.hasNext(); ) {
-            TimedCommand timedCommand = iterator.next();
+        for(TimedCommand timedCommand:timedCommands){
             timedCommand.update();
-            if (timedCommand.isTimedOut()) {
-                iterator.remove();
-            }
-        }
-
-        if (false) {
-            plotTouch();
         }
         for (LiquidParticleWrapper liquidParticleWrapper : this.liquidParticleWrappers) {
             liquidParticleWrapper.update();
@@ -248,10 +238,12 @@ public class WorldFacade implements ContactObserver {
         for (ExplosiveParticleWrapper explosiveParticleWrapper : this.explosivesParticleWrappers) {
             explosiveParticleWrapper.update();
         }
-        for(Explosion explosion: this.explosions){
+        for (Explosion explosion : this.explosions) {
             explosion.update();
         }
 
+        timedCommands.removeIf(TimedCommand::isTimedOut);
+        this.explosions.removeIf(e->!e.isAlive());
 
         computeConduction();
         computeConvection();
@@ -1573,6 +1565,9 @@ public class WorldFacade implements ContactObserver {
     }
 
     private void applyOnePointImpactToEntity(LayerBlock block, float impulse, GameEntity gameEntity, Vector2 worldPoint) {
+        if (gameEntity.hasActiveUsage(Smasher.class)) {
+            gameEntity.getActiveUsage(Smasher.class).onCancel();
+        }
         if (impulse < 10) {
             return;
         }
@@ -1587,14 +1582,15 @@ public class WorldFacade implements ContactObserver {
             ImpactBomb impactBomb = gameEntity.getUsage(ImpactBomb.class);
             if (impactBomb.isActive()) {
                 if (impactBomb.getSensitiveLayers().contains(block.getId())) {
-                    impactBomb.onImpact(impulse, block.getId());
+                    impactBomb.onImpact(impulse, block.getId(),this);
                 }
             }
         }
-        if (gameEntity.hasActiveUsage(Smasher.class)) {
-            gameEntity.getActiveUsage(Smasher.class).onCancel();
+        for(Explosion explosion:explosions){
+            if(explosion.getCarrierEntity()==gameEntity){
+                return;
+            }
         }
-
         if (impulse > TENACITY_FACTOR) {
             List<ImpactData> impactData = new ArrayList<>();
             impactData.add(new ImpactData(gameEntity, block, worldPoint, impulse));

@@ -183,11 +183,7 @@ public class GameActivity extends BaseGameActivity {
     public void onCreateResources(IGameInterface.OnCreateResourcesCallback pOnCreateResourcesCallback) {
         ResourceManager.getInstance().create(this, this.getEngine(), camera, this.getVertexBufferObjectManager());
         ResourceManager.getInstance().loadPreferences();
-        ResourceManager.getInstance().loadFonts();
-        //ResourceManager.getInstance().loadEditorImages();
         ResourceManager.getInstance().loadGameImages();
-        ResourceManager.getInstance().loadGameAudio();
-       // ResourceManager.getInstance().loadBatches();
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
@@ -214,6 +210,8 @@ public class GameActivity extends BaseGameActivity {
     @Override
     public synchronized void onSurfaceCreated(GLState pGLState) {
         super.onSurfaceCreated(pGLState);
+        ResourceManager.getInstance().loadGameAudio();
+        mEngine.getSoundManager().onResume();
         if (mainScene != null) {
             mainScene.onResume();
         }
@@ -222,11 +220,16 @@ public class GameActivity extends BaseGameActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (mEngine != null && mEngine.getMusicManager() != null) {
+            mEngine.getMusicManager().releaseAll();
+        }
+        if (mEngine != null && mEngine.getSoundManager() != null) {
+            mEngine.getSoundManager().onPause();
+        }
         if (mainScene != null) {
             mainScene.onPause();
         }
     }
-
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
 
         return super.onKeyDown(keyCode, event);

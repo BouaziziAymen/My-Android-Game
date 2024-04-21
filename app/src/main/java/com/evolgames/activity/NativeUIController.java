@@ -49,12 +49,12 @@ public class NativeUIController implements INativeUIController {
     @Override
     public void onHomeButtonPressed() {
         resetUI();
+        ResourceManager.getInstance().motorSounds.forEach(Sound::stop);
+        ResourceManager.getInstance().clockSound.pause();
         gameActivity.runOnUpdateThread(() -> {
-          ResourceManager.getInstance().motorSounds.forEach(Sound::stop);
             ((AbstractScene) mainScene.getChildScene()).onPause();
             mainScene.goToScene(SceneType.MENU);
         });
-
     }
 
     @Override

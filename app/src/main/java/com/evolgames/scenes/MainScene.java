@@ -32,9 +32,6 @@ public class MainScene extends AbstractScene {
         cam.setCenterDirect(400, 240);
         cam.setChaseEntity(null);
         this.clearChildScene();
-        if (this.scene != null) {
-         this.scene.detach();
-        }
 
         switch (sceneType) {
             case MENU:

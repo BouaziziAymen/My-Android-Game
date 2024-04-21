@@ -104,7 +104,7 @@ public class Projectile extends Use implements Penetrating {
                 worldFacade.freeze(penetrator);
             }
         }
-        onImpact(consumedImpulse * 4, penetrator, penetratorBlock);
+        onImpact(consumedImpulse * 4, penetrator, penetratorBlock,worldFacade);
     }
 
     @Override
@@ -134,16 +134,16 @@ public class Projectile extends Use implements Penetrating {
                 worldFacade.applyPointImpact(obtain(point), impactFactor() * collisionImpulse * massFraction, penetrated);
             }
         });
-        onImpact(collisionImpulse * 4, penetrator, penetratorBlock);
+        onImpact(collisionImpulse * 4, penetrator, penetratorBlock,worldFacade);
         setActive(false);
         penetrator.setZIndex(-1);
         worldFacade.getPhysicsScene().sortChildren();
     }
 
-    private void onImpact(float impulse, GameEntity penetrator, LayerBlock block) {
+    private void onImpact(float impulse, GameEntity penetrator, LayerBlock block, WorldFacade worldFacade) {
         if (penetrator.hasUsage(ImpactBomb.class)) {
             ImpactBomb impactBomb = penetrator.getUsage(ImpactBomb.class);
-            impactBomb.onImpact(impulse, block.getId());
+            impactBomb.onImpact(impulse, block.getId(),worldFacade);
         }
     }
 
