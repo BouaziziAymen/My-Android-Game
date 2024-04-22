@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointEdge;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
@@ -116,6 +117,7 @@ public abstract class Bomb extends Use {
             if (carrierEntity==null||carrierEntity.getBody() == null) {
                 continue;
             }
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().switchSound,1f,3,carrierEntity.getX(),carrierEntity.getY());
             ArrayList<JointEdge> copy = new ArrayList<>(carrierEntity.getBody().getJointList());
             for (JointEdge jointEdge : copy) {
                 Joint joint = jointEdge.joint;
