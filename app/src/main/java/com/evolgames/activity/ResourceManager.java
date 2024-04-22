@@ -938,9 +938,10 @@ public class ResourceManager {
                 soundFactor = 1.0f;
             } else {
                 // Apply inverse square law
-                soundFactor = Math.min(1f,800f * 800f / (distance * distance));
+                soundFactor = Math.min(1f,600f * 600f / (distance * distance));
             }
             volume = volume * soundFactor;
+            Log.d("SoundFactor",""+soundFactor);
             if(volume>0.05f) {
                 sound.setPriority(priority);
                 sound.setVolume(volume);
