@@ -260,6 +260,13 @@ public class NativeUIController implements INativeUIController {
             playScene.refresh();
     }
 
+    public void resetCameraButton() {
+        gameActivity.runOnUiThread(() -> {
+            PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+            gameUIFragment.resetCameraButton();
+        });
+    }
+
     public enum HintType{
         WARNING, HINT
     }

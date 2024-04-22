@@ -285,7 +285,7 @@ public class Shooter extends Use {
         physicsScene.getWorldFacade().scheduleGameEntityToDestroy(projectile, 60);
         if (bulletGroup.getEntities().size() > 1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
-            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 120);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 60);
             for (GameEntity entity : muzzleEntity.getParentGroup().getEntities()) {
                 physicsScene.getWorldFacade().addNonCollidingPair(entity, casing);
             }
@@ -354,7 +354,7 @@ public class Shooter extends Use {
         this.projInfFireSourceMap.values().forEach(
                 ExplosiveParticleWrapper::detach
         );
-        this.projectileInfoList.forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
+        projectileInfoList.forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
         createFireSources(physicsScene.getWorldFacade());
     }
 
@@ -409,6 +409,7 @@ public class Shooter extends Use {
         if (ratio < 0.9f) {
             return false;
         }
+        projectileInfoList.forEach(projectileInfo -> projectileInfo.setUpdatedMuzzle(true));
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

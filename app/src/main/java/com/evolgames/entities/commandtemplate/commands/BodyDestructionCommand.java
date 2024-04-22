@@ -57,7 +57,7 @@ public class BodyDestructionCommand extends Command {
                 if (entity.getHeir() != null) {
                     hand.inheritSelectedEntity(entity.getHeir());
                 } else {
-                    hand.deselect(true);
+                    hand.deselectDirect(true);
                 }
             }
         }

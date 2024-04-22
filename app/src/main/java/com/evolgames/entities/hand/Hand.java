@@ -3,7 +3,6 @@ package com.evolgames.entities.hand;
 import static org.andengine.extension.physics.box2d.util.constants.PhysicsConstants.PIXEL_TO_METER_RATIO_DEFAULT;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
@@ -378,11 +377,13 @@ public class Hand {
                                killTopOfStack();
                                 holding = false;
                             }
-                            deselect(false);
+                            deselectDirect(false);
                         }
                         select(touchData.gameEntity);
                     } else {
-                        deselect(true);
+                        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+                            deselectDirect(true);
+                        });
                         if (this.isHolding()) {
                           killTopOfStack();
                             holding = false;
@@ -453,18 +454,17 @@ public class Hand {
         return false;
     }
 
-    public void deselect(boolean updateUsages) {
+    public void deselectDirect(boolean updateUsages) {
         if(selectedEntity==null){
             return;
         }
-        final GameEntity selected = this.selectedEntity;
-        ResourceManager.getInstance().activity.runOnUpdateThread(selected::hideOutline);
+        this.selectedEntity.hideOutline();
         if (selectedEntity.hasUsage(Shooter.class)) {
             Shooter shooter = selectedEntity.getUsage(Shooter.class);
             shooter.onTriggerReleased();
         }
+        this.playScene.onSelectedEntitySpared(selectedEntity);
         this.selectedEntity = null;
-        this.playScene.onSelectedEntitySpared();
         if(updateUsages){
             this.playScene.onUsagesUpdated();
         }
@@ -773,9 +773,8 @@ public class Hand {
 
     public void inheritSelectedEntity(GameEntity selectedEntity) {
         this.selectedEntity = selectedEntity;
-        if(selectedEntity!=null){
-            playScene.onUsagesUpdated();
-        }
+        this.selectedEntity.setOutlined(true);
+        playScene.onUsagesUpdated();
     }
 
     public GameEntity getSelectedEntity() {

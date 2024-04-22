@@ -922,8 +922,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Unselect) {
             if (this.hand != null) {
-                this.hand.deselect(true);
                 setScrollerEnabled(true);
+                ResourceManager.getInstance().activity.runOnUpdateThread(()-> {
+                    this.hand.deselectDirect(true);
+                });
             }
         } else if (playerSpecialAction == PlayerSpecialAction.Drop) {
             if (this.hand != null) {
@@ -1137,8 +1139,14 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         }
     }
 
-    public void onSelectedEntitySpared() {
+    public void onSelectedEntitySpared(GameEntity selectedEntity) {
         hideAimSprite();
+        if(this.getChasedEntity()==selectedEntity){
+            this.resetChasedEntity();
+            ResourceManager.getInstance().activity.runOnUiThread(()->{
+                ResourceManager.getInstance().activity.getUiController().resetCameraButton();
+            });
+        }
     }
 
     private void hideAimSprite() {

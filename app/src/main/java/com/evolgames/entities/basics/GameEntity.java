@@ -865,4 +865,8 @@ public class GameEntity extends EntityWithBody {
             layerBlock.recycleSelf();
         }
     }
+
+    public void setOutlined(boolean outlined) {
+        this.outlined = outlined;
+    }
 }

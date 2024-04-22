@@ -47,6 +47,7 @@ public class PlayUIFragment extends Fragment {
     private ImageView hintIcon;
     private TextView hintText;
     private GameImageButton refreshButton;
+    private GameImageButton trackCameraButton;
 
     public PlayUIFragment() {
         // Required empty public constructor
@@ -88,7 +89,7 @@ public class PlayUIFragment extends Fragment {
         GameImageButton mirrorButton = leftLayout.findViewById(R.id.mirror_button);
         setupMirrorButton(mirrorButton);
 
-        GameImageButton trackCameraButton = leftLayout.findViewById(R.id.camera_button);
+        trackCameraButton = leftLayout.findViewById(R.id.camera_button);
         setupCameraButton(trackCameraButton);
 
         GameImageButton homeButton = topLayout.findViewById(R.id.home_button);
@@ -270,6 +271,10 @@ public class PlayUIFragment extends Fragment {
     public void resetSelectButton() {
         selectButton.setState(Button.State.NORMAL);
         ResourceManager.getInstance().activity.getUiController().onTouchHoldButtonSwitched(touchHoldState);
+    }
+
+    public void resetCameraButton() {
+        trackCameraButton.setState(Button.State.NORMAL);
     }
 
     public enum TouchHoldState {
