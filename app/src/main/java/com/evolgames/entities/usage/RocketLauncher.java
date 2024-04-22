@@ -319,10 +319,10 @@ public class RocketLauncher extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
+        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         if (ratio < 0.9f) {
             return false;
         }
-        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

@@ -353,7 +353,7 @@ public class GameEntity extends EntityWithBody {
             if (b instanceof StainBlock) {
                 StainBlock other = (StainBlock) b;
                 float distance = GeometryUtils.dst(x, y, other.getLocalCenterX(), other.getLocalCenterY());
-                if (distance < 2f) {
+                if (distance < 2f || (distance<4f&&stainBlock.getProperties().getTextureRegionIndex()>=other.getProperties().getTextureRegionIndex())) {
                     return true;
                 }
             }

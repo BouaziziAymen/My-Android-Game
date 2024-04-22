@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
@@ -1038,7 +1039,6 @@ public class WorldFacade implements ContactObserver {
         jointDef.collideConnected = false;
         jointDef.referenceAngle = -receiver.getBody().getAngle() + traveler.getBody().getAngle();
         addJointToCreate(jointDef, receiver, traveler, -2);
-        freeze(receiver);
         traveler.setZIndex(receiver.getZIndex() - 1);
         scene.sortChildren();
     }

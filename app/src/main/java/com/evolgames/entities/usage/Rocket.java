@@ -178,12 +178,12 @@ public class Rocket extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
+        this.rocketFireSourceInfMap.values().forEach(ExplosiveParticleWrapper::detach);
         if (ratio < 0.9f) {
             return false;
         }
         this.rocketBodyEntity = heir;
         this.fireSourceInfoList.forEach(fireSourceInfo -> fireSourceInfo.setMuzzleEntity(heir));
-        this.rocketFireSourceInfMap.values().forEach(ExplosiveParticleWrapper::detach);
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

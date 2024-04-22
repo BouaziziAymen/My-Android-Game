@@ -3,6 +3,7 @@ package com.evolgames.entities.usage;
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.blocks.LayerBlock;
@@ -12,11 +13,15 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Projectile extends Use implements Penetrating {
 
 
+    public static final float IMPULSE_FACTOR = 0f;
     private ProjectileType projectileType;
 
     @SuppressWarnings("unused")
@@ -83,10 +88,16 @@ public class Projectile extends Use implements Penetrating {
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
                 worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrator);
             }
         });
         if (projectileType == ProjectileType.SHARP_WEAPON) {
-        for (GameEntity overlappedEntity : overlappedEntities) {
+            Optional<GameEntity> aDynamic = overlappedEntities.stream().filter(e -> e.getBody().getType() == BodyDef.BodyType.DynamicBody).collect(Collectors.toList()).stream().findFirst();
+            Optional<GameEntity> aStatic = overlappedEntities.stream().filter(e -> e.getBody().getType() == BodyDef.BodyType.StaticBody).collect(Collectors.toList()).stream().findFirst();
+            List<GameEntity> merged = new ArrayList<>();
+            aDynamic.ifPresent(merged::add);
+            aStatic.ifPresent(merged::add);
+            for (GameEntity overlappedEntity : merged) {
                 worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
             }
         }
@@ -121,12 +132,14 @@ public class Projectile extends Use implements Penetrating {
             worldFacade.addNonCollidingPair(gameEntity, penetrator);
         }
         worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
+
         if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(collisionImpulse * massFraction), obtain(point));
         }
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
                 worldFacade.applyPointImpact(obtain(point), impactFactor() * collisionImpulse * massFraction, penetrated);
+                worldFacade.applyPointImpact(obtain(point), impactFactor() * collisionImpulse * massFraction, penetrator);
             }
         });
         onImpact(collisionImpulse * 4, penetrator, penetratorBlock,worldFacade);

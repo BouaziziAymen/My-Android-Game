@@ -22,7 +22,6 @@ public class Stabber extends MeleeUse implements Penetrating {
 
     private Vector2 handLocalPosition;
     private transient Hand hand;
-
     @Override
     public void onStep(float deltaTime, WorldFacade worldFacade) {
         if (this.hand != null) {

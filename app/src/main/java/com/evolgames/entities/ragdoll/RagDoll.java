@@ -104,7 +104,7 @@ public class RagDoll extends GameGroup {
                 blood+=layerBlock.getLiquidQuantity();
             }
         }
-        if(blood<400){
+        if(blood<1200){
             alive = false;
         }
     }

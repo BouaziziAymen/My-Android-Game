@@ -402,5 +402,6 @@
     <string name="firework">Fogos de artifício</string>
 
     <string name="vibration_setting">Vibração\n</string>
+    <string name="hint_setting">Dicas</string>
 
 </resources>

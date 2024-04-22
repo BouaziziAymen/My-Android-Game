@@ -87,11 +87,11 @@ public class FlameThrower extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
+        this.flameThrowerInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         if (ratio < 0.9f) {
             return false;
         }
         this.fireSourceInfoList.forEach(fireSourceInfo -> fireSourceInfo.setMuzzleEntity(heir));
-        this.flameThrowerInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         return true;
     }
 

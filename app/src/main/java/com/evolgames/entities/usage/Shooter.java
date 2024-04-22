@@ -282,10 +282,10 @@ public class Shooter extends Use {
         GameGroup bulletGroup = physicsScene.createTool(missileModel, muzzleEntity.isMirrored());
 
         GameEntity projectile = bulletGroup.getGameEntityByIndex(0);
-        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(projectile, 300);
+        physicsScene.getWorldFacade().scheduleGameEntityToDestroy(projectile, 60);
         if (bulletGroup.getEntities().size() > 1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
-            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 1200);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 180);
             for (GameEntity entity : muzzleEntity.getParentGroup().getEntities()) {
                 physicsScene.getWorldFacade().addNonCollidingPair(entity, casing);
             }
@@ -405,10 +405,10 @@ public class Shooter extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
+        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         if (ratio < 0.9f) {
             return false;
         }
-        this.projInfFireSourceMap.values().forEach(ExplosiveParticleWrapper::detach);
         createFireSources(heir.getScene().getWorldFacade());
         return true;
     }

@@ -403,4 +403,5 @@
 
     <string name="vibration_setting">Vibración\n</string>
 
+    <string name="hint_setting">Consejos</string>
 </resources>

@@ -2,10 +2,12 @@ package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.hand.PlayerSpecialAction;
+import com.evolgames.physics.CollisionUtils;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.GeometryUtils;
@@ -33,6 +35,11 @@ public class Throw extends Use {
         hand.getGrabbedEntity().getUseList().add(projectile);
         projectile.setActive(true);
         body.setBullet(true);
+        body.getFixtureList().forEach(fixture -> {
+            Filter data = fixture.getFilterData();
+            data.groupIndex = CollisionUtils.THROWN_ENTITY_GROUP_INDEX;
+            fixture.setFilterData(data);
+        });
         hand.clearStack();
     }
 

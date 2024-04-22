@@ -407,4 +407,6 @@
 
     <string name="vibration_setting">Vibration\n</string>
 
+    <string name="hint_setting">Indices</string>
+
 </resources>

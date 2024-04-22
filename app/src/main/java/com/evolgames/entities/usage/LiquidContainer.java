@@ -158,11 +158,11 @@ public class LiquidContainer extends Use {
 
     @Override
     public boolean inheritedBy(GameEntity heir, float ratio) {
+        this.liquidSourceInfoHashMap.values().forEach(LiquidParticleWrapper::detach);
         if (ratio < 0.9f) {
             return false;
         }
         this.liquidSourceInfoList.forEach(liquidSourceInfo -> liquidSourceInfo.setContainerEntity(heir));
-        this.liquidSourceInfoHashMap.values().forEach(LiquidParticleWrapper::detach);
         return true;
     }
 }

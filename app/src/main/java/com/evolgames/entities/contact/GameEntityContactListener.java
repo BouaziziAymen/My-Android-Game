@@ -19,7 +19,7 @@ public class GameEntityContactListener implements ContactListener {
 
     public GameEntityContactListener(ContactObserver observer) {
         this.observer = observer;
-        this.nonCollidingEntities = new CopyOnWriteArraySet<>();
+        this.nonCollidingEntities = new HashSet<>();
     }
 
     public void addNonCollidingPair(GameEntity entity1, GameEntity entity2) {
@@ -40,7 +40,6 @@ public class GameEntityContactListener implements ContactListener {
 
     @Override
     public void endContact(Contact contact) {
-
         if (shouldNotCollide(contact.getFixtureA(), contact.getFixtureB())) {
             contact.setEnabled(false);
             return;
@@ -70,7 +69,7 @@ public class GameEntityContactListener implements ContactListener {
         return nonCollidingEntities;
     }
 
-    private boolean shouldNotCollide(Fixture fixture1, Fixture fixture2) {
+    private synchronized boolean shouldNotCollide(Fixture fixture1, Fixture fixture2) {
         Body body1 = fixture1.getBody();
         Body body2 = fixture2.getBody();
         GameEntity entity1 = (GameEntity) body1.getUserData();
@@ -78,10 +77,9 @@ public class GameEntityContactListener implements ContactListener {
         return shouldNotCollide(entity1, entity2);
     }
 
-    public boolean shouldNotCollide(GameEntity entity1, GameEntity entity2) {
+    public synchronized boolean shouldNotCollide(GameEntity entity1, GameEntity entity2) {
         for (Pair<GameEntity> pair : nonCollidingEntities) {
-            if ((pair.first == entity1 && pair.second == entity2)
-                    || (pair.second == entity1 && pair.first == entity2)) {
+            if ((pair.first == entity1 && pair.second == entity2) || (pair.second == entity1 && pair.first == entity2)) {
                 return true;
             }
         }

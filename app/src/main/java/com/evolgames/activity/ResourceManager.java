@@ -851,6 +851,7 @@ public class ResourceManager {
                 windSound.setLooping(true); // Loop the music
 
                 clockSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "clock.mp3");
+                clockSound.setVolume(1f);
                 clockSound.setLooping(true); // Loop the music
 
                 setMusic(this.music);

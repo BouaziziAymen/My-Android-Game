@@ -29,6 +29,7 @@ import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.ragdoll.RagDoll;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
+import com.evolgames.physics.CollisionUtils;
 import com.evolgames.scenes.PhysicsScene;
 import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.GeometryUtils;
@@ -228,7 +229,7 @@ public class GameEntityFactory {
         filter.categoryBits =   (short)
                 (OBJECTS_MIDDLE_CATEGORY | OBJECTS_FRONT_CATEGORY | OBJECTS_BACK_CATEGORY);
         filter.maskBits = filter.categoryBits;
-        filter.groupIndex = -1;
+        filter.groupIndex = CollisionUtils.DOLL_PART_GROUP_INDEX;
         BodyInit bodyInit =
                 new TransformInit(
                         new BodyInitImpl(
