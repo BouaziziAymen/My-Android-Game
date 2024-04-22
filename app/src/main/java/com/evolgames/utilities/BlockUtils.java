@@ -668,7 +668,7 @@ public class BlockUtils {
             block2.addFreshCut(pair2);
         }
         block2.setPolarity(Polarity.YANG);
-        int liquidQuantity = block.getLiquidQuantity();
+        float liquidQuantity = block.getLiquidQuantity();
         block1.setLiquidQuantity((int)Math.floor(liquidQuantity * block1.getBlockArea() / block.getBlockArea()));
         block2.setLiquidQuantity((int)Math.floor(liquidQuantity * block2.getBlockArea() / block.getBlockArea()));
 

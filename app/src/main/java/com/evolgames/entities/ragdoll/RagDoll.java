@@ -98,14 +98,39 @@ public class RagDoll extends GameGroup {
         }
     }
     private void checkBlood(HashSet<GameEntity> entities) {
-        float blood = 0;
+
+        BloodResults result = getBloodResults(entities);
         for(GameEntity e:entities){
             for(LayerBlock layerBlock:e.getBlocks()){
-                blood+=layerBlock.getLiquidQuantity();
+              float ratio = layerBlock.getBlockArea()/ result.totalArea;
+              float layerBlood = result.blood *ratio;
+              layerBlock.setLiquidQuantity(layerBlood);
             }
         }
-        if(blood<1200){
+        if(result.blood <1200){
             alive = false;
+        }
+    }
+
+    private static BloodResults getBloodResults(HashSet<GameEntity> entities) {
+        float blood = 0;
+        float totalArea = 0;
+        for(GameEntity e: entities){
+            for(LayerBlock layerBlock:e.getBlocks()){
+                blood+=layerBlock.getLiquidQuantity();
+                totalArea+=layerBlock.getBlockArea();
+            }
+        }
+        return new BloodResults(blood, totalArea);
+    }
+
+    private static class BloodResults {
+        public final float blood;
+        public final float totalArea;
+
+        public BloodResults(float blood, float totalArea) {
+            this.blood = blood;
+            this.totalArea = totalArea;
         }
     }
 
@@ -198,7 +223,7 @@ public class RagDoll extends GameGroup {
         deque.push(head);
         while (!deque.isEmpty()) {
             GameEntity current = deque.pop();
-            if (current.getBody() != null && current.isAlive()) {
+            if (current.getBody() != null && current.isAlive()&&current.getType()!=SpecialEntityType.Default) {
                 entities.add(current);
                 for (JointEdge edge : current.getBody().getJointList()) {
                     GameEntity entity = (GameEntity) edge.other.getUserData();

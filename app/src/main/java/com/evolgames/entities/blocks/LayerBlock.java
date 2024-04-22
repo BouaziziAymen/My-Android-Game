@@ -30,7 +30,7 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
     private boolean dead;
     private float blockArea;
     private boolean fillGrid;
-    private int liquidQuantity;
+    private float liquidQuantity;
 
     public void initialization(
             List<Vector2> vertices, Properties properties, int id, boolean fillGrid) {
@@ -239,11 +239,11 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
         return getProperties().getTenacity();
     }
 
-    public void setLiquidQuantity(int liquidQuantity) {
+    public void setLiquidQuantity(float liquidQuantity) {
         this.liquidQuantity = liquidQuantity;
     }
 
-    public int getLiquidQuantity() {
+    public float getLiquidQuantity() {
         return liquidQuantity;
     }
 
