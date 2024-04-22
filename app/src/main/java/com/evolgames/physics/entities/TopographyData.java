@@ -170,6 +170,19 @@ public class TopographyData {
         return blocks;
     }
 
+    public Float getFirstContact(GameEntity overlappedEntity) {
+        Float inf = null;
+        for (int i = 0; i < length; i++) {
+            GameEntity gameEntity = entities[i];
+           if(gameEntity==overlappedEntity){
+              if(inf==null||data[i][0]<inf){
+                  inf = data[i][0];
+              }
+           }
+        }
+        return inf;
+    }
+
     public static class Overlap {
         GameEntity gameEntity;
         float value;

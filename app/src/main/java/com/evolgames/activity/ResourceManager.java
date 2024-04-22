@@ -132,7 +132,7 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound, bluntSound, glueSound, gunEmptySound,switchSound;
+    public Sound slashSound, glueSound, gunEmptySound,switchSound;
     public TextureRegion aimCircleTextureRegion;
     public TextureRegion focusTextureRegion;
     public TiledTextureRegion helpBigButton;
@@ -756,11 +756,6 @@ public class ResourceManager {
 
             SoundFactory.setAssetBasePath("sfx/");
 
-            bluntSound =
-                    SoundFactory.createSoundFromAsset(
-                            this.activity.getSoundManager(),
-                            this.activity,
-                            "blunt.wav");
 
             switchSound =
                     SoundFactory.createSoundFromAsset(

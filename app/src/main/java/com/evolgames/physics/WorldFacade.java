@@ -202,7 +202,7 @@ public class WorldFacade implements ContactObserver {
         }
 
         if (sound != null) {
-            ResourceManager.getInstance().tryPlaySound(sound, calculateVolumeRatio(collisionImpulse),1,x,y);
+            ResourceManager.getInstance().tryPlaySound(sound,calculateVolumeRatio(collisionImpulse),5,x,y);
         }
     }
 
@@ -1121,7 +1121,7 @@ public class WorldFacade implements ContactObserver {
             boolean secondInside = layerBlock.testPoint(body, end.x, end.y);
 
             if (firstInside && secondInside) {
-                // inneer cut
+                // inner cut
                 float projection1 = GeometryUtils.projection(begin, origin, base);
                 float projection2 = GeometryUtils.projection(end, origin, base);
                 topographyData.add(projection1, projection2, entity, layerBlock);
@@ -1473,28 +1473,25 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void computePenetrationSpecialEffects(Vector2 normal, Vector2 impactPoint, float advance, List<TopographyData> envData, float collisionImpulse) {
-
-        playCollisionSound(impactPoint, envData, collisionImpulse);
-
         List<PenetrationPoint> allPenPoints = new ArrayList<>();
         for (TopographyData topographyData : envData) {
             List<PenetrationPoint> dataPenPoints = new ArrayList<>();
             for (int i = 0; i < topographyData.getLength(); i++) {
                 float inf = topographyData.getData()[i][0];
                 float sup = topographyData.getData()[i][1];
-                if (advance > inf) {
+                if (advance >= inf) {
                     Vector2 point = topographyData.getBase().cpy().add((inf + 0.02f) * normal.x, (inf + 0.02f) * normal.y);
                     PenetrationPoint pe = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, inf, advance - inf, true);
                     dataPenPoints.add(pe);
                 }
-                if (advance > sup) {
+                if (advance >= sup) {
                     Vector2 point = topographyData.getBase().cpy().add((sup - 0.05f) * normal.x, (sup - 0.05f) * normal.y);
                     PenetrationPoint ps = new PenetrationPoint(topographyData.getEntities()[i], topographyData.getBlocks()[i], point, sup, sup - inf, false);
                     dataPenPoints.add(ps);
                 }
             }
-            Collection<List<PenetrationPoint>> res = dataPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock)).values();
-            for (List<PenetrationPoint> list : res) {
+            Map<LayerBlock, List<PenetrationPoint>> penPointsGroupedByBlock = dataPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getBlock));
+            for (List<PenetrationPoint> list : penPointsGroupedByBlock.values()) {
                 Collections.sort(list);
                 PenetrationPoint enteringPoint = list.get(0);
                 allPenPoints.add(enteringPoint);
@@ -1504,6 +1501,7 @@ public class WorldFacade implements ContactObserver {
                 }
             }
         }
+        playCollisionSound(impactPoint, allPenPoints.stream().filter(PenetrationPoint::isEntering).collect(Collectors.groupingBy(PenetrationPoint::getBlock)).values(), collisionImpulse);
         Map<GameEntity, List<PenetrationPoint>> groupedByEntity = allPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getEntity));
 
         for (Map.Entry<GameEntity, List<PenetrationPoint>> entry : groupedByEntity.entrySet()) {
@@ -1539,14 +1537,13 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    private static void playCollisionSound(Vector2 impactPoint, List<TopographyData> envData, float collisionImpulse) {
+    private static void playCollisionSound(Vector2 impactPoint, Collection<List<PenetrationPoint>> envData, float collisionImpulse) {
         envData.stream()
-                .filter(e -> e.getBlocks().length > 0)
-                .map(e -> e.getBlocks()[0].getMaterialAcousticType())
                 .collect(Collectors.groupingBy(e -> e, Collectors.counting())) // Group by AcousticType and count occurrences
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue()) // Find the entry with the maximum count
-                .map(Map.Entry::getKey).ifPresent(mostCommonAcousticType -> processPenetrationSound(mostCommonAcousticType, collisionImpulse, impactPoint.x * 32f, impactPoint.y * 32f));
+                .map(e -> e.getKey().get(0).getBlock().getMaterialAcousticType())
+                .ifPresent(mostCommonAcousticType -> processPenetrationSound(mostCommonAcousticType, collisionImpulse, impactPoint.x * 32f, impactPoint.y * 32f));
     }
 
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {

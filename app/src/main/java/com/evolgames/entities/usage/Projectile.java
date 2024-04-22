@@ -2,6 +2,8 @@ package com.evolgames.entities.usage;
 
 import static org.andengine.extension.physics.box2d.util.Vector2Pool.obtain;
 
+import android.util.Log;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -12,6 +14,9 @@ import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
+
+import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +103,22 @@ public class Projectile extends Use implements Penetrating {
             aDynamic.ifPresent(merged::add);
             aStatic.ifPresent(merged::add);
             for (GameEntity overlappedEntity : merged) {
-                worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), point.cpy());
+                Float min = null;
+                Vector2 base = null;
+                for(int i=0;i<envData.size();i++) {
+                    TopographyData e = envData.get(i);
+                    if(e!=null) {
+                        Float d = e.getFirstContact(overlappedEntity);
+                        if (d!=null&&(min == null || min < d)) {
+                            min = d;
+                            base = e.getBase();
+                        }
+                    }
+                }
+                if(base!=null) {
+                    Vector2 inter = base.cpy().add(min * normal.x, min * normal.y);
+                    worldFacade.mergeEntities(overlappedEntity, penetrator, normal.cpy().mul(-actualAdvance), inter.cpy());
+                }
             }
         }
 
