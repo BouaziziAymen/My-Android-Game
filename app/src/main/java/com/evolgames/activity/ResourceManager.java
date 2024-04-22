@@ -935,10 +935,12 @@ public class ResourceManager {
                 // Apply inverse square law
                 soundFactor = Math.min(1f,800f * 800f / (distance * distance));
             }
-            Log.e("PlaySound",""+soundFactor);
-            sound.setPriority(priority);
-            sound.setVolume(soundFactor*volume);
-            sound.play();
+            volume = volume * soundFactor;
+            if(volume>0.05f) {
+                sound.setPriority(priority);
+                sound.setVolume(volume);
+                sound.play();
+            }
         }
     }
     public void tryPlaySound(Sound sound, float volume, int priority) {

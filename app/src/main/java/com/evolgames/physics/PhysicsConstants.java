@@ -17,7 +17,7 @@ public class PhysicsConstants {
     public static final float MIN_FIRE_RATE = 1f;
     public static final float MAX_FIRE_RATE = 10f;
     public static final float GRAIN_SPACING = 32f;
-    public static final float PARTICLE_TERMINAL_VELOCITY = 10f;
+    public static final float PARTICLE_TERMINAL_VELOCITY = 30f;
     public static final float EXPLOSION_FORCE_THRESHOLD = 100f;
     public static final int EXPLOSION_LIFESPAN = 8;
     public static final int PULVERIZATION_DURATION = 10;
@@ -52,7 +52,7 @@ public class PhysicsConstants {
     }
 
     public static float getParticleVelocity(float speedRatio) {
-        return (50 + 300 * speedRatio);
+        return (100 + 600 * speedRatio);
     }
 
     public static float getFlameTemperature(float heatRatio) {

@@ -17,11 +17,16 @@ public class HoldHandControl extends HandControl {
 
     @Override
     public void run() {
+
         super.run();
+        if(hand==null){
+            return;
+        }
         GameEntity heldEntity = hand.getHeldEntity();
         if (heldEntity == null || heldEntity.getBody() == null) {
             return;
         }
+
         Body body = heldEntity.getBody();
         if (!isDead()) {
             if (body != null) {

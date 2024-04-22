@@ -49,6 +49,9 @@ public class BodyDestructionCommand extends Command {
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
         Hand hand = Invoker.scene.getHand();
+        if(hand!=null&&hand.getGrabbedEntity()==entity){
+           hand.onMouseJointDestroyed(hand.getMouseJoint());
+        }
         if(hand!=null){
             if(hand.getSelectedEntity()==entity) {
                 if (entity.getHeir() != null) {

@@ -78,6 +78,7 @@ import org.andengine.util.adt.color.Color;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -151,9 +152,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         int pointerID = touchEvent.getPointerID();
         if (pointerID != 0) {
             return;
-        }
-        if (hand == null) {
-            hand = new Hand(this);
         }
         hand.onSceneTouchEvent(touchEvent);
     }
@@ -260,6 +258,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     @Override
     public void populate() {
+
         createRagDoll(400, 300);
         String map = ResourceManager.getInstance().getMapString();
         if ("open".equalsIgnoreCase(map)) {
@@ -271,13 +270,12 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         if ("wood".equalsIgnoreCase(map)) {
             createWoodGround();
         }
-        //testMesh();
         onUsagesUpdated();
+        this.hand = new Hand(this);
     }
 
     @Override
     public void detach() {
-
         destroyEntities();
         this.hand = null;
         this.worldFacade.getTimedCommands().clear();
@@ -294,8 +292,12 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void refresh() {
         this.detach();
-        this.populate();
-        ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
+        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+            this.populate();
+            ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
+        });
+
+
 
     }
 
@@ -1096,18 +1098,32 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     private void checkMotorSounds() {
         HashSet<Integer> sounds = new HashSet<>();
+        HashMap<Integer,Float> soundValues = new HashMap<>();
         for (GameGroup gameGroup : gameGroups) {
             for (GameEntity gameEntity : gameGroup.getEntities()) {
                 if (gameEntity.hasUsage(MotorControl.class)) {
                     MotorControl motorControl = gameEntity.getUsage(MotorControl.class);
                     if (motorControl.isRunning()) {
-                        sounds.add(motorControl.getMotorSound());
+                        int motorSound = motorControl.getMotorSound();
+                        sounds.add(motorSound);
+                        float x = gameEntity.getMesh().getX();
+                        float y = gameEntity.getMesh().getY();
+                        float dis = new Vector2(x,y).dst(this.mCamera.getCenterX(),this.mCamera.getCenterY());
+                        float soundFactor = dis<=0?1f:800f*800f/(dis*dis);
+                        soundValues.compute(motorSound, (key, oldValue) -> {
+                            if (oldValue == null || soundFactor > oldValue) {
+                                return soundFactor;
+                            } else {
+                                return oldValue;
+                            }
+                        });
                     }
                 }
             }
         }
         for (int i = 0; i < 3; i++) {
             if (sounds.contains(i)) {
+                ResourceManager.getInstance().motorSounds.get(i).setVolume(soundValues.get(i));
                 if (!motorSounds[i]) {
                     motorSounds[i] = true;
                     ResourceManager.getInstance().motorSounds.get(i).play();
@@ -1229,5 +1245,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         }
         Log.e("numberOfVisible",total+":"+numberOfVisibleEntities);
     }
+
 
 }

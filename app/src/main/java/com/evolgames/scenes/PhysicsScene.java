@@ -67,7 +67,7 @@ public abstract class PhysicsScene extends AbstractScene {
 
     protected final WorldFacade worldFacade;
     protected final List<GameGroup> gameGroups = new CopyOnWriteArrayList<>();
-    protected Hand hand = null;
+    protected Hand hand;
     protected RagDoll ragdoll;
     protected int step;
 

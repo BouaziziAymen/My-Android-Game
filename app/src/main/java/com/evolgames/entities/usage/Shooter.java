@@ -285,7 +285,7 @@ public class Shooter extends Use {
         physicsScene.getWorldFacade().scheduleGameEntityToDestroy(projectile, 60);
         if (bulletGroup.getEntities().size() > 1) {
             GameEntity casing = bulletGroup.getGameEntityByIndex(1);
-            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 180);
+            physicsScene.getWorldFacade().scheduleGameEntityToDestroy(casing, 120);
             for (GameEntity entity : muzzleEntity.getParentGroup().getEntities()) {
                 physicsScene.getWorldFacade().addNonCollidingPair(entity, casing);
             }
