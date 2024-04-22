@@ -489,7 +489,11 @@ public class WorldFacade implements ContactObserver {
         explosions.add(explosion);
 
         Sound sound = ResourceManager.getInstance().getProjectileSound("explosion1").getSound();
-        ResourceManager.getInstance().tryPlaySound(sound, 1f,4, x*32f,y*32);
+        Vector2 p = new Vector2(x,y);
+        if(source!=null&&source.getBody()!=null){
+          p = source.getBody().getWorldPoint(p).cpy();
+        }
+        ResourceManager.getInstance().tryPlaySound(sound, 1f,4,p.x*32f,p.y*32f);
         ResourceManager.getInstance().vibrate(100);
     }
 
