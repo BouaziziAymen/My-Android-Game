@@ -54,7 +54,7 @@ public class Smasher extends MeleeUse implements Penetrating {
         float massFraction =
                 penetrator.getBody().getMass()
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, consumedImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal, point,actualAdvance, envData, consumedImpulse);
         penetrated
                 .getBody()
                 .applyLinearImpulse(normal.cpy().mul(0.1f * consumedImpulse * massFraction), point);
@@ -62,7 +62,7 @@ public class Smasher extends MeleeUse implements Penetrating {
 
         hand.getHandControlStack().peek().setDead(true);
         if (actualAdvance < 0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse), 2);
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(consumedImpulse), 2,point.x*32f,point.y*32f);
         }
         this.setActive(false);
     }
@@ -84,9 +84,9 @@ public class Smasher extends MeleeUse implements Penetrating {
                         / (penetrator.getBody().getMass() + penetrator.getBody().getMass());
         hand.getHandControlStack().peek().setDead(true);
         worldFacade.applyPointImpact(obtain(point), collisionImpulse * massFraction, penetrated);
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal,point, actualAdvance, envData, collisionImpulse);
         if (actualAdvance < 0.05f) {
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse), 2);
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().bluntSound, calculateVolumeRatio(collisionImpulse), 2,point.x*32f,point.y*32f);
         }
         setActive(false);
     }

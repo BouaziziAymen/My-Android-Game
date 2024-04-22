@@ -74,7 +74,7 @@ public class Stabber extends MeleeUse implements Penetrating {
                 }
             }
         }
-        worldFacade.computePenetrationPoints(normal, possibleAdvance, envData, consumedImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal, point,possibleAdvance, envData, consumedImpulse);
         worldFacade.freeze(penetrator);
         Vector2 handWorldPoint = penetrator.getBody().getWorldPoint(this.handLocalPosition).cpy();
         moveToStabHandControl.setTarget(handWorldPoint.add(normal.cpy().mul(possibleAdvance)));
@@ -109,7 +109,7 @@ public class Stabber extends MeleeUse implements Penetrating {
                 worldFacade.addNonCollidingPair(penetrator, gameEntity);
             }
         }
-        worldFacade.computePenetrationPoints(normal, possibleAdvance, envData, collisionImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal, point,possibleAdvance, envData, collisionImpulse);
         setActive(false);
         penetrator.getBody().setFixedRotation(true);
     }

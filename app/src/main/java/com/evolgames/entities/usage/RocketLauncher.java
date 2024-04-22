@@ -164,7 +164,7 @@ public class RocketLauncher extends Use {
 
         Objects.requireNonNull(this.rockets.get(projectileInfo)).onLaunch(playScene, false);
         ResourceManager.getInstance().tryPlaySound( ResourceManager.getInstance()
-                .getProjectileSound(projectileInfo.getFireSound()).getSound(),1f,3);
+                .getProjectileSound(projectileInfo.getFireSound()).getSound(),1f,3,muzzleEntity.getX(),muzzleEntity.getY());
         if (projInfFireSourceMap.containsKey(projectileInfo)) {
             Objects.requireNonNull(projInfFireSourceMap.get(projectileInfo)).setSpawnEnabled(true);
             fireOn = true;

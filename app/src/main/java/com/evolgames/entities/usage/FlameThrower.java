@@ -1,6 +1,7 @@
 package com.evolgames.entities.usage;
 
 import com.badlogic.gdx.math.Vector2;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.entities.particles.wrappers.ExplosiveParticleWrapper;
@@ -40,7 +41,8 @@ public class FlameThrower extends Use {
         return fireSourceInfoList;
     }
 
-    public void onTriggerPulled() {
+    public void onTriggerPulled(float x, float y) {
+        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().fireWhoosh,1f,3,x,y);
         on = true;
         for (int i = 0, projectileInfoListSize = fireSourceInfoList.size();
              i < projectileInfoListSize;

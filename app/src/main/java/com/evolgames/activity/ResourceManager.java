@@ -12,7 +12,9 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Vibrator;
+import android.util.Log;
 
+import com.badlogic.gdx.math.Vector2;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.FontLoader;
 import com.evolgames.helpers.ItemMetaData;
@@ -47,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Vector;
 
 public class ResourceManager {
     // single instance is created only
@@ -156,8 +159,10 @@ public class ResourceManager {
     public TiledTextureRegion projDragTextureRegion;
     public TiledTextureRegion showHideTextureRegion;
     public TextureRegion playTextureRegion;
-    public Music mMusic, windSound, clockSound;
-    public Sound onSound, offSound, meteorSound;
+    public Music mMusic;
+    public Music windSound;
+    public Sound clockSound;
+    public Sound onSound, offSound, meteorSound, fireWhoosh;
     public TextureRegion frostParticle;
     public ArrayList<Sound> motorSounds;
     private FontLoader fontLoader;
@@ -801,6 +806,13 @@ public class ResourceManager {
                             this.activity.getSoundManager(),
                             this.activity,
                             "meteor.wav");
+            fireWhoosh =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "fire_whoosh.wav");
+
+            clockSound = SoundFactory.createSoundFromAsset(this.activity.getSoundManager(), this.activity, "clock.mp3");
 
 
             onSound =
@@ -849,10 +861,6 @@ public class ResourceManager {
 
                 windSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "wind.mp3");
                 windSound.setLooping(true); // Loop the music
-
-                clockSound = MusicFactory.createMusicFromAsset(this.activity.getMusicManager(), this.activity, "clock.mp3");
-                clockSound.setVolume(1f);
-                clockSound.setLooping(true); // Loop the music
 
                 setMusic(this.music);
             } catch (IOException e) {
@@ -915,6 +923,24 @@ public class ResourceManager {
         this.selectedItemMetaData = selectedItemMetaData;
     }
 
+    public void tryPlaySound(Sound sound, float volume, int priority, float x, float y) {
+        if (this.sound) {
+            Vector2 pos = new Vector2(x,y);
+            float distance = pos.dst(this.firstCamera.getCenterX(),this.firstCamera.getCenterY());
+            float soundFactor;
+            if (distance <= 0) {
+                // Avoid division by zero
+                soundFactor = 1.0f;
+            } else {
+                // Apply inverse square law
+                soundFactor = Math.min(1f,800f * 800f / (distance * distance));
+            }
+            Log.e("PlaySound",""+soundFactor);
+            sound.setPriority(priority);
+            sound.setVolume(soundFactor*volume);
+            sound.play();
+        }
+    }
     public void tryPlaySound(Sound sound, float volume, int priority) {
         if (this.sound) {
             sound.setPriority(priority);

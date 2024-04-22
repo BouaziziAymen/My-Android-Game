@@ -75,7 +75,7 @@ public class Projectile extends Use implements Penetrating {
         List<GameEntity> overlappedEntities =
                 worldFacade.findOverlappingEntities(penData, envData, actualAdvance);
 
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, consumedImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal,point, actualAdvance, envData, consumedImpulse);
         if (projectileType == ProjectileType.BULLET) {
             penetrator.setAlive(false);
             penetrator.setVisible(false);
@@ -131,7 +131,7 @@ public class Projectile extends Use implements Penetrating {
         for (GameEntity gameEntity : penetrated.getParentGroup().getEntities()) {
             worldFacade.addNonCollidingPair(gameEntity, penetrator);
         }
-        worldFacade.computePenetrationPoints(normal, actualAdvance, envData, collisionImpulse);
+        worldFacade.computePenetrationSpecialEffects(normal, point,actualAdvance, envData, collisionImpulse);
 
         if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {
             penetrated.getBody().applyLinearImpulse(normal.cpy().mul(collisionImpulse * massFraction), obtain(point));

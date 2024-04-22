@@ -246,4 +246,8 @@ public class LayerBlock extends Block<LayerBlock, LayerProperties>
     public int getLiquidQuantity() {
         return liquidQuantity;
     }
+
+    public MaterialFactory.MaterialAcousticType getMaterialAcousticType() {
+        return MaterialFactory.getInstance().getMaterialAcousticType(getProperties().getMaterialNumber());
+    }
 }

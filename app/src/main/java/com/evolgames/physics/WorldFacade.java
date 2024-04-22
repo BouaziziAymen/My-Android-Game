@@ -14,7 +14,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
@@ -157,8 +156,8 @@ public class WorldFacade implements ContactObserver {
         physicsWorld.setContinuousPhysics(true);
     }
 
-    private static void processPenetrationSound(LayerBlock layerBlock, float collisionImpulse) {
-        MaterialFactory.MaterialAcousticType materialAcousticType = MaterialFactory.getInstance().getMaterialAcousticType(layerBlock.getProperties().getMaterialNumber());
+    private static void processPenetrationSound(    MaterialFactory.MaterialAcousticType materialAcousticType, float collisionImpulse, float x, float y) {
+      //  MaterialFactory.MaterialAcousticType materialAcousticType = MaterialFactory.getInstance().getMaterialAcousticType(layerBlock.getProperties().getMaterialNumber());
         if (materialAcousticType == null) {
             return;
         }
@@ -203,7 +202,7 @@ public class WorldFacade implements ContactObserver {
         }
 
         if (sound != null) {
-            ResourceManager.getInstance().tryPlaySound(sound, calculateVolumeRatio(collisionImpulse),1);
+            ResourceManager.getInstance().tryPlaySound(sound, calculateVolumeRatio(collisionImpulse),1,x,y);
         }
     }
 
@@ -490,7 +489,7 @@ public class WorldFacade implements ContactObserver {
         explosions.add(explosion);
 
         Sound sound = ResourceManager.getInstance().getProjectileSound("explosion1").getSound();
-        ResourceManager.getInstance().tryPlaySound(sound, 1f,4);
+        ResourceManager.getInstance().tryPlaySound(sound, 1f,4, x*32f,y*32);
         ResourceManager.getInstance().vibrate(100);
     }
 
@@ -1255,7 +1254,7 @@ public class WorldFacade implements ContactObserver {
         Line line = new Line(x1, y1, x2, y2, 2, ResourceManager.getInstance().vbom);
         line.setColor(block.getProperties().isJuicy() ? block.getProperties().getJuiceColor() : Color.BLACK);
         gameEntity.getMesh().attachChild(line);
-        processPenetrationSound(block, innerCut.getLength() * 10);
+        processPenetrationSound(block.getMaterialAcousticType(), innerCut.getLength() * 10,x1,y1);
         if (block.getProperties().isJuicy()) {
             scene.getWorldFacade().createJuiceSource(gameEntity, block, innerCut);
         }
@@ -1446,7 +1445,7 @@ public class WorldFacade implements ContactObserver {
             cutPerformed = true;
 
 
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().slashSound, calculateVolumeRatio(10 * cut.getLength()),1);
+            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().slashSound, calculateVolumeRatio(10 * cut.getLength()),1,cut.getP1().x,cut.getP1().y);
 
             Iterator<LayerBlock> iterator = block.createIterator();
             while (iterator.hasNext()) {
@@ -1469,7 +1468,10 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public void computePenetrationPoints(Vector2 normal, float advance, List<TopographyData> envData, float collisionImpulse) {
+    public void computePenetrationSpecialEffects(Vector2 normal, Vector2 impactPoint, float advance, List<TopographyData> envData, float collisionImpulse) {
+
+        playCollisionSound(impactPoint, envData, collisionImpulse);
+
         List<PenetrationPoint> allPenPoints = new ArrayList<>();
         for (TopographyData topographyData : envData) {
             List<PenetrationPoint> dataPenPoints = new ArrayList<>();
@@ -1498,7 +1500,6 @@ public class WorldFacade implements ContactObserver {
                 }
             }
         }
-
         Map<GameEntity, List<PenetrationPoint>> groupedByEntity = allPenPoints.stream().collect(Collectors.groupingBy(PenetrationPoint::getEntity));
 
         for (Map.Entry<GameEntity, List<PenetrationPoint>> entry : groupedByEntity.entrySet()) {
@@ -1513,7 +1514,6 @@ public class WorldFacade implements ContactObserver {
                     float length = (float)enterBleedingPoints.stream().mapToDouble(e->0.05f*32f*32*Math.min(0.2f,e.getWeight())).sum()*0.1f;
                     length = Math.min(10f,length);
                     int limit = (int) Math.ceil(length * BLEEDING_CONSTANT * layerBlock.getProperties().getJuicinessDensity());
-                    processPenetrationSound(layerBlock, collisionImpulse);
                     if (limit > 0 && layerBlock.getProperties().isJuicy()) {
                         FreshCut freshCut = new PointsFreshCut(enterBleedingPoints, length, limit, normal.cpy().mul(-collisionImpulse));
                         this.createJuiceSource(entity, layerBlock, freshCut);
@@ -1533,6 +1533,16 @@ public class WorldFacade implements ContactObserver {
                 }
             }
         }
+    }
+
+    private static void playCollisionSound(Vector2 impactPoint, List<TopographyData> envData, float collisionImpulse) {
+        envData.stream()
+                .filter(e -> e.getBlocks().length > 0)
+                .map(e -> e.getBlocks()[0].getMaterialAcousticType())
+                .collect(Collectors.groupingBy(e -> e, Collectors.counting())) // Group by AcousticType and count occurrences
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue()) // Find the entry with the maximum count
+                .map(Map.Entry::getKey).ifPresent(mostCommonAcousticType -> processPenetrationSound(mostCommonAcousticType, collisionImpulse, impactPoint.x * 32f, impactPoint.y * 32f));
     }
 
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {

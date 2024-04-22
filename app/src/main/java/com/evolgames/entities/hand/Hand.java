@@ -347,7 +347,7 @@ public class Hand {
                                 if (grabbedEntity.hasUsage(FlameThrower.class)) {
                                     FlameThrower flameThrower = this.grabbedEntity.getUsage(FlameThrower.class);
                                     if (!flameThrower.isOn()) {
-                                        flameThrower.onTriggerPulled();
+                                        flameThrower.onTriggerPulled(touchEvent.getX(),touchEvent.getY());
                                     }
                                 }
                             }

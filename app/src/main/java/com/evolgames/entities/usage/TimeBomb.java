@@ -37,10 +37,7 @@ public class TimeBomb extends Bomb {
     @Override
     protected void detonate(WorldFacade worldFacade) {
         super.detonate(worldFacade);
-        if(ResourceManager.getInstance().clockSound.isPlaying()) {
             ResourceManager.getInstance().clockSound.pause();
-            ResourceManager.getInstance().clockSound.seekTo(0);
-        }
     }
 
     @Override
