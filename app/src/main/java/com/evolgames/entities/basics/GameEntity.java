@@ -86,6 +86,7 @@ public class GameEntity extends EntityWithBody {
     private int zIndex;
     private boolean outlined;
     private GameEntity heir;
+    private boolean destroyed;
 
     public GameEntity(
             MosaicMesh mesh, PhysicsScene scene, String entityName, List<LayerBlock> layerBlocks) {
@@ -470,8 +471,6 @@ public class GameEntity extends EntityWithBody {
         }
 
         scene.getWorldFacade().onEntityDetached(this);
-
-
     }
 
     public float checkBurnDamage() {
@@ -868,5 +867,13 @@ public class GameEntity extends EntityWithBody {
 
     public void setOutlined(boolean outlined) {
         this.outlined = outlined;
+    }
+
+    public void setDestroyed() {
+        this.destroyed = true;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 }

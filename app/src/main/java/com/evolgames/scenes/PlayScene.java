@@ -82,6 +82,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class PlayScene extends PhysicsScene implements IAccelerationListener, ScrollDetector.IScrollDetectorListener, PinchZoomDetector.IPinchZoomDetectorListener {
@@ -258,7 +259,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     @Override
     public void populate() {
-
         createRagDoll(400, 300);
         String map = ResourceManager.getInstance().getMapString();
         if ("open".equalsIgnoreCase(map)) {
@@ -270,14 +270,15 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         if ("wood".equalsIgnoreCase(map)) {
             createWoodGround();
         }
-        onUsagesUpdated();
         this.hand = new Hand(this);
+        onUsagesUpdated();
+
+
     }
 
     @Override
     public void detach() {
-        destroyEntities();
-        this.hand = null;
+        super.detach();
         this.worldFacade.getTimedCommands().clear();
         ResourceManager.getInstance().activity.runOnUpdateThread(this::hideAimSpriteDirect);
         System.gc();
@@ -309,28 +310,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         this.savingBox.onSceneResume();
     }
 
-    private void destroyEntities() {
-            for (GameGroup gameGroup : this.getGameGroups()) {
-                for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                    ResourceManager.getInstance().activity.runOnUpdateThread(()->{
-                     gameEntity.detach();
-                     gameEntity.recycle();
-                     if(gameEntity.getBody()!=null){
-                         worldFacade.getPhysicsWorld().destroyBody(gameEntity.getBody());
-                     }
-                        if(gameEntity.getMirrorBody()!=null){
-                            worldFacade.getPhysicsWorld().destroyBody(gameEntity.getMirrorBody());
-                        }
-                    });
-                }
-            }
-
-        worldFacade.cleanLiquidWrappers();
-        worldFacade.cleanPowderWrappers();
-
-        this.hand = null;
-        this.gameGroups.clear();
-    }
 
     @Override
     public void createUserInterface() {
@@ -468,7 +447,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private void createOpenGround() {
         ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-Float.MAX_VALUE, 0, Float.MAX_VALUE, Float.MAX_VALUE);
         PlayScene.groundY = 30f;
-        List<GameEntity> entities = new ArrayList<>();
+        List<GameEntity> entities = new CopyOnWriteArrayList<>();
         for (int i = -100; i < 100; i++) {
             // for(int i=2;i<3;i++) {
             ArrayList<LayerBlock> blocks = new ArrayList<>();

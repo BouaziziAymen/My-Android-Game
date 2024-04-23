@@ -13,6 +13,7 @@ public class GameGroup {
     private final List<Command> commands;
     private final GroupType groupType;
     private String uniqueID = UUID.randomUUID().toString();
+    private boolean destroyed;
 
     public GameGroup(GroupType groupType, GameEntity... groupOfEntities) {
         this.groupType = groupType;
@@ -80,5 +81,17 @@ public class GameGroup {
             }
         }
         return result;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public void Destroyed(boolean dead) {
+        this.destroyed = dead;
+    }
+
+    public boolean isReadyToDestroy() {
+        return entities.stream().allMatch(GameEntity::isDestroyed);
     }
 }

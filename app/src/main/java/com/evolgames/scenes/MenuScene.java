@@ -23,12 +23,8 @@ import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
-import org.andengine.entity.scene.IOnSceneTouchListener;
-import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.AnimatedSprite;
-import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.input.touch.TouchEvent;
 import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
@@ -142,7 +138,7 @@ public class MenuScene extends PhysicsScene {
 
     @Override
     public void detach() {
-        destroyEntities();
+       super.detach();
         if(fireSourece!=null){
             fireSourece.detach();
         }
@@ -156,16 +152,7 @@ public class MenuScene extends PhysicsScene {
     public void onPause() {
         this.detach();
     }
-    private void destroyEntities() {
-        for (GameGroup gameGroup : this.getGameGroups()) {
-            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                ResourceManager.getInstance().activity.runOnUpdateThread(()->{
-                    gameEntity.detach();
-                    worldFacade.getPhysicsScene().getPhysicsWorld().destroyBody(gameEntity.getBody());
-                });
-            }
-        }
-    }
+
     @Override
     public void onResume() {
         createUserInterface();

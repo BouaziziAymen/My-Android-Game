@@ -12,6 +12,7 @@ import com.evolgames.entities.commandtemplate.commands.BodyDestructionCommand;
 import com.evolgames.entities.commandtemplate.commands.BodyMirrorCommand;
 import com.evolgames.entities.commandtemplate.commands.Command;
 import com.evolgames.entities.commandtemplate.commands.CustomCommand;
+import com.evolgames.entities.commandtemplate.commands.GameGroupDestructionCommand;
 import com.evolgames.entities.commandtemplate.commands.JointCreationCommand;
 import com.evolgames.entities.commandtemplate.commands.JointDestructionCommand;
 import com.evolgames.entities.init.BodyInit;
@@ -67,9 +68,14 @@ public class Invoker {
                                     }
                                 }
                             }
-
-
+                            scene.getGameGroups().removeIf(gameGroup -> gameGroup.isDestroyed()||gameGroup.isReadyToDestroy());
                         });
+    }
+
+    public static void addGroupDestructionCommand(
+            GameGroup gameGroup) {
+        GameGroupDestructionCommand command = new GameGroupDestructionCommand(gameGroup);
+        gameGroup.getCommands().add(command);
     }
 
     public static void addBodyMirrorCommand(

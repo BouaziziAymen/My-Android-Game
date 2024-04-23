@@ -84,7 +84,7 @@ public class Projectile extends Use implements Penetrating {
         if (projectileType == ProjectileType.BULLET) {
             penetrator.setAlive(false);
             penetrator.setVisible(false);
-            worldFacade.destroyGameEntity(penetrator, false);
+            worldFacade.destroyGameEntity(penetrator, true);
         }
 
         if (projectileType == ProjectileType.SHARP_WEAPON||projectileType == ProjectileType.METEOR) {

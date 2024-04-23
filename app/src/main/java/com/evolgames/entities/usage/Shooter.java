@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -334,7 +335,7 @@ public class Shooter extends Use {
     }
 
     public GameEntity getMuzzleEntity() {
-        Optional<Muzzle> result = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).findFirst();
+        Optional<Muzzle> result = projectileInfoList.stream().map(ProjectileInfo::getMuzzle).filter(Objects::nonNull).findFirst();
         return result.map(Muzzle::getTheMuzzleEntity).orElse(null);
     }
 

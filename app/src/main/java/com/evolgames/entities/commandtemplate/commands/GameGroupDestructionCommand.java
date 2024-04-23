@@ -3,23 +3,21 @@ package com.evolgames.entities.commandtemplate.commands;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.commandtemplate.Invoker;
-import com.evolgames.entities.hand.Hand;
 
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 
 import java.util.Iterator;
 
-public class BodyDestructionCommand extends Command {
-    private final GameEntity entity;
-    private final boolean finalDestruction;
+public class GameGroupDestructionCommand extends Command{
+    final GameGroup group;
 
-    public BodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
-        this.entity = entity;
-        this.finalDestruction = finalDestruction;
+    public GameGroupDestructionCommand(GameGroup group) {
+        this.group = group;
     }
 
-    private void destroy() {
+    private void destroy(GameEntity entity) {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Body body = entity.getBody();
         Body mirrorBody = entity.getMirrorBody();
@@ -42,37 +40,15 @@ public class BodyDestructionCommand extends Command {
         entity.setMirrorBody(null);
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
-        if(finalDestruction){
-            entity.recycle();
-        }
+        entity.recycle();
         entity.setDestroyed();
     }
 
     @Override
     protected void run() {
-        destroy();
-        Hand hand = Invoker.scene.getHand();
-        if(hand!=null&&hand.getGrabbedEntity()==entity){
-           hand.onMouseJointDestroyed(hand.getMouseJoint());
+        for(GameEntity gameEntity:group.getGameEntities()){
+            destroy(gameEntity);
         }
-        if(hand!=null){
-            if(hand.getSelectedEntity()==entity) {
-                if (entity.getHeir() != null) {
-                    hand.inheritSelectedEntity(entity.getHeir());
-                } else {
-                    hand.deselectDirect(true);
-                }
-            }
-        }
-
-    }
-
-    @Override
-    protected boolean isReady() {
-        return entity.getBody() != null;
-    }
-
-    public GameEntity getGameEntity() {
-        return entity;
+        group.Destroyed(true);
     }
 }

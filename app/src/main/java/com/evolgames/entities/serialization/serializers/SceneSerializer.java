@@ -229,8 +229,12 @@ public class SceneSerializer {
         if(scene instanceof PlayScene){
             PlayScene playScene = (PlayScene) scene;
             if(playScene.getHand()!=null) {
-                playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
-                playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
+                if(this.grabbedEntityUniqueId!=null) {
+                    playScene.getHand().setGrabbedEntity(GameEntitySerializer.entities.get(this.grabbedEntityUniqueId));
+                }
+                if(this.selectedEntityUniqueId!=null) {
+                    playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
+                }
             }
             playScene.setPlayerAction(this.playerAction);
             playScene.onOptionSelected(this.playerSpecialAction);

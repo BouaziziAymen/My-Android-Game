@@ -420,21 +420,20 @@ public class Hand {
                         if (selectedEntity != null && selectedEntity.hasUsage(Shooter.class)) {
                             playScene.setScrollerEnabled(false);
                             GameEntity muzzleEntity = getHeldEntity();
-                            Vector2 target =
-                                    new Vector2(
-                                            touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
-                                            touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
-                            if (muzzleEntity.getBody() == null) {
-                                return false;
-                            }
-                            Vector2 dir = target.cpy().sub(muzzleEntity.getBody().getPosition());
-                            if (dir.len() < 8f) {
-                                Vector2 U = dir.nor();
-                                if (!muzzleEntity.isMirrored()) {
-                                    U.mul(-1f);
+                            if (muzzleEntity != null&&muzzleEntity.getBody()!=null) {
+                                Vector2 target =
+                                        new Vector2(
+                                                touchEvent.getX() / PIXEL_TO_METER_RATIO_DEFAULT,
+                                                touchEvent.getY() / PIXEL_TO_METER_RATIO_DEFAULT);
+                                Vector2 dir = target.cpy().sub(muzzleEntity.getBody().getPosition());
+                                if (dir.len() < 8f) {
+                                    Vector2 U = dir.nor();
+                                    if (!muzzleEntity.isMirrored()) {
+                                        U.mul(-1f);
+                                    }
+                                    float angle = GeometryUtils.calculateAngleDegrees(U.x, U.y);
+                                    setHoldingAngle(angle);
                                 }
-                                float angle = GeometryUtils.calculateAngleDegrees(U.x, U.y);
-                                setHoldingAngle(angle);
                             }
                         }
                     }
@@ -790,6 +789,9 @@ public class Hand {
     }
 
     public void setSelectedEntity(GameEntity selectedEntity) {
-        this.selectedEntity = selectedEntity;
+        if(selectedEntity!=null) {
+            this.selectedEntity = selectedEntity;
+            this.selectedEntity.setOutlined(true);
+        }
     }
 }

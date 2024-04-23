@@ -309,7 +309,12 @@ public abstract class PhysicsScene extends AbstractScene {
         });
     }
 
-
+    protected void destroyGroups() {
+        for (GameGroup gameGroup : this.getGameGroups()) {
+            Invoker.addGroupDestructionCommand(gameGroup);
+        }
+        this.hand = null;
+    }
     public JointBlock createJointFromModel(JointModel jointModel, boolean mirrored) {
         BodyModel bodyModel1 = jointModel.getBodyModel1();
         BodyModel bodyModel2 = jointModel.getBodyModel2();
@@ -342,6 +347,7 @@ public abstract class PhysicsScene extends AbstractScene {
 
     @Override
     public void detach() {
+        destroyGroups();
     }
 
     @Override
