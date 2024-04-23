@@ -19,6 +19,7 @@ import com.evolgames.entities.init.BodyInit;
 import com.evolgames.scenes.PhysicsScene;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Invoker {
 
@@ -68,7 +69,14 @@ public class Invoker {
                                     }
                                 }
                             }
-                            scene.getGameGroups().removeIf(gameGroup -> gameGroup.isDestroyed()||gameGroup.isReadyToDestroy());
+                            CopyOnWriteArrayList<GameGroup> filteredGameGroups = new CopyOnWriteArrayList<>();
+                            for (GameGroup gameGroup : Invoker.scene.getGameGroups()) {
+                                if (!gameGroup.isDestroyed() && !gameGroup.isReadyToDestroy()) {
+                                    filteredGameGroups.add(gameGroup);
+                                }
+                            }
+                            Invoker.scene.getGameGroups().clear();
+                            Invoker.scene.getGameGroups().addAll(filteredGameGroups);
                         });
     }
 

@@ -241,7 +241,7 @@ public class WorldFacade implements ContactObserver {
             explosion.update();
         }
 
-        timedCommands.removeIf(TimedCommand::isTimedOut);
+        this.timedCommands.removeIf(TimedCommand::isTimedOut);
         this.explosions.removeIf(e->!e.isAlive());
 
         computeConduction();

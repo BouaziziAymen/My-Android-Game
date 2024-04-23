@@ -236,6 +236,7 @@ public class SceneSerializer {
                     playScene.getHand().setSelectedEntity(GameEntitySerializer.entities.get(this.selectedEntityUniqueId));
                 }
             }
+            playScene.onUsagesUpdated();
             playScene.setPlayerAction(this.playerAction);
             playScene.onOptionSelected(this.playerSpecialAction);
         }
