@@ -402,4 +402,9 @@
 
     <string name="vibration_setting">Vibration</string>
 
+    <string name="brick_block">Brick</string>
+    <string name="wood_block">Wood Block</string>
+    <string name="glass_block">Glass Block</string>
+    <string name="rock_block">Rock Block</string>
+
 </resources>

@@ -42,8 +42,9 @@ public class Balancer {
                     problem = true;
                 }
             }
-            if(!problem)
-            body.setAngularVelocity(100 * Math.signum(error) * error * error / limit);
+            if(!problem) {
+                body.setAngularVelocity(100 * Math.signum(error) * error * error / limit);
+            }
         }
     }
 }

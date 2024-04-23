@@ -472,7 +472,11 @@ public class GeometryUtils {
 
         return angleDegrees;
     }
-
+public static float normalizeAngleRad(float angle){
+    while (angle < -Math.PI) angle += 2 * Math.PI;
+    while (angle > Math.PI) angle -= 2 * Math.PI;
+    return angle;
+}
     public static float normalizeAngle(float angle) {
         angle = angle % 360f;
         if (angle < 0) {

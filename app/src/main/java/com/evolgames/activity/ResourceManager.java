@@ -132,7 +132,7 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound, glueSound, gunEmptySound,switchSound;
+    public Sound slashSound, glueSound, gunEmptySound,switchSound,createSound;
     public TextureRegion aimCircleTextureRegion;
     public TextureRegion focusTextureRegion;
     public TiledTextureRegion helpBigButton;
@@ -758,7 +758,11 @@ public class ResourceManager {
 
             SoundFactory.setAssetBasePath("sfx/");
 
-
+            createSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "create_magic.mp3");
             switchSound =
                     SoundFactory.createSoundFromAsset(
                             this.activity.getSoundManager(),
@@ -1052,6 +1056,11 @@ public class ResourceManager {
         itemsTranslationMap.put("Iron Ball#", R.string.iron_ball);
         itemsTranslationMap.put("Glass#", R.string.a_glass);
         itemsTranslationMap.put("Firework#", R.string.firework);
+
+        itemsTranslationMap.put("Brick#", R.string.brick_block);
+        itemsTranslationMap.put("Wood Block#", R.string.wood_block);
+        itemsTranslationMap.put("Glass Block#", R.string.glass_block);
+        itemsTranslationMap.put("Rock Block#", R.string.rock_block);
     }
 
     public Integer getTranslatedItemStringId(String name){

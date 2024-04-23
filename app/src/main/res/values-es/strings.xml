@@ -400,8 +400,12 @@
     <string name="choose_an_item_validation">Por favor, haga una selección de la lista de elementos.</string>
     <string name="item_doesn_t_exist_validation">El elemento seleccionado no existe. Por favor, elija otro.</string>
     <string name="firework">Fuego artificial</string>
-
     <string name="vibration_setting">Vibración</string>
-
     <string name="hint_setting">Consejos</string>
+
+    <string name="brick_block">Ladrillo</string>
+    <string name="wood_block">Bloque de madera</string>
+    <string name="glass_block">Bloque de vidrio</string>
+    <string name="rock_block">Bloque de roca</string>
+
 </resources>

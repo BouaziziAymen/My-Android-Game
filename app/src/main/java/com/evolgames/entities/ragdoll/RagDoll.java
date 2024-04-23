@@ -1,5 +1,7 @@
 package com.evolgames.entities.ragdoll;
 
+import static com.evolgames.utilities.GeometryUtils.normalizeAngleRad;
+
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.JointEdge;
@@ -9,6 +11,7 @@ import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -158,28 +161,16 @@ public class RagDoll extends GameGroup {
 
         if (upperTorso != null && upperTorso.getBody() != null) {
             Body upperTorsoBody = upperTorso.getBody();
-        if(Math.abs(upperTorsoBody.getAngle())<Math.PI/6){
-            torsoReadyToStand = true;
-        } else {
-            torsoReadyToStand = false;
-        }
+            torsoReadyToStand = Math.abs(normalizeAngleRad(upperTorsoBody.getAngle())) < Math.PI / 6;
         }
         if (upperLegR != null && upperLegR.getBody() != null) {
             Body upperLegRBody = upperLegR.getBody();
-            if(Math.abs(upperLegRBody.getAngle())<Math.PI/6){
-                rightUpperLegStraight = true;
-            } else {
-                rightUpperLegStraight = false;
-            }
+            rightUpperLegStraight = Math.abs(normalizeAngleRad(upperLegRBody.getAngle())) < Math.PI / 6;
         }
 
         if (upperLegL != null && upperLegL.getBody() != null) {
             Body upperLegLBody = upperLegL.getBody();
-            if(Math.abs(upperLegLBody.getAngle())<Math.PI/6){
-                leftUpperLegStraight = true;
-            } else {
-                leftUpperLegStraight = false;
-            }
+            leftUpperLegStraight = Math.abs(normalizeAngleRad(upperLegLBody.getAngle())) < Math.PI / 6;
         }
         if (leftFoot != null && leftFoot.getBody() != null) {
             Body leftFootBody = leftFoot.getBody();

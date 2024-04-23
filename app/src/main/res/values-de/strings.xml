@@ -402,7 +402,11 @@
         <string name="choose_an_item_validation">Bitte treffen Sie eine Auswahl aus der Liste der Elemente.</string>
         <string name="item_doesn_t_exist_validation">Das ausgewählte Element existiert nicht. Bitte wählen Sie ein anderes.</string>
         <string name="firework">Feuerwerk</string>
-
         <string name="vibration_setting">Vibration</string>
         <string name="hint_setting">Hinweise</string>
+
+            <string name="brick_block">Ziegelstein</string>
+            <string name="wood_block">Holzblock</string>
+            <string name="glass_block">Glasblock</string>
+            <string name="rock_block">Felsblock</string>
     </resources>

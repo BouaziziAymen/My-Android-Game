@@ -182,7 +182,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
                     if (!checkEmpty) {
                         getActivity().getUiController().showHint(R.string.insufficient_space, NativeUIController.HintType.WARNING);
-                        Log.e("CheckEmpty", worldFacade.checkEmptyCallback.getGameEntity().getName());
                         drawItem(worldFacade.checkEmptyCallback.getGameEntity());
 //                        Color color = Color.RED;
 //                        plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
@@ -190,6 +189,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                     }
                     if (checkEmpty) {
                         createTool(toolModel, false);
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().createSound,0.5f,10);
                     }
                     stopCreating();
                     ResourceManager.getInstance().activity.getUiController().onItemCreated();
