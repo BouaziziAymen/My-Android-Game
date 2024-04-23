@@ -236,7 +236,9 @@ public class ResourceManager {
         if (music) {
             this.mMusic.play();
         } else {
-            this.mMusic.pause();
+            if(this.mMusic.isPlaying()) {
+                this.mMusic.pause();
+            }
         }
         this.music = music;
     }

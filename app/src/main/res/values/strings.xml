@@ -50,7 +50,7 @@
     <string name="sound_setting">Sound</string>
     <string name="music_setting">Music</string>
     <string name="map_options">Map Options</string>
-    <string name="open_map_option_hint">Open Map</string>
+    <string name="open_map_option_hint">Open Map (Performance may decrease)</string>
     <string name="wood_house_option_hint">Wood House</string>
     <string name="marble_house_option_hint">Marble House</string>
     <string name="category_sword">Swords</string>
@@ -400,6 +400,6 @@
     <string name="item_doesn_t_exist_validation">The selected item does not exist. Please choose another one.</string>
     <string name="firework">Firework</string>
 
-    <string name="vibration_setting">Vibration\n</string>
+    <string name="vibration_setting">Vibration</string>
 
 </resources>

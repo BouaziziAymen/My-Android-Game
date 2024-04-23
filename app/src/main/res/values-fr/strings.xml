@@ -50,7 +50,7 @@
     <string name="sound_setting">Son</string>
     <string name="music_setting">Musique</string>
     <string name="map_options">Options de la carte</string>
-    <string name="open_map_option_hint">Carte ouverte</string>
+    <string name="open_map_option_hint">Carte ouverte (Risque de baisse de performances)</string>
     <string name="wood_house_option_hint">Maison en bois</string>
     <string name="marble_house_option_hint">Maison en marbre</string>
 
@@ -405,7 +405,7 @@
     <string name="item_doesn_t_exist_validation">L\'élément sélectionné n\'existe pas. Veuillez en choisir un autre.</string>
     <string name="firework">Feu d\'artifice</string>
 
-    <string name="vibration_setting">Vibration\n</string>
+    <string name="vibration_setting">Vibration</string>
 
     <string name="hint_setting">Indices</string>
 

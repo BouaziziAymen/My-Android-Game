@@ -856,6 +856,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
+        if(playerSpecialAction==PlayerSpecialAction.None){
+            setScrollerEnabled(true);
+            setZoomEnabled(true);
+        }
         if (!aimSet.contains(playerSpecialAction)) {
             hideAimSprite();
         }

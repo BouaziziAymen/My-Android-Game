@@ -115,6 +115,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="RtlHardcoded">
+        <com.evolgames.activity.components.GameImageButton
+            android:id="@+id/home_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            app:buttonType="click"
+            app:icon="@drawable/home_icon"
+            tools:ignore="RtlHardcoded" />
 
         <com.evolgames.activity.components.GameImageButton
             android:id="@+id/help_button"
@@ -124,14 +132,7 @@
             app:buttonType="click"
             app:icon="@drawable/question_icon"
             tools:ignore="RtlHardcoded" />
-        <com.evolgames.activity.components.GameImageButton
-            android:id="@+id/home_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            app:buttonType="click"
-            app:icon="@drawable/home_icon"
-            tools:ignore="RtlHardcoded" />
+
 
         <com.evolgames.activity.components.GameImageButton
             android:id="@+id/refresh_button"

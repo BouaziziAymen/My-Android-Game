@@ -34,7 +34,7 @@ import com.evolgames.activity.components.EditItemDialog;
 import com.evolgames.activity.components.EditorHelpDialog;
 import com.evolgames.activity.components.HelpDialog;
 import com.evolgames.activity.components.MenuUIFragment;
-import com.evolgames.activity.components.OptionsDialog;
+import com.evolgames.activity.components.SettingsDialog;
 import com.evolgames.activity.components.PlayUIFragment;
 import com.evolgames.activity.components.RateUsDialog;
 import com.evolgames.gameengine.R;
@@ -89,7 +89,7 @@ public class GameActivity extends BaseGameActivity {
     private MenuUIFragment menuUIFragment;
     private CreateItemDialog createItemDialog;
     private EditItemDialog editItemDialog;
-    private OptionsDialog optionsDialog;
+    private SettingsDialog settingsDialog;
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw mHeight and mWidth of image
@@ -350,7 +350,7 @@ public class GameActivity extends BaseGameActivity {
         this.menuUIFragment = new MenuUIFragment();
         this.createItemDialog = new CreateItemDialog();
         this.editItemDialog = new EditItemDialog();
-        this.optionsDialog = new OptionsDialog();
+        this.settingsDialog = new SettingsDialog();
     }
 
     private void hideStatusBar() {
@@ -362,7 +362,7 @@ public class GameActivity extends BaseGameActivity {
 
     public void showOptionsDialog() {
         getSupportFragmentManager().beginTransaction().hide(menuUIFragment).commit();
-        optionsDialog.show(getSupportFragmentManager(), "optionsDialog");
+        settingsDialog.show(getSupportFragmentManager(), "optionsDialog");
     }
 
     public void showEditItemDialog() {

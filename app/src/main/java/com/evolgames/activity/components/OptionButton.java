@@ -4,12 +4,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.evolgames.gameengine.R;
 import com.evolgames.userinterface.view.inputs.Button;
-
 
 public class OptionButton extends FrameLayout {
     private ImageView button;
@@ -53,6 +54,7 @@ public class OptionButton extends FrameLayout {
                 case MotionEvent.ACTION_DOWN:
                     if (state == Button.State.NORMAL) {
                         button.setImageResource(R.drawable.warp_selected);
+                        rotateAnimation();
                         this.state = Button.State.PRESSED;
                     }
                     performClick(); // Handle click event
@@ -83,23 +85,53 @@ public class OptionButton extends FrameLayout {
         }
     }
 
-        @Override
-        public boolean performClick () {
-            // Call the superclass method first
-            boolean handled = super.performClick();
+    @Override
+    public boolean performClick() {
+        // Call the superclass method first
+        boolean handled = super.performClick();
 
-            // Handle the click event here if needed
+        // Handle the click event here if needed
 
-            return handled;
-        }
-
-        public void setState (Button.State state){
-            this.state = state;
-            if (this.state == Button.State.PRESSED) {
-                button.setImageResource(R.drawable.warp_selected);
-            } else {
-                button.setImageResource(R.drawable.warp);
-            }
-        }
-
+        return handled;
     }
+
+    public void setState(Button.State state) {
+        this.state = state;
+        if (this.state == Button.State.PRESSED) {
+            button.setImageResource(R.drawable.warp_selected);
+        } else {
+            button.setImageResource(R.drawable.warp);
+        }
+    }
+
+    private void rotateAnimation() {
+        RotateAnimation rotateForward = new RotateAnimation(0, 720,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateForward.setDuration(500);
+        rotateForward.setFillAfter(true);
+
+        RotateAnimation rotateBackward = new RotateAnimation(720, 0,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateBackward.setDuration(500);
+        rotateBackward.setFillAfter(true);
+
+        rotateForward.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                button.startAnimation(rotateBackward);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+
+        button.startAnimation(rotateForward);
+    }
+
+}

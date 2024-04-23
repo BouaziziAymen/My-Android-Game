@@ -14,7 +14,7 @@ import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
 
-public class OptionsDialog extends DialogFragment {
+public class SettingsDialog extends DialogFragment {
 
     private boolean newSound;
     private boolean newVibration;
@@ -71,11 +71,14 @@ public class OptionsDialog extends DialogFragment {
                     ((GameActivity)getActivity()).saveOptions();
                     ((GameActivity) requireActivity()).installMenuUi();
                 }).setNegativeButton(R.string.cancel, (d, id) -> {
-                    OptionsDialog.this.getDialog().cancel();
+                    SettingsDialog.this.getDialog().cancel();
                     ((GameActivity) requireActivity()).installMenuUi();
                 });
 
+
+
         AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
         return alertDialog;
     }

@@ -48,7 +48,7 @@
     <string name="sound_setting">Som</string>
     <string name="music_setting">Música</string>
     <string name="map_options">Opções do mapa</string>
-    <string name="open_map_option_hint">Mapa aberto</string>
+    <string name="open_map_option_hint">Mapa aberto (Pode reduzir o desempenho)</string>
     <string name="wood_house_option_hint">Casa de madeira</string>
     <string name="marble_house_option_hint">Casa de mármore</string>
 
@@ -401,7 +401,7 @@
     <string name="item_doesn_t_exist_validation">O item selecionado não existe. Por favor, escolha outro.</string>
     <string name="firework">Fogos de artifício</string>
 
-    <string name="vibration_setting">Vibração\n</string>
+    <string name="vibration_setting">Vibração</string>
     <string name="hint_setting">Dicas</string>
 
 </resources>

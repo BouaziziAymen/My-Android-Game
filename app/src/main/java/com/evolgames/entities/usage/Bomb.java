@@ -91,10 +91,12 @@ public abstract class Bomb extends Use {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
         if (!isActive()) {
-            return Collections.singletonList(PlayerSpecialAction.Trigger);
+            list.add(PlayerSpecialAction.Trigger);
         }
-        return null;
+        return list;
     }
 
     public void onTriggered(WorldFacade worldFacade) {
