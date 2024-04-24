@@ -18,7 +18,6 @@ public class Slasher extends MeleeUse {
     public static final float SLASH_CONSTANT = 0.25f;
     private final List<Vector2> path = new ArrayList<>();
     transient private GameEntity targetEntity;
-    private String targetEntityId;
     private Vector2 target;
     private float sharpLength;
     private float sharpness;
@@ -31,7 +30,6 @@ public class Slasher extends MeleeUse {
         this.sharpLength = sharpLength;
         this.sharpness = sharpness;
         this.hardness = hardness;
-        this.targetEntityId = targetEntity.getUniqueID();
     }
 
     @Override
@@ -64,7 +62,10 @@ public class Slasher extends MeleeUse {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.Slash);
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.Slash);
+        return list;
     }
 
     @Override

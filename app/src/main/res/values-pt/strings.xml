@@ -43,12 +43,12 @@
     <string name="scenario_help_9">Use o botão de espelho para inverter a orientação de um item.</string>
 
     <string name="rating">Você gostou do jogo? Sua avaliação com 5 estrelas alimenta nosso progresso e melhora sua experiência.</string>
-    <string name="bad_review">Não hesite em visitar a Google Play para nos avaliar ou deixar uma avaliação. E lembre-se, se precisar de um reembolso, nos avise!</string>
+    <string name="bad_review">Antes de deixar um comentário no Google Play, entre em contato conosco pelo aymendotbouazizi@gmail.com com qualquer reclamação, sugestão ou relatório de erro. Sua mensagem receberá atenção rápida em alguns dias.</string>
 
     <string name="sound_setting">Som</string>
     <string name="music_setting">Música</string>
     <string name="map_options">Opções do mapa</string>
-    <string name="open_map_option_hint">Mapa aberto (Pode reduzir o desempenho)</string>
+    <string name="open_map_option_hint">Mapa aberto</string>
     <string name="wood_house_option_hint">Casa de madeira</string>
     <string name="marble_house_option_hint">Casa de mármore</string>
 
@@ -407,5 +407,21 @@
     <string name="wood_block">Bloco de madeira</string>
     <string name="glass_block">Bloco de vidro</string>
     <string name="rock_block">Bloco de rocha</string>
+
+    <string name="hint_all">Ao interagir com campos de texto, basta clicar neles para alterar seu valor. Clicar novamente enviará o valor inserido. Da mesma forma, ajuste os controles deslizantes clicando neles para modificar sua proporção.</string>
+
+    <string name="hint_melee">Fabricar uma arma branca envolve várias etapas. Primeiramente, selecione um material resistente tanto para o cabo quanto para o corpo, garantindo que a arma aponte para cima. Utilize camadas separadas para definir partes afiadas, que influenciarão seu uso. Se desejar capacidades de arremesso, acesse as configurações do corpo para adicionar o uso de arremesso. Para cortes, atribua o uso de corte, e para contusões, designe o uso de contusão conforme necessário.</string>
+
+    <string name="hint_gun">Projetar uma arma de fogo requer atenção aos detalhes. Molde a arma para que ela esteja voltada para a esquerda e incorpore um indicador de projétil, configurando-o adequadamente. Se aplicável, vincule-o a um estojo de bala para um efeito de ejeção. Nas configurações do corpo, inclua um uso de atirador e configure-o para habilitar a funcionalidade de arma do corpo.</string>
+
+    <string name="hint_produce">Ao criar um produto agrícola, certifique-se de que sua forma se assemelhe à de uma fruta ou vegetal. Configure suas camadas para conferir uma textura suculenta e selecione uma cor de suco adequada. É importante observar que os produtos variam automaticamente em tamanho, portanto escolha apenas um corpo para sua criação.</string>
+
+    <string name="hint_heavy">A construção de uma arma pesada envolve vários componentes. Crie diversos corpos para a arma ou veículo e una-os usando juntas. Lembre-se de atribuir o uso pesado nas configurações do corpo para um manuseio adequado. Se estiver incorporando uma arma de fogo, anexe um indicador de projétil e configure-o conforme necessário. Por fim, adicione o uso de arma nas configurações do corpo e configure conforme necessário.</string>
+
+    <string name="hint_grenade">Para criar uma granada, comece posicionando indicadores de bomba e ajustando sua potência e efeitos de partículas. Em seguida, acesse as configurações do corpo e selecione o uso de bomba cronometrada ou de impacto, configurando-os com os indicadores de bomba apropriados. Você tem a flexibilidade de escolher um ou mais indicadores com base nos requisitos de design.</string>
+
+    <string name="hint_bow">A fabricação de um arco envolve uma consideração cuidadosa dos elementos de seu design. Certifique-se de que o arco esteja voltado para a esquerda e defina três pontos-chave: o ponto superior onde a corda é fixada, a extensão do arco quando totalmente esticado e o ponto inferior onde a corda é fixada. Além disso, defina um indicador de projétil para completar a construção do arco.</string>
+
+    <string name="hint_rocket">Ao criar um foguete, molde-o de forma que aponte para a esquerda e inclua um indicador de fogo para o escape. Se o foguete transportar uma bomba, adicione indicadores de bomba e configure-os conforme necessário. Configure o corpo do foguete para habilitar tanto o uso de foguete quanto o de bomba, garantindo que o uso de foguete esteja vinculado aos indicadores de fogo para um funcionamento adequado.</string>
 
 </resources>

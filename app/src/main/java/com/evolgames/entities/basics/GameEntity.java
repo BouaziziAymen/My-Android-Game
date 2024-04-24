@@ -60,7 +60,7 @@ public class GameEntity extends EntityWithBody {
 
     private final List<LayerBlock> layerBlocks;
     public boolean changed = true;
-
+    public int bluntTrauma;
     private Body mirrorBody;
     private boolean mirrorCreated = false;
     private PhysicsScene scene;

@@ -45,12 +45,12 @@
 
 
     <string name="rating">Vous avez apprécié le jeu ? Votre notation 5 étoiles alimente notre progression et améliore votre expérience.</string>
-    <string name="bad_review">N\'hésitez pas à visiter Google Play pour nous évaluer ou laisser un avis. N\'oubliez pas, si vous avez besoin d\'un remboursement, faites-le nous savoir !</string>
+    <string name="bad_review">Avant de laisser un commentaire sur Google Play, veuillez nous contacter à aymendotbouazizi@gmail.com pour toute plainte, suggestion ou signalement de bug. Votre message recevra une attention rapide dans quelques jours.</string>
 
     <string name="sound_setting">Son</string>
     <string name="music_setting">Musique</string>
     <string name="map_options">Options de la carte</string>
-    <string name="open_map_option_hint">Carte ouverte (Risque de baisse de performances)</string>
+    <string name="open_map_option_hint">Carte ouverte</string>
     <string name="wood_house_option_hint">Maison en bois</string>
     <string name="marble_house_option_hint">Maison en marbre</string>
 
@@ -412,5 +412,21 @@
     <string name="glass_block">Bloc de verre</string>
     <string name="rock_block">Bloc de roche</string>
 
+
+    <string name="hint_all">Lors de l\'interaction avec les champs de texte, cliquez simplement dessus pour changer leur valeur. Cliquer à nouveau soumettra la valeur entrée. De même, ajustez les curseurs en cliquant dessus pour modifier leur ratio.</string>
+
+    <string name="hint_melee">Fabriquer une arme de mêlée implique plusieurs étapes. Tout d\'abord, sélectionnez un matériau dur pour la poignée et le corps, en veillant à ce que l\'arme pointe vers le haut. Utilisez des couches séparées pour définir les parties tranchantes, qui influenceront son utilisation. Si vous souhaitez des capacités de lancer, accédez aux paramètres du corps pour ajouter une utilisation de lancer. Pour le tranchant, attribuez une utilisation tranchante, et pour le contondant, désignez une utilisation contondante en conséquence.</string>
+
+    <string name="hint_gun">Concevoir un pistolet nécessite une attention particulière aux détails. Façonnez le pistolet pour qu\'il soit orienté vers la gauche et incorporez un indicateur de projectile, en le configurant de manière appropriée. Si applicable, reliez-le à une douille de balle pour un effet d\'éjection. Dans les paramètres du corps, incluez une utilisation de tireur et configurez-la pour activer la fonctionnalité de pistolet du corps.</string>
+
+    <string name="hint_produce">Lors de la création d\'un produit, assurez-vous que sa forme ressemble à celle d\'un fruit ou d\'un légume. Configurez ses couches pour lui donner une texture juteuse, et sélectionnez une couleur de jus appropriée. Il est important de noter que les produits varient automatiquement en taille, donc choisissez uniquement un corps pour votre création.</string>
+
+    <string name="hint_heavy">La construction d\'une arme lourde implique plusieurs composants. Créez divers corps pour l\'arme ou le véhicule et reliez-les à l\'aide de joints. N\'oubliez pas d\'assigner une utilisation lourde dans les paramètres du corps pour une manipulation appropriée. Si vous incorporez un pistolet, attachez un indicateur de projectile et configurez-le en conséquence. Enfin, ajoutez une utilisation de pistolet à partir des paramètres du corps et configurez-la selon vos besoins.</string>
+
+    <string name="hint_grenade">Pour créer une grenade, commencez par placer des indicateurs de bombe et ajustez leur puissance et leurs effets de particules. Ensuite, accédez aux paramètres du corps et sélectionnez soit une utilisation de bombe à retardement, soit une utilisation de bombe à impact, en les configurant avec les indicateurs de bombe appropriés. Vous avez la flexibilité de choisir un ou plusieurs indicateurs en fonction de vos besoins de conception.</string>
+
+    <string name="hint_bow">Fabriquer un arc implique une considération minutieuse des éléments de sa conception. Assurez-vous que l\'arc pointe vers la gauche et définissez trois points clés : le point supérieur où la corde est attachée, l\'étendue de l\'arc lorsqu\'il est complètement tendu, et le point inférieur où la corde est attachée. Définissez également un indicateur de projectile pour compléter la construction de l\'arc.</string>
+
+    <string name="hint_rocket">Lors de la création d\'une fusée, façonnez-la de manière à ce qu\'elle pointe vers la gauche et incluez un indicateur de feu pour l\'échappement. Si la fusée transporte une bombe, ajoutez des indicateurs de bombe et configurez-les en conséquence. Configurez le corps de la fusée pour permettre à la fois une utilisation de fusée et de bombe, en veillant à ce que l\'utilisation de la fusée soit liée à des indicateurs de feu pour un bon fonctionnement.</string>
 
 </resources>

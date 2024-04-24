@@ -93,6 +93,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="5dp"
+                android:layout_marginBottom="100dp"
                 android:textColor="@color/colorAccent"
                 android:textSize="16sp" />
         </LinearLayout>

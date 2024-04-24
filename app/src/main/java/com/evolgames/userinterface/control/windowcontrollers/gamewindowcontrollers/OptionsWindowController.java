@@ -60,33 +60,27 @@ public class OptionsWindowController
         switch (settingsType) {
             case TOOL_SAVE_SETTINGS:
             case NONE:
-                closeWindow();
                 break;
             case PROJECTILE_SETTINGS:
             case MOVE_POINT_SETTINGS:
                 break;
             case MOVE_TOOL_POINT_SETTING:
             case MOVE_JOINT_POINT_SETTINGS:
-                openWindow();
                 window.addPrimary(createMoveLimitsOption(0));
                 break;
             case ROTATE_IMAGE_SETTINGS:
             case MOVE_IMAGE_SETTINGS:
-                openWindow();
                 dimensionsText = new Text("", 2);
                 window.addPrimary(new SimplePrimary<>(0, this.dimensionsText));
                 break;
             case SCALE_IMAGE_SETTINGS:
-                openWindow();
                 window.addPrimary(createOnOffField(0, ResourceManager.getInstance().getString(R.string.fixed_ratio_title), (b) -> creationZoneController.setImageFixedRatio(b), () -> creationZoneController.isImageFixedRatio()));
                 dimensionsText = new Text("", 2);
                 window.addPrimary(new SimplePrimary<>(1, this.dimensionsText));
                 break;
             case REMOVE_POINT_SETTINGS:
-                openWindow();
                 break;
             case PIPE_SETTINGS:
-                openWindow();
                 pipeColorSlot = new ColorSlot();
                 Button<OptionsWindowController> colorValidatedButton =
                         new Button<>(
@@ -114,33 +108,27 @@ public class OptionsWindowController
                 window.addPrimary(primary);
                 break;
             case INSERT_POINT_SETTINGS:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 break;
             case ROTATE_SETTINGS:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 break;
             case MIRROR_SETTINGS:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createDirectionBoard(1));
                 window.addPrimary(createOnOffField(2, ResourceManager.getInstance().getString(R.string.same_layer_title), (b) -> creationZoneController.setSameShape(b), () -> creationZoneController.isSameShape()));
                 break;
             case SHIFT_SETTINGS:
-                openWindow();
                 window.addPrimary(createDirectionBoard(0));
                 break;
             case DISTANCE_JOINT_SETTINGS:
             case REVOLUTE_JOINT_SETTINGS:
             case PRISMATIC_JOINT_SETTINGS:
             case WELD_JOINT_SETTINGS:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 window.addPrimary(createCongruenceOption(1));
                 break;
             case POLYGON_CREATION_SETTINGS:
-                openWindow();
                 TitledTextField<OptionsWindowController> polygonPointNumberField =
                         new TitledTextField<>(ResourceManager.getInstance().getString(R.string.number_of_points_title), 4, 5);
                 polygonPointNumberTextField = polygonPointNumberField.getAttachment();
@@ -247,7 +235,6 @@ public class OptionsWindowController
 
                 break;
             case IMAGE_SETTINGS:
-                openWindow();
                 ButtonWithText<OptionsWindowController> addImageButton =
                         new ButtonWithText<>(
                                 ResourceManager.getInstance().getString(R.string.add_image_title),
@@ -296,11 +283,9 @@ public class OptionsWindowController
                         });
                 break;
             case AMMO_TOOL_POINT_SETTING:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 break;
             case BOMB_TOOL_POINT_SETTING:
-                openWindow();
                 window.addPrimary(createMagnetBoard(0));
                 break;
 

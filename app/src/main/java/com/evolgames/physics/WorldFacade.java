@@ -1,5 +1,7 @@
 package com.evolgames.physics;
 
+import static com.evolgames.entities.factories.MaterialFactory.FLESH;
+import static com.evolgames.entities.factories.MaterialFactory.HARD_FLESH;
 import static com.evolgames.physics.PhysicsConstants.BACKOFF;
 import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
@@ -1070,7 +1072,9 @@ public class WorldFacade implements ContactObserver {
 
         Vector2[] points = contact.getWorldManifold().getPoints();
         Vector2 point;
-        if (numberOfContactPoints == 1) point = points[0];
+        if (numberOfContactPoints == 1){
+            point = points[0];
+        }
         else {
             point = points[0].add(points[1]).mul(0.5f);
         }
@@ -1078,10 +1082,8 @@ public class WorldFacade implements ContactObserver {
             return;
         }
 
-        Vector2 impactPoint1 = obtain(point);
-        Vector2 impactPoint2 = obtain(point);
-        applyOnePointImpactToEntity(block1, impulse / 2, entity1, impactPoint1);
-        applyOnePointImpactToEntity(block2, impulse / 2, entity2, impactPoint2);
+        applyOnePointImpactToEntity(block1, impulse / 2, entity1,  obtain(point));
+        applyOnePointImpactToEntity(block2, impulse / 2, entity2,  obtain(point));
     }
 
     private void linearTopographicScan(Vector2 begin, Vector2 end) {
@@ -1353,7 +1355,7 @@ public class WorldFacade implements ContactObserver {
 
     public void applyBluntTrauma(float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
 
-        float trauma = impulse / (5f * TENACITY_FACTOR * layerBlock.getTenacity());
+        float trauma = impulse / (10f * TENACITY_FACTOR * layerBlock.getTenacity());
         int numberOfPoints = Math.min(10, Math.round(trauma));
 
         List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
@@ -1362,7 +1364,7 @@ public class WorldFacade implements ContactObserver {
         if (gameEntity.getParentGroup().getGroupType() == GroupType.DOLL) {
             RagDoll ragDoll = ((RagDoll) gameEntity.getParentGroup());
             if (ragDoll.isBluntSensitiveBodyPart(gameEntity)) {
-                onBlunt = () -> ragDoll.onBlunt(Math.round(trauma));
+                onBlunt = () -> ragDoll.onBlunt(gameEntity,Math.round(trauma));
             } else {
                 onBlunt = null;
             }
@@ -1370,11 +1372,16 @@ public class WorldFacade implements ContactObserver {
             onBlunt = null;
         }
 
+
         boolean applied = false;
         for (Vector2 p : pts) {
-            Color color = new Color(layerBlock.getProperties().getJuiceColor());
+            Color juiceColor = layerBlock.getProperties().getJuiceColor();
+            Color color =
+                   gameEntity.getParentGroup().getGroupType()==GroupType.DOLL?
+                    new Color((float) (0.5f+Math.random() * 0.3f), (float) (0.2f + Math.random() * 0.2f), (float) (0.2f + Math.random() * 0.2f))
+                    : new Color(juiceColor);
             Color skin = new Color(layerBlock.getProperties().getDefaultColor());
-            skin.setAlpha(0.8f);
+            skin.setAlpha((float) (0.5f*skin.getAlpha()));
             MyColorUtils.blendColors(color, color, skin);
             if (onBlunt != null) {
                 onBlunt.run();
@@ -1544,6 +1551,13 @@ public class WorldFacade implements ContactObserver {
                 .max(Map.Entry.comparingByValue()) // Find the entry with the maximum count
                 .map(e -> e.getKey().get(0).getBlock().getMaterialAcousticType())
                 .ifPresent(mostCommonAcousticType -> processPenetrationSound(mostCommonAcousticType, collisionImpulse, impactPoint.x * 32f, impactPoint.y * 32f));
+    }
+
+    public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity, LayerBlock layerBlock) {
+        if (gameEntity.getBody().getType() != BodyDef.BodyType.DynamicBody || !gameEntity.isAlive() || gameEntity.getBody() == null) {
+            return;
+        }
+        applyOnePointImpactToEntity(layerBlock, energy, gameEntity, worldPoint);
     }
 
     public void applyPointImpact(Vector2 worldPoint, float energy, GameEntity gameEntity) {

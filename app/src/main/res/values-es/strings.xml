@@ -44,12 +44,12 @@
     <string name="scenario_help_9">Utiliza el botón de espejo para voltear la orientación de un ítem.</string>
 
     <string name="rating">¿Disfrutaste el juego? Tu calificación de 5 estrellas impulsa nuestro progreso y mejora tu experiencia.</string>
-    <string name="bad_review">No dudes en visitar Google Play para calificarnos o dejar una reseña. Y recuerda, si necesitas un reembolso, ¡avísanos!</string>
+    <string name="bad_review">Antes de dejar un comentario en Google Play, por favor contáctenos en aymendotbouazizi@gmail.com con cualquier queja, sugerencia o informe de error. Su mensaje recibirá atención rápida en unos días.</string>
 
     <string name="sound_setting">Sonido</string>
     <string name="music_setting">Música</string>
     <string name="map_options">Opciones del mapa</string>
-    <string name="open_map_option_hint">Mapa abierto (Puede afectar el rendimiento)</string>
+    <string name="open_map_option_hint">Mapa abierto</string>
     <string name="wood_house_option_hint">Casa de madera</string>
     <string name="marble_house_option_hint">Casa de mármol</string>
 
@@ -407,5 +407,23 @@
     <string name="wood_block">Bloque de madera</string>
     <string name="glass_block">Bloque de vidrio</string>
     <string name="rock_block">Bloque de roca</string>
+
+
+    <string name="hint_all">Cuando interactúes con campos de texto, simplemente haz clic en ellos para cambiar su valor. Al hacer clic nuevamente, se enviará el valor ingresado. Del mismo modo, ajusta los deslizadores haciendo clic en ellos para modificar su proporción.</string>
+
+    <string name="hint_melee">Crear un arma cuerpo a cuerpo implica varios pasos. En primer lugar, selecciona un material resistente tanto para el mango como para el cuerpo, asegurando que el arma apunte hacia arriba. Utiliza capas separadas para definir las partes afiladas, las cuales influirán en su uso. Si deseas capacidades de lanzamiento, accede a la configuración del cuerpo para agregar el uso de lanzamiento. Para el corte, asigna el uso de corte, y para el contundente, designa el uso de contundente en consecuencia.</string>
+
+    <string name="hint_gun">Diseñar un arma de fuego requiere atención al detalle. Da forma al arma para que mire hacia la izquierda e incorpora un indicador de proyectil, configurándolo adecuadamente. Si corresponde, vincúlalo con un casquillo de bala para un efecto de eyección. En la configuración del cuerpo, incluye un uso de tirador y configúralo para habilitar la funcionalidad de arma del cuerpo.</string>
+
+    <string name="hint_produce">Al crear un producto agrícola, asegúrate de que su forma se asemeje a la de una fruta o verdura. Configura sus capas para impartir una textura jugosa y selecciona un color de jugo adecuado. Es importante tener en cuenta que los productos varían automáticamente en tamaño, así que elige solo un cuerpo para tu creación.</string>
+
+    <string name="hint_heavy">La construcción de un arma pesada involucra varios componentes. Crea varios cuerpos para el arma o vehículo y únelos usando juntas. Recuerda asignar el uso pesado en la configuración del cuerpo para un manejo adecuado. Si incorporas un arma de fuego, adjunta un indicador de proyectil y configúralo en consecuencia. Finalmente, agrega el uso de arma desde la configuración del cuerpo y configúralo según sea necesario.</string>
+
+    <string name="hint_grenade">Para crear una granada, comienza colocando indicadores de bomba y ajustando su potencia y efectos de partículas. Luego, ve a la configuración del cuerpo y selecciona el uso de bomba de tiempo o de impacto, configurándolos con los indicadores de bomba apropiados. Tienes la flexibilidad de elegir uno o más indicadores según los requisitos de diseño.</string>
+
+    <string name="hint_bow">Crear un arco implica una cuidadosa consideración de los elementos de su diseño. Asegúrate de que el arco apunte hacia la izquierda y define tres puntos clave: el punto superior donde se sujeta la cuerda, la extensión del arco cuando está completamente tensado y el punto inferior donde se sujeta la cuerda. Además, define un indicador de proyectil para completar la construcción del arco.</string>
+
+    <string name="hint_rocket">Al crear un cohete, dale forma para que apunte hacia la izquierda e incluye un indicador de fuego para el escape. Si el cohete lleva una bomba, agrega indicadores de bomba y configúralos en consecuencia. Configura el cuerpo del cohete para habilitar tanto el uso de cohete como el de bomba, asegurando que el uso del cohete esté vinculado con los indicadores de fuego para un funcionamiento adecuado.</string>
+
 
 </resources>

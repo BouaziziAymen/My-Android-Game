@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class Projectile extends Use implements Penetrating {
 
 
-    public static final float IMPULSE_FACTOR = 0f;
+    public static final float IMPULSE_FACTOR = 10f;
     private ProjectileType projectileType;
 
     @SuppressWarnings("unused")
@@ -39,7 +39,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     private float impactFactor() {
-        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 100f : 10f;
+        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 50f : 10f;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Projectile extends Use implements Penetrating {
         Invoker.addCustomCommand(penetrated, () -> {
             if (penetrated.isAlive() && penetrated.getBody() != null) {
                 worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrated);
-                worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrator);
+                worldFacade.applyPointImpact(obtain(point), impactFactor() * consumedImpulse * massFraction, penetrator,penetratorBlock);
             }
         });
         if (projectileType == ProjectileType.SHARP_WEAPON) {

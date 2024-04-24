@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.persistence.PersistenceCaretaker;
 import com.evolgames.entities.properties.SquareProperties;
+import com.evolgames.gameengine.R;
 import com.evolgames.scenes.EditorScene;
 import com.evolgames.userinterface.control.CreationAction;
 import com.evolgames.userinterface.control.CreationZoneController;
@@ -121,6 +122,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
     private final ColorSelectorWindowController colorSelectorWindowController;
     private final ButtonBoard mainButtonBoard;
     private final MainButtonBoardController mainButtonBoardController;
+    private final OptionsWindow optionsWindow;
     private ControlElement moveElementController;
     private ImageShape imageShape;
     private ToolModel toolModel;
@@ -210,7 +212,7 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
         addElement(jointsWindow);
         jointsWindow.setVisible(false);
 
-        OptionsWindow optionsWindow = new OptionsWindow(0, 0, optionsWindowController);
+        optionsWindow = new OptionsWindow(0, 0, optionsWindowController);
         addElement(optionsWindow);
 
         JointOptionWindow jointOptionWindow =
@@ -896,106 +898,112 @@ public class EditorUserInterface extends UserInterface<EditorScene> {
                 }
             }
         }
-        this.itemSaveWindowController.onModelUpdated(toolModel);
-        this.jointSettingsWindowController.setToolModel(toolModel);
-        this.colorSelectorWindowController.setColorPanelProperties(toolModel.getColorPanelProperties());
-        this.toolModel = toolModel;
+
+            this.itemSaveWindowController.onModelUpdated(toolModel);
+            this.jointSettingsWindowController.setToolModel(toolModel);
+            this.colorSelectorWindowController.setColorPanelProperties(toolModel.getColorPanelProperties());
+            this.toolModel = toolModel;
+
+        String hintAll = ResourceManager.getInstance().getString(R.string.hint_all);
+
+        String hintSpecific = toolModel.getToolCategory().nonCreatable?"":ResourceManager.getInstance().getString(toolModel.getToolCategory().hint);
+        optionsWindow.setShiftingText(String.format("%s %s", hintAll, hintSpecific));
 
         for (BodyModel bodyModel : toolModel.getBodies()) {
-            for (LayerModel layerModel : bodyModel.getLayers()) {
-                if (layerModel.getPointsShape() == null) {
-                    PointsShape pointsShape = new PointsShape(this);
-                    layerModel.setPointsShape(pointsShape);
-                }
-                layerModel.getPointsShape().updateOutlineShape();
-                if(layerModel.getCenter()!=null) {
-                    layerModel.getPointsShape().createReferencePointImage(layerModel.getCenter());
-                }
-                addElement(layerModel.getPointsShape());
-                for (DecorationModel decorationModel : layerModel.getDecorations()) {
-                    if (decorationModel.getPointsShape() == null) {
+                for (LayerModel layerModel : bodyModel.getLayers()) {
+                    if (layerModel.getPointsShape() == null) {
                         PointsShape pointsShape = new PointsShape(this);
-                        decorationModel.setPointsShape(pointsShape);
+                        layerModel.setPointsShape(pointsShape);
                     }
-                    decorationModel.getPointsShape().updateOutlineShape();
-                    addElement(decorationModel.getPointsShape());
+                    layerModel.getPointsShape().updateOutlineShape();
+                    if (layerModel.getCenter() != null) {
+                        layerModel.getPointsShape().createReferencePointImage(layerModel.getCenter());
+                    }
+                    addElement(layerModel.getPointsShape());
+                    for (DecorationModel decorationModel : layerModel.getDecorations()) {
+                        if (decorationModel.getPointsShape() == null) {
+                            PointsShape pointsShape = new PointsShape(this);
+                            decorationModel.setPointsShape(pointsShape);
+                        }
+                        decorationModel.getPointsShape().updateOutlineShape();
+                        addElement(decorationModel.getPointsShape());
+                    }
+                }
+                for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
+                    ProjectileShape projectileShape =
+                            new ProjectileShape(projectileModel.getProperties().getProjectileOrigin(), scene);
+                    projectileShape.bindModel(projectileModel);
+                }
+
+                for (CasingModel casingModel : bodyModel.getCasingModels()) {
+                    CasingShape casingShape =
+                            new CasingShape(casingModel.getProperties().getAmmoOrigin(), scene);
+                    casingShape.bindModel(casingModel);
+                }
+
+                for (BombModel bombModel : bodyModel.getBombModels()) {
+                    BombShape bombShape = new BombShape(bombModel.getProperties().getBombPosition(), scene);
+                    bombShape.bindModel(bombModel);
+                }
+                for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
+                    SpecialPointShape specialPointShape = new SpecialPointShape(specialPointModel.getProperties().getPosition(), scene);
+                    specialPointShape.bindModel(specialPointModel);
+                }
+                for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
+                    FireSourceShape fireSourceShape =
+                            new FireSourceShape(fireSourceModel.getProperties().getFireSourceOrigin(), scene);
+                    fireSourceShape.bindModel(fireSourceModel);
+                }
+                for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
+                    LiquidSourceShape liquidSourceShape =
+                            new LiquidSourceShape(liquidSourceModel.getProperties().getLiquidSourceOrigin(), scene);
+                    liquidSourceShape.bindModel(liquidSourceModel);
+                }
+
+                for (DragModel dragModel : bodyModel.getDragModels()) {
+                    DragShape dragShape = new DragShape(dragModel.getProperties().getDragOrigin(), scene);
+                    dragShape.bindModel(dragModel);
                 }
             }
-            for (ProjectileModel projectileModel : bodyModel.getProjectileModels()) {
-                ProjectileShape projectileShape =
-                        new ProjectileShape(projectileModel.getProperties().getProjectileOrigin(), scene);
-                projectileShape.bindModel(projectileModel);
+            for (JointModel jointModel : toolModel.getJoints()) {
+                Vector2 begin = jointModel.getProperties().getLocalAnchorA();
+                switch (jointModel.getProperties().getJointType()) {
+                    case WeldJoint:
+                        WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
+                        weldJointShape.bindModel(jointModel);
+                        break;
+                    case RevoluteJoint:
+                        RevoluteJointShape revoluteJointShape = new RevoluteJointShape(scene, begin);
+                        revoluteJointShape.bindModel(jointModel);
+                        break;
+                    case PrismaticJoint:
+                        PrismaticJointShape prismaticJointShape = new PrismaticJointShape(scene, begin);
+                        prismaticJointShape.bindModel(jointModel);
+                        break;
+                    case DistanceJoint:
+                        DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
+                        distanceJointShape.bindModel(jointModel);
+                        break;
+                    case PulleyJoint:
+                    case MouseJoint:
+                    case GearJoint:
+                    case LineJoint:
+                    case FrictionJoint:
+                        break;
+                }
             }
-
-            for (CasingModel casingModel : bodyModel.getCasingModels()) {
-                CasingShape casingShape =
-                        new CasingShape(casingModel.getProperties().getAmmoOrigin(), scene);
-                casingShape.bindModel(casingModel);
+            toolModel.updateMesh();
+            for (SquareProperties squareProperties : toolModel.getColorPanelProperties().getSquarePropertiesList()) {
+                colorSelectorWindowController.addColorToPanel(squareProperties.getColor(), squareProperties.getSquareId(), false);
             }
-
-            for (BombModel bombModel : bodyModel.getBombModels()) {
-                BombShape bombShape = new BombShape(bombModel.getProperties().getBombPosition(), scene);
-                bombShape.bindModel(bombModel);
-            }
-            for (SpecialPointModel specialPointModel : bodyModel.getSpecialPointModels()) {
-                SpecialPointShape specialPointShape = new SpecialPointShape(specialPointModel.getProperties().getPosition(), scene);
-                specialPointShape.bindModel(specialPointModel);
-            }
-            for (FireSourceModel fireSourceModel : bodyModel.getFireSourceModels()) {
-                FireSourceShape fireSourceShape =
-                        new FireSourceShape(fireSourceModel.getProperties().getFireSourceOrigin(), scene);
-                fireSourceShape.bindModel(fireSourceModel);
-            }
-            for (LiquidSourceModel liquidSourceModel : bodyModel.getLiquidSourceModels()) {
-                LiquidSourceShape liquidSourceShape =
-                        new LiquidSourceShape(liquidSourceModel.getProperties().getLiquidSourceOrigin(), scene);
-                liquidSourceShape.bindModel(liquidSourceModel);
-            }
-
-            for (DragModel dragModel : bodyModel.getDragModels()) {
-                DragShape dragShape = new DragShape(dragModel.getProperties().getDragOrigin(), scene);
-                dragShape.bindModel(dragModel);
-            }
-        }
-        for (JointModel jointModel : toolModel.getJoints()) {
-            Vector2 begin = jointModel.getProperties().getLocalAnchorA();
-            switch (jointModel.getProperties().getJointType()) {
-                case WeldJoint:
-                    WeldJointShape weldJointShape = new WeldJointShape(scene, begin);
-                    weldJointShape.bindModel(jointModel);
-                    break;
-                case RevoluteJoint:
-                    RevoluteJointShape revoluteJointShape = new RevoluteJointShape(scene, begin);
-                    revoluteJointShape.bindModel(jointModel);
-                    break;
-                case PrismaticJoint:
-                    PrismaticJointShape prismaticJointShape = new PrismaticJointShape(scene, begin);
-                    prismaticJointShape.bindModel(jointModel);
-                    break;
-                case DistanceJoint:
-                    DistanceJointShape distanceJointShape = new DistanceJointShape(scene, begin);
-                    distanceJointShape.bindModel(jointModel);
-                    break;
-                case PulleyJoint:
-                case MouseJoint:
-                case GearJoint:
-                case LineJoint:
-                case FrictionJoint:
-                    break;
-            }
-        }
-        toolModel.updateMesh();
-        for (SquareProperties squareProperties : toolModel.getColorPanelProperties().getSquarePropertiesList()) {
-            colorSelectorWindowController.addColorToPanel(squareProperties.getColor(), squareProperties.getSquareId(), false);
-        }
-        Integer maxId = toolModel.getColorPanelProperties().getSquarePropertiesList().stream().map(SquareProperties::getSquareId).max(Comparator.naturalOrder()).orElse(0);
-        colorSelectorWindowController.getColorSlotCounter().set(maxId + 1);
-        layersWindowController.init();
-        itemWindowController.init();
-        jointsWindowController.init();
-        // Outline call needs to be called last as it sets the outline
-        outlineController.init();
-        itemSaveWindowController.onModelUpdated(toolModel);
+            Integer maxId = toolModel.getColorPanelProperties().getSquarePropertiesList().stream().map(SquareProperties::getSquareId).max(Comparator.naturalOrder()).orElse(0);
+            colorSelectorWindowController.getColorSlotCounter().set(maxId + 1);
+            layersWindowController.init();
+            itemWindowController.init();
+            jointsWindowController.init();
+            // Outline call needs to be called last as it sets the outline
+            outlineController.init();
+            itemSaveWindowController.onModelUpdated(toolModel);
         addImage();
     }
 

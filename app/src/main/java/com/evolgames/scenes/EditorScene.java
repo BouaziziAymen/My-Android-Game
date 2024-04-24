@@ -215,7 +215,7 @@ public class EditorScene extends AbstractScene
     public void onPause() {
         ResourceManager.getInstance().disposeOfEditorResources();
         CreationAction creationAction =this.userInterface.getCreationZoneController().getAction();
-        Screen screen = this.userInterface.getSelectedScreen();
+        Screen screen = this.userInterface.getSelectedScreen()!=null?this.userInterface.getSelectedScreen():Screen.NONE;
         ResourceManager.getInstance().activity.saveStringToPreferences("editor_creation_action", creationAction.name());
         ResourceManager.getInstance().activity.saveStringToPreferences("editor_screen", screen.name());
         ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(this.userInterface.getToolModel().getProperties().getToolName()));
@@ -238,10 +238,15 @@ public class EditorScene extends AbstractScene
         step++;
         this.userInterface.step();
     }
+    private int downPointerId = -1;
 
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
+        if(touchEvent.isActionDown()&&downPointerId==-1) {
+            downPointerId = touchEvent.getPointerID();
+        }
+
         boolean hudTouched = false;
-        if (touchEvent.getPointerID() == 0) {
+        if(touchEvent.getPointerID()==downPointerId||touchEvent.isActionDown()) {
             if (!hudLocked) {
                 hudTouched = userInterface.onTouchHud(hudTouchEvent);
             }
@@ -249,6 +254,10 @@ public class EditorScene extends AbstractScene
                 userInterface.onTouchScene(touchEvent);
             }
         }
+        if(touchEvent.isActionUp()&&downPointerId==touchEvent.getPointerID()){
+            downPointerId = -1;
+        }
+
         if (mPinchZoomDetector != null) {
             mPinchZoomDetector.onTouchEvent(touchEvent);
             if (mPinchZoomDetector.isZooming()) {

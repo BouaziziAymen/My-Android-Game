@@ -45,6 +45,7 @@ public class EditItemDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        this.continueLatest = false;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Get the layout inflater.
         LayoutInflater inflater = requireActivity().getLayoutInflater();

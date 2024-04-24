@@ -44,12 +44,12 @@
         <string name="scenario_help_9">Verwenden Sie die Spiegelschaltfläche, um die Ausrichtung eines Gegenstands umzukehren.</string>
 
         <string name="rating">Hat Ihnen das Spiel gefallen? Ihre Bewertung mit 5 Sternen fördert unseren Fortschritt und verbessert Ihre Erfahrung.</string>
-        <string name="bad_review">Besuchen Sie gerne den Google Play Store, um uns zu bewerten oder eine Rezension zu hinterlassen. Und vergessen Sie nicht: Wenn Sie eine Rückerstattung benötigen, lassen Sie es uns wissen!</string>
+            <string name="bad_review">Bevor Sie eine Bewertung im Google Play Store abgeben, kontaktieren Sie uns bitte unter aymendotbouazizi@gmail.com bei Beschwerden, Vorschlägen oder Fehlermeldungen. Ihre Nachricht wird innerhalb weniger Tage prompt bearbeitet.</string>
 
-        <string name="sound_setting">Ton</string>
+            <string name="sound_setting">Ton</string>
         <string name="music_setting">Musik</string>
         <string name="map_options">Kartenoptionen</string>
-        <string name="open_map_option_hint">Geöffnete Karte (Leistungseinbußen möglich)</string>
+        <string name="open_map_option_hint">Geöffnete Karte</string>
         <string name="wood_house_option_hint">Holzhaus</string>
         <string name="marble_house_option_hint">Marmorhaus</string>
 
@@ -409,4 +409,22 @@
             <string name="wood_block">Holzblock</string>
             <string name="glass_block">Glasblock</string>
             <string name="rock_block">Felsblock</string>
+
+
+            <string name="hint_all">Beim Interagieren mit Textfeldern einfach darauf klicken, um ihren Wert zu ändern. Ein erneutes Klicken sendet den eingegebenen Wert ab. Gleichermaßen können Schieberegler angepasst werden, indem man auf sie klickt, um ihr Verhältnis zu ändern.</string>
+
+            <string name="hint_melee">Die Herstellung einer Nahkampfwaffe umfasst mehrere Schritte. Wählen Sie zunächst ein hartes Material sowohl für den Griff als auch für den Körper aus und stellen Sie sicher, dass die Waffe nach oben zeigt. Verwenden Sie separate Ebenen, um scharfe Teile zu definieren, die ihre Verwendung beeinflussen werden. Wenn Sie Wurfeigenschaften wünschen, greifen Sie auf die Körpereinstellungen zu, um die Wurfnutzung hinzuzufügen. Weisen Sie für das Schneiden die entsprechende Nutzungsart zu und für stumpfe Verwendung entsprechend.</string>
+
+            <string name="hint_gun">Das Design einer Waffe erfordert Aufmerksamkeit für Details. Formen Sie die Waffe nach links und integrieren Sie einen Projektilindikator, den Sie entsprechend konfigurieren. Wenn möglich, verknüpfen Sie ihn mit einem Patronengehäuse für einen Auswurfeffekt. In den Körpereinstellungen sollte eine Schützennutzung enthalten sein und so konfiguriert werden, dass die Waffenfunktionalität des Körpers aktiviert wird.</string>
+
+            <string name="hint_produce">Beim Erstellen eines Produktartikels stellen Sie sicher, dass seine Form der einer Frucht oder Gemüse ähnelt. Konfigurieren Sie seine Ebenen, um eine saftige Textur zu verleihen, und wählen Sie eine geeignete Saftfarbe aus. Es ist wichtig zu beachten, dass Produkte automatisch in ihrer Größe variieren, daher wählen Sie nur einen Körper für Ihre Kreation.</string>
+
+            <string name="hint_heavy">Der Bau einer schweren Waffe umfasst mehrere Komponenten. Erstellen Sie verschiedene Körper für die Waffe oder das Fahrzeug und verbinden Sie sie mit Gelenken. Vergessen Sie nicht, in den Körpereinstellungen eine schwere Nutzung für die ordnungsgemäße Handhabung zuzuweisen. Wenn Sie eine Waffe einbauen, fügen Sie einen Projektilindikator hinzu und konfigurieren Sie ihn entsprechend. Fügen Sie schließlich eine Waffenutzung aus den Körpereinstellungen hinzu und konfigurieren Sie sie nach Bedarf.</string>
+
+            <string name="hint_grenade">Um eine Granate zu erstellen, platzieren Sie zunächst Bombenindikatoren und passen Sie ihre Leistung und Partikeleffekte an. Navigieren Sie dann zu den Körpereinstellungen und wählen Sie entweder eine zeitgesteuerte Bomben- oder eine Aufschlagbombernutzung aus, indem Sie sie mit den entsprechenden Bombenindikatoren konfigurieren. Sie haben die Flexibilität, je nach Ihren Designanforderungen einen oder mehrere Indikatoren auszuwählen.</string>
+
+            <string name="hint_bow">Die Herstellung eines Bogens erfordert eine sorgfältige Überlegung der Designelemente. Stellen Sie sicher, dass der Bogen nach links zeigt, und definieren Sie drei Schlüsselpunkte: den oberen Punkt, an dem die Saite befestigt ist, den Umfang des Bogens bei voller Spannung und den unteren Punkt, an dem die Saite befestigt ist. Definieren Sie zusätzlich einen Projektilindikator, um den Bau des Bogens abzuschließen.</string>
+
+            <string name="hint_rocket">Beim Erstellen einer Rakete formen Sie sie so, dass sie nach links zeigt, und integrieren Sie einen Feuerindikator für den Auspuff. Wenn die Rakete eine Bombe trägt, fügen Sie Bombenindikatoren hinzu und konfigurieren Sie sie entsprechend. Konfigurieren Sie den Raketenkörper, um sowohl die Raketen- als auch die Bombennutzung zu ermöglichen, und stellen Sie sicher, dass die Raketenutzung mit Feuerindikatoren für eine ordnungsgemäße Funktion verknüpft ist.</string>
+
     </resources>

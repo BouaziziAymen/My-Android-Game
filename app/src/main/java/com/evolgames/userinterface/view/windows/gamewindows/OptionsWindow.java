@@ -2,7 +2,9 @@ package com.evolgames.userinterface.view.windows.gamewindows;
 
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.gameengine.R;
+import com.evolgames.helpers.ItemMetaData;
 import com.evolgames.userinterface.control.windowcontrollers.gamewindowcontrollers.OptionsWindowController;
+import com.evolgames.userinterface.model.ItemCategory;
 import com.evolgames.userinterface.view.ShiftText;
 import com.evolgames.userinterface.view.basics.Dummy;
 import com.evolgames.userinterface.view.basics.Element;
@@ -19,9 +21,10 @@ public class OptionsWindow
         extends AbstractTwoLevelSectionedAdvancedWindow<
         SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>> {
 
+    private ShiftText<OptionsWindowController> shiftingText;
+
     public OptionsWindow(float pX, float pY, OptionsWindowController controller) {
-        super(pX, pY, 5, 6, false, controller);
-        Text text = new Text("", 2);
+        super(pX, pY, 5, 8, false, controller);
         Element mainField = new Dummy();
         layout.addDummySection(mainField);
         mainField.setPadding(5);
@@ -32,15 +35,16 @@ public class OptionsWindow
     }
 
     private void addShiftingText(OptionsWindowController controller) {
-        ShiftText<OptionsWindowController> shiftingText =
-                new ShiftText<>(8, 32 * 5 - 12 - 5, 6, controller);
+        shiftingText =
+                new ShiftText<>(8, 32 * 5 - 12 - 5, 8, controller);
         addElement(shiftingText);
         shiftingText.setDepth(3);
         shiftingText.setWindowPartIdentifier(WindowPartIdentifier.WINDOW_BODY);
-        shiftingText.setText(
-                ResourceManager.getInstance().getString(R.string.info_message_editor));
     }
 
+    public void setShiftingText(String text){
+        shiftingText.setText(text);
+    }
     @Override
     protected TwoLevelSectionLayout<SimplePrimary<?>, SimpleSecondary<?>, SimpleTertiary<?>>
     createLayout() {

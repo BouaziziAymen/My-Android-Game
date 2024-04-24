@@ -346,10 +346,6 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
         this.imageShapeModel = imageShapeModel;
     }
 
-    public ItemCategory getCategory() {
-        return category;
-    }
-
     public void setCategory(ItemCategory category) {
         this.category = category;
     }

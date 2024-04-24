@@ -15,6 +15,7 @@ import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +35,10 @@ public class Stabber extends MeleeUse implements Penetrating {
 
     @Override
     public List<PlayerSpecialAction> getActions() {
-        return Collections.singletonList(PlayerSpecialAction.Stab);
+        List<PlayerSpecialAction> list = new ArrayList<>();
+        list.add(PlayerSpecialAction.None);
+        list.add(PlayerSpecialAction.Stab);
+        return list;
     }
 
     @Override

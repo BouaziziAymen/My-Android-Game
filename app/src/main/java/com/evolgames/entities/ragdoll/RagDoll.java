@@ -11,7 +11,6 @@ import com.evolgames.entities.basics.GroupType;
 import com.evolgames.entities.basics.SpecialEntityType;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.utilities.GeometryUtils;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -311,18 +310,13 @@ public class RagDoll extends GameGroup {
         return Arrays.asList(upperTorso, head).contains(parentEntity);
     }
 
-    public void onBlunt(int finalNumberOfPoints) {
-        bluntTrauma += finalNumberOfPoints;
-        if (bluntTrauma > 500) {
-            if (head != null) {
-                this.alive = false;
-                head.setType(SpecialEntityType.Default);
-                head = null;
+    public void onBlunt(GameEntity gameEntity, int finalNumberOfPoints) {
+        if (gameEntity != null) {
+        gameEntity.bluntTrauma += finalNumberOfPoints;
+        if (gameEntity.bluntTrauma > gameEntity.getArea()) {
+                gameEntity.setType(SpecialEntityType.Default);
             }
         }
     }
 
-    private void redistributeBlood(Set<GameEntity> parts) {
-
-    }
 }

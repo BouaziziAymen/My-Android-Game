@@ -23,7 +23,7 @@ public class ShiftTextBehavior<C extends AdvancedWindowController<?>> extends Be
     public void onStep() {
         if (shiftedText != null && !shiftedText.isEmpty()) {
             step++;
-            if (step % 30 == 0) {
+            if (step % 10 == 0) {
                 shiftedText = shiftedText.substring(1) + shiftedText.charAt(0);
                 updateText();
             }

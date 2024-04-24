@@ -145,10 +145,11 @@ public class PlayUIFragment extends Fragment {
 
 
     private void setupMirrorButton(GameImageButton mirrorButton) {
-        mirrorButton.setOnReleased(() -> ((GameActivity) getActivity()).getUiController().onMirrorButtonClicked());
+        mirrorButton.setOnReleased(() -> ((GameActivity) requireActivity()).getUiController().onMirrorButtonClicked());
     }
 
     public void setOptionsList(List<PlayerSpecialAction> optionsList, PlayerSpecialAction selectedAction) {
+        optionsList.sort(Comparator.comparing(PlayerSpecialAction::getPriority));
         if(optionsList.isEmpty()){
             optionsRecyclerView.setVisibility(View.INVISIBLE);
             usesButton.setState(Button.State.DISABLED);

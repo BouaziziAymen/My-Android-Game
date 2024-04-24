@@ -335,7 +335,7 @@ public class PersistenceCaretaker {
         }
         Element toolElement = toolDocument.createElement(TOOL_TAG);
         toolElement.setAttribute(NAME, toolModel.getProperties().getToolName());
-        toolElement.setAttribute(CATEGORY, toolModel.getCategory().name());
+        toolElement.setAttribute(CATEGORY, toolModel.getToolCategory().name());
         Element bodiesElement = toolDocument.createElement(BODIES_TAG);
         for (BodyModel bodyModel : toolModel.getBodies()) {
             Element bodyElement = createBodyElement(toolDocument, bodyModel);

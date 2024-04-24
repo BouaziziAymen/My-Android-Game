@@ -44,13 +44,14 @@
     <string name="scenario_help_9">Use the mirror button to flip the orientation of an item.</string>
 
     <string name="rating">Enjoyed the game? Your 5-star rating fuels our progress and enhances your experience.</string>
-    <string name="bad_review">Feel free to visit Google Play to rate us or leave a review. Remember, if you ever need a refund, just let us know!</string>
+
+    <string name="bad_review">Prior to leaving a review on Google Play, please contact us at aymendotbouazizi@gmail.com with any complaints, suggestions, or bug reports. Your message will receive prompt attention within a few days.</string>
 
     <string name="hint_setting">Hints</string>
     <string name="sound_setting">Sound</string>
     <string name="music_setting">Music</string>
     <string name="map_options">Map Options</string>
-    <string name="open_map_option_hint">Open Map (Performance may decrease)</string>
+    <string name="open_map_option_hint">Open Map</string>
     <string name="wood_house_option_hint">Wood House</string>
     <string name="marble_house_option_hint">Marble House</string>
     <string name="category_sword">Swords</string>
@@ -406,5 +407,23 @@
     <string name="wood_block">Wood Block</string>
     <string name="glass_block">Glass Block</string>
     <string name="rock_block">Rock Block</string>
+
+
+    <string name="hint_all">When interacting with text fields, simply click on them to change their value. Clicking again will submit the entered value. Similarly, adjust sliders by clicking on them to modify their ratio.</string>
+
+    <string name="hint_melee">Crafting a melee weapon involves several steps. Firstly, select a hard material for both the handle and body, ensuring the weapon points upward. Utilize separate layers to define sharp parts, which will influence its usage. If you desire throwing capabilities, access body settings to add throwing usage. For slashing, assign slash usage, and for smashing, designate smash usage accordingly.</string>
+
+    <string name="hint_gun">Designing a gun requires attention to detail. Shape the gun to face left and incorporate a projectile indicator, configuring it appropriately. If applicable, link it with a bullet casing for an ejection effect. In the body settings, include a shooter usage and configure it to enable the body\'s gun functionality.</string>
+
+    <string name="hint_produce">When creating a produce item, ensure its shape resembles that of a fruit or vegetable. Configure its layers to impart a juicy texture, and select a suitable juice color. It\'s important to note that produces are automatically varied in size, so choose only one body for your creation.</string>
+
+    <string name="hint_heavy">Constructing a heavy weapon involves multiple components. Create various bodies for the weapon or vehicle and join them using joints. Remember to assign heavy usage in the body settings for proper handling. If incorporating a gun, attach a projectile indicator and configure it accordingly. Finally, add gun usage from the body settings and configure as needed.</string>
+
+    <string name="hint_grenade">To create a grenade, begin by placing bomb indicators and adjusting their power and particle effects. Then, navigate to the body settings and select either timed bomb or impact bomb usage, configuring them with the appropriate bomb indicators. You have the flexibility to choose one or more indicators based on your design requirements.</string>
+
+    <string name="hint_bow">Crafting a bow involves careful consideration of its design elements. Ensure the bow points to the left and define three key points: the upper point where the string is attached, the extent of the bow when fully drawn, and the lower point where the string is attached. Additionally, define a projectile indicator to complete the bow\'s construction.</string>
+
+    <string name="hint_rocket">When creating a rocket, shape it so that it points to the left and include a fire indicator for the exhaust. If the rocket carries a bomb, add bomb indicators and configure them accordingly. Configure the rocket body to enable both rocket and bomb usage, ensuring that rocket usage is linked with fire indicators for proper functionality.</string>
+    <string name="hint_other" />
 
 </resources>

@@ -82,6 +82,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -93,7 +94,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private final PinchZoomDetector mPinchZoomDetector;
     private final Random random = new Random();
     private final boolean[] motorSounds = new boolean[3];
-    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.SingleShot, PlayerSpecialAction.AimLight, PlayerSpecialAction.AimHeavy, PlayerSpecialAction.Shoot_Arrow, PlayerSpecialAction.FireHeavy, PlayerSpecialAction.FireLight);
+    private final EnumSet<PlayerSpecialAction> aimSet = EnumSet.of(PlayerSpecialAction.SingleShot, PlayerSpecialAction.AimLight, PlayerSpecialAction.AimHeavy, PlayerSpecialAction.Shoot_Arrow, PlayerSpecialAction.FireHeavy, PlayerSpecialAction.FireLight, PlayerSpecialAction.Throw);
     private PlayerAction playerAction = PlayerAction.Drag;
     private PlayerSpecialAction specialAction = PlayerSpecialAction.None;
     private Vector2 point1, point2;
@@ -325,7 +326,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                 // (0.1f+Math.random()*0.2f)
                 Color color = new Color(0.6f + (float) (Math.random() * 0.4f), 0f, (float) (0.2f + Math.random() * 0.4f));
                 Color skin = new Color(head.getBlocks().get(0).getProperties().getDefaultColor());
-                skin.setAlpha((float) (0.2f + 0.5f * Math.random()));
+                skin.setAlpha((float) (0.3f * Math.random()));
                 MyColorUtils.blendColors(color, color, skin);
                 this.worldFacade.applyStain(head, p.x, p.y, head.getBlocks().get(0), color, 0f, 14, true);
             }
@@ -677,7 +678,11 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void setSpecialAction(PlayerSpecialAction action) {
         this.specialAction = action;
         if (specialAction == PlayerSpecialAction.Stab) {
-            getHand().setHoldingAngle(90);
+            if(!getHand().getGrabbedEntity().isMirrored()) {
+                getHand().setHoldingAngle(90);
+            } else {
+                getHand().setHoldingAngle(-90);
+            }
         }
         if (specialAction == PlayerSpecialAction.Slash) {
             getHand().setHoldingAngle(0);
@@ -697,7 +702,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void onUsagesUpdated() {
         getActivity().runOnUiThread(() -> {
-            List<PlayerSpecialAction> usageList = new ArrayList<>();
+            Set<PlayerSpecialAction> usageList = new HashSet<>();
             PlayerSpecialAction defaultAction = null;
             Hand h = getHand();
             if (usesActive) {
@@ -759,7 +764,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                 }
                 usableEntity = hand.getUsableEntity();
             }
-            getActivity().getUiController().onUsagesUpdated(usageList, defaultAction, usesActive);
+            getActivity().getUiController().onUsagesUpdated(new ArrayList<>(usageList), defaultAction, usesActive);
         });
     }
 
@@ -976,24 +981,25 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void createAimSprite(GameEntity entity) {
-        if (entity == null) {
-            return;
-        }
-        if (aimSprite != null) {
-            hideAimSpriteDirect();
-        }
-        aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
-        aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-        this.attachChild(aimSprite);
-        aimSprite.setAlpha(0.01f);
-        aimSprite.setWidth(32 * 16);
-        aimSprite.setHeight(32 * 16);
-        aimSprite.setZIndex(-1);
-        if (entity.getBody() != null) {
-            physicsConnector = new PhysicsConnector(aimSprite, entity.getBody());
-            getPhysicsWorld().registerPhysicsConnector(physicsConnector);
-        }
-
+       ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+           if (entity == null) {
+               return;
+           }
+           if (aimSprite != null) {
+               hideAimSpriteDirect();
+           }
+           aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
+           aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+           this.attachChild(aimSprite);
+           aimSprite.setAlpha(0.01f);
+           aimSprite.setWidth(32 * 16);
+           aimSprite.setHeight(32 * 16);
+           aimSprite.setZIndex(-1);
+           if (entity.getBody() != null) {
+               physicsConnector = new PhysicsConnector(aimSprite, entity.getBody());
+               getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+           }
+       });
     }
 
     private void resetTouchHold() {
@@ -1201,6 +1207,11 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     static class HoldingComparator implements Comparator<Selection> {
         @Override
         public int compare(Selection s1, Selection s2) {
+            // First compare by number of uses
+                int compareByUses = Integer.compare(s2.uses, s1.uses);
+                if (compareByUses != 0) {
+                    return compareByUses;
+                }
 
             // first compare by z-index only if the entities belong to different groups
             if (s1.gameEntity.getParentGroup() != s2.gameEntity.getParentGroup()) {

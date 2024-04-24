@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -38,10 +39,21 @@ public class MenuUIFragment extends Fragment {
             ((GameActivity) requireActivity()).showRateUsDialog();;
         });
 
+
+        ImageView logo = fragment.findViewById(R.id.logo);
+
+        // Create a fade-in animation
+        Animation fadeInAnimation = new AlphaAnimation(0, 1f);
+        fadeInAnimation.setDuration(2000); // Set duration in milliseconds
+
+        // Apply the animation to the ImageView
+        logo.startAnimation(fadeInAnimation);
+
+        // Make the ImageView visible after the animation starts
+        logo.setVisibility(View.VISIBLE);
+
         GameImageButton editorButton = fragment.findViewById(R.id.editor_button);
-        editorButton.setOnReleased(() -> {
-            ((GameActivity) requireActivity()).getUiController().onEditorClicked();
-        });
+        editorButton.setOnReleased(() -> ((GameActivity) requireActivity()).getUiController().onEditorClicked());
         ImageView mottoView = fragment.findViewById(R.id.motto);
         // Load animations
         Animation fadeIn = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in);
