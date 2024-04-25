@@ -1653,7 +1653,7 @@ public class WorldFacade implements ContactObserver {
     private void applyStrain(LayerBlock layerBlock,float energy) {
         LayerProperties properties = layerBlock.getProperties();
         float ratio =
-                (float) Math.min(0.1f, 0.02f * energy / (Math.pow(layerBlock.getTenacity(), 10)));
+                (float) Math.min(0.1f, 0.05f * energy / (Math.pow(layerBlock.getTenacity(), 10)));
         float newTenacity = layerBlock.getTenacity() * (1f - ratio);
         properties.setTenacity(newTenacity);
     }

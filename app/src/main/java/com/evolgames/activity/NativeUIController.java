@@ -269,7 +269,6 @@ public class NativeUIController implements INativeUIController {
 
     public PlayerAction getHoldDragState() {
         PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
-        gameUIFragment.resetCameraButton();
        return gameUIFragment.getHoldState();
     }
 

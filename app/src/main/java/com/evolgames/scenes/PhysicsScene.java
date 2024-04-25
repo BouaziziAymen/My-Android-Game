@@ -421,7 +421,6 @@ public abstract class PhysicsScene extends AbstractScene {
     @Override
     public void detach() {
         destroyGroups();
-        this.worldFacade.getPhysicsWorld().clearPhysicsConnectors();
     }
 
     @Override

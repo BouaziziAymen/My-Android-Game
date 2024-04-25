@@ -790,7 +790,7 @@ public class GameEntity extends EntityWithBody {
         HashSet<JointBlock> used = new HashSet<>();
         List<JointBlock> list = visited.stream().flatMap(e -> e.layerBlocks.stream().flatMap(layerBlock -> layerBlock.getAssociatedBlocks().stream().filter(a -> a instanceof JointBlock).map(jb -> (JointBlock) jb))).collect(Collectors.toList());
         for (JointBlock jointBlock : list) {
-            if (used.contains(jointBlock)) {
+            if (used.contains(jointBlock)||!jointBlock.isNotAborted()) {
                 continue;
             }
             scene.getWorldFacade().recreateJoint(jointBlock, jointBlock.getEntity());

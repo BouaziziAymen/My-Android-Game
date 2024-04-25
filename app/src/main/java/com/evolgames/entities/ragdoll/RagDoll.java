@@ -313,7 +313,7 @@ public class RagDoll extends GameGroup {
     public void onBlunt(GameEntity gameEntity, int finalNumberOfPoints) {
         if (gameEntity != null) {
         gameEntity.bluntTrauma += finalNumberOfPoints;
-        if (gameEntity.bluntTrauma > gameEntity.getArea()) {
+        if (gameEntity.bluntTrauma > gameEntity.getArea()/2f) {
                 gameEntity.setType(SpecialEntityType.Default);
             }
         }
