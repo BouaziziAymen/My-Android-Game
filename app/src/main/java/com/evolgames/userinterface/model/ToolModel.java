@@ -364,24 +364,4 @@ public class ToolModel extends ProperModel<ToolProperties> implements Serializab
                 .orElse(null);
     }
 
-    public float[] getBounds(float x, float y, boolean mirrored) {
-        float maxX = 0f;
-        float minX = 0f;
-        float maxY = 0f;
-        float minY = 0f;
-        for(BodyModel b:bodies) {
-            Vector2 center = b.calculateBodyCenter();
-            for(LayerModel layerModel:b.getLayers()){
-             for(Vector2 v:layerModel.getPoints()){
-                 float dx = v.x - center.x;
-                 float dy = v.y - center.y;
-                 if(dx<minX){minX = dx;}
-                 if(dx>maxX){maxX = dx;}
-                 if(dy<minY){minY = dy;}
-                 if(dy>maxY){maxY = dy;}
-             }
-            }
-        }
-        return new float[]{!mirrored?minX+x:maxX+x,!mirrored?maxX+x:minX+x, y+minY,y+maxY};
-    }
 }

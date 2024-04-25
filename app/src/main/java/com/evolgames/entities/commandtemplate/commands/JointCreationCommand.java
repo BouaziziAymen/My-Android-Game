@@ -43,7 +43,16 @@ public class JointCreationCommand extends Command {
             }
         }
         if (joint instanceof MouseJoint) {
-            Invoker.scene.setMouseJoint((MouseJoint) joint, entity2, (MouseJointDef) jointDef);
+            MouseJoint old = Invoker.scene.getHand().getMouseJoint();
+            if(old!=null){
+                JointBlock jointBlock = (JointBlock) old.getUserData();
+                if(jointBlock.isNotAborted()) {
+                    physicsWorld.destroyJoint(old);
+                    jointBlock.setAborted(true);
+                    jointBlock.getBrother().setAborted(true);
+                }
+            }
+            Invoker.scene.getHand().setMouseJoint((MouseJoint) joint,  (MouseJointDef) jointDef,entity2);
         }
     }
 

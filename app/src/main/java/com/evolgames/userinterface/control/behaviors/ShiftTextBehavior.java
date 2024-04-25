@@ -9,6 +9,7 @@ public class ShiftTextBehavior<C extends AdvancedWindowController<?>> extends Be
     private final ShiftText<C> shiftText;
     private String shiftedText;
     private int step = 0;
+    private boolean pause;
 
     public ShiftTextBehavior(ShiftText<C> shiftText, C controller) {
         super(controller);
@@ -23,11 +24,14 @@ public class ShiftTextBehavior<C extends AdvancedWindowController<?>> extends Be
     public void onStep() {
         if (shiftedText != null && !shiftedText.isEmpty()) {
             step++;
-            if (step % 10 == 0) {
+            if (!pause&&step % 10 == 0) {
                 shiftedText = shiftedText.substring(1) + shiftedText.charAt(0);
                 updateText();
             }
         }
+    }
+    public void setPause(boolean pause){
+        this.pause = pause;
     }
 
     private String computeVisibleText() {

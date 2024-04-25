@@ -24,17 +24,19 @@ public class ShiftText<C extends AdvancedWindowController<?>> extends Container
         Button<C> infoButton =
                 new Button<>(
                         ResourceManager.getInstance().infoBlueButton, Button.ButtonType.Selector, true);
-        infoButton.setPosition(5, 4);
+        infoButton.setPosition(5, 4f);
         infoButton.setBehavior(
                 new ButtonBehavior<C>(controller, infoButton) {
                     @Override
                     public void informControllerButtonClicked() {
+                        shiftTextBehavior.setPause(false);
                     }
-
                     @Override
                     public void informControllerButtonReleased() {
+                        shiftTextBehavior.setPause(true);
                     }
                 });
+        infoButton.updateState(Button.State.PRESSED);
         addElement(infoButton);
         addElement(board);
 

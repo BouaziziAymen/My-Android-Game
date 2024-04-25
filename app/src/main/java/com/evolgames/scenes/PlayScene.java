@@ -10,7 +10,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.NativeUIController;
@@ -133,7 +132,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         if (hand != null) {
             hand.onUpdate();
         }
-        if(false){
+        if (false) {
             cullTest();
         }
 
@@ -177,20 +176,12 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                     float y = touchEvent.getY();
                     ToolModel toolModel = loadToolModel(itemToCreate.getFileName(), false, !itemToCreate.isUserCreated());
                     toolModel.getBodies().forEach(bodyModel -> bodyModel.setInit(new Init.Builder(x, y).filter(OBJECT, OBJECT).build()));
-                    float[] bounds = toolModel.getBounds(x, y, false);
-                    plotter.detachChildren();
-                    boolean checkEmpty = worldFacade.checkEmpty(bounds[0] / 32f, bounds[1] / 32f, bounds[2] / 32f, bounds[3] / 32f);
-
+                    boolean checkEmpty = checkEmpty(toolModel, false);
                     if (!checkEmpty) {
                         getActivity().getUiController().showHint(R.string.insufficient_space, NativeUIController.HintType.WARNING);
-                        drawItem(worldFacade.checkEmptyCallback.getGameEntity());
-//                        Color color = Color.RED;
-//                        plotter.drawLine2(new Vector2(bounds[0], bounds[3]), new Vector2(bounds[0], bounds[2]), color, 1);
-//                        plotter.drawLine2(new Vector2(bounds[1], bounds[3]), new Vector2(bounds[1], bounds[2]), color, 1);
-                    }
-                    if (checkEmpty) {
+                    } else {
                         createTool(toolModel, false);
-                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().createSound,0.5f,10);
+                        ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().createSound, 0.5f, 10);
                     }
                     stopCreating();
                     ResourceManager.getInstance().activity.getUiController().onItemCreated();
@@ -238,7 +229,8 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void stopCreating() {
         creating = false;
-        this.playerAction = PlayerAction.Drag;
+       PlayerAction playerAction = ResourceManager.getInstance().activity.getUiController().getHoldDragState();
+        setPlayerAction(playerAction);
     }
 
     private void processFrostEffect(TouchEvent touchEvent) {
@@ -294,11 +286,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void refresh() {
         this.detach();
-        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+        ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
             this.populate();
             ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
         });
-
 
 
     }
@@ -337,10 +328,11 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private void pulverizationTest() {
         if (step == 180) {
             ragdoll.getGameEntities().forEach(e -> {
-                if(e.getType()== SpecialEntityType.Head){
-                e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
-                this.worldFacade.destroyGameEntity(e, true);
-            }});
+                if (e.getType() == SpecialEntityType.Head) {
+                    e.getBlocks().forEach(b -> this.worldFacade.pulverizeBlock(b, e));
+                    this.worldFacade.destroyGameEntity(e, true);
+                }
+            });
         }
     }
 
@@ -376,21 +368,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             EditorScene.plotter.drawPoint(proj, Color.GREEN, 3);
             EditorScene.plotter.drawPoint(p, Color.YELLOW, 3);
             EditorScene.plotter.drawLine2(proj, p, Color.GREEN, 3);
-        }
-    }
-
-    private void drawItem(GameEntity entity) {
-        if (entity == null || entity.getBody() == null) {
-            return;
-        }
-        for (LayerBlock layerBlock : entity.getBlocks()) {
-            Body body = entity.getBody();
-            List<Vector2> points = new ArrayList<>();
-            for (Vector2 v : layerBlock.getVertices()) {
-                Vector2 p = body.getWorldPoint(v.cpy().mul(1 / 32f)).cpy().mul(32f);
-                points.add(p);
-            }
-            PlayScene.plotter.drawPolygon(points, Color.RED);
         }
     }
 
@@ -656,7 +633,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             setScrollerEnabled(true);
             Selection touchData = this.getTappedEntity(touchEvent);
             if (point1 != null && point2 != null && glueEntity != null && touchData != null && touchData.gameEntity != null && glueEntity != touchData.gameEntity) {
-                Touch touch = worldFacade.areTouching(glueBlock, touchData.layerBlock);
+                Touch touch = worldFacade.areTouching(glueEntity, touchData.gameEntity);
                 if (touch != null) {
                     line.setPosition(point1.x, point1.y, touchData.anchor.x, touchData.anchor.y);
                     this.worldFacade.glueEntities(glueEntity, touchData.gameEntity, touch.getPoint());
@@ -678,7 +655,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void setSpecialAction(PlayerSpecialAction action) {
         this.specialAction = action;
         if (specialAction == PlayerSpecialAction.Stab) {
-            if(!getHand().getGrabbedEntity().isMirrored()) {
+            if (!getHand().getGrabbedEntity().isMirrored()) {
                 getHand().setHoldingAngle(90);
             } else {
                 getHand().setHoldingAngle(-90);
@@ -698,6 +675,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void setPlayerAction(PlayerAction playerAction) {
         this.playerAction = playerAction;
+        if(this.playerAction==PlayerAction.Drag){
+            this.hand.killTopOfStack();
+        }
     }
 
     public void onUsagesUpdated() {
@@ -777,6 +757,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (!entity.getMesh().isVisible() || entity.isNotInteractive()) {
+                    continue;
+                }
                 if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                     Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
                     if (vector2LayerBlockPair != null) {
@@ -797,6 +780,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (!entity.getMesh().isVisible() || entity.isNotInteractive()) {
+                    continue;
+                }
                 if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                     Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, true);
                     if (vector2LayerBlockPair != null) {
@@ -817,6 +803,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (!entity.getMesh().isVisible() || entity.isNotInteractive()) {
+                    continue;
+                }
                 if (entity.getBody() != null && entity.getBody().getType() == BodyDef.BodyType.DynamicBody) {
                     Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
                     if (vector2LayerBlockPair != null) {
@@ -837,6 +826,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         for (GameGroup gameGroup : getGameGroups()) {
             for (int k = 0; k < gameGroup.getGameEntities().size(); k++) {
                 GameEntity entity = gameGroup.getGameEntities().get(k);
+                if (!entity.getMesh().isVisible()) {
+                    continue;
+                }
                 if (entity.getBody() != null) {
                     Pair<Vector2, LayerBlock> vector2LayerBlockPair = entity.computeTouch(touchEvent, false);
                     if (vector2LayerBlockPair != null) {
@@ -861,7 +853,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void onOptionSelected(PlayerSpecialAction playerSpecialAction) {
-        if(playerSpecialAction==PlayerSpecialAction.None){
+        if (playerSpecialAction == PlayerSpecialAction.None) {
             setScrollerEnabled(true);
             setZoomEnabled(true);
         }
@@ -911,7 +903,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         } else if (playerSpecialAction == PlayerSpecialAction.Unselect) {
             if (this.hand != null) {
                 setScrollerEnabled(true);
-                ResourceManager.getInstance().activity.runOnUpdateThread(()-> {
+                ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
                     this.hand.deselectDirect(true);
                 });
             }
@@ -925,7 +917,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                 if (usableEntity != null && usableEntity.hasUsage(Bomb.class)) {
                     Bomb bomb = usableEntity.getUsage(Bomb.class);
                     bomb.onTriggered(worldFacade);
-                    //  hand.releaseGrabbedEntity(true);
                     onUsagesUpdated();
                     resetTouchHold();
                 }
@@ -981,28 +972,28 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void createAimSprite(GameEntity entity) {
-       ResourceManager.getInstance().activity.runOnUpdateThread(()->{
-           if (entity == null) {
-               return;
-           }
-           if (aimSprite != null) {
-               hideAimSpriteDirect();
-           }
-           aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
-           aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-           this.attachChild(aimSprite);
-           aimSprite.setAlpha(0.01f);
-           aimSprite.setWidth(32 * 16);
-           aimSprite.setHeight(32 * 16);
-           aimSprite.setZIndex(-1);
-           if (entity.getBody() != null) {
-               physicsConnector = new PhysicsConnector(aimSprite, entity.getBody());
-               getPhysicsWorld().registerPhysicsConnector(physicsConnector);
-           }
-       });
+        ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
+            if (entity == null) {
+                return;
+            }
+            if (aimSprite != null) {
+                hideAimSpriteDirect();
+            }
+            aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
+            aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            this.attachChild(aimSprite);
+            aimSprite.setAlpha(0.01f);
+            aimSprite.setWidth(32 * 16);
+            aimSprite.setHeight(32 * 16);
+            aimSprite.setZIndex(-1);
+            if (entity.getBody() != null) {
+                physicsConnector = new PhysicsConnector(aimSprite, entity.getBody());
+                getPhysicsWorld().registerPhysicsConnector(physicsConnector);
+            }
+        });
     }
 
-    private void resetTouchHold() {
+    public void resetTouchHold() {
         this.setPlayerAction(PlayerAction.Drag);
         ResourceManager.getInstance().activity.getUiController().resetTouchHold();
     }
@@ -1089,7 +1080,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     private void checkMotorSounds() {
         HashSet<Integer> sounds = new HashSet<>();
-        HashMap<Integer,Float> soundValues = new HashMap<>();
+        HashMap<Integer, Float> soundValues = new HashMap<>();
         for (GameGroup gameGroup : gameGroups) {
             for (GameEntity gameEntity : gameGroup.getEntities()) {
                 if (gameEntity.hasUsage(MotorControl.class)) {
@@ -1099,8 +1090,8 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
                         sounds.add(motorSound);
                         float x = gameEntity.getMesh().getX();
                         float y = gameEntity.getMesh().getY();
-                        float dis = new Vector2(x,y).dst(this.mCamera.getCenterX(),this.mCamera.getCenterY());
-                        float soundFactor = dis<=0?1f:800f*800f/(dis*dis);
+                        float dis = new Vector2(x, y).dst(this.mCamera.getCenterX(), this.mCamera.getCenterY());
+                        float soundFactor = dis <= 0 ? 1f : 800f * 800f / (dis * dis);
                         soundValues.compute(motorSound, (key, oldValue) -> {
                             if (oldValue == null || soundFactor > oldValue) {
                                 return soundFactor;
@@ -1130,16 +1121,16 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void onSelectedEntitySpared(GameEntity selectedEntity) {
         hideAimSprite();
-        if(this.getChasedEntity()==selectedEntity){
+        if (this.getChasedEntity() == selectedEntity) {
             this.resetChasedEntity();
-            ResourceManager.getInstance().activity.runOnUiThread(()->{
+            ResourceManager.getInstance().activity.runOnUiThread(() -> {
                 ResourceManager.getInstance().activity.getUiController().resetCameraButton();
             });
         }
     }
 
     private void hideAimSprite() {
-        ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+        ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
             if (aimSprite != null && aimSprite.hasParent()) {
                 aimSprite.detachSelf();
                 if (this.physicsConnector != null) {
@@ -1150,18 +1141,32 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void hideAimSpriteDirect() {
-            if (aimSprite != null && aimSprite.hasParent()) {
-                aimSprite.detachSelf();
-                if (this.physicsConnector != null) {
-                    getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
-                }
+        if (aimSprite != null && aimSprite.hasParent()) {
+            aimSprite.detachSelf();
+            if (this.physicsConnector != null) {
+                getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
             }
+        }
     }
 
     public void onGrabbedEntityReleased(boolean usagesUpdated) {
         if (usagesUpdated) {
             hideAimSprite();
         }
+    }
+
+    private void cullTest() {
+        int total = 0;
+        int numberOfVisibleEntities = 0;
+        for (GameGroup gameGroup : gameGroups) {
+            for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                total++;
+                if (!gameEntity.getMesh().isCulled(this.mCamera)) {
+                    numberOfVisibleEntities++;
+                }
+            }
+        }
+        Log.e("numberOfVisible", total + ":" + numberOfVisibleEntities);
     }
 
     public static class Selection {
@@ -1177,7 +1182,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             this.layerBlock = layerBlock;
             this.distance = distance;
             this.anchor = anchor;
-            this.uses = gameEntity.getUseList().size();
+            this.uses = (int) gameEntity.getUseList().size();
             this.zIndex = gameEntity.getZIndex();
         }
     }
@@ -1208,10 +1213,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         @Override
         public int compare(Selection s1, Selection s2) {
             // First compare by number of uses
-                int compareByUses = Integer.compare(s2.uses, s1.uses);
-                if (compareByUses != 0) {
-                    return compareByUses;
-                }
+            int compareByUses = Integer.compare(s2.uses, s1.uses);
+            if (compareByUses != 0) {
+                return compareByUses;
+            }
 
             // first compare by z-index only if the entities belong to different groups
             if (s1.gameEntity.getParentGroup() != s2.gameEntity.getParentGroup()) {
@@ -1232,20 +1237,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             // compare by distance
             return Float.compare(s1.distance, s2.distance);
         }
-    }
-
-    private void cullTest(){
-        int total = 0;
-        int numberOfVisibleEntities = 0;
-        for(GameGroup gameGroup:gameGroups){
-            for(GameEntity gameEntity:gameGroup.getGameEntities()){
-                total++;
-                if(!gameEntity.getMesh().isCulled(this.mCamera)){
-                    numberOfVisibleEntities++;
-                }
-            }
-        }
-        Log.e("numberOfVisible",total+":"+numberOfVisibleEntities);
     }
 
 

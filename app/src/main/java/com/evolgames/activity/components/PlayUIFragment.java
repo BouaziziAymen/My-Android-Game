@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.evolgames.activity.GameActivity;
 import com.evolgames.activity.ResourceManager;
+import com.evolgames.entities.hand.PlayerAction;
 import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.gameengine.R;
 import com.evolgames.helpers.ItemMetaData;
@@ -276,6 +277,16 @@ public class PlayUIFragment extends Fragment {
 
     public void resetCameraButton() {
         trackCameraButton.setState(Button.State.NORMAL);
+    }
+
+    public PlayerAction getHoldState() {
+    if(touchHoldState==TouchHoldState.HOLD){
+        return PlayerAction.Hold;
+    } else if(touchHoldState==TouchHoldState.TOUCH){
+        return PlayerAction.Drag;
+    } else {
+        return PlayerAction.Select;
+    }
     }
 
     public enum TouchHoldState {

@@ -21,15 +21,6 @@ public class GameGroupDestructionCommand extends Command{
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Body body = entity.getBody();
         Body mirrorBody = entity.getMirrorBody();
-        for (Iterator<Joint> it = physicsWorld.getJoints(); it.hasNext(); ) {
-            Joint joint = it.next();
-            if (joint.getBodyA() == body || joint.getBodyB() == body) {
-                physicsWorld.destroyJoint(joint);
-            }
-            if (joint.getBodyA() == mirrorBody || joint.getBodyB() == mirrorBody) {
-                physicsWorld.destroyJoint(joint);
-            }
-        }
         if(body!=null) {
             physicsWorld.destroyBody(body);
         }

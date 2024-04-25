@@ -229,4 +229,22 @@ public class BodyModel extends OutlineModel<BodyProperties> {
     public void setCenter(Vector2 center) {
         this.center = center;
     }
+
+    public float[] getBounds(float x, float y, float pX, float pY,boolean mirrored) {
+        float maxX = 0f;
+        float minX = 0f;
+        float maxY = 0f;
+        float minY = 0f;
+            for(LayerModel layerModel:getLayers()){
+                for(Vector2 v:layerModel.getPoints()){
+                    float dx = v.x - x;
+                    float dy = v.y - y;
+                    if(dx<minX){minX = dx;}
+                    if(dx>maxX){maxX = dx;}
+                    if(dy<minY){minY = dy;}
+                    if(dy>maxY){maxY = dy;}
+                }
+            }
+        return new float[]{!mirrored?minX+pX:maxX+pX,!mirrored?maxX+pX:minX+pX, pY+minY,pY+maxY};
+    }
 }

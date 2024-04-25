@@ -14,10 +14,6 @@ import com.evolgames.entities.hand.PlayerSpecialAction;
 import com.evolgames.physics.WorldFacade;
 import com.evolgames.physics.entities.TopographyData;
 import com.evolgames.scenes.PhysicsScene;
-import com.evolgames.scenes.PlayScene;
-
-import org.andengine.util.adt.color.Color;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +35,7 @@ public class Projectile extends Use implements Penetrating {
     }
 
     private float impactFactor() {
-        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 50f : 10f;
+        return projectileType == ProjectileType.BULLET || projectileType == ProjectileType.METEOR ? 100f : 20f;
     }
 
     @Override

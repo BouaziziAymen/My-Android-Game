@@ -1,7 +1,5 @@
 package com.evolgames.physics;
 
-import static com.evolgames.entities.factories.MaterialFactory.FLESH;
-import static com.evolgames.entities.factories.MaterialFactory.HARD_FLESH;
 import static com.evolgames.physics.PhysicsConstants.BACKOFF;
 import static com.evolgames.physics.PhysicsConstants.BLEEDING_CONSTANT;
 import static com.evolgames.physics.PhysicsConstants.FLUX_PRECISION;
@@ -19,7 +17,6 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.DistanceJointDef;
-import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
@@ -52,7 +49,6 @@ import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.factories.BlockFactory;
 import com.evolgames.entities.factories.GameEntityFactory;
 import com.evolgames.entities.factories.MaterialFactory;
-import com.evolgames.entities.hand.Hand;
 import com.evolgames.entities.particles.systems.SpawnAction;
 import com.evolgames.entities.particles.wrappers.ClusterLiquidParticleWrapper;
 import com.evolgames.entities.particles.wrappers.DataExplosiveParticleWrapper;
@@ -119,7 +115,7 @@ import java.util.stream.Collectors;
 
 public class WorldFacade implements ContactObserver {
     public static Color frostColor = new Color(172f / 255f, 213f / 255f, 243f / 255f);
-    public final CheckEmptyCallback checkEmptyCallback = new CheckEmptyCallback();
+    public CheckEmptyCallback checkEmptyCallback;
     private final Set<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final Set<PowderParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final Set<ExplosiveParticleWrapper> explosivesParticleWrappers = new HashSet<>();
@@ -281,7 +277,6 @@ public class WorldFacade implements ContactObserver {
         float rot = body.getAngle();
         ArrayList<GameEntity> splinters = GameEntityFactory.getInstance().createSplinterEntities(x, y, rot, BlockUtils.getDivisionGroups(splinterBlocks), body.getLinearVelocity(), body.getAngularVelocity(), parentEntity.getName(), parentEntity);
         HashSet<Pair<GameEntity>> setOfPairs = new HashSet<>();
-
         splinters.forEach(splinter -> {
             for (Pair<GameEntity> pair : this.contactListener.getNonCollidingEntities()) {
                 if (pair.first == parentEntity) {
@@ -299,14 +294,12 @@ public class WorldFacade implements ContactObserver {
                         JointBlock jointBlock = (JointBlock) associatedBlock;
                         if (jointBlock.isNotAborted()) {
                             if (jointBlock.getJointType() == JointDef.JointType.MouseJoint) {
-                                Hand h = scene.getHand();
-                                if (h.getGrabbedEntity() == parentEntity) {
-                                    if ((h.isFollow() || h.isHolding() || h.isDragging()) && !h.isOnAction()) {
-                                        recreateJoint(jointBlock, splinter);
-                                    } else {
-                                        h.onMouseJointDestroyed((MouseJoint) jointBlock.getJoint());
-                                    }
-                                }
+                                Vector2 anchor = jointBlock.getVertices().get(0);
+                                MouseJointDef jointDef = (MouseJointDef) jointBlock.getProperties().getJointDef();
+                                Vector2 target = parentEntity.getBody().getWorldPoint(anchor.cpy().mul(1/32f)).cpy();
+                                jointDef.target.set(target);
+                                recreateJoint(jointBlock, splinter);
+                                splinter.setDragged(parentEntity.isDragged());
                             } else {
                                 recreateJoint(jointBlock, splinter);
                             }
@@ -460,14 +453,14 @@ public class WorldFacade implements ContactObserver {
     }
 
     public HashSet<GameEntity> findEntitiesInZone(float rx, float ry, float halfWidth, float halfHeight) {
-
         queryCallBack.reset();
         physicsWorld.QueryAABB(queryCallBack, rx - halfWidth, ry - halfHeight, rx + halfWidth, ry + halfHeight);
         return queryCallBack.getEntities();
     }
 
     public boolean checkEmpty(float lx, float ux, float ly, float uy) {
-        checkEmptyCallback.reset();
+        checkEmptyCallback = new CheckEmptyCallback();
+        checkEmptyCallback.reset(new float[]{lx*32f,ux*32f,ly*32f,uy*32f});
         physicsWorld.QueryAABB(checkEmptyCallback, lx, ly, ux, uy);
         return checkEmptyCallback.isEmpty();
     }
@@ -1355,7 +1348,7 @@ public class WorldFacade implements ContactObserver {
 
     public void applyBluntTrauma(float x, float y, float impulse, GameEntity gameEntity, LayerBlock layerBlock) {
 
-        float trauma = impulse / (10f * TENACITY_FACTOR * layerBlock.getTenacity());
+        float trauma = impulse / (5f * TENACITY_FACTOR * layerBlock.getTenacity());
         int numberOfPoints = Math.min(10, Math.round(trauma));
 
         List<Vector2> pts = Vector2Utils.generateRandomPointsInsidePolygon(numberOfPoints, new Vector2(x, y), layerBlock, gameEntity);
@@ -1660,7 +1653,7 @@ public class WorldFacade implements ContactObserver {
     private void applyStrain(LayerBlock layerBlock,float energy) {
         LayerProperties properties = layerBlock.getProperties();
         float ratio =
-                (float) Math.min(0.1f, 0.002f * energy / (Math.pow(layerBlock.getTenacity(), 10)));
+                (float) Math.min(0.1f, 0.02f * energy / (Math.pow(layerBlock.getTenacity(), 10)));
         float newTenacity = layerBlock.getTenacity() * (1f - ratio);
         properties.setTenacity(newTenacity);
     }
@@ -1696,6 +1689,54 @@ public class WorldFacade implements ContactObserver {
 
     public void setGroundGroup(GameGroup ground) {
         this.ground = ground;
+    }
+
+
+    private void addJointBlocks(GameEntity entity1, GameEntity entity2,LayerBlock layerBlock1,LayerBlock layerBlock2, JointBlock jointBlock1, JointBlock jointBlock2, JointDef jointDef, boolean mirror) {
+        Vector2 anchorA = new Vector2();
+        Vector2 anchorB = new Vector2();
+
+        switch (jointDef.type) {
+            case DistanceJoint:
+                assert jointDef instanceof DistanceJointDef;
+                anchorA.set(((DistanceJointDef) jointDef).localAnchorA.cpy().mul(32f));
+                anchorB.set(((DistanceJointDef) jointDef).localAnchorB.cpy().mul(32f));
+                break;
+            case Unknown:
+            case GearJoint:
+            case MouseJoint:
+                MouseJointDef mouseJointDef = ((MouseJointDef) jointDef);
+                Vector2 anchor = mouseJointDef.target.cpy().mul(32f);
+                float[] pos = entity2.getMesh().convertSceneCoordinatesToLocalCoordinates(anchor.x, anchor.y);
+                anchorB.set(pos[0], pos[1]);
+
+            case LineJoint:
+            case PulleyJoint:
+            case FrictionJoint:
+                break;
+            case RevoluteJoint:
+                anchorA.set(((RevoluteJointDef) jointDef).localAnchorA.cpy().mul(32f));
+                anchorB.set(((RevoluteJointDef) jointDef).localAnchorB.cpy().mul(32f));
+                break;
+            case PrismaticJoint:
+                anchorA.set(((PrismaticJointDef) jointDef).localAnchorA.cpy().mul(32f));
+                anchorB.set(((PrismaticJointDef) jointDef).localAnchorB.cpy().mul(32f));
+                break;
+            case WeldJoint:
+                anchorA.set(((WeldJointDef) jointDef).localAnchorA.cpy().mul(32f));
+                anchorB.set(((WeldJointDef) jointDef).localAnchorB.cpy().mul(32f));
+                break;
+        }
+        String jointUniqueId = UUID.randomUUID().toString();
+
+        jointBlock1.initialization(entity1, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorA)), new JointBlockProperties(jointDef), 0, JointBlock.Position.A, jointBlock2);
+        layerBlock1.addAssociatedBlock(jointBlock1);
+
+        jointBlock2.initialization(entity2, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorB)), new JointBlockProperties(jointDef), 0, JointBlock.Position.B, jointBlock1);
+        layerBlock2.addAssociatedBlock(jointBlock2);
+        if (mirror) {
+            jointBlock1.mirrorJointDef();
+        }
     }
 
     private void addJointBlocks(GameEntity entity1, GameEntity entity2, JointBlock jointBlock1, JointBlock jointBlock2, JointDef jointDef, boolean mirror) {
@@ -1764,6 +1805,7 @@ public class WorldFacade implements ContactObserver {
         Invoker.addJointCreationCommand(jointDef, entity2.getParentGroup(), entity1, entity2, jointBlock2);
         return jointBlock1;
     }
+
 
     public JointBlock addJointToCreate(JointDef jointDef, GameEntity entity1, GameEntity entity2, int jointId) {
         return addJointToCreate(jointDef, entity1, entity2, jointId, false);

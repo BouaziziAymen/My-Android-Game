@@ -165,4 +165,36 @@ public final class EntityCollisionChecker {
 		return BaseCollisionChecker.checkCollision(EntityCollisionChecker.VERTICES_COLLISION_TMP_A, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT, EntityCollisionChecker.VERTICES_COLLISION_TMP_B, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT);
 	}
 
+
+
+	public static boolean checkCollision(final  float[]  worldBounds, final float[] entityBounds, final Transformation pLocalToSceneTransformation) {
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[0 + Constants.VERTEX_INDEX_X] = worldBounds[0];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[0 + Constants.VERTEX_INDEX_Y] = worldBounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[2 + Constants.VERTEX_INDEX_X] = worldBounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[2 + Constants.VERTEX_INDEX_Y] = worldBounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[4 + Constants.VERTEX_INDEX_X] = worldBounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[4 + Constants.VERTEX_INDEX_Y] = worldBounds[3];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[6 + Constants.VERTEX_INDEX_X] = worldBounds[0];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_A[6 + Constants.VERTEX_INDEX_Y] = worldBounds[3];
+
+		//*************************************
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[0 + Constants.VERTEX_INDEX_X] = entityBounds[0];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[0 + Constants.VERTEX_INDEX_Y] = entityBounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[2 + Constants.VERTEX_INDEX_X] = entityBounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[2 + Constants.VERTEX_INDEX_Y] = entityBounds[2];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[4 + Constants.VERTEX_INDEX_X] = entityBounds[1];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[4 + Constants.VERTEX_INDEX_Y] = entityBounds[3];
+
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[6 + Constants.VERTEX_INDEX_X] = entityBounds[0];
+		EntityCollisionChecker.VERTICES_COLLISION_TMP_B[6 + Constants.VERTEX_INDEX_Y] = entityBounds[3];
+
+		pLocalToSceneTransformation.transform(EntityCollisionChecker.VERTICES_COLLISION_TMP_B);
+
+		return BaseCollisionChecker.checkCollision(EntityCollisionChecker.VERTICES_COLLISION_TMP_A, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT, EntityCollisionChecker.VERTICES_COLLISION_TMP_B, EntityCollisionChecker.RECTANGULARSHAPE_VERTEX_COUNT);
+	}
 }

@@ -3,11 +3,15 @@ package com.evolgames.scenes;
 
 import static com.evolgames.physics.CollisionUtils.OBJECT;
 import static com.evolgames.scenes.PlayScene.pause;
+import static com.evolgames.scenes.PlayScene.plotter;
+
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
 import com.evolgames.entities.basics.GroupType;
@@ -54,12 +58,16 @@ import com.evolgames.utilities.BlockUtils;
 import com.evolgames.utilities.ToolUtils;
 
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.handler.timer.TimerHandler;
+import org.andengine.entity.primitive.LineStrip;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
+import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -70,6 +78,8 @@ public abstract class PhysicsScene extends AbstractScene {
     protected Hand hand;
     protected RagDoll ragdoll;
     protected int step;
+    private LineStrip lineStrip;
+    private TimerHandler pUpdateHandler;
 
     public PhysicsScene(Camera pCamera, SceneType sceneName) {
         super(pCamera, sceneName);
@@ -96,30 +106,29 @@ public abstract class PhysicsScene extends AbstractScene {
                         .map(BodyModel::getProjectileModels)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());
+
         dragModels.forEach(
-                dragModel ->
-                        dragModel.setDraggedEntity(
-                                bodies.stream()
-                                        .filter(e -> e.getBodyId() == dragModel.getBodyId())
-                                        .findAny()
-                                        .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                        .getGameEntity()));
+                dragModel ->{
+                    Optional<BodyModel> draggedBody = bodies.stream().filter(e -> e.getBodyId() == dragModel.getBodyId()).findAny();
+                    draggedBody.ifPresent((e)-> dragModel.setDraggedEntity(e.getGameEntity()));
+                });
+
         projectileModels.forEach(
-                projectileModel ->
-                        projectileModel.setMuzzleEntity(
-                                bodies.stream()
-                                        .filter(e -> e.getBodyId() == projectileModel.getBodyId())
-                                        .findAny()
-                                        .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                        .getGameEntity()));
+                projectileModel ->{
+                    Optional<BodyModel> muzzleBody = bodies.stream().filter(e -> e.getBodyId() == projectileModel.getBodyId()).findAny();
+                    muzzleBody.ifPresent((e)->{
+                        projectileModel.setMuzzleEntity(e.getGameEntity());
+                    });
+                });
+
         bombModels.forEach(
-                bombModel ->
-                        bombModel.setCarrierEntity(
-                                bodies.stream()
-                                        .filter(e -> e.getBodyId() == bombModel.getBodyId())
-                                        .findAny()
-                                        .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                        .getGameEntity()));
+                bombModel ->{
+                    Optional<BodyModel> bombBody = bodies.stream().filter(e -> e.getBodyId() == bombModel.getBodyId()).findAny();
+                    bombBody.ifPresent((e)->{
+                        bombModel.setCarrierEntity(e.getGameEntity());
+                    });
+                });
+
         List<FireSourceModel> fireSourceModels =
                 bodies.stream()
                         .map(BodyModel::getFireSourceModels)
@@ -127,13 +136,10 @@ public abstract class PhysicsScene extends AbstractScene {
                         .collect(Collectors.toList());
 
         fireSourceModels.forEach(
-                fireSourceModel ->
-                        fireSourceModel.setMuzzleEntity(
-                                bodies.stream()
-                                        .filter(e -> e.getBodyId() == fireSourceModel.getBodyId())
-                                        .findAny()
-                                        .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                        .getGameEntity()));
+                fireSourceModel ->{
+                    Optional<BodyModel> fireSourceBody = bodies.stream().filter(e -> e.getBodyId() == fireSourceModel.getBodyId()).findAny();
+                      fireSourceBody.ifPresent((e)-> fireSourceModel.setMuzzleEntity(e.getGameEntity()));
+                });
 
         List<LiquidSourceModel> liquidSourceModels =
                 bodies.stream()
@@ -143,18 +149,15 @@ public abstract class PhysicsScene extends AbstractScene {
 
         liquidSourceModels.forEach(
                 liquidSourceModel -> {
-                    liquidSourceModel.setContainerEntity(
-                            bodies.stream()
-                                    .filter(e -> e.getBodyId() == liquidSourceModel.getBodyId())
-                                    .findAny()
-                                    .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                    .getGameEntity());
-                    liquidSourceModel.setSealEntity(
-                            bodies.stream()
-                                    .filter(e -> e.getBodyId() == liquidSourceModel.getProperties().getSealBodyId())
-                                    .findAny()
-                                    .orElseThrow(() -> new RuntimeException("Body not found!"))
-                                    .getGameEntity());
+                    Optional<BodyModel> containerBody = bodies.stream()
+                            .filter(e -> e.getBodyId() == liquidSourceModel.getBodyId())
+                            .findAny();
+                    containerBody.ifPresent((e)->{liquidSourceModel.setContainerEntity(e.getGameEntity());});
+
+                    Optional<BodyModel> sealBody = bodies.stream()
+                            .filter(e -> e.getBodyId() == liquidSourceModel.getProperties().getSealBodyId())
+                            .findAny();
+                    sealBody.ifPresent((BodyModel e) ->{liquidSourceModel.setSealEntity(e.getGameEntity());});
                 });
     }
 
@@ -162,7 +165,7 @@ public abstract class PhysicsScene extends AbstractScene {
         ArrayList<BodyModel> bodies = toolModel.getBodies();
         ArrayList<JointModel> joints = toolModel.getJoints();
         List<GameEntity> gameEntities = new CopyOnWriteArrayList<>();
-        if(toolModel.getToolCategory()== ItemCategory.PRODUCE){
+        if (toolModel.getToolCategory() == ItemCategory.PRODUCE) {
             ToolUtils.scaleTool(toolModel, FruitSizeGenerator.generateSize());
         }
         //validate here:
@@ -200,7 +203,7 @@ public abstract class PhysicsScene extends AbstractScene {
             bodyModel.setGameEntity(gameEntity);
             gameEntity.setZIndex(bodyModel.getProperties().getZIndex());
         }
-        bodies.removeIf(e->e.getGameEntity()==null);
+        bodies.removeIf(e -> e.getGameEntity() == null);
         // Create game group
         GameGroup gameGroup = new GameGroup(GroupType.OTHER, gameEntities);
         this.addGameGroup(gameGroup);
@@ -212,14 +215,83 @@ public abstract class PhysicsScene extends AbstractScene {
             JointBlock mainJointBlock = createJointFromModel(jointModel, mirrored);
             mainJointBlocks.add(mainJointBlock);
         }
-        setupUsages(bodies, mainJointBlocks,this, mirrored);
+        setupUsages(bodies, mainJointBlocks, this, mirrored);
 
         this.sortChildren();
 
         return gameGroup;
     }
 
+    public boolean checkEmpty(ToolModel toolModel, final boolean mirrored) {
+        ArrayList<BodyModel> bodies = toolModel.getBodies();
+        Float minX = null, maxX = null;
+        Float minY = null, maxY = null;
+        for (BodyModel bodyModel : bodies) {
+            if (bodyModel.getLayers().size() == 0) {
+                continue;
+            }
+            Vector2 center = bodyModel.calculateBodyCenter();
+            Init _init = bodyModel.getInit();
+            float pX = _init.getX();
+            float pY = _init.getY();
+            float[] bounds = bodyModel.getBounds(center.x, center.y, pX,pY,mirrored);
+                if(minX==null||bounds[0]<minX){
+                    minX = bounds[0];
+                }
+                if(maxX==null||bounds[1]>maxX){
+                    maxX = bounds[1];
+                }
+                if(minY==null||bounds[2]<minY){
+                    minY = bounds[2];
+                }
+                if(maxY==null||bounds[3]>maxY){
+                    maxY = bounds[3];
+                }
+        }
+        if(minX==null){
+            return false;
+        }
+        boolean checkEmpty = worldFacade.checkEmpty(minX / 32f, maxX / 32f, minY / 32f, maxY/ 32f);
+        if(!checkEmpty){
+            drawBounds(new float[]{minX,maxX,minY,maxY});
+        }
+        return checkEmpty;
+    }
+    private void drawBounds(float[] bounds) {
 
+        // Attach the bounds to the scene
+        ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
+            if(lineStrip!=null&&lineStrip.hasParent()){
+                lineStrip.detachSelf();
+                  cancelDetachHandler();
+            }
+            lineStrip = new LineStrip(0, 0, 8, ResourceManager.getInstance().vbom);
+            lineStrip.setColor(Color.RED);
+            lineStrip.add(bounds[0], bounds[2]);
+            lineStrip.add(bounds[0], bounds[3]);
+            lineStrip.add(bounds[1], bounds[3]);
+            lineStrip.add(bounds[1], bounds[2]);
+            lineStrip.add(bounds[0], bounds[2]);
+            this.attachChild(lineStrip);
+            final LineStrip lineStripCopy = lineStrip;
+            pUpdateHandler = new TimerHandler(2, false, pTimerHandler -> {
+                ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
+                    if (lineStripCopy!=null&&lineStripCopy.hasParent()) {
+                        lineStripCopy.detachSelf();
+                    }
+                });
+            });
+            ResourceManager.getInstance().activity.getEngine().registerUpdateHandler(pUpdateHandler);
+        });
+
+
+    }
+
+    private void cancelDetachHandler() {
+        if (pUpdateHandler != null) {
+                ResourceManager.getInstance().activity.getEngine().unregisterUpdateHandler(pUpdateHandler);
+        }
+    }
 
     public void setupUsages(ArrayList<BodyModel> bodies, List<JointBlock> mainJointBlocks, PhysicsScene physicsScene, boolean mirrored) {
         bodies.forEach(bodyModel -> {
@@ -298,9 +370,9 @@ public abstract class PhysicsScene extends AbstractScene {
                                         bodyModel.getGameEntity().getUseList().add(rocketLauncher);
                                         break;
                                     case MOTOR_CONTROL:
-                                       MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
-                                        List<JointBlock> jointBlocks = mainJointBlocks.stream().filter(j -> j!=null&&motorControlProperties.getJointIds().contains(j.getJointId())).collect(Collectors.toList());
-                                        MotorControl motorControl = new MotorControl(e, jointBlocks,mirrored);
+                                        MotorControlProperties motorControlProperties = (MotorControlProperties) e.getProperties();
+                                        List<JointBlock> jointBlocks = mainJointBlocks.stream().filter(j -> j != null && motorControlProperties.getJointIds().contains(j.getJointId())).collect(Collectors.toList());
+                                        MotorControl motorControl = new MotorControl(e, jointBlocks, mirrored);
                                         bodyModel.getGameEntity().getUseList().add(motorControl);
                                         break;
                                 }
@@ -315,6 +387,7 @@ public abstract class PhysicsScene extends AbstractScene {
         }
         this.hand = null;
     }
+
     public JointBlock createJointFromModel(JointModel jointModel, boolean mirrored) {
         BodyModel bodyModel1 = jointModel.getBodyModel1();
         BodyModel bodyModel2 = jointModel.getBodyModel2();
@@ -330,7 +403,7 @@ public abstract class PhysicsScene extends AbstractScene {
         jointModel.translate();
         JointDef jointDef = jointModel.createJointDef(mirrored);
 
-        return getWorldFacade().addJointToCreate(jointDef, entity1, entity2, jointModel.getJointId(),mirrored);
+        return getWorldFacade().addJointToCreate(jointDef, entity1, entity2, jointModel.getJointId(), mirrored);
     }
 
     public WorldFacade getWorldFacade() {
@@ -348,6 +421,7 @@ public abstract class PhysicsScene extends AbstractScene {
     @Override
     public void detach() {
         destroyGroups();
+        this.worldFacade.getPhysicsWorld().clearPhysicsConnectors();
     }
 
     @Override
@@ -373,14 +447,6 @@ public abstract class PhysicsScene extends AbstractScene {
     public void setHand(Hand hand) {
         this.hand = hand;
     }
-
-    public void setMouseJoint(MouseJoint joint, GameEntity gameEntity, MouseJointDef jointDef) {
-        if (hand != null) {
-            Objects.requireNonNull(hand)
-                    .setMouseJoint(joint, jointDef, gameEntity);
-        }
-    }
-
 
     public GameEntity getGameEntityByUniqueId(String uniqueId) {
         for (GameGroup gameGroup : gameGroups) {
@@ -431,4 +497,20 @@ public abstract class PhysicsScene extends AbstractScene {
     }
 
 
+    private void drawItem(GameEntity entity) {
+        plotter.detachChildren();
+        if (entity == null || entity.getBody() == null) {
+            return;
+        }
+        Color color = entity.getBody().isActive()?  Color.RED: Color.YELLOW;
+        for (LayerBlock layerBlock : entity.getBlocks()) {
+            Body body = entity.getBody();
+            List<Vector2> points = new ArrayList<>();
+            for (Vector2 v : layerBlock.getVertices()) {
+                Vector2 p = body.getWorldPoint(v.cpy().mul(1 / 32f)).cpy().mul(32f);
+                points.add(p);
+            }
+            PlayScene.plotter.drawPolygon(points,color);
+        }
+    }
 }

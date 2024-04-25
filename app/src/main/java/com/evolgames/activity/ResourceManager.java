@@ -132,7 +132,7 @@ public class ResourceManager {
     public TiledTextureRegion targetButtonTextureRegion;
     public TiledTextureRegion ammoTextureRegion;
     public List<GameSound> projectileSounds, penetrationSounds;
-    public Sound slashSound, glueSound, gunEmptySound,switchSound,createSound;
+    public Sound slashSound, glueSound, gunEmptySound,switchSound,createSound, selectSound,unselectSound;
     public TextureRegion aimCircleTextureRegion;
     public TextureRegion focusTextureRegion;
     public TiledTextureRegion helpBigButton;
@@ -757,6 +757,16 @@ public class ResourceManager {
             int[] numbers = new int[]{2, 7, 4, 1, 3};
 
             SoundFactory.setAssetBasePath("sfx/");
+            selectSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "select.mp3");
+            unselectSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "unselect.mp3");
 
             createSound =
                     SoundFactory.createSoundFromAsset(

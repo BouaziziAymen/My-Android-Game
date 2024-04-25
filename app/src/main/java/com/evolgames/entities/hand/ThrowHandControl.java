@@ -30,8 +30,7 @@ public class ThrowHandControl extends HandControl {
         if (!isDead()) {
             assert body != null;
             float rot = body.getAngle();
-            float error =
-                    GeometryUtils.calculateShortestDirectedDistance(rot * MathUtils.radiansToDegrees, angle);
+            float error = GeometryUtils.calculateShortestDirectedDistance(rot * MathUtils.radiansToDegrees, angle);
             this.angleChangerHandControl.run();
             if (!(Math.abs(error) > 5f)) {
                 if (!this.thrown) {

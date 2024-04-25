@@ -22,6 +22,7 @@ import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.init.AngularVelocityInit;
 import com.evolgames.entities.init.BodyInit;
 import com.evolgames.entities.init.BodyInitImpl;
+import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
 import com.evolgames.entities.mesh.mosaic.MosaicMesh;
@@ -157,13 +158,13 @@ public class GameEntityFactory {
                             .orElseThrow(() -> new RuntimeException("Filter should exist"))
                             .getFilterData();
             BodyInit bodyInit =
-                    new TransformInit(
+                    new BulletInit(new TransformInit(
                             new LinearVelocityInit(
                                     new AngularVelocityInit(new BodyInitImpl(filter), angularVelocity),
                                     linearVelocity),
                             x,
                             y,
-                            rot);
+                            rot),parent.getBody().isBullet());
             GameEntity e =
                     GameEntityFactory.getInstance()
                             .createGameEntity(

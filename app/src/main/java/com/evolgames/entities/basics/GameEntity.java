@@ -1,6 +1,5 @@
 package com.evolgames.entities.basics;
 
-import android.opengl.GLES20;
 import android.util.Log;
 import android.util.Pair;
 
@@ -83,10 +82,11 @@ public class GameEntity extends EntityWithBody {
     private String uniqueID = UUID.randomUUID().toString();
     private boolean mirrored;
     private Entity outline, mirrorOutline;
-    private int zIndex;
     private boolean outlined;
     private GameEntity heir;
     private boolean destroyed;
+    private boolean interactive = true;
+    private boolean dragged;
 
     public GameEntity(
             MosaicMesh mesh, PhysicsScene scene, String entityName, List<LayerBlock> layerBlocks) {
@@ -692,7 +692,7 @@ public class GameEntity extends EntityWithBody {
         for (Joint joint : jointsToDestroy) {
             scene.getPhysicsWorld().destroyJoint(joint);
             if (joint.getType() == JointDef.JointType.MouseJoint) {
-                scene.getHand().onMouseJointDestroyed((MouseJoint) joint);
+                scene.getHand().setMouseJoint(null,null,null);
             }
         }
     }
@@ -837,7 +837,6 @@ public class GameEntity extends EntityWithBody {
 
     public void setZIndex(int i) {
         this.mesh.setZIndex(i);
-        this.zIndex = i;
     }
 
     public GameEntity getHeir() {
@@ -875,5 +874,21 @@ public class GameEntity extends EntityWithBody {
 
     public boolean isDestroyed() {
         return destroyed;
+    }
+
+    public void setInteractive(boolean interactive) {
+        this.interactive = interactive;
+    }
+
+    public boolean isNotInteractive() {
+        return !interactive;
+    }
+
+    public void setDragged(boolean dragged) {
+        this.dragged = dragged;
+    }
+
+    public boolean isDragged() {
+        return dragged;
     }
 }

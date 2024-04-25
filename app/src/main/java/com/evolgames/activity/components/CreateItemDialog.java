@@ -79,7 +79,7 @@ public class CreateItemDialog extends DialogFragment {
         View dialogLayout = inflater.inflate(R.layout.new_item_dialog, null);
 
         AutoCompleteTextView itemTypeAutoComplete = dialogLayout.findViewById(R.id.itemTypeAutoComplete);
-        Item[] types = Arrays.stream(ItemCategory.values()).map(e -> new Item(requireContext().getString(e.nameId), e.name())).toArray(Item[]::new);
+        Item[] types = Arrays.stream(ItemCategory.values()).filter(e->!e.nonCreatable||BuildConfig.DEBUG).map(e -> new Item(requireContext().getString(e.nameId), e.name())).toArray(Item[]::new);
         ArrayAdapter<Item> itemTypesAdapter = new ArrayAdapter<>(this.requireActivity(), android.R.layout.simple_dropdown_item_1line, types);
 
         itemTypeAutoComplete.setAdapter(itemTypesAdapter);

@@ -46,6 +46,7 @@ public class Rocket extends Use {
         this.fuel = rocketProperties.getFuel();
         this.power = rocketProperties.getPower();
         createFireSources(physicsScene.getWorldFacade());
+        setActive(true);
     }
 
     public String getRocketBodyEntityUniqueId() {
@@ -114,11 +115,13 @@ public class Rocket extends Use {
     public List<PlayerSpecialAction> getActions() {
         List<PlayerSpecialAction> list = new ArrayList<>();
         list.add(PlayerSpecialAction.None);
-        list.add(PlayerSpecialAction.AimLight);
-        if (isOn()) {
-          list.add(PlayerSpecialAction.SwitchOff);
-        } else {
-           list.add(PlayerSpecialAction.SwitchOn);
+        if(isActive()) {
+            list.add(PlayerSpecialAction.AimLight);
+            if (isOn()) {
+                list.add(PlayerSpecialAction.SwitchOff);
+            } else {
+                list.add(PlayerSpecialAction.SwitchOn);
+            }
         }
         return list;
     }

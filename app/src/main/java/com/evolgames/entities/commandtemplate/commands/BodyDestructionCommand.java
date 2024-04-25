@@ -1,8 +1,15 @@
 package com.evolgames.entities.commandtemplate.commands;
 
+import androidx.constraintlayout.helper.widget.Layer;
+
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
+import com.badlogic.gdx.physics.box2d.JointDef;
+import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.blocks.AssociatedBlock;
+import com.evolgames.entities.blocks.JointBlock;
+import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.Hand;
 
@@ -23,15 +30,6 @@ public class BodyDestructionCommand extends Command {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Body body = entity.getBody();
         Body mirrorBody = entity.getMirrorBody();
-        for (Iterator<Joint> it = physicsWorld.getJoints(); it.hasNext(); ) {
-            Joint joint = it.next();
-            if (joint.getBodyA() == body || joint.getBodyB() == body) {
-                physicsWorld.destroyJoint(joint);
-            }
-            if (joint.getBodyA() == mirrorBody || joint.getBodyB() == mirrorBody) {
-                physicsWorld.destroyJoint(joint);
-            }
-        }
         if(body!=null) {
             physicsWorld.destroyBody(body);
         }
@@ -53,7 +51,7 @@ public class BodyDestructionCommand extends Command {
         destroy();
         Hand hand = Invoker.scene.getHand();
         if(hand!=null&&hand.getGrabbedEntity()==entity){
-           hand.onMouseJointDestroyed(hand.getMouseJoint());
+           hand.setMouseJoint(null,null,null);
         }
         if(hand!=null){
             if(hand.getSelectedEntity()==entity) {

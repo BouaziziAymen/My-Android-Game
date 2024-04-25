@@ -142,6 +142,7 @@ public class RocketLauncher extends Use {
             bomb.setHasSafety(false);
         }
         rocketEntity.getParentGroup().getEntities().forEach(entity -> {
+            entity.setInteractive(true);
             if (entity != rocketEntity) {
                 entity.setVisible(true);
                 entity.getBody().getFixtureList().forEach(fixture -> fixture.setSensor(true));
@@ -229,6 +230,7 @@ public class RocketLauncher extends Use {
         rocketGroup.getEntities().forEach(entity -> {
             physicsScene.getWorldFacade().addNonCollidingPair(entity, muzzleEntity);
             entity.setZIndex(muzzleEntity.getZIndex() - 1);
+            entity.setInteractive(false);
         });
 
         GameEntity rocketEntity = rocketGroup.getGameEntityByIndex(0);
@@ -249,6 +251,7 @@ public class RocketLauncher extends Use {
 
         Rocket rocket = rocketEntity.getUsage(Rocket.class);
         this.rockets.put(projectileInfo, rocket);
+        rocket.setActive(false);
 
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
 

@@ -147,7 +147,7 @@ public class NativeUIController implements INativeUIController {
                 ItemMetaData itemMetaData = new ItemMetaData();
                 itemMetaData.setFileName(res.get().getFileName());
                 itemMetaData.setUserCreated(res.get().isUserCreated());
-                itemMetaData.setToolName(BuildConfig.DEBUG ? res.get().getName() : "Anonymous");
+                itemMetaData.setToolName(res.get().getName());
                 itemMetaData.setItemCategory(res.get().getItemCategory());
                 ResourceManager.getInstance().setEditorItem(itemMetaData);
                 ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(itemMetaData.getName()));
@@ -265,6 +265,12 @@ public class NativeUIController implements INativeUIController {
             PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
             gameUIFragment.resetCameraButton();
         });
+    }
+
+    public PlayerAction getHoldDragState() {
+        PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
+        gameUIFragment.resetCameraButton();
+       return gameUIFragment.getHoldState();
     }
 
     public enum HintType{

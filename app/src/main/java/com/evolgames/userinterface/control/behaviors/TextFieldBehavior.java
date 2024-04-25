@@ -149,12 +149,12 @@ public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>>
         textString = s;
     }
 
-    public void setSelected(boolean b) {
-        if (!b) {
+    public void setSelected(boolean selected) {
+        if (!selected) {
             showPrompt = false;
             setText();
         }
-        this.selected = b;
+        this.selected = selected;
     }
 
     public Action getReleaseAction() {
@@ -169,7 +169,7 @@ public abstract class TextFieldBehavior<C extends AdvancedWindowController<?>>
         String text = getTextString();
         boolean validation = validator.validate(text);
         if (textField.getErrorDisplay() != null) {
-            if (!validation) {
+            if (!validation&&validator.getErrorMessage()!=null) {
                 textField.getErrorDisplay().showError(validator.getErrorMessage());
                 showError = true;
             } else {
