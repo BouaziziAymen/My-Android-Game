@@ -692,7 +692,7 @@ public class GameEntityFactory {
         revoluteJointDef.localAnchorB.set(
                 Vector2Pool.obtain(0, (UPPERLEG_L1 + UPPERLEG_L1 + UPPERLEG_CIR1) / 2 / 32f));
         revoluteJointDef.enableLimit = true;
-        revoluteJointDef.lowerAngle = (float) (float) -(Math.PI / 4);
+        revoluteJointDef.lowerAngle = (float) 0;
         revoluteJointDef.upperAngle = (float) (Math.PI / 2);
         revoluteJointDef.collideConnected = false;
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegR, 7);
@@ -704,7 +704,7 @@ public class GameEntityFactory {
                 Vector2Pool.obtain(0, (UPPERLEG_L1 + UPPERLEG_L1 + UPPERLEG_CIR1) / 2 / 32f));
         revoluteJointDef.enableLimit = true;
         revoluteJointDef.lowerAngle = (float) (-Math.PI / 2);
-        revoluteJointDef.upperAngle = (float) (float) (Math.PI / 4);
+        revoluteJointDef.upperAngle = (float) (float) 0;
         revoluteJointDef.collideConnected = false;
         scene.getWorldFacade().addJointToCreate(revoluteJointDef, upperTorso, upperLegL, 8);
 

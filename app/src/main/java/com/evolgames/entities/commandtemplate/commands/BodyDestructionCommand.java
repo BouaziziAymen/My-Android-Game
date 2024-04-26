@@ -36,13 +36,13 @@ public class BodyDestructionCommand extends Command {
         if(mirrorBody !=null){
             physicsWorld.destroyBody(mirrorBody);
         }
+        if(Invoker.scene.getChasedEntity()==entity){
+            Invoker.scene.resetChasedEntity();
+        }
         entity.setBody(null);
         entity.setMirrorBody(null);
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
-        if(finalDestruction){
-            entity.recycle();
-        }
         entity.setDestroyed();
     }
 

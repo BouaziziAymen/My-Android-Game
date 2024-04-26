@@ -260,7 +260,6 @@ public class VerticesFactory {
 
         float teta = 0;
         for (int i = 0; i < n; i++) {
-
             list.add(Vector2Pool.obtain(x + w * (float) Math.cos(teta), y + h * (float) Math.sin(teta)));
             teta += 2 * Math.PI / n;
         }

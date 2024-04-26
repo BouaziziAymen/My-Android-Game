@@ -273,6 +273,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void detach() {
         super.detach();
         this.worldFacade.getTimedCommands().clear();
+        this.getWorldFacade().clearFlames();
         ResourceManager.getInstance().activity.runOnUpdateThread(this::hideAimSpriteDirect);
         System.gc();
     }
@@ -290,8 +291,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             this.populate();
             ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
         });
-
-
     }
 
     @Override
@@ -1000,7 +999,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void onMirrorButtonClicked() {
         if (hand != null && hand.getUsableEntity() != null) {
-            Invoker.addBodyMirrorCommand(hand.getUsableEntity());
+                Invoker.addBodyMirrorCommand(hand.getUsableEntity());
         }
     }
 

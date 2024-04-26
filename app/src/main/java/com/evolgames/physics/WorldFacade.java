@@ -608,12 +608,11 @@ public class WorldFacade implements ContactObserver {
                     }
                     Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
                     CoatingBlock nearestCoatingBlock = block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
+                    float dst = nearestCoatingBlock!=null?localPosition.dst(nearestCoatingBlock.getPosition()):0;
                     recycle(localPosition);
-
-                    if (nearestCoatingBlock != null) {
+                    if (nearestCoatingBlock != null&& dst<32f) {
                         double sparkTemperature = fire.getParticleTemperature(p);
                         nearestCoatingBlock.onSpark(sparkTemperature);
-
                         PhysicsUtils.transferHeatByConvection(nearestCoatingBlock.getProperties().getHeatResistance(), sparkTemperature, nearestCoatingBlock);
                     }
                 }
@@ -1906,7 +1905,17 @@ public class WorldFacade implements ContactObserver {
                 gameEntity.getFireParticleWrapper().detachDirect();
             }
         }
-
+        explosivesParticleWrappers.forEach(element->{
+            if(element.getParent()==gameEntity){
+                element.detachDirect();
+                removeFlame(element);
+            }
+        });
+        explosivesParticleWrappers.removeIf(e->!e.isAlive());
         liquidParticleWrappers.removeIf(element -> !element.isAlive());
+    }
+
+    public void clearFlames() {
+        this.flames.clear();
     }
 }

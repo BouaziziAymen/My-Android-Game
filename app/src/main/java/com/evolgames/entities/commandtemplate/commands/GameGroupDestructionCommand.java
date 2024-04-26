@@ -31,7 +31,7 @@ public class GameGroupDestructionCommand extends Command{
         entity.setMirrorBody(null);
         entity.detach();
         entity.getParentGroup().getEntities().remove(entity);
-        entity.recycle();
+       // entity.recycle();
         entity.setDestroyed();
     }
 

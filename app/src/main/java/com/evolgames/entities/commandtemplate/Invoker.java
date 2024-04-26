@@ -88,6 +88,9 @@ public class Invoker {
 
     public static void addBodyMirrorCommand(
             GameEntity entity) {
+        if(entity.getParentGroup().getCommands().stream().anyMatch(e-> e instanceof BodyMirrorCommand)){
+            return;
+        }
         BodyMirrorCommand command = new BodyMirrorCommand(entity);
         entity.getParentGroup().getCommands().add(command);
     }

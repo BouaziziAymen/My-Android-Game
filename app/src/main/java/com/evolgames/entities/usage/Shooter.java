@@ -395,7 +395,7 @@ public class Shooter extends Use {
                                                             p.getSmokeRatio(),
                                                             p.getSparkRatio(),
                                                             1f,
-                                                            0.5f, 0.5f, 0f);
+                                                            0.25f, 0.5f, 0f);
                                     fireSource.setSpawnEnabled(false);
                                     this.projInfFireSourceMap.put(p, fireSource);
                                     p.setUpdatedMuzzle(false);

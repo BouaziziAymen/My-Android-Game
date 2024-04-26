@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.QueryCallback;
 import com.evolgames.entities.basics.GameEntity;
+import com.evolgames.entities.basics.GameGroup;
 
 import org.andengine.util.algorithm.collision.EntityCollisionChecker;
 
