@@ -975,6 +975,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void createAimSprite(GameEntity entity) {
+        if(!ResourceManager.getInstance().isHints()){
+            return;
+        }
         if (entity == null) {
             return;
         }
@@ -1143,6 +1146,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     private void hideAimSprite() {
+        if(!ResourceManager.getInstance().isHints()){
+            return;
+        }
         ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
             if (aimSprite != null && aimSprite.hasParent()) {
                 GameEntity entity = (GameEntity) aimSprite.getUserData();
@@ -1156,6 +1162,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void hideAimSpriteDirect() {
+        if(!ResourceManager.getInstance().isHints()){
+            return;
+        }
         if (aimSprite != null && aimSprite.hasParent()) {
             GameEntity entity = (GameEntity) aimSprite.getUserData();
             entity.setAiming(false);

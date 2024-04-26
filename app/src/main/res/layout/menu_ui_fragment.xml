@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -42,13 +42,25 @@
             app:buttonType="click"
             android:layout_margin="5dp"
             app:icon="@drawable/gear_icon" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/top_right_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:orientation="vertical"
+        android:padding="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlHardcoded">
 
         <com.evolgames.activity.components.GameImageButton
             android:id="@+id/rate_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:buttonType="click"
             android:layout_margin="5dp"
+            app:buttonType="click"
             app:icon="@drawable/rating_icon" />
     </LinearLayout>
 
