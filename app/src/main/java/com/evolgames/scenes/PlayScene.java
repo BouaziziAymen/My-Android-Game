@@ -275,6 +275,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         this.worldFacade.getTimedCommands().clear();
         this.getWorldFacade().clearFlames();
         ResourceManager.getInstance().activity.runOnUpdateThread(this::hideAimSpriteDirect);
+        stopMotorSounds();
         System.gc();
     }
 
@@ -1076,7 +1077,14 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void setEffectsActive(boolean effectsActive) {
         this.effectsActive = effectsActive;
     }
-
+    private void stopMotorSounds() {
+        for (int i = 0; i < 3; i++) {
+                if (motorSounds[i]) {
+                    ResourceManager.getInstance().motorSounds.get(i).stop();
+                    motorSounds[i] = false;
+                }
+        }
+    }
     private void checkMotorSounds() {
         HashSet<Integer> sounds = new HashSet<>();
         HashMap<Integer, Float> soundValues = new HashMap<>();
@@ -1104,16 +1112,14 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         }
         for (int i = 0; i < 3; i++) {
             if (sounds.contains(i)) {
-                ResourceManager.getInstance().motorSounds.get(i).setVolume(soundValues.get(i));
+                ResourceManager.getInstance().motorSounds.get(i).setVolume(Math.min(1f,soundValues.get(i)));
                 if (!motorSounds[i]) {
                     motorSounds[i] = true;
                     ResourceManager.getInstance().motorSounds.get(i).play();
                 }
             } else {
-                if (motorSounds[i]) {
-                    ResourceManager.getInstance().motorSounds.get(i).stop();
+                    ResourceManager.getInstance().motorSounds.get(i).pause();
                     motorSounds[i] = false;
-                }
             }
         }
     }
