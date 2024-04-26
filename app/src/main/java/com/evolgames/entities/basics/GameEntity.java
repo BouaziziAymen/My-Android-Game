@@ -36,6 +36,7 @@ import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.infos.InitInfo;
 import com.evolgames.entities.usage.Use;
 import com.evolgames.scenes.PhysicsScene;
+import com.evolgames.scenes.PlayScene;
 import com.evolgames.utilities.GeometryUtils;
 
 import org.andengine.entity.Entity;
@@ -87,6 +88,8 @@ public class GameEntity extends EntityWithBody {
     private boolean destroyed;
     private boolean interactive = true;
     private boolean dragged;
+    private boolean aiming;
+
     public GameEntity(
             MosaicMesh mesh, PhysicsScene scene, String entityName, List<LayerBlock> layerBlocks) {
         super();
@@ -723,6 +726,9 @@ public class GameEntity extends EntityWithBody {
             mesh = mirrorMesh;
             mirrorMesh = jokerMesh;
             scene.attachChild(mesh);
+            if(isAiming()){
+                ((PlayScene)scene).createAimSprite(this);
+            }
         } else {
             mirrorBody = body;
             mirrorMesh = mesh;
@@ -774,6 +780,9 @@ public class GameEntity extends EntityWithBody {
                 continue;
             }
             scene.getPhysicsWorld().destroyJoint(jointBlock.getJoint());
+            if(jointBlock.getJointType()== JointDef.JointType.MouseJoint){
+                scene.getHand().setMouseJoint(null,null,null);
+            }
             scene.getWorldFacade().recreateJoint(jointBlock, jointBlock.getEntity());
             used.add(jointBlock);
             used.add(jointBlock.getBrother());
@@ -869,5 +878,13 @@ public class GameEntity extends EntityWithBody {
 
     public boolean isDragged() {
         return dragged;
+    }
+
+    public void setAiming(boolean aiming) {
+        this.aiming = aiming;
+    }
+
+    public boolean isAiming() {
+        return aiming;
     }
 }

@@ -161,7 +161,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     @Override
     public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
-        boolean result = super.onSceneTouchEvent(pSceneTouchEvent);
+        super.onSceneTouchEvent(pSceneTouchEvent);
         this.processTouchEvent(pSceneTouchEvent);
         return false;
     }
@@ -231,24 +231,24 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void stopCreating() {
         creating = false;
-       PlayerAction playerAction = ResourceManager.getInstance().activity.getUiController().getHoldDragState();
+        PlayerAction playerAction = ResourceManager.getInstance().activity.getUiController().getHoldDragState();
         setPlayerAction(playerAction);
     }
 
     private void processFrostEffect(TouchEvent touchEvent) {
         if (touchEvent.isActionDown()) {
-                this.frostParticleWrapper = worldFacade.frostParticleWrapper(touchEvent.getX(),touchEvent.getY(),new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
-                setScrollerEnabled(false);
-                ResourceManager.getInstance().windSound.play();
+            this.frostParticleWrapper = worldFacade.frostParticleWrapper(touchEvent.getX(), touchEvent.getY(), new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
+            setScrollerEnabled(false);
+            ResourceManager.getInstance().windSound.play();
         }
         if (touchEvent.isActionMove()) {
-            if(this.frostParticleWrapper!=null) {
+            if (this.frostParticleWrapper != null) {
                 this.frostParticleWrapper.update(touchEvent.getX(), touchEvent.getY());
             }
         }
         if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
-            if(this.frostParticleWrapper!=null) {
-               this.frostParticleWrapper.detach();
+            if (this.frostParticleWrapper != null) {
+                this.frostParticleWrapper.detach();
             }
             setScrollerEnabled(true);
             ResourceManager.getInstance().windSound.pause();
@@ -680,7 +680,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void setPlayerAction(PlayerAction playerAction) {
         this.playerAction = playerAction;
-        if(this.playerAction==PlayerAction.Drag){
+        if (this.playerAction == PlayerAction.Drag) {
             this.hand.killTopOfStack();
         }
     }
@@ -976,18 +976,20 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         }
     }
 
-    private void createAimSprite(GameEntity entity) {
-        ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
-            if (entity == null) {
-                return;
-            }
+    public void createAimSprite(GameEntity entity) {
+        if (entity == null) {
+            return;
+        }
+        ResourceManager.getInstance().activity.runOnUpdateThread(()-> {
             if (aimSprite != null) {
                 hideAimSpriteDirect();
             }
             aimSprite = new Sprite(entity.getX(), entity.getY(), ResourceManager.getInstance().focusTextureRegion, ResourceManager.getInstance().vbom);
             aimSprite.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+            entity.setAiming(true);
+            aimSprite.setUserData(entity);
             this.attachChild(aimSprite);
-            aimSprite.setAlpha(0.01f);
+            aimSprite.setAlpha(0.05f);
             aimSprite.setWidth(32 * 16);
             aimSprite.setHeight(32 * 16);
             aimSprite.setZIndex(-1);
@@ -998,6 +1000,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         });
     }
 
+
     public void resetTouchHold() {
         this.setPlayerAction(PlayerAction.Drag);
         ResourceManager.getInstance().activity.getUiController().resetTouchHold();
@@ -1005,7 +1008,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     public void onMirrorButtonClicked() {
         if (hand != null && hand.getUsableEntity() != null) {
-                Invoker.addBodyMirrorCommand(hand.getUsableEntity());
+            Invoker.addBodyMirrorCommand(hand.getUsableEntity());
         }
     }
 
@@ -1082,14 +1085,16 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void setEffectsActive(boolean effectsActive) {
         this.effectsActive = effectsActive;
     }
+
     private void stopMotorSounds() {
         for (int i = 0; i < 3; i++) {
-                if (motorSounds[i]) {
-                    ResourceManager.getInstance().motorSounds.get(i).stop();
-                    motorSounds[i] = false;
-                }
+            if (motorSounds[i]) {
+                ResourceManager.getInstance().motorSounds.get(i).stop();
+                motorSounds[i] = false;
+            }
         }
     }
+
     private void checkMotorSounds() {
         HashSet<Integer> sounds = new HashSet<>();
         HashMap<Integer, Float> soundValues = new HashMap<>();
@@ -1117,14 +1122,14 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         }
         for (int i = 0; i < 3; i++) {
             if (sounds.contains(i)) {
-                ResourceManager.getInstance().motorSounds.get(i).setVolume(Math.min(1f,soundValues.get(i)));
+                ResourceManager.getInstance().motorSounds.get(i).setVolume(Math.min(1f, soundValues.get(i)));
                 if (!motorSounds[i]) {
                     motorSounds[i] = true;
                     ResourceManager.getInstance().motorSounds.get(i).play();
                 }
             } else {
-                    ResourceManager.getInstance().motorSounds.get(i).pause();
-                    motorSounds[i] = false;
+                ResourceManager.getInstance().motorSounds.get(i).pause();
+                motorSounds[i] = false;
             }
         }
     }
@@ -1142,6 +1147,8 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private void hideAimSprite() {
         ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
             if (aimSprite != null && aimSprite.hasParent()) {
+                GameEntity entity = (GameEntity) aimSprite.getUserData();
+                entity.setAiming(false);
                 aimSprite.detachSelf();
                 if (this.physicsConnector != null) {
                     getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);
@@ -1150,8 +1157,10 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         });
     }
 
-    private void hideAimSpriteDirect() {
+    public void hideAimSpriteDirect() {
         if (aimSprite != null && aimSprite.hasParent()) {
+            GameEntity entity = (GameEntity) aimSprite.getUserData();
+            entity.setAiming(false);
             aimSprite.detachSelf();
             if (this.physicsConnector != null) {
                 getPhysicsWorld().unregisterPhysicsConnector(this.physicsConnector);

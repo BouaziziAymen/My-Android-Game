@@ -471,14 +471,7 @@ public class Hand {
         }
         if (this.grabbedEntity.hasUsage(Bow.class)) {
             Bow bow = this.grabbedEntity.getUsage(Bow.class);
-            if (bow.isLoaded()) {
-                for (GameGroup gameGroup : bow.getArrows().values()) {
-                    for (GameEntity gameEntity : gameGroup.getGameEntities()) {
-                        playScene.getWorldFacade().destroyGameEntity(gameEntity, true);
-                    }
-                }
-            }
-            bow.onBowReleased();
+            bow.destroyArrows(playScene.getWorldFacade());
         }
     }
 

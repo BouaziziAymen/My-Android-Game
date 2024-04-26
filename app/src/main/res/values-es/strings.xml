@@ -425,5 +425,5 @@
 
     <string name="hint_rocket">Al crear un cohete, dale forma para que apunte hacia la izquierda e incluye un indicador de fuego para el escape. Si el cohete lleva una bomba, agrega indicadores de bomba y configúralos en consecuencia. Configura el cuerpo del cohete para habilitar tanto el uso de cohete como el de bomba, asegurando que el uso del cohete esté vinculado con los indicadores de fuego para un funcionamiento adecuado.</string>
 
-
+    <string name="camera_tracking_hint">¡Seguimiento de cámara activado! Seguirá cohetes, flechas, vehículos y objetivos seleccionados. Toca de nuevo para liberar la cámara y obtener movimiento libre.</string>
 </resources>

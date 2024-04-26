@@ -7,10 +7,12 @@ import static com.evolgames.physics.PhysicsConstants.getProjectileVelocity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointDef;
 import com.evolgames.activity.ResourceManager;
 import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.basics.GameGroup;
+import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.PlayerSpecialAction;
@@ -36,9 +38,11 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -334,25 +338,50 @@ public class Bow extends Use {
         return inherit&&ratio>0.666f;
     }
 
-    public Map<ProjectileInfo, GameGroup> getArrows() {
-        return arrows;
-    }
-
     public void setArrows(Map<ProjectileInfo, GameGroup> arrows) {
         this.arrows = arrows;
     }
 
-    public void onBowReleased() {
-        if (arrows != null) {
-            this.arrows.clear();
+    public boolean isLoading() {
+        return this.loading;
+    }
+    private void destroyJoints(){
+        for(ProjectileInfo projectileInfo:projectileInfoList) {
+            if(!arrows.containsKey(projectileInfo)){
+                continue;
+            }
+            GameGroup arrowGroup = arrows.get(projectileInfo);
+            if(arrowGroup==null||arrowGroup.getEntities().size()==0){
+                continue;
+            }
+            GameEntity muzzleEntity = projectileInfo.getMuzzle().getTheMuzzleEntity();
+            if (muzzleEntity.getBody() == null || arrowGroup.getGameEntityByIndex(0).getBody() == null) {
+                return;
+            }
+            GameEntity arrowEntity = arrowGroup.getGameEntityByIndex(0);
+            muzzleEntity.getBlocks().forEach(layerBlock -> layerBlock.getAssociatedBlocks().stream().filter(e-> e instanceof JointBlock).map(e->(JointBlock)e)
+                    .filter(e->e.getJointType()== JointDef.JointType.WeldJoint)
+                    .filter(e->e.getBrother().getEntity()==arrowEntity)
+                    .forEach(e->{e.setAborted(true);e.getBrother().setAborted(true);}));
+        }
+
+    }
+
+    public void destroyArrows(WorldFacade worldFacade) {
+        if (isLoaded()) {
+            destroyJoints();
+            for (GameGroup gameGroup : arrows.values()) {
+                for (GameEntity gameEntity : gameGroup.getGameEntities()) {
+                   worldFacade.destroyGameEntity(gameEntity,true);
+                }
+            }
+        }
+        if(arrows!=null) {
+            arrows.clear();
         }
         this.loaded = false;
         this.loading = false;
         this.loadingTimer = 0f;
         drawBowstring();
-    }
-
-    public boolean isLoading() {
-        return this.loading;
     }
 }

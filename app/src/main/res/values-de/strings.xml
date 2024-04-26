@@ -427,4 +427,6 @@
 
             <string name="hint_rocket">Beim Erstellen einer Rakete formen Sie sie so, dass sie nach links zeigt, und integrieren Sie einen Feuerindikator für den Auspuff. Wenn die Rakete eine Bombe trägt, fügen Sie Bombenindikatoren hinzu und konfigurieren Sie sie entsprechend. Konfigurieren Sie den Raketenkörper, um sowohl die Raketen- als auch die Bombennutzung zu ermöglichen, und stellen Sie sicher, dass die Raketenutzung mit Feuerindikatoren für eine ordnungsgemäße Funktion verknüpft ist.</string>
 
+            <string name="camera_tracking_hint">Kamera-Verfolgung aktiviert! Sie wird Raketen, Pfeilen, Fahrzeugen und ausgewählten Zielen folgen. Tippen Sie erneut, um die Kamera für freie Bewegung freizugeben.</string>
+
     </resources>

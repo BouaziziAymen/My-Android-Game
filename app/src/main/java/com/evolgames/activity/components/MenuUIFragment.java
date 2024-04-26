@@ -41,16 +41,14 @@ public class MenuUIFragment extends Fragment {
 
 
         ImageView logo = fragment.findViewById(R.id.logo);
-
-        // Create a fade-in animation
-        Animation fadeInAnimation = new AlphaAnimation(0, 1f);
-        fadeInAnimation.setDuration(2000); // Set duration in milliseconds
+       // Create a fade-in animation
+        Animation fadeInAnimation = new AlphaAnimation(0f, 1f);
+        fadeInAnimation.setDuration(1000);
+        fadeInAnimation.setStartOffset(4000);
 
         // Apply the animation to the ImageView
         logo.startAnimation(fadeInAnimation);
 
-        // Make the ImageView visible after the animation starts
-        logo.setVisibility(View.VISIBLE);
 
         GameImageButton editorButton = fragment.findViewById(R.id.editor_button);
         editorButton.setOnReleased(() -> ((GameActivity) requireActivity()).getUiController().onEditorClicked());

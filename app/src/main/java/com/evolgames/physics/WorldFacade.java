@@ -1141,7 +1141,6 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void performScanFlux(Vector2 sourceWorldPoint, GameEntity gameEntity, FluxInterface fluxInterface, final int precision, boolean draw) {
-
         // find lower and higher angles
         float minAngle = Float.MAX_VALUE;
         float maxAngle = -Float.MAX_VALUE;

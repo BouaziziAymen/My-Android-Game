@@ -211,6 +211,7 @@ public class NativeUIController implements INativeUIController {
             playScene.chaseEntity(playScene.getHand().getSelectedEntity(),false);
         }
         playScene.setChaseActive(true);
+        showHint(R.string.camera_tracking_hint,HintType.HINT);
     }
 
     public void onTrackButtonReleased() {

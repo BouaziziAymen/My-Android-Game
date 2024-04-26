@@ -6,6 +6,7 @@ import com.evolgames.entities.basics.GameEntity;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.factories.BodyFactory;
 import com.evolgames.entities.init.BodyInit;
+import com.evolgames.scenes.PlayScene;
 
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -36,8 +37,13 @@ public class BodyCreationCommand extends Command {
         body.setAngularDamping(DEFAULT_DAMPING);
         bodyInit.initialize(body);
         entity.createJuiceSources();
-        if(entity.isOutlined()){
+        if (entity.isOutlined()) {
             entity.outlineEntity();
+        }
+        if (Invoker.scene instanceof PlayScene) {
+            if (entity.isAiming()) {
+                ((PlayScene) entity.getScene()).hideAimSpriteDirect();
+            }
         }
     }
 

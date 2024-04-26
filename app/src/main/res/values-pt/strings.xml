@@ -424,4 +424,5 @@
 
     <string name="hint_rocket">Ao criar um foguete, molde-o de forma que aponte para a esquerda e inclua um indicador de fogo para o escape. Se o foguete transportar uma bomba, adicione indicadores de bomba e configure-os conforme necessário. Configure o corpo do foguete para habilitar tanto o uso de foguete quanto o de bomba, garantindo que o uso de foguete esteja vinculado aos indicadores de fogo para um funcionamento adequado.</string>
 
+    <string name="camera_tracking_hint">Rastreamento da câmera ativado! Ela seguirá foguetes, setas, veículos e alvos selecionados. Toque novamente para liberar a câmera para movimento livre.</string>
 </resources>

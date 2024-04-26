@@ -424,6 +424,9 @@
     <string name="hint_bow">Crafting a bow involves careful consideration of its design elements. Ensure the bow points to the left and define three key points: the upper point where the string is attached, the extent of the bow when fully drawn, and the lower point where the string is attached. Additionally, define a projectile indicator to complete the bow\'s construction.</string>
 
     <string name="hint_rocket">When creating a rocket, shape it so that it points to the left and include a fire indicator for the exhaust. If the rocket carries a bomb, add bomb indicators and configure them accordingly. Configure the rocket body to enable both rocket and bomb usage, ensuring that rocket usage is linked with fire indicators for proper functionality.</string>
-    <string name="hint_other" />
+    <string name="hint_other" translatable="false" />
+
+
+    <string name="camera_tracking_hint">Camera tracking enabled! It\'ll follow rockets, arrows, vehicles, and selected targets. Tap again to release the camera for free movement.</string>
 
 </resources>

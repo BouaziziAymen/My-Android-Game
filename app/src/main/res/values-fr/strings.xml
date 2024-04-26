@@ -429,4 +429,7 @@
 
     <string name="hint_rocket">Lors de la création d\'une fusée, façonnez-la de manière à ce qu\'elle pointe vers la gauche et incluez un indicateur de feu pour l\'échappement. Si la fusée transporte une bombe, ajoutez des indicateurs de bombe et configurez-les en conséquence. Configurez le corps de la fusée pour permettre à la fois une utilisation de fusée et de bombe, en veillant à ce que l\'utilisation de la fusée soit liée à des indicateurs de feu pour un bon fonctionnement.</string>
 
+
+    <string name="camera_tracking_hint">Suivi de la caméra activé ! Elle suivra les fusées, les flèches, les véhicules et les cibles sélectionnées. Appuyez à nouveau pour libérer la caméra et obtenir un mouvement libre.</string>
+
 </resources>
