@@ -140,7 +140,7 @@ public class WorldFacade implements ContactObserver {
     Vector2 result = new Vector2();
     Vector2 sum = new Vector2();
     private GameGroup ground;
-    private FrostParticleWrapper frostParticleWrapper;
+    private final Set<FrostParticleWrapper> frostParticleWrappers = new HashSet<>();
 
     public WorldFacade(PhysicsScene scene) {
         this.scene = scene;
@@ -218,10 +218,6 @@ public class WorldFacade implements ContactObserver {
         return volumeRatio;
     }
 
-    public FrostParticleWrapper getFrostParticleWrapper() {
-        return frostParticleWrapper;
-    }
-
     public void onStep() {
         for(TimedCommand timedCommand:timedCommands){
             timedCommand.update();
@@ -235,37 +231,24 @@ public class WorldFacade implements ContactObserver {
         for (ExplosiveParticleWrapper explosiveParticleWrapper : this.explosivesParticleWrappers) {
             explosiveParticleWrapper.update();
         }
+        for (FrostParticleWrapper frostParticleWrapper : this.frostParticleWrappers) {
+            frostParticleWrapper.update();
+        }
         for (Explosion explosion : this.explosions) {
             explosion.update();
         }
 
         this.timedCommands.removeIf(TimedCommand::isTimedOut);
         this.explosions.removeIf(e->!e.isAlive());
+        this.frostParticleWrappers.removeIf(e->!e.isAlive());
+        this.powderParticleWrappers.removeIf(e->!e.isAlive());
+
 
         computeConduction();
         computeConvection();
         computeFrosting();
         computeStaining();
     }
-
-
-   public void cleanLiquidWrappers(){
-        for(LiquidParticleWrapper liquidParticleWrapper:liquidParticleWrappers){
-            if(liquidParticleWrapper.isAlive()) {
-                liquidParticleWrapper.detachDirect();
-            }
-        }
-        this.liquidParticleWrappers.clear();
-   }
-    public void cleanPowderWrappers(){
-        for(PowderParticleWrapper powderParticleWrapper:powderParticleWrappers){
-            if(powderParticleWrapper.isAlive()) {
-                powderParticleWrapper.detachDirect();
-            }
-        }
-        this.powderParticleWrappers.clear();
-    }
-
     public void removeFlame(Fire fireParticleWrapper) {
         flames.remove(fireParticleWrapper);
     }
@@ -402,10 +385,13 @@ public class WorldFacade implements ContactObserver {
         }
     }
 
-    public void frostParticleWrapper(Vector2 begin, Vector2 end, final int lowerRate, final int higherRate) {
-        this.frostParticleWrapper = new FrostParticleWrapper(new float[]{begin.x, begin.y, end.x, end.y}, frostColor, 0, lowerRate, higherRate);
-        this.frostParticleWrapper.attachTo(scene);
+    public FrostParticleWrapper frostParticleWrapper(float touchX, float touchY,Vector2 begin, Vector2 end, final int lowerRate, final int higherRate) {
+        FrostParticleWrapper frostParticleWrapper = new FrostParticleWrapper(new float[]{begin.x, begin.y, end.x, end.y}, frostColor, 0, lowerRate, higherRate);
+        frostParticleWrappers.add(frostParticleWrapper);
+        frostParticleWrapper.update(touchX,touchY);
+        frostParticleWrapper.attachTo(scene);
         this.scene.sortChildren();
+        return frostParticleWrapper;
     }
 
     public SegmentExplosiveParticleWrapper createFireSource(GameEntity entity, Vector2 v1, Vector2 v2, float velocityMeter, float fireRatio, float smokeRatio, float sparkRatio, float intensity, float heatRatio, float inFireSize, float finFireSize) {
@@ -635,44 +621,46 @@ public class WorldFacade implements ContactObserver {
     }
 
     private void computeFrosting() {
-        if (frostParticleWrapper == null || !frostParticleWrapper.isAlive()) {
-            return;
-        }
-        for (Particle<UncoloredSprite> p : frostParticleWrapper.getParticleSystem().getParticles()) {
-            if (p == null || p.isExpired()) {
-                continue;
+        for(FrostParticleWrapper frostParticleWrapper:this.frostParticleWrappers) {
+            if (frostParticleWrapper == null || !frostParticleWrapper.isAlive()) {
+                return;
             }
-
-            Entity frostParticle = p.getEntity();
-
-            float x = frostParticle.getX();
-            float y = frostParticle.getY();
-            float w = frostParticle.getWidth() * frostParticle.getScaleX();
-            float h = frostParticle.getHeight() * frostParticle.getScaleY();
-            Vector2 worldPosition = new Vector2(x / 32f, y / 32f);
-            Vector2 lower = new Vector2(x - w / 2f, y - h / 2f).mul(1 / 32f);
-            Vector2 upper = new Vector2(x + w / 2f, y + h / 2f).mul(1 / 32f);
-            blockQueryCallBack.reset();
-            physicsWorld.QueryAABB(blockQueryCallBack, lower.x, lower.y, upper.x, upper.y);
-            List<LayerBlock> list = blockQueryCallBack.getBlocks();
-            List<Body> bodyList = blockQueryCallBack.getBodies();
-            if (list.size() == 0) {
-                continue;
-            }
-
-            for (LayerBlock block : list) {
-
-                Body body = bodyList.get(list.indexOf(block));
-
-                if (body == null) {
+            for (Particle<UncoloredSprite> p : frostParticleWrapper.getParticleSystem().getParticles()) {
+                if (p == null || p.isExpired()) {
                     continue;
                 }
-                Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
-                CoatingBlock nearestCoatingBlock = block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
-                recycle(localPosition);
 
-                if (nearestCoatingBlock != null) {
-                    nearestCoatingBlock.onFrost();
+                Entity frostParticle = p.getEntity();
+
+                float x = frostParticle.getX();
+                float y = frostParticle.getY();
+                float w = frostParticle.getWidth() * frostParticle.getScaleX();
+                float h = frostParticle.getHeight() * frostParticle.getScaleY();
+                Vector2 worldPosition = new Vector2(x / 32f, y / 32f);
+                Vector2 lower = new Vector2(x - w / 2f, y - h / 2f).mul(1 / 32f);
+                Vector2 upper = new Vector2(x + w / 2f, y + h / 2f).mul(1 / 32f);
+                blockQueryCallBack.reset();
+                physicsWorld.QueryAABB(blockQueryCallBack, lower.x, lower.y, upper.x, upper.y);
+                List<LayerBlock> list = blockQueryCallBack.getBlocks();
+                List<Body> bodyList = blockQueryCallBack.getBodies();
+                if (list.size() == 0) {
+                    continue;
+                }
+
+                for (LayerBlock block : list) {
+
+                    Body body = bodyList.get(list.indexOf(block));
+
+                    if (body == null) {
+                        continue;
+                    }
+                    Vector2 localPosition = obtain(body.getLocalPoint(worldPosition)).mul(32);
+                    CoatingBlock nearestCoatingBlock = block.getBlockGrid().getNearestCoatingBlockSimple(localPosition);
+                    recycle(localPosition);
+
+                    if (nearestCoatingBlock != null) {
+                        nearestCoatingBlock.onFrost();
+                    }
                 }
             }
         }
@@ -1918,4 +1906,5 @@ public class WorldFacade implements ContactObserver {
     public void clearFlames() {
         this.flames.clear();
     }
+
 }

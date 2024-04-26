@@ -36,6 +36,7 @@ import com.evolgames.entities.init.BodyInitImpl;
 import com.evolgames.entities.init.BulletInit;
 import com.evolgames.entities.init.LinearVelocityInit;
 import com.evolgames.entities.init.TransformInit;
+import com.evolgames.entities.particles.wrappers.FrostParticleWrapper;
 import com.evolgames.entities.properties.DecorationProperties;
 import com.evolgames.entities.properties.LayerProperties;
 import com.evolgames.entities.serialization.SavingBox;
@@ -110,6 +111,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private GameEntity glueEntity;
     private Sprite aimSprite;
     private GameEntity usableEntity;
+    private FrostParticleWrapper frostParticleWrapper;
 
     public PlayScene(Camera pCamera) {
         super(pCamera, SceneType.PLAY);
@@ -235,16 +237,19 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
 
     private void processFrostEffect(TouchEvent touchEvent) {
         if (touchEvent.isActionDown()) {
-            worldFacade.frostParticleWrapper(new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
-            worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
-            setScrollerEnabled(false);
-            ResourceManager.getInstance().windSound.play();
+                this.frostParticleWrapper = worldFacade.frostParticleWrapper(touchEvent.getX(),touchEvent.getY(),new Vector2(-16, 0), new Vector2(16, 0), 400, 600);
+                setScrollerEnabled(false);
+                ResourceManager.getInstance().windSound.play();
         }
         if (touchEvent.isActionMove()) {
-            worldFacade.getFrostParticleWrapper().update(touchEvent.getX(), touchEvent.getY());
+            if(this.frostParticleWrapper!=null) {
+                this.frostParticleWrapper.update(touchEvent.getX(), touchEvent.getY());
+            }
         }
         if (touchEvent.isActionUp() || touchEvent.isActionOutside() || touchEvent.isActionCancel()) {
-            worldFacade.getFrostParticleWrapper().detach();
+            if(this.frostParticleWrapper!=null) {
+               this.frostParticleWrapper.detach();
+            }
             setScrollerEnabled(true);
             ResourceManager.getInstance().windSound.pause();
         }
