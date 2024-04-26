@@ -70,7 +70,7 @@ public class LiquidSourceInfo {
 
     public void setSealEntity(GameEntity sealEntity) {
         this.sealEntity = sealEntity;
-        if(this.sealEntityUniqueId!=null) {
+        if(this.sealEntity!=null) {
             this.sealEntityUniqueId = sealEntity.getUniqueID();
         }
     }

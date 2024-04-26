@@ -258,7 +258,9 @@ public class NativeUIController implements INativeUIController {
 
     public void onRefreshButtonClicked() {
             PlayScene playScene = ((PlayScene) mainScene.getChildScene());
-            playScene.refresh();
+            if(playScene!=null) {
+                playScene.refresh();
+            }
     }
 
     public void resetCameraButton() {
@@ -271,6 +273,11 @@ public class NativeUIController implements INativeUIController {
     public PlayerAction getHoldDragState() {
         PlayUIFragment gameUIFragment = gameActivity.getGameUIFragment();
        return gameUIFragment.getHoldState();
+    }
+
+    public void onRefresh() {
+        ((AbstractScene) mainScene.getChildScene()).onPause();
+        mainScene.goToScene(SceneType.PLAY);
     }
 
     public enum HintType{

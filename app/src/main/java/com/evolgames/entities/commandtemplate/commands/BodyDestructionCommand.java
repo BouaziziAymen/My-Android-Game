@@ -12,6 +12,7 @@ import com.evolgames.entities.blocks.JointBlock;
 import com.evolgames.entities.blocks.LayerBlock;
 import com.evolgames.entities.commandtemplate.Invoker;
 import com.evolgames.entities.hand.Hand;
+import com.evolgames.scenes.PlayScene;
 
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 

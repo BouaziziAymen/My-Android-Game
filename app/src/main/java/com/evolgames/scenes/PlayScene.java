@@ -292,10 +292,8 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     }
 
     public void refresh() {
-        this.detach();
         ResourceManager.getInstance().activity.runOnUpdateThread(() -> {
-            this.populate();
-            ((SmoothCamera) this.mCamera).setCenterDirect(400, 240);
+          ResourceManager.getInstance().activity.getUiController().onRefresh();
         });
     }
 
@@ -989,7 +987,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             entity.setAiming(true);
             aimSprite.setUserData(entity);
             this.attachChild(aimSprite);
-            aimSprite.setAlpha(0.05f);
+            aimSprite.setAlpha(0.02f);
             aimSprite.setWidth(32 * 16);
             aimSprite.setHeight(32 * 16);
             aimSprite.setZIndex(-1);

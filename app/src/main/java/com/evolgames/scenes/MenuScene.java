@@ -74,7 +74,9 @@ public class MenuScene extends PhysicsScene {
                     // Perform event 'x' after animation completes
                     modifier.addModifierListener(new IEntityModifier.IEntityModifierListener() {
                         @Override
-                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {}
+                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().playSound,1f,5);
+                        }
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {

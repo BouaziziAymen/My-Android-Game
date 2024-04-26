@@ -40,11 +40,6 @@ public class BodyCreationCommand extends Command {
         if (entity.isOutlined()) {
             entity.outlineEntity();
         }
-        if (Invoker.scene instanceof PlayScene) {
-            if (entity.isAiming()) {
-                ((PlayScene) entity.getScene()).hideAimSpriteDirect();
-            }
-        }
     }
 
     public GameEntity getGameEntity() {

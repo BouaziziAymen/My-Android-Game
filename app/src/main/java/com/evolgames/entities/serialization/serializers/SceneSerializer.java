@@ -288,13 +288,8 @@ public class SceneSerializer {
             liquidContainer.getLiquidSourceInfoList().forEach(
                     liquidSourceInfo -> {
                         liquidSourceInfo.setSealEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getSealEntityUniqueId()));
-                    });
-
-            liquidContainer.getLiquidSourceInfoList().forEach(
-                    liquidSourceInfo -> {
                         liquidSourceInfo.setContainerEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getContainerEntityUniqueId()));
                     });
-
             liquidContainer.createLiquidSources(scene.getWorldFacade());
         }
         if (gameEntity.hasUsage(Drag.class)) {

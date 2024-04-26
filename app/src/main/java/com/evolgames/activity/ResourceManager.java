@@ -177,6 +177,7 @@ public class ResourceManager {
     private HashMap<String, Integer> itemsTranslationMap;
     private Vibrator vibrator;
     public BitmapTextureAtlas texturedMesh;
+    public Sound playSound;
 
 
     public String getLettersList() {
@@ -805,6 +806,12 @@ public class ResourceManager {
             motorSounds.add(motor1);
             motorSounds.add(motor2);
             motorSounds.add(motor3);
+
+            playSound =
+                    SoundFactory.createSoundFromAsset(
+                            this.activity.getSoundManager(),
+                            this.activity,
+                            "play.mp3");
 
             slashSound =
                     SoundFactory.createSoundFromAsset(

@@ -287,6 +287,7 @@ public class Bow extends Use {
 
         for (GameEntity arrowPart : arrowGroup.getEntities()) {
             physicsScene.getWorldFacade().addNonCollidingPair(arrowPart, bowBodyEntity);
+            arrowPart.setInteractive(false);
         }
         physicsScene.sortChildren();
         projectileInfo.setArrowGroupUniqueId(arrowGroup.getUniqueID());

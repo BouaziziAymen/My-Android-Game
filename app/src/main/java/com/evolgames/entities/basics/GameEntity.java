@@ -750,6 +750,9 @@ public class GameEntity extends EntityWithBody {
         for (Use use : useList) {
             use.onAfterMirror(scene);
         }
+            if (isAiming()) {
+                ((PlayScene)scene).hideAimSpriteDirect();
+            }
         if(isOutlined()){
             outlineEntity();
         }

@@ -428,5 +428,6 @@
 
 
     <string name="camera_tracking_hint">Camera tracking enabled! It\'ll follow rockets, arrows, vehicles, and selected targets. Tap again to release the camera for free movement.</string>
+    <string name="logo">Logo</string>
 
 </resources>
