@@ -11,6 +11,7 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EditItemDialog extends DialogFragment {
@@ -80,11 +82,19 @@ public class EditItemDialog extends DialogFragment {
 
         // Set listener for checkbox state change
 
-
         Button shareButton = dialogLayout.findViewById(R.id.shareButton);
         shareButton.setOnClickListener(v ->{
-            if(selectedItemFile!=null&&!selectedItemFile.isEmpty()){
-                ((GameActivity) requireActivity()).showProceedToSend(selectedItemFile);
+            if(continueLatest){
+               String latest = ((GameActivity) requireActivity()).loadStringFromPreferences(LATEST);
+                if (latest != null && !latest.isEmpty()) {
+                    Optional<ItemMetaData> res = ResourceManager.getInstance().getItemsMap().values().stream().flatMap(List::stream)
+                            .filter(e -> e.getName().equalsIgnoreCase(latest)).findFirst();
+                    res.ifPresent(e->((GameActivity) requireActivity()).showProceedToSend(e.getFileName()));
+                }
+            } else {
+                if (selectedItemFile != null && !selectedItemFile.isEmpty()) {
+                    ((GameActivity) requireActivity()).showProceedToSend(selectedItemFile);
+                }
             }
         } );
 
@@ -163,6 +173,14 @@ public class EditItemDialog extends DialogFragment {
             }
         });
 
+        alertDialog.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                EditItemDialog.this.getDialog().cancel();
+                ((GameActivity) getActivity()).installMenuUi();
+                return true;
+            }
+            return false;
+        });
 
         return alertDialog;
     }

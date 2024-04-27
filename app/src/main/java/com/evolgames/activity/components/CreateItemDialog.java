@@ -2,6 +2,7 @@ package com.evolgames.activity.components;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,6 +13,7 @@ import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.DialogFragment;
 
 import com.evolgames.activity.GameActivity;
@@ -195,7 +198,20 @@ public class CreateItemDialog extends DialogFragment {
                 // Or perform other actions here
             }
         });
+
+
+
+        alertDialog.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                CreateItemDialog.this.getDialog().cancel();
+                ((GameActivity) getActivity()).installMenuUi();
+                return true;
+            }
+            return false;
+        });
+
         return alertDialog;
     }
 
-}
+
+    }

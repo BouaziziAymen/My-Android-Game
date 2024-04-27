@@ -3,6 +3,7 @@ package com.evolgames.activity.components;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -80,6 +81,16 @@ public class SettingsDialog extends DialogFragment {
         AlertDialog alertDialog = builder.create();
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
+
+        alertDialog.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                SettingsDialog.this.getDialog().cancel();
+                ((GameActivity) getActivity()).installMenuUi();
+                return true;
+            }
+            return false;
+        });
+
         return alertDialog;
     }
 }

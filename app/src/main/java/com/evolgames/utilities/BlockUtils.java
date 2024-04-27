@@ -25,6 +25,7 @@ import com.evolgames.entities.cut.PointsFreshCut;
 import com.evolgames.entities.cut.SegmentFreshCut;
 import com.evolgames.entities.cut.ShatterData;
 import com.evolgames.entities.factories.BlockFactory;
+import com.evolgames.entities.factories.MaterialFactory;
 import com.evolgames.entities.properties.CoatingProperties;
 import com.evolgames.entities.properties.ColoredProperties;
 import com.evolgames.entities.properties.DecorationProperties;
@@ -957,7 +958,7 @@ public class BlockUtils {
                     continue;
                 }
                 List<Vector2> vertices;
-                if (b instanceof CoatingBlock && !layerBlock.getProperties().isSensor()) {
+                if (b instanceof CoatingBlock && layerBlock.getProperties().getMaterialNumber()!= MaterialFactory.VOID) {
                     vertices = b.getTriangles();
                 } else if (b instanceof DecorationBlock) {
                     vertices = b.getTriangles();

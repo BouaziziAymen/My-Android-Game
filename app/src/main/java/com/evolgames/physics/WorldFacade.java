@@ -75,6 +75,7 @@ import com.evolgames.physics.entities.callbacks.BlockIntersectionCallback;
 import com.evolgames.physics.entities.callbacks.BlockQueryCallBack;
 import com.evolgames.physics.entities.callbacks.CheckEmptyCallback;
 import com.evolgames.physics.entities.callbacks.CutRayCastCallback;
+import com.evolgames.physics.entities.callbacks.DebugCallback;
 import com.evolgames.physics.entities.callbacks.DetectionRayCastCallback;
 import com.evolgames.physics.entities.callbacks.FluxInnerRayCastCallback;
 import com.evolgames.physics.entities.callbacks.FluxRayCastCallback;
@@ -119,6 +120,8 @@ public class WorldFacade implements ContactObserver {
     private final Set<LiquidParticleWrapper> liquidParticleWrappers = new HashSet<>();
     private final Set<PowderParticleWrapper> powderParticleWrappers = new HashSet<>();
     private final Set<ExplosiveParticleWrapper> explosivesParticleWrappers = new HashSet<>();
+
+    public DebugCallback debugCallback = new DebugCallback();
 
     private final List<Explosion> explosions = new ArrayList<>();
     private final List<Fire> flames = new ArrayList<>();
@@ -690,11 +693,6 @@ public class WorldFacade implements ContactObserver {
     public void processImpactAfterSolve(Contact contact, ContactImpulse impulse) {
         Body body1 = contact.getFixtureA().getBody();
         Body body2 = contact.getFixtureB().getBody();
-        LayerBlock block1 = (LayerBlock) contact.getFixtureA().getUserData();
-        LayerBlock block2 = (LayerBlock) contact.getFixtureB().getUserData();
-        if (block1.getProperties().isSensor() || block2.getProperties().isSensor()) {
-            return;
-        }
 
         GameEntity entity1 = (GameEntity) body1.getUserData();
         GameEntity entity2 = (GameEntity) body2.getUserData();
@@ -801,12 +799,6 @@ public class WorldFacade implements ContactObserver {
         return m1 * v1 * v1 - m2 * v2 * v2;
     }
 
-    private float computeCollisionImpulse(Vector2 V1, Vector2 V2, Vector2 normal, float m1, float m2) {
-        float v1 = V1.dot(normal);
-        float v2 = V2.dot(normal);
-        return m1 * v1 - m2 * v2;
-    }
-
     private Vector2 detectIntersectionWithEntity(GameEntity entity, Vector2 worldBegin, Vector2 worldEnd) {
         detectionRayCastCallback.reset();
         detectionRayCastCallback.setEntity(entity);
@@ -848,7 +840,7 @@ public class WorldFacade implements ContactObserver {
         if (collisionEnergy < 10 || Float.isNaN(collisionEnergy) || Float.isInfinite(collisionEnergy)) {
             return false;
         }
-        Log.e("Penetration", "-----------$ Begin penetration, energy:" +  collisionEnergy + "/ bullet:" + penetrator.getBody().isBullet());
+        Log.d("Penetration", "-----------$ Begin penetration, energy:" +  collisionEnergy + "/ bullet:" + penetrator.getBody().isBullet());
 
         final float range = 10f;
         final float dL = 0.01f;
@@ -924,7 +916,7 @@ public class WorldFacade implements ContactObserver {
             // GameScene.pause = false;
         }
         if (environmentData.isEmpty()) {
-            System.out.println("$$$ Empty data");
+            Log.d("Issue","Empty Environment Data");
             return false;
         }
 
@@ -1606,7 +1598,9 @@ public class WorldFacade implements ContactObserver {
     }
 
     public void applyImpacts(GameEntity gameEntity, List<ImpactData> impactDataList) {
-
+        if(!gameEntity.isAlive()){
+            return;
+        }
         Iterator<LayerBlock> iterator = new ArrayList<>(gameEntity.getBlocks()).iterator();
         List<LayerBlock> allSplinters = new ArrayList<>();
         boolean shatterPerformed = false;
@@ -1675,54 +1669,6 @@ public class WorldFacade implements ContactObserver {
 
     public void setGroundGroup(GameGroup ground) {
         this.ground = ground;
-    }
-
-
-    private void addJointBlocks(GameEntity entity1, GameEntity entity2,LayerBlock layerBlock1,LayerBlock layerBlock2, JointBlock jointBlock1, JointBlock jointBlock2, JointDef jointDef, boolean mirror) {
-        Vector2 anchorA = new Vector2();
-        Vector2 anchorB = new Vector2();
-
-        switch (jointDef.type) {
-            case DistanceJoint:
-                assert jointDef instanceof DistanceJointDef;
-                anchorA.set(((DistanceJointDef) jointDef).localAnchorA.cpy().mul(32f));
-                anchorB.set(((DistanceJointDef) jointDef).localAnchorB.cpy().mul(32f));
-                break;
-            case Unknown:
-            case GearJoint:
-            case MouseJoint:
-                MouseJointDef mouseJointDef = ((MouseJointDef) jointDef);
-                Vector2 anchor = mouseJointDef.target.cpy().mul(32f);
-                float[] pos = entity2.getMesh().convertSceneCoordinatesToLocalCoordinates(anchor.x, anchor.y);
-                anchorB.set(pos[0], pos[1]);
-
-            case LineJoint:
-            case PulleyJoint:
-            case FrictionJoint:
-                break;
-            case RevoluteJoint:
-                anchorA.set(((RevoluteJointDef) jointDef).localAnchorA.cpy().mul(32f));
-                anchorB.set(((RevoluteJointDef) jointDef).localAnchorB.cpy().mul(32f));
-                break;
-            case PrismaticJoint:
-                anchorA.set(((PrismaticJointDef) jointDef).localAnchorA.cpy().mul(32f));
-                anchorB.set(((PrismaticJointDef) jointDef).localAnchorB.cpy().mul(32f));
-                break;
-            case WeldJoint:
-                anchorA.set(((WeldJointDef) jointDef).localAnchorA.cpy().mul(32f));
-                anchorB.set(((WeldJointDef) jointDef).localAnchorB.cpy().mul(32f));
-                break;
-        }
-        String jointUniqueId = UUID.randomUUID().toString();
-
-        jointBlock1.initialization(entity1, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorA)), new JointBlockProperties(jointDef), 0, JointBlock.Position.A, jointBlock2);
-        layerBlock1.addAssociatedBlock(jointBlock1);
-
-        jointBlock2.initialization(entity2, jointUniqueId, jointDef.type, new ArrayList<>(Collections.singletonList(anchorB)), new JointBlockProperties(jointDef), 0, JointBlock.Position.B, jointBlock1);
-        layerBlock2.addAssociatedBlock(jointBlock2);
-        if (mirror) {
-            jointBlock1.mirrorJointDef();
-        }
     }
 
     private void addJointBlocks(GameEntity entity1, GameEntity entity2, JointBlock jointBlock1, JointBlock jointBlock2, JointDef jointDef, boolean mirror) {
@@ -1817,15 +1763,6 @@ public class WorldFacade implements ContactObserver {
         this.contactListener.removeNonCollidingPair(entity1, entity2);
     }
 
-    public boolean doNotOverlap(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
-        for (int i = 0; i < penData.size(); i++) {
-            if (envData.get(i).doesOverlap(penData.get(i), actualAdvance)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public List<GameEntity> findOverlappingEntities(List<TopographyData> penData, List<TopographyData> envData, float actualAdvance) {
 
         HashSet<TopographyData.Overlap> overlaps = new HashSet<>();
@@ -1866,6 +1803,7 @@ public class WorldFacade implements ContactObserver {
         return null;
     }
 
+    /** @noinspection unused*/
     public Touch areTouching(LayerBlock layerBlock1, LayerBlock layerBlock2) {
         for (Touch touch : touches) {
             if (layerBlock1 != null && layerBlock2 != null) {
@@ -1900,6 +1838,10 @@ public class WorldFacade implements ContactObserver {
         });
         explosivesParticleWrappers.removeIf(e->!e.isAlive());
         liquidParticleWrappers.removeIf(element -> !element.isAlive());
+    }
+
+    public void debugZone(float x, float y){
+        physicsWorld.QueryAABB(debugCallback, x-1f,y-1,x+1,y+1);
     }
 
     public void clearFlames() {

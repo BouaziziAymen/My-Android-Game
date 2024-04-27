@@ -107,7 +107,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     private boolean effectsActive;
     private boolean creating;
     private PhysicsConnector physicsConnector;
-    private LayerBlock glueBlock;
     private GameEntity glueEntity;
     private Sprite aimSprite;
     private GameEntity usableEntity;
@@ -163,6 +162,7 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
         super.onSceneTouchEvent(pSceneTouchEvent);
         this.processTouchEvent(pSceneTouchEvent);
+        //this.worldFacade.debugZone(pSceneTouchEvent.getX()/32f,pSceneTouchEvent.getY()/32f);
         return false;
     }
 
@@ -617,7 +617,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             if (touchData != null) {
                 glueEntity = touchData.gameEntity;
                 point1 = touchData.anchor.cpy();
-                glueBlock = touchData.layerBlock;
                 point2 = new Vector2(point1);
                 line = new Line(point1.x, point1.y, point2.x, point2.y, 3, ResourceManager.getInstance().vbom);
                 line.setColor(Color.BLUE);
@@ -646,7 +645,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
             point1 = null;
             point2 = null;
             if (line != null) {
-                line.detachSelf();
+                ResourceManager.getInstance().activity.runOnUpdateThread(()->{
+                    line.detachSelf();
+                });
             }
         }
     }

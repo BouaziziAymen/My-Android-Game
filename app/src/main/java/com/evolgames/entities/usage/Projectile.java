@@ -78,7 +78,6 @@ public class Projectile extends Use implements Penetrating {
 
         worldFacade.computePenetrationSpecialEffects(normal,point, actualAdvance, envData, consumedImpulse);
         if (projectileType == ProjectileType.BULLET) {
-            penetrator.setAlive(false);
             penetrator.setVisible(false);
             worldFacade.destroyGameEntity(penetrator, true);
         }

@@ -50,9 +50,6 @@ public abstract class AbstractScene extends Scene {
 
     public abstract void detach();
 
-    public void onBackKeyPressed() {
-        Debug.d("Back key pressed");
-    }
 
     public ToolModel loadToolModel(String file, boolean editor, boolean assets) {
         ToolModel toolModel;
@@ -62,6 +59,7 @@ public abstract class AbstractScene extends Scene {
                 return toolModel;
             } catch (IOException | ParserConfigurationException | SAXException |
                      PersistenceException e) {
+                return new ToolModel(this);
             }
         }
         return null;

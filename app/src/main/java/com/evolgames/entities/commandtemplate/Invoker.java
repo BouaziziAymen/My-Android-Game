@@ -111,15 +111,15 @@ public class Invoker {
     }
 
     public static void addBodyDestructionCommand(GameEntity entity, boolean finalDestruction) {
+        entity.setAlive(false);
         for (Command command : entity.getCommands()) {
             if (command instanceof BodyDestructionCommand) {
                 return;
             }
         }
-
         Command command = new BodyDestructionCommand(entity,finalDestruction);
         entity.getCommands().add(command);
-        entity.setAlive(false);
+
     }
 
     public static void addJointDestructionCommand(GameGroup gameGroup, Joint joint) {

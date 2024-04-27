@@ -307,6 +307,10 @@ public class GameActivity extends BaseGameActivity {
             }
         }
     }
+    @Override
+    public void onBackPressed() {
+       super.onBackPressed();
+    }
 
     public NativeUIController getUiController() {
         return uiController;
@@ -419,8 +423,18 @@ public class GameActivity extends BaseGameActivity {
         emailIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
         emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // Grant read permission to the receiver
 
-        // Start the email activity
-        startActivity(Intent.createChooser(emailIntent, "Send Email"));
+        try {
+            // Start the email activity
+            startActivity(Intent.createChooser(emailIntent, "Send Email"));
+        } catch (ActivityNotFoundException e) {
+            // Handle the case where no email app is available
+            Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (Exception e) {
+            // Handle other exceptions
+            Toast.makeText(this, "Failed to send email", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     public PlayUIFragment getGameUIFragment() {

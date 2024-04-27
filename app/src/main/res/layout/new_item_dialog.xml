@@ -84,6 +84,7 @@
             android:layout_marginBottom="4dp"
             android:hint="@string/template_hint"
             android:imeOptions="flagNoFullscreen"
+            android:completionThreshold="0"
             android:backgroundTint="@color/styleRedColor" />
 
         <LinearLayout

@@ -31,9 +31,7 @@ public class BodyDestructionCommand extends Command {
         PhysicsWorld physicsWorld = Invoker.scene.getPhysicsWorld();
         Body body = entity.getBody();
         Body mirrorBody = entity.getMirrorBody();
-        if(body!=null) {
-            physicsWorld.destroyBody(body);
-        }
+        physicsWorld.destroyBody(body);
         if(mirrorBody !=null){
             physicsWorld.destroyBody(mirrorBody);
         }
