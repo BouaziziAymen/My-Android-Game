@@ -4,9 +4,9 @@ android {
     compileSdk 34
     signingConfigs {
         release {
-            storePassword 'alexeigonzalez'
-            keyPassword 'alexeigonzalez'
-            storeFile file('C:\\Users\\keystore.jks')
+            storePassword 'Y:t_!NQ]U-n9%.3?C)M"~R'
+            keyPassword 'Y:t_!NQ]U-n9%.3?C)M"~R'
+            storeFile file('C:\\Projects\\dollmadnesscraft.jks')
             keyAlias 'key0'
         }
     }
@@ -40,12 +40,10 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
-    implementation 'com.esotericsoftware:kryo:5.5.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'org.jetbrains:annotations:15.0'
-    implementation 'org.jetbrains:annotations:15.0'
     implementation project(path: ':andEngine')
     implementation project(path: ':andEnginePhysicsBox2DExtension')
+    implementation 'com.esotericsoftware:kryo:5.5.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     testImplementation 'junit:junit:4.12'
