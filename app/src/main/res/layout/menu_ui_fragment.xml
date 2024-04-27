@@ -26,7 +26,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="RtlHardcoded">
 
-        <com.evolgames.activity.components.GameImageButton
+        <com.evolgames.dollmutilationgame.activity.components.GameImageButton
             android:id="@+id/editor_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             app:icon="@drawable/lab_icon"
             tools:ignore="RtlHardcoded" />
 
-        <com.evolgames.activity.components.GameImageButton
+        <com.evolgames.dollmutilationgame.activity.components.GameImageButton
             android:id="@+id/options_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="RtlHardcoded">
 
-        <com.evolgames.activity.components.GameImageButton
+        <com.evolgames.dollmutilationgame.activity.components.GameImageButton
             android:id="@+id/rate_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

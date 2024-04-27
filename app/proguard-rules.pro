@@ -24,17 +24,17 @@
 }
 
 # Keep all classes in the com.example package
--keep class com.evolgames.entities.properties.** { *; }
--keep class com.evolgames.entities.serialization.infos.** { *; }
--keep class com.evolgames.entities.serialization.serializers.** { *; }
--keep class com.evolgames.userinterface.model.** { *; }
--keep class com.evolgames.entities.hand.** { *; }
--keep class com.evolgames.entities.usage.** { *; }
--keep class com.evolgames.entities.init.BodyInitImpl
--keep class com.evolgames.entities.basics.SpecialEntityType { *; }
--keep class com.evolgames.entities.basics.GroupType { *; }
--keep class com.evolgames.entities.commandtemplate.EntityDestructionCommand
--keep class com.evolgames.entities.contact.Pair
--keep class com.evolgames.entities.cut.PointsFreshCut
--keep class com.evolgames.entities.cut.CutPoint
--keep class com.evolgames.entities.cut.SegmentFreshCut
+-keep class com.evolgames.dollmutilationgame.entities.properties.** { *; }
+-keep class com.evolgames.dollmutilationgame.entities.serialization.infos.** { *; }
+-keep class com.evolgames.dollmutilationgame.entities.serialization.serializers.** { *; }
+-keep class com.evolgames.dollmutilationgame.userinterface.model.** { *; }
+-keep class com.evolgames.dollmutilationgame.entities.hand.** { *; }
+-keep class com.evolgames.dollmutilationgame.entities.usage.** { *; }
+-keep class com.evolgames.dollmutilationgame.entities.init.BodyInitImpl
+-keep class com.evolgames.dollmutilationgame.entities.basics.SpecialEntityType { *; }
+-keep class com.evolgames.dollmutilationgame.entities.basics.GroupType { *; }
+-keep class com.evolgames.dollmutilationgame.entities.commandtemplate.EntityDestructionCommand
+-keep class com.evolgames.dollmutilationgame.entities.contact.Pair
+-keep class com.evolgames.dollmutilationgame.entities.cut.PointsFreshCut
+-keep class com.evolgames.dollmutilationgame.entities.cut.CutPoint
+-keep class com.evolgames.dollmutilationgame.entities.cut.SegmentFreshCut

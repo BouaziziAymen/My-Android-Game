@@ -24,7 +24,7 @@
         android:orientation="horizontal"
         android:layout_marginTop="16dp">
 
-        <com.evolgames.activity.components.GameImageButton
+        <com.evolgames.dollmutilationgame.activity.components.GameImageButton
             android:id="@+id/bad_review_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-        <com.evolgames.activity.components.GameImageButton
+        <com.evolgames.dollmutilationgame.activity.components.GameImageButton
             android:id="@+id/five_stars_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

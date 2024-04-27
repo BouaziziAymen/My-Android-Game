@@ -26,7 +26,7 @@
         tools:targetApi="q">
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.evolgames"
+            android:authorities="com.evolgames.dollmutilationgame"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -34,7 +34,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <activity
-            android:name="com.evolgames.activity.GameActivity"
+            android:name="com.evolgames.dollmutilationgame.activity.GameActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
