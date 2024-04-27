@@ -124,6 +124,9 @@ public abstract class Bomb extends Use {
                 Joint joint = jointEdge.joint;
                 JointBlock jointBlock = (JointBlock) joint.getUserData();
                 if (jointBlock.getJointId() == safetyJointId && !jointSet.contains(joint)) {
+                    if(joint.getBodyA()==null||joint.getBodyB()==null){
+                        continue;
+                    }
                     jointSet.add(joint);
                     Invoker.addJointDestructionCommand(carrierEntity.getParentGroup(), joint);
                     GameEntity entity1 = (GameEntity) joint.getBodyA().getUserData();
