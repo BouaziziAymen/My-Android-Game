@@ -234,15 +234,10 @@ public class EditorScene extends AbstractScene
         step++;
         this.userInterface.step();
     }
-    private int downPointerId = -1;
 
     protected void processTouchEvent(TouchEvent touchEvent, TouchEvent hudTouchEvent) {
-        if(touchEvent.isActionDown()&&downPointerId==-1) {
-            downPointerId = touchEvent.getPointerID();
-        }
-
         boolean hudTouched = false;
-        if(touchEvent.getPointerID()==downPointerId||touchEvent.isActionDown()) {
+        if(touchEvent.getPointerID()==0) {
             if (!hudLocked) {
                 hudTouched = userInterface.onTouchHud(hudTouchEvent);
             }
@@ -250,10 +245,6 @@ public class EditorScene extends AbstractScene
                 userInterface.onTouchScene(touchEvent);
             }
         }
-        if(touchEvent.isActionUp()&&downPointerId==touchEvent.getPointerID()){
-            downPointerId = -1;
-        }
-
         if (mPinchZoomDetector != null) {
             mPinchZoomDetector.onTouchEvent(touchEvent);
             if (mPinchZoomDetector.isZooming()) {

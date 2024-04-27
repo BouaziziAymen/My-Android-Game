@@ -294,6 +294,11 @@ public class GameActivity extends BaseGameActivity {
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
             Bitmap b = BitmapFactory.decodeFile(picturePath);
+            if(b==null){
+                Toast toast = Toast.makeText(this, "Invalid Image", Toast.LENGTH_SHORT);
+                toast.show();
+                return;
+            }
             int width = Math.min(b.getWidth(), 2048);
             int height = Math.min(b.getHeight(), 2048);
             Bitmap bitmap = GameActivity.decodeSampledBitmapFromResource(picturePath, width, height);

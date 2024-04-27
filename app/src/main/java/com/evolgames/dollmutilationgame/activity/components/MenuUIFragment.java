@@ -39,20 +39,10 @@ public class MenuUIFragment extends Fragment {
             ((GameActivity) requireActivity()).showRateUsDialog();;
         });
 
-
-        ImageView logo = fragment.findViewById(R.id.logo);
-       // Create a fade-in animation
-        Animation fadeInAnimation = new AlphaAnimation(0f, 1f);
-        fadeInAnimation.setDuration(1000);
-        fadeInAnimation.setStartOffset(4000);
-
-        // Apply the animation to the ImageView
-        logo.startAnimation(fadeInAnimation);
-
-
         GameImageButton editorButton = fragment.findViewById(R.id.editor_button);
         editorButton.setOnReleased(() -> ((GameActivity) requireActivity()).getUiController().onEditorClicked());
         ImageView mottoView = fragment.findViewById(R.id.motto);
+        mottoView.setVisibility(View.INVISIBLE);
         // Load animations
         Animation fadeIn = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_in);
         Animation fadeOut = AnimationUtils.loadAnimation(requireContext(), R.anim.fade_out);
@@ -60,6 +50,7 @@ public class MenuUIFragment extends Fragment {
         fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                mottoView.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -87,6 +78,33 @@ public class MenuUIFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
+
+
+        ImageView logo = fragment.findViewById(R.id.logo);
+        // Create a fade-in animation
+        Animation fadeInAnimation = new AlphaAnimation(0f, 1f);
+        fadeInAnimation.setDuration(1000);
+        fadeInAnimation.setStartOffset(4000);
+        logo.setVisibility(View.VISIBLE);
+        fadeInAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                logo.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        // Apply the animation to the ImageView
+        logo.startAnimation(fadeInAnimation);
 
         return fragment;
     }

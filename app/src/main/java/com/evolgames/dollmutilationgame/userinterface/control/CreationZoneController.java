@@ -120,6 +120,8 @@ public class CreationZoneController extends Controller {
             case FIRE_SOURCE:
             case LIQUID_SOURCE:
             case DRAG:
+            case BOMB:
+            case SPECIAL_POINT:
             case MOVE_IMAGE:
                 editorScene.setScrollerEnabled(false);
                 editorScene.setZoomEnabled(false);
@@ -130,8 +132,6 @@ public class CreationZoneController extends Controller {
             case MOVE_POINT:
             case MOVE_TOOL_POINT:
             case ADD_POINT:
-            case BOMB:
-            case SPECIAL_POINT:
                 editorScene.setScrollerEnabled(true);
                 editorScene.setZoomEnabled(true);
                 break;
