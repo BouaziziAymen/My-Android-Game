@@ -76,7 +76,8 @@ public class GameEntityContactListener implements ContactListener {
     }
 
     public synchronized boolean shouldNotCollide(GameEntity entity1, GameEntity entity2) {
-        for (Pair<GameEntity> pair : nonCollidingEntities) {
+        HashSet<Pair<GameEntity>> copy = new HashSet<>(nonCollidingEntities);
+        for (Pair<GameEntity> pair : copy) {
             if ((pair.first == entity1 && pair.second == entity2) || (pair.second == entity1 && pair.first == entity2)) {
                 return true;
             }
