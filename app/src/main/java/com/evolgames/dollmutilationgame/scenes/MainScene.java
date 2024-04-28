@@ -8,7 +8,7 @@ import org.andengine.engine.camera.SmoothCamera;
 
 public class MainScene extends AbstractScene {
 
-    protected AbstractScene scene;
+    private AbstractScene childScene;
 
     public MainScene(Camera pCamera) {
         super(pCamera, SceneType.MAIN);
@@ -31,31 +31,31 @@ public class MainScene extends AbstractScene {
         switch (sceneType) {
             case MENU:
                 ResourceManager.getInstance().activity.installMenuUi();
-                this.scene = new MenuScene(this.mCamera);
+                this.childScene = new MenuScene(this.mCamera);
                 break;
             case PLAY:
                 ResourceManager.getInstance().activity.installGameUi();
-                this.scene = new PlayScene(this.mCamera);
+                this.childScene = new PlayScene(this.mCamera);
                 break;
             case EDITOR:
                 ResourceManager.getInstance().activity.installEditorUi();
-                this.scene = new EditorScene(this.mCamera);
+                this.childScene = new EditorScene(this.mCamera);
                 break;
         }
 
-        if (this.scene != null) {
+        if (this.childScene != null) {
             if (populate) {
-                this.scene.populate();
+                this.childScene.populate();
             }
-            this.setChildScene(this.scene, false, false, false);
+            this.setChildScene(this.childScene, false, false, false);
         }
     }
 
     @Override
     public void onPause() {
-        ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", scene.getSceneName().name());
-        if (this.scene != null) {
-            this.scene.onPause();
+        ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", childScene.getSceneName().name());
+        if (this.childScene != null) {
+            this.childScene.onPause();
         }
     }
 
@@ -67,7 +67,7 @@ public class MainScene extends AbstractScene {
         } else {
             changeScene(SceneType.MENU, true);
         }
-        this.scene.onResume();
+        this.childScene.onResume();
     }
 
     @Override
@@ -76,18 +76,18 @@ public class MainScene extends AbstractScene {
 
     @Override
     public void detach() {
-        if (this.scene != null) {
-            this.scene.detach();
+        if (this.childScene != null) {
+            this.childScene.detach();
         }
     }
 
     public void onBackgroundImageLoaded() {
-        ((EditorScene) scene).addImage();
+        ((EditorScene) childScene).addImage();
     }
 
     public void goToScene(SceneType sceneType) {
         changeScene(sceneType, true);
         ResourceManager.getInstance().activity.saveStringToPreferences("SCENE", "");
-        scene.createUserInterface();
+        childScene.createUserInterface();
     }
 }

@@ -338,9 +338,6 @@ public class EditorScene extends AbstractScene
         mPinchZoomDetector.setEnabled(pZoomEnabled);
     }
 
-    public void goToScene(SceneType sceneType) {
-        ((MainScene) this.mParentScene).goToScene(sceneType);
-    }
 
     public void addImage() {
         userInterface.addImage();

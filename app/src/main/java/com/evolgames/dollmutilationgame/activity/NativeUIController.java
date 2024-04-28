@@ -279,6 +279,10 @@ public class NativeUIController implements INativeUIController {
         mainScene.goToScene(SceneType.PLAY);
     }
 
+    public void goToScene(SceneType sceneType) {
+        mainScene.goToScene(sceneType);
+    }
+
     public enum HintType{
         WARNING, HINT
     }

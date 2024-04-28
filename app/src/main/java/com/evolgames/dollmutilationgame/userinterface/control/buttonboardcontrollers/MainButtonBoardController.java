@@ -1,6 +1,7 @@
 package com.evolgames.dollmutilationgame.userinterface.control.buttonboardcontrollers;
 
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
+import com.evolgames.dollmutilationgame.scenes.MainScene;
 import com.evolgames.dollmutilationgame.userinterface.control.CreationAction;
 import com.evolgames.dollmutilationgame.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Button;
@@ -170,7 +171,7 @@ public class MainButtonBoardController extends ButtonBoardController {
     public void onHomeButtonReleased(Button<MainButtonBoardController> button) {
         onButtonReleased(button);
         editorUserInterface.doWithConfirm(ResourceManager.getInstance().getString(R.string.quit_confirmation_message), () -> {
-            editorUserInterface.getScene().goToScene(SceneType.MENU);
+            ResourceManager.getInstance().activity.getUiController().goToScene(SceneType.MENU);
         });
     }
 

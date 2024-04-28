@@ -80,7 +80,7 @@ public class MenuScene extends PhysicsScene {
 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                            goToScene(SceneType.PLAY);
+                            ((MainScene) MenuScene.this.mParentScene).goToScene(SceneType.PLAY);
                         }
                     });
                     return true; // Consume the touch event
@@ -165,7 +165,4 @@ public class MenuScene extends PhysicsScene {
 
     }
 
-    public void goToScene(SceneType sceneType) {
-        ((MainScene) this.mParentScene).goToScene(sceneType);
-    }
 }
