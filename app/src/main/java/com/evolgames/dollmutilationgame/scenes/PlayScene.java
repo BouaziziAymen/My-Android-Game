@@ -418,12 +418,6 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
     public void onAccelerationChanged(AccelerationData pAccelerationData) {
     }
 
-    private void testMesh() {
-        ArrayList<Vector2> list = VerticesFactory.createPolygon(0, 0, 0, 2, 2, 64);
-        float[] data = MeshFactory.getInstance().computeData(list);
-        Mesh theMesh = new Mesh(400, 240, data, data.length / 3, DrawMode.TRIANGLES, ResourceManager.getInstance().vbom);
-        attachChild(theMesh);
-    }
 
     private void createOpenGround() {
         ((SmoothCamera) ResourceManager.getInstance().firstCamera).setBounds(-Float.MAX_VALUE, 0, Float.MAX_VALUE, Float.MAX_VALUE);

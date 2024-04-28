@@ -27,6 +27,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.evolgames.dollmutilationgame.activity.components.BadReviewDialog;
 import com.evolgames.dollmutilationgame.activity.components.CreateItemDialog;
@@ -355,8 +356,8 @@ public class GameActivity extends BaseGameActivity {
         uiController = new NativeUIController(this);
         uiController.fillItemsMap();
 
-        this.gameUIFragment = new PlayUIFragment();
-        this.menuUIFragment = new MenuUIFragment();
+
+
         this.createItemDialog = new CreateItemDialog();
         this.editItemDialog = new EditItemDialog();
         this.settingsDialog = new SettingsDialog();
@@ -398,16 +399,33 @@ public class GameActivity extends BaseGameActivity {
     }
 
     public void installGameUi() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.gameUIFragment).show(this.gameUIFragment).hide(this.menuUIFragment).commit();
+        this.gameUIFragment = new PlayUIFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.gameUIFragment).show(this.gameUIFragment);
+        if(this.menuUIFragment!=null){
+            transaction.hide(this.menuUIFragment);
+        }
+        transaction.commit();
         this.installedUI = UIType.GAME;
     }
 
     public void installEditorUi() {
-        getSupportFragmentManager().beginTransaction().hide(this.gameUIFragment).hide(this.menuUIFragment).commit();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if(this.menuUIFragment!=null){
+            transaction.hide(this.menuUIFragment);
+        }
+       if(this.gameUIFragment!=null){
+           transaction.hide(this.gameUIFragment);
+       }
+       transaction.commit();
         this.installedUI = UIType.EDITOR;
     }
     public void installMenuUi() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.menuUIFragment).hide(this.gameUIFragment).show(this.menuUIFragment).commit();
+        this.menuUIFragment = new MenuUIFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, this.menuUIFragment).show(this.menuUIFragment);
+        if(this.gameUIFragment!=null){
+            transaction.hide(this.gameUIFragment);
+        }
+        transaction.commit();
         this.installedUI = UIType.MENU;
     }
     public void sendEmailWithAttachment(String fileName) {

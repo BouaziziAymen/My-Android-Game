@@ -22,24 +22,40 @@ public class MainScene extends AbstractScene {
         if (sceneType == SceneType.MAIN) {
             throw new UnsupportedOperationException("Cannot load main scene here");
         }
+        ResourceManager.getInstance().activity.runOnUiThread(()->{
+            switch (sceneType) {
+                case MENU:
+                    ResourceManager.getInstance().activity.installMenuUi();
+                    break;
+                case PLAY:
+                    ResourceManager.getInstance().activity.installGameUi();
+                    break;
+                case EDITOR:
+                    ResourceManager.getInstance().activity.installEditorUi();
+                    break;
+            }
+        });
+
+
         SmoothCamera cam = (SmoothCamera) this.mCamera;
         cam.setZoomFactorDirect(1f);
         cam.setCenterDirect(400, 240);
+
         cam.setChaseEntity(null);
         this.clearChildScene();
 
         switch (sceneType) {
             case MENU:
-                ResourceManager.getInstance().activity.installMenuUi();
                 this.childScene = new MenuScene(this.mCamera);
+                cam.setBoundsEnabled(false);
                 break;
             case PLAY:
-                ResourceManager.getInstance().activity.installGameUi();
                 this.childScene = new PlayScene(this.mCamera);
+                cam.setBoundsEnabled(true);
                 break;
             case EDITOR:
-                ResourceManager.getInstance().activity.installEditorUi();
                 this.childScene = new EditorScene(this.mCamera);
+                cam.setBoundsEnabled(false);
                 break;
         }
 
