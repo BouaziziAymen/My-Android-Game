@@ -89,9 +89,11 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
         lsi.setLiquidDirection(direction);
         lsi.setExtent(this.properties.getExtent());
         lsi.setContainerEntity(this.containerEntity);
-        Seal seal = new Seal(sealEntity,lsi);
-        this.sealEntity.getUseList().add(seal);
-        lsi.setSeal(seal);
+        if(this.sealEntity!=null) {
+            Seal seal = new Seal(sealEntity, lsi);
+            this.sealEntity.getUseList().add(seal);
+            lsi.setSeal(seal);
+        }
         lsi.setLiquid(this.properties.getLiquid());
         return lsi;
     }
