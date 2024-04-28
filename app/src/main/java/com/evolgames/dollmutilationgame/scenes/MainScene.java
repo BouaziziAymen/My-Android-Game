@@ -22,7 +22,6 @@ public class MainScene extends AbstractScene {
         if (sceneType == SceneType.MAIN) {
             throw new UnsupportedOperationException("Cannot load main scene here");
         }
-        ResourceManager.getInstance().activity.runOnUiThread(()->{
             switch (sceneType) {
                 case MENU:
                     ResourceManager.getInstance().activity.installMenuUi();
@@ -34,7 +33,7 @@ public class MainScene extends AbstractScene {
                     ResourceManager.getInstance().activity.installEditorUi();
                     break;
             }
-        });
+
 
 
         SmoothCamera cam = (SmoothCamera) this.mCamera;

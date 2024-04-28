@@ -7,6 +7,7 @@ import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.BombInfo;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.FireSourceInfo;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.JointInfo;
+import com.evolgames.dollmutilationgame.entities.serialization.infos.LiquidSourceInfo;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.ProjectileInfo;
 import com.evolgames.dollmutilationgame.entities.basics.GameEntity;
 import com.evolgames.dollmutilationgame.entities.basics.GameGroup;
@@ -27,6 +28,7 @@ import com.evolgames.dollmutilationgame.entities.usage.MotorControl;
 import com.evolgames.dollmutilationgame.entities.usage.Muzzle;
 import com.evolgames.dollmutilationgame.entities.usage.Rocket;
 import com.evolgames.dollmutilationgame.entities.usage.RocketLauncher;
+import com.evolgames.dollmutilationgame.entities.usage.Seal;
 import com.evolgames.dollmutilationgame.entities.usage.Shooter;
 import com.evolgames.dollmutilationgame.entities.usage.Smasher;
 import com.evolgames.dollmutilationgame.entities.usage.Stabber;
@@ -110,6 +112,21 @@ public class SceneSerializer {
                     muzzle.setMuzzleEntity(muzzleEntity);
                     projectileInfo.setMuzzle(muzzle);
                     muzzle.setProjectileInfo(projectileInfo);
+                }
+            }
+        }
+    }
+    private static void resetSeals(List<LiquidSourceInfo> list) {
+        for (LiquidSourceInfo liquidSourceInfo : list) {
+            GameEntity sealEntity = GameEntitySerializer.entities.get(liquidSourceInfo.getSealEntityUniqueId());
+            if (sealEntity != null) {
+                Seal seal = sealEntity.getUseList().stream().filter(e -> e instanceof Seal)
+                        .map(e -> (Seal) e).filter(e -> Objects.equals(e.getLiquidSourceInfoUniqueId(), liquidSourceInfo.getLiquidSourceInfoUniqueId()))
+                        .findFirst().orElse(null);
+                if (seal != null) {
+                    seal.setSealEntity(sealEntity);
+                    liquidSourceInfo.setSeal(seal);
+                    seal.setLiquidSourceInfo(liquidSourceInfo);
                 }
             }
         }
@@ -285,9 +302,9 @@ public class SceneSerializer {
 
         if (gameEntity.hasUsage(LiquidContainer.class)) {
             LiquidContainer liquidContainer = gameEntity.getUsage(LiquidContainer.class);
+            resetSeals(liquidContainer.getLiquidSourceInfoList());
             liquidContainer.getLiquidSourceInfoList().forEach(
                     liquidSourceInfo -> {
-                        liquidSourceInfo.setSealEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getSealEntityUniqueId()));
                         liquidSourceInfo.setContainerEntity(GameEntitySerializer.entities.get(liquidSourceInfo.getContainerEntityUniqueId()));
                     });
             liquidContainer.createLiquidSources(scene.getWorldFacade());

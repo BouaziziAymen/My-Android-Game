@@ -4,10 +4,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.LiquidSourceInfo;
 import com.evolgames.dollmutilationgame.entities.basics.GameEntity;
 import com.evolgames.dollmutilationgame.entities.properties.LiquidSourceProperties;
+import com.evolgames.dollmutilationgame.entities.usage.Seal;
 import com.evolgames.dollmutilationgame.userinterface.model.ProperModel;
 import com.evolgames.dollmutilationgame.userinterface.view.shapes.indicators.itemIndicators.LiquidSourceShape;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.dollmutilationgame.utilities.GeometryUtils;
+
+import java.util.UUID;
 
 public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
 
@@ -70,7 +73,7 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
     }
 
     public LiquidSourceInfo toLiquidSourceInfo(boolean mirrored) {
-        LiquidSourceInfo liquidSourceInfo = new LiquidSourceInfo();
+        LiquidSourceInfo lsi = new LiquidSourceInfo();
         Vector2 centredOrigin = this.properties
                 .getLiquidSourceOrigin()
                 .cpy()
@@ -81,12 +84,15 @@ public class LiquidSourceModel extends ProperModel<LiquidSourceProperties> {
             centredOrigin = GeometryUtils.mirrorPoint(centredOrigin);
             direction.x = -direction.x;
         }
-        liquidSourceInfo.setLiquidSourceOrigin(centredOrigin);
-        liquidSourceInfo.setLiquidDirection(direction);
-        liquidSourceInfo.setExtent(this.properties.getExtent());
-        liquidSourceInfo.setContainerEntity(this.containerEntity);
-        liquidSourceInfo.setSealEntity(this.sealEntity);
-        liquidSourceInfo.setLiquid(this.properties.getLiquid());
-        return liquidSourceInfo;
+        lsi.setLiquidSourceInfoUniqueId(UUID.randomUUID().toString());
+        lsi.setLiquidSourceOrigin(centredOrigin);
+        lsi.setLiquidDirection(direction);
+        lsi.setExtent(this.properties.getExtent());
+        lsi.setContainerEntity(this.containerEntity);
+        Seal seal = new Seal(sealEntity,lsi);
+        this.sealEntity.getUseList().add(seal);
+        lsi.setSeal(seal);
+        lsi.setLiquid(this.properties.getLiquid());
+        return lsi;
     }
 }

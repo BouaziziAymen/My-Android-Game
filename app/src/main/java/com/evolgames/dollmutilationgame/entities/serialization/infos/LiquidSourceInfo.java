@@ -2,6 +2,8 @@ package com.evolgames.dollmutilationgame.entities.serialization.infos;
 
 import com.badlogic.gdx.math.Vector2;
 import com.evolgames.dollmutilationgame.entities.basics.GameEntity;
+import com.evolgames.dollmutilationgame.entities.usage.Muzzle;
+import com.evolgames.dollmutilationgame.entities.usage.Seal;
 
 public class LiquidSourceInfo {
     private Vector2 liquidSourceOrigin;
@@ -10,8 +12,9 @@ public class LiquidSourceInfo {
     private String containerEntityUniqueId;
     private int liquid;
     private float extent;
-    private transient GameEntity sealEntity;
     private String sealEntityUniqueId;
+    private Seal seal;
+    private String fireSourceInfoUniqueId;
 
     public Vector2 getLiquidSourceOrigin() {
         return liquidSourceOrigin;
@@ -64,14 +67,24 @@ public class LiquidSourceInfo {
         this.extent = extent;
     }
 
-    public GameEntity getSealEntity() {
-        return sealEntity;
+
+    public String getLiquidSourceInfoUniqueId() {
+        return this.fireSourceInfoUniqueId;
     }
 
-    public void setSealEntity(GameEntity sealEntity) {
-        this.sealEntity = sealEntity;
-        if(this.sealEntity!=null) {
-            this.sealEntityUniqueId = sealEntity.getUniqueID();
+    public void setLiquidSourceInfoUniqueId(String fireSourceInfoUniqueId) {
+        this.fireSourceInfoUniqueId = fireSourceInfoUniqueId;
+    }
+
+    public void setSeal(Seal seal) {
+        this.seal = seal;
+        if(this.seal!=null&&seal.getSealEntity()!=null) {
+            this.sealEntityUniqueId = seal.getSealEntity().getUniqueID();
         }
     }
+
+    public Seal getSeal() {
+        return seal;
+    }
+
 }

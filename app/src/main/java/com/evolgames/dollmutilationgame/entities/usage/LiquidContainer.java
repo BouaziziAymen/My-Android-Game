@@ -141,8 +141,8 @@ public class LiquidContainer extends Use {
     public void open() {
         this.open = true;
         this.liquidSourceInfoList.forEach(t -> {
-            if (t.getSealEntity() != null) {
-                t.getSealEntity().setVisible(false);
+            if (t.getSeal() != null&&t.getSeal().getSealEntity()!=null) {
+                t.getSeal().getSealEntity().setVisible(false);
             }
         });
     }
@@ -150,8 +150,8 @@ public class LiquidContainer extends Use {
     public void close() {
         this.open = false;
         this.liquidSourceInfoList.forEach(t -> {
-            if (t.getSealEntity() != null) {
-                t.getSealEntity().setVisible(true);
+            if (t.getSeal() != null&&t.getSeal().getSealEntity()!=null) {
+                t.getSeal().getSealEntity().setVisible(true);
             }
         });
     }

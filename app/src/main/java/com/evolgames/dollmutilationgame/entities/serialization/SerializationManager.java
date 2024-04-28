@@ -67,6 +67,7 @@ import com.evolgames.dollmutilationgame.entities.usage.Projectile;
 import com.evolgames.dollmutilationgame.entities.usage.ProjectileType;
 import com.evolgames.dollmutilationgame.entities.usage.Rocket;
 import com.evolgames.dollmutilationgame.entities.usage.RocketLauncher;
+import com.evolgames.dollmutilationgame.entities.usage.Seal;
 import com.evolgames.dollmutilationgame.entities.usage.Shooter;
 import com.evolgames.dollmutilationgame.entities.usage.Slasher;
 import com.evolgames.dollmutilationgame.entities.usage.Smasher;
@@ -133,6 +134,7 @@ public class SerializationManager {
         kryo.register(FlameThrower.class);
         kryo.register(Rocket.class);
         kryo.register(Muzzle.class);
+        kryo.register(Seal.class);
         kryo.register(Drag.class);
         kryo.register(ImpactBomb.class);
         kryo.register(Missile.class);
