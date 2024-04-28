@@ -5,6 +5,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
+import com.evolgames.dollmutilationgame.entities.basics.GameEntity;
+import com.evolgames.dollmutilationgame.entities.blocks.JointBlock;
+import com.evolgames.dollmutilationgame.entities.commandtemplate.Invoker;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerSpecialAction;
 import com.evolgames.dollmutilationgame.entities.properties.usage.BombUsageProperties;
 import com.evolgames.dollmutilationgame.entities.serialization.infos.BombInfo;
@@ -12,9 +15,6 @@ import com.evolgames.dollmutilationgame.physics.WorldFacade;
 import com.evolgames.dollmutilationgame.scenes.PhysicsScene;
 import com.evolgames.dollmutilationgame.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.dollmutilationgame.utilities.GeometryUtils;
-import com.evolgames.dollmutilationgame.entities.basics.GameEntity;
-import com.evolgames.dollmutilationgame.entities.blocks.JointBlock;
-import com.evolgames.dollmutilationgame.entities.commandtemplate.Invoker;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -113,18 +113,22 @@ public abstract class Bomb extends Use {
 
     protected void removeSafety(WorldFacade worldFacade) {
         Set<Joint> jointSet = new HashSet<>();
+        boolean soundPlayed = false;
         for (BombInfo bombInfo : bombInfoList) {
             GameEntity carrierEntity = bombInfo.getCarrierEntity();
-            if (carrierEntity==null||carrierEntity.getBody() == null) {
+            if (carrierEntity == null || carrierEntity.getBody() == null) {
                 continue;
             }
-            ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().switchSound,1f,3,carrierEntity.getX(),carrierEntity.getY());
+            if (!soundPlayed) {
+                ResourceManager.getInstance().tryPlaySound(ResourceManager.getInstance().switchSound, 1f, 3, carrierEntity.getX(), carrierEntity.getY());
+                soundPlayed = true;
+            }
             ArrayList<JointEdge> copy = new ArrayList<>(carrierEntity.getBody().getJointList());
             for (JointEdge jointEdge : copy) {
                 Joint joint = jointEdge.joint;
                 JointBlock jointBlock = (JointBlock) joint.getUserData();
                 if (jointBlock.getJointId() == safetyJointId && !jointSet.contains(joint)) {
-                    if(joint.getBodyA()==null||joint.getBodyB()==null){
+                    if (joint.getBodyA() == null || joint.getBodyB() == null) {
                         continue;
                     }
                     jointSet.add(joint);

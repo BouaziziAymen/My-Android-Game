@@ -181,6 +181,9 @@ public abstract class PhysicsScene extends AbstractScene {
                 }
             }
             Init _init = bodyModel.getInit();
+            if(_init==null){
+               continue;
+            }
             BodyInit bodyInit = _init.getBodyInit();
             GameEntity gameEntity =
                     GameEntityFactory.getInstance()

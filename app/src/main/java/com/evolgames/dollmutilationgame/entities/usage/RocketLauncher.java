@@ -247,13 +247,12 @@ public class RocketLauncher extends Use {
         bodyModel2.setCenter(new Vector2());
         physicsScene.createJointFromModel(jointModel, false);
 
-        Rocket rocket = rocketEntity.getUsage(Rocket.class);
-        this.rockets.put(projectileInfo, rocket);
-        rocket.setActive(false);
-
+        if(rocketEntity.hasUsage(Rocket.class)) {
+            Rocket rocket = rocketEntity.getUsage(Rocket.class);
+            this.rockets.put(projectileInfo, rocket);
+            rocket.setActive(false);
+        }
         projectileInfo.setRocketEntityUniqueId(rocketEntity.getUniqueID());
-
-
         if (rocketEntity.hasUsage(Bomb.class)) {
             Bomb bomb = rocketEntity.getUsage(Bomb.class);
             bomb.setHasSafety(true);

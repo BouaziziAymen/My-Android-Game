@@ -6,7 +6,7 @@ public class GameSound {
     private final SoundType soundType;
 
     public enum SoundType{
-        PROJECTILE, PENETRATION, EXPLOSION
+        PROJECTILE, PENETRATION, EMPTY, EXPLOSION
     }
     private final Sound sound;
     private final String title;
@@ -15,7 +15,6 @@ public class GameSound {
         this.sound = sound;
         this.title = title;
         this.soundType = soundType;
-        this.sound.setVolume(1f);
     }
 
     public Sound getSound() {

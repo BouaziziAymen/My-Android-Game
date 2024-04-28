@@ -895,7 +895,7 @@ public class ResourceManager {
     }
 
     public GameSound getProjectileSound(String title) {
-        return projectileSounds.stream().filter(e -> e.getTitle().equals(title)).findFirst().get();
+        return projectileSounds.stream().filter(e -> e.getTitle().equals(title)).findFirst().orElse(new GameSound(null,"", GameSound.SoundType.EMPTY));
     }
 
     public List<GameSound> getProjectileSounds() {
@@ -946,6 +946,9 @@ public class ResourceManager {
     }
 
     public void tryPlaySound(Sound sound, float volume, int priority, float x, float y) {
+        if(sound==null){
+            return;
+        }
         if (this.sound) {
             Vector2 pos = new Vector2(x,y);
             float distance = pos.dst(this.firstCamera.getCenterX(),this.firstCamera.getCenterY());

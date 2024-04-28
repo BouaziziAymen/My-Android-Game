@@ -17,6 +17,7 @@ import com.evolgames.dollmutilationgame.physics.WorldFacade;
 import com.evolgames.dollmutilationgame.scenes.Init;
 import com.evolgames.dollmutilationgame.scenes.PhysicsScene;
 import com.evolgames.dollmutilationgame.scenes.PlayScene;
+import com.evolgames.dollmutilationgame.userinterface.model.BodyModel;
 import com.evolgames.dollmutilationgame.userinterface.model.toolmodels.UsageModel;
 import com.evolgames.dollmutilationgame.utilities.GeometryUtils;
 import com.evolgames.dollmutilationgame.utilities.ToolUtils;
@@ -236,43 +237,60 @@ public class Shooter extends Use {
         projectileFilter.maskBits = CollisionUtils.OBJECTS_MIDDLE_CATEGORY;
         projectileFilter.groupIndex = muzzleEntity.getGroupIndex();
 
-        endProjected.mul(32f);
-        Init bulletInit = new Init.Builder(endProjected.x, endProjected.y)
-                .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y)+(float)(muzzleEntity.isMirrored()?0:Math.PI))
-                .linearVelocity(muzzleVelocityVector)
-                .filter(CollisionUtils.OBJECT, CollisionUtils.OBJECT, muzzleEntity.getGroupIndex())
-                .isBullet(true)
-                .recoil(muzzleEntity.getBody(), muzzleVelocityVector, beginProjected, projectileInfo.getRecoil())
-                .build();
         if (missileModel.getBodies().size() == 0) {
             return;
         }
-        missileModel.getBodies().get(0).setInit(bulletInit);
+        endProjected.mul(32f);
+        for(int i=0;i<missileModel.getBodies().size();i++) {
+            Init bulletInit;
+            if(i==0) {
+                bulletInit = new Init.Builder(endProjected.x, endProjected.y)
+                        .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y) + (float) (muzzleEntity.isMirrored() ? 0 : Math.PI))
+                        .linearVelocity(muzzleVelocityVector)
+                        .filter(CollisionUtils.OBJECT, CollisionUtils.OBJECT, muzzleEntity.getGroupIndex())
+                        .isBullet(true)
+                        .recoil(muzzleEntity.getBody(), muzzleVelocityVector, beginProjected, projectileInfo.getRecoil())
+                        .build();
+            } else {
+                bulletInit = new Init.Builder(endProjected.x, endProjected.y)
+                        .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y) + (float) (muzzleEntity.isMirrored() ? 0 : Math.PI))
+                        .linearVelocity(muzzleVelocityVector)
+                        .filter(CollisionUtils.OBJECT, CollisionUtils.OBJECT, muzzleEntity.getGroupIndex())
+                        .isBullet(true)
+                        .build();
+            }
+            missileModel.getBodies().get(0).setInit(bulletInit);
+        }
 
-        if (missileModel.getBodies().size() > 1 && projectileInfo.getCasingInfo() != null) {
-            Vector2 casingOrigin = projectileInfo.getCasingInfo().getAmmoOrigin();
-            Vector2 casingDirection = projectileInfo.getCasingInfo().getAmmoDirection();
-            Vector2 casingOriginProjected =
-                    muzzleEntity
-                            .getBody()
-                            .getWorldPoint(casingOrigin)
-                            .cpy();
-            Vector2 casingDirectionProjected = muzzleEntity.getBody().getWorldVector(casingDirection).cpy();
-            boolean clockwise = projectileInfo.getCasingInfo().isRotationOrientation();
-            float angularVelocity =
-                    clockwise ? (float) (projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2) :
-                            (float) (-1 * projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2);
-            float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 10f;
-            Vector2 ejectionVelocityVector = casingDirectionProjected.mul(ejectionVelocity);
-            Init casingInit = new Init.Builder(casingOriginProjected.x * 32f, casingOriginProjected.y * 32f)
-                    .linearVelocity(ejectionVelocityVector)
-                    .angularVelocity(angularVelocity)
-                    .angle(muzzleEntity.getBody().getAngle())
-                    .filter(CollisionUtils.OBJECTS_MIDDLE_CATEGORY, CollisionUtils.OBJECTS_MIDDLE_CATEGORY, muzzleEntity.getGroupIndex()).build();
-            missileModel.getBodies().get(1).setInit(casingInit);
-        } else {
-            if (missileModel.getBodies().size() > 1) {
-                missileModel.getBodies().remove(1);
+
+
+        //casing only works in these cases
+        if(missileModel.getBodies().size()==2&&missileModel.getJoints().isEmpty()) {
+            if (missileModel.getBodies().size() > 1 && projectileInfo.getCasingInfo() != null) {
+                Vector2 casingOrigin = projectileInfo.getCasingInfo().getAmmoOrigin();
+                Vector2 casingDirection = projectileInfo.getCasingInfo().getAmmoDirection();
+                Vector2 casingOriginProjected =
+                        muzzleEntity
+                                .getBody()
+                                .getWorldPoint(casingOrigin)
+                                .cpy();
+                Vector2 casingDirectionProjected = muzzleEntity.getBody().getWorldVector(casingDirection).cpy();
+                boolean clockwise = projectileInfo.getCasingInfo().isRotationOrientation();
+                float angularVelocity =
+                        clockwise ? (float) (projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2) :
+                                (float) (-1 * projectileInfo.getCasingInfo().getRotationSpeed() * 5 * Math.PI * 2);
+                float ejectionVelocity = projectileInfo.getCasingInfo().getLinearSpeed() * 10f;
+                Vector2 ejectionVelocityVector = casingDirectionProjected.mul(ejectionVelocity);
+                Init casingInit = new Init.Builder(casingOriginProjected.x * 32f, casingOriginProjected.y * 32f)
+                        .linearVelocity(ejectionVelocityVector)
+                        .angularVelocity(angularVelocity)
+                        .angle(muzzleEntity.getBody().getAngle())
+                        .filter(CollisionUtils.OBJECTS_MIDDLE_CATEGORY, CollisionUtils.OBJECTS_MIDDLE_CATEGORY, muzzleEntity.getGroupIndex()).build();
+                missileModel.getBodies().get(1).setInit(casingInit);
+            } else {
+                if (missileModel.getBodies().size() > 1) {
+                    missileModel.getBodies().remove(1);
+                }
             }
         }
 
