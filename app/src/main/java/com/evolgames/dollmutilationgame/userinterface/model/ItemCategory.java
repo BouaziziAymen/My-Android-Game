@@ -1,6 +1,6 @@
 package com.evolgames.dollmutilationgame.userinterface.model;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public enum ItemCategory {
     SWORD(R.string.category_sword, R.string.hint_melee), AXE(R.string.category_axe, R.string.hint_melee),

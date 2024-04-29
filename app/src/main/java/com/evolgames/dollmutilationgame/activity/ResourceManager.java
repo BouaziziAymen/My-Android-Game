@@ -18,7 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.evolgames.dollmutilationgame.helpers.FontLoader;
 import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
 import com.evolgames.dollmutilationgame.helpers.MyLetter;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.model.ItemCategory;
 
 import org.andengine.audio.music.Music;

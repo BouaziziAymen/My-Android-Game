@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class BadReviewDialog extends Dialog {
 

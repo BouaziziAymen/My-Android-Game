@@ -27,7 +27,7 @@ import com.evolgames.dollmutilationgame.entities.factories.MaterialFactory;
 import com.evolgames.dollmutilationgame.entities.factories.Materials;
 import com.evolgames.dollmutilationgame.entities.properties.ColoredProperties;
 import com.evolgames.dollmutilationgame.entities.properties.LayerProperties;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.physics.PhysicsConstants;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.QuantityBehavior;

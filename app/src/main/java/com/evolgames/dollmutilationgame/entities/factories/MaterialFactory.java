@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.entities.basics.Material;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 import org.andengine.util.adt.color.Color;
 

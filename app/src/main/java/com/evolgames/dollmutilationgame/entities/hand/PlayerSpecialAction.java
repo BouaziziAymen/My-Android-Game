@@ -1,6 +1,6 @@
 package com.evolgames.dollmutilationgame.entities.hand;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public enum PlayerSpecialAction {
 

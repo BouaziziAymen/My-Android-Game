@@ -6,7 +6,7 @@ import com.evolgames.dollmutilationgame.userinterface.control.CreationAction;
 import com.evolgames.dollmutilationgame.userinterface.control.windowcontrollers.gamewindowcontrollers.SettingsType;
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Button;
 import com.evolgames.dollmutilationgame.userinterface.view.layouts.ButtonBoard;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.scenes.entities.SceneType;
 import com.evolgames.dollmutilationgame.userinterface.view.EditorUserInterface;
 import com.evolgames.dollmutilationgame.userinterface.view.Screen;

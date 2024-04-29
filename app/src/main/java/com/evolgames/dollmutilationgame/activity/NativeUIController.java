@@ -8,7 +8,7 @@ import com.evolgames.dollmutilationgame.scenes.MainScene;
 import com.evolgames.dollmutilationgame.scenes.PlayScene;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerAction;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerSpecialAction;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.scenes.entities.SceneType;
 import com.evolgames.dollmutilationgame.userinterface.model.ItemCategory;
 
@@ -151,6 +151,9 @@ public class NativeUIController implements INativeUIController {
                 ResourceManager.getInstance().setEditorItem(itemMetaData);
                 ResourceManager.getInstance().activity.saveStringToPreferences("saved_tool_filename", XmlHelper.convertToXmlFormat(itemMetaData.getName()));
                 mainScene.goToScene(SceneType.EDITOR);
+            } else {
+                ResourceManager.getInstance().activity.installMenuUi();
+                goToScene(SceneType.MENU);
             }
         });
     }

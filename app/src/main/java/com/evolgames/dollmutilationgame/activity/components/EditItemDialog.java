@@ -25,7 +25,7 @@ import com.evolgames.dollmutilationgame.activity.GameActivity;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.activity.NativeUIController;
 import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.model.ItemCategory;
 
 import org.andengine.BuildConfig;

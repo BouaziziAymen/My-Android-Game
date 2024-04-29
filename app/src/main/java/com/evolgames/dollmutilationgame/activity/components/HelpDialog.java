@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 

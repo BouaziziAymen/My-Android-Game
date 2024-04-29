@@ -1,7 +1,7 @@
 package com.evolgames.dollmutilationgame.userinterface.view;
 
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class Strings {
     public static final String DECORATION_DELETE_CONFIRM =

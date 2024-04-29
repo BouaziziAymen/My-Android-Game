@@ -4,7 +4,7 @@ package com.evolgames.dollmutilationgame.userinterface.control.validators;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.actions.Condition;
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Keyboard;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class NumericValidator extends TextFieldValidator {
     private final boolean hasLengthLimit;

@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.google.android.material.tabs.TabLayout;
 
 public class CustomTabLayoutAdapter {

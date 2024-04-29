@@ -23,7 +23,7 @@ import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Button;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerAction;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerSpecialAction;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.model.ItemCategory;
 
 import java.util.ArrayList;

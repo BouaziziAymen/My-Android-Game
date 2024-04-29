@@ -38,7 +38,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.dollmutilationgame.entities.properties.BodyProperties;
 import com.evolgames.dollmutilationgame.entities.properties.BodyUsageCategory;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.TextFieldBehavior;
@@ -1038,7 +1038,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         this);
         window.addSecondary(liquidSourcesField);
         List<LiquidSourceModel> liquidSourceModelList =
-                editorUserInterface.getToolModel().getBodies().stream()
+                editorUserInterface.getToolModel().getBodies().stream().filter(b->b.getBodyId()==bodyModel.getBodyId())
                         .map(BodyModel::getLiquidSourceModels)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());
@@ -1433,7 +1433,7 @@ public class BodySettingsWindowController extends SettingsWindowController<BodyP
                         this);
         window.addSecondary(fireSourcesField);
         List<FireSourceModel> fireSources =
-                editorUserInterface.getToolModel().getBodies().stream()
+                editorUserInterface.getToolModel().getBodies().stream().filter(b->b.getBodyId()==bodyModel.getBodyId())
                         .map(BodyModel::getFireSourceModels)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());

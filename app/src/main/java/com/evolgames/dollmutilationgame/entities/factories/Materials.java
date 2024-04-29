@@ -3,7 +3,7 @@ package com.evolgames.dollmutilationgame.entities.factories;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.entities.basics.Liquid;
 import com.evolgames.dollmutilationgame.utilities.MyColorUtils;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 import org.andengine.util.adt.color.Color;
 

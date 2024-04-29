@@ -1,6 +1,6 @@
 package com.evolgames.dollmutilationgame.entities.properties;
 
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public enum Explosive {
     OTHER(R.string.other, 0f, 0f, 0f),

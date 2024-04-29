@@ -18,7 +18,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.dollmutilationgame.entities.properties.JointProperties;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.scenes.EditorScene;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.QuantityBehavior;

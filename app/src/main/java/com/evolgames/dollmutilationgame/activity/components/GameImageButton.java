@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Button;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 
 public class GameImageButton extends FrameLayout {

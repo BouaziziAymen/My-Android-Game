@@ -13,7 +13,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.evolgames.dollmutilationgame.activity.GameActivity;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class SettingsDialog extends DialogFragment {
 

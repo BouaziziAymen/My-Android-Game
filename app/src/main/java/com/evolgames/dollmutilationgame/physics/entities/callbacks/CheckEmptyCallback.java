@@ -20,10 +20,9 @@ public class CheckEmptyCallback implements QueryCallback {
     @Override
     public boolean reportFixture(Fixture fixture) {
         Body body = fixture.getBody();
-        if(!body.isActive()){
+        if(!body.isActive()||bounds==null){
             return true;
         }
-
         GameEntity gameEntity = (GameEntity) body.getUserData();
         if(!gameEntity.isDestroyed()){
         if(EntityCollisionChecker.checkCollision(bounds,gameEntity.getMesh().getBounds(),gameEntity.getMesh().getLocalToSceneTransformation())) {

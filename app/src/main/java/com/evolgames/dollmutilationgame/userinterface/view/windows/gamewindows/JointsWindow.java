@@ -7,7 +7,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.layouts.LinearLayout;
 import com.evolgames.dollmutilationgame.userinterface.view.layouts.ZeroLevelSectionLayout;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.AbstractZeroLevelSectionedAdvancedWindow;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.jointswindow.JointField;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class JointsWindow extends AbstractZeroLevelSectionedAdvancedWindow<JointField> {
     private final JointWindowController jointWindowController;

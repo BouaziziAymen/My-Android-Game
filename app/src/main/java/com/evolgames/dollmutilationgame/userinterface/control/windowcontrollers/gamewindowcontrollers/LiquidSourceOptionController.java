@@ -10,7 +10,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.
 import com.evolgames.dollmutilationgame.entities.basics.Liquid;
 import com.evolgames.dollmutilationgame.entities.factories.Materials;
 import com.evolgames.dollmutilationgame.entities.properties.LiquidSourceProperties;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.ButtonBehavior;
 import com.evolgames.dollmutilationgame.userinterface.model.BodyModel;
 import com.evolgames.dollmutilationgame.userinterface.model.ProperModel;

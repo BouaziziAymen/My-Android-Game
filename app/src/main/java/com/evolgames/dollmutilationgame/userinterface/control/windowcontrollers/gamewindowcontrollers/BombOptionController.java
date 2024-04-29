@@ -10,7 +10,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.TitledQuantity;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.TitledTextField;
 import com.evolgames.dollmutilationgame.entities.properties.BombProperties;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.QuantityBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.TextFieldBehavior;
 import com.evolgames.dollmutilationgame.userinterface.control.validators.NumericValidator;

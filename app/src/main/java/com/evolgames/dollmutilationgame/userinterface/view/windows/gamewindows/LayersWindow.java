@@ -11,7 +11,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.AbstractTwoLe
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.layerwindow.BodyField;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.layerwindow.DecorationField;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.layerwindow.LayerField;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class LayersWindow
         extends AbstractTwoLevelSectionedAdvancedWindow<BodyField, LayerField, DecorationField> {

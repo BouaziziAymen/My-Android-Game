@@ -40,7 +40,7 @@ import com.evolgames.dollmutilationgame.activity.components.PlayUIFragment;
 import com.evolgames.dollmutilationgame.activity.components.RateUsDialog;
 import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
 import com.evolgames.dollmutilationgame.scenes.MainScene;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
@@ -433,7 +433,7 @@ public class GameActivity extends BaseGameActivity {
         File xmlFile = new File(getFilesDir(), fileName);
 
         // Generate a content URI for the file using FileProvider
-        Uri contentUri = FileProvider.getUriForFile(this, "com.evolgames.dollmutilationgame", xmlFile);
+        Uri contentUri = FileProvider.getUriForFile(this, "com.evolgames.dollmutilationgame.fileprovider", xmlFile);
 
         // Create an email intent with appropriate parameters
         Intent emailIntent = new Intent(Intent.ACTION_SEND);

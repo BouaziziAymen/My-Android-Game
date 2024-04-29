@@ -51,7 +51,7 @@ import com.evolgames.dollmutilationgame.entities.usage.Rocket;
 import com.evolgames.dollmutilationgame.entities.usage.RocketLauncher;
 import com.evolgames.dollmutilationgame.entities.usage.Shooter;
 import com.evolgames.dollmutilationgame.entities.usage.TimeBomb;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
 import com.evolgames.dollmutilationgame.physics.entities.Touch;
 import com.evolgames.dollmutilationgame.scenes.entities.SceneType;
@@ -155,7 +155,9 @@ public class PlayScene extends PhysicsScene implements IAccelerationListener, Sc
         if (pointerID != 0) {
             return;
         }
-        hand.onSceneTouchEvent(touchEvent);
+        if(hand!=null) {
+            hand.onSceneTouchEvent(touchEvent);
+        }
     }
 
     @Override

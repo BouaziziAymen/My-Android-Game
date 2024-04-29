@@ -16,7 +16,7 @@ import com.evolgames.dollmutilationgame.entities.persistence.PersistenceCaretake
 import com.evolgames.dollmutilationgame.entities.persistence.PersistenceException;
 import com.evolgames.dollmutilationgame.entities.properties.Explosive;
 import com.evolgames.dollmutilationgame.entities.properties.ProjectileProperties;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 import com.evolgames.dollmutilationgame.helpers.ItemMetaData;
 import com.evolgames.dollmutilationgame.scenes.EditorScene;
 import com.evolgames.dollmutilationgame.userinterface.control.behaviors.ButtonBehavior;

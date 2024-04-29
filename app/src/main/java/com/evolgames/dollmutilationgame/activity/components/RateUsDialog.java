@@ -4,7 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 
 import com.evolgames.dollmutilationgame.activity.GameActivity;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class RateUsDialog extends Dialog {
 

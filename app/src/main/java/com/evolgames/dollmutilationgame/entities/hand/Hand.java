@@ -26,7 +26,7 @@ import com.evolgames.dollmutilationgame.entities.usage.Slasher;
 import com.evolgames.dollmutilationgame.entities.usage.Smasher;
 import com.evolgames.dollmutilationgame.entities.usage.Stabber;
 import com.evolgames.dollmutilationgame.entities.usage.Throw;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 import org.andengine.extension.physics.box2d.util.Vector2Pool;
 import org.andengine.input.touch.TouchEvent;

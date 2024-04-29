@@ -11,7 +11,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.sections.basic.Simple
 import com.evolgames.dollmutilationgame.userinterface.view.sections.basic.SimpleSecondary;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.AbstractOneLevelSectionedAdvancedWindow;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.SimpleTitleField;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class JointOptionWindow
         extends AbstractOneLevelSectionedAdvancedWindow<SimplePrimary<?>, SimpleSecondary<?>> {

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.evolgames.dollmutilationgame.userinterface.view.inputs.Button;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerSpecialAction;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 import java.util.ArrayList;
 import java.util.List;

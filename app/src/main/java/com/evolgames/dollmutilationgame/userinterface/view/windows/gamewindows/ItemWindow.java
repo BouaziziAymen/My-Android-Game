@@ -15,7 +15,7 @@ import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.itemwindow.LiquidSourceField;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.itemwindow.ProjectileField;
 import com.evolgames.dollmutilationgame.userinterface.view.windows.windowfields.itemwindow.SpecialPointField;
-import com.evolgames.gameengine.R;
+import com.evolgames.dollmutilationgame.R;
 
 public class ItemWindow extends AbstractOneLevelSectionedAdvancedWindow<BodyField, ItemField> {
     private final ItemWindowController itemWindowController;
