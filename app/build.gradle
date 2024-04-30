@@ -15,7 +15,7 @@ android {
         applicationId "com.evolgames.dollmutilationgame"
         minSdkVersion 24
         targetSdkVersion 34
-        versionCode 1
+        versionCode 3
         versionName "1.0"
     }
     buildTypes {

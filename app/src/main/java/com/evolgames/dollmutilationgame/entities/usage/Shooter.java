@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
+import com.evolgames.dollmutilationgame.activity.GameSound;
 import com.evolgames.dollmutilationgame.activity.ResourceManager;
 import com.evolgames.dollmutilationgame.entities.hand.PlayerSpecialAction;
 import com.evolgames.dollmutilationgame.entities.particles.wrappers.ExplosiveParticleWrapper;
@@ -254,12 +255,11 @@ public class Shooter extends Use {
             } else {
                 bulletInit = new Init.Builder(endProjected.x, endProjected.y)
                         .angle(GeometryUtils.calculateAngleRadians(directionProjected.x, directionProjected.y) + (float) (muzzleEntity.isMirrored() ? 0 : Math.PI))
-                        .linearVelocity(muzzleVelocityVector)
                         .filter(CollisionUtils.OBJECT, CollisionUtils.OBJECT, muzzleEntity.getGroupIndex())
                         .isBullet(true)
                         .build();
             }
-            missileModel.getBodies().get(0).setInit(bulletInit);
+            missileModel.getBodies().get(i).setInit(bulletInit);
         }
 
 
@@ -317,9 +317,11 @@ public class Shooter extends Use {
                 }
         );
 
-        Sound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound()).getSound();
+        GameSound sound =  ResourceManager.getInstance().getProjectileSound(projectileInfo.getFireSound());
         ResourceManager.getInstance().vibrate(50);
-      ResourceManager.getInstance().tryPlaySound(sound,1f,3,muzzleEntity.getX(), muzzleEntity.getY());
+        if(sound!=null) {
+            ResourceManager.getInstance().tryPlaySound(sound.getSound(), 1f, 3, muzzleEntity.getX(), muzzleEntity.getY());
+        }
     }
 
     @Override
